@@ -35,8 +35,8 @@ def main():
             if path.is_file() and not any(part in path.parts for part in ("__pycache__", "node_modules", ".vite", ".cache")) and path.suffix not in (".pyc", ".pyo", ".tsbuildinfo"):
                 files.add(path)
     qa = ROOT / "output/upgrade-qa"
-    for name in ("baseline.json", "preservation.json", "profile-preservation.json", "frozen-sources.json", "frozen-assets.json", "release-summary.json",
-                 "secret-scan.json", "freeze-notices.log", "smoke-delivery.log", "tests-release.log", "frontend-delivery-tests.log", "frontend-delivery-build.log", "git-publication.json"):
+    for name in ("baseline.json", "preservation.json", "profile-preservation.json", "candidate-findings.json", "frozen-sources.json", "frozen-assets.json", "release-summary.json",
+                 "secret-scan.json", "freeze-verified.log", "smoke-verified.log", "tests-verified.log", "frontend-package-tests.log", "frontend-package-build.log", "git-publication.json"):
         path = qa / name
         if path.is_file():
             files.add(path)

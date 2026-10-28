@@ -1,6 +1,14 @@
 # Third-party components and local source integrations
 
-GrangerPet invokes locally supplied tools through isolated processes. Vendor source trees, datasets, user investigation databases and optional tool runtimes are not embedded into GrangerPet.exe. Original license files remain in their respective folders. This document records the audited local copies; it does not supply a missing upstream license.
+## Granger-OSINT 3.0 interface and desktop runtime
+
+The React interface uses React/React DOM, Radix primitives, Motion, class-variance-authority, clsx, react-markdown and remark-gfm under MIT-compatible package licenses; Lucide icons use ISC with included Feather MIT notices. The Button/Slot composition is adapted from shadcn/ui (MIT, copyright2023 shadcn). Full locked production dependency notices are generated into `frontend/THIRD_PARTY_NOTICES.txt` and bundled with the frontend. `frontend/RESEARCH.md` records the primary sources and the components actually used. No paid21st.dev or Motion+ templates, Telegram GPL code or proprietary Magic UI blocks were copied.
+
+Qt WebEngine is now an active bundled dependency. Qt/PySide/Shiboken are not MIT components: their applicable commercial/LGPL/GPL alternatives and Chromium's additional licenses must be considered separately. Official references: [Qt for Python licenses](https://doc.qt.io/qtforpython-6/licenses.html), [Qt WebEngine licensing and third-party list](https://doc.qt.io/qt-6/qtwebengine-licensing.html). The installed Qt runtime remains dynamically linked. License texts from the installed distributions and Qt6.11.1's LGPLv3/GPLv3 texts are preserved in `resources/third-party/Qt-PySide6/`; `provenance.json` records the official source URLs and hashes. Corresponding Qt sources: [qtbase v6.11.1](https://github.com/qt/qtbase/tree/v6.11.1), [qtwebengine v6.11.1](https://github.com/qt/qtwebengine/tree/v6.11.1), [pyside-setup v6.11.1](https://github.com/qtproject/pyside-pyside-setup/tree/v6.11.1).
+
+These notices do not grant new commercial rights to the existing fan artwork or character. Those assets retain their original provenance and rights; introducing an MIT frontend library does not change them.
+
+Granger-OSINT invokes locally supplied tools through isolated processes. Vendor source trees, datasets, user investigation databases and optional tool runtimes are not embedded into Granger-OSINT.exe. Original license files remain in their respective folders. This document records the audited local copies; it does not supply a missing upstream license.
 
 | Component / local folder | Version in local source | License found | Use |
 |---|---|---|---|
@@ -15,10 +23,10 @@ Gansar includes separate notices for attribution resources under `app/attributio
 
 The bundled TON representation validator in `grangerpet/validators/ton_address.py` is an independent implementation using Python's standard library, based on the public [TON format documentation](https://docs.ton.org/foundations/addresses/formats) and [TEP-2](https://github.com/ton-blockchain/TEPs/blob/master/text/0002-address.md). It contains no Gansar source. Since 2.6 the build no longer embeds the unlicensed optional vendor validator.
 
-Telegram Desktop was studied as a UI reference. GrangerPet's Python/Qt message and document widgets are independently implemented; Telegram's C++ code, logos and branding are not included. Telegram Desktop's GPLv3 and its exceptions remain relevant to its original source, available in the [official repository](https://github.com/telegramdesktop/tdesktop).
+Telegram Desktop was studied as a UI reference. Granger-OSINT's Python/Qt message and document widgets are independently implemented; Telegram's C++ code, logos and branding are not included. Telegram Desktop's GPLv3 and its exceptions remain relevant to its original source, available in the [official repository](https://github.com/telegramdesktop/tdesktop).
 
 The username, email and phone tools have additional terms, including copyleft and personal-use limitations. The complete audited list is in [docs/INTEGRATIONS_CORE.md](docs/INTEGRATIONS_CORE.md); Snoop is disabled by default and remains an explicit user-local source. Existing source copyright and license texts are preserved.
 
 The desktop application uses Python, PySide6/Qt and Shiboken. PySide6/Qt provide their own LGPL/GPL/commercial licensing options and Qt third-party notices; consult the installed distribution's license files before redistribution. PyInstaller is the build packager and supplies its bootloader under its own license exception. Optional Python dependencies retain their upstream licenses and are recorded per environment in `.toolenvs/<group>/installed-requirements.txt`.
 
-Hermione Granger / Harry Potter character references and the fan artwork are independent of the source-tool licenses. GrangerPet is an unofficial fan project and is not endorsed by the named platforms or their rights holders.
+Hermione Granger / Harry Potter character references and the fan artwork are independent of the source-tool licenses. Granger-OSINT is an unofficial fan project and is not endorsed by the named platforms or their rights holders.

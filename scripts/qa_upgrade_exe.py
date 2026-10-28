@@ -167,6 +167,7 @@ def main():
             act('route',{'route':'search'});act('tool_run',{'tool':'web_read','query':'https://example.org/','limit':1})
             wait(lambda s:not desktop('manual-tool')['search']['busy'],30)
             actual=desktop('manual-tool');check('manual_actual_http_result',any('example.org' in s['url'] and s['kind']=='page' for s in actual['search']['results']))
+            check('manual_results_belong_to_current_request',all('example.org' in s['url'] for s in actual['search']['results']))
             snapshot('10-manual-public-page')
             act('tool_run',{'tool':'web_read','query':'http://127.0.0.1/','limit':1})
             wait(lambda s:not desktop('blocked-tool')['search']['busy'],10)
