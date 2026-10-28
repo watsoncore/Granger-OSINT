@@ -43,12 +43,25 @@ class Settings:
     request_limit: int = 20
     search_timeout: int = 25
     enable_snoop: bool = False
-    agent_steps: int = 10
-    agent_calls: int = 14
-    agent_timeout: int = 240
-    agent_tokens: int = 48000
-    agent_page_limit: int = 6
+    # Zero disables a USER budget; request timeouts and loop guards remain on.
+    agent_steps: int = 0
+    agent_calls: int = 0
+    agent_timeout: int = 0
+    agent_tokens: int = 0
+    agent_page_limit: int = 0
     agent_page_depth: int = 2
+    agent_parallel: int = 2
+    agent_tool_timeout: int = 25
+    agent_request_timeout: int = 90
+    agent_auto_continue: bool = True
+    agent_budget_behavior: str = "pause"
+    research_settings_version: int = 2
+    notifications_enabled: bool = True
+    notifications_animate: bool = True
+    notifications_reply: bool = True
+    notifications_investigation: bool = True
+    notifications_errors: bool = True
+    reduced_motion: bool = False
 
     def __post_init__(self):
         try:
@@ -61,19 +74,34 @@ class Settings:
         settings = cls()
         if not isinstance(values, dict):
             return settings
+        values = dict(values)
+        previous_defaults = {"agent_steps": 10, "agent_calls": 14, "agent_timeout": 240,
+                             "agent_tokens": 48000, "agent_page_limit": 6, "agent_page_depth": 2}
+        revision = values.get("research_settings_version", 1)
+        if (type(revision) is not int or revision < 2) and all(
+                values.get(key, value) == value for key, value in previous_defaults.items()):
+            # The exact old preset was imposed by the app, not chosen as a
+            # spending budget. Preserve any explicitly changed legacy preset.
+            for key in ("agent_steps", "agent_calls", "agent_timeout", "agent_tokens", "agent_page_limit"):
+                values[key] = 0
         for key, low, high in (("size", 100, 195), ("fps", 8, 30), ("request_limit", 5, 50), ("search_timeout", 5, 60),
-                               ("agent_steps", 2, 20), ("agent_calls", 1, 30), ("agent_timeout", 30, 600),
-                               ("agent_tokens", 4000, 100000), ("agent_page_limit", 1, 12), ("agent_page_depth", 0, 3)):
+                               ("agent_steps", 0, 2_000_000_000), ("agent_calls", 0, 2_000_000_000),
+                               ("agent_timeout", 0, 31_536_000), ("agent_tokens", 0, 2_000_000_000),
+                               ("agent_page_limit", 0, 2_000_000_000), ("agent_page_depth", 0, 8),
+                               ("agent_parallel", 1, 4), ("agent_tool_timeout", 1, 300),
+                               ("agent_request_timeout", 1, 300)):
             value = values.get(key)
             if isinstance(value, (int, float)) and not isinstance(value, bool):
                 try:
                     setattr(settings, key, max(low, min(high, int(value))))
                 except (OverflowError, ValueError):
                     pass
-        if isinstance(values.get("cursor_reaction"), bool):
-            settings.cursor_reaction = values["cursor_reaction"]
-        if isinstance(values.get("enable_snoop"), bool):
-            settings.enable_snoop = values["enable_snoop"]
+        for key in ("cursor_reaction", "enable_snoop", "agent_auto_continue", "notifications_enabled",
+                    "notifications_animate", "notifications_reply", "notifications_investigation", "notifications_errors", "reduced_motion"):
+            if isinstance(values.get(key), bool):
+                setattr(settings, key, values[key])
+        if values.get("agent_budget_behavior") in ("pause", "stop"):
+            settings.agent_budget_behavior = values["agent_budget_behavior"]
         for key in ("x", "y"):
             value = values.get(key)
             if isinstance(value, int) and not isinstance(value, bool) and -100000 <= value <= 100000:

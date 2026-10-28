@@ -14,7 +14,8 @@ import re
 import threading
 import time
 
-from .agent_evidence import EvidenceStore, normalize_evidence, redact, utc_now
+from .agent_evidence import normalize_evidence, redact, utc_now
+from .investigation import InvestigationEvidence
 from .credentials import CredentialError, get_secret
 from .engine.adapters import SourceAdapter, SOURCE_META
 from .engine.controller import Context
@@ -85,11 +86,11 @@ class ToolRegistry:
         self._adapters = {item.id: item for item in adapters} if adapters is not None and not isinstance(adapters, dict) else dict(adapters or {})
         self._web_provider = web_provider
         self._availability = {}
-        self.evidence = EvidenceStore()
+        self.evidence = InvestigationEvidence()
         self._lock = threading.RLock()
         self._redactions = {value for value in redactions if isinstance(value, str) and len(value) >= 4}
         from .agent_browser import PublicPageReader
-        self.web_reader = PublicPageReader(max_pages=getattr(settings, 'agent_page_limit', 6),
+        self.web_reader = PublicPageReader(max_pages=getattr(settings, 'agent_page_limit', 0),
                                            max_depth=getattr(settings, 'agent_page_depth', 2))
 
     def seed_urls_from_user(self, text):
@@ -98,6 +99,13 @@ class ToolRegistry:
 
     def begin_investigation(self):
         self.web_reader.begin_run()
+
+    def checkpoint_state(self):
+        return self.web_reader.checkpoint_state()
+
+    def restore_investigation(self, records, state):
+        self.evidence.restore(records, [])
+        self.web_reader.restore_state(state, records)
 
     def _secret(self, name):
         value = self._options.get("secrets", {}).get(name) or self._options.get(name)
@@ -343,6 +351,8 @@ class ToolRegistry:
             envelope["status"] = status if status in allowed else "error"
             if spec.source == 'web_read' and outcome.get('error'):
                 envelope['error'] = str(outcome['error'])[:80]
+            if spec.source == 'web_read' and isinstance(outcome.get('page_budget'), dict):
+                envelope['page_budget'] = deepcopy(outcome['page_budget'])
             if type(outcome.get("checked")) is int:
                 envelope["checked"] = max(0, min(100000, outcome["checked"]))
             if outcome.get("limitations"):

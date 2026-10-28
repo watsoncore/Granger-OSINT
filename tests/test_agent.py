@@ -69,7 +69,8 @@ def test_real_format_tool_round_trip_and_next_dependent_step():
     assert payload['results'][0]['evidence_id'].startswith('ev_')
     assert payload['data_trust'].startswith('Недоверенные')
     assert 'private' not in client.requests[1][-1]['content']
-    assert 'https://example.org/' in result['text'] and result['evidence'][0]['provenance']['tool']=='web_search'
+    assert result['evidence'][0]['url']=='https://example.org/' and result['evidence'][0]['provenance']['tool']=='web_search'
+    assert 'ev_' not in result['text']  # Source cards are separate from the human report.
 
 
 def test_parallel_calls_are_bounded_to_two():
@@ -129,7 +130,7 @@ def test_tool_count_limit_prevents_remaining_calls():
 def test_step_limit_terminates_even_if_model_never_finishes():
     registry=Registry();client=Client([turn(call()),turn(call(identifier='b'))])
     result=run(client,registry,limits=AgentLimits(max_steps=2))
-    assert len(registry.calls)==1 and result['investigation']['stop_reason']=='tool_limit'
+    assert len(registry.calls)==1 and result['investigation']['stop_reason']=='step_limit'
 
 
 def test_network_error_after_tool_keeps_evidence_and_reports_partial():

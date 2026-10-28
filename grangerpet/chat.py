@@ -8,11 +8,12 @@ from pathlib import Path
 import re
 import threading
 import time
+import uuid
 
 from PySide6.QtCore import QPointF, QTimer, Qt, Signal
 from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen, QTextLayout, QTextOption
 from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QHBoxLayout, QLabel,
-    QFrame, QListWidget, QListWidgetItem, QPlainTextEdit, QPushButton, QSizePolicy,
+    QApplication, QFrame, QListWidget, QListWidgetItem, QPlainTextEdit, QPushButton, QSizePolicy,
     QVBoxLayout, QWidget, QMessageBox)
 
 from .ai import AIError, DeepSeekClient, OllamaClient, analyze_results as explain_evidence
@@ -26,6 +27,7 @@ from .agent import AgentRunner, AgentLimits
 from .agent_tools import ToolRegistry
 from .agent_journal import InvestigationJournal
 from .chat_archive import ChatArchive
+from .conversations import ConversationLibrary
 
 
 def no_tools_requested(text):
@@ -195,6 +197,8 @@ class ChatWidget(QWidget):
     evidence_received = Signal(object)
     report_requested = Signal(str)
     user_activity = Signal()
+    state_changed = Signal()
+    turn_completed = Signal(object)
     _agent_progress = Signal(int, object)
     _approval_requested = Signal(int, object)
 
@@ -206,6 +210,8 @@ class ChatWidget(QWidget):
         self._job, self._generation, self._ending = None, 0, False
         self._busy = False
         self.last_request = {}
+        self._activity_log = []
+        self._resume_state = None
         self._last_failed_text = ''
         self._agent_registry = None
         self._agent_runner = None
@@ -218,6 +224,12 @@ class ChatWidget(QWidget):
         journal_dir = Path(store.path).parent / 'investigations' if store is not None else None
         self._journal = InvestigationJournal(journal_dir)
         self._archive = ChatArchive(Path(store.path).parent / 'chat-history.dpapi') if store is not None else None
+        self._library = ConversationLibrary(self._archive) if self._archive is not None else None
+        self.conversation_id = self._library.current_id if self._library else uuid.uuid4().hex
+        self._usage_ledger = None
+        if store is not None:
+            from .usage import UsageLedger
+            self._usage_ledger = UsageLedger(Path(store.path).parent / 'usage.sqlite3')
         self._archive_timer = QTimer(self)
         self._archive_timer.setSingleShot(True)
         self._archive_timer.setInterval(600)
@@ -289,7 +301,10 @@ class ChatWidget(QWidget):
             saved = self._archive.load()
             self._context = saved.get('context', [])
             for row in saved.get('messages', []):
-                self._append(row['role'], row['text'])
+                self._append(row['role'], row['text'], message_id=row.get('id'))
+                for field in ('investigation_id', 'evidence_ids'):
+                    if field in row: self.messages[-1][field] = row[field]
+            self._restore_investigation()
 
     @property
     def busy(self):
@@ -330,11 +345,12 @@ class ChatWidget(QWidget):
     def _main_action(self):
         self.cancel() if self._busy else self.send_message()
 
-    def _append(self, role, text, retry=None):
-        self.messages.append({'role': role, 'text': str(text)})
+    def _append(self, role, text, retry=None, *, message_id=None):
+        self.messages.append({'id': message_id or uuid.uuid4().hex, 'role': role, 'text': str(text)})
         bubble = self.history.append_message(role, text, retry)
         self._archive_timer.start()
         self._update_actions()
+        self.state_changed.emit()
         return bubble
 
     def send_message(self):
@@ -360,6 +376,7 @@ class ChatWidget(QWidget):
         snapshot = self.ai_state.committed_snapshot()
         model = snapshot['model_id']
         generation = self._generation + 1
+        conversation_id = self.conversation_id
         investigate = not no_tools_requested(text) and (investigation_requested(text) or self._agent_followup and bool(re.search(r'(?iu)(ещ[её]|подроб|дальше|сравни|почему|источник|ev_[a-f0-9]+)', text)))
         def request(cancelled):
             if snapshot['provider'] == 'deepseek':
@@ -369,20 +386,14 @@ class ChatWidget(QWidget):
                         self._agent_registry = ToolRegistry(settings, redactions=(getattr(client, '_key', ''),))
                     if hasattr(self._agent_registry, 'seed_urls_from_user'):
                         self._agent_registry.seed_urls_from_user(text)
-                    limits = AgentLimits(max_steps=settings.agent_steps, max_tool_calls=settings.agent_calls,
-                        timeout=settings.agent_timeout, max_tokens=settings.agent_tokens)
+                    limits = self._investigation_limits(settings)
                     runner = AgentRunner(client, self._agent_registry, limits=limits)
                     self._agent_runner = runner
-                    result = runner.run(model, history, cancel_event=cancelled,
+                    return self._run_investigation(runner, model, history, cancel_event=cancelled,
                         on_event=lambda value: self._agent_progress.emit(generation, value),
-                        approval_callback=lambda name, args: self._approve_tool(generation, name, args, cancelled))
-                    # UiJob intentionally suppresses late delivery after cancel;
-                    # still finish the local evidence journal in this worker.
-                    try:
-                        self._journal.save(result.get('investigation', {}))
-                    except (OSError, ValueError, TypeError):
-                        pass
-                    return result
+                        approval_callback=lambda name, args: self._approve_tool(generation, name, args, cancelled),
+                        conversation_id=conversation_id, usage_ledger=self._usage_ledger,
+                        checkpoint_callback=lambda value: self._journal.save_checkpoint(value, secrets=(resolve_deepseek_key(),)))
                 if hasattr(client, 'stream_chat'):
                     answer = client.stream_chat(model, history, cancel_event=cancelled,
                         on_text=lambda value: self._agent_progress.emit(generation, {'type': 'text', 'text': value}))
@@ -420,6 +431,19 @@ class ChatWidget(QWidget):
                 external_consent=snapshot['provider'] == 'deepseek', task=task, cancel_event=cancelled)
         self._start(request, 'working', None)
 
+    def analyze_selected(self, results):
+        """An explicit frontend selection is the consent and selection action."""
+        if self.busy or not self._ready: raise ValueError('Подключите ИИ и дождитесь текущего ответа.')
+        if not isinstance(results,list) or not 1<=len(results)<=20: raise ValueError('Выберите 1–20 находок.')
+        snapshot=self.ai_state.committed_snapshot()
+        self._append('user',f'Проанализируй выбранные открытые источники: {len(results)}. Различай факты, сниппеты и гипотезы.')
+        def request(cancelled):
+            return explain_evidence(snapshot['provider'],snapshot['model_id'],results,
+                api_key=resolve_deepseek_key() if snapshot['provider']=='deepseek' else '',
+                ollama_url=self.settings.ollama_url,external_consent=snapshot['provider']=='deepseek',
+                task='summary',cancel_event=cancelled)
+        self._start(request,'working',None)
+
     def _start(self, request, activity, context, submitted_text=''):
         snapshot = self.ai_state.committed_snapshot()
         provider, model = snapshot['provider'], snapshot['model_id']
@@ -427,13 +451,22 @@ class ChatWidget(QWidget):
         self._generation += 1
         generation = self._generation
         self._busy = True
+        request_id = uuid.uuid4().hex
+        conversation_id = self.conversation_id
+        self._activity_log = []
         self._agent_runner = None
         self._stream_bubble = self._stream_index = None
         def execute():
             try:
                 value = request(job.cancelled)
+                if self._usage_ledger is not None and not (isinstance(value, dict) and value.get('investigation')):
+                    self._usage_ledger.record_response(value.get('metadata', {}) if isinstance(value, dict) else {},
+                        provider=provider, model=model, conversation_id=conversation_id, request_id=request_id)
                 return value if isinstance(value, dict) else {'text': value}
             except AIError as error:
+                if self._usage_ledger is not None:
+                    self._usage_ledger.record_error(provider=provider, model=model, conversation_id=conversation_id,
+                        request_id=request_id, error_code=error.code)
                 return {'error': str(error), 'code': getattr(error, 'code', 'provider_error'),
                         'http_status': getattr(error, 'http_status', None), 'retry_after': getattr(error, 'retry_after', None)}
         job = UiJob(execute, self)
@@ -506,6 +539,9 @@ class ChatWidget(QWidget):
                     self._append('model', result)
                 if context is not None:
                     self._context = context + [{'role':'model', 'text':result}]
+                if investigation and self.messages:
+                    self.messages[-1]['investigation_id'] = investigation['id']
+                    self.messages[-1]['evidence_ids'] = [r['evidence_id'] for r in investigation.get('evidence', []) if r.get('evidence_id')]
                 self.status.setText('Ответ получен')
                 self.status.hide()
                 api_error = investigation.get('api_error') if isinstance(investigation, dict) else None
@@ -518,6 +554,18 @@ class ChatWidget(QWidget):
                     self.activity_changed.emit('happy')
             self._update_actions()
             self._archive_timer.start()
+            if investigation and self.messages:
+                # The first provider request may fail before any source is
+                # found. Its encrypted checkpoint still belongs to this turn.
+                self.messages[-1]['investigation_id'] = investigation['id']
+                self.messages[-1]['evidence_ids'] = [r['evidence_id'] for r in investigation.get('evidence', []) if r.get('evidence_id')]
+            completion_kind = 'error' if self.last_request.get('code') != 'ok' else 'investigation' if investigation else 'reply'
+            if investigation and investigation.get('status') != 'completed' and completion_kind != 'error':
+                completion_kind = 'paused'
+            self.turn_completed.emit({'kind':completion_kind,
+                'message_id':self.messages[-1]['id'] if self.messages else '', 'index':len(self.messages)-1,
+                'conversation_id':self.conversation_id})
+            self.state_changed.emit()
             job.deleteLater()
         job.done.connect(finished)
         job.start()
@@ -539,11 +587,16 @@ class ChatWidget(QWidget):
         self.status.setText('Запрос отменён. История сохранена.')
         self.status.show()
         self._append('status', 'Ожидание ответа отменено.')
+        if self._last_investigation.get('id'):
+            self.messages[-1]['investigation_id']=self._last_investigation['id']
+            self.messages[-1]['evidence_ids']=[r['evidence_id'] for r in self._last_investigation.get('evidence',[]) if r.get('evidence_id')]
         self.busy_changed.emit(False)
         cancel_state = getattr(self.ai_state, 'cancel_request', None)
         if cancel_state:
             cancel_state()
         self.activity_changed.emit('idle')
+        self.turn_completed.emit({'kind':'cancelled', 'message_id':'', 'index':len(self.messages)-1})
+        self.state_changed.emit()
         self._update_actions()
 
     def clear_history(self):
@@ -554,11 +607,122 @@ class ChatWidget(QWidget):
         self._agent_runner = None
         self._agent_followup = False
         self.messages.clear()
+        self._last_investigation = {}
+        self._activity_log = []
         self.history.clear()
         self._save_archive()
         self.status.setText('Диалог очищен')
         self.status.hide()
         self._update_actions()
+        self.state_changed.emit()
+
+    @staticmethod
+    def _investigation_limits(settings):
+        return AgentLimits(max_steps=settings.agent_steps, max_tool_calls=settings.agent_calls,
+            timeout=settings.agent_timeout, max_tokens=settings.agent_tokens,
+            max_parallel=getattr(settings, 'agent_parallel', 2),
+            per_tool_timeout=getattr(settings, 'agent_tool_timeout', 25),
+            per_request_timeout=getattr(settings, 'agent_request_timeout', 90),
+            auto_continue=getattr(settings, 'agent_auto_continue', True),
+            budget_behavior=getattr(settings, 'agent_budget_behavior', 'pause'))
+
+    def new_conversation(self):
+        if self.busy: raise ValueError('Сначала остановите текущую задачу.')
+        self._save_archive()
+        self.conversation_id = self._library.new() if self._library else uuid.uuid4().hex
+        self.clear_history()
+        self._last_investigation = {}
+        self._activity_log = []
+        self.state_changed.emit()
+
+    def load_conversation(self, identifier):
+        if self.busy: raise ValueError('Сначала остановите текущую задачу.')
+        if self._library is None: raise ValueError('Локальная история недоступна.')
+        self._save_archive()
+        value = self._library.load(identifier)
+        self.conversation_id = self._library.current_id
+        self.messages.clear()
+        self.history.clear()
+        self._context = value.get('context', [])
+        self._agent_registry = self._agent_runner = None
+        self._last_investigation = {}
+        self._agent_followup = False
+        for row in value.get('messages', []):
+            self._append(row['role'], row['text'], message_id=row.get('id'))
+            for field in ('investigation_id', 'evidence_ids'):
+                if field in row: self.messages[-1][field] = row[field]
+        self._restore_investigation()
+        self._activity_log = []
+        self._update_actions()
+        self.state_changed.emit()
+
+    def regenerate(self, message_id=None):
+        if self.busy: raise ValueError('Сначала остановите текущую задачу.')
+        index = next((i for i,row in enumerate(self.messages) if row.get('id')==message_id), len(self.messages)-1)
+        question = next((row['text'] for row in reversed(self.messages[:index+1]) if row['role']=='user'), '')
+        if not question: raise ValueError('Нет вопроса для повторной генерации.')
+        self._submit_text(question)
+
+    def _restore_investigation(self):
+        for row in reversed(self.messages):
+            if row.get('investigation_id'):
+                try: self._last_investigation = self._journal.load(row['investigation_id']) or {}
+                except (OSError,ValueError):
+                    try:
+                        checkpoint=self._journal.load_checkpoint(row['investigation_id'])
+                        self._last_investigation={**checkpoint['record'],'evidence':checkpoint.get('evidence',[])}
+                    except (OSError,ValueError): self._last_investigation = {}
+                self._agent_followup = bool(self._last_investigation)
+                return
+
+    def continue_investigation(self, identifier=None):
+        if self.busy: raise ValueError('Сначала остановите текущую задачу.')
+        identifier = identifier or self._last_investigation.get('id')
+        resume = self._journal.load_checkpoint(identifier) if identifier else None
+        if not resume: raise ValueError('Сохранённое продолжение этого расследования не найдено.')
+        if self.ai_state.committed_snapshot()['provider'] != 'deepseek':
+            raise ValueError('Для продолжения выберите DeepSeek в настройках.')
+        settings = self.ai_state.settings
+        model = self.ai_state.committed_snapshot()['model_id']
+        generation = self._generation + 1
+        conversation_id = self.conversation_id
+        self._append('user', 'Продолжи сохранённое расследование с прежней целью и уже собранными доказательствами.')
+        def request(cancelled):
+            client = DeepSeekClient()
+            if self._agent_registry is None:
+                self._agent_registry = ToolRegistry(settings, redactions=(getattr(client, '_key', ''),))
+            runner = AgentRunner(client, self._agent_registry, limits=self._investigation_limits(settings))
+            self._agent_runner = runner
+            return self._run_investigation(runner, model, [], resume_state=resume, cancel_event=cancelled,
+                conversation_id=conversation_id, usage_ledger=self._usage_ledger,
+                checkpoint_callback=lambda value:self._journal.save_checkpoint(value, secrets=(resolve_deepseek_key(),)),
+                on_event=lambda value:self._agent_progress.emit(generation,value),
+                approval_callback=lambda name,args:self._approve_tool(generation,name,args,cancelled))
+        self._start(request, 'thinking', deepcopy(self._context[-24:]))
+
+    def _run_investigation(self, runner, model, history, **kwargs):
+        """Keep a failed first stage associated with its real request ledger.
+
+        AgentRunner already accounts every provider call. Returning its snapshot
+        alongside an error prevents the outer chat job from recording a second
+        fictitious request, and gives the status message a restartable identity.
+        """
+        try:
+            result = runner.run(model, history, **kwargs)
+        except AIError as error:
+            investigation = runner.snapshot()
+            if not re.fullmatch(r'[a-f0-9]{32}', str(investigation.get('id', ''))):
+                raise
+            result = {'error': str(error), 'code': error.code, 'http_status': error.http_status,
+                      'retry_after': error.retry_after, 'investigation': investigation,
+                      'evidence': investigation.get('evidence', []), 'partial': True}
+        # UiJob suppresses late delivery after cancel; preserve the journal in
+        # this worker for both successful stages and provider failures.
+        try:
+            self._journal.save(result.get('investigation', {}))
+        except (OSError, ValueError, TypeError):
+            pass
+        return result
 
     def shutdown(self):
         self._ending = True
@@ -570,6 +734,7 @@ class ChatWidget(QWidget):
         if self._archive is not None:
             try:
                 self._archive.save(self.messages, self._context, secrets=(resolve_deepseek_key(),))
+                if self._library: self._library.seal()
             except Exception:
                 self.history.setToolTip('Не удалось сохранить локальную историю. Текущая переписка остаётся в окне.')
 
@@ -577,6 +742,11 @@ class ChatWidget(QWidget):
         if self._ending or generation != self._generation or not self._busy or not isinstance(event, dict):
             return
         kind = event.get('type')
+        if kind != 'text':
+            self._activity_log.append({key:deepcopy(value) for key,value in event.items() if key in
+                ('type','tool','status','step','count','message','request_id','usage','error_code','evidence_ids','tool_call_id','id')})
+            self._activity_log = self._activity_log[-120:]
+        self.state_changed.emit()
         if kind == 'text':
             value = event.get('text')
             if not isinstance(value, str) or not value:
@@ -585,7 +755,8 @@ class ChatWidget(QWidget):
                 self._stream_bubble = self._append('model', value)
                 self._stream_index = len(self.messages) - 1
             else:
-                self.history.update_message(self._stream_bubble, value)
+                if not QApplication.instance().property('web_desktop'):
+                    self.history.update_message(self._stream_bubble, value)
                 self.messages[self._stream_index]['text'] = value
             return
         messages = {'planning': 'Гермиона выбирает доступные инструменты…',

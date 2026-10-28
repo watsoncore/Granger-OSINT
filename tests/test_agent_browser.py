@@ -233,3 +233,35 @@ def test_registry_adds_page_tool_and_uses_only_evidence_or_explicit_human_urls()
     assert outcome['results'][0]['provenance']['tool']=='web_read'
     assert registry.execute('web_read',{'url':'file:///private'})['status']=='invalid_arguments'
     assert not registry.execute('web_read',{'url':'https://example.org/','headers':{'Authorization':'x'}})['results']
+
+
+def test_zero_page_budget_has_no_hidden_six_or_twelve_page_limit():
+    fixture = Fixture()
+    reader = fixture.reader(max_pages=0)
+    for index in range(15):
+        url = 'https://example.org/page-' + str(index)
+        reader.allow_url(url)
+        outcome = reader.read(url)
+        assert outcome['status'] == 'complete' and outcome['page_budget']['remaining'] is None
+    assert len(fixture.requests) == 15 and reader.page_budget()['used'] == 15
+
+
+def test_resume_restores_read_cache_related_link_depth_and_cumulative_page_budget():
+    first_fixture = Fixture()
+    first = ToolRegistry(Settings(agent_page_limit=1), readiness=lambda *a, **k: {'runtime_ready': False}, secret_getter=lambda name: '')
+    first.web_reader = first_fixture.reader(max_pages=1)
+    first.seed_urls_from_user('Прочитай https://example.org/')
+    result = first.execute('web_read', {'url': 'https://example.org/'})
+    saved = first.checkpoint_state()
+    fixture = Fixture()
+    resumed = ToolRegistry(Settings(agent_page_limit=1), readiness=lambda *a, **k: {'runtime_ready': False}, secret_getter=lambda name: '')
+    resumed.web_reader = fixture.reader(max_pages=1)
+    resumed.restore_investigation(result['results'], saved)
+    cached = resumed.execute('web_read', {'url': 'https://example.org/'})
+    assert cached['status'] == 'complete' and not fixture.requests
+    assert resumed.web_reader._known['https://example.org/about']['depth'] == 1
+    limited = resumed.execute('web_read', {'url': 'https://example.org/about'})
+    assert limited['error'] == 'page_limit' and limited['page_budget']['used'] == 1
+    resumed.web_reader.max_pages = 2  # Explicit user budget change permits continuation.
+    assert resumed.execute('web_read', {'url': 'https://example.org/about'})['status'] == 'complete'
+    assert len(fixture.requests) == 1 and resumed.web_reader.page_budget()['used'] == 2

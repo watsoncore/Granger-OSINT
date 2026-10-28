@@ -11,6 +11,7 @@ from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QMessageBox
 from grangerpet.chat import ChatWidget, investigation_requested
 from grangerpet.config import Settings, SettingsStore
+from grangerpet.ai import AIError
 
 
 FACT={'id':'fixture','title':'Explicit source fixture','type':'web','platform':'Fixture','url':'https://example.org/',
@@ -65,7 +66,9 @@ def test_investigation_runs_inside_existing_worker_and_publishes_provenance(widg
     wait(app,lambda:not chat.busy)
     assert facts and facts[0]['evidence_id'].startswith('ev_') and facts[0]['provenance']['tool']=='web_search'
     assert 'working' in states and states[-1]=='happy'
-    assert 'https://example.org/' in chat.history.toPlainText()
+    assert facts[0]['url']=='https://example.org/'
+    assert chat.messages[-1]['evidence_ids']==[facts[0]['evidence_id']]
+    assert 'Проверяемые находки источников:' not in chat.history.toPlainText()
     assert chat._last_investigation['steps']==2
     assert list(chat._journal.directory.glob('*.json'))
 
@@ -109,3 +112,75 @@ def test_routing_preserves_ordinary_conversation():
     assert investigation_requested('Проверь DNS домена example.org')
     assert not investigation_requested('Привет, Гермиона!')
     assert not investigation_requested('Без поиска объясни, что такое DNS и как проверять источники')
+
+
+def test_first_agent_provider_error_is_one_real_request_and_keeps_checkpoint_link(widget, monkeypatch):
+    app, chat = widget
+    class ErrorClient:
+        def complete_turn(self, *args, **kwargs):
+            raise AIError('Controlled provider failure', code='network')
+    monkeypatch.setattr('grangerpet.chat.DeepSeekClient', ErrorClient)
+    monkeypatch.setattr('grangerpet.chat.resolve_deepseek_key', lambda: 'explicit-ui-fixture')
+    chat.input.setPlainText('Найди публичные упоминания fixture')
+    chat.send_message()
+    wait(app, lambda: not chat.busy)
+    investigation = chat._last_investigation
+    totals = chat._usage_ledger.snapshot(conversation_id=chat.conversation_id)['totals']
+    assert totals['requests'] == 1 and totals['failed_requests'] == 1
+    assert totals['total_tokens'] is None and totals['usage_missing_requests'] == 1
+    assert investigation['status'] == 'error' and investigation['api_error']['code'] == 'network'
+    assert chat.messages[-1]['role'] == 'status' and chat.messages[-1]['investigation_id'] == investigation['id']
+    saved = chat._journal.load_checkpoint(investigation['id'])
+    assert saved['record']['goal'] == 'Найди публичные упоминания fixture'
+    assert saved['record']['resumable'] and not saved['evidence']
+
+
+def test_failed_first_stage_is_restored_from_encrypted_history_and_can_resume(widget, monkeypatch):
+    app, chat = widget
+    class ErrorClient:
+        def complete_turn(self, *args, **kwargs):
+            raise AIError('Controlled provider failure', code='network')
+    monkeypatch.setattr('grangerpet.chat.DeepSeekClient', ErrorClient)
+    monkeypatch.setattr('grangerpet.chat.resolve_deepseek_key', lambda: 'explicit-ui-fixture')
+    chat.input.setPlainText('Найди публичные упоминания fixture')
+    chat.send_message()
+    wait(app, lambda: not chat.busy)
+    identifier = chat._last_investigation['id']
+    conversation_id = chat.conversation_id
+    chat._save_archive()
+    restored = ChatWidget(chat.settings, chat.store)
+    try:
+        assert restored.conversation_id == conversation_id
+        assert restored._last_investigation['id'] == identifier
+        assert restored._last_investigation['status'] == 'error'
+        assert restored.messages[-1]['investigation_id'] == identifier
+        assert restored._journal.list_resumable()[0]['id'] == identifier
+        monkeypatch.setattr('grangerpet.chat.DeepSeekClient', Client)
+        restored.continue_investigation()
+        wait(app, lambda: not restored.busy)
+        assert restored._last_investigation['id'] == identifier
+        assert restored._last_investigation['status'] == 'completed'
+        assert restored._last_investigation['resume_count'] == 1
+        totals = restored._usage_ledger.snapshot(conversation_id=conversation_id)['totals']
+        assert totals['requests'] == 3 and totals['failed_requests'] == 1
+        assert totals['successful_requests'] == 2 and totals['total_tokens'] == 60
+        assert restored._last_investigation['evidence']
+    finally:
+        restored.shutdown()
+        restored.close()
+        app.processEvents()
+
+
+def test_ordinary_chat_error_remains_one_accounted_request(widget, monkeypatch):
+    app, chat = widget
+    class ErrorClient:
+        def chat(self, *args, **kwargs):
+            raise AIError('Controlled ordinary chat failure', code='network')
+    monkeypatch.setattr('grangerpet.chat.DeepSeekClient', ErrorClient)
+    monkeypatch.setattr('grangerpet.chat.resolve_deepseek_key', lambda: 'explicit-ui-fixture')
+    chat.input.setPlainText('Привет, Гермиона')
+    chat.send_message()
+    wait(app, lambda: not chat.busy)
+    totals = chat._usage_ledger.snapshot(conversation_id=chat.conversation_id)['totals']
+    assert totals['requests'] == totals['failed_requests'] == 1
+    assert chat.messages[-1]['role'] == 'status' and not chat._last_investigation

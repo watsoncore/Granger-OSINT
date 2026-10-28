@@ -82,6 +82,27 @@ class SettingsTests(unittest.TestCase):
             self.assertEqual(resource_path("assets/character.png"), frozen_root / "grangerpet/assets/character.png")
             self.assertEqual(resource_path("README.md"), frozen_root / "README.md")
 
+    def test_research_zero_budgets_and_new_settings_roundtrip(self):
+        settings = Settings(agent_steps=0, agent_calls=0, agent_timeout=0, agent_tokens=0, agent_page_limit=0,
+                            agent_page_depth=8, agent_parallel=4, agent_tool_timeout=43, agent_request_timeout=120,
+                            agent_auto_continue=False, agent_budget_behavior='stop', notifications_enabled=False,
+                            notifications_animate=False, notifications_reply=False, notifications_investigation=False,
+                            notifications_errors=False)
+        self.store.save(settings)
+        self.assertEqual(self.store.load(), settings)
+
+    def test_only_legacy_imposed_preset_migrates_and_explicit_budgets_survive(self):
+        legacy = {'agent_steps': 10, 'agent_calls': 14, 'agent_timeout': 240, 'agent_tokens': 48000,
+                  'agent_page_limit': 6, 'agent_page_depth': 2}
+        migrated = Settings.from_dict(legacy)
+        self.assertEqual((migrated.agent_steps, migrated.agent_calls, migrated.agent_timeout,
+                          migrated.agent_tokens, migrated.agent_page_limit), (0, 0, 0, 0, 0))
+        legacy['agent_calls'] = 18
+        self.assertEqual(Settings.from_dict(legacy).agent_tokens, 48000)
+        self.assertEqual(Settings.from_dict({**legacy, 'research_settings_version': 2}).agent_steps, 10)
+        self.assertTrue(Settings.from_dict({'agent_auto_continue': 'false', 'notifications_enabled': 0}).notifications_enabled)
+        self.assertEqual(Settings.from_dict({'research_settings_version': 'bad'}).research_settings_version, 2)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -305,9 +305,9 @@ def _decode(raw, content_type):
 
 
 class PublicPageReader:
-    def __init__(self, *, max_pages=6, max_depth=2, timeout=15, resolver=None, client_factory=None):
-        self.max_pages = max(1,min(12,int(max_pages)))
-        self.max_depth = max(0,min(3,int(max_depth)))
+    def __init__(self, *, max_pages=0, max_depth=2, timeout=15, resolver=None, client_factory=None):
+        self.max_pages = max(0,min(2_000_000_000,int(max_pages)))
+        self.max_depth = max(0,min(8,int(max_depth)))
         self.timeout = max(.1,min(25,float(timeout)))
         self._resolver, self._client_factory = resolver or resolve_public, client_factory or httpx.AsyncClient
         self._known, self._read, self._page_count, self._reading = {}, {}, 0, set()
@@ -316,6 +316,48 @@ class PublicPageReader:
     def begin_run(self):
         with self._lock:
             self._page_count = 0
+
+    def checkpoint_state(self):
+        with self._lock:
+            return {'page_count': self._page_count, 'known': [dict(url=url, **origin) for url, origin in self._known.items()]}
+
+    def restore_state(self, state, records=()):
+        """Restore trusted discovery/provenance, not a general URL fetch bypass."""
+        if not isinstance(state, dict):
+            raise ValueError('Invalid page-reader checkpoint')
+        count = state.get('page_count', 0)
+        if type(count) is not int or not 0 <= count <= 2_000_000_000:
+            raise ValueError('Invalid page count')
+        with self._lock:
+            self._page_count = count
+        for origin in state.get('known', [])[-500:]:
+            if isinstance(origin, dict) and type(origin.get('depth')) is int and 0 <= origin['depth'] <= 8:
+                self.allow_url(origin.get('url'), depth=origin['depth'], parent_url=origin.get('parent_url', ''))
+        self.add_evidence(list(records))
+        for record in records:
+            details = record.get('details', {}) if isinstance(record, dict) else {}
+            if details.get('reading_method') != 'direct_http':
+                continue
+            depth = details.get('crawl_depth', 0)
+            if type(depth) is not int or not 0 <= depth <= self.max_depth:
+                continue
+            original = details.get('requested_url') or record.get('url')
+            if not self.allow_url(original, depth=depth, parent_url=details.get('parent_url', '')):
+                continue
+            self.allow_url(record.get('url'), depth=depth, parent_url=details.get('parent_url', ''))
+            for link in details.get('links', [])[:60]:
+                if isinstance(link, dict):
+                    self.allow_url(link.get('url'), depth=depth+1, parent_url=record.get('url', ''))
+            with self._lock:
+                self._read[public_url(original)] = {'tool':'web_read', 'status':'complete', 'query':original,
+                    'obtained_at':details.get('retrieved_at') or record.get('provenance', {}).get('obtained_at'),
+                    'results':[deepcopy(record)], 'limitations':['Восстановлено ранее полученное содержимое страницы; новый HTTP-запрос не выполнялся.']}
+
+    def page_budget(self):
+        with self._lock:
+            return {'limit': self.max_pages or None, 'used': self._page_count,
+                    'remaining': max(0, self.max_pages-self._page_count) if self.max_pages else None,
+                    'max_depth': self.max_depth}
 
     def allow_url(self,url,*,depth=0,parent_url=''):
         try:url=public_url(url)
@@ -400,13 +442,14 @@ class PublicPageReader:
             original=public_url(url)
             envelope['query']=original
             with self._lock:
-                origin=deepcopy(self._known.get(original))
-                if origin is None:raise PageReadError('url_not_discovered','blocked')
                 if original in self._read:
                     cached=deepcopy(self._read[original]);cached['limitations'].append('Страница уже прочитана в текущем диалоге; повторного HTTP-запроса нет.')
+                    cached['page_budget'] = self.page_budget()
                     return cached
+                origin=deepcopy(self._known.get(original))
+                if origin is None:raise PageReadError('url_not_discovered','blocked')
                 if original in self._reading:raise PageReadError('already_reading','unavailable')
-                if self._page_count>=self.max_pages:raise PageReadError('page_limit','limit_reached')
+                if self.max_pages and self._page_count>=self.max_pages:raise PageReadError('page_limit','limit_reached')
                 self._page_count+=1
                 self._reading.add(original)
                 reserved=True
@@ -457,4 +500,5 @@ class PublicPageReader:
         finally:
             if reserved:
                 with self._lock:self._reading.discard(original)
+        envelope['page_budget'] = self.page_budget()
         return envelope

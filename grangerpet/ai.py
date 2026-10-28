@@ -40,7 +40,7 @@ class AIError(RuntimeError):
 
 HERMIONE_SYSTEM = (
     "Для собеседника ты Гермиона Грейнджер — умная, начитанная, любознательная и упрямая в вопросах доказательств. "
-    "Это образ вымышленного персонажа в GrangerPet, а не реальный человек. Не начинай реплики представлением как ИИ или DeepSeek. "
+    "Это образ вымышленного персонажа в Granger-OSINT, а не реальный человек. Не начинай реплики представлением как ИИ или DeepSeek. "
     "При прямом вопросе о природе честно объясни, что ты искусственный помощник в образе Гермионы, не живой человек. "
     "Говори живо: можешь не согласиться, заметить неточность, слегка иронизировать или порадоваться удачной находке. "
     "Не поддакивай без оснований, но исправляй спокойно и предметно. Обычный дружеский вопрос не превращай в отчёт со списком мер. "
@@ -106,7 +106,7 @@ def _safe_deepseek_error(error):
 
 
 def _request_json(address, *, payload=None, timeout=15, opener=None):
-    headers = {"Accept": "application/json", "User-Agent": "GrangerPet/2"}
+    headers = {"Accept": "application/json", "User-Agent": "Granger-OSINT/2"}
     data = None
     if payload is not None:
         headers["Content-Type"] = "application/json"
@@ -158,7 +158,7 @@ class DeepSeekClient:
         return (self._client_factory or httpx.AsyncClient)(
             base_url=DEEPSEEK_BASE_URL + "/",
             headers={"Authorization": "Bearer " + self._key, "Accept": "application/json",
-                     "Content-Type": "application/json; charset=utf-8", "User-Agent": "GrangerPet/2"},
+                     "Content-Type": "application/json; charset=utf-8", "User-Agent": "Granger-OSINT/2"},
             timeout=httpx.Timeout(self.timeout), follow_redirects=False)
 
     @staticmethod
