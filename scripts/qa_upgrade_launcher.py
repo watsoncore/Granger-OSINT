@@ -20,7 +20,7 @@ def main():
     from grangerpet.ipc import send_command
     from qa_packaged_search import process_image
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output',type=Path,default=ROOT/'output/upgrade-qa/launcher-release')
+    parser.add_argument('--output',type=Path,default=ROOT/'output/upgrade-qa/launcher-delivery-125')
     parser.add_argument('--scale',type=float)
     args=parser.parse_args()
     app = QApplication([])

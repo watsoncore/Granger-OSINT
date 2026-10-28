@@ -26,7 +26,7 @@ def main():
     from qa_packaged_search import process_image
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--phase',choices=('start','research','ui','ui-tail','finish'),required=True)
-    parser.add_argument('--output',type=Path,default=ROOT/'output/upgrade-qa/exe-live')
+    parser.add_argument('--output',type=Path,default=ROOT/'output/upgrade-qa/exe-delivery')
     args=parser.parse_args();app=QCoreApplication([]);out=args.output.resolve();exe=ROOT/'dist/Granger-OSINT.exe'
     destination=out/'report.json';profile=out/'appdata/GrangerPet'
     if args.phase=='start':

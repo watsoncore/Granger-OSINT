@@ -89,3 +89,16 @@ def test_legacy_archive_is_preserved_when_starting_and_switching_conversations(t
     assert library.load(second)['messages'][0]['text']=='Второй разговор'
     assert len(library.list())==2
     assert b'conversation' not in original and 'Первый разговор'.encode() not in original
+
+
+def test_search_preserves_browser_fallback_errors_and_numeric_progress(bridge):
+    host=bridge.host
+    host.phase='completed_empty'
+    host.status.setText('Поиск открыт в браузере. Фактическая выдача здесь недоступна.')
+    host.checked_label.setText('Проверено: 3/12')
+    state=bridge.snapshot()['search']
+    assert state['status']==host.status.text() and state['error']==''
+    assert state['checked']==3 and state['checkedLabel']=='Проверено: 3/12'
+    for phase in ('failed','completed_with_errors'):
+        host.phase=phase;host.status.setText('Источник недоступен')
+        assert bridge.snapshot()['search']['error']=='Источник недоступен'

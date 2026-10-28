@@ -36,7 +36,7 @@ def main():
                 files.add(path)
     qa = ROOT / "output/upgrade-qa"
     for name in ("baseline.json", "preservation.json", "profile-preservation.json", "frozen-sources.json", "frozen-assets.json", "release-summary.json",
-                 "secret-scan.json", "freeze-release.log", "smoke-release.log", "tests-release.log", "frontend-release-tests.log", "frontend-release-build.log", "git-publication.json"):
+                 "secret-scan.json", "freeze-notices.log", "smoke-delivery.log", "tests-release.log", "frontend-delivery-tests.log", "frontend-delivery-build.log", "git-publication.json"):
         path = qa / name
         if path.is_file():
             files.add(path)

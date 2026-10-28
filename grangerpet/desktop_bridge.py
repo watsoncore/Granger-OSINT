@@ -8,6 +8,7 @@ from __future__ import annotations
 from dataclasses import asdict
 import hashlib
 import json
+import re
 import logging
 from pathlib import Path
 import time
@@ -210,8 +211,11 @@ class DesktopBridge(QObject):
             conversation_id=chat.conversation_id,messages=messages,busy=chat.busy,activity=self._activity(),evidence=sources,
             message_focus=getattr(self,'message_focus',None),
             search={'query':self.host.text.text(),'kind':self.host.direction.currentData(),'busy':self.host._busy or self._manual_job is not None,
-                'phase':self.host.phase,'count':self.host.result_model.rowCount(),'checked':self.host.checked_label.text(),
-                'error':self.host.status.text() if self.host.phase=='error' else '',
+                'phase':self.host.phase,'count':self.host.result_model.rowCount(),
+                'checked':int((re.search(r'\d+',self.host.checked_label.text()) or ['0'])[0]),
+                'checkedLabel':self.host.checked_label.text(),
+                'status':self.host.status.text() if self.host.phase!='idle' else '',
+                'error':self.host.status.text() if self.host.phase in ('error','failed','completed_with_errors') else '',
                 'choices':[{'label':name,'value':kind} for name,kind in self.host._resolution().choices], 'results':sources},
             tools=self._tools or [{'id':spec.name,'name':TOOL_NAMES.get(spec.name,spec.name),'description':spec.description,'inputTypes':[spec.kind],
                 'available':False,'state':'unverified','reason':'Нажмите «Проверить готовность» для фактической проверки.',

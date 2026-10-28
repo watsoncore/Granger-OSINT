@@ -24,8 +24,8 @@ def main():
     from qa_packaged_search import process_image
     from smoke_exe import _terminate_spawned_binary_tree
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output', type=Path, default=ROOT/'output/upgrade-qa/exe-dpi-final')
-    parser.add_argument('--profile', type=Path, default=ROOT/'output/upgrade-qa/exe-release/appdata/GrangerPet')
+    parser.add_argument('--output', type=Path, default=ROOT/'output/upgrade-qa/exe-dpi-delivery')
+    parser.add_argument('--profile', type=Path, default=ROOT/'output/upgrade-qa/exe-delivery/appdata/GrangerPet')
     args = parser.parse_args()
     app = QApplication([])
     native_scale = app.primaryScreen().devicePixelRatio()

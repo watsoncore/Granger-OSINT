@@ -81,6 +81,8 @@ export interface DesktopState {
     phase: string
     count: number
     checked: number
+    checkedLabel?: string
+    status?: string
     error?: string
     choices: { label: string; value: string }[]
     results: Record<string, unknown>[]
