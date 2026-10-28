@@ -136,7 +136,8 @@ def _run_surface(executable: Path, pet: bool, directory: Path) -> dict:
     log = appdata / "GrangerPet" / "logs" / f"{role}.log"
     text = log.read_text(encoding="utf-8", errors="replace") if log.is_file() else ""
     check["fresh_start_log"] = marker in text
-    check["passed"] = process.returncode == 0 and check["fresh_start_log"]
+    check["react_ready"] = ("Desktop surface ready: " + ("main" if pet else "launcher")) in text
+    check["passed"] = process.returncode == 0 and check["fresh_start_log"] and check["react_ready"]
     if not check["passed"]:
         check["error"] = "The EXE failed to start a fresh surface. Close existing GrangerPet instances and inspect the build if this repeats."
         check["log_tail"] = text[-6000:]
@@ -146,7 +147,7 @@ def _run_surface(executable: Path, pet: bool, directory: Path) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--exe", type=Path, default=ROOT / "dist" / "GrangerPet.exe")
+    parser.add_argument("--exe", type=Path, default=ROOT / "dist" / "Granger-OSINT.exe")
     parser.add_argument("--output", type=Path, default=ROOT / "dist" / "binarysmoke.json")
     args = parser.parse_args()
     executable = args.exe.resolve()

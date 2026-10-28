@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 import time
 
-from PySide6.QtCore import QPoint, QPointF, QRectF, Qt, QTimer, Signal
+from PySide6.QtCore import QPoint, QPointF, QRect, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QBitmap, QCursor, QGuiApplication, QImage, QPainter, QPixmap, QRegion, QTransform
 from PySide6.QtWidgets import QApplication, QMenu, QWidget
 
@@ -20,6 +20,7 @@ from .physics import CollarPhysics
 from .reactions import facial_reaction
 from .pet_life import PetLifeController, windows_idle_seconds
 from .pet_actions import action_frame
+from .pet_notifications import PetNotification, notification_position
 
 
 class PetWindow(QWidget):
@@ -28,7 +29,7 @@ class PetWindow(QWidget):
     def __init__(self, settings: Settings, store: SettingsStore, *, interaction_qa=False):
         super().__init__(None, Qt.WindowType.FramelessWindowHint | (Qt.WindowType.Window if interaction_qa else Qt.WindowType.Tool) |
                          Qt.WindowType.WindowStaysOnTopHint)
-        self.setWindowTitle("GrangerPet · Гермиона")
+        self.setWindowTitle("Granger-OSINT · Гермиона")
         self.setObjectName("DesktopPet")
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_NoSystemBackground)
@@ -80,6 +81,13 @@ class PetWindow(QWidget):
         self._life_exit_x = None
         self._system_idle = None
         self._next_idle_poll = 0.0
+        self._next_dock_poll = 0.0
+        self._dock_home = None
+        self._dock_bounds = None
+        self._dock_suppressed = False
+        self._main_active = False
+        self.notification = PetNotification(self)
+        self.notification.activated.connect(self._open_notification)
         self.animation.state_changed.connect(self._begin_transition)
         self._region = QRegion()
         self._padding = 12
@@ -107,6 +115,8 @@ class PetWindow(QWidget):
         chat = getattr(self.panel, 'chat_widget', None)
         if chat is not None:
             chat.input.textChanged.connect(self.notify_user_activity)
+            if hasattr(chat, 'turn_completed'):
+                chat.turn_completed.connect(self._turn_completed)
         if hasattr(self.panel, 'user_activity'):
             self.panel.user_activity.connect(self.notify_user_activity)
 
@@ -166,6 +176,7 @@ class PetWindow(QWidget):
         settings.size = max(100, min(195, settings.size))
         foot = self.y() + self.height()
         self.settings = settings
+        self.notification.apply_settings(settings)
         if self.width() != settings.size + 24:
             self.setFixedSize(settings.size + 24, settings.size + 24)
             self.move(self.x(), foot - self.height())
@@ -184,6 +195,124 @@ class PetWindow(QWidget):
 
     def _panel_settings_saved(self, settings):
         self.settings = settings
+        self.notification.apply_settings(settings)
+
+    def notify(self, kind, message_id=None, *, index=None, conversation_id=None):
+        """Notify only an actual completed reply, investigation or error."""
+        if self._ending:
+            return False
+        if kind == 'cancelled':
+            self.dismiss_notification()
+            return False
+        self._update_notification_anchor()
+        return self.notification.notify(kind, message_id, index=index, conversation_id=conversation_id)
+
+    def dismiss_notification(self):
+        self.notification.dismiss()
+
+    def _turn_completed(self, metadata):
+        if not isinstance(metadata, dict):
+            return
+        kind = metadata.get('kind')
+        if kind not in ('reply', 'investigation', 'error', 'cancelled'):
+            return
+        self.notify(kind, metadata.get('message_id'), index=metadata.get('index'), conversation_id=metadata.get('conversation_id'))
+
+    def _open_notification(self, kind, payload):
+        self.notify_user_activity()
+        opener = getattr(self.panel, 'open_message', None)
+        if callable(opener):
+            if payload.conversation_id is not None:
+                opener(payload.message_id, index=payload.index, conversation_id=payload.conversation_id)
+            else:
+                opener(payload.message_id, index=payload.index)
+        else:
+            # Compatibility with the existing Qt panel, including minimized
+            # windows. The WebEngine host supplies its own message navigation.
+            self.panel.mode_tabs.setCurrentWidget(self.panel.chat_widget)
+            if self.panel.isMinimized():
+                self.panel.showNormal()
+            else:
+                self.panel.show()
+            self.panel.raise_()
+            self.panel.activateWindow()
+            self.panel.chat_widget.input.setFocus()
+        self._sync_overlay_placement()
+
+    def _update_notification_anchor(self):
+        screen = QGuiApplication.screenAt(self.frameGeometry().center()) or QGuiApplication.primaryScreen()
+        bounds = self._dock_bounds or screen.availableGeometry().adjusted(6, 6, -6, -6)
+        self.notification.move(notification_position(self.frameGeometry(), bounds, self.notification.size()))
+
+    @staticmethod
+    def _safe_overlay_position(current, size, main, available, dock=None):
+        """Fit the native character in its reserved dock or outside the UI."""
+        if dock is not None and dock.width() >= size.width() and dock.height() >= size.height():
+            bottom_margin = min(8, dock.height()-size.height())
+            return QPoint(dock.center().x()-size.width()//2, dock.bottom()-size.height()+1-bottom_margin)
+        gaps = (
+            QRect(available.left(), available.top(), max(0, main.left()-available.left()-8), available.height()),
+            QRect(main.right()+9, available.top(), max(0, available.right()-main.right()-8), available.height()),
+            QRect(available.left(), available.top(), available.width(), max(0, main.top()-available.top()-8)),
+            QRect(available.left(), main.bottom()+9, available.width(), max(0, available.bottom()-main.bottom()-8)),
+        )
+        candidates = []
+        for gap in gaps:
+            if gap.width() >= size.width() and gap.height() >= size.height():
+                point = QPoint(max(gap.left(), min(current.x(), gap.right()-size.width()+1)),
+                               max(gap.top(), min(current.y(), gap.bottom()-size.height()+1)))
+                candidates.append(point)
+        return min(candidates, key=lambda point: (point-current).manhattanLength()) if candidates else None
+
+    def _sync_overlay_placement(self):
+        """The host reports only its own window; no other app is inspected."""
+        if self._ending or self._pressed_at is not None or self._dragging:
+            return
+        state_getter = getattr(self.panel, 'desktop_window_state', None)
+        if callable(state_getter):
+            state = state_getter()
+            active = bool(state.get('active'))
+            main, dock = state.get('geometry'), state.get('dock')
+        else:
+            active = self.panel.isVisible() and not self.panel.isMinimized() and self.panel.isActiveWindow()
+            main = self.panel.frameGeometry()
+            dock_getter = getattr(self.panel, 'hermione_dock_geometry', None)
+            dock = dock_getter() if callable(dock_getter) else None
+        self._main_active = active
+        if active and isinstance(main, QRect) and not main.isEmpty():
+            self.life.notify_activity(immediate=True)
+            self._restore_life_position()
+            if self._dock_home is None:
+                self._dock_home = self.pos()
+            screen = QGuiApplication.screenAt(main.center()) or QGuiApplication.primaryScreen()
+            dock = dock if isinstance(dock, QRect) and not dock.isEmpty() else None
+            position = self._safe_overlay_position(self._dock_home, self.size(), main, screen.availableGeometry(), dock)
+            self._dock_bounds = dock
+            if position is None:
+                # An unusually narrow/full-screen host without a reserved dock
+                # cannot safely display a second native window over its text.
+                self._dock_suppressed = True
+                self.hide()
+                self.notification.hide()
+            else:
+                self.move(position)
+                if self._dock_suppressed:
+                    self.show()
+                self._dock_suppressed = False
+        else:
+            self._dock_bounds = None
+            if self._dock_home is not None:
+                self.move(self._dock_home)
+                self._dock_home = None
+                if self._dock_suppressed:
+                    self.show()
+                self._dock_suppressed = False
+        self._update_notification_anchor()
+
+    def moveEvent(self, event):
+        super().moveEvent(event)
+        if hasattr(self, 'notification'):
+            self._update_notification_anchor()
 
     def notify_user_activity(self, *_):
         """Typing, a new reply or a user gesture interrupts local idle actions."""
@@ -237,8 +366,11 @@ class PetWindow(QWidget):
         if now >= self._next_idle_poll:
             self._system_idle = windows_idle_seconds()
             self._next_idle_poll = now + .5
+        if now >= self._next_dock_poll:
+            self._sync_overlay_placement()
+            self._next_dock_poll = now + .25
         available = not (self._busy or self._dragging or self._pressed_at is not None or self.physics.active
-                         or self.panel.isVisible() or self._near or now < self._terminal_until)
+                         or self.panel.isVisible() or self._main_active or self._near or now < self._terminal_until)
         life_pose = self.life.update(now, available=available, system_idle=self._system_idle)
         self._apply_life_travel(life_pose)
         self.physics.advance(now - self._physics_time, now)
@@ -433,6 +565,8 @@ class PetWindow(QWidget):
                      "dragged": dragged, "reaction": self.physics.pose.reaction})
 
     def _position_panel(self):
+        if getattr(self.panel, 'independent_main_window', False):
+            return
         if self.panel.isMaximized() or self.panel.isFullScreen():
             return
         screen = QGuiApplication.screenAt(self.frameGeometry().center()) or QGuiApplication.primaryScreen()
@@ -490,8 +624,8 @@ class PetWindow(QWidget):
         react.setCheckable(True)
         react.setChecked(self.settings.cursor_reaction)
         menu.addSeparator()
-        launcher = menu.addAction("Открыть Launcher")
-        back = menu.addAction("Остановить и вернуться в Launcher")
+        launcher = menu.addAction("Открыть лаунчер Granger-OSINT")
+        back = menu.addAction("Остановить и вернуться в лаунчер")
         quit_action = menu.addAction("Закрыть Гермиону")
         chosen = menu.exec(event.globalPos())
         if chosen == panel_action:
@@ -513,7 +647,7 @@ class PetWindow(QWidget):
             # Other windows/processes may have saved connections since this
             # pet was opened. Position changes own x/y only, never AI options.
             current = self.store.load() if self.store.path.exists() else self.settings
-            position = self._life_home if self._life_home is not None else self.pos()
+            position = self._dock_home if self._dock_home is not None else self._life_home if self._life_home is not None else self.pos()
             current.x, current.y = position.x(), position.y()
             if 'cursor_reaction' in appearance_changes:
                 current.cursor_reaction = bool(appearance_changes['cursor_reaction'])
@@ -526,7 +660,11 @@ class PetWindow(QWidget):
         if self._ending:
             return
         self._ending = True
+        self.dismiss_notification()
         self._restore_life_position()
+        if self._dock_home is not None:
+            self.move(self._dock_home)
+            self._dock_home = None
         self._save_position()
         self.frame_timer.stop()
         self.cursor_timer.stop()

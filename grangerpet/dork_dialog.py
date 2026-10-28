@@ -14,7 +14,7 @@ class DorkDialog(FramelessWindow):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("GrangerPet · Операторы Google")
+        self.setWindowTitle("Granger-OSINT · Операторы Google")
         self.resize(520, 550)
         self.setMinimumSize(440, 380)
         self.setFont(ui_font(14))

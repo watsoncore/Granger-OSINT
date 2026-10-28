@@ -5,7 +5,7 @@ import json
 import time
 from pathlib import Path
 
-from PySide6.QtCore import QSize, QTimer, Qt, QUrl, Signal, QVariantAnimation, QEasingCurve, QRectF
+from PySide6.QtCore import QSize, QTimer, Qt, QUrl, Signal, QVariantAnimation, QEasingCurve, QRectF, QRect, QPoint
 from PySide6.QtGui import QAction, QDesktopServices, QKeySequence, QPainter, QColor
 from PySide6.QtWidgets import (QApplication, QComboBox, QHBoxLayout,
     QLabel, QLineEdit, QListView, QMenu, QPlainTextEdit, QProgressBar, QPushButton,
@@ -123,7 +123,7 @@ class OsintPanel(FramelessWindow):
         self._result_types = set()
         self.chat_widget = None
         self.phase = 'idle'
-        self.setWindowTitle('GrangerPet · Поиск')
+        self.setWindowTitle('Granger-OSINT')
         self.setObjectName('OsintPanel')
         self.resize(760, 690)
         self.setMinimumSize(460, 420)
@@ -158,7 +158,7 @@ class OsintPanel(FramelessWindow):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(1, 1, 1, 1)
         outer.setSpacing(0)
-        self.header = WindowHeader(self, 'GrangerPet', settings_action=self.open_settings, enable_window_modes=True)
+        self.header = WindowHeader(self, 'Granger-OSINT', settings_action=self.open_settings, enable_window_modes=True)
         self.settings_button = self.header.settings_button
         self.close_button = self.header.close_button
         outer.addWidget(self.header)
@@ -349,6 +349,21 @@ class OsintPanel(FramelessWindow):
         self.results_view.addAction(copy_action)
         QApplication.instance().aboutToQuit.connect(self.shutdown)
         self._update_analysis_button()
+        self.desktop_surface = None
+        self.independent_main_window = False
+        if QApplication.instance().property('web_desktop'):
+            from .desktop_surface import DesktopSurface
+            self.desktop_surface = DesktopSurface(self)
+            self.independent_main_window = True
+            while outer.count():
+                item = outer.takeAt(0)
+                if item.widget(): item.widget().hide()
+            self.size_grip.hide()
+            outer.setContentsMargins(0,0,0,0)
+            outer.addWidget(self.desktop_surface)
+            self.setMinimumSize(760,560)
+            area=QApplication.primaryScreen().availableGeometry()
+            self.resize(max(760,min(1120,area.width()-40)),max(560,min(760,area.height()-40)))
 
     def sizeHint(self):
         return QSize(760, 690)
@@ -380,6 +395,9 @@ class OsintPanel(FramelessWindow):
             self.workspace.addWidget(self.canvas)
         self.canvas.open_document(text)
         self.workspace.setCurrentWidget(self.canvas)
+        if self.desktop_surface:
+            self.desktop_surface.bridge.route = 'canvas'
+            self.desktop_surface.bridge.mark_dirty()
         self.user_activity.emit()
 
     def _agent_evidence(self, records):
@@ -406,10 +424,44 @@ class OsintPanel(FramelessWindow):
     def show_chat(self):
         self.workspace.setCurrentWidget(self.mode_tabs)
         self.mode_tabs.setCurrentWidget(self.chat_widget)
+        if self.desktop_surface:
+            self.desktop_surface.bridge.route = 'chat'
+            self.desktop_surface.bridge.mark_dirty()
 
     def show_search(self):
         self.workspace.setCurrentWidget(self.mode_tabs)
         self.mode_tabs.setCurrentWidget(self.search_page)
+        if self.desktop_surface:
+            self.desktop_surface.bridge.route = 'search'
+            self.desktop_surface.bridge.mark_dirty()
+
+    def open_message(self, message_id, index=None, conversation_id=None):
+        if conversation_id and conversation_id != self.chat_widget.conversation_id:
+            self.chat_widget.load_conversation(conversation_id)
+        if self.isMinimized(): self.showNormal()
+        self.show(); self.raise_(); self.activateWindow(); self.show_chat()
+        if self.desktop_surface:
+            self.desktop_surface.bridge.message_focus = message_id
+            self.desktop_surface.bridge.mark_dirty()
+        elif isinstance(index,int):
+            self.chat_widget.history.verticalScrollBar().setValue(self.chat_widget.history.verticalScrollBar().maximum())
+
+    def hermione_dock_geometry(self):
+        if not self.desktop_surface or not self.isVisible() or self.isMinimized(): return QRect()
+        value = self.desktop_surface.bridge._dock_rect
+        if value.isValid() and value.width()>=180:
+            # The DOM figure excludes the sidebar's16px padding. Expand inside
+            # that reserved column; never fall back to a different vertical area.
+            box=QRect(value)
+            if box.width()<240: box.adjust(-(240-box.width())//2,0,(240-box.width()+1)//2,0)
+            return QRect(self.desktop_surface.mapToGlobal(box.topLeft()),box.size())
+        top_left=self.desktop_surface.mapToGlobal(QPoint(max(0,self.desktop_surface.width()-240),100))
+        return QRect(top_left.x(),top_left.y(),240,max(220,self.desktop_surface.height()-150))
+
+    def desktop_window_state(self):
+        return {'active':bool(self.desktop_surface and self.isVisible() and not self.isMinimized() and
+            (self.isActiveWindow() or self.settings_dialog.isActiveWindow())),
+            'geometry':self.frameGeometry(),'dock':self.hermione_dock_geometry()}
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -437,8 +489,16 @@ class OsintPanel(FramelessWindow):
         self.settings_dialog.set_settings(settings)
         self.chat_widget.set_settings(settings)
         self._update_analysis_button()
+        QApplication.instance().setProperty('reduced_motion',getattr(settings,'reduced_motion',False))
 
     def open_settings(self, section=None):
+        if self.desktop_surface:
+            self.desktop_surface.bridge.route='settings'
+            self.desktop_surface.bridge.mark_dirty()
+            return
+        self.open_native_settings(section)
+
+    def open_native_settings(self, section=None):
         if isinstance(section, str):
             tabs = self.connections.tabs
             for index in range(tabs.count()):
@@ -864,6 +924,8 @@ class OsintPanel(FramelessWindow):
         self.chat_widget.analyze_results(list(self._records.values()))
 
     def shutdown(self):
+        if self.desktop_surface is not None:
+            self.desktop_surface.shutdown()
         if self.canvas is not None:
             self.canvas.shutdown()
         if self._ending:

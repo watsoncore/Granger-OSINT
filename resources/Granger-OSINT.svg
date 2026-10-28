@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Granger-OSINT</title>
+  <desc>Original application mark: a compass needle over an open research book.</desc>
+  <rect x="4" y="4" width="248" height="248" rx="56" fill="#151d27"/>
+  <rect x="5" y="5" width="246" height="246" rx="55" fill="none" stroke="#394958" stroke-width="2"/>
+  <path d="M45 93c28-8 54-5 83 11 29-16 55-19 83-11v88c-28-8-54-5-83 11-29-16-55-19-83-11Z" fill="#202d3b" stroke="#bfb18b" stroke-width="9" stroke-linejoin="round"/>
+  <path d="M128 108v79" fill="none" stroke="#bfb18b" stroke-width="7"/>
+  <circle cx="128" cy="92" r="50" fill="#151d27" stroke="#6ba8a1" stroke-width="8"/>
+  <path d="m151 62-10 44-36 17 10-44Z" fill="#d2c498"/>
+  <path d="m151 62-23 30-23 31 10-44Z" fill="#8bbfb4"/>
+  <circle cx="128" cy="92" r="6" fill="#151d27"/>
+  <path d="M73 133h26m-26 23h29m53-23h28m-28 23h28" fill="none" stroke="#718494" stroke-width="7" stroke-linecap="round"/>
+</svg>

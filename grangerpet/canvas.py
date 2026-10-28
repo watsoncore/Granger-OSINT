@@ -225,7 +225,7 @@ class CanvasWorkspace(QWidget):
 
     def export_document(self, path=None):
         if path is None:
-            value, _ = QFileDialog.getSaveFileName(self, 'Сохранить отчёт Markdown', 'GrangerPet-report.md', 'Markdown (*.md)')
+            value, _ = QFileDialog.getSaveFileName(self, 'Сохранить отчёт Markdown', 'Granger-OSINT-report.md', 'Markdown (*.md)')
             if not value:
                 return None
             path = value

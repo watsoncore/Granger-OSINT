@@ -17,8 +17,8 @@ def normalized(code):
 def main():
     from PyInstaller.archive.readers import CArchiveReader
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--exe', type=Path, default=ROOT / 'dist/GrangerPet.exe')
-    parser.add_argument('--output', type=Path, default=ROOT / 'output/master-qa/frozen-sources.json')
+    parser.add_argument('--exe', type=Path, default=ROOT / 'dist/Granger-OSINT.exe')
+    parser.add_argument('--output', type=Path, default=ROOT / 'output/upgrade-qa/frozen-sources.json')
     args = parser.parse_args()
     archive = CArchiveReader(str(args.exe))
     name = next(name for name in archive.toc if name.endswith('.pyz'))

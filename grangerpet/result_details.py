@@ -47,7 +47,7 @@ class ResultDetails(QDialog):
     def __init__(self, record, parent=None):
         super().__init__(parent)
         self.record, self.fields = dict(record), {}
-        self.setWindowTitle("GrangerPet · Сведения источника")
+        self.setWindowTitle("Granger-OSINT · Сведения источника")
         self.setObjectName("ResultDetails")
         self.resize(520, 440)
         self.setMinimumSize(400, 300)

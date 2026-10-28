@@ -2,10 +2,12 @@
 import sys
 
 from PySide6.QtCore import QEasingCurve, QPropertyAnimation
-from PySide6.QtWidgets import QGraphicsOpacityEffect
+from PySide6.QtWidgets import QGraphicsOpacityEffect, QApplication
 
 
 def reduced_motion():
+    app=QApplication.instance()
+    if app is not None and app.property('reduced_motion'): return True
     if sys.platform == 'win32':
         try:
             import ctypes

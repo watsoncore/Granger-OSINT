@@ -47,6 +47,7 @@ def test_launcher_button_starts_real_pet_and_close_leaves_it_running(tmp_path, m
         actual_pid = status["pid"]
         launcher.refresh_status()
         assert launcher.running
+        assert launcher.process_state == 'running'
         assert not launcher.start_button.isEnabled()
         assert launcher.stop_button.isEnabled()
 

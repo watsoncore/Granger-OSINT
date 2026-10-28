@@ -7,26 +7,29 @@ import time
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QBitmap, QCloseEvent, QPixmap, QRegion
 from PySide6.QtWidgets import (
-    QCheckBox, QFrame, QHBoxLayout, QLabel, QMessageBox, QPushButton,
+    QApplication, QCheckBox, QFrame, QHBoxLayout, QLabel, QMessageBox, QPushButton,
     QSlider, QSpinBox, QToolButton, QVBoxLayout, QWidget,
 )
 
 from . import __version__
 from .config import SettingsStore, resource_path
 from .ipc import launch_process, send_command
+from .window_chrome import FramelessWindow
 
 
-class Launcher(QWidget):
+class Launcher(FramelessWindow):
     exit_requested = Signal()
 
     def __init__(self, store: SettingsStore):
         super().__init__()
         self.store = store
         self.settings = store.load()
+        QApplication.instance().setProperty('reduced_motion',getattr(self.settings,'reduced_motion',False))
         self.running = False
         self.start_deadline = 0.0
         self.stopping = False
-        self.setWindowTitle("GrangerPet")
+        self.process_state = 'ready'
+        self.setWindowTitle('Granger-OSINT')
         self.setObjectName("launcher")
         self.setFixedWidth(360)
         self.setMinimumHeight(350)
@@ -41,6 +44,23 @@ class Launcher(QWidget):
         self.save_timer.setInterval(180)
         self.save_timer.timeout.connect(self.save_preferences)
         QTimer.singleShot(0, self.refresh_status)
+        self.desktop_surface = None
+        if QApplication.instance().property('web_desktop'):
+            from .desktop_surface import DesktopSurface
+            self.desktop_surface = DesktopSurface(self,'launcher')
+            outer=self.layout()
+            while outer.count():
+                item=outer.takeAt(0)
+                if item.widget(): item.widget().hide()
+            # Old controls remain the tested process/settings controller; all
+            # visible composition belongs to React.
+            for child in self.findChildren(QWidget):
+                if child is not self.desktop_surface and not self.desktop_surface.isAncestorOf(child): child.hide()
+            outer.setContentsMargins(0,0,0,0); outer.addWidget(self.desktop_surface)
+            self.setMinimumSize(440,600); self.setMaximumSize(900,1200)
+            area=QApplication.primaryScreen().availableGeometry()
+            self.resize(max(440,min(490,area.width()-32)),max(600,min(720,area.height()-32)))
+            self.enable_window_modes()
 
     def _build(self):
         layout = QVBoxLayout(self)
@@ -66,7 +86,7 @@ class Launcher(QWidget):
         words = QVBoxLayout()
         words.setSpacing(6)
         words.addStretch()
-        title = QLabel("GrangerPet")
+        title = QLabel('Granger-OSINT')
         title.setObjectName("LauncherTitle")
         words.addWidget(title)
         caption = QLabel("Гермиона на рабочем столе")
@@ -167,7 +187,11 @@ class Launcher(QWidget):
             self.status.setText("Не удалось сохранить настройки")
             return
         self.settings = settings
-        if self.running:
+        if self.stopping and self.running:
+            self.process_state='stopping'
+            self.status.setText('Останавливаю Гермиону…')
+        elif self.running:
+            self.process_state='running'
             send_command("pet", "settings", {name: getattr(settings, name) for name in ('size', 'fps', 'cursor_reaction')})
 
     def refresh_status(self):
@@ -176,19 +200,24 @@ class Launcher(QWidget):
         starting = bool(self.start_deadline and time.monotonic() < self.start_deadline)
         if self.running:
             self.start_deadline = 0.0
-            self.status.setText("●  Гермиона на рабочем столе")
+            self.process_state = 'stopping' if self.stopping else 'running'
+            self.status.setText("Останавливаю Гермиону…" if self.stopping else "●  Гермиона на рабочем столе")
         elif starting:
+            self.process_state='starting'
             self.status.setText("Запускаю Гермиону…")
         elif self.start_deadline:
+            self.process_state='error'
             self.status.setText("Запуск не подтверждён. Подробности — в logs.")
             self.start_deadline = 0.0
         elif self.stopping:
+            self.process_state='stopped'
             self.status.setText("Гермиона остановлена")
             self.stopping = False
         else:
+            if self.process_state not in ('error','stopped'): self.process_state='ready'
             self.status.setText("Гермиона ещё не запущена")
-        self.start_button.setEnabled(not self.running and not starting)
-        self.stop_button.setEnabled(self.running)
+        self.start_button.setEnabled(not self.running and not starting and not self.stopping)
+        self.stop_button.setEnabled(self.running and not self.stopping)
 
     def start_pet(self):
         self.save_preferences()
@@ -197,8 +226,10 @@ class Launcher(QWidget):
             return
         self.start_button.setEnabled(False)
         self.start_deadline = time.monotonic() + 35.0
+        self.process_state='starting'
         self.status.setText("Запускаю Гермиону…")
         if not launch_process(pet=True):
+            self.process_state='error'
             self.start_deadline = 0.0
             self.start_button.setEnabled(True)
             self.status.setText("Не удалось создать процесс Гермионы")
@@ -208,9 +239,24 @@ class Launcher(QWidget):
     def stop_pet(self):
         response = send_command("pet", "stop", timeout=250)
         self.stopping = bool(response and response.get("ok"))
+        self.process_state='stopping' if self.stopping else 'stopped'
         self.status.setText("Останавливаю Гермиону…" if self.stopping else "Гермиона уже остановлена")
         self.stop_button.setEnabled(False)
         QTimer.singleShot(300, self.refresh_status)
+
+    def open_workspace(self,route='chat'):
+        self._workspace_route=route
+        response=send_command('pet','show_workspace',{'route':route},timeout=150)
+        if response and response.get('ok'): return
+        self.start_pet()
+        self._workspace_attempts=0
+        QTimer.singleShot(500,self._show_pending_workspace)
+
+    def _show_pending_workspace(self):
+        self._workspace_attempts+=1
+        response=send_command('pet','show_workspace',{'route':self._workspace_route},timeout=100)
+        if not response and self._workspace_attempts<60:
+            QTimer.singleShot(500,self._show_pending_workspace)
 
     def exit_all(self):
         if self.save_timer.isActive():
@@ -229,4 +275,5 @@ class Launcher(QWidget):
             self.save_timer.stop()
             self.save_preferences()
         event.accept()
+        if self.desktop_surface: self.desktop_surface.shutdown()
         self.exit_requested.emit()

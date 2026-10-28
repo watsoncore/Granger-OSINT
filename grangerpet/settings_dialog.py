@@ -18,7 +18,7 @@ class SettingsDialog(FramelessWindow):
 
     def __init__(self, settings, store=None, parent=None, *, ai_state=None):
         super().__init__(parent)
-        self.setWindowTitle("GrangerPet · Настройки")
+        self.setWindowTitle("Granger-OSINT · Настройки")
         self.setObjectName("SettingsDialog")
         self.resize(570, 470)
         self._auto_size = QSize(570, 470)
