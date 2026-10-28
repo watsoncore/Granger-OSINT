@@ -22,14 +22,19 @@ from .ui_jobs import UiJob
 from .ai_state import AIState
 from .message_view import MessageHistory
 from .typography import ui_font
-from .agent import AgentRunner
+from .agent import AgentRunner, AgentLimits
 from .agent_tools import ToolRegistry
 from .agent_journal import InvestigationJournal
+from .chat_archive import ChatArchive
+
+
+def no_tools_requested(text):
+    return bool(re.search(r'(?iu)(без\s+(?:веб[- ]?)?(?:поиска|инструментов)|не\s+(?:используй|запускай)\s+(?:никакие\s+)?инструмент|не\s+обращайся\s+в\s+интернет)', text))
 
 
 def investigation_requested(text):
     """Route explicit research requests; ordinary conversation keeps its fast path."""
-    return bool(re.search(r'(?iu)(найд[иуё]|найти|поищ|поиск|провер[ьить]|исслед|упоминан|сопостав|пробей|whois|rdap|dns|lookup|investigat|search\b|профил|кошел[её]к|блокчейн)', text))
+    return not no_tools_requested(text) and bool(re.search(r'(?iu)(найд[иуё]|найти|поищ|поиск|провер[ьить]|исслед|упоминан|сопостав|пробей|whois|rdap|dns|lookup|investigat|search\b|профил|кошел[её]к|блокчейн|прочита|прочти|открой|изучи|страниц|https?://)', text))
 
 
 def label(text, name='Muted'):
@@ -188,6 +193,8 @@ class ChatWidget(QWidget):
     settings_requested = Signal()
     connection_changed = Signal(bool)
     evidence_received = Signal(object)
+    report_requested = Signal(str)
+    user_activity = Signal()
     _agent_progress = Signal(int, object)
     _approval_requested = Signal(int, object)
 
@@ -210,6 +217,11 @@ class ChatWidget(QWidget):
         self._stream_index = None
         journal_dir = Path(store.path).parent / 'investigations' if store is not None else None
         self._journal = InvestigationJournal(journal_dir)
+        self._archive = ChatArchive(Path(store.path).parent / 'chat-history.dpapi') if store is not None else None
+        self._archive_timer = QTimer(self)
+        self._archive_timer.setSingleShot(True)
+        self._archive_timer.setInterval(600)
+        self._archive_timer.timeout.connect(self._save_archive)
         self._agent_progress.connect(self._on_agent_progress)
         self._approval_requested.connect(self._on_approval_requested)
         self.setObjectName('ChatPage')
@@ -242,6 +254,8 @@ class ChatWidget(QWidget):
         self.notice.setContentsMargins(16, 6, 16, 8)
         layout.addWidget(self.notice)
         self.history = MessageHistory()
+        if hasattr(self.history, 'report_requested'):
+            self.history.report_requested.connect(self.report_requested)
         layout.addWidget(self.history, 1)
         self.status = label('', 'TypingStatus')
         self.status.setContentsMargins(16, 6, 16, 4)
@@ -262,6 +276,7 @@ class ChatWidget(QWidget):
         self.input.setAccessibleName('Сообщение Гермионе')
         self.input.send_requested.connect(self.send_message)
         self.input.textChanged.connect(self._update_actions)
+        self.input.textChanged.connect(self.user_activity)
         controls.addWidget(self.input, 1)
         self.send = SendButton()
         self.send.clicked.connect(self._main_action)
@@ -270,6 +285,11 @@ class ChatWidget(QWidget):
         layout.addWidget(composer_area)
         self.ai_state.changed.connect(self._on_state_changed)
         self.set_settings(settings)
+        if self._archive is not None:
+            saved = self._archive.load()
+            self._context = saved.get('context', [])
+            for row in saved.get('messages', []):
+                self._append(row['role'], row['text'])
 
     @property
     def busy(self):
@@ -288,11 +308,15 @@ class ChatWidget(QWidget):
 
     def _on_state_changed(self, snapshot):
         self.settings = self.ai_state.settings
-        self.provider_status.setText(self.ai_state.status_text(snapshot))
+        detail = self.ai_state.status_text(snapshot)
+        state = snapshot.get('connection_status')
+        self.provider_status.setText('На связи' if state == 'connected' else
+                                    'Готова к разговору' if state == 'configured_unverified' else detail)
+        self.provider_status.setToolTip(detail)
         provider = self.ai_state.committed_snapshot()['provider']
         available = self.ai_state.can_send
         self.configure.setText('Настройки' if available else 'Подключить')
-        self.notice.setText('Сообщения и выбранные находки отправляются DeepSeek через api.aikeysforyou.com, внешнему облачному провайдеру, только по вашему действию.' if provider == 'deepseek' else
+        self.notice.setText('Сообщения и выбранные источники передаются внешнему облачному провайдеру по вашему действию.' if provider == 'deepseek' else
             'Сообщения обрабатываются установленной локальной моделью Ollama.' if provider == 'ollama' else
             'Подключите DeepSeek или локальную Ollama. Поиск работает самостоятельно.')
         self.connection_changed.emit(available)
@@ -309,6 +333,7 @@ class ChatWidget(QWidget):
     def _append(self, role, text, retry=None):
         self.messages.append({'role': role, 'text': str(text)})
         bubble = self.history.append_message(role, text, retry)
+        self._archive_timer.start()
         self._update_actions()
         return bubble
 
@@ -335,14 +360,18 @@ class ChatWidget(QWidget):
         snapshot = self.ai_state.committed_snapshot()
         model = snapshot['model_id']
         generation = self._generation + 1
-        investigate = investigation_requested(text) or self._agent_followup and bool(re.search(r'(?iu)(ещ[её]|подроб|дальше|сравни|почему|источник|ev_[a-f0-9]+)', text))
+        investigate = not no_tools_requested(text) and (investigation_requested(text) or self._agent_followup and bool(re.search(r'(?iu)(ещ[её]|подроб|дальше|сравни|почему|источник|ev_[a-f0-9]+)', text)))
         def request(cancelled):
             if snapshot['provider'] == 'deepseek':
                 client = DeepSeekClient()
                 if investigate:
                     if self._agent_registry is None:
                         self._agent_registry = ToolRegistry(settings, redactions=(getattr(client, '_key', ''),))
-                    runner = AgentRunner(client, self._agent_registry)
+                    if hasattr(self._agent_registry, 'seed_urls_from_user'):
+                        self._agent_registry.seed_urls_from_user(text)
+                    limits = AgentLimits(max_steps=settings.agent_steps, max_tool_calls=settings.agent_calls,
+                        timeout=settings.agent_timeout, max_tokens=settings.agent_tokens)
+                    runner = AgentRunner(client, self._agent_registry, limits=limits)
                     self._agent_runner = runner
                     result = runner.run(model, history, cancel_event=cancelled,
                         on_event=lambda value: self._agent_progress.emit(generation, value),
@@ -488,6 +517,7 @@ class ChatWidget(QWidget):
                     self.ai_state.request_succeeded(provider=provider, model_id=model)
                     self.activity_changed.emit('happy')
             self._update_actions()
+            self._archive_timer.start()
             job.deleteLater()
         job.done.connect(finished)
         job.start()
@@ -497,6 +527,7 @@ class ChatWidget(QWidget):
             return
         self._generation += 1
         self._job.cancel()
+        self._job.deleteLater()
         self._close_approval()
         if self._agent_runner is not None:
             self._last_investigation = self._agent_runner.snapshot()
@@ -524,6 +555,7 @@ class ChatWidget(QWidget):
         self._agent_followup = False
         self.messages.clear()
         self.history.clear()
+        self._save_archive()
         self.status.setText('Диалог очищен')
         self.status.hide()
         self._update_actions()
@@ -531,6 +563,15 @@ class ChatWidget(QWidget):
     def shutdown(self):
         self._ending = True
         self.cancel()
+        self._save_archive()
+
+    def _save_archive(self):
+        self._archive_timer.stop()
+        if self._archive is not None:
+            try:
+                self._archive.save(self.messages, self._context, secrets=(resolve_deepseek_key(),))
+            except Exception:
+                self.history.setToolTip('Не удалось сохранить локальную историю. Текущая переписка остаётся в окне.')
 
     def _on_agent_progress(self, generation, event):
         if self._ending or generation != self._generation or not self._busy or not isinstance(event, dict):

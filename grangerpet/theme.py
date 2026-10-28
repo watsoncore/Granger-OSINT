@@ -27,6 +27,13 @@ QPlainTextEdit#ChatComposerInput { background: transparent; border: none; paddin
 QPushButton#ChatSendButton { background: transparent; border: none; padding: 0; }
 QScrollArea#MessageHistory, QWidget#MessageViewport { background: #0e1621; border: none; }
 QWidget#MessageBody, QWidget#MessageRow { background: transparent; }
+QWidget#BubbleActions { background: transparent; }
+QWidget#CanvasWorkspace { background: #0e1621; }
+QWidget#CanvasHeader { background: #17212b; border-bottom: 1px solid #30404e; }
+QTextBrowser#MarkdownDocument, QPlainTextEdit#CanvasEditor { background: #0e1621; border: none; color: #f1f3f5; padding: 0; }
+QListWidget#CanvasOutline { background: #17212b; border: none; border-right: 1px solid #30404e; padding: 7px; }
+QListWidget#CanvasOutline::item { padding: 6px 3px; color: #b5c4d2; }
+QListWidget#CanvasOutline::item:selected { background: #243442; color: #f1f3f5; }
 QFrame#IncomingBubble { background: #182533; border: none; border-radius: 13px; }
 QFrame#OutgoingBubble { background: #2b5278; border: none; border-radius: 13px; }
 QFrame#StatusBubble { background: #252b38; border: 1px solid #475263; border-radius: 11px; }

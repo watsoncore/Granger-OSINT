@@ -21,7 +21,7 @@ import time
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'output/agent-qa'
+OUT = ROOT / 'output/master-qa'
 FAKE_KEY = 'EXPLICIT-LOCAL-UI-FIXTURE-NOT-AN-API-KEY'
 TON = 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c'
 

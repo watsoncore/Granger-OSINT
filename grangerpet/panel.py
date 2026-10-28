@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import time
+from pathlib import Path
 
 from PySide6.QtCore import QSize, QTimer, Qt, QUrl, Signal, QVariantAnimation, QEasingCurve, QRectF
 from PySide6.QtGui import QAction, QDesktopServices, QKeySequence, QPainter, QColor
@@ -104,6 +105,7 @@ class PanelModes(QTabWidget):
 
 
 class OsintPanel(FramelessWindow):
+    user_activity = Signal()
     search_state = Signal(str)
     closed = Signal()
 
@@ -123,7 +125,7 @@ class OsintPanel(FramelessWindow):
         self.phase = 'idle'
         self.setWindowTitle('GrangerPet · Поиск')
         self.setObjectName('OsintPanel')
-        self.resize(620, 610)
+        self.resize(760, 690)
         self.setMinimumSize(460, 420)
         self.setStyleSheet(STYLE)
         self.ai_state = AIState(settings, parent=self)
@@ -156,7 +158,7 @@ class OsintPanel(FramelessWindow):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(1, 1, 1, 1)
         outer.setSpacing(0)
-        self.header = WindowHeader(self, 'GrangerPet', settings_action=self.open_settings)
+        self.header = WindowHeader(self, 'GrangerPet', settings_action=self.open_settings, enable_window_modes=True)
         self.settings_button = self.header.settings_button
         self.close_button = self.header.close_button
         outer.addWidget(self.header)
@@ -168,7 +170,10 @@ class OsintPanel(FramelessWindow):
         layout.setContentsMargins(18, 14, 18, 12)
         layout.setSpacing(10)
         self.mode_tabs.addTab(self.search_page, 'Поиск')
-        outer.addWidget(self.mode_tabs, 1)
+        self.workspace = QStackedWidget()
+        self.workspace.addWidget(self.mode_tabs)
+        self.canvas = None
+        outer.addWidget(self.workspace, 1)
         self.text = QLineEdit()
         self.text.setObjectName('MainQuery')
         self.text.setMinimumHeight(44)
@@ -346,7 +351,7 @@ class OsintPanel(FramelessWindow):
         self._update_analysis_button()
 
     def sizeHint(self):
-        return QSize(620, 610)
+        return QSize(760, 690)
 
     def attach_chat_widget(self, widget):
         if self.chat_widget is not None:
@@ -359,6 +364,23 @@ class OsintPanel(FramelessWindow):
         widget.connection_changed.connect(lambda *_: self._update_analysis_button())
         if hasattr(widget, 'evidence_received'):
             widget.evidence_received.connect(self._agent_evidence)
+        if hasattr(widget, 'report_requested'):
+            widget.report_requested.connect(self.open_canvas)
+        if hasattr(widget, 'user_activity'):
+            widget.user_activity.connect(self.user_activity)
+
+    def open_canvas(self, text):
+        from .canvas import CanvasWorkspace
+        if self.canvas is None:
+            directory = Path(self.store.path).parent / 'canvas' if self.store is not None else None
+            self.canvas = CanvasWorkspace(self, directory=directory)
+            self.canvas.close_requested.connect(self.show_chat)
+            if hasattr(self.canvas, 'user_activity'):
+                self.canvas.user_activity.connect(self.user_activity)
+            self.workspace.addWidget(self.canvas)
+        self.canvas.open_document(text)
+        self.workspace.setCurrentWidget(self.canvas)
+        self.user_activity.emit()
 
     def _agent_evidence(self, records):
         """Reuse the existing source list/details; keep manual query and results."""
@@ -382,9 +404,11 @@ class OsintPanel(FramelessWindow):
         self._update_analysis_button()
 
     def show_chat(self):
+        self.workspace.setCurrentWidget(self.mode_tabs)
         self.mode_tabs.setCurrentWidget(self.chat_widget)
 
     def show_search(self):
+        self.workspace.setCurrentWidget(self.mode_tabs)
         self.mode_tabs.setCurrentWidget(self.search_page)
 
     def resizeEvent(self, event):
@@ -840,6 +864,8 @@ class OsintPanel(FramelessWindow):
         self.chat_widget.analyze_results(list(self._records.values()))
 
     def shutdown(self):
+        if self.canvas is not None:
+            self.canvas.shutdown()
         if self._ending:
             return
         self._ending = True

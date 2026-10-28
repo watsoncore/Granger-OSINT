@@ -9,6 +9,8 @@ class UiJob(QObject):
 
     def __init__(self, function, parent=None):
         super().__init__(parent)
+        from .gui_lifecycle import ensure_gui_collection
+        ensure_gui_collection()
         self.function = function
         self.cancelled = threading.Event()
 

@@ -108,3 +108,4 @@ def test_routing_preserves_ordinary_conversation():
     assert investigation_requested('Найди публичные упоминания solvnox')
     assert investigation_requested('Проверь DNS домена example.org')
     assert not investigation_requested('Привет, Гермиона!')
+    assert not investigation_requested('Без поиска объясни, что такое DNS и как проверять источники')

@@ -11,7 +11,7 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 import pytest
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QDialog
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QCoreApplication, QEvent
 from PySide6.QtGui import QFontDatabase, QFontInfo, QFontMetrics, QTextCursor
 
 from grangerpet.ai import AIError
@@ -52,7 +52,7 @@ def test_chat_never_calls_cloud_on_creation_typing_or_settings_change(chat, monk
     widget.set_settings(widget.settings)
     app.processEvents()
     factory.assert_not_called()
-    assert 'не проверено' in widget.provider_status.text()
+    assert 'не проверено' in widget.provider_status.toolTip()
     assert 'внешнему облачному провайдеру' in widget.notice.text()
 
 
@@ -76,7 +76,8 @@ def test_chat_sends_exact_model_in_worker_and_displays_plain_reply(chat, monkeyp
     assert '<b>обычный текст</b>' in widget.history.toPlainText()
     assert activities == ['thinking', 'happy']
     assert widget._context[-1]['role'] == 'model'
-    assert 'Подключено' in widget.provider_status.text()
+    assert widget.provider_status.text() == 'На связи'
+    assert 'Подключено' in widget.provider_status.toolTip()
 
 
 def test_cancel_preserves_history_and_rejects_late_reply_then_allows_next(chat, monkeypatch):
@@ -104,6 +105,27 @@ def test_cancel_preserves_history_and_rejects_late_reply_then_allows_next(chat, 
     wait(app, lambda: not widget.busy)
     assert 'Новый тестовый ответ' in widget.history.toPlainText()
     assert widget._context[0]['text'] == 'Следующий вопрос'
+
+
+def test_cancelled_jobs_are_released_after_worker_finishes(chat, monkeypatch):
+    from grangerpet.ui_jobs import UiJob
+    app, widget = chat
+    completed = []
+    class FakeClient:
+        def chat(self, model, messages, *, cancel_event):
+            cancel_event.wait(2)
+            completed.append(True)
+            return 'Late fixture reply'
+    monkeypatch.setattr('grangerpet.chat.DeepSeekClient', FakeClient)
+    for index in range(3):
+        widget.input.setPlainText(f'Вопрос {index}')
+        widget.send_message()
+        widget.cancel()
+        wait(app, lambda: len(completed) == index + 1)
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        app.processEvents()
+    assert widget.findChildren(UiJob) == []
+    assert 'Late fixture reply' not in widget.history.toPlainText()
 
 
 def test_error_preserves_history_and_restores_send_controls(chat, monkeypatch):
@@ -230,7 +252,7 @@ def test_changing_provider_during_request_keeps_actual_response_identity(chat, m
     wait(app, lambda: not widget.busy)
     assert widget.last_request['model'] == 'deepseek-v4-flash'
     assert widget.last_request['provider'] == 'deepseek'
-    assert 'local-fixture' in widget.provider_status.text()
+    assert 'local-fixture' in widget.provider_status.toolTip()
 
 
 def test_bubbles_have_real_alignment_natural_width_and_selectable_plain_text(chat):
@@ -295,7 +317,9 @@ def test_long_code_urls_and_cyrillic_wrap_without_horizontal_scroll(chat):
     app.processEvents()
     assert bubble.width() <= widget.history.viewport().width() * .82
     assert bubble.message_text == body
-    assert bubble.text_view.toPlainText() == body.replace('```python\n','').replace('```\n','')
+    assert bubble.text_view._plain == body
+    assert 'print("hello")' in bubble.text_view.toPlainText()
+    assert '```' not in bubble.text_view.toPlainText()
     assert widget.history.horizontalScrollBar().maximum() == 0
     assert bubble.text_view.horizontalScrollBar().maximum() == 0
     assert QFontInfo(bubble.text_view.font()).pixelSize() == 14
@@ -331,7 +355,8 @@ def test_shared_verified_draft_does_not_enable_chat_until_committed(chat):
         state.commit(Settings(ai_provider='deepseek', deepseek_model='deepseek-v4-flash'))
         app.processEvents()
         assert widget.send.isEnabled()
-        assert 'Подключено' in widget.provider_status.text()
+        assert widget.provider_status.text() == 'На связи'
+        assert 'Подключено' in widget.provider_status.toolTip()
         assert widget.input.toPlainText() == 'Черновик сохраняется при подключении'
 
 

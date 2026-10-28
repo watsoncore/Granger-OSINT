@@ -26,7 +26,7 @@ def main():
     shutil.copytree(ROOT / "docs", dist / "docs", dirs_exist_ok=True)
     files = set()
     for name in ("main.py", "GrangerPet.spec", "build.ps1", "requirements.txt", "requirements-dev.txt",
-                 "README.md", "VALIDATION.md", "THIRD_PARTY_NOTICES.md", ".gitignore", ".env.example", "pytest.ini"):
+                 "README.md", "VALIDATION.md", "THIRD_PARTY_NOTICES.md", ".gitignore", ".gitattributes", ".env.example", "pytest.ini"):
         path = ROOT / name
         if path.is_file():
             files.add(path)
@@ -34,10 +34,9 @@ def main():
         for path in (ROOT / name).rglob("*"):
             if path.is_file() and "__pycache__" not in path.parts and path.suffix not in (".pyc", ".pyo"):
                 files.add(path)
-    qa = ROOT / "output/agent-qa"
+    qa = ROOT / "output/master-qa"
     for name in ("baseline.json", "preservation.json", "frozen-sources.json", "release-summary.json",
-                 "gateway-probe.json", "gateway-extended.json", "tool-readiness-real.json", "tools-real.json", "web-real.json",
-                 "secret-scan.json", "tests-release.log", "build.log"):
+                 "web-read-real.json", "secret-scan.json", "build-release-final.log", "git-publication.json"):
         path = qa / name
         if path.is_file():
             files.add(path)
@@ -46,7 +45,7 @@ def main():
         if Path(name).name != name:
             raise ValueError("Evidence must be a direct QA subdirectory")
         for path in (qa / name).iterdir() if (qa / name).is_dir() else ():
-            if path.is_file() and path.suffix in (".json", ".jsonl", ".png"):
+            if path.is_file() and path.suffix in (".json", ".jsonl", ".png", ".md"):
                 files.add(path)
     files.add(dist / "binarysmoke.json")
     temporary = dist / "GrangerPet-source.pending.zip"

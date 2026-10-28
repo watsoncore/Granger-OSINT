@@ -40,9 +40,18 @@ def wait(app,predicate,timeout=3):
         QTest.qWait(10)
     pytest.fail('Qt task did not finish')
 
+def test_canvas_uses_the_selected_profile_directory(panel, tmp_path):
+    from grangerpet.config import SettingsStore
+    panel.store = SettingsStore(tmp_path/'isolated'/'settings.json')
+    panel.open_canvas('# Profile report\n\nStored beside this profile.')
+    assert panel.canvas.directory == tmp_path/'isolated'/'canvas'
+    panel.canvas.save_document()
+    assert list((tmp_path/'isolated'/'canvas').glob('*.md'))
+
+
 def test_main_window_is_search_first_resizable_and_settings_are_separate(panel,app,monkeypatch):
     panel.show();app.processEvents()
-    assert panel.size().width()==620 and panel.size().height()==610
+    assert panel.size().width()==760 and panel.size().height()==690
     assert (panel.minimumWidth(),panel.minimumHeight())==(460,420)
     assert panel.windowFlags() & Qt.WindowType.FramelessWindowHint
     assert panel.windowType()==Qt.WindowType.Window

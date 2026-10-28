@@ -1,8 +1,11 @@
 """Small native Qt window chrome: system movement/resize, no custom desktop hooks."""
 from __future__ import annotations
 
+import ctypes
+import sys
+
 from PySide6.QtCore import QEvent, QPoint, QPointF, QRect, QSize, Qt, QVariantAnimation, QEasingCurve
-from PySide6.QtGui import QColor, QFont, QIcon, QPainter, QPen, QPixmap
+from PySide6.QtGui import QColor, QFont, QIcon, QPainter, QPen, QPixmap, QShortcut, QKeySequence
 from PySide6.QtWidgets import QApplication, QHBoxLayout, QLabel, QToolButton, QVBoxLayout, QWidget
 
 from .typography import ui_font
@@ -11,9 +14,10 @@ from .motion import reduced_motion
 
 class HeaderControl(QToolButton):
     """Small painted control with a bounded hover transition, without effects."""
-    def __init__(self, *, close=False, parent=None):
+    def __init__(self, *, close=False, kind=None, parent=None):
         super().__init__(parent)
         self._close = close
+        self._kind = kind or ('close' if close else 'icon')
         self._hover = 0.0
         self._animation = QVariantAnimation(self)
         self._animation.setDuration(120)
@@ -56,21 +60,36 @@ class HeaderControl(QToolButton):
             painter.setPen(QPen(QColor('#6C9ED2'), 1))
             painter.setBrush(Qt.BrushStyle.NoBrush)
             painter.drawRoundedRect(self.rect().adjusted(2, 2, -2, -2), 6, 6)
-        if self._close:
+        if self._kind == 'close':
             painter.setPen(QPen(QColor('#A6B2BF'), 1.6, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
             center = self.rect().center()
             painter.drawLine(QPointF(center.x()-4, center.y()-4), QPointF(center.x()+4, center.y()+4))
             painter.drawLine(QPointF(center.x()-4, center.y()+4), QPointF(center.x()+4, center.y()-4))
+        elif self._kind == 'minimize':
+            painter.setPen(QPen(QColor('#A6B2BF'), 1.4))
+            painter.drawLine(QPointF(12, 18), QPointF(22, 18))
+        elif self._kind == 'maximize':
+            painter.setPen(QPen(QColor('#A6B2BF'), 1.3))
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            if self.window().isMaximized():
+                painter.drawRect(QRect(13, 10, 9, 9))
+                painter.setBrush(QColor('#17212B'))
+                painter.drawRect(QRect(10, 13, 9, 9))
+            else:
+                painter.drawRect(QRect(11, 11, 11, 11))
         else:
             self.icon().paint(painter, QRect((self.width()-20)//2, (self.height()-20)//2, 20, 20))
 
 
 class WindowHeader(QWidget):
-    def __init__(self, window, title, subtitle="", *, settings_action=None):
+    def __init__(self, window, title, subtitle="", *, settings_action=None, enable_window_modes=False):
         super().__init__(window)
         self.setObjectName("WindowHeader")
         self.setFixedHeight(54)
         self._window, self._origin = window, None
+        self._window_modes = enable_window_modes
+        if enable_window_modes:
+            window.enable_window_modes()
         row = QHBoxLayout(self)
         row.setContentsMargins(18, 8, 10, 8)
         row.setSpacing(6)
@@ -105,6 +124,18 @@ class WindowHeader(QWidget):
             self.settings_button.setObjectName("WindowControl")
             self.settings_button.clicked.connect(settings_action)
             row.addWidget(self.settings_button)
+        self.minimize_button = self.maximize_button = None
+        if enable_window_modes:
+            self.minimize_button = HeaderControl(kind='minimize', parent=self)
+            self.minimize_button.setAccessibleName('Свернуть окно')
+            self.minimize_button.setToolTip('Свернуть')
+            self.minimize_button.clicked.connect(window.showMinimized)
+            row.addWidget(self.minimize_button)
+            self.maximize_button = HeaderControl(kind='maximize', parent=self)
+            self.maximize_button.setAccessibleName('Развернуть или восстановить окно')
+            self.maximize_button.setToolTip('Развернуть / восстановить · F11 — полный экран')
+            self.maximize_button.clicked.connect(window.toggle_maximized)
+            row.addWidget(self.maximize_button)
         self.close_button = HeaderControl(close=True, parent=self)
         self.close_button.setAccessibleName("Закрыть панель")
         self.close_button.setToolTip("Закрыть панель")
@@ -120,6 +151,14 @@ class WindowHeader(QWidget):
                 return
             self._origin = (event.globalPosition().toPoint(), self._window.pos())
             event.accept()
+
+    def mouseDoubleClickEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton and self._window_modes:
+            self._origin = None
+            self._window.toggle_maximized()
+            event.accept()
+        else:
+            super().mouseDoubleClickEvent(event)
 
     def mouseMoveEvent(self, event):
         if self._origin and event.buttons() & Qt.MouseButton.LeftButton:
@@ -138,10 +177,87 @@ class FramelessWindow(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent, Qt.WindowType.Window | Qt.WindowType.FramelessWindowHint |
-                         Qt.WindowType.WindowStaysOnTopHint)
+                         Qt.WindowType.WindowMinMaxButtonsHint)
         self._resize_origin = None
+        self._window_modes_enabled = False
+        self._fullscreen_previous_maximized = False
+        self._fullscreen_geometry = QRect()
+        self._windowed_geometry = QRect()
         self.setMouseTracking(True)
         QApplication.instance().installEventFilter(self)
+
+    def enable_window_modes(self):
+        if self._window_modes_enabled:
+            return
+        self._window_modes_enabled = True
+        self._fullscreen_shortcut = QShortcut(QKeySequence('F11'), self)
+        self._fullscreen_shortcut.activated.connect(self.toggle_fullscreen)
+        self._escape_shortcut = QShortcut(QKeySequence('Escape'), self)
+        self._escape_shortcut.activated.connect(self._exit_fullscreen)
+
+    def _exit_fullscreen(self):
+        if self.isFullScreen():
+            self.toggle_fullscreen()
+
+    def toggle_maximized(self):
+        self.showNormal() if self.isMaximized() else self.showMaximized()
+
+    def showMaximized(self):
+        if not self.isMaximized() and not self.isFullScreen():
+            self._windowed_geometry = QRect(self.geometry())
+        super().showMaximized()
+
+    def changeEvent(self, event):
+        if event.type() == QEvent.Type.WindowStateChange and self.isMaximized():
+            if not event.oldState() & (Qt.WindowState.WindowMaximized | Qt.WindowState.WindowFullScreen):
+                geometry = self.normalGeometry()
+                if geometry.isValid():
+                    self._windowed_geometry = QRect(geometry)
+        super().changeEvent(event)
+
+    def showNormal(self):
+        if self.isMaximized() or self.isFullScreen():
+            # Qt/Windows may replace normalGeometry with the maximized rectangle
+            # after max -> full -> max. Preserve the actual windowed rectangle
+            # ourselves so a later Restore cannot snap straight back to max.
+            geometry = QRect(self._windowed_geometry)
+            if sys.platform == 'win32':
+                # After fullscreen Qt can clear its flag while the HWND still
+                # has WS_MAXIMIZE. Restore that native state before resizing.
+                user = ctypes.WinDLL('user32')
+                user.IsZoomed.argtypes = [ctypes.c_void_p]
+                user.ShowWindow.argtypes = [ctypes.c_void_p, ctypes.c_int]
+                handle = int(self.winId())
+                if user.IsZoomed(handle):
+                    user.ShowWindow(handle, 9)  # SW_RESTORE, this window only.
+            self.setWindowState(self.windowState() & ~(Qt.WindowState.WindowFullScreen |
+                Qt.WindowState.WindowMaximized | Qt.WindowState.WindowMinimized))
+            if geometry.isValid():
+                self.setGeometry(geometry)
+            self.show()
+        else:
+            super().showNormal()
+
+    def toggle_fullscreen(self):
+        if self.isFullScreen():
+            was_maximized, geometry = self._fullscreen_previous_maximized, QRect(self._fullscreen_geometry)
+            # Restore the intended state in one transition. On Windows,
+            # showNormal(); showMaximized() schedules two native state changes;
+            # a delayed WM_SIZE from the first can clear Qt's maximized flag.
+            state = self.windowState() & ~(Qt.WindowState.WindowFullScreen |
+                Qt.WindowState.WindowMaximized | Qt.WindowState.WindowMinimized)
+            if was_maximized:
+                state |= Qt.WindowState.WindowMaximized
+            self.setWindowState(state)
+            if not was_maximized and geometry.isValid():
+                self.setGeometry(geometry)
+            self.show()
+        else:
+            self._fullscreen_previous_maximized = self.isMaximized()
+            self._fullscreen_geometry = QRect(self.geometry())
+            if not self.isMaximized():
+                self._windowed_geometry = QRect(self.geometry())
+            self.showFullScreen()
 
     def _edges(self, point):
         edges = Qt.Edge(0)
@@ -160,7 +276,7 @@ class FramelessWindow(QWidget):
             kind = event.type()
             if kind == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
                 point = event.globalPosition().toPoint()
-                edges = self._edges(self.mapFromGlobal(point))
+                edges = Qt.Edge(0) if self.isMaximized() or self.isFullScreen() else self._edges(self.mapFromGlobal(point))
                 if edges:
                     handle = self.windowHandle()
                     if handle and handle.startSystemResize(edges):

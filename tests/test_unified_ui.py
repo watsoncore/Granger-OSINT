@@ -135,8 +135,8 @@ def test_verified_draft_save_updates_open_chat_and_restarted_configuration(app,v
         assert pane.save()
         assert panel.ai_state.snapshot()['connection_status']=='connected'
         assert panel.settings.ai_provider==panel.chat_widget.settings.ai_provider=='deepseek'
-        assert panel.chat_widget.provider_status.text()==pane.ai_status.text()
-        assert 'Подключено' in panel.chat_widget.provider_status.text()
+        assert panel.chat_widget.provider_status.toolTip()==pane.ai_status.text()
+        assert 'Подключено' in panel.chat_widget.provider_status.toolTip()
         panel.chat_widget.input.setPlainText('Привет — явная тестовая подстановка')
         assert panel.chat_widget.send.isEnabled()
         panel.chat_widget.send.click();wait(app,lambda:not panel.chat_widget.busy)

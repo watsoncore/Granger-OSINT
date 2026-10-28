@@ -18,6 +18,8 @@ from .ipc import launch_process
 from .panel import OsintPanel
 from .physics import CollarPhysics
 from .reactions import facial_reaction
+from .pet_life import PetLifeController, windows_idle_seconds
+from .pet_actions import action_frame
 
 
 class PetWindow(QWidget):
@@ -73,6 +75,11 @@ class PetWindow(QWidget):
         self._previous = QImage()
         self._transition_started = 0.0
         self._render_signature = None
+        self.life = PetLifeController()
+        self._life_home = None
+        self._life_exit_x = None
+        self._system_idle = None
+        self._next_idle_poll = 0.0
         self.animation.state_changed.connect(self._begin_transition)
         self._region = QRegion()
         self._padding = 12
@@ -97,6 +104,11 @@ class PetWindow(QWidget):
         app = QApplication.instance()
         app.screenAdded.connect(self._screen_changed)
         app.screenRemoved.connect(self._screen_changed)
+        chat = getattr(self.panel, 'chat_widget', None)
+        if chat is not None:
+            chat.input.textChanged.connect(self.notify_user_activity)
+        if hasattr(self.panel, 'user_activity'):
+            self.panel.user_activity.connect(self.notify_user_activity)
 
     def _trace(self, value):
         if not self._trace_path or self._trace_count >= 20000:
@@ -123,6 +135,8 @@ class PetWindow(QWidget):
             desired = self._search_mode
         elif now < self._terminal_until:
             desired = self._base_state
+        elif self.life.active:
+            desired = 'walk' if self.life.action in ('leave', 'return') else 'working' if self.life.action in ('cast', 'avada') else 'thinking' if self.life.action == 'reading' else 'idle'
         else:
             desired = "hover" if self._near and self.settings.cursor_reaction and not self.physics.active else "idle"
         self.animation.set_state(desired)
@@ -137,6 +151,8 @@ class PetWindow(QWidget):
         self._clamp_position()
 
     def _clamp_position(self):
+        if self._life_home is not None:
+            return
         center = self.frameGeometry().center()
         screen = QGuiApplication.screenAt(center) or QGuiApplication.primaryScreen()
         area = screen.availableGeometry()
@@ -169,6 +185,27 @@ class PetWindow(QWidget):
     def _panel_settings_saved(self, settings):
         self.settings = settings
 
+    def notify_user_activity(self, *_):
+        """Typing, a new reply or a user gesture interrupts local idle actions."""
+        self.life.notify_activity()
+        self._render_signature = None
+
+    def _restore_life_position(self):
+        if self._life_home is not None:
+            self.move(self._life_home)
+            self._life_home = self._life_exit_x = None
+
+    def _apply_life_travel(self, pose):
+        if pose.action in ('leave', 'away', 'return'):
+            if self._life_home is None:
+                self._life_home = self.pos()
+                screen = QGuiApplication.screenAt(self.frameGeometry().center()) or QGuiApplication.primaryScreen()
+                area = screen.availableGeometry()
+                self._life_exit_x = area.left() - self.width() - 2 if self.frameGeometry().center().x() < area.center().x() else area.right() + 2
+            self.move(round(self._life_home.x() + (self._life_exit_x-self._life_home.x())*pose.travel), self._life_home.y())
+        else:
+            self._restore_life_position()
+
     def _poll_cursor(self):
         if self._ending or not self.settings.cursor_reaction or self._dragging:
             return
@@ -181,6 +218,8 @@ class PetWindow(QWidget):
         near = distance < self.settings.size * (1.15 if self._near else 0.95)
         over = self._region.contains(local)
         self._near, self._over = near, over
+        if near:
+            self.notify_user_activity()
         self._aim_target = QPointF(max(-1.0, min(1.0, dx / 120)),
                                   max(-1.0, min(1.0, dy / 120))) if near else QPointF()
         now = time.monotonic()
@@ -195,6 +234,13 @@ class PetWindow(QWidget):
         if self._ending:
             return
         now = time.monotonic()
+        if now >= self._next_idle_poll:
+            self._system_idle = windows_idle_seconds()
+            self._next_idle_poll = now + .5
+        available = not (self._busy or self._dragging or self._pressed_at is not None or self.physics.active
+                         or self.panel.isVisible() or self._near or now < self._terminal_until)
+        life_pose = self.life.update(now, available=available, system_idle=self._system_idle)
+        self._apply_life_travel(life_pose)
         self.physics.advance(now - self._physics_time, now)
         self._physics_time = now
         self._aim += (self._aim_target - self._aim) * 0.16
@@ -217,10 +263,13 @@ class PetWindow(QWidget):
 
     def _draw_frame(self):
         key = (self.animation.state, self.animation.frame, self.settings.size)
+        life_pose = self.life.pose()
+        use_life = life_pose.action and not self.physics.active and not self._dragging and (not self._busy or life_pose.action == 'return')
         angle = round(self._aim.x() * (1.3 if self._over else 0.65), 2) if self.animation.state == "hover" else 0
         blend = min(1.0, max(0.0, (time.monotonic() - self._transition_started) / 0.16))
         pose = self.physics.pose
-        signature = (key, angle, round(pose.angle, 2), round(pose.sag, 2), round(pose.tuck, 2), round(pose.squash, 2), round(pose.upset, 2), round(pose.embarrassed, 2), round(pose.leg_swing, 2))
+        signature = ((life_pose.action, life_pose.frame, round(life_pose.strength, 2), self.settings.size) if use_life else key,
+                     angle, round(pose.angle, 2), round(pose.sag, 2), round(pose.tuck, 2), round(pose.squash, 2), round(pose.upset, 2), round(pose.embarrassed, 2), round(pose.leg_swing, 2))
         if signature == self._render_signature and blend >= 1:
             return
         self._render_signature = signature if blend >= 1 else None
@@ -228,7 +277,12 @@ class PetWindow(QWidget):
             self._cache[key] = QPixmap.fromImage(self.animation.image).scaled(
                 self.settings.size, self.settings.size, Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation)
-        pixmap = facial_reaction(self._cache[key], pose, self.geometry)
+        if use_life:
+            pixmap = QPixmap.fromImage(action_frame(self.library, life_pose)).scaled(
+                self.settings.size, self.settings.size, Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation)
+        else:
+            pixmap = facial_reaction(self._cache[key], pose, self.geometry)
         image = QImage(self.size(), QImage.Format.Format_ARGB32_Premultiplied)
         image.fill(Qt.GlobalColor.transparent)
         painter = QPainter(image)
@@ -287,6 +341,8 @@ class PetWindow(QWidget):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
+            self.life.notify_activity(immediate=True)
+            self._restore_life_position()
             self._pressed_at = event.globalPosition().toPoint()
             self._press_position = event.position().toPoint()
             self._window_start = self.pos()
@@ -377,6 +433,8 @@ class PetWindow(QWidget):
                      "dragged": dragged, "reaction": self.physics.pose.reaction})
 
     def _position_panel(self):
+        if self.panel.isMaximized() or self.panel.isFullScreen():
+            return
         screen = QGuiApplication.screenAt(self.frameGeometry().center()) or QGuiApplication.primaryScreen()
         area = screen.availableGeometry()
         width, height = min(self.panel.width(), area.width() - 24), min(self.panel.height(), area.height() - 24)
@@ -390,6 +448,8 @@ class PetWindow(QWidget):
         self.panel.move(x, y)
 
     def toggle_panel(self):
+        self.life.notify_activity(immediate=True)
+        self._restore_life_position()
         if self.panel.isVisible():
             self.panel.hide()
             self._panel_closed()
@@ -406,6 +466,11 @@ class PetWindow(QWidget):
         self._sync_activity()
 
     def _search_state(self, state):
+        self.life.notify_activity(immediate=True)
+        # An incoming task brings an away character back through a short real
+        # walk rather than teleporting it or hiding/showing the widget.
+        if self.life.action != 'return':
+            self._restore_life_position()
         self._busy = state in ("thinking", "working")
         self._search_mode = state if self._busy else "idle"
         self._base_state = state
@@ -417,6 +482,8 @@ class PetWindow(QWidget):
         self._sync_activity()
 
     def contextMenuEvent(self, event):
+        self.life.notify_activity(immediate=True)
+        self._restore_life_position()
         menu = QMenu()
         panel_action = menu.addAction("Закрыть поиск" if self.panel.isVisible() else "Открыть поиск")
         react = menu.addAction("Реагировать на курсор")
@@ -446,7 +513,8 @@ class PetWindow(QWidget):
             # Other windows/processes may have saved connections since this
             # pet was opened. Position changes own x/y only, never AI options.
             current = self.store.load() if self.store.path.exists() else self.settings
-            current.x, current.y = self.x(), self.y()
+            position = self._life_home if self._life_home is not None else self.pos()
+            current.x, current.y = position.x(), position.y()
             if 'cursor_reaction' in appearance_changes:
                 current.cursor_reaction = bool(appearance_changes['cursor_reaction'])
             self.store.save(current)
@@ -458,6 +526,7 @@ class PetWindow(QWidget):
         if self._ending:
             return
         self._ending = True
+        self._restore_life_position()
         self._save_position()
         self.frame_timer.stop()
         self.cursor_timer.stop()

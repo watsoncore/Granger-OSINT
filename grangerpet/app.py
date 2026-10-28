@@ -53,7 +53,7 @@ def main(argv: list[str] | None = None) -> int:
     app = QApplication([sys.argv[0]])
     app.setApplicationName("GrangerPet")
     app.setOrganizationName("GrangerPet")
-    app.setApplicationVersion("2.5.0")
+    app.setApplicationVersion("2.6.0")
     from .typography import apply_app_font
     apply_app_font(app)
     app.setStyle("Fusion")
@@ -103,12 +103,33 @@ def main(argv: list[str] | None = None) -> int:
                                 result['agent'] = {name: investigation.get(name) for name in
                                     ('id', 'status', 'steps', 'tool_calls', 'accounted_tokens', 'stop_reason') if name in investigation}
                                 result['agent']['evidence_count'] = len(investigation.get('evidence', []))
+                                result['agent']['direct_pages'] = sum(row.get('details', {}).get('reading_method') == 'direct_http'
+                                    for row in investigation.get('evidence', []))
                                 result['agent']['tools'] = list(dict.fromkeys(item.get('tool') for item in investigation.get('executions', []) if item.get('tool')))
                             if hasattr(pet.panel, 'ai_state'):
                                 result['ai_connection'] = pet.panel.ai_state.snapshot()
                                 result['chat_can_send'] = pet.panel.ai_state.can_send
                             connections = pet.panel.settings_dialog.connections
                             result['settings_ai_status'] = connections.ai_status.text()
+                            result['window'] = {'maximized': pet.panel.isMaximized(), 'fullscreen': pet.panel.isFullScreen(),
+                                'width': pet.panel.width(), 'height': pet.panel.height(),
+                                'canvas_visible': bool(pet.panel.canvas and pet.panel.workspace.currentWidget() is pet.panel.canvas)}
+                            if pet.panel.canvas is not None:
+                                result['canvas'] = {'id': pet.panel.canvas.document_id,
+                                    'headings': pet.panel.canvas.heading_list.count(),
+                                    'chars': len(pet.panel.canvas.editor.toPlainText())}
+                            bubbles = chat.history.bubbles
+                            if bubbles:
+                                view = bubbles[-1].text_view
+                                blocks, block = [], view.document().begin()
+                                while block.isValid():
+                                    blocks.append(block.blockFormat().headingLevel())
+                                    block = block.next()
+                                result['markdown'] = {'headings': sum(level > 0 for level in blocks),
+                                    'tables': len(list(view._tables())) if hasattr(view, '_tables') else 0,
+                                    'source_chars': len(bubbles[-1].message_text)}
+                            if hasattr(pet, 'life'):
+                                result['life'] = {'action': pet.life.action, 'active': pet.life.active}
                 return result
             if command == "stop":
                 if pet is not None:
@@ -180,6 +201,43 @@ def main(argv: list[str] | None = None) -> int:
             if command == "qa_show_chat" and pet is not None and args.interaction_qa and pet._trace_path:
                 QTimer.singleShot(0, pet.panel.show_chat)
                 return {"ok": True}
+            if command == 'qa_window_mode' and pet is not None and args.interaction_qa and pet._trace_path:
+                mode = payload.get('mode')
+                def set_mode():
+                    if mode == 'maximized': pet.panel.showMaximized()
+                    elif mode == 'fullscreen': pet.panel.toggle_fullscreen()
+                    elif mode == 'windowed':
+                        if pet.panel.isFullScreen(): pet.panel.toggle_fullscreen()
+                        pet.panel.showNormal()
+                if mode not in ('maximized', 'fullscreen', 'windowed'): return {'ok': False}
+                QTimer.singleShot(0, set_mode)
+                return {'ok': True}
+            if command == 'qa_canvas' and pet is not None and args.interaction_qa and pet._trace_path:
+                action = payload.get('action')
+                if action not in ('open_last', 'edit_save', 'back'): return {'ok': False}
+                def canvas_action():
+                    if action == 'open_last':
+                        value = next((row['text'] for row in reversed(pet.panel.chat_widget.messages) if row['role'] == 'model'), '')
+                        if value: pet.panel.open_canvas(value)
+                    elif action == 'edit_save' and pet.panel.canvas is not None:
+                        workspace = pet.panel.canvas
+                        workspace.edit_button.setChecked(True)
+                        workspace.editor.appendPlainText('\n\n## Заметка проверки\nЛокальная правка Canvas; исходные свидетельства не меняются.')
+                        workspace.save_document()
+                        workspace.export_document(Path(pet._trace_path).parent / 'canvas-export.md')
+                    elif action == 'back': pet.panel.show_chat()
+                QTimer.singleShot(0, canvas_action)
+                return {'ok': True}
+            if command == 'qa_life' and pet is not None and args.interaction_qa and pet._trace_path:
+                action = payload.get('action')
+                if action not in ('reading', 'cast', 'avada', 'yawn', 'sleep', 'leave', 'return', 'wake', 'interrupt'):
+                    return {'ok': False}
+                if action == 'interrupt':
+                    QTimer.singleShot(0, pet.notify_user_activity)
+                elif not pet.panel.isVisible() and not pet._busy:
+                    QTimer.singleShot(0, lambda: pet.life.start_action(action, duration=4))
+                else: return {'ok': False}
+                return {'ok': True}
             if command == "qa_settings" and pet is not None and args.interaction_qa and pet._trace_path:
                 page = payload.get("page", 2)
                 if not isinstance(page, int) or isinstance(page, bool) or page not in range(4):
