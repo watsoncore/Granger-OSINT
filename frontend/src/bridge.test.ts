@@ -41,6 +41,8 @@ describe('QWebChannel bridge', () => {
     { action: 'canvas_export', outcome: 'cancelled', response: { ok: true, result: { exported: false, filename: null } }, expected: { exported: false, filename: null } },
     { action: 'tool_run', outcome: 'approved', response: { ok: true, result: null }, expected: true },
     { action: 'tool_run', outcome: 'cancelled', response: { ok: false, error: 'Действие не подтверждено.' }, expected: null },
+    { action: 'credentials_edit', outcome: 'user input', response: { ok: true, result: { saved: true } }, expected: { saved: true } },
+    { action: 'settings_path', outcome: 'path chosen', response: { ok: true, result: null }, expected: true },
   ])('waits beyond 30 seconds for native dialog: $action / $outcome', async ({ action: requestedAction, response, expected }) => {
     vi.useFakeTimers()
     let reply: ((id: string, json: string) => void) | undefined

@@ -13,6 +13,7 @@ describe('desktop bootstrap', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Подключение к приложению')
     expect(screen.getByRole('button', { name: 'Закрыть окно' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Свернуть окно' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Гермиона · Granger-OSINT' })).toHaveAttribute('src', './brand-hermione.png')
     expect(screen.queryByRole('navigation', { name: 'Основная навигация' })).toBeNull()
     expect(screen.queryByRole('textbox', { name: 'Сообщение Гермионе' })).toBeNull()
   })

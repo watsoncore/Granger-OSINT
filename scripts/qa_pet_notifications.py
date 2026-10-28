@@ -1,68 +1,37 @@
-"""Deterministic images from the real Qt notification widget, without an API.
-
-This is renderer QA, not a claim that a packaged EXE or paid request was tested.
-"""
+"""Render real compact pixel-letter code at three device scales; no live API."""
 from __future__ import annotations
-
-from dataclasses import asdict
 import json
 import os
 from pathlib import Path
 import sys
-
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
+os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor, QFont, QFontDatabase, QImage, QPainter, QPixmap
+from PySide6.QtGui import QColor,QFont,QFontDatabase,QImage,QPainter
 from PySide6.QtWidgets import QApplication
-
-from grangerpet.animation import SpriteLibrary
-from grangerpet.pet_notifications import PetNotification
-
+from grangerpet.pet_notifications import PetNotification,notification_pose
 
 def main():
-    app = QApplication.instance() or QApplication([])
-    app.setQuitOnLastWindowClosed(False)
-    font = Path(os.environ.get("WINDIR", r"C:\Windows"))/"Fonts"/"segoeui.ttf"
-    if font.exists():
-        QFontDatabase.addApplicationFont(str(font))
-    output = Path(__file__).resolve().parents[1]/"output"/"master-qa"/"pixel-notifications"
-    output.mkdir(parents=True, exist_ok=True)
-    library = SpriteLibrary()
-    character = QPixmap.fromImage(library.frames["idle"][0]).scaled(184, 184, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-    sheet = QImage(1120, 1044, QImage.Format.Format_ARGB32_Premultiplied)
-    sheet.fill(QColor("#121820"))
-    painter = QPainter(sheet)
-    painter.setFont(QFont("Segoe UI", 10))
-    report = {"source": "real PetNotification QWidget.grab; unchanged SpriteLibrary idle frame", "packaged_exe_test": False, "network_requests": 0, "frames": []}
-    phases = (("appear", .1), ("letter opens", .52), ("quiet dwell", 3), ("disappear", 10.4))
-    now = [100.0]
-    widget = PetNotification(clock=lambda: now[0])
-    for row, kind in enumerate(("reply", "investigation", "error")):
-        for column, (label, elapsed) in enumerate(phases):
-            now[0] = 100
-            widget.notify(kind, f"qa-{row}-{column}")
-            now[0] += elapsed
-            widget.tick()
-            app.processEvents()
-            image = widget.grab().toImage()
-            image.save(str(output/f"{kind}-{column}.png"))
-            x, y = column*280, row*348
-            painter.setPen(QColor("#d7dde7"))
-            painter.drawText(x+14, y+24, f"{kind} / {label}")
-            painter.drawImage(x+28, y+42, image)
-            painter.drawPixmap(x+48, y+146, character)
-            report["frames"].append({"kind": kind, "elapsed": elapsed, "pose": asdict(widget._pose)})
-    painter.end()
-    sheet.save(str(output/"contact-sheet.png"))
-    widget.dismiss()
-    widget.deleteLater()
-    app.processEvents()
-    (output/"report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(output/"contact-sheet.png")
+    app=QApplication.instance() or QApplication([])
+    font=Path(os.environ.get('WINDIR',r'C:\Windows'))/'Fonts/segoeui.ttf'
+    if font.exists():QFontDatabase.addApplicationFont(str(font))
+    output=ROOT/'output/refinement-qa/pixel-letter';output.mkdir(parents=True,exist_ok=True)
+    sheet=QImage(800,540,QImage.Format.Format_ARGB32_Premultiplied);sheet.fill(QColor('#17212b'))
+    painter=QPainter(sheet);painter.setFont(QFont('Segoe UI',11));painter.setPen(QColor('#e8edf3'))
+    frames=[]
+    for row,dpr in enumerate((1.,1.25,1.5)):
+        for column,(kind,count) in enumerate((('reply',1),('investigation',2),('reply',12),('error',0))):
+            image=QImage(round(64*dpr),round(48*dpr),QImage.Format.Format_ARGB32_Premultiplied)
+            image.setDevicePixelRatio(dpr);image.fill(Qt.GlobalColor.transparent)
+            drawing=QPainter(image);PetNotification.paint_letter(drawing,kind,notification_pose(1),count);drawing.end()
+            name=f'{kind}-{count}-{dpr:.2f}.png';image.save(str(output/name))
+            painter.drawText(column*200+15,row*180+28,f'{kind} / count {count}')
+            painter.drawText(column*200+15,row*180+52,f'DPR {dpr:.2f}')
+            painter.drawImage(column*200+64,row*180+86,image)
+            frames.append({'kind':kind,'count':count,'device_pixel_ratio':dpr,'physical_pixels':[image.width(),image.height()],'path':name})
+    painter.end();sheet.save(str(output/'contact-sheet.png'))
+    (output/'report.json').write_text(json.dumps({'renderer':'production PetNotification.paint_letter','fixture':True,'real_api':False,'frames':frames},indent=2),encoding='utf-8')
+    print(output/'contact-sheet.png')
 
-
-if __name__ == "__main__":
-    main()
-
+if __name__=='__main__':main()

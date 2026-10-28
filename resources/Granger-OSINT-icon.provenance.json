@@ -1,0 +1,22 @@
+{
+  "source": "grangerpet/assets/character.png",
+  "source_sha256": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b",
+  "operation": "Crop existing head/hair, transparent square canvas, rescale only; no AI generation or face redraw",
+  "crop_xywh": [
+    64,
+    8,
+    384,
+    320
+  ],
+  "canvas": 384,
+  "resolutions": [
+    16,
+    24,
+    32,
+    48,
+    64,
+    128,
+    256
+  ],
+  "rights": "User-supplied fan artwork. Original creator/license not established; not an official Harry Potter asset. Public/commercial redistribution permission has NOT been established. See grangerpet/assets/provenance.json and THIRD_PARTY_NOTICES.md."
+}

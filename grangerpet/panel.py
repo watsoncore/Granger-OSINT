@@ -106,6 +106,8 @@ class PanelModes(QTabWidget):
 
 class OsintPanel(FramelessWindow):
     user_activity = Signal()
+    messages_seen = Signal(str, object)
+    messages_removed = Signal(str, object)
     search_state = Signal(str)
     closed = Signal()
 
@@ -446,6 +448,31 @@ class OsintPanel(FramelessWindow):
         elif isinstance(index,int):
             self.chat_widget.history.verticalScrollBar().setValue(self.chat_widget.history.verticalScrollBar().maximum())
 
+    def notification_context(self):
+        """Only this application's current foreground conversation, no app scan."""
+        route = self.desktop_surface.bridge.route if self.desktop_surface else ('chat' if self.mode_tabs.currentWidget() is self.chat_widget else '')
+        return {'active': bool(self.isVisible() and not self.isMinimized() and self.isActiveWindow() and route == 'chat'),
+                'conversation_id': self.chat_widget.conversation_id}
+
+    def report_messages_seen(self, conversation_id, message_ids):
+        """Accept frontend viewport ACKs only for the real active current chat."""
+        context = self.notification_context()
+        if not context['active'] or conversation_id != context['conversation_id'] or not isinstance(message_ids,list):
+            return False
+        available = {row['id'] for index,row in enumerate(self.chat_widget.messages)
+            if row.get('role') in ('model','status') and row.get('id')
+            and not (self.chat_widget.busy and index == self.chat_widget._stream_index)}
+        visible = list(dict.fromkeys(identifier for identifier in message_ids[:500] if isinstance(identifier,str) and identifier in available))
+        if visible:
+            self.messages_seen.emit(conversation_id, visible)
+        return bool(visible)
+
+    def report_messages_removed(self, conversation_id, message_ids):
+        """Local controller acknowledgement after an explicit successful clear."""
+        if isinstance(conversation_id,str) and isinstance(message_ids,list):
+            identifiers = [value for value in message_ids if isinstance(value,str) and len(value)<=160]
+            self.messages_removed.emit(conversation_id,identifiers)
+
     def hermione_dock_geometry(self):
         if not self.desktop_surface or not self.isVisible() or self.isMinimized(): return QRect()
         value = self.desktop_surface.bridge._dock_rect
@@ -454,14 +481,29 @@ class OsintPanel(FramelessWindow):
             # that reserved column; never fall back to a different vertical area.
             box=QRect(value)
             if box.width()<240: box.adjust(-(240-box.width())//2,0,(240-box.width()+1)//2,0)
+            # The stage must fit the original maximum195px sprite plus its24px
+            # transparent interaction padding; DOM height must never crop hair.
+            if box.height()<219: box.setHeight(219)
             return QRect(self.desktop_surface.mapToGlobal(box.topLeft()),box.size())
         top_left=self.desktop_surface.mapToGlobal(QPoint(max(0,self.desktop_surface.width()-240),100))
         return QRect(top_left.x(),top_left.y(),240,max(220,self.desktop_surface.height()-150))
 
     def desktop_window_state(self):
+        def owned_window(widget):
+            # Qt top-level owned dialogs have a QObject parent but are not
+            # QWidget.isAncestorOf descendants on Windows.
+            while widget is not None:
+                if widget is self:return True
+                widget=widget.parent()
+            return False
+        active = QApplication.activeWindow()
+        owned = owned_window(active)
+        modal = QApplication.activeModalWidget()
+        owned_modal = owned_window(modal)
         return {'active':bool(self.desktop_surface and self.isVisible() and not self.isMinimized() and
-            (self.isActiveWindow() or self.settings_dialog.isActiveWindow())),
-            'geometry':self.frameGeometry(),'dock':self.hermione_dock_geometry()}
+            (self.isActiveWindow() or owned or owned_modal)),
+            'geometry':self.frameGeometry(),'dock':self.hermione_dock_geometry(),
+            'obstructions':[modal.frameGeometry()] if owned_modal else []}
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -499,6 +541,12 @@ class OsintPanel(FramelessWindow):
         self.open_native_settings(section)
 
     def open_native_settings(self, section=None):
+        if self.desktop_surface:
+            self.desktop_surface.bridge.route='settings'
+            self.desktop_surface.bridge.mark_dirty()
+            if self.isMinimized(): self.showNormal()
+            self.show();self.raise_();self.activateWindow()
+            return
         if isinstance(section, str):
             tabs = self.connections.tabs
             for index in range(tabs.count()):

@@ -140,7 +140,8 @@ def main(argv: list[str] | None = None) -> int:
                                 note=pet.notification
                                 result['notification']={'visible':note.isVisible(),'kind':note.payload.kind if note.payload else None,
                                     'message_id':note.payload.message_id if note.payload else None,
-                                    'geometry':list(note.geometry().getRect())}
+                                    'geometry':list(note.geometry().getRect()),
+                                    'unread_count':getattr(note,'unread_count',None)}
                             if pet.panel.desktop_surface:
                                 surface=pet.panel.desktop_surface
                                 result['desktop']={'ready':surface.bridge.ui_ready,'load_ok':surface.load_ok,
@@ -179,7 +180,7 @@ def main(argv: list[str] | None = None) -> int:
                     if not isinstance(name,str) or not re.fullmatch(r'[a-zA-Z0-9_-]{1,60}',name): return {'ok':False}
                     (Path(pet._trace_path).parent/(name+'.json')).write_text(surface.bridge._json(surface.bridge.snapshot()),encoding='utf-8')
                 elif payload.get('action')=='dom':
-                    script="""JSON.stringify({text:document.body.innerText.slice(0,18000),title:document.title,buttons:[...document.querySelectorAll('button')].map(b=>({text:b.innerText,label:b.getAttribute('aria-label'),disabled:b.disabled})),headings:[...document.querySelectorAll('h1,h2,h3')].map(h=>h.innerText),tables:document.querySelectorAll('.markdown table').length,messages:document.querySelectorAll('[data-message-id]').length,overflow:document.documentElement.scrollWidth>innerWidth+2,width:innerWidth,height:innerHeight})"""
+                    script="""JSON.stringify({text:document.body.innerText.slice(0,18000),title:document.title,buttons:[...document.querySelectorAll('button')].map(b=>({text:b.innerText,label:b.getAttribute('aria-label'),disabled:b.disabled})),headings:[...document.querySelectorAll('h1,h2,h3')].map(h=>h.innerText),tables:document.querySelectorAll('.markdown table').length,messages:document.querySelectorAll('[data-message-id]').length,overflow:document.documentElement.scrollWidth>innerWidth+2,width:innerWidth,height:innerHeight,font:{loaded:document.fonts.check('15px Manrope','Гермиона Ёжик'),family:getComputedStyle(document.body).fontFamily,size:getComputedStyle(document.body).fontSize},dock:(()=>{let r=document.getElementById('hermione-dock')?.getBoundingClientRect();return r?{x:r.x,y:r.y,width:r.width,height:r.height}:null})()})"""
                     def receive(value):
                         try: surface.qa_dom=json.loads(value)
                         except (ValueError,TypeError): surface.qa_dom={}

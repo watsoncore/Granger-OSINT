@@ -4,8 +4,10 @@ os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 import json
 from pathlib import Path
 import pytest
+import time
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QUrl
+from PySide6.QtTest import QTest
 
 from grangerpet.config import Settings, SettingsStore
 from grangerpet.panel import OsintPanel
@@ -35,7 +37,7 @@ def test_bridge_reports_only_actual_sources_and_no_secret_settings(bridge):
     assert snapshot['messages'][-1]['text']=='# Actual stored fixture'
     assert snapshot['evidence'][0]['kind']=='page'
     assert 'api_key' not in snapshot['settings'] and snapshot['connection']['balance'] is None
-    assert 'не предоставляет' in snapshot['connection']['balanceMessage']
+    assert snapshot['usage']['balance']['status']=='not_supported'
 
 
 def test_finite_actions_reject_arbitrary_paths_commands_and_secret_fields(bridge,tmp_path):
@@ -127,3 +129,128 @@ def test_new_search_does_not_relabel_old_chat_evidence_as_its_results(bridge):
     snapshot=bridge.snapshot()
     assert snapshot['search']['results']==[]
     assert snapshot['evidence'][0]['evidence_id']==record['evidence_id']
+
+
+def wait_until(predicate,timeout=3000):
+    deadline=time.monotonic()+timeout/1000
+    while not predicate() and time.monotonic()<deadline:
+        QApplication.processEvents();QTest.qWait(10)
+    assert predicate()
+
+
+def test_readiness_starts_automatically_and_keeps_progress_diagnostics(bridge,monkeypatch):
+    calls=[]
+    def catalog(**kwargs):
+        calls.append(kwargs['force_refresh'])
+        row={'name':'web_read','kind':'web','description':'Reader','available':True,'state':'ready',
+            'reason':'Локальный транспорт проверен','diagnostic':{'code':'local_ready','remedy':'','execution_verified':False}}
+        kwargs['on_update'](row)
+        return [row]
+    monkeypatch.setattr(bridge._registry(),'catalog',catalog)
+    bridge.dispatch('ui_ready',{'surface':'main'})
+    wait_until(lambda:bool(bridge._tools) and bridge._tools_job is None)
+    assert calls==[False]
+    row=bridge.snapshot()['tools'][0]
+    assert row['available'] and row['diagnostic']['execution_verified'] is False
+    assert bridge.snapshot()['toolsChecking'] is False
+
+
+def test_modern_settings_keep_non_secret_values_and_reject_key_fields(bridge):
+    bridge.dispatch('settings_save',{'values':{'ai_provider':'none','request_limit':12,'source_root':'C:/fixture','enable_snoop':True}})
+    state=bridge.snapshot()
+    assert state['settings']['request_limit']==12 and state['settings']['enable_snoop']
+    assert isinstance(state['credentials']['vk'],bool)
+    for key in ('vk_token','deepseek_api_key','telegram_session'):
+        with pytest.raises(ValueError): bridge.dispatch('settings_save',{'values':{key:'secret'}})
+    bridge.dispatch('settings_native',{'category':'tools'})
+    assert bridge.route=='settings' and bridge.settingsCategory=='tools'
+    assert not bridge.host.settings_dialog.isVisible()
+
+
+def test_all_vault_secrets_are_redacted_from_json_not_only_ai_key(bridge):
+    bridge._secret_redactions={'vk-secret','line\nsecret'}
+    result=json.loads(bridge._json({'a':'vk-secret','b':'line\nsecret'}))
+    assert result=={'a':'[скрытый ключ]','b':'[скрытый ключ]'}
+
+
+def test_balance_refresh_is_separate_from_chat_connection_and_usage(bridge,monkeypatch):
+    monkeypatch.setattr('grangerpet.desktop_bridge.fetch_balance',lambda key:{'status':'available','amount':'7',
+        'unit':'gateway_units','label':'Единицы шлюза','updated_at':'time'})
+    bridge.host.settings.ai_provider='deepseek'
+    before=bridge.host.ai_state.committed_snapshot()
+    bridge.dispatch('balance_refresh',{})
+    wait_until(lambda:bridge._balance_job is None)
+    assert bridge.snapshot()['usage']['balance']['amount']=='7'
+    assert bridge.host.ai_state.committed_snapshot()==before
+
+
+def test_avito_opens_only_explicit_search_and_never_claims_machine_results(bridge,monkeypatch):
+    opened=[]
+    monkeypatch.setattr('grangerpet.desktop_bridge.QDesktopServices.openUrl',lambda url:opened.append(url.toString()) or True)
+    result=bridge.dispatch('public_search_open',{'source':'avito','query':'тест и пробел'})
+    assert result['opened'] and result['machine_results'] is False
+    assert 'q=' in opened[0] and 'api.' not in opened[0]
+    with pytest.raises(ValueError): bridge.dispatch('public_search_open',{'source':'comb','query':'anything'})
+
+
+def test_model_metadata_list_is_async_local_only_and_does_not_verify_chat(bridge,monkeypatch):
+    with pytest.raises(ValueError):bridge.dispatch('connection_models',{})
+    bridge.host.settings.ai_provider='ollama'
+    before=bridge.host.ai_state.committed_snapshot()
+    monkeypatch.setattr('grangerpet.ai.OllamaClient.list_models',lambda self:['fixture-local-model'])
+    bridge.dispatch('connection_models',{})
+    wait_until(lambda:bridge._models_job is None)
+    assert bridge.snapshot()['connection']['models']==[{'id':'fixture-local-model'}]
+    assert bridge.host.ai_state.committed_snapshot()==before
+
+
+@pytest.mark.parametrize(('tool','query','expected'),[('web_read','https://example.org/',20),('web_search','fixture query',10)])
+def test_catalog_run_clamps_default_from_legitimate_search_setting(bridge,monkeypatch,tool,query,expected):
+    bridge.host.settings.request_limit=50
+    received=[]
+    registry=bridge._registry()
+    monkeypatch.setattr(registry,'execute',lambda name,args,**kw:received.append(args['limit']) or {'status':'empty','results':[]})
+    monkeypatch.setattr(bridge,'_refresh_tools',lambda **kw:None)
+    bridge.dispatch('tool_run',{'tool':tool,'query':query})
+    wait_until(lambda:bridge._manual_job is None)
+    assert received==[expected]
+
+
+def test_queued_cancelled_tool_result_cannot_overwrite_next_job(bridge,monkeypatch):
+    monkeypatch.setattr('grangerpet.desktop_bridge.UiJob.start',lambda self:None)
+    bridge.dispatch('tool_run',{'tool':'web_read','query':'https://example.org/'})
+    old=bridge._manual_job
+    bridge.dispatch('search_stop',{})
+    bridge.dispatch('tool_run',{'tool':'web_read','query':'https://example.net/'})
+    new=bridge._manual_job
+    old.done.emit({'status':'complete','results':[]},'')
+    assert bridge._manual_job is new
+    assert bridge._manual_activity[0]['status']=='running'
+
+
+def test_real_manual_result_keeps_evidence_identity_through_qt_model_and_renderer(bridge,monkeypatch):
+    from grangerpet.agent_evidence import normalize_evidence
+    record=normalize_evidence({'id':'https://example.org/','title':'Example','type':'web','platform':'example.org',
+        'url':'https://example.org/','description':'Primary text','status':'verified','details':{'reading_method':'direct_http'}},
+        'web_read','https://example.org/')
+    bridge.host._agent_evidence([record])
+    source=bridge.snapshot()['search']['results'][0]
+    assert source['evidence_id']==record['evidence_id']
+    assert bridge.dispatch('source_open',{'evidence_id':source['evidence_id']})['evidence_id']==record['evidence_id']
+    bridge._manual_registry=None
+    registry=bridge._registry()
+    monkeypatch.setattr(bridge,'_refresh_tools',lambda **kw:None)
+    bridge.dispatch('tool_run',{'tool':'evidence_get','query':source['evidence_id'],'limit':1})
+    wait_until(lambda:bridge._manual_job is None)
+    assert bridge._manual_activity[-1]['status']=='complete'
+    assert bridge.snapshot()['search']['results'][0]['evidence_id']==record['evidence_id']
+    assert registry.evidence.get(record['evidence_id'])['provenance']['tool']=='web_read'
+
+
+def test_flattened_conflict_is_never_promoted_when_sources_are_reconstructed(bridge):
+    from grangerpet.agent_evidence import normalize_evidence
+    row=normalize_evidence({'id':'https://example.org/','title':'Conflict fixture','url':'https://example.org/',
+        'type':'web','platform':'example.org','status':'verified'},'web_read','https://example.org/')
+    row['verification']='contradictory'
+    bridge.host._agent_evidence([row])
+    assert bridge.snapshot()['search']['results'][0]['verification']=='contradictory'

@@ -6,7 +6,7 @@ export interface Source {
   domain?: string
   excerpt?: string
   status: string
-  kind: 'page' | 'snippet' | 'adapter'
+  kind: 'page' | 'snippet' | 'adapter' | 'api'
   obtained_at?: string
   limitations?: string[] | string
   details?: Record<string, unknown>
@@ -24,6 +24,10 @@ export interface Activity {
   status: string
   summary: string
   evidenceIds?: string[]
+  inputType?: string
+  resultCount?: number
+  error?: string
+  details?: Record<string, unknown>
 }
 export interface Tool {
   id: string
@@ -34,6 +38,25 @@ export interface Tool {
   state: string
   reason?: string
   sensitive?: boolean
+  displayName?: string
+  stateLabel?: string
+  remedy?: string
+  settingsCategory?: string
+  lastChecked?: string
+  diagnostic?: { code?: string; remedy?: string; runtime_ready?: boolean; checked_at?: string; probe_seconds?: number; execution_verified?: boolean }
+  last_execution?: { status: string; obtained_at?: string; error_code?: string; result_count?: number }
+}
+export interface ProviderBalance {
+  status: string
+  value?: number | string | null
+  amount?: number | string | null
+  label?: string
+  unit?: string | null
+  field?: string
+  updated_at?: string
+  error?: string
+  message?: string
+  stale?: boolean
 }
 export interface Usage {
   prompt_tokens?: number | null
@@ -58,6 +81,7 @@ export interface DesktopState {
   route: Route
   conversation_id?: string
   message_focus?: string | null
+  archiveError?: string
   connection: {
     provider: string
     model: string
@@ -68,6 +92,10 @@ export interface DesktopState {
     contextLimit?: number | null
     balance?: number | string | null
     balanceMessage?: string
+    testing?: boolean
+    models?: { id: string; label?: string }[]
+    modelsChecking?: boolean
+    modelsError?: string
   }
   messages: Message[]
   busy: boolean
@@ -88,6 +116,9 @@ export interface DesktopState {
     results: Record<string, unknown>[]
   }
   tools: Tool[]
+  toolsChecking?: boolean
+  settingsCategory?: 'ai' | 'tools' | 'investigation' | 'interface' | 'hermione' | 'notifications' | 'privacy'
+  credentials?: Record<string, boolean>
   investigation: {
     id?: string
     goal?: string
@@ -97,7 +128,7 @@ export interface DesktopState {
     remaining_tasks?: string[]
     [key: string]: unknown
   }
-  usage: { request?: Usage | null; conversation?: Usage | null; investigation?: Usage | null }
+  usage: { request?: Usage | null; conversation?: Usage | null; investigation?: Usage | null; balance?: ProviderBalance | null; provider_balance?: ProviderBalance | null }
   settings: Record<string, string | number | boolean | null>
   canvas: { id: string; text: string; title: string; dirty: boolean }
   launcher: {
@@ -109,7 +140,7 @@ export interface DesktopState {
     error?: string
   }
   hermione: { state: string; visible: boolean; [key: string]: unknown }
-  window: { maximized: boolean; fullscreen: boolean }
+  window: { maximized: boolean; fullscreen: boolean; active?: boolean }
 }
 
 export const emptyState: DesktopState = {

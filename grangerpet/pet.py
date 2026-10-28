@@ -86,8 +86,10 @@ class PetWindow(QWidget):
         self._dock_bounds = None
         self._dock_suppressed = False
         self._main_active = False
-        self.notification = PetNotification(self)
+        self.notification = PetNotification(self, ledger_path=Path(store.path).parent / 'unread-messages.dpapi')
         self.notification.activated.connect(self._open_notification)
+        self.panel.messages_seen.connect(self.notification.mark_seen)
+        self.panel.messages_removed.connect(self.notification.mark_seen)
         self.animation.state_changed.connect(self._begin_transition)
         self._region = QRegion()
         self._padding = 12
@@ -202,8 +204,8 @@ class PetWindow(QWidget):
         if self._ending:
             return False
         if kind == 'cancelled':
-            self.dismiss_notification()
             return False
+        self._update_notification_context()
         self._update_notification_anchor()
         return self.notification.notify(kind, message_id, index=index, conversation_id=conversation_id)
 
@@ -239,6 +241,11 @@ class PetWindow(QWidget):
             self.panel.chat_widget.input.setFocus()
         self._sync_overlay_placement()
 
+    def _update_notification_context(self):
+        context = self.panel.notification_context()
+        self.notification.set_context(context.get('conversation_id') if context.get('active') else None,
+                                      suppressed=self._dock_suppressed or not self.isVisible())
+
     def _update_notification_anchor(self):
         screen = QGuiApplication.screenAt(self.frameGeometry().center()) or QGuiApplication.primaryScreen()
         bounds = self._dock_bounds or screen.availableGeometry().adjusted(6, 6, -6, -6)
@@ -247,6 +254,8 @@ class PetWindow(QWidget):
     @staticmethod
     def _safe_overlay_position(current, size, main, available, dock=None):
         """Fit the native character in its reserved dock or outside the UI."""
+        if dock is not None:
+            dock = dock.intersected(available)
         if dock is not None and dock.width() >= size.width() and dock.height() >= size.height():
             bottom_margin = min(8, dock.height()-size.height())
             return QPoint(dock.center().x()-size.width()//2, dock.bottom()-size.height()+1-bottom_margin)
@@ -269,6 +278,7 @@ class PetWindow(QWidget):
         if self._ending or self._pressed_at is not None or self._dragging:
             return
         state_getter = getattr(self.panel, 'desktop_window_state', None)
+        state = {}
         if callable(state_getter):
             state = state_getter()
             active = bool(state.get('active'))
@@ -287,7 +297,10 @@ class PetWindow(QWidget):
             screen = QGuiApplication.screenAt(main.center()) or QGuiApplication.primaryScreen()
             dock = dock if isinstance(dock, QRect) and not dock.isEmpty() else None
             position = self._safe_overlay_position(self._dock_home, self.size(), main, screen.availableGeometry(), dock)
-            self._dock_bounds = dock
+            if position is not None and any(isinstance(box,QRect) and QRect(position,self.size()).intersects(box)
+                    for box in state.get('obstructions',[])):
+                position=None
+            self._dock_bounds = dock.intersected(screen.availableGeometry()) if dock is not None else None
             if position is None:
                 # An unusually narrow/full-screen host without a reserved dock
                 # cannot safely display a second native window over its text.
@@ -308,6 +321,7 @@ class PetWindow(QWidget):
                     self.show()
                 self._dock_suppressed = False
         self._update_notification_anchor()
+        self._update_notification_context()
 
     def moveEvent(self, event):
         super().moveEvent(event)

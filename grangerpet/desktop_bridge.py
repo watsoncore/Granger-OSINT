@@ -17,11 +17,14 @@ from urllib.parse import urlsplit
 from PySide6.QtCore import QObject, QRect, QTimer, Signal, Slot
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtCore import QUrl
-from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtWidgets import QApplication, QMessageBox, QDialog, QFileDialog
 
 from .agent_evidence import normalize_evidence, redact
 from .agent_tools import ToolRegistry, _SPECS
 from .ai_keys import resolve_deepseek_key
+from .credential_dialog import CredentialDialog, credential_presence, SERVICES
+from .credentials import get_secret, CredentialError
+from .gateway_balance import GatewayBalance, fetch_balance
 from .config import Settings
 from .markdown_view import public_link
 from .product import PRODUCT_NAME, VERSION
@@ -31,7 +34,9 @@ from .ui_jobs import UiJob
 SETTINGS_FIELDS = frozenset(('size','fps','cursor_reaction','agent_steps','agent_calls','agent_timeout',
     'agent_tokens','agent_page_limit','agent_page_depth','agent_parallel','agent_tool_timeout',
     'agent_request_timeout','agent_auto_continue','agent_budget_behavior','notifications_enabled',
-    'notifications_animate','notifications_reply','notifications_investigation','notifications_errors','reduced_motion'))
+    'notifications_animate','notifications_reply','notifications_investigation','notifications_errors','reduced_motion',
+    'ai_provider','deepseek_model','ollama_url','ollama_model','api_cx','source_root','runtime_python',
+    'telegram_api_id','instagram_username','request_limit','search_timeout','enable_snoop'))
 ROUTES = frozenset(('chat','search','history','canvas','settings'))
 TOOL_NAMES={'web_search':'Веб-поиск','web_read':'Чтение страниц','username_maigret':'Maigret',
     'username_blackbird':'Blackbird','username_social_analyzer':'Social Analyzer','username_snoop':'Snoop',
@@ -45,24 +50,28 @@ def source_view(record, limits=()):
     value = redact(record)
     details, origin = value.get('details') or {}, value.get('provenance') or {}
     acquisition = origin.get('acquisition')
-    kind = 'page' if details.get('reading_method')=='direct_http' else 'snippet' if acquisition=='search_index' or value.get('status')=='indexed' else 'adapter'
+    kind = 'api' if details.get('acquisition')=='official_api' else 'page' if details.get('reading_method')=='direct_http' else 'snippet' if acquisition=='search_index' or value.get('status')=='indexed' else 'adapter'
     notes = list(limits) + list(details.get('limitations') or [])
     if any('JavaScript' in str(note) and 'не' in str(note) for note in notes):
         details={**details,'javascript_shell':True}
     if details.get('javascript_shell'):
         notes.append('JavaScript-содержимое не исполнено; доступны только HTTP-текст и метаданные.')
-    return {'evidence_id':value.get('evidence_id',value.get('id','')), 'title':value.get('title') or value.get('platform') or 'Источник',
+    identifier=value.get('evidence_id') or details.get('evidence_id') or ''
+    return {'evidence_id':identifier, 'title':value.get('title') or value.get('platform') or 'Источник',
         'url':value.get('url',''), 'domain':urlsplit(value.get('url','')).hostname or value.get('platform',''),
         'excerpt':str(details.get('content_excerpt') or value.get('description') or '')[:2000],
         'status':'partial' if details.get('javascript_shell') else value.get('status','unconfirmed'), 'kind':kind,
         'obtained_at':origin.get('obtained_at') or details.get('retrieved_at') or value.get('date'),
         'limitations':list(dict.fromkeys(str(v)[:500] for v in notes))[:8], 'details':details,
-        'verification':value.get('verification','unconfirmed'), 'provenance':origin}
+        'verification':value.get('verification') or details.get('evidence_verification','unconfirmed'),
+        'provenance':origin or {'tool':details.get('agent_tool',''),'query':details.get('original_query',''),
+                              'obtained_at':details.get('obtained_at','')}}
 
 
 class DesktopBridge(QObject):
     response = Signal(str, str)
     stateChanged = Signal(str)
+    toolProgress = Signal(object)
 
     def __init__(self, host, surface='main'):
         super().__init__(host)
@@ -71,6 +80,17 @@ class DesktopBridge(QObject):
         self._last = {}
         self._last_messages = []
         self._tools = []
+        self._tools_job = None
+        self._tools_generation = 0
+        self._balance = GatewayBalance()
+        self._balance_job = None
+        self._balance_generation = 0
+        self._models_job = None
+        self._models = []
+        self._models_error = ''
+        self._credentials = {}
+        self._secret_redactions = set()
+        self.settingsCategory = 'ai'
         self._manual_job = None
         self._manual_registry = None
         self._manual_activity = []
@@ -84,6 +104,8 @@ class DesktopBridge(QObject):
         self._dock_rect = QRect()
         self.ui_ready = False
         self._key = resolve_deepseek_key()
+        self._load_credential_flags()
+        self.toolProgress.connect(self._tool_progress)
         self._flush = QTimer(self)
         self._flush.setSingleShot(True)
         self._flush.setInterval(80)
@@ -106,12 +128,25 @@ class DesktopBridge(QObject):
         self._key = resolve_deepseek_key()
         self.mark_dirty()
 
+    def _load_credential_flags(self):
+        self._credentials = credential_presence(getter=get_secret)
+        self._secret_redactions = {self._key} if self._key else set()
+        for _, names in SERVICES.values():
+            for name, _ in names:
+                try:
+                    value = get_secret(name)
+                except CredentialError:
+                    value = ''
+                if value:
+                    self._secret_redactions.add(value)
+
     def mark_dirty(self, *_):
         if not self._flush.isActive(): self._flush.start()
 
     def _json(self, value):
         raw = json.dumps(value, ensure_ascii=False, separators=(',', ':'), default=str)
-        if self._key: raw = raw.replace(self._key, '[скрытый ключ]')
+        for secret in self._secret_redactions | ({self._key} if self._key else set()):
+            raw = raw.replace(json.dumps(secret, ensure_ascii=False)[1:-1], '[скрытый ключ]')
         return raw
 
     def _history(self):
@@ -152,6 +187,14 @@ class DesktopBridge(QObject):
             if not identifier:
                 record = normalize_evidence(record, 'manual_search', self.host.text.text())
                 identifier = record['evidence_id']
+            elif not record.get('provenance') and record.get('details',{}).get('agent_tool'):
+                details=record['details']
+                restored=normalize_evidence(record,details['agent_tool'],details.get('original_query',''),details.get('obtained_at') or None)
+                if restored['evidence_id']!=identifier:
+                    continue
+                if details.get('evidence_verification')=='contradictory':
+                    restored['verification']='contradictory'
+                record=restored
             search_sources.append(source_view(record))
             if identifier not in seen:
                 seen.add(identifier)
@@ -169,14 +212,18 @@ class DesktopBridge(QObject):
             if not tool: continue
             key = event.get('tool_call_id') or tool
             state = 'running' if event['type']=='tool_start' else event.get('status','completed')
-            result[key] = {'id':str(key),'tool':TOOL_NAMES.get(tool,tool),'status':state,'summary':event.get('message','')}
+            spec=next((spec for spec in _SPECS if spec.name==tool),None)
+            result[key] = {'id':str(key),'tool':TOOL_NAMES.get(tool,tool),'status':state,'summary':event.get('message',''),
+                'inputType':spec.kind if spec else '', 'resultCount':event.get('count'),
+                'error':event.get('error') or event.get('error_code') or ''}
         return list(result.values())[-30:] + self._manual_activity
 
     def snapshot(self):
         settings = self.host.settings
         values = {key:getattr(settings,key) for key in SETTINGS_FIELDS if hasattr(settings,key)}
         base = {'product':PRODUCT_NAME,'version':VERSION,'surface':self.surface,'route':self.route,
-            'settings':values,'window':{'maximized':self.host.isMaximized(),'fullscreen':self.host.isFullScreen()}}
+            'settings':values,'window':{'maximized':self.host.isMaximized(),'fullscreen':self.host.isFullScreen(),
+            'active':bool(self.host.isActiveWindow() and self.host.isVisible() and not self.host.isMinimized())}}
         if self.surface=='launcher':
             state = getattr(self.host,'process_state','running' if self.host.running else 'ready')
             base.update(launcher={'state':state,'running':self.host.running,'size':settings.size,'fps':settings.fps,
@@ -196,6 +243,8 @@ class DesktopBridge(QObject):
         usage = chat._usage_ledger
         conversation_usage = usage.snapshot(conversation_id=chat.conversation_id) if usage else {}
         investigation_usage = usage.snapshot(investigation_id=chat._last_investigation.get('id')) if usage and chat._last_investigation.get('id') else {}
+        balance=self._balance.snapshot() if settings.ai_provider=='deepseek' else {
+            'status':'not_supported','amount':None,'message':'Баланс доступен только для подключённого шлюза DeepSeek.'}
         investigation = {key:value for key,value in chat._last_investigation.items() if key not in ('evidence','executions','messages')}
         investigation['canResume'] = False
         if investigation.get('stop_reason'):
@@ -210,8 +259,10 @@ class DesktopBridge(QObject):
             investigation['canResume'] = (chat._journal.directory/(investigation['id']+'.checkpoint.dpapi')).is_file()
         base.update(connection={'provider':ai['provider'],'model':ai['model_id'],'status':ai['connection_status'],
                 'statusText':self.host.ai_state.status_text(ai),
-                'canSend':chat.ai_state.can_send,'error':ai.get('last_error',''),'contextLimit':None,'balance':None,
-                'balanceMessage':'Провайдер не предоставляет данные об остатке'},
+                'canSend':chat.ai_state.can_send,'error':ai.get('last_error',''),'contextLimit':None,'balance':balance.get('amount'),
+                'balanceMessage':balance.get('message','')},
+            credentials=self._credentials,settingsCategory=self.settingsCategory,toolsChecking=self._tools_job is not None,
+            archiveError=getattr(chat,'archive_error',''),
             conversation_id=chat.conversation_id,messages=messages,busy=chat.busy,activity=self._activity(),evidence=sources,
             message_focus=getattr(self,'message_focus',None),
             search={'query':self.host.text.text(),'kind':self.host.direction.currentData(),'busy':self.host._busy or self._manual_job is not None,
@@ -222,13 +273,14 @@ class DesktopBridge(QObject):
                 'error':self.host.status.text() if self.host.phase in ('error','failed','completed_with_errors') else '',
                 'choices':[{'label':name,'value':kind} for name,kind in self.host._resolution().choices], 'results':self._search_sources_view},
             tools=self._tools or [{'id':spec.name,'name':TOOL_NAMES.get(spec.name,spec.name),'description':spec.description,'inputTypes':[spec.kind],
-                'available':False,'state':'unverified','reason':'Нажмите «Проверить готовность» для фактической проверки.',
+                'available':False,'state':'checking' if self._tools_job else 'unverified','reason':'Проверяется локальная готовность.' if self._tools_job else 'Локальная готовность ещё не проверена.',
                 'sensitive':spec.requires_approval} for spec in _SPECS],
             investigation=investigation,usage={'request':conversation_usage.get('last_request'),
                 'conversation':conversation_usage.get('totals'), 'investigation':investigation_usage.get('totals'),
-                'balance':conversation_usage.get('provider_balance')}, history=self._history(),
+                'balance':balance}, history=self._history(),
             canvas={'id':canvas.document_id,'text':canvas.editor.toPlainText(),'title':canvas.title.text(),'dirty':canvas._dirty} if canvas else None,
             hermione={'state':self.host._last_activity or 'idle','visible':True})
+        base['connection'].update(models=self._models,modelsChecking=self._models_job is not None,modelsError=self._models_error)
         return base
 
     def publish(self, *, force=False):
@@ -273,6 +325,9 @@ class DesktopBridge(QObject):
             if not self.ui_ready:
                 self.ui_ready=True
                 logging.getLogger('grangerpet.desktop').info('Desktop surface ready: %s',self.surface)
+                if self.surface=='main':
+                    QTimer.singleShot(0,self._refresh_tools)
+                    QTimer.singleShot(0,self._refresh_balance)
             return None
         if action=='snapshot':
             self.publish(force=True)
@@ -304,6 +359,12 @@ class DesktopBridge(QObject):
         elif action=='route':
             if payload.get('route') not in ROUTES: raise ValueError('Неизвестный раздел.')
             self.route = payload['route']
+            category=payload.get('category')
+            if category in ('ai','tools','auth','appearance','notifications','research'):
+                self.settingsCategory=category
+            if self.route in ('settings','search') and not self._tools and not self._tools_job:
+                self._refresh_tools()
+            if self.route=='settings': self._refresh_balance()
         elif action=='chat_send':
             text = payload.get('text')
             if not isinstance(text,str) or not text.strip() or len(text)>12000: raise ValueError('Сообщение: 1–12 000 символов.')
@@ -314,9 +375,19 @@ class DesktopBridge(QObject):
             self.route='chat'
         elif action=='chat_stop': chat.cancel()
         elif action=='chat_new': chat.new_conversation(); self._history_time=0
-        elif action=='chat_clear': chat.clear_history(); self._history_time=0
+        elif action=='chat_clear':
+            conversation_id=chat.conversation_id
+            ids=[r['id'] for r in chat.messages if r.get('id')]
+            chat.clear_history(); self._history_time=0
+            if hasattr(self.host,'report_messages_removed'):
+                self.host.report_messages_removed(conversation_id,ids)
         elif action=='chat_regenerate': chat.regenerate(payload.get('message_id'))
         elif action=='history_load': chat.load_conversation(payload.get('id')); self.route='chat'; self._history_time=0
+        elif action=='messages_seen':
+            ids=payload.get('message_ids')
+            if not isinstance(ids,list) or len(ids)>500 or any(not isinstance(v,str) or len(v)>100 for v in ids):
+                raise ValueError('Некорректные идентификаторы сообщений.')
+            return self.host.report_messages_seen(payload.get('conversation_id'),ids)
         elif action=='investigation_continue': chat.continue_investigation(payload.get('id')); self.route='chat'
         elif action=='canvas_open':
             row = self._message(payload.get('message_id'))
@@ -355,7 +426,7 @@ class DesktopBridge(QObject):
                 if row['status']=='running': row['status']='cancelled'
             self.host.search_state.emit('idle')
             self.host.cancel_search()
-        elif action=='tools_refresh': self._refresh_tools()
+        elif action=='tools_refresh': self._refresh_tools(force=True)
         elif action=='tool_run': self._run_tool(payload)
         elif action=='source_open':
             self._sources()
@@ -369,24 +440,112 @@ class DesktopBridge(QObject):
             if len(records)!=len(ids): raise ValueError('Одна из находок недоступна.')
             chat.analyze_selected(records); self.route='chat'
         elif action=='settings_save': self._save_settings(payload.get('values'))
+        elif action=='credentials_edit': return self._edit_credentials(payload.get('service'))
+        elif action=='connection_test': self.host.settings_dialog.connections.check_connection()
+        elif action=='connection_models': self._list_models()
+        elif action=='balance_refresh': self._refresh_balance(force=True)
+        elif action=='settings_path': return self._settings_path(payload.get('field'))
+        elif action=='public_search_open':
+            from urllib.parse import urlencode
+            query=payload.get('query')
+            if payload.get('source')!='avito' or not isinstance(query,str) or not 0<len(query.strip())<=300 or any(ord(c)<32 for c in query):
+                raise ValueError('Укажите поисковый запрос Avito: 1–300 символов.')
+            url='https://www.avito.ru/rossiya/telefony?'+urlencode({'q':query.strip()})
+            opened=QDesktopServices.openUrl(QUrl(url))
+            return {'opened':opened,'url':url,'machine_results':False}
         elif action=='settings_native':
             category = payload.get('category')
             if category not in ('ai','tools','auth'): raise ValueError('Неизвестная категория.')
-            self.host.open_native_settings({'ai':'ИИ','tools':'Источники','auth':'Авторизация'}[category])
+            self.route='settings'; self.settingsCategory=category
         else: raise ValueError('Неизвестное действие приложения.')
         self.host.user_activity.emit()
         return None
 
     def _save_settings(self, values):
         if not isinstance(values,dict) or set(values)-SETTINGS_FIELDS: raise ValueError('Недопустимые параметры настроек.')
+        previous_model_source=(self.host.settings.ai_provider,self.host.settings.ollama_url)
         merged = asdict(self.host.settings)
         merged.update(values)
         settings = Settings.from_dict(merged)
+        if (settings.ai_provider,settings.ollama_url)!=previous_model_source:
+            self._models=[];self._models_error=''
+            if self._models_job:
+                self._models_job.cancel();self._models_job.deleteLater();self._models_job=None
         if self.host.store: self.host.store.save(settings)
         self.host.set_settings(settings)
         QApplication.instance().setProperty('reduced_motion',getattr(settings,'reduced_motion',False))
         self.host.settings_dialog.settings_saved.emit(settings)
         self._manual_registry = None
+        if self._tools_job:
+            self._tools_job.cancel(); self._tools_job.deleteLater(); self._tools_job=None
+        self._tools_generation += 1
+        self._tools=[]
+        QTimer.singleShot(0,self._refresh_tools)
+
+    def _list_models(self):
+        if self.host.settings.ai_provider!='ollama':
+            raise ValueError('Для DeepSeek используется заданная модель deepseek-v4-flash. Этот шлюз не предоставляет проверенный каталог моделей.')
+        if self._models_job:return
+        from .ai import OllamaClient
+        address=self.host.settings.ollama_url
+        job=UiJob(lambda:OllamaClient(address).list_models(),self)
+        self._models_job=job;self._models_error=''
+        def done(result,error):
+            if self._models_job is not job:return
+            self._models_job=None
+            if self.host.settings.ai_provider=='ollama' and self.host.settings.ollama_url==address:
+                self._models=[{'id':value} for value in (result or []) if isinstance(value,str)][:200] if not error else []
+                self._models_error=error or ''
+            job.deleteLater();self.mark_dirty()
+        job.done.connect(done);job.start();self.mark_dirty()
+
+    def _edit_credentials(self,service):
+        if service not in SERVICES: raise ValueError('Неизвестный источник учётных данных.')
+        dialog=CredentialDialog(service,self.host)
+        try: saved=dialog.exec()==QDialog.DialogCode.Accepted
+        finally: dialog.deleteLater()
+        if saved:
+            self._key=resolve_deepseek_key()
+            self._load_credential_flags()
+            settings=self.host.store.load() if self.host.store else self.host.settings
+            self.host.set_settings(settings)
+            self.host.ai_state.commit(settings)
+            self.host.settings_dialog.settings_saved.emit(settings)
+            self._manual_registry=None
+            self._tools=[]
+            if self._tools_job:
+                self._tools_job.cancel();self._tools_job.deleteLater();self._tools_job=None
+            self._tools_generation+=1
+            self._balance_generation+=1
+            if self._balance_job:
+                self._balance_job.cancel();self._balance_job.deleteLater();self._balance_job=None
+                self._balance.cancel_pending()
+            QTimer.singleShot(0,self._refresh_tools)
+            QTimer.singleShot(0,self._refresh_balance)
+        return {'saved':saved}
+
+    def _settings_path(self,field):
+        if field=='source_root':
+            path=QFileDialog.getExistingDirectory(self.host,'Папка локальных инструментов',self.host.settings.source_root)
+        elif field=='runtime_python':
+            path,_=QFileDialog.getOpenFileName(self.host,'Python для локальных инструментов',self.host.settings.runtime_python,'Python (python.exe pythonw.exe);;Все файлы (*)')
+        else: raise ValueError('Неизвестный путь настроек.')
+        return {'path':path or ''}
+
+    def _refresh_balance(self,*,force=False):
+        if self.surface!='main' or self.host.settings.ai_provider!='deepseek' or self._balance_job:
+            return
+        key=resolve_deepseek_key()
+        if not self._balance.prepare(key,force=force): return
+        generation=self._balance_generation
+        job=UiJob(lambda:fetch_balance(key),self)
+        self._balance_job=job
+        def done(result,error):
+            if generation!=self._balance_generation or self._balance_job is not job: return
+            self._balance_job=None
+            self._balance.finish(result or {'status':'unavailable','error':'Баланс шлюза временно недоступен.'})
+            job.deleteLater();self.mark_dirty()
+        job.done.connect(done);job.start();self.mark_dirty()
 
     def _launcher_action(self, action, payload):
         if action=='launcher_start': self.host.start_pet()
@@ -411,47 +570,82 @@ class DesktopBridge(QObject):
             self._manual_registry = ToolRegistry(self.host.settings,redactions=(self._key,))
         return self._manual_registry
 
-    def _refresh_tools(self):
-        if self._manual_job: raise ValueError('Дождитесь текущей проверки.')
+    def _refresh_tools(self,*,force=False):
+        if self._tools_job: return
         registry = self._registry()
-        job = UiJob(lambda:registry.catalog(cancel_event=job.cancelled),self)
-        self._manual_job = job
+        self._tools_generation+=1
+        generation=self._tools_generation
+        job = UiJob(lambda:registry.catalog(cancel_event=job.cancelled,force_refresh=force,
+            on_update=lambda row:self.toolProgress.emit((generation,row))),self)
+        self._tools_job = job
         def done(rows,error):
-            self._manual_job=None
+            if generation!=self._tools_generation or self._tools_job is not job: return
+            self._tools_job=None
             if not error:
-                self._tools=[{'id':r['name'],'name':TOOL_NAMES.get(r['name'],r['name']),'description':r['description'],
-                    'inputTypes':[r['kind']],'available':r['available'],'state':r['state'],'reason':r['reason'],
-                    'sensitive':r.get('requires_approval',False)} for r in rows]
+                self._tools=[self._tool_view(row) for row in rows]
+            else:
+                self._tools=[{**self._tool_view({'name':spec.name,'description':spec.description,'kind':spec.kind,
+                    'requires_approval':spec.requires_approval,'available':False,'state':'configuration_error',
+                    'reason':'Не удалось проверить окружение. Повторите проверку локальных инструментов.'}),
+                    'diagnostic':{'code':'probe_failed','remedy':'Проверьте папку источников и выбранный Python.'}} for spec in _SPECS]
             job.deleteLater(); self.mark_dirty()
-        job.done.connect(done); job.start()
+        job.done.connect(done); job.start(); self.mark_dirty()
+
+    @staticmethod
+    def _tool_view(row):
+        return {'id':row['name'],'name':TOOL_NAMES.get(row['name'],row['name']),'description':row['description'],
+            'inputTypes':[row['kind']],'available':row['available'],'state':row['state'],'reason':row['reason'],
+            'diagnostic':row.get('diagnostic',{}),'last_execution':row.get('last_execution'),
+            'lastChecked':row.get('diagnostic',{}).get('checked_at'),
+            'sensitive':row.get('requires_approval',False)}
+
+    def _tool_progress(self,value):
+        generation,row=value
+        if generation!=self._tools_generation or not self._tools_job: return
+        by_id={item['id']:item for item in self._tools}
+        by_id[row['name']]=self._tool_view(row)
+        self._tools=[by_id[spec.name] if spec.name in by_id else self._tool_view({
+            'name':spec.name,'kind':spec.kind,'description':spec.description,'available':False,
+            'state':'checking','reason':'Проверяется локальный запуск.','requires_approval':spec.requires_approval}) for spec in _SPECS]
+        self.mark_dirty()
 
     def _run_tool(self,payload):
         if self._manual_job or self.host.chat_widget.busy or self.host._busy: raise ValueError('Сначала дождитесь или остановите текущую задачу.')
         spec = next((s for s in _SPECS if s.name==payload.get('tool')),None)
         query = payload.get('query')
         if not spec or not isinstance(query,str) or not 0<len(query)<=spec.max_length: raise ValueError('Некорректный инструмент или запрос.')
-        limit = payload.get('limit',self.host.settings.request_limit)
-        if type(limit) is not int or not 1<=limit<=20: raise ValueError('Число результатов: 1–20.')
+        maximum=10 if spec.name=='web_search' else 20
+        limit = payload.get('limit',min(maximum,self.host.settings.request_limit))
+        if type(limit) is not int or not 1<=limit<=maximum: raise ValueError(f'Число результатов: 1–{maximum}.')
         approved = not spec.requires_approval
         if not approved:
             approved = QMessageBox.question(self.host,PRODUCT_NAME,'Разрешить '+spec.name+'?\n\n'+spec.description,
                 QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No,QMessageBox.StandardButton.No)==QMessageBox.StandardButton.Yes
         if not approved: raise ValueError('Действие не подтверждено.')
         registry = self._registry(); registry.seed_urls_from_user(query)
+        if spec.source=='evidence_get':
+            self._sources()
+            record=self._raw_sources.get(query)
+            if record and not registry.evidence.get(query):
+                registry.evidence.restore(registry.evidence.records()+[record],registry.evidence.executions())
         self.host.result_model.clear()
         self.host.text.setText(query)
         self.host.checked_label.clear()
         self.host._set_phase('searching')
-        self._manual_activity=[{'id':spec.name,'tool':spec.name,'status':'running','summary':'Запрос пользователя'}]
+        self._manual_activity=[{'id':spec.name,'tool':TOOL_NAMES.get(spec.name,spec.name),'status':'running',
+            'inputType':spec.kind,'summary':'Запрос пользователя'}]
         self.host.search_state.emit('working')
         job = UiJob(lambda:registry.execute(spec.name,{spec.argument:query,'limit':limit},cancel_event=job.cancelled,
             deadline=time.monotonic()+self.host.settings.search_timeout,approved=approved),self)
         self._manual_job=job
         def done(outcome,error):
+            if self._manual_job is not job:return
             self._manual_job=None
             status = outcome.get('status','error') if isinstance(outcome,dict) else 'error'
             self._manual_activity[0]['status']=status
             self._manual_activity[0]['summary']=error or str((outcome or {}).get('error') or '')
+            self._manual_activity[0]['resultCount']=len((outcome or {}).get('results',[]))
+            self._manual_activity[0]['error']=error or str((outcome or {}).get('error') or '')
             if isinstance(outcome,dict):
                 self.host._agent_evidence(outcome.get('results',[]))
                 for row in outcome.get('results',[]): self._raw_sources[row['evidence_id']]=row
@@ -459,10 +653,14 @@ class DesktopBridge(QObject):
                 'completed' if status in ('complete','completed') and (outcome or {}).get('results') else
                 'completed_empty' if status in ('complete','completed','empty') else 'failed')
             self.host.search_state.emit('happy' if not error and status in ('complete','completed','partial','empty') else 'error')
+            QTimer.singleShot(0,self._refresh_tools)
             job.deleteLater(); self.mark_dirty()
         job.done.connect(done); job.start()
 
     def shutdown(self):
         self._poll.stop(); self._flush.stop()
+        for job in (self._tools_job,self._balance_job,self._models_job):
+            if job: job.cancel();job.deleteLater()
+        self._tools_job=None;self._balance_job=None
         if self._manual_job:
             self._manual_job.cancel(); self._manual_job.deleteLater(); self._manual_job=None

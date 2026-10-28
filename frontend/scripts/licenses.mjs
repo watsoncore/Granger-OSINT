@@ -13,6 +13,7 @@ for (const [location, metadata] of Object.entries(lock.packages)) {
   const licenseTexts = await Promise.all(files.map(name => readFile(path.join(folder, name), 'utf8').catch(() => '')))
   sections.push(`${pkg.name}@${pkg.version}\nLicense: ${typeof pkg.license === 'string' ? pkg.license : JSON.stringify(pkg.license || metadata.license || 'See package source')}\n${typeof pkg.repository === 'string' ? pkg.repository : pkg.repository?.url || ''}\n\n${licenseTexts.join('\n\n') || 'License designation above is from package metadata; see the package repository.'}`)
 }
+sections.push('Manrope Variable — local bundled font\nSource: https://github.com/google/fonts/tree/main/ofl/manrope\n\n' + await readFile(path.join(root, 'public', 'fonts', 'OFL-Manrope.txt'), 'utf8'))
 const text = sections.join('\n\n' + '='.repeat(72) + '\n\n') + '\n'
 await writeFile(path.join(root, 'public', 'THIRD_PARTY_NOTICES.txt'), text, 'utf8')
 await writeFile(path.join(root, 'THIRD_PARTY_NOTICES.txt'), text, 'utf8')

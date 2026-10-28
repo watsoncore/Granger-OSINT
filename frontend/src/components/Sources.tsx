@@ -7,19 +7,20 @@ import type { Source } from '../types'
 import { Badge, Button, IconButton } from './ui'
 import { safeUrl } from './Markdown'
 
-const statuses: Record<string, string> = { verified: 'Сообщено источником', found: 'Сообщено источником', confirmed: 'Сообщено источником', read: 'Страница прочитана', readable: 'Страница прочитана', success: 'Получен результат', partial: 'Частичные данные', error: 'Ошибка получения', blocked: 'Доступ ограничен', requires_browser: 'Нужен браузер', unavailable: 'Недоступен', not_found: 'Совпадений нет', unconfirmed: 'Не подтверждено' }
+const statuses: Record<string, string> = { detected: 'Обнаружено источником', verified: 'Сообщено источником', found: 'Сообщено источником', confirmed: 'Сообщено источником', read: 'Страница прочитана', readable: 'Страница прочитана', success: 'Получен результат', partial: 'Частичные данные', error: 'Ошибка получения', failed: 'Ошибка получения', blocked: 'Доступ ограничен', requires_browser: 'Нужен браузер', unavailable: 'Недоступен', not_found: 'Совпадений нет', unconfirmed: 'Не подтверждено', indexed: 'Поисковый сниппет', auth_required: 'Требуется авторизация', rate_limited: 'Ограничение сервиса', timeout: 'Превышено время ожидания', deleted: 'Профиль удалён', private: 'Доступ ограничен владельцем', invalid: 'Некорректный ответ', complete: 'Результат получен' }
 export function sourceLabel(source: Source) {
   if (source.kind === 'snippet') return 'Поисковый сниппет'
   if (source.kind === 'page' && source.details?.javascript_shell) return 'Доступен только HTTP-текст'
   if (source.kind === 'page' && ['verified', 'read', 'readable', 'success', 'found', 'confirmed'].includes(source.status)) return 'Страница прочитана'
-  return statuses[source.status] || source.status || 'Статус неизвестен'
+  return statuses[source.status] || 'Статус не уточнён'
 }
+export function sourceKind(source: Source) { return source.kind === 'api' ? 'Ответ API' : source.kind === 'page' ? 'Публичная страница' : source.kind === 'snippet' ? 'Поисковая выдача' : 'Результат адаптера' }
 export function domainOf(source: Source) {
   if (source.domain) return source.domain
   try { return new URL(source.url).hostname.replace(/^www\./, '') } catch { return 'Локальный результат' }
 }
 export function SourceCard({ source, onSelect, compact = false }: { source: Source; onSelect(source: Source): void; compact?: boolean }) {
-  return <button className={`source-card ${compact ? 'source-compact' : ''}`} onClick={() => onSelect(source)}><span className="source-icon">{source.kind === 'page' ? <BookOpen size={15}/> : source.kind === 'snippet' ? <FileSearch size={15}/> : <Link2 size={15}/>}</span><span className="source-main"><span className="source-domain">{domainOf(source)}</span><strong>{source.title || source.url || 'Результат инструмента'}</strong>{!compact && source.excerpt && <span className="source-excerpt">{source.excerpt}</span>}<small>{sourceLabel(source)}</small></span><ExternalLink size={13} className="source-open-icon"/></button>
+  return <button className={`source-card ${compact ? 'source-compact' : ''}`} onClick={() => onSelect(source)}><span className="source-icon">{source.kind === 'page' ? <BookOpen size={15}/> : source.kind === 'snippet' ? <FileSearch size={15}/> : <Link2 size={15}/>}</span><span className="source-main"><span className="source-domain">{domainOf(source)}</span><strong>{source.title || source.url || 'Результат инструмента'}</strong>{!compact && source.excerpt && <span className="source-excerpt">{source.excerpt}</span>}<small>{sourceLabel(source)}</small>{!compact && <><span className="source-type">{sourceKind(source)}</span>{source.obtained_at && <time className="source-time" dateTime={source.obtained_at}>{formatDate(source.obtained_at)}</time>}</>}</span><ExternalLink size={13} className="source-open-icon"/></button>
 }
 export function Sources({ sources, onSelect }: { sources: Source[]; onSelect(source: Source): void }) {
   const [open, setOpen] = useState(false)

@@ -15,6 +15,13 @@ describe('real search explanations', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Операторы Google' }))
     expect(act).toHaveBeenCalledWith('search_dorks', { query: 'example.com' })
   })
+  it('opens Avito only on an explicit user click and does not claim machine results', async () => {
+    vi.mocked(act).mockResolvedValueOnce({ opened: true, url: 'https://www.avito.ru/all?q=example.com', machine_results: false })
+    search({})
+    fireEvent.click(screen.getByRole('button', { name: 'Искать на Avito' }))
+    expect(act).toHaveBeenCalledWith('public_search_open', { source: 'avito', query: 'example.com' })
+    expect(await screen.findByText(/Приложение не получало и не анализировало результаты/)).toBeInTheDocument()
+  })
   it('shows Google browser fallback guidance instead of claiming no search results', () => {
     search({ phase: 'completed', status: 'Поиск Google открыт в браузере. Результаты доступны там: API не настроен.', checkedLabel: 'Проверено источников: 0' })
     expect(screen.getByRole('status')).toHaveTextContent('Поиск Google открыт в браузере')
