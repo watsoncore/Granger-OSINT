@@ -1,0 +1,51 @@
+{
+  "version": 3,
+  "character": {
+    "source": "User-supplied chibi Hermione drawing",
+    "reference": {
+      "path": "resources/wand-reference/reference.png",
+      "sha256": "6cdebad01e0e85c0381efcbf931b1908eb054fcd9eed9dbd5a6303a9a8d19520"
+    },
+    "master": {
+      "path": "resources/wand-reference/base-512.png",
+      "sha256": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b"
+    },
+    "adaptation": "ImageGen edit removed screenshot UI/white background and completed only the cropped lower robe, legs and shoes; supplied face, bangs, hair, wand and outfit design retained",
+    "full_body_source": "resources/wand-reference/full-body-source.png",
+    "imagegen_prompt": "resources/wand-reference/imagegen-edit-prompt.txt",
+    "rights": "Reference supplied by user; original artwork creator/license not established. No claim of original authorship."
+  },
+  "animation": {
+    "script": "scripts/create_wand_animations.py",
+    "renderer": "PySide6 QPainter",
+    "articulated_layers": [
+      "head/hair",
+      "original eye textures and eyelids",
+      "mouth/brows",
+      "wand/sleeve/hand",
+      "free arm",
+      "left leg",
+      "right leg",
+      "robe/chest"
+    ],
+    "states": {
+      "idle": 48,
+      "hover": 25,
+      "happy": 32,
+      "thinking": 32,
+      "working": 48,
+      "walk": 32,
+      "error": 32
+    },
+    "embedded_behaviors": [
+      "Blink",
+      "Breathing"
+    ],
+    "total_frames": 249,
+    "frame_size": 256,
+    "rig_canvas_size": 512
+  },
+  "imagegen_assets_included": true,
+  "autosprite_assets_used_in_this_revision": false,
+  "previous_assets_preserved": "resources/pre-wand-assets"
+}

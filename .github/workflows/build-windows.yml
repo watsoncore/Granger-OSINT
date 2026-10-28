@@ -1,0 +1,46 @@
+name: Build GrangerPet for Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+          architecture: x64
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Verify character assets
+        run: python scripts/verify_assets.py
+      - name: Test
+        run: python -m pytest -q
+      - name: Build executable
+        run: python -m PyInstaller --noconfirm --clean GrangerPet.spec
+      - name: Smoke test standalone native executable
+        run: python scripts/smoke_exe.py --output dist/binarysmoke.json
+      - name: Record checksum
+        shell: pwsh
+        run: |
+          (Get-FileHash -LiteralPath dist/GrangerPet.exe -Algorithm SHA256).Hash + '  GrangerPet.exe' | Set-Content -LiteralPath dist/GrangerPet.sha256 -Encoding ascii
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GrangerPet-Windows-x64
+          path: |
+            dist/GrangerPet.exe
+            dist/GrangerPet.sha256
+            dist/binarysmoke.json
+            README.md
+          if-no-files-found: error

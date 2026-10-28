@@ -1,0 +1,28 @@
+{
+  "character": {
+    "name": "GrangerPet Hermione",
+    "source": "AutoSprite",
+    "tool": "create_character",
+    "quality": "turbo",
+    "character_id": "cmvqqognr0012kplkehxth8bk",
+    "pixel_art": false,
+    "prompt": "Full body Hermione Granger desktop pet. Smooth detailed 2D hand-drawn cel animation, NOT pixel art. Wavy chestnut hair, brown eyes, Hogwarts dark robe, grey sweater, burgundy gold tie, skirt, tights and shoes, book. Slight chibi 3.8 heads tall. Facing viewer in three-quarter pose, relaxed standing. Head hands feet fully visible, centered. Clean contours, expressive face. Plain background, no text."
+  },
+  "animations": {
+    "idle": {"source": "AutoSprite generate_spritesheet", "frames": 25},
+    "walk": {"source": "AutoSprite generate_spritesheet", "frames": 25},
+    "hover": {"source": "Qt articulated rig based on original AutoSprite character", "frames": 25, "motion": "Directional gaze and head attention, independently posed irises and head layer"},
+    "happy": {"source": "Qt articulated rig based on original AutoSprite character", "frames": 25, "motion": "Original textured sleeve and hand raised and waved, smiling mouth, nod and blink"},
+    "thinking": {"source": "Qt articulated rig based on original AutoSprite character", "frames": 25, "motion": "Bent sleeve with chin-touching hand, upward gaze, pensive mouth, head inclination and blink"},
+    "working": {"source": "Qt articulated rig based on original AutoSprite character", "frames": 25, "motion": "Articulated free arm, open book with curved turning page, attentive face and blink"},
+    "error": {"source": "Qt articulated rig based on original AutoSprite character", "frames": 25, "motion": "Small head shake, questioning palm-up arm, concerned mouth and blink"}
+  },
+  "rig": {
+    "script": "scripts/create_reactions.py",
+    "renderer": "PySide6 QPainter, 4x supersampling to 256x256 RGBA",
+    "identity": "Original AutoSprite head, hair, costume, body and legs preserved; independent head, facial features, free arm and page layers",
+    "background": "transparent alpha",
+    "spritesheet": "5 columns by 5 rows, 25 frames per animation"
+  },
+  "imagegen_assets_included": false
+}

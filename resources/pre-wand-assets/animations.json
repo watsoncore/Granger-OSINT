@@ -1,0 +1,77 @@
+{
+  "version": 2,
+  "character": "Hermione Granger / GrangerPet",
+  "states": {
+    "idle": {
+      "sheet": "idle.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 5,
+      "frames": 25,
+      "source_fps": 10.7,
+      "loop": true,
+      "source": "Original AutoSprite body animation with consistent ImageGen/Qt v2 portrait"
+    },
+    "hover": {
+      "sheet": "hover.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 5,
+      "frames": 25,
+      "source_fps": 12.5,
+      "loop": true,
+      "source": "Qt articulated rig from original AutoSprite character"
+    },
+    "happy": {
+      "sheet": "happy.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 5,
+      "frames": 25,
+      "source_fps": 12.5,
+      "loop": false,
+      "source": "Qt articulated rig from original AutoSprite character"
+    },
+    "thinking": {
+      "sheet": "thinking.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 5,
+      "frames": 25,
+      "source_fps": 12.5,
+      "loop": true,
+      "source": "Qt articulated rig from original AutoSprite character"
+    },
+    "working": {
+      "sheet": "working.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 5,
+      "frames": 25,
+      "source_fps": 12.5,
+      "loop": true,
+      "source": "Qt articulated rig from original AutoSprite character"
+    },
+    "walk": {
+      "sheet": "walk.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 5,
+      "frames": 25,
+      "source_fps": 10.7,
+      "loop": true,
+      "source": "Original AutoSprite body animation with consistent ImageGen/Qt v2 portrait"
+    },
+    "error": {
+      "sheet": "error.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 5,
+      "frames": 25,
+      "source_fps": 12.5,
+      "loop": false,
+      "source": "Qt articulated rig from original AutoSprite character"
+    }
+  },
+  "face_revision": "imagegen-reference-edit-v2"
+}

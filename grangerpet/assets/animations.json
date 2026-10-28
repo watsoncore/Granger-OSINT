@@ -1,0 +1,153 @@
+{
+  "version": 3,
+  "character": "Hermione / supplied wand-reference",
+  "geometry": {
+    "face_center": [
+      0.432,
+      0.397
+    ],
+    "collar_rect": [
+      0.39,
+      0.48,
+      0.14,
+      0.09
+    ],
+    "collar_split": 0.5,
+    "leg_split": 0.805,
+    "eye_rects": [
+      [
+        0.302734375,
+        0.33203125,
+        0.087890625,
+        0.076171875
+      ],
+      [
+        0.45703125,
+        0.322265625,
+        0.095703125,
+        0.078125
+      ]
+    ],
+    "eyebrow_lines": [
+      [
+        [
+          0.32,
+          0.315
+        ],
+        [
+          0.366,
+          0.324
+        ]
+      ],
+      [
+        [
+          0.469,
+          0.306
+        ],
+        [
+          0.512,
+          0.31
+        ]
+      ]
+    ],
+    "wand_tip": [
+      0.145,
+      0.38
+    ],
+    "wand_hand": [
+      0.254,
+      0.57
+    ]
+  },
+  "features": {
+    "blink": true,
+    "breathing": true,
+    "wand": true,
+    "blink_frames": {
+      "idle": [
+        31,
+        32
+      ],
+      "thinking": [
+        23,
+        24
+      ],
+      "working": [
+        39,
+        40
+      ]
+    }
+  },
+  "states": {
+    "idle": {
+      "sheet": "idle.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 8,
+      "frames": 48,
+      "source_fps": 12,
+      "loop": true,
+      "source": "Qt articulated raster rig from supplied wand-reference full-body edit"
+    },
+    "hover": {
+      "sheet": "hover.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 5,
+      "frames": 25,
+      "source_fps": 12,
+      "loop": true,
+      "source": "Qt articulated raster rig from supplied wand-reference full-body edit"
+    },
+    "happy": {
+      "sheet": "happy.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 8,
+      "frames": 32,
+      "source_fps": 12,
+      "loop": false,
+      "source": "Qt articulated raster rig from supplied wand-reference full-body edit"
+    },
+    "thinking": {
+      "sheet": "thinking.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 8,
+      "frames": 32,
+      "source_fps": 12,
+      "loop": true,
+      "source": "Qt articulated raster rig from supplied wand-reference full-body edit"
+    },
+    "working": {
+      "sheet": "working.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 8,
+      "frames": 48,
+      "source_fps": 12,
+      "loop": true,
+      "source": "Qt articulated raster rig from supplied wand-reference full-body edit"
+    },
+    "walk": {
+      "sheet": "walk.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 8,
+      "frames": 32,
+      "source_fps": 12,
+      "loop": true,
+      "source": "Qt articulated raster rig from supplied wand-reference full-body edit"
+    },
+    "error": {
+      "sheet": "error.png",
+      "frame_width": 256,
+      "frame_height": 256,
+      "columns": 8,
+      "frames": 32,
+      "source_fps": 12,
+      "loop": false,
+      "source": "Qt articulated raster rig from supplied wand-reference full-body edit"
+    }
+  }
+}

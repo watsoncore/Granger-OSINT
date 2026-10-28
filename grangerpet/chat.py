@@ -1,0 +1,618 @@
+"""Explicit, cancellable conversation and evidence explanation beside search."""
+from __future__ import annotations
+
+from copy import deepcopy
+import math
+import json
+from pathlib import Path
+import re
+import threading
+import time
+
+from PySide6.QtCore import QPointF, QTimer, Qt, Signal
+from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen, QTextLayout, QTextOption
+from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QHBoxLayout, QLabel,
+    QFrame, QListWidget, QListWidgetItem, QPlainTextEdit, QPushButton, QSizePolicy,
+    QVBoxLayout, QWidget, QMessageBox)
+
+from .ai import AIError, DeepSeekClient, OllamaClient, analyze_results as explain_evidence
+from .ai_keys import resolve_deepseek_key
+from .engine.models import is_confirmed
+from .ui_jobs import UiJob
+from .ai_state import AIState
+from .message_view import MessageHistory
+from .typography import ui_font
+from .agent import AgentRunner
+from .agent_tools import ToolRegistry
+from .agent_journal import InvestigationJournal
+
+
+def investigation_requested(text):
+    """Route explicit research requests; ordinary conversation keeps its fast path."""
+    return bool(re.search(r'(?iu)(найд[иуё]|найти|поищ|поиск|провер[ьить]|исслед|упоминан|сопостав|пробей|whois|rdap|dns|lookup|investigat|search\b|профил|кошел[её]к|блокчейн)', text))
+
+
+def label(text, name='Muted'):
+    value = QLabel(text)
+    value.setObjectName(name)
+    value.setTextFormat(Qt.TextFormat.PlainText)
+    value.setWordWrap(True)
+    return value
+
+
+class MessageInput(QPlainTextEdit):
+    send_requested = Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._fitting = False
+        self.setObjectName('ChatComposerInput')
+        self.setFont(ui_font(14))
+        self.setFrameShape(QFrame.Shape.NoFrame)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.document().setDocumentMargin(0)
+        self.document().documentLayout().documentSizeChanged.connect(self._fit)
+        self.textChanged.connect(self._fit)
+        self.setFixedHeight(46)
+
+    def _fit(self, *_):
+        if self._fitting:
+            return
+        self._fitting = True
+        available = max(40, self.viewport().width())
+        try:
+            # QPlainTextDocumentLayout reports document height in text lines,
+            # unlike QTextDocument's rich-text layout. Measure actual wrapped
+            # lines explicitly so Cyrillic and pasted paragraphs grow equally.
+            lines = 0
+            option = QTextOption()
+            option.setWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
+            for paragraph in self.toPlainText().split('\n'):
+                text_layout = QTextLayout(paragraph or ' ', self.font())
+                text_layout.setTextOption(option)
+                text_layout.beginLayout()
+                while True:
+                    line = text_layout.createLine()
+                    if not line.isValid():
+                        break
+                    line.setLineWidth(available)
+                    lines += 1
+                text_layout.endLayout()
+            lines = max(1, lines)
+            height = max(46, min(122, 20 + lines * self.fontMetrics().lineSpacing()))
+            self.setFixedHeight(height)
+            self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded if lines > 5 else Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        finally:
+            self._fitting = False
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._fit()
+
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and not event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+            if not event.isAutoRepeat():
+                self.send_requested.emit()
+            event.accept()
+            return
+        super().keyPressEvent(event)
+
+
+class SendButton(QPushButton):
+    def __init__(self, parent=None):
+        super().__init__('Отправить', parent)
+        self.setObjectName('ChatSendButton')
+        self.setFixedSize(40, 40)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._stopping = False
+
+    def set_stopping(self, stopping):
+        self._stopping = bool(stopping)
+        self.setText('Остановить' if stopping else 'Отправить')
+        self.setAccessibleName(self.text())
+        self.setToolTip(self.text())
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        color = QColor('#6C9ED2' if self.isEnabled() else '#34475A')
+        if self.underMouse() and self.isEnabled():
+            color = QColor('#80AFE0')
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(color)
+        painter.drawEllipse(self.rect().adjusted(2, 2, -2, -2))
+        painter.setBrush(QColor('#FFFFFF' if self.isEnabled() else '#8292A3'))
+        if self._stopping:
+            painter.drawRoundedRect(14, 14, 12, 12, 2, 2)
+        else:
+            path = QPainterPath(QPointF(12, 11))
+            path.lineTo(30, 20)
+            path.lineTo(12, 29)
+            path.lineTo(16, 21)
+            path.lineTo(24, 20)
+            path.lineTo(16, 19)
+            path.closeSubpath()
+            painter.drawPath(path)
+
+
+class EvidenceSelection(QDialog):
+    """Explicit scope of the outgoing request; uncertain facts are opt-in."""
+    def __init__(self, results, provider, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle('Гермиона · объяснить находки')
+        self.resize(490, 410)
+        self.setMinimumSize(380, 300)
+        self.results = [deepcopy(item.to_dict() if hasattr(item, 'to_dict') else dict(item)) for item in list(results)[:50]]
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(18, 18, 18, 18)
+        layout.setSpacing(12)
+        layout.addWidget(label('Выберите сведения для объяснения', 'SectionTitle'))
+        text = ('Выбранные сведения будут переданы DeepSeek через api.aikeysforyou.com, внешнему облачному провайдеру. '
+                'Исходная выдача останется в поиске.') if provider == 'deepseek' else 'Выбранные сведения будут переданы установленной локальной модели Ollama.'
+        layout.addWidget(label(text))
+        self.items = QListWidget()
+        self.items.setWordWrap(True)
+        for value in self.results:
+            confirmed = is_confirmed(value)
+            text = str(value.get('platform', '')) + ' · ' + str(value.get('title') or value.get('id') or '')
+            if not confirmed:
+                text += ' · требует проверки'
+            item = QListWidgetItem(text, self.items)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(Qt.CheckState.Checked if confirmed else Qt.CheckState.Unchecked)
+        layout.addWidget(self.items, 1)
+        layout.addWidget(label('В запрос войдут только выбранные находки, максимум 50. Ключи, сессии и диагностика не передаются.', 'SmallMuted'))
+        self.buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
+        self.buttons.button(QDialogButtonBox.StandardButton.Cancel).setText('Отмена')
+        self.submit = self.buttons.addButton('Отправить и объяснить', QDialogButtonBox.ButtonRole.AcceptRole)
+        self.submit.setObjectName('PrimaryButton')
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
+        self.items.itemChanged.connect(self._selection_changed)
+        layout.addWidget(self.buttons)
+        self._selection_changed()
+
+    def _selection_changed(self, *_):
+        self.submit.setEnabled(any(self.items.item(row).checkState() == Qt.CheckState.Checked for row in range(self.items.count())))
+
+    def selected_results(self):
+        return [deepcopy(value) for row, value in enumerate(self.results) if self.items.item(row).checkState() == Qt.CheckState.Checked]
+
+
+class ChatWidget(QWidget):
+    activity_changed = Signal(str)
+    busy_changed = Signal(bool)
+    settings_requested = Signal()
+    connection_changed = Signal(bool)
+    evidence_received = Signal(object)
+    _agent_progress = Signal(int, object)
+    _approval_requested = Signal(int, object)
+
+    def __init__(self, settings, store=None, parent=None, ai_state=None):
+        super().__init__(parent)
+        self.settings, self.store = settings, store
+        self.ai_state = ai_state or AIState(settings, self)
+        self._context, self.messages = [], []
+        self._job, self._generation, self._ending = None, 0, False
+        self._busy = False
+        self.last_request = {}
+        self._last_failed_text = ''
+        self._agent_registry = None
+        self._agent_runner = None
+        self._last_investigation = {}
+        self._agent_followup = False
+        self._approval_box = None
+        self._approval_waiter = None
+        self._stream_bubble = None
+        self._stream_index = None
+        journal_dir = Path(store.path).parent / 'investigations' if store is not None else None
+        self._journal = InvestigationJournal(journal_dir)
+        self._agent_progress.connect(self._on_agent_progress)
+        self._approval_requested.connect(self._on_approval_requested)
+        self.setObjectName('ChatPage')
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        header = QWidget()
+        header.setObjectName('ChatHeader')
+        row = QHBoxLayout(header)
+        row.setContentsMargins(16, 10, 14, 10)
+        row.setSpacing(8)
+        titles = QVBoxLayout()
+        titles.setSpacing(3)
+        self.title = label('Гермиона', 'SectionTitle')
+        titles.addWidget(self.title)
+        self.provider_status = label('ИИ не настроен', 'ProviderStatus')
+        titles.addWidget(self.provider_status)
+        row.addLayout(titles, 1)
+        self.clear_button = QPushButton('Очистить')
+        self.clear_button.setObjectName('QuietButton')
+        self.clear_button.setToolTip('Очистить историю текущего диалога')
+        self.clear_button.clicked.connect(self.clear_history)
+        row.addWidget(self.clear_button)
+        self.configure = QPushButton('Подключить')
+        self.configure.setObjectName('QuietButton')
+        self.configure.clicked.connect(self.settings_requested)
+        row.addWidget(self.configure)
+        layout.addWidget(header)
+        self.notice = label('', 'ChatPrivacy')
+        self.notice.setContentsMargins(16, 6, 16, 8)
+        layout.addWidget(self.notice)
+        self.history = MessageHistory()
+        layout.addWidget(self.history, 1)
+        self.status = label('', 'TypingStatus')
+        self.status.setContentsMargins(16, 6, 16, 4)
+        self.status.hide()
+        layout.addWidget(self.status)
+        composer_area = QWidget()
+        composer_area.setObjectName('ComposerArea')
+        composer_layout = QVBoxLayout(composer_area)
+        composer_layout.setContentsMargins(12, 8, 12, 10)
+        composer_layout.setSpacing(0)
+        composer = QFrame()
+        composer.setObjectName('ChatComposer')
+        controls = QHBoxLayout(composer)
+        controls.setContentsMargins(9, 0, 4, 0)
+        controls.setSpacing(6)
+        self.input = MessageInput()
+        self.input.setPlaceholderText('Сообщение Гермионе…')
+        self.input.setAccessibleName('Сообщение Гермионе')
+        self.input.send_requested.connect(self.send_message)
+        self.input.textChanged.connect(self._update_actions)
+        controls.addWidget(self.input, 1)
+        self.send = SendButton()
+        self.send.clicked.connect(self._main_action)
+        controls.addWidget(self.send, 0, Qt.AlignmentFlag.AlignBottom)
+        composer_layout.addWidget(composer)
+        layout.addWidget(composer_area)
+        self.ai_state.changed.connect(self._on_state_changed)
+        self.set_settings(settings)
+
+    @property
+    def busy(self):
+        return self._busy
+
+    @property
+    def _ready(self):
+        return self.ai_state.can_send
+
+    def set_settings(self, settings):
+        if getattr(self, 'settings', None) != settings:
+            self._agent_registry = None
+        self.settings = settings
+        self.ai_state.set_settings(settings)
+        self._on_state_changed(self.ai_state.snapshot())
+
+    def _on_state_changed(self, snapshot):
+        self.settings = self.ai_state.settings
+        self.provider_status.setText(self.ai_state.status_text(snapshot))
+        provider = self.ai_state.committed_snapshot()['provider']
+        available = self.ai_state.can_send
+        self.configure.setText('Настройки' if available else 'Подключить')
+        self.notice.setText('Сообщения и выбранные находки отправляются DeepSeek через api.aikeysforyou.com, внешнему облачному провайдеру, только по вашему действию.' if provider == 'deepseek' else
+            'Сообщения обрабатываются установленной локальной моделью Ollama.' if provider == 'ollama' else
+            'Подключите DeepSeek или локальную Ollama. Поиск работает самостоятельно.')
+        self.connection_changed.emit(available)
+        self._update_actions()
+
+    def _update_actions(self):
+        self.send.set_stopping(self._busy)
+        self.send.setEnabled(self._busy or (self._ready and bool(self.input.toPlainText().strip())))
+        self.clear_button.setEnabled(bool(self.messages) and not self._busy)
+
+    def _main_action(self):
+        self.cancel() if self._busy else self.send_message()
+
+    def _append(self, role, text, retry=None):
+        self.messages.append({'role': role, 'text': str(text)})
+        bubble = self.history.append_message(role, text, retry)
+        self._update_actions()
+        return bubble
+
+    def send_message(self):
+        self._submit_text(self.input.toPlainText().strip(), consume_draft=True)
+
+    def _submit_text(self, text, consume_draft=False):
+        if self._busy or not text:
+            return
+        if len(text) > 12000:
+            self.status.setText('Сообщение: не более 12 000 символов.')
+            self.status.show()
+            return
+        self.ai_state.set_settings(self.ai_state.settings)
+        if not self._ready:
+            self.status.setText('Подключите ИИ в настройках.')
+            self.status.show()
+            return
+        if consume_draft:
+            self.input.clear()
+        self._append('user', text)
+        history = deepcopy(self._context[-24:]) + [{'role': 'user', 'text': text}]
+        settings = self.ai_state.settings
+        snapshot = self.ai_state.committed_snapshot()
+        model = snapshot['model_id']
+        generation = self._generation + 1
+        investigate = investigation_requested(text) or self._agent_followup and bool(re.search(r'(?iu)(ещ[её]|подроб|дальше|сравни|почему|источник|ev_[a-f0-9]+)', text))
+        def request(cancelled):
+            if snapshot['provider'] == 'deepseek':
+                client = DeepSeekClient()
+                if investigate:
+                    if self._agent_registry is None:
+                        self._agent_registry = ToolRegistry(settings, redactions=(getattr(client, '_key', ''),))
+                    runner = AgentRunner(client, self._agent_registry)
+                    self._agent_runner = runner
+                    result = runner.run(model, history, cancel_event=cancelled,
+                        on_event=lambda value: self._agent_progress.emit(generation, value),
+                        approval_callback=lambda name, args: self._approve_tool(generation, name, args, cancelled))
+                    # UiJob intentionally suppresses late delivery after cancel;
+                    # still finish the local evidence journal in this worker.
+                    try:
+                        self._journal.save(result.get('investigation', {}))
+                    except (OSError, ValueError, TypeError):
+                        pass
+                    return result
+                if hasattr(client, 'stream_chat'):
+                    answer = client.stream_chat(model, history, cancel_event=cancelled,
+                        on_text=lambda value: self._agent_progress.emit(generation, {'type': 'text', 'text': value}))
+                else:
+                    answer = client.chat(model, history, cancel_event=cancelled)
+                return {'text': answer, 'metadata': dict(getattr(client, 'last_response_metadata', {}))}
+            prompt = '\n\n'.join(('Гермиона: ' if value['role'] == 'model' else 'Пользователь: ') + value['text'] for value in history)
+            return OllamaClient(settings.ollama_url).generate(model, prompt)
+        self._start(request, 'thinking', history, text)
+
+    def _retry_last(self):
+        if self._last_failed_text:
+            self._submit_text(self._last_failed_text, consume_draft=False)
+
+    def analyze_results(self, results, task='summary'):
+        if self._busy:
+            self.status.setText('Дождитесь ответа или остановите текущий запрос.')
+            self.status.show()
+            return
+        if not self._ready:
+            self.settings_requested.emit()
+            return
+        snapshot = self.ai_state.committed_snapshot()
+        dialog = EvidenceSelection(results, snapshot['provider'], self)
+        if not dialog.results or dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        selected = dialog.selected_results()
+        if not selected:
+            return
+        settings = self.ai_state.settings
+        self._append('user', f'Объясни выбранные находки: {len(selected)}. Исходные сведения остаются во вкладке поиска.')
+        def request(cancelled):
+            return explain_evidence(snapshot['provider'], snapshot['model_id'], selected,
+                api_key=resolve_deepseek_key() if snapshot['provider'] == 'deepseek' else '', ollama_url=settings.ollama_url,
+                external_consent=snapshot['provider'] == 'deepseek', task=task, cancel_event=cancelled)
+        self._start(request, 'working', None)
+
+    def _start(self, request, activity, context, submitted_text=''):
+        snapshot = self.ai_state.committed_snapshot()
+        provider, model = snapshot['provider'], snapshot['model_id']
+        self.last_request = {'code':'pending', 'provider':provider, 'model':model}
+        self._generation += 1
+        generation = self._generation
+        self._busy = True
+        self._agent_runner = None
+        self._stream_bubble = self._stream_index = None
+        def execute():
+            try:
+                value = request(job.cancelled)
+                return value if isinstance(value, dict) else {'text': value}
+            except AIError as error:
+                return {'error': str(error), 'code': getattr(error, 'code', 'provider_error'),
+                        'http_status': getattr(error, 'http_status', None), 'retry_after': getattr(error, 'retry_after', None)}
+        job = UiJob(execute, self)
+        self._job = job
+        self._update_actions()
+        self.status.setText('Гермиона объясняет находки…' if activity == 'working' else 'Печатает…')
+        self.status.show()
+        self.busy_changed.emit(True)
+        self.ai_state.request_started(provider=provider, model_id=model)
+        self.activity_changed.emit(activity)
+        def finished(result, error):
+            if self._ending or generation != self._generation:
+                job.deleteLater()
+                return
+            self._busy, self._job = False, None
+            self._close_approval()
+            self.busy_changed.emit(False)
+            metadata = {}
+            investigation = result.get('investigation') if isinstance(result, dict) else None
+            if isinstance(investigation, dict):
+                self._last_investigation = investigation
+                self._agent_followup = True
+                self._persist_investigation(investigation)
+            if isinstance(result, dict) and result.get('error'):
+                self.last_request = {key: result.get(key) for key in ('code', 'http_status', 'retry_after')}
+                error = result['error']
+                result = None
+            elif isinstance(result, dict):
+                metadata = {key: result.get('metadata', {}).get(key) for key in ('model', 'model_version') if isinstance(result.get('metadata', {}).get(key), str)}
+                usage = result.get('metadata', {}).get('usage')
+                if isinstance(usage, dict):
+                    metadata['usage'] = {key: value for key, value in usage.items()
+                                         if key in ('prompt_tokens', 'completion_tokens', 'total_tokens')
+                                         and isinstance(value, int) and not isinstance(value, bool) and value >= 0}
+                result = result.get('text')
+            if error:
+                if self.last_request.get('code') in (None, 'ok', 'pending'):
+                    self.last_request = {'code':'provider_error'}
+                self.ai_state.request_failed(self.last_request, provider=provider, model_id=model)
+                self._last_failed_text = submitted_text
+                message = self.ai_state.committed_snapshot().get('last_error') or error
+                retry_after = self.last_request.get('retry_after')
+                if isinstance(retry_after, (int, float)) and retry_after > 0:
+                    message += f' Повторите не раньше чем через {math.ceil(retry_after)} с.'
+                bubble = self._append('status', message, self._retry_last if submitted_text else None)
+                if submitted_text and isinstance(retry_after, (int, float)) and retry_after > 0:
+                    bubble.retry.setEnabled(False)
+                    timer = QTimer(bubble)
+                    timer.setSingleShot(True)
+                    timer.timeout.connect(lambda: bubble.retry.setEnabled(True))
+                    timer.start(min(2_147_000_000, math.ceil(retry_after * 1000)))
+                self.status.setText(message)
+                self.status.hide()
+                self.activity_changed.emit('error')
+            elif not isinstance(result, str) or not result.strip():
+                self.last_request = {'code':'empty_response'}
+                self.ai_state.request_failed(self.last_request, provider=provider, model_id=model)
+                self._last_failed_text = submitted_text
+                self._append('status', 'Модель не вернула текст ответа.', self._retry_last if submitted_text else None)
+                self.status.setText('Пустой ответ. История сохранена.')
+                self.status.hide()
+                self.activity_changed.emit('error')
+            else:
+                self.last_request = {'code':'ok', 'text_chars':len(result), 'model':model, 'provider':provider}
+                self.last_request.update(metadata)
+                if self._stream_bubble is not None:
+                    self.history.update_message(self._stream_bubble, result)
+                    self.messages[self._stream_index]['text'] = result
+                else:
+                    self._append('model', result)
+                if context is not None:
+                    self._context = context + [{'role':'model', 'text':result}]
+                self.status.setText('Ответ получен')
+                self.status.hide()
+                api_error = investigation.get('api_error') if isinstance(investigation, dict) else None
+                if api_error:
+                    self.last_request.update(api_error)
+                    self.ai_state.request_failed(api_error, provider=provider, model_id=model)
+                    self.activity_changed.emit('error')
+                else:
+                    self.ai_state.request_succeeded(provider=provider, model_id=model)
+                    self.activity_changed.emit('happy')
+            self._update_actions()
+            job.deleteLater()
+        job.done.connect(finished)
+        job.start()
+
+    def cancel(self):
+        if not self._job:
+            return
+        self._generation += 1
+        self._job.cancel()
+        self._close_approval()
+        if self._agent_runner is not None:
+            self._last_investigation = self._agent_runner.snapshot()
+            self._last_investigation['status'] = 'cancelled'
+            self._persist_investigation(self._last_investigation)
+        self._job = None
+        self._busy = False
+        self.last_request = {'code':'cancelled'}
+        self.status.setText('Запрос отменён. История сохранена.')
+        self.status.show()
+        self._append('status', 'Ожидание ответа отменено.')
+        self.busy_changed.emit(False)
+        cancel_state = getattr(self.ai_state, 'cancel_request', None)
+        if cancel_state:
+            cancel_state()
+        self.activity_changed.emit('idle')
+        self._update_actions()
+
+    def clear_history(self):
+        if self._busy:
+            return
+        self._context.clear()
+        self._agent_registry = None
+        self._agent_runner = None
+        self._agent_followup = False
+        self.messages.clear()
+        self.history.clear()
+        self.status.setText('Диалог очищен')
+        self.status.hide()
+        self._update_actions()
+
+    def shutdown(self):
+        self._ending = True
+        self.cancel()
+
+    def _on_agent_progress(self, generation, event):
+        if self._ending or generation != self._generation or not self._busy or not isinstance(event, dict):
+            return
+        kind = event.get('type')
+        if kind == 'text':
+            value = event.get('text')
+            if not isinstance(value, str) or not value:
+                return
+            if self._stream_bubble is None:
+                self._stream_bubble = self._append('model', value)
+                self._stream_index = len(self.messages) - 1
+            else:
+                self.history.update_message(self._stream_bubble, value)
+                self.messages[self._stream_index]['text'] = value
+            return
+        messages = {'planning': 'Гермиона выбирает доступные инструменты…',
+                    'tool_start': 'Проверка источника: ' + str(event.get('tool', ''))[:80],
+                    'tool_result': 'Получены результаты источника…', 'analyzing': 'Гермиона сопоставляет найденные сведения…',
+                    'final': 'Гермиона формирует итог…', 'error': 'Исследование завершилось с ограничениями.'}
+        if kind in messages:
+            self.status.setText(messages[kind])
+            self.status.show()
+        if kind in ('planning', 'analyzing', 'final'):
+            self.activity_changed.emit('thinking')
+        elif kind in ('tool_start', 'tool_result'):
+            self.activity_changed.emit('working')
+        if kind == 'evidence':
+            records = event.get('records', [])
+            if isinstance(records, list):
+                self.evidence_received.emit(deepcopy(records))
+        if kind in ('evidence', 'tool_result') and self._agent_runner is not None:
+            self._last_investigation = self._agent_runner.snapshot()
+            self._persist_investigation(self._last_investigation)
+
+    def _persist_investigation(self, value):
+        try:
+            self._journal.save(value)
+        except (OSError, ValueError, TypeError):
+            # A local journal failure must not discard already visible findings.
+            self.status.setToolTip('Не удалось записать локальный журнал; сведения остаются в текущем сеансе.')
+
+    def _approve_tool(self, generation, name, args, cancelled):
+        waiter = {'event': threading.Event(), 'approved': False, 'name': name, 'arguments': deepcopy(args)}
+        self._approval_requested.emit(generation, waiter)
+        deadline = time.monotonic() + 60
+        while not waiter['event'].wait(.05):
+            if cancelled.is_set() or time.monotonic() >= deadline:
+                return False
+        return waiter['approved'] and not cancelled.is_set()
+
+    def _on_approval_requested(self, generation, waiter):
+        if self._ending or generation != self._generation or not self._busy:
+            waiter['event'].set()
+            return
+        self._approval_waiter = waiter
+        text = ('Гермиона предлагает проверку, требующую отдельного согласия.\n\n' + str(waiter['name']) + '\n' +
+                json.dumps(waiter['arguments'], ensure_ascii=False)[:600] +
+                '\n\nЭто может включать проверку регистрации или обращение через вашу авторизованную сессию. Разрешить этот вызов?')
+        box = QMessageBox(QMessageBox.Icon.Question, 'Подтвердить проверку', text,
+                          QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, self)
+        box.setTextFormat(Qt.TextFormat.PlainText)
+        box.setDefaultButton(QMessageBox.StandardButton.No)
+        box.button(QMessageBox.StandardButton.Yes).setText('Разрешить этот вызов')
+        box.button(QMessageBox.StandardButton.No).setText('Не выполнять')
+        self._approval_box = box
+        def finish(result):
+            waiter['approved'] = result == QMessageBox.StandardButton.Yes
+            waiter['event'].set()
+            if self._approval_box is box:
+                self._approval_box = self._approval_waiter = None
+            box.deleteLater()
+        box.finished.connect(finish)
+        expiry = QTimer(box)
+        expiry.setSingleShot(True)
+        expiry.timeout.connect(box.reject)
+        expiry.start(60000)
+        box.open()
+
+    def _close_approval(self):
+        if self._approval_waiter is not None:
+            self._approval_waiter['approved'] = False
+            self._approval_waiter['event'].set()
+        if self._approval_box is not None:
+            self._approval_box.reject()

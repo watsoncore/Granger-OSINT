@@ -1,0 +1,21 @@
+{
+  "python": "3.12",
+  "groups": {
+    "platforms": {
+      "sources": ["instaloader-master", "Telethon-1", "vk_api-master", "waybackpy-master"],
+      "dependencies": ["requests>=2.32,<3", "urllib3>=2.2,<3", "click>=8.1,<9", "pyaes==1.6.1", "rsa>=4.9,<5"],
+      "local_packages": ["instaloader-master", "vk_api-master", "waybackpy-master"],
+      "imports": ["instaloader", "telethon", "vk_api", "waybackpy"]
+    },
+    "blockchain": {
+      "sources": ["Gansar-main"],
+      "dependencies": ["pydantic>=2.6,<3", "httpx>=0.27,<1", "selectolax>=0.3.21,<1", "networkx>=3.3,<4", "rich>=13.7,<15", "PyYAML>=6,<7", "ens-normalize>=3.0.10,<4"],
+      "imports": ["app.aggregator.analyzer"]
+    },
+    "maigret": {"sources": ["maigret-main"], "local_packages": ["maigret-main"], "imports": ["maigret"]},
+    "blackbird": {"sources": ["blackbird-main"], "requirements": ["blackbird-main/requirements.txt"], "imports": ["requests", "aiohttp"]},
+    "holehe": {"sources": ["holehe-master"], "local_packages": ["holehe-master"], "imports": ["holehe.core"]},
+    "snoop": {"sources": ["snoop-master"], "requirements": ["snoop-master/requirements.txt"], "imports": ["requests"]},
+    "social_analyzer": {"sources": ["social-analyzer-main"], "requirements": ["social-analyzer-main/requirements.txt"], "imports": ["requests", "bs4"]}
+  }
+}
