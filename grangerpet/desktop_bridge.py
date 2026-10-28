@@ -337,6 +337,12 @@ class DesktopBridge(QObject):
             kind = payload.get('kind','auto')
             if kind not in ('auto','username','email','phone','telegram','vk','instagram','web','blockchain','dork'): raise ValueError('Неизвестное направление.')
             self.host.text.setText(text); self.host.set_query_kind(kind); self.host.start_search(); self.route='search'
+        elif action=='search_dorks':
+            text=payload.get('query','')
+            if not isinstance(text,str) or len(text)>2000: raise ValueError('Некорректный запрос.')
+            self.host.text.setText(text)
+            self.host.open_dorks()
+            self.route='search'
         elif action=='search_stop':
             if self._manual_job: self._manual_job.cancel(); self._manual_job.deleteLater(); self._manual_job=None
             for row in self._manual_activity:

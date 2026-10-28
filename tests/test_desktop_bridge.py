@@ -102,3 +102,13 @@ def test_search_preserves_browser_fallback_errors_and_numeric_progress(bridge):
     for phase in ('failed','completed_with_errors'):
         host.phase=phase;host.status.setText('Источник недоступен')
         assert bridge.snapshot()['search']['error']=='Источник недоступен'
+
+
+def test_existing_dork_builder_stays_connected_to_search(bridge):
+    bridge.dispatch('search_dorks',{'query':'открытые источники'})
+    dialog=bridge.host.dork_dialog
+    assert dialog.isVisible() and dialog.text.text()=='открытые источники'
+    dialog.query_selected.emit('site:example.org "источники"')
+    assert bridge.snapshot()['search']['query']=='site:example.org "источники"'
+    assert bridge.host._chosen_kind=='dork'
+    dialog.hide()

@@ -1,14 +1,20 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { describe, expect, it, vi } from 'vitest'
 import { emptyState, type DesktopState } from './types'
 import { SearchWorkspace } from './components/Search'
+import { act } from './bridge'
 
 vi.mock('./bridge', () => ({ act: vi.fn().mockResolvedValue(true) }))
 function search(search: Partial<DesktopState['search']>) {
   return render(<Tooltip.Provider><SearchWorkspace state={{ ...emptyState, search: { ...emptyState.search, query: 'example.com', ...search } }} query="example.com" setQuery={() => {}} onSource={() => {}}/></Tooltip.Provider>)
 }
 describe('real search explanations', () => {
+  it('opens the existing Google operators constructor with the current draft', () => {
+    search({})
+    fireEvent.click(screen.getByRole('button', { name: 'Операторы Google' }))
+    expect(act).toHaveBeenCalledWith('search_dorks', { query: 'example.com' })
+  })
   it('shows Google browser fallback guidance instead of claiming no search results', () => {
     search({ phase: 'completed', status: 'Поиск Google открыт в браузере. Результаты доступны там: API не настроен.', checkedLabel: 'Проверено источников: 0' })
     expect(screen.getByRole('status')).toHaveTextContent('Поиск Google открыт в браузере')

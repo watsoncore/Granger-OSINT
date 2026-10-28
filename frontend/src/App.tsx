@@ -54,6 +54,7 @@ export default function App() {
   const [source, setSource] = useState<Source | null>(null)
   const [clearOpen, setClearOpen] = useState(false)
   useEffect(() => setRoute(state.route), [state.route])
+  useEffect(() => setQuery(state.search.query), [state.search.query])
   useEffect(() => { if (connected) void act('ui_ready', { surface: state.surface }) }, [connected, state.surface])
   const onRoute = useCallback((next: Route) => { setRoute(next); void act('route', { route: next }) }, [])
   const onSource = useCallback((next: Source) => setSource(next), [])
