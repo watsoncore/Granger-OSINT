@@ -78,6 +78,7 @@ class DesktopBridge(QObject):
         self._raw_sources = {}
         self._sources_fingerprint = None
         self._sources_view = []
+        self._search_sources_view = []
         self._history_cache = []
         self._history_time = 0
         self._dock_rect = QRect()
@@ -144,18 +145,21 @@ class DesktopBridge(QObject):
                     seen.add(identifier)
                     self._raw_sources[identifier] = record
                     sources.append(source_view(record, limitations.get(record.get('provenance',{}).get('query'),())))
+        search_sources=[]
         for index in range(min(500, self.host.result_model.rowCount())):
             record = self.host.result_model.record(index)
             identifier = record.get('details',{}).get('evidence_id') or record.get('evidence_id')
             if not identifier:
                 record = normalize_evidence(record, 'manual_search', self.host.text.text())
                 identifier = record['evidence_id']
+            search_sources.append(source_view(record))
             if identifier not in seen:
                 seen.add(identifier)
                 self._raw_sources[identifier] = record
                 sources.append(source_view(record))
         self._sources_fingerprint=fingerprint
         self._sources_view=sources
+        self._search_sources_view=search_sources
         return sources
 
     def _activity(self):
@@ -216,7 +220,7 @@ class DesktopBridge(QObject):
                 'checkedLabel':self.host.checked_label.text(),
                 'status':self.host.status.text() if self.host.phase!='idle' else '',
                 'error':self.host.status.text() if self.host.phase in ('error','failed','completed_with_errors') else '',
-                'choices':[{'label':name,'value':kind} for name,kind in self.host._resolution().choices], 'results':sources},
+                'choices':[{'label':name,'value':kind} for name,kind in self.host._resolution().choices], 'results':self._search_sources_view},
             tools=self._tools or [{'id':spec.name,'name':TOOL_NAMES.get(spec.name,spec.name),'description':spec.description,'inputTypes':[spec.kind],
                 'available':False,'state':'unverified','reason':'Нажмите «Проверить готовность» для фактической проверки.',
                 'sensitive':spec.requires_approval} for spec in _SPECS],
@@ -344,7 +348,9 @@ class DesktopBridge(QObject):
             self.host.open_dorks()
             self.route='search'
         elif action=='search_stop':
-            if self._manual_job: self._manual_job.cancel(); self._manual_job.deleteLater(); self._manual_job=None
+            if self._manual_job:
+                self._manual_job.cancel(); self._manual_job.deleteLater(); self._manual_job=None
+                self.host._set_phase('cancelled')
             for row in self._manual_activity:
                 if row['status']=='running': row['status']='cancelled'
             self.host.search_state.emit('idle')
@@ -432,6 +438,10 @@ class DesktopBridge(QObject):
                 QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No,QMessageBox.StandardButton.No)==QMessageBox.StandardButton.Yes
         if not approved: raise ValueError('Действие не подтверждено.')
         registry = self._registry(); registry.seed_urls_from_user(query)
+        self.host.result_model.clear()
+        self.host.text.setText(query)
+        self.host.checked_label.clear()
+        self.host._set_phase('searching')
         self._manual_activity=[{'id':spec.name,'tool':spec.name,'status':'running','summary':'Запрос пользователя'}]
         self.host.search_state.emit('working')
         job = UiJob(lambda:registry.execute(spec.name,{spec.argument:query,'limit':limit},cancel_event=job.cancelled,
@@ -445,6 +455,9 @@ class DesktopBridge(QObject):
             if isinstance(outcome,dict):
                 self.host._agent_evidence(outcome.get('results',[]))
                 for row in outcome.get('results',[]): self._raw_sources[row['evidence_id']]=row
+            self.host._set_phase('completed_with_errors' if status=='partial' else
+                'completed' if status in ('complete','completed') and (outcome or {}).get('results') else
+                'completed_empty' if status in ('complete','completed','empty') else 'failed')
             self.host.search_state.emit('happy' if not error and status in ('complete','completed','partial','empty') else 'error')
             job.deleteLater(); self.mark_dirty()
         job.done.connect(done); job.start()

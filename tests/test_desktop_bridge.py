@@ -112,3 +112,18 @@ def test_existing_dork_builder_stays_connected_to_search(bridge):
     assert bridge.snapshot()['search']['query']=='site:example.org "источники"'
     assert bridge.host._chosen_kind=='dork'
     dialog.hide()
+
+
+def test_new_search_does_not_relabel_old_chat_evidence_as_its_results(bridge):
+    record={'evidence_id':'ev_'+'b'*20,'id':'saved','title':'Earlier investigation page',
+        'url':'https://example.org/old','type':'web','platform':'Example','description':'Earlier evidence',
+        'details':{'reading_method':'direct_http'},'status':'verified'}
+    bridge.host.chat_widget._last_investigation={'id':'c'*32,'evidence':[record]}
+    bridge.host._agent_evidence([record])
+    assert bridge.snapshot()['search']['results']
+    bridge.host.result_model.clear()
+    bridge.host.text.setText('site:example.net new query')
+    bridge.host.phase='completed_empty'
+    snapshot=bridge.snapshot()
+    assert snapshot['search']['results']==[]
+    assert snapshot['evidence'][0]['evidence_id']==record['evidence_id']
