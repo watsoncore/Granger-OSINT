@@ -101,7 +101,7 @@ def test_exact_gateway_bearer_utf8_model_and_safe_token_metadata():
     assert b"explicit-private-fixture-key" not in request.content
     assert payload["model"] == "deepseek-v4-flash" and payload["stream"] is False
     assert payload["messages"][0] == {"role": "system", "content": HERMIONE_SYSTEM}
-    assert "Гермионы Грейнджер" in HERMIONE_SYSTEM and "реальным человеком" in HERMIONE_SYSTEM
+    assert "Гермиона Грейнджер" in HERMIONE_SYSTEM and "реальным человеком" in HERMIONE_SYSTEM
     assert "thinking_config" not in payload and "tools" not in payload
     assert fixture.options[0]["follow_redirects"] is False
     assert all(value.is_closed for value in fixture.clients)

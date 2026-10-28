@@ -13,6 +13,10 @@ GrangerPet invokes locally supplied tools through isolated processes. Vendor sou
 
 Gansar includes separate notices for attribution resources under `app/attribution/assets/licenses/`, including GraphSense (MIT), Safe (MIT) and Serum (Apache-2.0). Those notices remain alongside the user's data. Its own project-level licensing must be clarified before independently redistributing its source.
 
+The bundled TON representation validator in `grangerpet/validators/ton_address.py` is an independent implementation using Python's standard library, based on the public [TON format documentation](https://docs.ton.org/foundations/addresses/formats) and [TEP-2](https://github.com/ton-blockchain/TEPs/blob/master/text/0002-address.md). It contains no Gansar source. Since 2.6 the build no longer embeds the unlicensed optional vendor validator.
+
+Telegram Desktop was studied as a UI reference. GrangerPet's Python/Qt message and document widgets are independently implemented; Telegram's C++ code, logos and branding are not included. Telegram Desktop's GPLv3 and its exceptions remain relevant to its original source, available in the [official repository](https://github.com/telegramdesktop/tdesktop).
+
 The username, email and phone tools have additional terms, including copyleft and personal-use limitations. The complete audited list is in [docs/INTEGRATIONS_CORE.md](docs/INTEGRATIONS_CORE.md); Snoop is disabled by default and remains an explicit user-local source. Existing source copyright and license texts are preserved.
 
 The desktop application uses Python, PySide6/Qt and Shiboken. PySide6/Qt provide their own LGPL/GPL/commercial licensing options and Qt third-party notices; consult the installed distribution's license files before redistribution. PyInstaller is the build packager and supplies its bootloader under its own license exception. Optional Python dependencies retain their upstream licenses and are recorded per environment in `.toolenvs/<group>/installed-requirements.txt`.

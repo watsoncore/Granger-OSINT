@@ -43,6 +43,12 @@ class Settings:
     request_limit: int = 20
     search_timeout: int = 25
     enable_snoop: bool = False
+    agent_steps: int = 10
+    agent_calls: int = 14
+    agent_timeout: int = 240
+    agent_tokens: int = 48000
+    agent_page_limit: int = 6
+    agent_page_depth: int = 2
 
     def __post_init__(self):
         try:
@@ -55,7 +61,9 @@ class Settings:
         settings = cls()
         if not isinstance(values, dict):
             return settings
-        for key, low, high in (("size", 100, 195), ("fps", 8, 30), ("request_limit", 5, 50), ("search_timeout", 5, 60)):
+        for key, low, high in (("size", 100, 195), ("fps", 8, 30), ("request_limit", 5, 50), ("search_timeout", 5, 60),
+                               ("agent_steps", 2, 20), ("agent_calls", 1, 30), ("agent_timeout", 30, 600),
+                               ("agent_tokens", 4000, 100000), ("agent_page_limit", 1, 12), ("agent_page_depth", 0, 3)):
             value = values.get(key)
             if isinstance(value, (int, float)) and not isinstance(value, bool):
                 try:

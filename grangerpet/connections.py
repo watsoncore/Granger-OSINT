@@ -119,6 +119,18 @@ class ConnectionsPane(QWidget):
         self.search_timeout.setSuffix(" с")
         searching.addRow("Таймаут источника", self.search_timeout)
         searching.addRow(_label("Поиск работает без ИИ. Недоступные источники не создают находок; неполная проверка отмечается в выдаче."))
+        budget = self._section("Бюджет расследования")
+        self.agent_budget_fields = {}
+        for name, title, low, high, step in (
+            ("agent_steps", "Ходы анализа", 2, 20, 1), ("agent_calls", "Вызовы инструментов", 1, 30, 1),
+            ("agent_timeout", "Длительность, с", 30, 600, 30), ("agent_tokens", "Бюджет токенов", 4000, 100000, 4000),
+            ("agent_page_limit", "Прочитанные страницы", 1, 12, 1), ("agent_page_depth", "Глубина переходов", 0, 3, 1)):
+            field = QSpinBox()
+            field.setRange(low, high)
+            field.setSingleStep(step)
+            budget.addRow(title, field)
+            self.agent_budget_fields[name] = field
+        budget.addRow(_label("Больше шагов и страниц может расходовать больше времени и баланса шлюза. Лимиты применяются к новому расследованию."))
 
         google = self._section("Google Search API")
         self.google_key = self._secret_row(google, "google_api_key", "API-ключ")
@@ -206,6 +218,8 @@ class ConnectionsPane(QWidget):
             field.textChanged.connect(self._notify_dirty)
         self.request_limit.valueChanged.connect(self._notify_dirty)
         self.search_timeout.valueChanged.connect(self._notify_dirty)
+        for field in self.agent_budget_fields.values():
+            field.valueChanged.connect(self._notify_dirty)
         self.enable_snoop.toggled.connect(self._notify_dirty)
         self._updating = False
 
@@ -229,7 +243,7 @@ class ConnectionsPane(QWidget):
         return form
 
     def _section(self, title, expanded=False):
-        category = "Источники" if title == "Локальные источники" else "Поиск" if title == "Поведение поиска" else "Авторизация"
+        category = "Источники" if title == "Локальные источники" else "Поиск" if title in ("Поведение поиска", "Бюджет расследования") else "Авторизация"
         target = self.pages[category]
         button = QToolButton()
         button.setObjectName("Disclosure")
@@ -336,7 +350,8 @@ class ConnectionsPane(QWidget):
     def _preferences_signature(self):
         return (self.provider.currentData(), self.selected_model(), self.source_root.text(), self.runtime_python.text(),
                 self.telegram_api_id.text(), self.instagram_username.text(), self.ollama_url.text(), self.google_cx.text(),
-                self.request_limit.value(), self.search_timeout.value(), self.enable_snoop.isChecked())
+                self.request_limit.value(), self.search_timeout.value(), self.enable_snoop.isChecked(),
+                tuple(field.value() for field in self.agent_budget_fields.values()))
 
     def is_dirty(self):
         return bool(self._baseline is not None and (self._preferences_signature() != self._baseline or
@@ -391,6 +406,8 @@ class ConnectionsPane(QWidget):
         self.google_cx.setText(getattr(settings, "api_cx", ""))
         self.request_limit.setValue(getattr(settings, "request_limit", 20))
         self.search_timeout.setValue(getattr(settings, "search_timeout", 25))
+        for name, field in self.agent_budget_fields.items():
+            field.setValue(getattr(settings, name))
         self.enable_snoop.setChecked(getattr(settings, "enable_snoop", False))
         self._provider_kind = None
         self._draft_models = {"deepseek": resolve_deepseek_model(getattr(settings, "deepseek_model", "")),
@@ -609,6 +626,8 @@ class ConnectionsPane(QWidget):
             settings.api_cx = self.google_cx.text().strip()
             settings.request_limit = self.request_limit.value()
             settings.search_timeout = self.search_timeout.value()
+            for name, field in self.agent_budget_fields.items():
+                setattr(settings, name, field.value())
             settings.enable_snoop = self.enable_snoop.isChecked()
             settings.ai_provider = self.provider.currentData()
             if settings.ai_provider in ("deepseek", "ollama"):

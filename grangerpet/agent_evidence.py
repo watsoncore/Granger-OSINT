@@ -66,6 +66,8 @@ def normalize_evidence(value, tool, query, obtained_at=None, secrets=()):
                             "source_url": canonical_url(record.get("url", "")), "source_status": result.status,
                             "basis": redact(result.details.get("verification") or result.description, secrets)[:2000],
                             "identity_verified": False}
+    record['provenance']['acquisition'] = ('direct_page' if result.details.get('reading_method') == 'direct_http' else
+                                           'search_index' if tool == 'web_search' else 'source_adapter')
     return record
 
 

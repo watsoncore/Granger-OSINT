@@ -28,8 +28,7 @@ a = Analysis(
     [str(root / "main.py")],
     pathex=[str(root)],
     binaries=[],
-    datas=[(str(assets), "grangerpet/assets"),
-           (str(root / "Gansar-main" / "app" / "utils" / "ton_normalize.py"), "grangerpet/validators")] + [
+    datas=[(str(assets), "grangerpet/assets")] + [
         (str(path), "grangerpet/engine") for path in (root / "grangerpet" / "engine").glob("*.py")
     ] + copy_metadata("httpx"),
     hiddenimports=[],

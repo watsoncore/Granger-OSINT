@@ -1,20 +1,16 @@
 """Deterministic query validation and routing, independent of Qt and any LLM.
 
-TON validation calls the supplied Gansar parser itself. Only that stdlib-only
-validator is copied into frozen builds; the analytical engine stays external.
+TON representation validation is an independently implemented bundled stdlib
+validator. The optional Gansar analytical engine stays external.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import lru_cache
-import importlib.util
 import ipaddress
-from pathlib import Path
 import re
-import sys
 from urllib.parse import unquote, urlsplit, urlunsplit
 
-from .runtime import tool_root
+from ..validators.ton_address import parse_ton_address
 
 KINDS = ("auto", "username", "email", "phone", "telegram", "vk", "instagram", "web", "blockchain", "dork")
 PROFILE_CHOICES = (("Публичные профили", "username"), ("Упоминания", "dork"))
@@ -47,24 +43,9 @@ def _error(text, message, kind="auto", label=""):
     return QueryResolution(text, kind, label=label, valid=False, error=message)
 
 
-@lru_cache(maxsize=8)
-def _validator(path: str, stamp: int):
-    spec = importlib.util.spec_from_file_location("grangerpet_supplied_gansar_ton", path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module.parse_ton_address
-
-
 def validate_ton(text: str, options=None):
-    """Return Gansar's actual parser output, including raw normalization/CRC16."""
-    root = tool_root(options)
-    paths = [root / "Gansar-main/app/utils/ton_normalize.py"]
-    if getattr(sys, "_MEIPASS", None):
-        paths.append(Path(sys._MEIPASS) / "grangerpet/validators/ton_normalize.py")
-    for path in paths:
-        if path.is_file():
-            return _validator(str(path), path.stat().st_mtime_ns)(text)
-    raise ValueError("Валидатор TON из Gansar недоступен. Проверьте папку источников или комплект EXE.")
+    """Normalize TON representation without requiring an optional tool checkout."""
+    return parse_ton_address(text)
 
 
 def normalize_email(text):

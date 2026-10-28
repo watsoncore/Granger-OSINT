@@ -46,6 +46,7 @@ _SPECS = (
     ToolSpec("vk_public", "vk", "vk", "username", "VK через существующий разрешённый API-токен: публичный профиль по точному идентификатору. Требуется явное подтверждение пользователя.", True, 64),
     ToolSpec("instagram_public", "instagram", "instagram", "username", "Instagram: доступный публичный профиль по точному имени, без обхода авторизации. Доступ зависит от ограничений сервиса; требуется подтверждение.", True, 64),
     ToolSpec("web_search", "web_search", "dork", "query", "Поиск индексируемых публичных упоминаний: реальные URL, заголовки и фрагменты. Отдельный веб-поиск, не проверка регистрации и не выдуманная выдача.", max_length=300),
+    ToolSpec("web_read", "web_read", "web", "url", "Непосредственно прочитать найденную публичную страницу: основной текст, фрагмент, заголовки, метаданные, таблицы, JSON-LD и связанные ссылки. Это прямое чтение, не сниппет поисковика. Только URL из реальных находок, ссылок прочитанных страниц или явно указанные пользователем; глубина и число страниц ограничены.", max_length=2000),
     ToolSpec("domain_lookup", "domain_lookup", "domain", "domain", "Пассивные DNS и доступные RDAP-сведения публичного домена. Не сканирование портов или уязвимостей.", max_length=253),
     ToolSpec("ip_lookup", "ip_lookup", "ip", "address", "Публичные сведения RIPEstat об ASN и сетевом префиксе IP. Только глобальный IP, без геолокации человека и активного сканирования.", max_length=64),
     ToolSpec("evidence_get", "evidence_get", "evidence", "evidence_id", "Вернуться к полной безопасной записи ранее полученной находки по точному evidence_id. Не выполняет новый поиск и не доказывает личность.", max_length=23),
@@ -87,6 +88,16 @@ class ToolRegistry:
         self.evidence = EvidenceStore()
         self._lock = threading.RLock()
         self._redactions = {value for value in redactions if isinstance(value, str) and len(value) >= 4}
+        from .agent_browser import PublicPageReader
+        self.web_reader = PublicPageReader(max_pages=getattr(settings, 'agent_page_limit', 6),
+                                           max_depth=getattr(settings, 'agent_page_depth', 2))
+
+    def seed_urls_from_user(self, text):
+        """Only the human's actual text seeds initial URLs, never model output."""
+        self.web_reader.seed_urls_from_user(text)
+
+    def begin_investigation(self):
+        self.web_reader.begin_run()
 
     def _secret(self, name):
         value = self._options.get("secrets", {}).get(name) or self._options.get(name)
@@ -131,7 +142,9 @@ class ToolRegistry:
         if cancelled is not None and cancelled.is_set():
             base.update(state="cancelled", reason="Проверка отменена.")
             return base
-        if spec.source == "evidence_get":
+        if spec.source == "web_read":
+            base.update(available=True, state="unverified", reason="Прямое чтение обнаруженных публичных URL; DNS и каждый переход проверяются при запросе.")
+        elif spec.source == "evidence_get":
             base.update(available=True, state="ready", reason="Только уже полученные безопасные находки текущего диалога.")
         elif spec.source == "web_search":
             try:
@@ -177,7 +190,7 @@ class ToolRegistry:
         end = min(deadline, time.monotonic() + 12) if deadline is not None else time.monotonic() + 12
         cancelled = _Cancellation(cancel_event, end)
         instant = {spec.name: self._state(spec, cancelled) for spec in _SPECS
-                   if spec.source in ("web_search", "domain_lookup", "ip_lookup", "evidence_get")}
+                   if spec.source in ("web_search", "web_read", "domain_lookup", "ip_lookup", "evidence_get")}
         # The existing worker transport has its own global two-process budget.
         # Cold import probes share that budget and never run on the GUI thread.
         with ThreadPoolExecutor(max_workers=2, thread_name_prefix="GrangerPetToolReadiness") as pool:
@@ -214,8 +227,14 @@ class ToolRegistry:
         if type(limit) is not int or not 1 <= limit <= maximum:
             raise ValueError("Лимит результата вне допустимого диапазона.")
         options = self._source_options(spec.source)
-        if spec.source in ("web_search", "domain_lookup", "ip_lookup", "evidence_get"):
-            if spec.source == "evidence_get":
+        if spec.source in ("web_search", "web_read", "domain_lookup", "ip_lookup", "evidence_get"):
+            if spec.source == "web_read":
+                from .agent_browser import PageReadError, public_url
+                try:
+                    value = public_url(value)
+                except PageReadError:
+                    raise ValueError('Unsafe page URL') from None
+            elif spec.source == "evidence_get":
                 if not re.fullmatch(r"ev_[a-f0-9]{20}", value):
                     raise ValueError("Укажите точный идентификатор находки.")
             elif spec.source == "ip_lookup":
@@ -288,6 +307,7 @@ class ToolRegistry:
             if key in records or len(records) >= limit:
                 return
             records[key] = record
+            self.web_reader.add_evidence([record])
             self.evidence.add({"tool": spec.name, "query": value, "obtained_at": when,
                                "status": "partial", "results": [record]})
             if callable(on_event):
@@ -299,7 +319,12 @@ class ToolRegistry:
             if isinstance(row, dict) and row.get("event") == "result":
                 receive(row.get("result"))
         try:
-            if spec.source == "web_search":
+            if spec.source == "web_read":
+                # Search evidence is the URL authority. The model cannot invent
+                # a new URL and gain network access through ordinary text.
+                self.web_reader.add_evidence(self.evidence.records())
+                outcome = self.web_reader.read(value, cancel_event=cancelled, deadline=deadline)
+            elif spec.source == "web_search":
                 outcome = self._web().search(value, limit=limit, cancel_event=cancelled, deadline=deadline)
             elif spec.source in ("domain_lookup", "ip_lookup"):
                 from .agent_web import lookup_domain, lookup_ip
@@ -314,8 +339,10 @@ class ToolRegistry:
             for raw in outcome.get("results", [])[:limit] if isinstance(outcome.get("results"), list) else []:
                 receive(raw)
             status = str(outcome.get("status", "error"))
-            allowed = {"complete", "completed", "partial", "empty", "error", "timeout", "cancelled", "unavailable", "auth_required"}
+            allowed = {"complete", "completed", "partial", "empty", "error", "timeout", "cancelled", "unavailable", "auth_required", "blocked", "limit_reached"}
             envelope["status"] = status if status in allowed else "error"
+            if spec.source == 'web_read' and outcome.get('error'):
+                envelope['error'] = str(outcome['error'])[:80]
             if type(outcome.get("checked")) is int:
                 envelope["checked"] = max(0, min(100000, outcome["checked"]))
             if outcome.get("limitations"):
