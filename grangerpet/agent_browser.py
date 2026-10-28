@@ -16,7 +16,7 @@ import socket
 import ssl
 import threading
 import time
-from urllib.parse import parse_qsl, urljoin, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, unquote, urljoin, urlsplit, urlunsplit
 
 import certifi
 import httpcore
@@ -71,6 +71,13 @@ def public_url(value):
         if parsed.scheme.lower() not in ('https', 'http') or parsed.username or parsed.password or not parsed.hostname:
             raise ValueError()
         host = parsed.hostname.rstrip('.').encode('idna').decode('ascii').lower()
+        path = unquote(parsed.path).lower()
+        # Reviewed source-specific restrictions also apply to the generic
+        # reader, so an unsupported adapter cannot be bypassed with web_read.
+        if ((host=='api.proxynova.com' and (path.rstrip('/')=='/comb' or path.startswith('/comb/')))
+                or (host in ('looka.one','www.looka.one') and path.startswith('/vk_user/'))
+                or (host=='api.murix.ru' and parsed.scheme.lower()!='https')):
+            raise PageReadError('source_access_restricted','blocked')
         if '%' in host or host == 'localhost' or host.endswith(_BLOCKED_HOST_SUFFIXES):
             raise ValueError()
         port = parsed.port or (443 if parsed.scheme.lower() == 'https' else 80)

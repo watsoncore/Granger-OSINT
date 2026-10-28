@@ -12,13 +12,19 @@ from pathlib import Path
 import threading
 import time
 
-from .runtime import VENDOR_DIRS, run_worker, tool_root
+from .runtime import VENDOR_DIRS, run_worker, tool_root, runtime_diagnostic
+from ..agent_evidence import utc_now
 
 LABELS = {"maigret": "Публичные профили", "blackbird": "Дополнительная проверка профилей",
           "social_analyzer": "Анализ публичных страниц", "snoop": "Локальная проверка профилей",
           "holehe": "Проверка email", "phoneinfoga": "Сведения о номере", "telegram": "Telegram",
           "vk": "ВКонтакте", "instagram": "Instagram", "wayback": "Веб-архив", "blockchain": "Блокчейн · Gansar", "google": "Google"}
 _CACHE, _LOCK = {}, threading.Lock()
+
+
+def clear_readiness_cache():
+    with _LOCK:
+        _CACHE.clear()
 
 
 def _credentials(options, name):
@@ -31,13 +37,19 @@ def _probe(source, options, cancelled=None):
         return {"id": source, "label": LABELS[source], "state": "cancelled", "message": "Проверка отменена.", "runtime_ready": False}
     started = time.monotonic()
     root = tool_root(options)
+    diagnostic = runtime_diagnostic(source, options)
     key = (str(root), str(options.get("runtime_python", "")), source)
     with _LOCK:
         cached = _CACHE.get(key)
         if cached and time.monotonic() - cached[0] < 45:
             return copy.deepcopy(cached[1])
-    if not (root / VENDOR_DIRS[source]).is_dir():
-        outcome = {"status": "unavailable", "message": "Исходники не найдены в выбранной папке."}
+    if diagnostic['code'] != 'probe_required':
+        messages = {'missing_sources':'Исходники не найдены в выбранной папке.',
+                    'missing_runtime':'Изолированный Python этого инструмента не найден.',
+                    'invalid_interpreter':'Выбранный исполняемый файл Python не найден.',
+                    'missing_worker':'В комплекте приложения отсутствует worker.py.',
+                    'missing_bridge':'Исполняемый PhoneInfoga bridge не найден.'}
+        outcome = {"status": "unavailable", "error_code": diagnostic['code'], "message": messages.get(diagnostic['code'], 'Неизвестный источник.')}
     else:
         try:
             outcome = run_worker(source, {"text": "", "kind": "probe", "limit": 1, "timeout": 7},
@@ -47,9 +59,24 @@ def _probe(source, options, cancelled=None):
             outcome = {"status": "unavailable", "message": "Не удалось запустить интерпретатор источника. Проверьте путь и зависимости."}
     if source == "phoneinfoga" and outcome.get("status") == "complete" and outcome.get("results"):
         outcome = {"status": "ready", "message": "Исполняемый мост запущен; настоящий парсер PhoneInfoga проверен на зарезервированном примере."}
-    row = {"id": source, "label": LABELS[source], "state": "ready" if outcome.get("status") == "ready" else "unavailable",
+    code = 'runtime_ready' if outcome.get('status') == 'ready' else outcome.get('error_code',
+        'probe_timeout' if outcome.get('status') == 'timeout' else 'probe_failed')
+    states = {'missing_sources':'configuration_error', 'invalid_interpreter':'configuration_error',
+              'missing_runtime':'missing_dependency', 'missing_dependency':'missing_dependency',
+              'missing_bridge':'missing_dependency', 'missing_worker':'unsupported_environment',
+              'missing_database':'missing_dependency', 'probe_timeout':'unverified', 'probe_failed':'configuration_error'}
+    diagnostic.update(code=code, checked_at=utc_now(), execution_verified=False,
+                      missing_module=outcome.get('missing_module'), exit_code=outcome.get('exit_code'))
+    if code == 'missing_dependency':
+        diagnostic['remedy'] = 'Установите зависимости в изолированное окружение этого инструмента: scripts/setup_sources.py --groups ' + ('platforms' if source in ('telegram','vk','instagram','wayback') else source)
+    elif code == 'missing_database':
+        diagnostic['remedy'] = 'Восстановите локальную базу инструмента через проверенную настройку источников.'
+    elif code == 'runtime_ready':
+        diagnostic['remedy'] = 'Локальная проверка пройдена; внешний сервис проверяется только при явном запросе.'
+    row = {"id": source, "label": LABELS[source], "state": "ready" if outcome.get("status") == "ready" else states.get(code, 'unavailable'),
            "message": outcome.get("message", "Зависимости источника не готовы."),
-           "runtime_ready": outcome.get("status") == "ready", "probe_seconds": round(time.monotonic() - started, 3)}
+           "runtime_ready": outcome.get("status") == "ready", "probe_seconds": round(time.monotonic() - started, 3),
+           "diagnostic": diagnostic}
     if outcome.get("status") == "cancelled":
         row.update(state="cancelled", message="Проверка отменена.")
     else:

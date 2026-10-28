@@ -185,17 +185,34 @@ def _vk(query, options):
 
     class BoundedSession(requests.Session):
         def request(self, method, url, **kwargs):
+            # Official request format documents Authorization: Bearer. Remove
+            # the library's legacy form token before creating the request;
+            # neither the URL nor the form body may contain this credential.
+            parsed = urlsplit(url)
+            if parsed.scheme != 'https' or parsed.hostname not in ('api.vk.com','api.vk.ru') or not parsed.path.startswith('/method/') or parsed.query:
+                raise ValueError('Недопустимый адрес официального VK API.')
+            data = dict(kwargs.get('data') or {})
+            data.pop('access_token', None)
+            kwargs['data'] = data
+            kwargs['headers'] = {**(kwargs.get('headers') or {}), 'Authorization': 'Bearer ' + token}
+            kwargs['allow_redirects'] = False
             kwargs.setdefault("timeout", (3, min(_timeout(query), 10)))
             return super().request(method, url, **kwargs)
     with BoundedSession() as session:
         client = module.VkApi(token=token, api_version="5.199", session=session, config=MemoryConfig)
         client.error_handlers = {}  # Never auto-solve CAPTCHA or retry access restrictions.
-        resolved = client.method("utils.resolveScreenName", {"screen_name": name})
+        numeric = re.fullmatch(r'(?:id)?([1-9][0-9]{0,18})', name)
+        community = re.fullmatch(r'(?:club|public|event)([1-9][0-9]{0,18})', name)
+        resolved = ({'object_id':int(numeric[1]),'type':'user'} if numeric else
+                    {'object_id':int(community[1]),'type':'group'} if community else
+                    client.method("utils.resolveScreenName", {"screen_name": name}))
         if not isinstance(resolved, dict) or not resolved.get("object_id"):
             return _out("vk", "empty", message="Публичный объект ВКонтакте не найден.")
         identifier, kind = resolved["object_id"], resolved.get("type")
         if kind == "user":
-            rows = client.method("users.get", {"user_ids": identifier, "fields": "screen_name,status,city,site,verified"})
+            rows = client.method("users.get", {"user_ids": identifier, "fields": "screen_name,status,sex,country,photo_max_orig,city,site,verified"})
+            if not isinstance(rows,list) or any(not isinstance(value,dict) for value in rows):
+                return _out('vk','error',message='VK API вернул неизвестную структуру users.get; сведения не приняты.')
             row = rows[0] if rows else {}
             title = " ".join(filter(None, (row.get("first_name"), row.get("last_name"))))
             url = "https://vk.com/" + str(row.get("screen_name") or f"id{identifier}")
@@ -211,6 +228,19 @@ def _vk(query, options):
             return _out("vk", "empty", message="Тип публичного объекта не поддерживается.")
         if not row:
             return _out("vk", "empty", message="VK API не вернул публичные сведения об объекте.")
+        if not isinstance(row,dict) or type(row.get('id')) is not int:
+            return _out('vk','error',message='VK API вернул неполные сведения без идентификатора.')
+        if row.get('deactivated'):
+            return _out('vk','empty',message='Профиль удалён или заблокирован. Закрытые сведения не запрашивались.')
+        # Retain only documented public profile fields, never arbitrary vendor
+        # echoes (request_params/error payloads may contain a reflected token).
+        row={key:value for key,value in row.items() if key in {
+            'id','first_name','last_name','screen_name','status','sex','country','photo_max_orig','city','site','verified',
+            'is_closed','can_access_closed','name','description','members_count'}}
+        row.update(api_method='users.get' if kind=='user' else 'groups.getById',api_version='5.199',
+                   acquisition='official_api', access='public_fields_only')
+        if row.get('is_closed'):
+            description = (description + '\nПрофиль закрыт; возвращены только доступные токену публичные поля.').strip()
         return _out("vk", "complete", [_item("vk", f"vk:{kind}:{identifier}", title or name, "profile" if kind == "user" else "community",
                     "ВКонтакте", url, description, row)], "Данные получены официальным VK API в пределах прав токена.")
 
@@ -280,8 +310,19 @@ def run_adapter(source: str, query: dict, options: dict) -> dict:
             return _out(source, "auth_required", message="Источник требует действующей авторизованной сессии или не разрешает доступ к этому объекту.")
         if source == "vk" and hasattr(error, "code"):
             code = int(error.code)
-            return _out(source, "auth_required" if code in (5, 7, 15, 27, 28) else "unavailable",
-                        message=f"VK API: код {code}. Проверьте права токена; ограничения доступа и CAPTCHA не обходятся.")
+            state,message={5:('auth_required','VK отклонил токен. Сохраните новый действующий токен.'),
+                7:('auth_required','VK не разрешает этот метод вашему токену.'),
+                15:('auth_required','VK ограничил доступ к объекту или требуется токен с подходящими правами.'),
+                18:('empty','Профиль VK удалён или заблокирован.'),
+                30:('unavailable','VK ограничил доступ настройками приватности.'),
+                6:('rate_limited','VK ограничил частоту запросов. Повторите позже.'),
+                9:('rate_limited','VK временно ограничил этот метод. Повторите позже.'),
+                29:('rate_limited','Достигнут лимит запросов VK API.'),
+                14:('unavailable','VK запросил CAPTCHA. Автоматического обхода нет.'),
+                10:('unavailable','Временная ошибка VK. Повторите позже.'),
+                100:('error','VK отклонил параметры идентификатора.'),
+                113:('empty','Пользователь VK не найден.')}.get(code,('unavailable','VK API отклонил запрос. Проверьте права токена.'))
+            return _out(source,state,message=f'{message} Код VK: {code}.')
         if any(word in name for word in ("Flood", "TooMany", "RateLimit", "Blocked")):
             return _out(source, "unavailable", message="Источник ограничил запросы или доступ. Повторите позже; автоматического обхода нет.")
         return _out(source, "error", message=f"Источник не выполнил запрос ({name}); сведения не подменялись.")

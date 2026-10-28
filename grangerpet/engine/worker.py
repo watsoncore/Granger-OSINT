@@ -36,7 +36,7 @@ def probe(source, options):
                 "blackbird": [root / "blackbird-main/data/wmn-data.json", root / ".toolenvs/blackbird/wmn-data.json"],
                 "snoop": [root / "snoop-master/BDdemo"]}.get(source, [])
     if required and not any(path.is_file() and path.stat().st_size > 10 for path in required):
-        return {"source": source, "status": "unavailable", "results": [], "message": "Нет необходимой локальной базы источника."}
+        return {"source": source, "status": "unavailable", "error_code": "missing_database", "results": [], "message": "Нет необходимой локальной базы источника."}
     return {"source": source, "status": "ready", "results": [], "message": "Реальный импорт адаптера и локальные ресурсы проверены."}
 
 
@@ -82,11 +82,11 @@ def main():
     except (ImportError, ModuleNotFoundError) as exc:
         missing = getattr(exc, "name", None)
         # Module names only; never stringify vendor exception messages or queries.
-        emit({"event": "final", "outcome": {"status": "unavailable", "results": [],
+        emit({"event": "final", "outcome": {"status": "unavailable", "error_code": "missing_dependency", "missing_module": missing, "results": [],
               "message": "Не установлены зависимости источника" + (f" ({missing})" if missing else "") + ". Запустите настройку подключений."}})
         return 0
     except (Exception, SystemExit):
-        emit({"event": "final", "outcome": {"status": "error", "results": [],
+        emit({"event": "final", "outcome": {"status": "error", "error_code": "probe_failed" if 'options' in locals() and options.get('operation') == 'probe' else "adapter_error", "results": [],
               "message": "Локальный источник не смог выполнить запрос. Проверьте совместимость окружения и подключение."}})
         return 0
 

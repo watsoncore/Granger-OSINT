@@ -54,6 +54,8 @@ class Fixture:
     'file:///C:/private','ftp://example.org/file','https://example.org:8443/','https://example.org/%0d%0aHost:x',
     'https://example.org\\@127.0.0.1/','http://2130706433/','http://metadata.google.internal/',
     'https://example.org/?api_key=secret','https://example.org/logout','javascript:alert(1)',
+    'https://api.proxynova.com/comb?query=fixture','https://api.proxynova.com/%63omb?query=fixture',
+    'https://looka.one/vk_user/id0','http://api.murix.ru/eye?v=unknown',
 ])
 def test_unsafe_public_page_urls_are_rejected_before_dns(url):
     with pytest.raises(PageReadError):public_url(url)

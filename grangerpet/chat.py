@@ -28,6 +28,7 @@ from .agent_tools import ToolRegistry
 from .agent_journal import InvestigationJournal
 from .chat_archive import ChatArchive
 from .conversations import ConversationLibrary
+from .context import conversation_context
 
 
 def no_tools_requested(text):
@@ -210,6 +211,7 @@ class ChatWidget(QWidget):
         self._job, self._generation, self._ending = None, 0, False
         self._busy = False
         self.last_request = {}
+        self.archive_error = ''
         self._activity_log = []
         self._resume_state = None
         self._last_failed_text = ''
@@ -300,11 +302,26 @@ class ChatWidget(QWidget):
         if self._archive is not None:
             saved = self._archive.load()
             self._context = saved.get('context', [])
-            for row in saved.get('messages', []):
-                self._append(row['role'], row['text'], message_id=row.get('id'))
-                for field in ('investigation_id', 'evidence_ids'):
-                    if field in row: self.messages[-1][field] = row[field]
+            self._restore_archive_rows(saved.get('messages', []))
+            if self._archive.last_error:
+                self._set_archive_error('Не удалось прочитать локальную историю. Прежний архив сохранён без изменений.')
             self._restore_investigation()
+
+    def _restore_archive_rows(self, rows):
+        # The bundled renderer owns the full visible history. Building hundreds
+        # of hidden native Markdown widgets adds no user-visible content and
+        # blocks its GUI thread. Native mode retains its original bubble path;
+        # subsequent runtime bubbles/stream handles still use their own indices.
+        web = bool(QApplication.instance().property('web_desktop'))
+        for row in rows:
+            if web:
+                self.messages.append({'id':row.get('id') or uuid.uuid4().hex,
+                    'role':row['role'], 'text':row['text']})
+            else:
+                self._append(row['role'], row['text'], message_id=row.get('id'))
+            for field in ('investigation_id', 'evidence_ids'):
+                if field in row:self.messages[-1][field] = deepcopy(row[field])
+        self._update_actions()
 
     @property
     def busy(self):
@@ -371,7 +388,7 @@ class ChatWidget(QWidget):
         if consume_draft:
             self.input.clear()
         self._append('user', text)
-        history = deepcopy(self._context[-24:]) + [{'role': 'user', 'text': text}]
+        history = conversation_context(self.messages, text)
         settings = self.ai_state.settings
         snapshot = self.ai_state.committed_snapshot()
         model = snapshot['model_id']
@@ -601,7 +618,11 @@ class ChatWidget(QWidget):
 
     def clear_history(self):
         if self._busy:
-            return
+            return False
+        # Do not claim the clear was persisted and discard the in-memory copy
+        # when the filesystem/vault refused the replacement archive.
+        if not self._save_archive(messages=[], context=[]):
+            return False
         self._context.clear()
         self._agent_registry = None
         self._agent_runner = None
@@ -610,11 +631,11 @@ class ChatWidget(QWidget):
         self._last_investigation = {}
         self._activity_log = []
         self.history.clear()
-        self._save_archive()
         self.status.setText('Диалог очищен')
         self.status.hide()
         self._update_actions()
         self.state_changed.emit()
+        return True
 
     @staticmethod
     def _investigation_limits(settings):
@@ -628,9 +649,22 @@ class ChatWidget(QWidget):
 
     def new_conversation(self):
         if self.busy: raise ValueError('Сначала остановите текущую задачу.')
-        self._save_archive()
-        self.conversation_id = self._library.new() if self._library else uuid.uuid4().hex
-        self.clear_history()
+        if not self._save_archive():
+            raise ValueError(self.archive_error)
+        previous_id=self.conversation_id
+        try:
+            self.conversation_id = self._library.new() if self._library else uuid.uuid4().hex
+        except OSError:
+            if self._library:self._library.current_id=previous_id
+            self._set_archive_error('Не удалось создать новый диалог. Текущая переписка сохранена и остаётся открытой.')
+            raise ValueError(self.archive_error) from None
+        if not self.clear_history():
+            self.conversation_id=previous_id
+            if self._library:
+                self._library.current_id=previous_id
+                try:self._library._write_pointer()
+                except OSError:pass
+            raise ValueError(self.archive_error)
         self._last_investigation = {}
         self._activity_log = []
         self.state_changed.emit()
@@ -638,7 +672,8 @@ class ChatWidget(QWidget):
     def load_conversation(self, identifier):
         if self.busy: raise ValueError('Сначала остановите текущую задачу.')
         if self._library is None: raise ValueError('Локальная история недоступна.')
-        self._save_archive()
+        if not self._save_archive():
+            raise ValueError(self.archive_error)
         value = self._library.load(identifier)
         self.conversation_id = self._library.current_id
         self.messages.clear()
@@ -647,10 +682,7 @@ class ChatWidget(QWidget):
         self._agent_registry = self._agent_runner = None
         self._last_investigation = {}
         self._agent_followup = False
-        for row in value.get('messages', []):
-            self._append(row['role'], row['text'], message_id=row.get('id'))
-            for field in ('investigation_id', 'evidence_ids'):
-                if field in row: self.messages[-1][field] = row[field]
+        self._restore_archive_rows(value.get('messages', []))
         self._restore_investigation()
         self._activity_log = []
         self._update_actions()
@@ -698,7 +730,7 @@ class ChatWidget(QWidget):
                 checkpoint_callback=lambda value:self._journal.save_checkpoint(value, secrets=(resolve_deepseek_key(),)),
                 on_event=lambda value:self._agent_progress.emit(generation,value),
                 approval_callback=lambda name,args:self._approve_tool(generation,name,args,cancelled))
-        self._start(request, 'thinking', deepcopy(self._context[-24:]))
+        self._start(request, 'thinking', conversation_context(self.messages))
 
     def _run_investigation(self, runner, model, history, **kwargs):
         """Keep a failed first stage associated with its real request ledger.
@@ -729,14 +761,26 @@ class ChatWidget(QWidget):
         self.cancel()
         self._save_archive()
 
-    def _save_archive(self):
+    def _set_archive_error(self, message):
+        if message == self.archive_error:
+            return
+        self.archive_error = message
+        self.history.setToolTip(message)
+        self.state_changed.emit()
+
+    def _save_archive(self, *, messages=None, context=None):
         self._archive_timer.stop()
         if self._archive is not None:
             try:
-                self._archive.save(self.messages, self._context, secrets=(resolve_deepseek_key(),))
+                self._archive.save(self.messages if messages is None else messages,
+                    self._context if context is None else context, secrets=(resolve_deepseek_key(),))
                 if self._library: self._library.seal()
             except Exception:
-                self.history.setToolTip('Не удалось сохранить локальную историю. Текущая переписка остаётся в окне.')
+                self._set_archive_error('Не удалось сохранить локальную историю. Текущая переписка остаётся в окне; '
+                    'переключение диалога отменено. Проверьте доступ к хранилищу, свободное место и предел архива 64 МиБ.')
+                return False
+        self._set_archive_error('')
+        return True
 
     def _on_agent_progress(self, generation, event):
         if self._ending or generation != self._generation or not self._busy or not isinstance(event, dict):

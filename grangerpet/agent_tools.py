@@ -6,7 +6,7 @@ source path, credentials, arbitrary adapter name, or a Python callback.
 from __future__ import annotations
 
 from copy import deepcopy
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 import ipaddress
 import json
@@ -86,6 +86,7 @@ class ToolRegistry:
         self._adapters = {item.id: item for item in adapters} if adapters is not None and not isinstance(adapters, dict) else dict(adapters or {})
         self._web_provider = web_provider
         self._availability = {}
+        self._last_executions = {}
         self.evidence = InvestigationEvidence()
         self._lock = threading.RLock()
         self._redactions = {value for value in redactions if isinstance(value, str) and len(value) >= 4}
@@ -143,7 +144,11 @@ class ToolRegistry:
         with self._lock:
             cached = self._availability.get(spec.name)
         if cached is not None and time.monotonic() - cached[0] < 45:
-            return deepcopy(cached[1])
+            value=deepcopy(cached[1])
+            if spec.name in self._last_executions:
+                value['last_execution']=deepcopy(self._last_executions[spec.name])
+                value.setdefault('diagnostic',{})['execution_verified']=self._last_executions[spec.name]['status'] in ('complete','completed','empty','partial')
+            return value
         base = {"name": spec.name, "source": spec.source, "kind": spec.kind, "description": spec.description,
                 "requires_approval": spec.requires_approval, "needs_confirmation": spec.requires_approval,
                 "available": False, "state": "unavailable", "reason": "Инструмент недоступен."}
@@ -176,34 +181,62 @@ class ToolRegistry:
             try:
                 row = self._readiness(spec.source, options, cancelled=cancelled)
             except Exception:
-                row = {"runtime_ready": False}
+                row = {"runtime_ready": False, 'state': 'configuration_error',
+                       'message': 'Не удалось выполнить безопасную проверку окружения.',
+                       'diagnostic': {'code':'probe_failed','remedy':'Проверьте папку источников и путь к Python.'}}
+            base['diagnostic'] = deepcopy(row.get('diagnostic', {}))
+            base['diagnostic'].update(runtime_ready=bool(row.get('runtime_ready')), probe_seconds=row.get('probe_seconds'), execution_verified=False)
             if row.get("runtime_ready"):
                 missing = any(not options.get(name) for name in _AUTH.get(spec.source, ()) if name != "instagram_session")
                 if spec.source == "telegram" and not options.get("telegram_api_id"):
                     missing = True
                 if missing:
-                    base.update(state="auth_required", reason="Нужна авторизация источника в существующих настройках.")
+                    base.update(state="auth_required", reason="Окружение готово. Нужны собственные учётные данные источника; вход и права ещё не проверялись.")
+                    base['diagnostic'].update(code='authorization_required',remedy='Сохраните собственный токен или сессию в защищённых настройках источника.')
                 else:
                     base.update(available=True, state="configured_unverified" if spec.source in _AUTH else "ready",
-                                reason="Окружение проверено; доступ внешнего источника подтверждается только результатом запроса.")
+                                reason=str(row.get('message') or "Окружение проверено.") + ' Внешний доступ подтверждается только результатом запроса.')
             else:
-                base.update(reason="Не готов исполняемый мост, зависимости или локальная база. Проверьте Настройки → Источники.")
+                base.update(state=row.get('state','unavailable'), reason=str(row.get('message') or 'Не готово исполняемое окружение источника.'))
+        base.setdefault('diagnostic', {'code': 'local_ready' if base['available'] else base['state'],
+            'runtime_ready':base['available'], 'execution_verified':False, 'checked_at':utc_now(),
+            'remedy':'Доступ внешнего сервиса проверяется только явным запросом.' if base['available'] else
+                     'Включите интеграцию в настройках.' if base['state']=='disabled' else 'Проверьте настройки инструмента.'})
+        base['runtime_state']=base['state']
+        with self._lock:
+            if spec.name in self._last_executions:
+                base['last_execution']=deepcopy(self._last_executions[spec.name])
+                base['diagnostic']['execution_verified']=base['last_execution']['status'] in ('complete','completed','empty','partial')
         if cancelled is None or not cancelled.is_set():
             with self._lock:
                 self._availability[spec.name] = (time.monotonic(), deepcopy(base))
         return base
 
-    def catalog(self, *, cancel_event=None, deadline=None):
+    def catalog(self, *, cancel_event=None, deadline=None, force_refresh=False, on_update=None):
+        if force_refresh:
+            with self._lock:
+                self._availability.clear()
+            from .engine.readiness import clear_readiness_cache
+            clear_readiness_cache()
         # A cold discovery cannot consume the entire investigation deadline.
         end = min(deadline, time.monotonic() + 12) if deadline is not None else time.monotonic() + 12
         cancelled = _Cancellation(cancel_event, end)
         instant = {spec.name: self._state(spec, cancelled) for spec in _SPECS
                    if spec.source in ("web_search", "web_read", "domain_lookup", "ip_lookup", "evidence_get")}
+        if callable(on_update):
+            for row in instant.values():
+                try:on_update(deepcopy(row))
+                except Exception:pass
         # The existing worker transport has its own global two-process budget.
         # Cold import probes share that budget and never run on the GUI thread.
         with ThreadPoolExecutor(max_workers=2, thread_name_prefix="GrangerPetToolReadiness") as pool:
-            checked = list(pool.map(lambda spec: self._state(spec, cancelled),
-                                    [spec for spec in _SPECS if spec.name not in instant]))
+            futures = [pool.submit(self._state,spec,cancelled) for spec in _SPECS if spec.name not in instant]
+            checked = []
+            for future in as_completed(futures):
+                row = future.result();checked.append(row)
+                if callable(on_update):
+                    try:on_update(deepcopy(row))
+                    except Exception:pass
         rows = {row["name"]: row for row in checked}
         rows.update(instant)
         return [rows[spec.name] for spec in _SPECS]
@@ -219,12 +252,18 @@ class ToolRegistry:
                     spec.argument: {"type": "string", "minLength": 1, "maxLength": spec.max_length},
                     "limit": {"type": "integer", "minimum": 1, "maximum": 10 if spec.name == "web_search" else 20}},
                     "required": [spec.argument], "additionalProperties": False}}})
+            if spec.source == 'evidence_get':
+                tools[-1]['function']['parameters']['properties'].update(
+                    focus={'type':'string','maxLength':300,'description':'Тема для выбора релевантного фрагмента сохранённой записи.'},
+                    offset={'type':'integer','minimum':0,'maximum':16000,'description':'Начальный символ для точного чтения длинного текста.'},
+                    length={'type':'integer','minimum':100,'maximum':6000,'description':'Длина фрагмента, оригинал остаётся в хранилище.'})
         return tools
 
     descriptions = schemas
 
     def _validate(self, spec, args):
-        if not isinstance(args, dict) or set(args) - {spec.argument, "limit"} or spec.argument not in args:
+        permitted = {spec.argument, 'limit'} | ({'focus','offset','length'} if spec.source=='evidence_get' else set())
+        if not isinstance(args, dict) or set(args) - permitted or spec.argument not in args:
             raise ValueError("Аргументы не соответствуют зарегистрированной схеме.")
         value = args[spec.argument]
         if not isinstance(value, str) or not value.strip() or len(value) > spec.max_length or any(ord(char) < 32 for char in value):
@@ -245,6 +284,11 @@ class ToolRegistry:
             elif spec.source == "evidence_get":
                 if not re.fullmatch(r"ev_[a-f0-9]{20}", value):
                     raise ValueError("Укажите точный идентификатор находки.")
+                if 'focus' in args and (not isinstance(args['focus'],str) or len(args['focus'])>300 or any(ord(c)<32 for c in args['focus'])):
+                    raise ValueError('Некорректная тема фрагмента.')
+                for field,low,high in (('offset',0,16000),('length',100,6000)):
+                    if field in args and (type(args[field]) is not int or not low<=args[field]<=high):
+                        raise ValueError('Некорректный диапазон фрагмента.')
             elif spec.source == "ip_lookup":
                 try:
                     address = ipaddress.ip_address(value)
@@ -299,6 +343,10 @@ class ToolRegistry:
             envelope.update(status="complete" if record else "empty", results=[record] if record else [],
                             result_count=1 if record else 0, sources=record.get("sources", []) if record else [],
                             limitations=["Получена сохранённая находка; новый сетевой запрос не выполнялся."] if record else ["Такой находки нет в текущем диалоге."])
+            envelope['context_selection'] = {key:args[key] for key in ('focus','offset','length') if key in args}
+            with self._lock:
+                self._last_executions[spec.name]={'status':envelope['status'],'obtained_at':when,
+                    'result_count':len(envelope['results']),'error_code':'','kind':'local_record'}
             return envelope
         if cancelled.is_set():
             envelope["status"] = "cancelled" if cancel_event and cancel_event.is_set() else "timeout"
@@ -326,6 +374,7 @@ class ToolRegistry:
         def event(row):
             if isinstance(row, dict) and row.get("event") == "result":
                 receive(row.get("result"))
+        outcome=None
         try:
             if spec.source == "web_read":
                 # Search evidence is the URL authority. The model cannot invent
@@ -347,7 +396,7 @@ class ToolRegistry:
             for raw in outcome.get("results", [])[:limit] if isinstance(outcome.get("results"), list) else []:
                 receive(raw)
             status = str(outcome.get("status", "error"))
-            allowed = {"complete", "completed", "partial", "empty", "error", "timeout", "cancelled", "unavailable", "auth_required", "blocked", "limit_reached"}
+            allowed = {"complete", "completed", "partial", "empty", "error", "timeout", "cancelled", "unavailable", "auth_required", "blocked", "limit_reached", "rate_limited"}
             envelope["status"] = status if status in allowed else "error"
             if spec.source == 'web_read' and outcome.get('error'):
                 envelope['error'] = str(outcome['error'])[:80]
@@ -373,4 +422,9 @@ class ToolRegistry:
         envelope["result_count"] = len(records)
         envelope["limitations"].append("Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность.")
         self.evidence.add(envelope)
+        error_code = redact(str(outcome.get('error_code') or (outcome.get('error') if spec.source=='web_read' else '') or ''), self._redactions) if isinstance(outcome,dict) else ''
+        if not re.fullmatch(r'[a-zA-Z0-9_.:-]{1,80}',error_code):error_code=''
+        with self._lock:
+            self._last_executions[spec.name]={'status':envelope['status'],'obtained_at':envelope['obtained_at'],
+                'result_count':len(envelope['results']),'error_code':error_code, 'kind':'source_request'}
         return envelope

@@ -42,13 +42,43 @@ def _external_spawn(command, **kwargs):
 def tool_root(options=None):
     options = options or {}
     supplied = options.get("source_root") or options.get("tools_root")
-    candidates = [Path(supplied)] if supplied else []
+    # An explicit path is authoritative: silently falling back to another
+    # checkout masks bad settings and can run the wrong vendor version.
+    if supplied:
+        return Path(supplied).expanduser().resolve()
+    candidates = []
     candidates.extend([Path(sys.executable).parent, Path(sys.executable).parent.parent,
                        Path(__file__).resolve().parents[2], Path.cwd()])
     for candidate in candidates:
         if any((candidate / folder).is_dir() for folder in VENDOR_DIRS.values()):
             return candidate.resolve()
     return candidates[0].resolve()
+
+
+def runtime_diagnostic(source, options=None):
+    """Local filesystem facts only; no import, account or network request."""
+    options = options or {}
+    root = tool_root(options)
+    source_path = root / VENDOR_DIRS.get(source, '')
+    python = python_runtime(source, options) if source in VENDOR_DIRS and source != 'phoneinfoga' else None
+    bridge = Path(options.get('phoneinfoga_bridge') or root / '.toolenvs/phoneinfoga/phoneinfoga-bridge.exe')
+    worker = Path(__file__).resolve().with_name('worker.py')
+    code, remedy = 'probe_required', 'Запустите безопасную проверку готовности.'
+    if source not in VENDOR_DIRS:
+        code, remedy = 'unknown_source', 'Выберите зарегистрированный источник.'
+    elif not source_path.is_dir():
+        code, remedy = 'missing_sources', 'Укажите папку, содержащую локальные исходники этого инструмента.'
+    elif source == 'phoneinfoga' and not bridge.is_file():
+        code, remedy = 'missing_bridge', 'Соберите PhoneInfoga bridge через scripts/setup_sources.py с установленным Go.'
+    elif source != 'phoneinfoga' and python is None:
+        code = 'invalid_interpreter' if options.get('runtime_python') else 'missing_runtime'
+        remedy = 'Исправьте путь к Python или подготовьте изолированное окружение scripts/setup_sources.py.'
+    elif source != 'phoneinfoga' and not worker.is_file():
+        code, remedy = 'missing_worker', 'Восстановите комплект приложения: отсутствует engine/worker.py.'
+    return {'code': code, 'remedy': remedy, 'source_root': str(root), 'source_path': str(source_path),
+            'runtime_path': str(bridge if source == 'phoneinfoga' else python or ''),
+            'worker_path': str(worker), 'frozen': bool(getattr(sys, 'frozen', False)),
+            'source_present': source_path.is_dir()}
 
 
 def python_runtime(source, options=None):

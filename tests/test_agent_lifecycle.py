@@ -126,6 +126,9 @@ def test_compaction_keeps_all_primary_evidence_and_reconstructs_valid_protocol()
     result = runner.run('fixture', HISTORY)
     assert len(result['evidence']) == 36 and result['investigation']['context_compactions'] > 0
     assert runner.checkpoint()['context_memory']
+    archive=runner.checkpoint()['protocol_archive']
+    assert sum(bool(row.get('tool_calls'))for row in archive)==36
+    assert sum(row.get('role')=='tool'for row in archive)==36
     for request in client.requests:
         assert len(request) <= 90
         pending = set()

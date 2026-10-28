@@ -54,7 +54,7 @@ class InvestigationJournal:
         allowed = ('version', 'id', 'record', 'messages', 'context_memory', 'pending_calls',
                    'pending_outcomes', 'call_cache', 'seen_call_ids', 'evidence', 'executions',
                    'failures', 'completed_steps', 'tried_queries', 'pending_work', 'plan',
-                   'registry_state', 'usage_requests', 'budget_reserved_tokens')
+                   'registry_state', 'usage_requests', 'budget_reserved_tokens', 'protocol_archive', 'sent_content')
         value = {key: checkpoint[key] for key in allowed if key in checkpoint}
         raw = json.dumps(value, ensure_ascii=False, separators=(',', ':'))
         for secret in secrets:
