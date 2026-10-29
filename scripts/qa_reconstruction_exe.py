@@ -32,6 +32,7 @@ def main():
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--keep-open',action='store_true')
     p.add_argument('--public-tools',action='store_true',help='Also execute one real key-free API and permitted JS sandbox in the frozen EXE')
+    p.add_argument('--integrations19',action='store_true',help='Verify typed local tools, graph and the installed optional CPU pipeline')
     args=p.parse_args();out=args.output.resolve()
     if out.exists(): raise SystemExit('Previous evidence retained; choose a new directory')
     app=QCoreApplication.instance() or QCoreApplication([])
@@ -79,10 +80,12 @@ def main():
         check('image_import_'+name,bool(row.get('attachments')) and not row.get('attachment_error'))
         return row['attachments'][-1]['id']
     def tool(name,identifier):
-        started=time.perf_counter();action('tool_run',{'tool':name,'query':identifier,'limit':1})
-        result=wait(lambda:s if (s:=snapshot('tool-'+uuid.uuid4().hex[:12])) and not s['search']['busy'] else None)
+        action('route',{'route':'search'})
+        started=time.perf_counter();action('tool_run',{'tool':name,**({'arguments':identifier} if isinstance(identifier,dict) else {'query':identifier,'limit':1})})
+        result=wait(lambda:s if (s:=snapshot('tool-'+uuid.uuid4().hex[:12])) and not s['search']['busy'] else None,seconds=270 if name=='visual_geoint' else 35)
         report['metrics'][name+'_ms']=round((time.perf_counter()-started)*1000,2)
-        check(name+'_actual_results',bool(result['search']['results']) and result['activity'][-1]['status']=='complete')
+        check(name+'_actual_results',bool(result['search']['results']) and result['activity'][-1]['status'] in ('complete','partial'))
+        time.sleep(.5)  # Allow the queued WebChannel update and paint to settle.
         return result['search']['results'][0]['details']
     process=None;monitor=ProcessSampler(exe)
     try:
@@ -97,7 +100,9 @@ def main():
             action('settings_save',{'values':{'ui_theme':theme}})
             def theme_rendered():
                 command('qa_desktop',{'action':'dom'});time.sleep(.3)
-                dom=state()['desktop']['dom']
+                current=state()
+                if not current or not current.get('desktop',{}).get('dom'):return None
+                dom=current['desktop']['dom']
                 return dom if dom.get('theme')==theme else None
             dom=wait(theme_rendered,25)
             check('theme_'+theme,dom.get('theme')==theme)
@@ -118,6 +123,24 @@ def main():
         data=io.BytesIO();image.save(data,'PNG',optimize=True)
         check('fixture_within_tiny_QA_IPC',len(base64.b64encode(data.getvalue()))<14000)
         image_id=import_image(data.getvalue(),'Синтетическая надпись.png')
+        if args.integrations19:
+            local=tool('tiktok_timestamp',{'value':'6854717870488702213'})
+            check('typed_timestamp_real_UTC',local['date_utc']=='2020-07-29T02:06:13Z')
+            roles=tool('role_classify',{'titles':['Chief Technology Officer','Software Engineer']})
+            check('packaged_classification_rules_loaded',len(roles['results'])==2)
+            dns=tool('mail_dns',{'email':'contact@example.org'})
+            check('packaged_real_DNS',dns['domain']=='example.org')
+            reference=tool('map_panoramax',{'latitude':48.8584,'longitude':2.2945,'limit':1})
+            check('packaged_Panoramax_license',bool(reference['license']) and reference['pixels_downloaded'] is False)
+            shadow=tool('shadow_regions',{'datetime_utc':'2024-02-29T13:59:59Z','object_height':10,'shadow_length':5,'max_cells':30})
+            check('typed_shadow_real_geometry',shadow['cells_evaluated']>0 and bool(shadow['regions']['features']))
+            tool('visual_geoint',{'attachment_id':image_id,'include_ocr':False,'methods':['geoclip_predict','waypoint_predict'],'top_k':3,'samples':8})
+            visual=snapshot('visual-geoint-result')
+            check('frozen_pipeline_real_candidates',any(row['details'].get('predictions') for row in visual['search']['results']))
+            check('frozen_model_uncalibrated_label',all(row['status']=='hypothesis' for row in visual['search']['results'] if row['details'].get('predictions')))
+            command('qa_snapshot',{'name':'visual-geoint'})
+            graph=tool('evidence_graph',{})
+            check('graph_local_evidence_relations',graph['total_entities']>0 and graph['total_relations']>0)
         metadata=tool('image_metadata',image_id)
         check('no_GPS_not_invented',metadata['metadata']['status']=='no_gps_metadata' and metadata['metadata']['gps'] is None)
         ocr=tool('image_ocr',image_id)

@@ -9,7 +9,12 @@
     "new_operations": 16,
     "new_operations_ready_local": 15,
     "new_operations_default_disabled": 1,
-    "projects_real_agent_tested": 8
+    "projects_real_agent_tested": 8,
+    "projects_full_selected_execution_verified": 9,
+    "projects_with_partial_archive_execution": 1,
+    "new_operations_available_to_agent": 15,
+    "projects_available_to_agent_default": 9,
+    "projects_actual_final_gui_operation_verified": 6
   },
   "projects": [
     {
@@ -226,7 +231,7 @@
       "reason": "Independent existing-normalizer + public DNS-over-HTTPS adapter. Does not install or claim entire MailAccess. No SMTP/account recovery/signup, mail, paid/Index/leak/stealer modules.",
       "implementation": "Independent adapter using shared Granger transport; no upstream code copied",
       "agent_integrated": true,
-      "packaged_verified": false,
+      "packaged_verified": true,
       "checked_at_utc": "2026-10-29T19:20:57.526059+00:00",
       "allowed_independent_modes": [
         "LOCAL_PYTHON",
@@ -917,7 +922,8 @@
         "DEPENDENCIES_VERIFIED",
         "INSTALLATION_SUCCESS",
         "PUBLIC_LIVE_VERIFIED",
-        "AGENT_INTEGRATED"
+        "AGENT_INTEGRATED",
+        "PACKAGED_VERIFIED"
       ]
     },
     {
@@ -970,14 +976,15 @@
       "execution_test": "LOCAL_EXECUTION_SUCCESS",
       "public_live_verified": false,
       "agent_integrated": true,
-      "packaged_verified": false,
+      "packaged_verified": true,
       "checked_at_utc": "2026-10-29T18:55:21.281277+00:00",
       "final_statuses": [
         "REPOSITORY_VERIFIED",
         "DEPENDENCIES_VERIFIED",
         "INSTALLATION_SUCCESS",
         "LOCAL_EXECUTION_SUCCESS",
-        "AGENT_INTEGRATED"
+        "AGENT_INTEGRATED",
+        "PACKAGED_VERIFIED"
       ]
     },
     {
@@ -1383,14 +1390,15 @@
       "execution_test": "LOCAL_EXECUTION_SUCCESS",
       "public_live_verified": false,
       "agent_integrated": true,
-      "packaged_verified": false,
+      "packaged_verified": true,
       "checked_at_utc": "2026-10-29T18:55:21.396785+00:00",
       "final_statuses": [
         "REPOSITORY_VERIFIED",
         "DEPENDENCIES_VERIFIED",
         "INSTALLATION_SUCCESS",
         "LOCAL_EXECUTION_SUCCESS",
-        "AGENT_INTEGRATED"
+        "AGENT_INTEGRATED",
+        "PACKAGED_VERIFIED"
       ]
     },
     {
@@ -1532,14 +1540,15 @@
       "execution_test": "LOCAL_EXECUTION_SUCCESS",
       "public_live_verified": false,
       "agent_integrated": true,
-      "packaged_verified": false,
+      "packaged_verified": true,
       "checked_at_utc": "2026-10-29T18:55:21.437471+00:00",
       "final_statuses": [
         "REPOSITORY_VERIFIED",
         "DEPENDENCIES_VERIFIED",
         "INSTALLATION_SUCCESS",
         "LOCAL_EXECUTION_SUCCESS",
-        "AGENT_INTEGRATED"
+        "AGENT_INTEGRATED",
+        "PACKAGED_VERIFIED"
       ]
     },
     {
@@ -1843,10 +1852,11 @@
         "DEPENDENCIES_VERIFIED",
         "INSTALLATION_SUCCESS",
         "LOCAL_EXECUTION_SUCCESS",
-        "AGENT_INTEGRATED"
+        "AGENT_INTEGRATED",
+        "PACKAGED_VERIFIED"
       ],
       "agent_integrated": true,
-      "packaged_verified": false
+      "packaged_verified": true
     },
     {
       "number": 19,
@@ -2142,17 +2152,130 @@
         "DEPENDENCIES_VERIFIED",
         "INSTALLATION_SUCCESS",
         "LOCAL_EXECUTION_SUCCESS",
-        "AGENT_INTEGRATED"
+        "AGENT_INTEGRATED",
+        "PACKAGED_VERIFIED"
       ],
       "agent_integrated": true,
-      "packaged_verified": false
+      "packaged_verified": true
     }
   ],
-  "packaging": "Final GUI/EXE QA pending. Historical model frozen runs are separately identified by SHA.",
+  "packaging": {
+    "final_exe_sha256": "1cb97070a6b48ac200dfe61b4791907af73a5c4c3b921be3719797e62ccb7aaf",
+    "final_exe_bytes": 276626083,
+    "actual_gui_checks": 56,
+    "actual_gui_passed": true,
+    "source_modules_matched": 88,
+    "resource_checks_passed": 137,
+    "limits": "Nuclei actual CLI/owned-loopback tested separately; X/Arctic historical live tests are source registry executions, not claimed as actual final-GUI source requests.",
+    "missing_models_standalone_smoke": true,
+    "proof": "output/integrations19/final-exe-ui/report.json",
+    "normal_smoke": "output/integrations19/final-binarysmoke.json",
+    "missing_models_smoke": "output/integrations19/final-no-models-smoke.json"
+  },
   "qa_report_locations": {
     "local_agent": "output/integrations19/agent-live-local-complete.json",
     "image_agent": "output/integrations19/agent-live-image-complete.json",
     "public_agent": "output/integrations19/agent-live-public19-validated.json",
     "visual_models": "output/integrations19/frozen-visual-final/report.json"
-  }
+  },
+  "tests": {
+    "python_passed": 1146,
+    "python_skipped": 1,
+    "python_subtests": 32,
+    "frontend_passed": 105,
+    "frontend_files": 13,
+    "final_schema_regression_passed": 77,
+    "full_suite_note": "Full suite1146 before the final two schema tests; final affected agent/manifest suite77 passed after the relevance correction."
+  },
+  "changed_files": [
+    "Granger-OSINT.spec",
+    "GrangerPet.spec",
+    "README.md",
+    "VALIDATION.md",
+    "docs/INTEGRATIONS19_FRONTEND.md",
+    "docs/INTEGRATIONS19_LOCAL.md",
+    "docs/INTEGRATIONS19_LOCAL_AUDIT.json",
+    "docs/INTEGRATIONS19_PANORAMAX.md",
+    "docs/INTEGRATIONS19_PUBLIC.md",
+    "docs/INTEGRATIONS19_PUBLIC_AUDIT.json",
+    "docs/INTEGRATIONS19_REPORT.json",
+    "docs/INTEGRATIONS19_REPORT.md",
+    "docs/INTEGRATIONS19_VISUAL_AUDIT.json",
+    "docs/INTEGRATIONS19_VISUAL_MODELS.md",
+    "docs/INTEGRATIONS19_VISUAL_PIPELINE.md",
+    "frontend/src/components/ConnectionSettings.tsx",
+    "frontend/src/components/LocalObservation.tsx",
+    "frontend/src/components/Search.tsx",
+    "frontend/src/components/Sources.tsx",
+    "frontend/src/components/StructuredToolFields.tsx",
+    "frontend/src/components/ToolCatalog.tsx",
+    "frontend/src/components/structured-tools.css",
+    "frontend/src/structured-tools.test.tsx",
+    "frontend/src/tool-presentation.ts",
+    "frontend/src/types.ts",
+    "grangerpet/agent.py",
+    "grangerpet/agent_evidence.py",
+    "grangerpet/agent_tools.py",
+    "grangerpet/config.py",
+    "grangerpet/desktop_bridge.py",
+    "grangerpet/engine/runtime.py",
+    "grangerpet/evidence_graph.py",
+    "grangerpet/geoint/images.py",
+    "grangerpet/integrations19/__init__.py",
+    "grangerpet/integrations19/_role_classifier.py",
+    "grangerpet/integrations19/classification_rules.json",
+    "grangerpet/integrations19/local_tools.py",
+    "grangerpet/integrations19/nuclei.py",
+    "grangerpet/integrations19/panoramax.py",
+    "grangerpet/integrations19/public_tools.py",
+    "grangerpet/integrations19/solar.py",
+    "grangerpet/message_view.py",
+    "grangerpet/tool_inputs.py",
+    "grangerpet/tool_manifest.py",
+    "grangerpet/visual_models/__init__.py",
+    "grangerpet/visual_models/installation.py",
+    "grangerpet/visual_models/manager.py",
+    "grangerpet/visual_models/manifest.json",
+    "grangerpet/visual_models/pipeline.py",
+    "grangerpet/visual_models/tools.py",
+    "grangerpet/visual_models/worker.py",
+    "main.py",
+    "resources/third-party/integrations19/ShadowFinder-LICENSE.txt",
+    "resources/third-party/integrations19/SunCalc-BSD-2-Clause.txt",
+    "resources/third-party/integrations19/linkedin-osint-toolkit-LICENSE.txt",
+    "resources/third-party/integrations19/provenance.json",
+    "resources/third-party/integrations19/suncalc-py-LICENSE.txt",
+    "resources/third-party/integrations19/tiktok-timestamp-LICENSE.txt",
+    "resources/third-party/visual-models/DINOv2-Apache-2.0.txt",
+    "resources/third-party/visual-models/DINOv2-large-registers-model-card.md",
+    "resources/third-party/visual-models/DISK-Apache-2.0.txt",
+    "resources/third-party/visual-models/GeoCLIP-MIT.txt",
+    "resources/third-party/visual-models/LightGlue-Apache-2.0.txt",
+    "resources/third-party/visual-models/NOTICE.md",
+    "resources/third-party/visual-models/OpenAI-CLIP-MIT.txt",
+    "resources/third-party/visual-models/PLONK-MIT.txt",
+    "resources/third-party/visual-models/PLONK-YFCC-model-card.md",
+    "resources/third-party/visual-models/Waypoint-MIT.txt",
+    "resources/third-party/visual-models/Waypoint-models-card.md",
+    "resources/third-party/visual-models/provenance.json",
+    "scripts/qa_agent_integrations19.py",
+    "scripts/qa_reconstruction_exe.py",
+    "scripts/qa_visual_models.py",
+    "scripts/setup_nuclei.py",
+    "scripts/setup_visual_runtime.py",
+    "scripts/verify_nuclei.py",
+    "scripts/verify_public19.py",
+    "tests/test_evidence_graph.py",
+    "tests/test_integrations19_local.py",
+    "tests/test_integrations19_nuclei.py",
+    "tests/test_integrations19_public.py",
+    "tests/test_panoramax.py",
+    "tests/test_registry_manifest.py",
+    "tests/test_tool_inputs.py",
+    "tests/test_visual_installation.py",
+    "tests/test_visual_pipeline.py",
+    "tests/test_visual_registry.py",
+    "tests/test_visual_worker.py"
+  ],
+  "agent_task_filtering_verified": true
 }

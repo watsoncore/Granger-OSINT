@@ -11,27 +11,27 @@ commit, исходникам, зависимостям и лицензиям. У
 по умолчанию. Локальная готовность не гарантирует доступность внешнего API.
 Существующие персональные подключения и gateway DeepSeek сохранены.
 
-| Проект | Проверен | Обязательный внешний доступ полного проекта | Подключённый бесплатный режим | Реальная проверка / ограничение |
-|---|---|---|---|---|
-| ScopeSentry | Да | MongoDB/Redis и plugin context; отдельный CT режим без ключа | Исключён | Standalone компонент не подтверждён; AGPL и дополнительные коммерческие условия. Свой DNS не выдаётся за ScopeSentry |
-| kronikier | Да | Не нужен ключ | `historical_contacts`, до3 архивных снимков | Настоящий snapshot HTTP200 дал исторический email; полная CDX-цепочка registry сталкивалась с timeout/503. Полный live успех не заявлен |
-| MailAccess | Да | Ключи для части account/breach/Pro модулей | `mail_dns`: синтаксис, MX/SPF/DMARC | Реальные DNS и evidence. Ящик, владелец, recovery, SMTP и платные функции не проверяются |
-| LinkedIn OSINT Toolkit | Да | LinkedIn login/cookies; optional Groq | `role_classify`, локальные keyword rules | Локальные тесты и настоящий вызов DeepSeek. Сбор LinkedIn и stealth не подключены |
-| Steam Monitor | Да | Steam Web API key | Исключён | Основной мониторинг требует ключ; независимая разрешённая операция не подтверждена |
-| x-scraper | Да | X account/session/cookies | Исключён | Нет проверенного полезного анонимного режима; ограничения лицензии также отражены в аудите |
-| X Tweet Fetcher | Да | Для выбранного FxTwitter API ключ не нужен | `x_post`, `x_profile` | Настоящие пост и профиль ранее получены; позднее профиль вернул честный empty. Поиск, timeline и replies не подключены |
-| insto | Да | Hiker API key или авторизованный aiograpi account | Исключён | Оба исследованных режима требуют внешний доступ |
-| Osintgraph | Да | Instagram login, Neo4j, Gemini | Исключён | Сбор/LLM backend не подключены. Собственный `evidence_graph` Granger не является интеграцией Osintgraph |
-| TokIntel | Да | Apify token/backend | Исключён | Основное получение TikTok-данных требует ключ; независимое полезное ядро не подтверждено |
-| Arctic Shift | Да | Не нужен персональный ключ | `arctic_posts`, `arctic_comments` | Настоящие ограниченные архивные результаты и evidence. Архив неполный; были временные ошибки API |
-| Bellingcat TikTok Date Extract | Да | Не нужен | `tiktok_timestamp` | Точное integer-вычисление UTC, unit и реальный агент. Время из ID не является независимой проверкой публикации |
-| Telegram Phone Number Checker | Да | API ID/hash и Telegram session | Исключён | Проверка требует account/contact-import; чужие адресные книги и контакты не трогались |
-| Instagram Location Search | Да | Instagram cookies | Исключён | Проверенный текущий режим требует авторизацию; анонимный доступ не подтверждён |
-| ShadowFinder | Да | Не нужен | `shadow_regions`, известные UTC/измерения | Реальная солнечная геометрия, reference vectors и DeepSeek. Неизвестные время/высота не угадываются |
-| Nuclei | Да | Не нужен ключ; нужны подтверждённые права на scope | Optional CLI3.11.1, один собственный HEAD-template | Реальный собственный loopback-сервер: ровно1 HEAD и отмена. Это наблюдение заголовков, не CVE-сканер; default off |
-| VKAnalysis | Да | VK token и старый photo/text stack | Исключён | Authenticated collector и legacy зависимости не подключены; полезный автономный режим не подтверждён |
-| GeoCLIP | Да | Не нужен ключ; отдельные CPU-веса | Настоящий GeoCLIP1.3.0 + CLIP ViT-L/14 | Реальные Москва/Париж/кадр без ориентиров, отмена и offline restart. Координаты — некалиброванные гипотезы |
-| Waypoint | Да | Ключ для Mapillary; выбранным стадиям не нужен | DINOv2+PLONK YFCC, DISK/LightGlue, отдельный Panoramax API | Настоящие ONNX CPU inference/matching и STAC records. StreetCLIP/OSV5M CC BY-NC исключены; весь Waypoint не переносился |
+| Инструмент | Проверен | Нужен API/логин | Бесплатный режим | Реализован | Live test | Причина исключения / граница |
+|---|---|---|---|---|---|---|
+| ScopeSentry | Да | Нет ключа | Исключён | Нет | Нет | Standalone компонент не подтверждён; AGPL и дополнительные коммерческие условия. Свой DNS не выдаётся за ScopeSentry |
+| kronikier | Да | Нет | `historical_contacts`, до3 архивных снимков | Выбранная capability | Snapshot200; CDX сбой | Настоящий snapshot HTTP200 дал исторический email; полная CDX-цепочка registry сталкивалась с timeout/503. Полный live успех не заявлен |
+| MailAccess | Да | Для Pro | `mail_dns`: синтаксис, MX/SPF/DMARC | Выбранная capability | Да; см. ограничения | Реальные DNS и evidence. Ящик, владелец, recovery, SMTP и платные функции не проверяются |
+| LinkedIn OSINT Toolkit | Да | Логин сбора | `role_classify`, локальные keyword rules | Выбранная capability | Локальный расчёт | Локальные тесты и настоящий вызов DeepSeek. Сбор LinkedIn и stealth не подключены |
+| Steam Monitor | Да | Steam key | Исключён | Нет | Нет | Основной мониторинг требует ключ; независимая разрешённая операция не подтверждена |
+| x-scraper | Да | X session | Исключён | Нет | Нет | Нет проверенного полезного анонимного режима; ограничения лицензии также отражены в аудите |
+| X Tweet Fetcher | Да | Нет (Fx API) | `x_post`, `x_profile` | Выбранная capability | Да; см. ограничения | Настоящие пост и профиль ранее получены; позднее профиль вернул честный empty. Поиск, timeline и replies не подключены |
+| insto | Да | Key/login | Исключён | Нет | Нет | Оба исследованных режима требуют внешний доступ |
+| Osintgraph | Да | Login/Gemini | Исключён | Нет | Нет | Сбор/LLM backend не подключены. Собственный `evidence_graph` Granger не является интеграцией Osintgraph |
+| TokIntel | Да | Apify key | Исключён | Нет | Нет | Основное получение TikTok-данных требует ключ; независимое полезное ядро не подтверждено |
+| Arctic Shift | Да | Нет | `arctic_posts`, `arctic_comments` | Выбранная capability | Да; см. ограничения | Настоящие ограниченные архивные результаты и evidence. Архив неполный; были временные ошибки API |
+| Bellingcat TikTok Date Extract | Да | Нет | `tiktok_timestamp` | Выбранная capability | Локальный расчёт | Точное integer-вычисление UTC, unit и реальный агент. Время из ID не является независимой проверкой публикации |
+| Telegram Phone Number Checker | Да | API/session | Исключён | Нет | Нет | Проверка требует account/contact-import; чужие адресные книги и контакты не трогались |
+| Instagram Location Search | Да | Cookies | Исключён | Нет | Нет | Проверенный текущий режим требует авторизацию; анонимный доступ не подтверждён |
+| ShadowFinder | Да | Нет | `shadow_regions`, известные UTC/измерения | Выбранная capability | Локальный расчёт | Реальная солнечная геометрия, reference vectors и DeepSeek. Неизвестные время/высота не угадываются |
+| Nuclei | Да | Нет | Optional CLI3.11.1, один собственный HEAD-template | Выбранная capability | CLI loopback | Реальный собственный loopback-сервер: ровно1 HEAD и отмена. Это наблюдение заголовков, не CVE-сканер; default off |
+| VKAnalysis | Да | VK token | Исключён | Нет | Нет | Authenticated collector и legacy зависимости не подключены; полезный автономный режим не подтверждён |
+| GeoCLIP | Да | Нет | Настоящий GeoCLIP1.3.0 + CLIP ViT-L/14 | Выбранная capability | CPU inference | Реальные Москва/Париж/кадр без ориентиров, отмена и offline restart. Координаты — некалиброванные гипотезы |
+| Waypoint | Да | Нет выбранным стадиям | DINOv2+PLONK YFCC, DISK/LightGlue, отдельный Panoramax API | Выбранная capability | CPU inference | Настоящие ONNX CPU inference/matching и STAC records. StreetCLIP/OSV5M CC BY-NC исключены; весь Waypoint не переносился |
 
 Полные первичные аудиты с SHA256 изученных файлов, лицензиями и exact commits:
 [локальные и авторизуемые проекты](INTEGRATIONS19_LOCAL_AUDIT.json),
@@ -92,7 +92,46 @@ downloads, ranking всех Panoramax снимков и исходный7-point 
 Есть DISK LightGlue и собственный8-point RANSAC. OSM и тени поступают из общих
 инструментов Granger, не выдаются за воспроизведение всех весов/стадий upstream.
 Полная численная эквивалентность PyTorch↔ONNX не заявляется; preprocessing,
-schedule, RNG и geometry проверены отдельно. Обучающие датасеты не поставляются.
+schedule, RNG и geometry проверены отдельно. Исходные фотографии обучающих датасетов не скачиваются и не поставляются. Для inference используется опубликованная внутри GeoCLIP wheel координатная GPS-gallery100k; она остаётся частью отдельного optional runtime, не EXE/Git/source ZIP.
 
-Завершающие результаты GUI/EXE, хеш итогового файла и точные тестовые счётчики
-фиксируются в VALIDATION.md после окончания проверки выпуска.
+Итоговая сборка: **276626083 байт**, SHA256 `1cb97070a6b48ac200dfe61b4791907af73a5c4c3b921be3719797e62ccb7aaf`.
+Python **1146 passed /1 skipped /32 subtests**; frontend **105/105**.
+Готовый EXE прошёл **56/56 GUI/tool/restart проверок**; Launcher/Pet smoke
+прошёл с PATH=System32. Сравнение bytecode подтвердило88 модулей,137 проверок
+ресурсов прошли. Персонаж и его исходные ассеты сохранены. В финальном GUI реально
+вызваны TikTok, classifier, DNS, Panoramax, ShadowFinder, Visual GEOINT, graph,
+EXIF/OCR, публичный GitHub API и JS renderer. X/Arctic и исторический snapshot
+проверены отдельно через source registry; их отдельное сетевое выполнение именно
+в финальном GUI не заявляется. Nuclei — отдельный owned-loopback CLI smoke.
+
+Реальные QA-отчёты упакованы в source ZIP только по публичному allowlist; профили,
+ключи, пользовательская история и зашифрованные вложения в архив не включаются.
+
+
+## Изменённые файлы
+
+- `grangerpet/agent_tools.py`, `tool_manifest.py`, `tool_inputs.py`, `agent.py`:
+  один реестр, типизированные аргументы, выбор релевантных инструментов, CPU timeout
+  и компактный контекст без отправки превью/пикселей в LLM.
+- `grangerpet/integrations19/`: локальные алгоритмы, публичные API, Panoramax
+  и restricted Nuclei; upstream приложения целиком не импортируются.
+- `grangerpet/visual_models/`: pinned manifest, согласованная загрузка/удаление,
+  изолированный CPU worker, manager и общий последовательный pipeline.
+- `evidence_graph.py`, `agent_evidence.py`, `geoint/images.py`: provenance,
+  связи, границы GeoJSON и доступ к выбранным защищённым вложениям.
+- `desktop_bridge.py`, `config.py`: существующие настройки, ручные structured
+  arguments и async состояния. `message_view.py`: lifetime контекст Qt timer,
+  чтобы callback не обращался к уже удалённому виджету.
+- `frontend/src/components/` и `tool-presentation.ts`, `types.ts`: формы по схемам,
+  карточки вычислений/графа/моделей, SVG координатная схема и optional runtime.
+- `main.py`, обе `.spec`: same-EXE child и необходимые stdlib/data resources.
+  `engine/runtime.py`: допустимый предел собственного Windows Job до8GB,
+  конкретный visual budget6GB; старые defaults не изменены.
+- `scripts/setup_*.py`, `scripts/qa_*.py`, `tests/test_*`, `docs/INTEGRATIONS19_*`,
+  `resources/third-party/`: установка, реальные и fixture проверки, аудит/лицензии.
+
+После полного прогона1146 тестов исправлен выбор X/изображений: завершающие77
+целевых agent/manifest/regression тестов прошли. Все88 модулей финального EXE
+совпадают с исходниками. Отдельная копия EXE без optional models/tools также
+прошла Launcher/Pet smoke. Простой реального model worker освободил процесс за
+20.07с; это проверено после inference. Настоящие runtime-файлы не удалялись.

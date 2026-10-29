@@ -1,20 +1,45 @@
-# Granger-OSINT — автономный публичный поиск и чат
+# Granger-OSINT — интеграции19 и CPU GEOINT
 
-Текущая сборка Windows x64: **275538501 байт**; SHA-256 `37fffea2c33bdd929503b15ed019020ecb7f5b25dc06891f1d0c323d98fb4ecf`.
+Дата:30 октября2026. Windows x64: **276626083 байт**; SHA256 `1cb97070a6b48ac200dfe61b4791907af73a5c4c3b921be3719797e62ccb7aaf`.
 
-- Python full **892 passed /1 skipped /32 subtests**,220.01 с; финальный узкий engine/source набор **157 passed**,50.79 с. Skip — необязательный живой Ollama.
-- Frontend **85/85**,12 файлов. Layout **304 случая /2992DOM-проверки**; это UI fixtures, не liveданные.
-- Готовый EXE **41/41**, включая реальный публичный API и JavaScript DOM из отдельного worker, OCR/GPS и restart. Launcher/Pet smoke успешен с PATH=System32.
-- CArchive **73 модуля** совпали с исходниками; **137 проверок ресурсов** прошли. Все **12 защищённых ресурсов персонажа** неизменны.
-- В `solvnox` key-free search получены 3 реальные записи GitHub/HN, без объединения владельцев. Новых адаптеров с живой проверкой 7; рабочий реестр 32, локально готовы 28.
-- DeepSeek production agent:2 запроса/1tool_call,6583 токена, evidence в 13checkpoint-записях; sourcekeys не использовались.
-- Start.me403:0 извлечённых href, весь каталог не заявлен обработанным. Рассмотрены 153 пункта текста,113 уникальных явныхURL проверены.
+- Python: **1146 passed,1 skipped,32 subtests**,229.04с. Skip — optional live Ollama.
+- Дополнительный завершающий regression выбора schemas: см. `output/integrations19/relevance-final-tests.log`; фото учитывается по capability выбранного вложения, X profile/post предлагаются по естественному запросу.
+- Frontend: **105 passed /13 файлов**; TypeScript/Vite production build прошёл.
+- Actual final GUI EXE: **56/56** проверок; реальные EXIF/OCR, TikTok, classifier,
+  DNS, Panoramax, ShadowFinder, обе модели в pipeline, граф, четыре темы и restart.
+- Launcher/Pet smoke с PATH=System32 прошёл. **88 модулей** соответствуют
+  source bytecode, **137 проверок ресурсов** прошли; персонаж не перерабатывался.
+- Реальные GeoCLIP/Waypoint CPU inference на двух известных фото и кадре неба,
+  DISK/LightGlue matching, cancellation/restart прошли в отдельном frozen worker.
+  Benchmark SHA конкретного запуска хранится в отчёте и отличается от позднего
+  финального GUI EXE, который отдельно выполнил оба inference в pipeline.
+-19 репозиториев проверены,9 исключены,10 дали выбранные no-key возможности.
+  Реестр48;43 локально готовы. Новых операций16,15 готовы; Nuclei default off.
+- Реальный DeepSeek: local tools, Visual GEOINT+graph и public calls; ключи новых
+  источников не использовались. Empty X response честно сохранён без evidence.
+- Nuclei3.11.1: SHA проверены, собственный loopback HEAD ровно1 запрос и cancel
+  прошли. Действия по чужим целям не выполнялись. Это не полноценный CVE scanner.
+- Runtime загрузка3375375772B, установленный каталог4180888934B; CPU-only,
+  main Python не менялся. Отдельный runtime не входит в source ZIP или core EXE.
 
-Команда: `.venv\Scripts\python.exe -m PyInstaller --noconfirm Granger-OSINT.spec`; frontend `npm.cmd run build`.
+[Полная таблица19 и ограничения](docs/INTEGRATIONS19_REPORT.md),
+[JSON стадий](docs/INTEGRATIONS19_REPORT.json),
+[модели/лицензии](docs/INTEGRATIONS19_VISUAL_AUDIT.json),
+[публичные источники](docs/INTEGRATIONS19_PUBLIC.md).
 
-Полный отчёт, конкретные URL, методы, файлы и ограничения: [docs/RELEASE_AUTONOMOUS_SEARCH.md](docs/RELEASE_AUTONOMOUS_SEARCH.md). Аудит всех 153 пунктов: [OSINT4ALL](docs/OSINT4ALL_AUDIT.md). Gitpublication и rawQA: `output/autonomous-qa/` внутри sourceZIP, только явно выбранные публичные файлы.
+Ограничения: CDX Wayback timeout/503 (один raw snapshot реально прочитан);
+X/FxTwitter и Arctic могут временно вернуть empty/errors; Overpass ранее timeout.
+GeoCLIP/PLONK не дают калиброванной вероятности и не гарантируют улицу/дом.
+Panoramax возвращает metadata/asset links, без автоматического массового ranking.
+Matching проверен на одинаковом фото, не на независимом street-level снимке.
+Full PyTorch↔ONNX parity не заявляется. Удаление моделей отказывает при неизвестных
+файлах или неподтверждённой принадлежности; незавершённые загрузки сохраняются
+для resume. Физический DPI/другие ОС и новый непрерывный мониторинг не проверялись.
 
-Ограничения: Archive search исключён после двухtimeout; Overpass live timeout; genericrenderer не исполняет произвольный сетевойJS; дополнительный физический DPI и другие ОС не проверены. Поиск публичных источников не равен полному глобальному индексу. Пользовательские данные не удалялись, системные и чужие настройки не изменялись.
+## Исторические измерения производительности предыдущего обновления
+
+Следующая таблица сохранена как прежний baseline; ускорение интерфейса этим
+обновлением не заявляется.
 
 ## Производительность
 
@@ -40,6 +65,7 @@
 Текущая Windows x64 сборка: **275 475 620 байт**, SHA-256 `191bf4f33a968e5f30c9235abed821a5338c3f3af875cd00a6c97c7bde59afbe`. Успешная команда: `.venv\Scripts\python.exe -m PyInstaller --noconfirm Granger-OSINT.spec`; frontend: `npm.cmd run build`.
 
 - Python full: **818 passed, 1 skipped, 32 subtests**, 177.31 с. Единственный skip — необязательный живой Ollama. После full collection финальные узкие изменения проверены отдельно: **66 passed** (координаты/адаптеры) и **56 passed** (манифесты/GEOINT).
+- Дополнительный завершающий regression выбора schemas: см. `output/integrations19/relevance-final-tests.log`; фото учитывается по capability выбранного вложения, X profile/post предлагаются по естественному запросу.
 - Frontend: **78/78**, 11 файлов; TypeScript/Vite build успешен.
 - Настоящий EXE: **36/36** проверок, включая restart и зашифрованные вложения; отдельный launcher/Pet smoke с PATH=System32 — **passed**, exit=0.
 - Реальный CArchive: **69 модулей** совпадают с исходниками, **137 проверок ресурсов** пройдены. **12 исходных ресурсов персонажа** не изменены.
@@ -99,6 +125,7 @@
 ## Автоматические проверки 3.1
 
 - Python: **636 passed, 1 skipped, 32 subtests passed**, 90,35 с. Единственный пропуск — локальный Ollama не запущен; установка/загрузка ради проверки не выполнялись. Итоговый лог: `output/refinement-qa/tests-release-verified.log`.
+- Дополнительный завершающий regression выбора schemas: см. `output/integrations19/relevance-final-tests.log`; фото учитывается по capability выбранного вложения, X profile/post предлагаются по естественному запросу.
 - Frontend: **53 passed**, 7 файлов; финальная TypeScript/Vite-сборка успешна. Лог: `output/refinement-qa/frontend-package-tests.log`.
 - Регрессии включают readiness и диагностику frozen-путей, реальные HTTP-границы установленного VK wrapper, ошибки/кеш баланса, формат tool calls/results, сохранность evidence, DPAPI-миграцию, отказы записи архива, отмену и запоздалые события, видимость сообщений и непрочитанные состояния.
 - Ошибки промежуточных кандидатов сохранены локально и перечислены в `candidate-findings.json`; исправленный финальный прогон приведён отдельно. Зелёный unit/fixture-тест не считается подтверждением внешнего аккаунта.
@@ -220,6 +247,7 @@ HTTP-reader не исполняет JavaScript и не обходит CAPTCHA, �
 ## Автоматические проверки
 
 - Python: **539 passed, 1 skipped, 32 subtests passed**, 80,94 с. Единственный пропуск — локальный Ollama не запущен; он не установлен и не загружался ради проверки. Лог: `output/upgrade-qa/tests-verified.log`.
+- Дополнительный завершающий regression выбора schemas: см. `output/integrations19/relevance-final-tests.log`; фото учитывается по capability выбранного вложения, X profile/post предлагаются по естественному запросу.
 - Frontend: **33 passed**, 5 файлов; TypeScript/Vite build успешен. В числе проверок — задержанные на 65 с экспорт/подтверждение инструмента и их отмена, штатный 30-секундный deadline других действий, ошибки bridge и отсутствие мнимого подключения вне desktop.
 - Agent fixtures проходят **18 вызовов / 19 модельных раундов** сверх старых 10/14 ограничений и отдельный 36-этапный сценарий сжатия. Это контролируемые fixtures, не оплаченный live-запуск такой длины.
 - Resume проверяет готовые и ожидающие вызовы, cache/deduplication, неизменный пользовательский бюджет, прерванный dispatch и no-progress guard. Неизвестный исход уже отправленного вызова не изображается успешным и не повторяется молча.
