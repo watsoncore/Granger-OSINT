@@ -63,3 +63,10 @@ npm run build
 ```
 
 The generated `dist/` must be included in the desktop build. A standalone browser can display the UI but explicitly reports that Python is disconnected; it does not simulate working chat/tools. UI fixtures in tests are isolated and are never shipped as live state. Native host/EXE, DPI, live API, tool execution and notification QA are recorded in the main project report.
+
+
+## 3.1 performance follow-up — long transcripts
+
+An isolated 1000-message fixture exposed excessive mounted Markdown/Motion/Radix rows and high resource use in the real pre-optimization EXE. Added pinned `@tanstack/react-virtual` 3.14.23 (MIT) only for conversations above 100 messages. Its headless viewport keeps existing styles and all records; dynamic heights, overscan, scroll-to-index and source/notification IDs remain under application control. No global GPU switch, runtime CDN or remote UI dependency. Native before/after results and limitations are in `docs/PERFORMANCE_3.1.md`. Native browser find can inspect only mounted rows; the complete transcript remains available by scrolling and in DPAPI/export.
+
+Primary sources inspected on 29 October 2026: [React adapter](https://tanstack.com/virtual/latest/docs/framework/react/react-virtual), [virtualizer API](https://tanstack.com/virtual/latest/docs/api/virtualizer), [upstream MIT license](https://github.com/TanStack/virtual/blob/main/LICENSE). Locked transitive license text is generated into the bundled third-party notices.

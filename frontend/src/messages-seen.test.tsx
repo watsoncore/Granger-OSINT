@@ -44,19 +44,19 @@ describe('unread acknowledgement from visible content', () => {
     expect(act).not.toHaveBeenCalled()
   })
   it('retains the observer and does no old-row DOM lookups for streaming updates', () => {
-    const messages = Array.from({ length: 100 }, (_, index) => ({ id: `m${index}`, role: 'model' as const, text: `Ответ ${index}` }))
+    const messages = Array.from({ length: 80 }, (_, index) => ({ id: `m${index}`, role: 'model' as const, text: `Ответ ${index}` }))
     const streaming = { id: 'stream', role: 'model' as const, text: 'Начало', streaming: true }
     const state = { ...emptyState, conversation_id: 'conversation', window: { ...emptyState.window, active: true }, messages: [...messages, streaming] }
     const { container, rerender, unmount } = render(<Tooltip.Provider><Chat {...props} state={state}/></Tooltip.Provider>)
-    expect(observe).toHaveBeenCalledTimes(100)
+    expect(observe).toHaveBeenCalledTimes(80)
     const scroll = container.querySelector('.chat-scroll')!
     const queries = vi.spyOn(scroll, 'querySelector')
     rerender(<Tooltip.Provider><Chat {...props} state={{ ...state, messages: [...messages, { ...streaming, text: 'Продолжение' }] }}/></Tooltip.Provider>)
     expect(queries).not.toHaveBeenCalled()
-    expect(observe).toHaveBeenCalledTimes(100)
+    expect(observe).toHaveBeenCalledTimes(80)
     expect(disconnect).not.toHaveBeenCalled()
     rerender(<Tooltip.Provider><Chat {...props} state={{ ...state, messages: [...messages, { ...streaming, text: 'Готово', streaming: false }] }}/></Tooltip.Provider>)
-    expect(observe).toHaveBeenCalledTimes(101)
+    expect(observe).toHaveBeenCalledTimes(81)
     unmount()
     expect(disconnect).toHaveBeenCalledOnce()
   })
