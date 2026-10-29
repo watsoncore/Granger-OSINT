@@ -2280,5 +2280,7 @@
     "tests/test_visual_registry.py",
     "tests/test_visual_worker.py"
   ],
-  "agent_task_filtering_verified": true
+  "agent_task_filtering_verified": true,
+  "runtime_installed_bytes": 4180888934,
+  "runtime_download_bytes": 3375375772
 }
