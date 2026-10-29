@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { SourceInspector, isReadSource, sourceLabel } from './components/Sources'
+import { SourceDialog, SourceInspector, isReadSource, sourceLabel } from './components/Sources'
 import { SettingsWorkspace } from './components/Settings'
 import { emptyState, type Source } from './types'
 import { applyTheme, restoreTheme, themes } from './themes'
@@ -14,6 +14,17 @@ describe('truthful current task source inspector', () => {
   it('labels actual image metadata without claiming the photograph is authenticated or geolocated', () => {
     expect(sourceLabel(source('pixels',{kind:'image',status:'metadata'}))).toBe('Локальные данные изображения получены')
     expect(isReadSource(source('pixels',{kind:'image',status:'metadata'}))).toBe(false)
+  })
+  it.each([
+    ['metadata_error', 'Не удалось прочитать GPS-метаданные'],
+    ['no_gps_metadata', 'GPS отсутствует'],
+    ['invalid_gps_metadata', 'Некорректные GPS-поля'],
+  ])('distinguishes %s from a confirmed absence of GPS in the evidence dialog', (status, label) => {
+    render(<Tooltip.Provider><SourceDialog source={source('pixels', {
+      kind: 'image', status: 'metadata', details: { metadata: { status, gps: null } },
+    })} onClose={() => {}}/></Tooltip.Provider>)
+    expect(screen.getByText(label)).toBeInTheDocument()
+    if (status !== 'no_gps_metadata') expect(screen.queryByText('GPS отсутствует')).toBeNull()
   })
   beforeEach(() => vi.clearAllMocks())
   it('does not confuse search snippets, shell pages, errors or discovered URLs with read content', () => {

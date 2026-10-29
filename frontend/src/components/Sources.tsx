@@ -35,11 +35,16 @@ function GeoObservation({ source }: { source: Source }) {
   const data = source.details || {}
   const metadata = data.metadata as Record<string, unknown> | undefined
   const gps = metadata?.gps as Record<string, unknown> | null | undefined
+  const gpsLabel = gps && typeof gps.latitude === 'number' && typeof gps.longitude === 'number'
+    ? `${gps.latitude}, ${gps.longitude}`
+    : metadata?.status === 'no_gps_metadata' ? 'GPS отсутствует'
+    : metadata?.status === 'invalid_gps_metadata' ? 'Некорректные GPS-поля'
+    : 'Не удалось прочитать GPS-метаданные'
   const image = data.image as Record<string, unknown> | undefined
   const segments = Array.isArray(data.segments) ? data.segments as Record<string, unknown>[] : []
   return <section className="geoint-observation" aria-label="Результат GEOINT-инструмента"><h3>Полученные данные</h3><dl className="details-list">
     {image && <><div><dt>Изображение</dt><dd>{String(image.width)} × {String(image.height)} · {String(image.format)}</dd></div><div><dt>SHA-256</dt><dd className="monospace">{String(image.sha256)}</dd></div></>}
-    {metadata && <div><dt>GPS из метаданных</dt><dd>{gps && typeof gps.latitude === 'number' && typeof gps.longitude === 'number' ? `${gps.latitude}, ${gps.longitude}` : metadata.status === 'invalid_gps_metadata' ? 'Некорректные GPS-поля' : 'GPS отсутствует'}<small>Метаданные могут быть изменены; подлинность не подтверждена.</small></dd></div>}
+    {metadata && <div><dt>GPS из метаданных</dt><dd>{gpsLabel}<small>Метаданные могут быть изменены; подлинность не подтверждена.</small></dd></div>}
     {typeof data.duration_ms === 'number' && <div><dt>Обработка</dt><dd>{data.duration_ms.toLocaleString('ru-RU')} мс</dd></div>}
   </dl>{segments.length > 0 && <details><summary>Распознанные области · {segments.length}</summary><div className="markdown-table"><table><thead><tr><th>Текст</th><th>Уверенность OCR</th><th>Область</th></tr></thead><tbody>{segments.slice(0,20).map((segment,index) => <tr key={index}><td>{String(segment.text || '')}</td><td>{typeof segment.confidence === 'number' ? `${Math.round(segment.confidence * 100)}%` : 'Нет оценки'}</td><td>{Array.isArray(segment.bbox) ? segment.bbox.join(', ') : ''}</td></tr>)}</tbody></table></div>{segments.length > 20 && <p>Первые20 областей. Полный результат сохранён в доказательстве.</p>}</details>}</section>
 }

@@ -66,7 +66,12 @@ def manifest(spec):
         {'type':'object','required':['invocation_id','tool_id','status','started_at','finished_at','data','evidence_ids','warnings','errors']},
         mode,auth,('explicit_user_approval',) if spec.requires_approval else ('public_read_only',),
         'none' if spec.kind in ('image','evidence') else 'public HTTPS',
-        'Provider-specific bounded requests; global maximum two worker requests; no automatic retries for paid requests.',
+        ('Local processing; no network requests.' if spec.kind in ('image','evidence') else
+         'Public integrations share two worker slots; per-service rate gates and a five-minute cache.'
+         if spec.source in ('github_repository','threat_feodo','hash_virustotal') else
+         'Mapping clients share a per-service rate gate and bounded cache.'
+         if spec.kind=='coordinates' or spec.source=='map_geocode' else
+         'Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.'),
         (spec.name,),url,url)
 
 
