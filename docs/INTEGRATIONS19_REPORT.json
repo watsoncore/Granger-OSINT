@@ -2160,17 +2160,17 @@
     }
   ],
   "packaging": {
-    "final_exe_sha256": "1cb97070a6b48ac200dfe61b4791907af73a5c4c3b921be3719797e62ccb7aaf",
-    "final_exe_bytes": 276626083,
-    "actual_gui_checks": 56,
+    "final_exe_sha256": "3a3fabd4db0d5388956fccc3b2d5b3bdf0cf2aa5658b73774202567466641ccf",
+    "final_exe_bytes": 276626324,
+    "actual_gui_checks": 58,
     "actual_gui_passed": true,
     "source_modules_matched": 88,
     "resource_checks_passed": 137,
     "limits": "Nuclei actual CLI/owned-loopback tested separately; X/Arctic historical live tests are source registry executions, not claimed as actual final-GUI source requests.",
     "missing_models_standalone_smoke": true,
-    "proof": "output/integrations19/final-exe-ui/report.json",
-    "normal_smoke": "output/integrations19/final-binarysmoke.json",
-    "missing_models_smoke": "output/integrations19/final-no-models-smoke.json"
+    "proof": "output/integrations19/delivery-exe-ui/report.json",
+    "normal_smoke": "output/integrations19/delivery-binarysmoke.json",
+    "missing_models_smoke": "output/integrations19/delivery-no-models-smoke.json"
   },
   "qa_report_locations": {
     "local_agent": "output/integrations19/agent-live-local-complete.json",
@@ -2179,13 +2179,15 @@
     "visual_models": "output/integrations19/frozen-visual-final/report.json"
   },
   "tests": {
-    "python_passed": 1146,
+    "python_passed": 1150,
     "python_skipped": 1,
     "python_subtests": 32,
     "frontend_passed": 105,
     "frontend_files": 13,
     "final_schema_regression_passed": 77,
-    "full_suite_note": "Full suite1146 before the final two schema tests; final affected agent/manifest suite77 passed after the relevance correction."
+    "full_suite_note": "Quiet full suite after every final source change:1150 passed,1 optional live Ollama skipped,32 subtests;229.35s.",
+    "final_model_status_regression_passed": 76,
+    "renderer_isolated_passed": 29
   },
   "changed_files": [
     "Granger-OSINT.spec",
@@ -2265,6 +2267,7 @@
     "scripts/setup_visual_runtime.py",
     "scripts/verify_nuclei.py",
     "scripts/verify_public19.py",
+    "tests/test_desktop_bridge.py",
     "tests/test_evidence_graph.py",
     "tests/test_integrations19_local.py",
     "tests/test_integrations19_nuclei.py",

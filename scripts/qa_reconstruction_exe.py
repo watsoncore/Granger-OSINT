@@ -124,6 +124,8 @@ def main():
         check('fixture_within_tiny_QA_IPC',len(base64.b64encode(data.getvalue()))<14000)
         image_id=import_image(data.getvalue(),'Синтетическая надпись.png')
         if args.integrations19:
+            installed=snapshot('installed-model-readiness')['visual_models']
+            check('installed_model_readiness_persisted',installed['available'] and installed['state']=='ready')
             local=tool('tiktok_timestamp',{'value':'6854717870488702213'})
             check('typed_timestamp_real_UTC',local['date_utc']=='2020-07-29T02:06:13Z')
             roles=tool('role_classify',{'titles':['Chief Technology Officer','Software Engineer']})
@@ -178,6 +180,9 @@ def main():
             return state()['desktop']['dom'].get('theme')=='mono'
         wait(restored_theme)
         check('saved_theme_restored_after_restart',True)
+        if args.integrations19:
+            ready=snapshot('model-readiness-after-restart')['visual_models']
+            check('verified_models_ready_after_EXE_restart',ready['available'] and ready['state']=='ready')
         check('encrypted_images_preserved_after_restart',ciphertext_before=={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in encrypted})
         same_id=import_image(data.getvalue(),'synthetic-gps.jpg')
         check('same_encrypted_image_reopens_after_restart',same_id==gps_id)

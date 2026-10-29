@@ -94,9 +94,9 @@ downloads, ranking всех Panoramax снимков и исходный7-point 
 Полная численная эквивалентность PyTorch↔ONNX не заявляется; preprocessing,
 schedule, RNG и geometry проверены отдельно. Исходные фотографии обучающих датасетов не скачиваются и не поставляются. Для inference используется опубликованная внутри GeoCLIP wheel координатная GPS-gallery100k; она остаётся частью отдельного optional runtime, не EXE/Git/source ZIP.
 
-Итоговая сборка: **276626083 байт**, SHA256 `1cb97070a6b48ac200dfe61b4791907af73a5c4c3b921be3719797e62ccb7aaf`.
-Python **1146 passed /1 skipped /32 subtests**; frontend **105/105**.
-Готовый EXE прошёл **56/56 GUI/tool/restart проверок**; Launcher/Pet smoke
+Итоговая сборка: **276626324 байт**, SHA256 `3a3fabd4db0d5388956fccc3b2d5b3bdf0cf2aa5658b73774202567466641ccf`.
+Python **1150 passed /1 skipped /32 subtests**; frontend **105/105**.
+Готовый EXE прошёл **58/58 GUI/tool/restart проверок**; Launcher/Pet smoke
 прошёл с PATH=System32. Сравнение bytecode подтвердило88 модулей,137 проверок
 ресурсов прошли. Персонаж и его исходные ассеты сохранены. В финальном GUI реально
 вызваны TikTok, classifier, DNS, Panoramax, ShadowFinder, Visual GEOINT, graph,
@@ -130,8 +130,7 @@ EXIF/OCR, публичный GitHub API и JS renderer. X/Arctic и истори
 - `scripts/setup_*.py`, `scripts/qa_*.py`, `tests/test_*`, `docs/INTEGRATIONS19_*`,
   `resources/third-party/`: установка, реальные и fixture проверки, аудит/лицензии.
 
-После полного прогона1146 тестов исправлен выбор X/изображений: завершающие77
-целевых agent/manifest/regression тестов прошли. Все88 модулей финального EXE
+Полный финальный прогон после исправления выбора X/изображений и статусов моделей:1150 тестов прошли,1 optional Ollama пропущен. Дополнительные77 и76 целевых regression проверок также прошли. Все88 модулей финального EXE
 совпадают с исходниками. Отдельная копия EXE без optional models/tools также
 прошла Launcher/Pet smoke. Простой реального model worker освободил процесс за
 20.07с; это проверено после inference. Настоящие runtime-файлы не удалялись.

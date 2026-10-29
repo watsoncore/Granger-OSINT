@@ -1,11 +1,11 @@
 # Granger-OSINT — интеграции19 и CPU GEOINT
 
-Дата:30 октября2026. Windows x64: **276626083 байт**; SHA256 `1cb97070a6b48ac200dfe61b4791907af73a5c4c3b921be3719797e62ccb7aaf`.
+Дата:30 октября2026. Windows x64: **276626324 байт**; SHA256 `3a3fabd4db0d5388956fccc3b2d5b3bdf0cf2aa5658b73774202567466641ccf`.
 
-- Python: **1146 passed,1 skipped,32 subtests**,229.04с. Skip — optional live Ollama.
+- Python: **1150 passed,1 skipped,32 subtests**,229.35с. Skip — optional live Ollama.
 - Дополнительный завершающий regression выбора schemas: см. `output/integrations19/relevance-final-tests.log`; фото учитывается по capability выбранного вложения, X profile/post предлагаются по естественному запросу.
 - Frontend: **105 passed /13 файлов**; TypeScript/Vite production build прошёл.
-- Actual final GUI EXE: **56/56** проверок; реальные EXIF/OCR, TikTok, classifier,
+- Actual final GUI EXE: **58/58** проверок; реальные EXIF/OCR, TikTok, classifier,
   DNS, Panoramax, ShadowFinder, обе модели в pipeline, граф, четыре темы и restart.
 - Launcher/Pet smoke с PATH=System32 прошёл. **88 модулей** соответствуют
   source bytecode, **137 проверок ресурсов** прошли; персонаж не перерабатывался.
