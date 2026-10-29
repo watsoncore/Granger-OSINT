@@ -201,3 +201,35 @@ def test_real_offline_worker_cancellation_does_not_wait_for_untrusted_infinite_j
         result=render_html('<html><body><script>while(true){}</script></body></html>',cancel_event=cancel,deadline=time.monotonic()+12)
     finally:timer.join()
     assert result['status']=='cancelled' and time.monotonic()-start<5
+
+
+def test_robots_denial_prevents_document_request_and_browser_render():
+    def handle(request):
+        assert request.url.path=='/robots.txt'
+        return httpx.Response(200,text='User-agent: *\nDisallow: /private',headers={'content-type':'text/plain'})
+    f=Fixture(handle);reader=f.reader(respect_robots=True,allow_browser=True,browser_renderer=lambda *a,**k:pytest.fail('No renderer for forbidden URL'))
+    reader.allow_url('https://example.org/private')
+    result=reader.read('https://example.org/private')
+    assert result['status']=='blocked' and result['error']=='robots_disallowed' and not result['results']
+    assert len(f.requests)==1
+
+
+@pytest.mark.parametrize('robot_status',[200,404])
+def test_robots_allow_and_missing_policy_support_real_document_extraction(robot_status):
+    def handle(request):
+        if request.url.path=='/robots.txt':return httpx.Response(robot_status,text='User-agent: *\nAllow: /',headers={'content-type':'text/plain'})
+        return httpx.Response(200,text='<main>Public document text with an actual useful sentence from the test transport.</main>',headers={'content-type':'text/html'})
+    f=Fixture(handle);reader=f.reader(respect_robots=True);reader.allow_url('https://example.org/public')
+    result=reader.read('https://example.org/public')
+    assert result['status']=='complete' and result['results'][0]['details']['content_fetched']
+    assert [r.url.path for r in f.requests]==['/robots.txt','/public']
+
+
+def test_redirect_target_robots_is_checked_before_target_document():
+    def handle(request):
+        if request.url.path=='/robots.txt':return httpx.Response(200,text='User-agent: *\nDisallow: /denied',headers={'content-type':'text/plain'})
+        assert request.url.path=='/start'
+        return httpx.Response(302,headers={'location':'https://example.org/denied'})
+    f=Fixture(handle);reader=f.reader(respect_robots=True);reader.allow_url('https://example.org/start')
+    assert reader.read('https://example.org/start')['error']=='robots_disallowed'
+    assert [r.url.path for r in f.requests]==['/robots.txt','/start']

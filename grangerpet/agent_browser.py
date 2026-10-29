@@ -16,6 +16,7 @@ import socket
 import ssl
 import threading
 import time
+from urllib.robotparser import RobotFileParser
 from urllib.parse import parse_qsl, unquote, urljoin, urlsplit, urlunsplit
 from html import escape
 import hashlib
@@ -368,7 +369,7 @@ def _decode(raw, content_type):
 
 class PublicPageReader:
     def __init__(self, *, max_pages=0, max_depth=2, timeout=20, resolver=None, client_factory=None,
-                 allow_browser=None,browser_renderer=None,cache_ttl=300,rate_interval=.25,agent_model=''):
+                 allow_browser=None,browser_renderer=None,cache_ttl=300,rate_interval=.25,agent_model='',respect_robots=None):
         self.max_pages = max(0,min(2_000_000_000,int(max_pages)))
         self.max_depth = max(0,min(8,int(max_depth)))
         self.timeout = max(.1,min(25,float(timeout)))
@@ -378,6 +379,8 @@ class PublicPageReader:
         self.cache_ttl=max(0,min(3600,float(cache_ttl)))
         self.rate_interval=max(0,min(5,float(rate_interval)))
         self._cookies={}
+        self.respect_robots=(client_factory is None) if respect_robots is None else bool(respect_robots)
+        self._robots={}
         self._read_at={}
         model=agent_model if isinstance(agent_model,str) and re.fullmatch(r'[A-Za-z0-9._:/-]{1,100}',agent_model) else ''
         self.user_agent=('Granger-OSINT/3.1 (model='+model+'; +https://github.com/watsoncore/Granger-OSINT)') if model else None
@@ -453,11 +456,33 @@ class PublicPageReader:
             if isinstance(record,dict) and record.get('url') and (record.get('details') or {}).get('reading_method') not in ('direct_http','browser_dom'):
                 self.allow_url(record['url'])
 
+    async def _check_robots(self,url,cancel_event,deadline):
+        if not self.respect_robots:return
+        from .web_http import fetch_public
+        parts=urlsplit(url);origin=parts.scheme+'://'+parts.netloc
+        with self._lock:cached=self._robots.get(origin)
+        if cached and time.monotonic()-cached[0]<3600:
+            parser=cached[1]
+        else:
+            fetched=await fetch_public(origin+'/robots.txt',cancel_event=cancel_event,deadline=deadline,
+                resolver=self._resolver,client_factory=self._client_factory,cookies=self._cookies,
+                rate_interval=self.rate_interval,user_agent=self.user_agent,accepted_statuses=(200,404,410))
+            parser=RobotFileParser()
+            if fetched['status'] in (404,410):parser.parse([])
+            else:
+                if len(fetched['body'])>200_000:raise PageReadError('robots_too_large','blocked')
+                parser.parse(_decode(fetched['body'],fetched['content_type']).splitlines())
+            with self._lock:
+                if len(self._robots)>=64:self._robots.pop(next(iter(self._robots)),None)
+                self._robots[origin]=(time.monotonic(),parser)
+        if not parser.can_fetch('Granger-OSINT',url):raise PageReadError('robots_disallowed','blocked')
+
     async def _fetch(self,url,cancel_event,deadline,*,method='GET',form=None,approved_post=False):
         from .web_http import fetch_public
         fetched=await fetch_public(url,method=method,form=form,approved_post=approved_post,
             cancel_event=cancel_event,deadline=deadline,resolver=self._resolver,
-            client_factory=self._client_factory,cookies=self._cookies,rate_interval=self.rate_interval,user_agent=self.user_agent)
+            client_factory=self._client_factory,cookies=self._cookies,rate_interval=self.rate_interval,user_agent=self.user_agent,
+            before_request=lambda target:self._check_robots(target,cancel_event,deadline))
         final=fetched['final_url'];content_type=fetched['content_type']
         text=_decode(fetched['body'],content_type)
         if 'html' in content_type:
@@ -512,7 +537,8 @@ class PublicPageReader:
             try:
                 result=await fetch_public(url,cancel_event=cancel_event,deadline=deadline,
                     resolver=self._resolver,client_factory=self._client_factory,cookies=self._cookies,
-                    rate_interval=self.rate_interval,allowed_types=('javascript','ecmascript','text/plain'),user_agent=self.user_agent)
+                    rate_interval=self.rate_interval,allowed_types=('javascript','ecmascript','text/plain'),user_agent=self.user_agent,
+                    before_request=lambda target:self._check_robots(target,cancel_event,deadline))
                 if len(result['body'])>250_000:
                     warnings.append('Script resource exceeds the offline renderer limit.');continue
                 resources[url]=_decode(result['body'],result['content_type'])
@@ -617,6 +643,7 @@ class PublicPageReader:
                       'private_or_service_address':'DNS указывает на непубличный или служебный адрес; запрос запрещён.',
                       'unsafe_url':'Адрес не прошёл проверку безопасности.', 'page_limit':'Исчерпан предел читаемых страниц этого расследования.',
                       'access_challenge':'Страница требует прохождения защиты; обход не выполнялся.',
+                      'robots_disallowed':'Источник запрещает этот автоматический запрос в robots.txt.',
                       'login_form':'Вместо публичной страницы получена форма входа; авторизация не выполнялась.',
                       'unsupported_content_type':'Формат не является поддерживаемой публичной текстовой страницей.',
                       'already_reading':'Эта страница уже читается параллельным вызовом; повторного запроса нет.'}.get(error.code,'Страница не была прочитана или чтение не завершено.')

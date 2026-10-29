@@ -31,6 +31,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--keep-open',action='store_true')
+    p.add_argument('--public-tools',action='store_true',help='Also execute one real key-free API and permitted JS sandbox in the frozen EXE')
     args=p.parse_args();out=args.output.resolve()
     if out.exists(): raise SystemExit('Previous evidence retained; choose a new directory')
     app=QCoreApplication.instance() or QCoreApplication([])
@@ -103,6 +104,14 @@ def main():
             check('font_'+theme,dom.get('font',{}).get('loaded'))
             check('overflow_'+theme,not dom.get('overflow',True))
             command('qa_snapshot',{'name':'theme-'+theme})
+        if args.public_tools:
+            profile_data=tool('github_profile','octocat')
+            check('keyfree_public_API_in_actual_EXE',profile_data.get('login')=='octocat' and type(profile_data.get('public_repos')) is int)
+            rendered=tool('web_read','https://quotes.toscrape.com/js/')
+            check('actual_frozen_browser_DOM',rendered.get('reading_method')=='browser_dom' and rendered.get('content_fetched') is True)
+            check('actual_frozen_DOM_data',bool(rendered.get('structured_data',{}).get('records')) and 'Albert Einstein' in rendered.get('content_text',''))
+            report['public_observations']={'github':profile_data,'rendered_page':rendered}
+            command('qa_snapshot',{'name':'public-sources'})
         image=Image.new('RGB',(1150,170),'white')
         font=ImageFont.truetype(str(ROOT/'frontend/public/fonts/Manrope-Variable.ttf'),48)
         ImageDraw.Draw(image).text((25,40),'МОСКВА УЛИЦА МИРА',font=font,fill='black')

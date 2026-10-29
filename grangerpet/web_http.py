@@ -11,7 +11,7 @@ import httpx
 
 async def fetch_public(url,*,method='GET',form=None,approved_post=False,cancel_event=None,
                        deadline=None,resolver=None,client_factory=None,cookies=None,rate_interval=.25,
-                       allowed_types=None,params=None,accepted_statuses=(200,),user_agent=None):
+                       allowed_types=None,params=None,accepted_statuses=(200,),user_agent=None,before_request=None):
     """Public-only raw text transport for reviewed source-specific adapters.
 
     It deliberately accepts no arbitrary headers or credentials. POST must be a
@@ -47,6 +47,7 @@ async def fetch_public(url,*,method='GET',form=None,approved_post=False,cancel_e
     redirects=[]
     for hop in range(4):
         await check();url=public_url(url);parsed=urlsplit(url);host=parsed.hostname
+        if before_request is not None:await before_request(url)
         port=443 if parsed.scheme=='https' else 80
         addresses=await resolve(host,port)
         if not addresses or any(not public_address(address) for address in addresses):
