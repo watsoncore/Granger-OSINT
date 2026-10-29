@@ -146,6 +146,10 @@ def main(argv: list[str] | None = None) -> int:
                                 surface=pet.panel.desktop_surface
                                 result['desktop']={'ready':surface.bridge.ui_ready,'load_ok':surface.load_ok,
                                     'visible':surface.isVisible(),'geometry':list(surface.geometry().getRect()),
+                                    'page_visible':surface.trusted_page.isVisible(),
+                                    'lifecycle_state':surface.trusted_page.lifecycleState().name,
+                                    'recommended_state':surface.trusted_page.recommendedState().name,
+                                    'render_process_pid':surface.trusted_page.renderProcessPid(),
                                     'last_response':surface.qa_last_response,
                                     'url':surface.url().toString(),'diagnostics':surface.trusted_page.diagnostics,
                                     'route':surface.bridge.route,'dom':getattr(surface,'qa_dom',{})}
