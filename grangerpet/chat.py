@@ -200,6 +200,7 @@ class ChatWidget(QWidget):
     user_activity = Signal()
     state_changed = Signal()
     turn_completed = Signal(object)
+    character_event = Signal(str,object)
     _agent_progress = Signal(int, object)
     _approval_requested = Signal(int, object)
 
@@ -319,7 +320,7 @@ class ChatWidget(QWidget):
                     'role':row['role'], 'text':row['text']})
             else:
                 self._append(row['role'], row['text'], message_id=row.get('id'))
-            for field in ('investigation_id', 'evidence_ids'):
+            for field in ('investigation_id', 'evidence_ids','attachments'):
                 if field in row:self.messages[-1][field] = deepcopy(row[field])
         self._update_actions()
 
@@ -329,7 +330,8 @@ class ChatWidget(QWidget):
 
     @property
     def _ready(self):
-        return self.ai_state.can_send
+        from .credentials import portable_enabled,portable_unlocked
+        return self.ai_state.can_send and (not portable_enabled() or portable_unlocked())
 
     def set_settings(self, settings):
         if getattr(self, 'settings', None) != settings:
@@ -368,10 +370,16 @@ class ChatWidget(QWidget):
         self._archive_timer.start()
         self._update_actions()
         self.state_changed.emit()
+        if role=='user': self.character_event.emit('chat.message.received',{})
         return bubble
 
     def send_message(self):
         self._submit_text(self.input.toPlainText().strip(), consume_draft=True)
+
+    def set_image_attachments(self,records,store):
+        if self.busy: raise ValueError('Дождитесь текущей задачи.')
+        self._pending_images=list(records)
+        self._image_store=store
 
     def _submit_text(self, text, consume_draft=False):
         if self._busy or not text:
@@ -387,20 +395,27 @@ class ChatWidget(QWidget):
             return
         if consume_draft:
             self.input.clear()
+        images=getattr(self,'_pending_images',[])
+        self._pending_images=[]
+        if images:
+            text+='\n\nВыбранные локальные изображения (это идентификаторы вложений, не содержимое пикселей):\n'+json.dumps(images,ensure_ascii=False)
+            text+='\nСначала используй локальные image_metadata и image_ocr по attachment_id, затем делай выводы только по реальным результатам. Если инструменты не выполнены, прямо сообщи, что содержимое изображения не установлено.'
         self._append('user', text)
+        if images: self.messages[-1]['attachments']=images
         history = conversation_context(self.messages, text)
         settings = self.ai_state.settings
         snapshot = self.ai_state.committed_snapshot()
         model = snapshot['model_id']
         generation = self._generation + 1
         conversation_id = self.conversation_id
-        investigate = not no_tools_requested(text) and (investigation_requested(text) or self._agent_followup and bool(re.search(r'(?iu)(ещ[её]|подроб|дальше|сравни|почему|источник|ev_[a-f0-9]+)', text)))
+        investigate = not no_tools_requested(text) and (bool(images) or investigation_requested(text) or self._agent_followup and bool(re.search(r'(?iu)(ещ[её]|подроб|дальше|сравни|почему|источник|ev_[a-f0-9]+)', text)))
         def request(cancelled):
             if snapshot['provider'] == 'deepseek':
                 client = DeepSeekClient()
                 if investigate:
                     if self._agent_registry is None:
-                        self._agent_registry = ToolRegistry(settings, redactions=(getattr(client, '_key', ''),))
+                        self._agent_registry = ToolRegistry(settings, redactions=(getattr(client, '_key', ''),),image_store=getattr(self,'_image_store',None))
+                    if images: self._agent_registry.allow_attachments([row['id'] for row in images])
                     if hasattr(self._agent_registry, 'seed_urls_from_user'):
                         self._agent_registry.seed_urls_from_user(text)
                     limits = self._investigation_limits(settings)
@@ -494,6 +509,7 @@ class ChatWidget(QWidget):
         self.busy_changed.emit(True)
         self.ai_state.request_started(provider=provider, model_id=model)
         self.activity_changed.emit(activity)
+        self.character_event.emit('agent.task.started',{})
         def finished(result, error):
             if self._ending or generation != self._generation:
                 job.deleteLater()
@@ -814,6 +830,9 @@ class ChatWidget(QWidget):
             self.activity_changed.emit('thinking')
         elif kind in ('tool_start', 'tool_result'):
             self.activity_changed.emit('working')
+        if kind=='tool_start': self.character_event.emit('agent.tool.started',event)
+        elif kind=='tool_result':
+            self.character_event.emit('agent.tool.completed' if event.get('status') in ('complete','completed','empty','partial') else 'agent.tool.failed',event)
         if kind == 'evidence':
             records = event.get('records', [])
             if isinstance(records, list):

@@ -8,11 +8,13 @@ from __future__ import annotations
 from pathlib import Path
 import sys
 import mimetypes
+import json
 
 from PySide6.QtCore import QEvent, QTimer, QUrl, Qt, QFile, QIODevice
 from PySide6.QtWebChannel import QWebChannel
 from PySide6.QtWebEngineCore import (QWebEnginePage, QWebEngineProfile, QWebEngineSettings,
-    QWebEngineUrlRequestInterceptor, QWebEngineUrlScheme, QWebEngineUrlSchemeHandler, QWebEngineUrlRequestJob)
+    QWebEngineUrlRequestInterceptor, QWebEngineUrlScheme, QWebEngineUrlSchemeHandler, QWebEngineUrlRequestJob, QWebEngineScript)
+from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .desktop_bridge import DesktopBridge
@@ -113,6 +115,16 @@ class DesktopSurface(QWebEngineView):
         self.load_ok=None
         self.loadFinished.connect(self._load_finished)
         self.setPage(self.trusted_page)
+        from .theme import PALETTES
+        selected=getattr(host.settings,'ui_theme','dark')
+        selected=selected if selected in PALETTES else 'dark'
+        self.trusted_page.setBackgroundColor(QColor(PALETTES[selected]['background']))
+        theme_script=QWebEngineScript()
+        theme_script.setName('granger-initial-theme')
+        theme_script.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentCreation)
+        theme_script.setWorldId(QWebEngineScript.ScriptWorldId.MainWorld)
+        theme_script.setSourceCode("globalThis.__GRANGER_THEME__="+json.dumps(selected)+";(()=>{const apply=()=>{if(!document.documentElement)return false;document.documentElement.dataset.theme=globalThis.__GRANGER_THEME__;return true};if(!apply()){const o=new MutationObserver(()=>{if(apply())o.disconnect()});o.observe(document,{childList:true})}})();")
+        self.trusted_page.scripts().insert(theme_script)
         settings=self.settings()
         for attribute in (QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls,
             QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls,

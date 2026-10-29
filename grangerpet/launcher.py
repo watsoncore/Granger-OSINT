@@ -195,6 +195,17 @@ class Launcher(FramelessWindow):
             send_command("pet", "settings", {name: getattr(settings, name) for name in ('size', 'fps', 'cursor_reaction')})
 
     def refresh_status(self):
+        try:
+            stamp=self.store.path.stat().st_mtime_ns
+            if stamp!=getattr(self,'_settings_stamp',None):
+                self._settings_stamp=stamp
+                selected=self.store.load().ui_theme
+                if selected!=self.settings.ui_theme:
+                    self.settings.ui_theme=selected
+                    from .theme import apply_theme
+                    apply_theme(QApplication.instance(),selected)
+        except OSError:
+            pass
         response = send_command("pet", "status", timeout=80)
         self.running = bool(response and response.get("ok") and response.get("running"))
         starting = bool(self.start_deadline and time.monotonic() < self.start_deadline)

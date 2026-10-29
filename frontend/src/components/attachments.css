@@ -1,0 +1,9 @@
+.image-attachments { min-width: 0; margin-bottom: 6px; }
+.attachment-actions,.attachment-processing { display:flex;align-items:center;gap:8px;color:var(--muted);font-size:var(--type-meta,12px); }
+.attachment-previews { display:flex;flex-wrap:wrap;gap:6px;margin:5px 0; }
+.attachment-preview { display:flex;align-items:center;gap:8px;max-width:100%;padding:6px;border:1px solid var(--border);border-radius:7px;min-width:0; }
+.attachment-preview img { width:48px;height:48px;object-fit:contain; }
+.attachment-preview span { min-width:0;display:grid;gap:4px; }
+.attachment-preview strong { overflow-wrap:anywhere;font-size:13px; }
+.attachment-preview small,.attachment-consent { color:var(--muted);font-size:12px;line-height:1.45; }
+.attachment-consent { margin:5px 0; }

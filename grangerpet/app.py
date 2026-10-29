@@ -75,6 +75,8 @@ def main(argv: list[str] | None = None) -> int:
         from . import credentials
         credentials._STORE = credentials.CredentialsStore(prefix=qa_vault)
     store = SettingsStore()
+    from .theme import apply_theme
+    apply_theme(app,store.load().ui_theme)
 
     if args.pet:
         from .pet import PetWindow
@@ -150,6 +152,9 @@ def main(argv: list[str] | None = None) -> int:
                                     'lifecycle_state':surface.trusted_page.lifecycleState().name,
                                     'recommended_state':surface.trusted_page.recommendedState().name,
                                     'render_process_pid':surface.trusted_page.renderProcessPid(),
+                                    'display_size':pet._display_size,
+                                    'dock_geometry':list(pet.panel.hermione_dock_geometry().getRect()),
+                                    'character':pet.panel.character.snapshot(),
                                     'last_response':surface.qa_last_response,
                                     'url':surface.url().toString(),'diagnostics':surface.trusted_page.diagnostics,
                                     'route':surface.bridge.route,'dom':getattr(surface,'qa_dom',{})}
@@ -184,7 +189,7 @@ def main(argv: list[str] | None = None) -> int:
                     if not isinstance(name,str) or not re.fullmatch(r'[a-zA-Z0-9_-]{1,60}',name): return {'ok':False}
                     (Path(pet._trace_path).parent/(name+'.json')).write_text(surface.bridge._json(surface.bridge.snapshot()),encoding='utf-8')
                 elif payload.get('action')=='dom':
-                    script="""JSON.stringify({text:document.body.innerText.slice(0,18000),title:document.title,buttons:[...document.querySelectorAll('button')].map(b=>({text:b.innerText,label:b.getAttribute('aria-label'),disabled:b.disabled})),headings:[...document.querySelectorAll('h1,h2,h3')].map(h=>h.innerText),tables:document.querySelectorAll('.markdown table').length,messages:document.querySelectorAll('[data-message-id]').length,overflow:document.documentElement.scrollWidth>innerWidth+2,width:innerWidth,height:innerHeight,font:{loaded:document.fonts.check('15px Manrope','Гермиона Ёжик'),family:getComputedStyle(document.body).fontFamily,size:getComputedStyle(document.body).fontSize},dock:(()=>{let r=document.getElementById('hermione-dock')?.getBoundingClientRect();return r?{x:r.x,y:r.y,width:r.width,height:r.height}:null})()})"""
+                    script="""JSON.stringify({text:document.body.innerText.slice(0,18000),title:document.title,theme:document.documentElement.dataset.theme,background:getComputedStyle(document.body).backgroundColor,buttons:[...document.querySelectorAll('button')].map(b=>({text:b.innerText,label:b.getAttribute('aria-label'),disabled:b.disabled})),headings:[...document.querySelectorAll('h1,h2,h3')].map(h=>h.innerText),tables:document.querySelectorAll('.markdown table').length,messages:document.querySelectorAll('[data-message-id]').length,overflow:document.documentElement.scrollWidth>innerWidth+2,width:innerWidth,height:innerHeight,font:{loaded:document.fonts.check('15px Manrope','Гермиона Ёжик'),family:getComputedStyle(document.body).fontFamily,size:getComputedStyle(document.body).fontSize},dock:(()=>{let r=document.getElementById('hermione-dock')?.getBoundingClientRect();return r?{x:r.x,y:r.y,width:r.width,height:r.height}:null})()})"""
                     def receive(value):
                         try: surface.qa_dom=json.loads(value)
                         except (ValueError,TypeError): surface.qa_dom={}

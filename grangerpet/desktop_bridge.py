@@ -6,6 +6,7 @@ Existing Python controllers remain the sole owners of requests and evidence.
 from __future__ import annotations
 
 from dataclasses import asdict
+import base64
 import hashlib
 import json
 import re
@@ -31,7 +32,7 @@ from .product import PRODUCT_NAME, VERSION
 from .ui_jobs import UiJob
 
 
-SETTINGS_FIELDS = frozenset(('size','fps','cursor_reaction','agent_steps','agent_calls','agent_timeout',
+SETTINGS_FIELDS = frozenset(('ui_theme','geoint_nominatim_url','geoint_overpass_url','size','fps','cursor_reaction','agent_steps','agent_calls','agent_timeout',
     'agent_tokens','agent_page_limit','agent_page_depth','agent_parallel','agent_tool_timeout',
     'agent_request_timeout','agent_auto_continue','agent_budget_behavior','notifications_enabled',
     'notifications_animate','notifications_reply','notifications_investigation','notifications_errors','reduced_motion',
@@ -57,6 +58,10 @@ def source_view(record, limits=()):
     if details.get('javascript_shell'):
         notes.append('JavaScript-содержимое не исполнено; доступны только HTTP-текст и метаданные.')
     identifier=value.get('evidence_id') or details.get('evidence_id') or ''
+    read = (details.get('reading_method')=='direct_http' and not details.get('javascript_shell')
+            and bool(str(details.get('content_text') or details.get('content_excerpt') or '').strip())
+            and value.get('status') not in ('error','failed','blocked','restricted','unconfirmed'))
+    details = {**details,'content_fetched':read}
     return {'evidence_id':identifier, 'title':value.get('title') or value.get('platform') or 'Источник',
         'url':value.get('url',''), 'domain':urlsplit(value.get('url','')).hostname or value.get('platform',''),
         'excerpt':str(details.get('content_excerpt') or value.get('description') or '')[:2000],
@@ -93,6 +98,10 @@ class DesktopBridge(QObject):
         self._secret_redactions = set()
         self.settingsCategory = 'ai'
         self._manual_job = None
+        self._attachment_job=None
+        self._attachments=[]
+        self._attachment_store=None
+        self._attachment_error=''
         self._manual_registry = None
         self._manual_activity = []
         self._source_cache = {}
@@ -133,6 +142,7 @@ class DesktopBridge(QObject):
             host.result_model.modelReset.connect(self.mark_dirty)
             host.search_state.connect(self.mark_dirty)
             host.controller.search_event.connect(self.mark_dirty)
+            host.character.changed.connect(self.mark_dirty)
         elif hasattr(host, 'poll_timer'):
             # The launcher still needs its existing IPC poll for an independent
             # Pet. Only a real status change needs a renderer update.
@@ -178,7 +188,7 @@ class DesktopBridge(QObject):
 
     def _launcher_changed(self):
         signature = (self.host.running, self.host.process_state, self.host.status.text(),
-            self.host.settings.size, self.host.settings.fps, self.host.settings.cursor_reaction)
+            self.host.settings.size, self.host.settings.fps, self.host.settings.cursor_reaction,self.host.settings.ui_theme)
         if signature != self._launcher_fingerprint:
             self._launcher_fingerprint = signature
             self.mark_dirty()
@@ -293,6 +303,8 @@ class DesktopBridge(QObject):
         base = {'product':PRODUCT_NAME,'version':VERSION,'surface':self.surface,'route':self.route,
             'settings':values,'window':{'maximized':self.host.isMaximized(),'fullscreen':self.host.isFullScreen(),
             'active':bool(self.host.isActiveWindow() and self.host.isVisible() and not self.host.isMinimized())}}
+        from .credentials import vault_status
+        base['vault']=vault_status()
         if self.surface=='launcher':
             state = getattr(self.host,'process_state','running' if self.host.running else 'ready')
             base.update(launcher={'state':state,'running':self.host.running,'size':settings.size,'fps':settings.fps,
@@ -300,6 +312,7 @@ class DesktopBridge(QObject):
             return base
         chat = self.host.chat_widget
         ai = self.host.ai_state.committed_snapshot()
+        base.update(attachments=[dict(row) for row in self._attachments],attachment_busy=self._attachment_job is not None,attachment_error=self._attachment_error)
         sources = self._sources()
         by_id = {s['evidence_id']:s for s in sources}
         messages = []
@@ -308,6 +321,9 @@ class DesktopBridge(QObject):
             value['streaming'] = chat.busy and index==chat._stream_index
             value['sources'] = [by_id[i] for i in row.get('evidence_ids',[]) if i in by_id]
             messages.append(value)
+        for source in sources:
+            source['message_ids']=[row.get('id') for row in chat.messages
+                                   if source['evidence_id'] in row.get('evidence_ids',[])]
         canvas = self.host.canvas
         conversation_usage, investigation_usage = self._usage(chat)
         balance=self._balance.snapshot() if settings.ai_provider=='deepseek' else {
@@ -326,7 +342,7 @@ class DesktopBridge(QObject):
             investigation['canResume'] = (chat._journal.directory/(investigation['id']+'.checkpoint.dpapi')).is_file()
         base.update(connection={'provider':ai['provider'],'model':ai['model_id'],'status':ai['connection_status'],
                 'statusText':self.host.ai_state.status_text(ai),
-                'canSend':chat.ai_state.can_send,'error':ai.get('last_error',''),'contextLimit':None,'balance':balance.get('amount'),
+                'canSend':chat._ready,'error':ai.get('last_error',''),'contextLimit':None,'balance':balance.get('amount'),
                 'balanceMessage':balance.get('message','')},
             credentials=self._credentials,settingsCategory=self.settingsCategory,toolsChecking=self._tools_job is not None,
             archiveError=getattr(chat,'archive_error',''),
@@ -347,7 +363,22 @@ class DesktopBridge(QObject):
                 'balance':balance}, history=self._history(),
             canvas={'id':canvas.document_id,'text':canvas.editor.toPlainText(),'title':canvas.title.text(),'dirty':canvas._dirty} if canvas else None,
             hermione={'state':self.host._last_activity or 'idle','visible':True})
+        current=chat._last_investigation.get('evidence',[])
+        current_ids={r.get('evidence_id') for r in current}
+        base['task_sources']=self._search_sources_view if self.route=='search' else [s for s in sources if s['evidence_id'] in current_ids]
+        from .catalog_candidates import catalog_candidates,catalog_audit
+        candidates=catalog_candidates()
+        installed=list(base['tools'])
+        base['tool_counts']={'candidates':len(candidates),'implemented':len(_SPECS),
+            'ready_local':sum(bool(row.get('available')) for row in installed),
+            'verified_execution':sum(row.get('readiness_status')=='live_verified' for row in installed)}
+        base['catalog_audit']=catalog_audit()
+        base['tools']=installed+[{**row,'inputTypes':row['accepted_inputs'],'sensitive':False,
+                          'manual_url':row['source_url'] if row['runtime_mode']=='manual_handoff' else ''} for row in candidates]
         base['connection'].update(models=self._models,modelsChecking=self._models_job is not None,modelsError=self._models_error)
+        base['hermione'].update(self.host.character.snapshot())
+        if base['vault']['enabled'] and not base['vault']['unlocked']:
+            base['connection'].update(canSend=False,status='vault_locked',statusText='Разблокируйте переносимое хранилище в настройках.')
         return base
 
     def publish(self, *, force=False):
@@ -377,7 +408,8 @@ class DesktopBridge(QObject):
 
     @Slot(str,str,str)
     def request(self, identifier, action, payload_json):
-        if not isinstance(identifier,str) or len(identifier)>100 or len(payload_json)>MAX_PAYLOAD:
+        maximum=29_000_000 if action=='attachment_import' else MAX_PAYLOAD
+        if not isinstance(identifier,str) or len(identifier)>100 or len(payload_json)>maximum:
             return
         try:
             payload = json.loads(payload_json)
@@ -421,10 +453,22 @@ class DesktopBridge(QObject):
             value = payload.get('url')
             if not isinstance(value,str) or not public_link(value): raise ValueError('Ссылка не прошла проверку.')
             return QDesktopServices.openUrl(QUrl(value))
+        if action=='vault_manage':
+            if set(payload) != {'operation'}: raise ValueError('Парольная фраза вводится только в защищённом окне.')
+            return self._vault_manage(payload.get('operation'))
         if self.surface=='launcher': return self._launcher_action(action,payload)
+        from .credentials import portable_enabled,portable_unlocked
+        if portable_enabled() and not portable_unlocked() and action in (
+            'chat_send','chat_new','chat_clear','chat_regenerate','history_load','investigation_continue',
+            'canvas_open','canvas_edit','canvas_save','canvas_export','search_run','tool_run','search_analyze','attachment_choose','attachment_import'):
+            raise ValueError('Сначала разблокируйте переносимое хранилище в настройках.')
         chat = self.host.chat_widget
         if action=='layout':
-            dock = payload.get('dock',{})
+            dock = payload.get('dock')
+            if dock is None:
+                self._dock_rect = QRect()
+                return None
+            if not isinstance(dock,dict): raise ValueError('Некорректная геометрия.')
             coordinates = [dock.get(key,0) for key in ('x','y','width','height')]
             if not all(type(v) in (int,float) and -10000<v<20000 for v in coordinates): raise ValueError('Некорректная геометрия.')
             self._dock_rect = QRect(*(round(v) for v in coordinates))
@@ -442,10 +486,21 @@ class DesktopBridge(QObject):
             if not isinstance(text,str) or not text.strip() or len(text)>12000: raise ValueError('Сообщение: 1–12 000 символов.')
             if chat.busy: raise ValueError('Предыдущая задача ещё выполняется.')
             if not chat._ready: raise ValueError('Сначала подключите ИИ в настройках.')
+            ids=payload.get('attachment_ids',[])
+            if not isinstance(ids,list) or len(ids)>4 or any(not isinstance(v,str) for v in ids): raise ValueError('Выберите не более четырёх изображений.')
+            chosen={row['id'] for row in self._attachments}
+            if any(value not in chosen for value in ids): raise ValueError('Вложение не выбрано для этой задачи.')
+            if ids:
+                store=self._images()
+                records=[{k:v for k,v in store.get(identifier).items() if k in ('id','name','mime','format','bytes','width','height','sha256')} for identifier in ids]
+                chat.set_image_attachments(records,store)
+                self._attachments=[row for row in self._attachments if row['id'] not in ids]
             chat.input.setPlainText(text)
             chat.send_message()
             self.route='chat'
         elif action=='chat_stop': chat.cancel()
+        elif action in ('attachment_choose','attachment_import','attachment_remove','attachment_cancel'):
+            return self._attachment_action(action,payload)
         elif action=='chat_new': chat.new_conversation(); self._history_time=0
         elif action=='chat_clear':
             conversation_id=chat.conversation_id
@@ -454,6 +509,10 @@ class DesktopBridge(QObject):
             if hasattr(self.host,'report_messages_removed'):
                 self.host.report_messages_removed(conversation_id,ids)
         elif action=='chat_regenerate': chat.regenerate(payload.get('message_id'))
+        elif action=='message_focus':
+            identifier=payload.get('message_id')
+            if not self._message(identifier): raise ValueError('Сообщение не найдено.')
+            self.message_focus=identifier
         elif action=='history_load': chat.load_conversation(payload.get('id')); self.route='chat'; self._history_time=0
         elif action=='messages_seen':
             ids=payload.get('message_ids')
@@ -545,6 +604,8 @@ class DesktopBridge(QObject):
                 self._models_job.cancel();self._models_job.deleteLater();self._models_job=None
         if self.host.store: self.host.store.save(settings)
         self.host.set_settings(settings)
+        from .theme import apply_theme
+        apply_theme(QApplication.instance(),settings.ui_theme)
         QApplication.instance().setProperty('reduced_motion',getattr(settings,'reduced_motion',False))
         self.host.settings_dialog.settings_saved.emit(settings)
         self._manual_registry = None
@@ -553,6 +614,114 @@ class DesktopBridge(QObject):
         self._tools_generation += 1
         self._tools=[]
         QTimer.singleShot(0,self._refresh_tools)
+
+    def _vault_manage(self, operation):
+        from . import credentials
+        from .vault_dialog import VaultDialog
+        if operation not in ('create','unlock','lock','change'): raise ValueError('Неизвестная операция хранилища.')
+        vault=credentials.vault_status()
+        if operation=='create' and vault['enabled']:
+            raise ValueError('Переносимое хранилище уже существует. Разблокируйте его.')
+        if operation!='create' and not vault['enabled']:
+            raise ValueError('Сначала создайте переносимое защищённое хранилище.')
+        if operation=='change' and not vault['unlocked']:
+            raise ValueError('Сначала разблокируйте защищённое хранилище.')
+        chat=getattr(self.host,'chat_widget',None)
+        connections=getattr(getattr(self.host,'settings_dialog',None),'connections',None)
+        jobs=(self._manual_job,self._balance_job,self._models_job,self._tools_job,
+              getattr(self,'_attachment_job',None))
+        if ((chat and chat.busy) or getattr(self.host,'_busy',False) or any(jobs)
+                or bool(getattr(connections,'_jobs',[]))):
+            raise ValueError('Дождитесь текущих запросов или остановите задачу перед изменением хранилища.')
+        canvas=getattr(self.host,'canvas',None)
+        if operation in ('create','lock') and canvas and canvas._dirty:
+            if canvas.save_document() is None:
+                raise ValueError('Не удалось сохранить изменения Canvas. Хранилище не изменено; документ остаётся открыт.')
+        if operation in ('create','lock') and chat and not chat._save_archive(): raise ValueError(chat.archive_error)
+        if operation=='lock':
+            credentials.lock_portable_vault()
+            if chat:
+                chat._archive_timer.stop();chat.messages.clear();chat._context.clear();chat.history.clear()
+                chat._last_investigation={};chat._activity_log=[];chat._agent_registry=chat._agent_runner=None
+                chat._resume_state=None;chat._agent_followup=False;chat._last_failed_text=''
+                if chat._library: chat._library._metadata_cache.clear()
+                self.host.result_model.clear()
+                if canvas:
+                    canvas._save_timer.stop();canvas._preview_timer.stop()
+                    canvas._loading=True
+                    canvas.editor.clear();canvas.preview.set_source('');canvas.heading_list.clear()
+                    canvas._loading=False;canvas._dirty=False;canvas.document_id=''
+                    canvas._documents.clear();canvas._original_source=''
+                    canvas.title.setText('Canvas · Хранилище заблокировано')
+            self._manual_activity=[]
+            attachment_store=getattr(self,'_attachment_store',None)
+            clear_sensitive=getattr(attachment_store,'clear_sensitive_cache',None)
+            if callable(clear_sensitive): clear_sensitive()
+        else:
+            dialog=VaultDialog(operation,self.host)
+            if dialog.exec()!=QDialog.DialogCode.Accepted: return {'completed':False}
+            if chat and operation in ('unlock','create'):
+                saved=chat._archive.load() if chat._archive else {}
+                if chat._library: chat._library._metadata_cache.clear()
+                chat.messages.clear();chat.history.clear();chat._context=saved.get('context',[])
+                chat._restore_archive_rows(saved.get('messages',[]));chat._restore_investigation()
+                chat._set_archive_error('' if not chat._archive or not chat._archive.last_error else
+                    'Не удалось прочитать локальную историю. Прежний архив сохранён без изменений.')
+        self._history_key=self._sources_fingerprint=self._usage_cache_key=None
+        self._history_cache=[];self._source_cache={};self._raw_sources={};self._sources_view=[];self._search_sources_view=[]
+        self._attachment_store=None;self._attachments=[];self._attachment_error=''
+        self._manual_registry=None;self._tools=[]
+        self._secret_redactions.clear();self._key=resolve_deepseek_key();self._load_credential_flags()
+        settings=self.host.store.load() if self.host.store else self.host.settings
+        if hasattr(self.host,'set_settings'): self.host.set_settings(settings)
+        else: self.host.settings=settings
+        if chat: chat._update_actions();chat.state_changed.emit()
+        self.publish(force=True)
+        return {'completed':True,**credentials.vault_status()}
+
+    def _images(self):
+        from .geoint_tools import attachment_store
+        if self._attachment_store is None:
+            self._attachment_store=attachment_store(Path(self.host.store.path).parent if self.host.store else None)
+        return self._attachment_store
+
+    def _attachment_action(self,action,payload):
+        if action=='attachment_cancel':
+            if self._attachment_job:
+                self._attachment_job.cancel();self._attachment_job.deleteLater();self._attachment_job=None
+            self._attachment_error='';return None
+        if action=='attachment_remove':
+            self._attachments=[row for row in self._attachments if row['id']!=payload.get('id')]
+            return None
+        if self.host.chat_widget.busy or self._attachment_job: raise ValueError('Дождитесь обработки текущего изображения или остановите её.')
+        if len(self._attachments)>=4: raise ValueError('В одном сообщении можно выбрать до четырёх изображений.')
+        from .geoint import MAX_IMAGE_BYTES
+        store=self._images()
+        if action=='attachment_choose':
+            path,_=QFileDialog.getOpenFileName(self.host,'Выбрать изображение','','Изображения (*.jpg *.jpeg *.png *.webp)')
+            if not path: return {'started':False}
+            selected=Path(path)
+            def load():
+                if not selected.is_file() or selected.stat().st_size>MAX_IMAGE_BYTES: raise ValueError('Изображение должно занимать не более 20 МиБ.')
+                with selected.open('rb') as stream: data=stream.read(MAX_IMAGE_BYTES+1)
+                return store.import_bytes(data,selected.name,cancel_event=job.cancelled)
+        else:
+            name,encoded=payload.get('name'),payload.get('base64')
+            if not isinstance(name,str) or len(name)>500 or not isinstance(encoded,str) or len(encoded)>28_000_000:
+                raise ValueError('Некорректное вложение.')
+            def load():
+                try: data=base64.b64decode(encoded,validate=True)
+                except ValueError: raise ValueError('Некорректное кодирование изображения.') from None
+                return store.import_bytes(data,name,cancel_event=job.cancelled)
+        job=UiJob(load,self);self._attachment_job=job;self._attachment_error=''
+        def done(result,error):
+            if self._attachment_job is not job:return
+            self._attachment_job=None
+            if error:self._attachment_error=error
+            elif result and not any(row['id']==result['id'] for row in self._attachments): self._attachments=self._attachments+[result]
+            job.function=lambda:None;job.deleteLater();self.mark_dirty()
+        job.done.connect(done);job.start()
+        return {'started':True}
 
     def _list_models(self):
         if self.host.settings.ai_provider!='ollama':
@@ -639,7 +808,7 @@ class DesktopBridge(QObject):
 
     def _registry(self):
         if self._manual_registry is None:
-            self._manual_registry = ToolRegistry(self.host.settings,redactions=(self._key,))
+            self._manual_registry = ToolRegistry(self.host.settings,redactions=(self._key,),image_store=self._images())
         return self._manual_registry
 
     def _refresh_tools(self,*,force=False):
@@ -669,7 +838,9 @@ class DesktopBridge(QObject):
             'inputTypes':[row['kind']],'available':row['available'],'state':row['state'],'reason':row['reason'],
             'diagnostic':row.get('diagnostic',{}),'last_execution':row.get('last_execution'),
             'lastChecked':row.get('diagnostic',{}).get('checked_at'),
-            'sensitive':row.get('requires_approval',False)}
+            'sensitive':row.get('requires_approval',False),'implemented':True,
+            'manifest':row.get('manifest'),'readiness_status':row.get('readiness_status'),
+            'documentation_url':(row.get('manifest') or {}).get('documentation_url','')}
 
     def _tool_progress(self,value):
         generation,row=value
@@ -695,6 +866,9 @@ class DesktopBridge(QObject):
                 QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No,QMessageBox.StandardButton.No)==QMessageBox.StandardButton.Yes
         if not approved: raise ValueError('Действие не подтверждено.')
         registry = self._registry(); registry.seed_urls_from_user(query)
+        if spec.kind=='image':
+            self._images().get(query)
+            registry.allow_attachments([query])
         if spec.source=='evidence_get':
             self._sources()
             record=self._raw_sources.get(query)
@@ -734,7 +908,7 @@ class DesktopBridge(QObject):
         self._closed = True
         self._flush.stop()
         self.host.removeEventFilter(self)
-        for job in (self._tools_job,self._balance_job,self._models_job):
+        for job in (self._tools_job,self._balance_job,self._models_job,self._attachment_job):
             if job: job.cancel();job.deleteLater()
         self._tools_job=None;self._balance_job=None
         if self._manual_job:

@@ -6,10 +6,12 @@ export interface Source {
   domain?: string
   excerpt?: string
   status: string
-  kind: 'page' | 'snippet' | 'adapter' | 'api'
+  kind: 'page' | 'snippet' | 'adapter' | 'api' | 'image' | 'map' | 'archive' | 'repository' | 'document' | 'tool_result'
   obtained_at?: string
   limitations?: string[] | string
   details?: Record<string, unknown>
+  related_evidence_ids?: string[]
+  message_ids?: string[]
 }
 export interface Message {
   id: string
@@ -17,7 +19,9 @@ export interface Message {
   text: string
   streaming?: boolean
   sources?: Source[]
+  attachments?: ImageAttachment[]
 }
+export interface ImageAttachment { id: string; name: string; mime: string; format: string; bytes: number; width: number; height: number; sha256: string; preview?: string }
 export interface Activity {
   id: string
   tool: string
@@ -30,6 +34,10 @@ export interface Activity {
   details?: Record<string, unknown>
 }
 export interface Tool {
+  implemented?: boolean
+  readiness_status?: string
+  documentation_url?: string
+  manual_url?: string
   id: string
   name: string
   description: string
@@ -75,6 +83,10 @@ export interface HistoryItem {
   status?: string
 }
 export interface DesktopState {
+  tool_counts?: { candidates:number;implemented:number;ready_local:number;verified_execution:number }
+  attachments?: ImageAttachment[]
+  attachment_busy?: boolean
+  attachment_error?: string
   product: string
   version: string
   surface: 'main' | 'launcher'
@@ -101,6 +113,7 @@ export interface DesktopState {
   busy: boolean
   activity: Activity[]
   evidence: Source[]
+  task_sources?: Source[]
   history: HistoryItem[]
   search: {
     query: string
@@ -119,6 +132,7 @@ export interface DesktopState {
   toolsChecking?: boolean
   settingsCategory?: 'ai' | 'tools' | 'investigation' | 'interface' | 'hermione' | 'notifications' | 'privacy'
   credentials?: Record<string, boolean>
+  vault?: { enabled: boolean; unlocked: boolean; migration_complete?: boolean; error?: string }
   investigation: {
     id?: string
     goal?: string

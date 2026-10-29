@@ -39,11 +39,13 @@ class PetWindow(QWidget):
         self.setMouseTracking(True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.store, self.settings = store, settings
+        self._display_size = settings.size
         self.library = SpriteLibrary()
         self.geometry = getattr(self.library, "geometry", {})
         self.animation = AnimationController(self.library, self)
         self.panel = OsintPanel(settings, store)
         self.panel.search_state.connect(self._search_state)
+        self.panel.character.changed.connect(self._sync_activity)
         self.panel.closed.connect(self._panel_closed)
         # Settings are saved by the panel, but the independent pet also owns
         # position persistence. Keep its reference current so a later drag or
@@ -89,6 +91,7 @@ class PetWindow(QWidget):
         self.notification = PetNotification(self, ledger_path=Path(store.path).parent / 'unread-messages.dpapi')
         self.notification.activated.connect(self._open_notification)
         self.panel.messages_seen.connect(self.notification.mark_seen)
+        self.notification.unread_changed.connect(lambda count:self.panel.character.handle_event('notification.created' if count else 'notification.read'))
         self.panel.messages_removed.connect(self.notification.mark_seen)
         self.animation.state_changed.connect(self._begin_transition)
         self._region = QRegion()
@@ -143,13 +146,14 @@ class PetWindow(QWidget):
         if self._dragging:
             desired = "idle" if self._collar_grab else "walk"
         elif self._busy:
-            desired = self._search_mode
+            desired = self.panel.character.snapshot()['animation'] if self.panel.character.busy else self._search_mode
         elif now < self._terminal_until:
             desired = self._base_state
         elif self.life.active:
             desired = 'walk' if self.life.action in ('leave', 'return') else 'working' if self.life.action in ('cast', 'avada') else 'thinking' if self.life.action == 'reading' else 'idle'
         else:
-            desired = "hover" if self._near and self.settings.cursor_reaction and not self.physics.active else "idle"
+            attentive=self.panel.character.state in ('listening','notification')
+            desired = "hover" if (attentive or self._near and self.settings.cursor_reaction) and not self.physics.active else "idle"
         self.animation.set_state(desired)
 
     def _restore_position(self):
@@ -177,6 +181,7 @@ class PetWindow(QWidget):
         settings.size = max(100, min(195, settings.size))
         foot = self.y() + self.height()
         self.settings = settings
+        self._display_size = settings.size
         self.notification.apply_settings(settings)
         if self.width() != settings.size + 24:
             self.setFixedSize(settings.size + 24, settings.size + 24)
@@ -214,7 +219,9 @@ class PetWindow(QWidget):
             return False
         self._update_notification_context()
         self._update_notification_anchor()
-        return self.notification.notify(kind, message_id, index=index, conversation_id=conversation_id)
+        created=self.notification.notify(kind, message_id, index=index, conversation_id=conversation_id)
+        if created: self.panel.character.handle_event('notification.created')
+        return created
 
     def dismiss_notification(self):
         self.notification.dismiss()
@@ -303,6 +310,11 @@ class PetWindow(QWidget):
                 self._dock_home = self.pos()
             screen = QGuiApplication.screenAt(main.center()) or QGuiApplication.primaryScreen()
             dock = dock if isinstance(dock, QRect) and not dock.isEmpty() else None
+            # CSS zoom changes the reserved dock, never the user's desktop size.
+            # Fit the one native sprite into that rectangle without clipping or
+            # creating a duplicate renderer. All hit testing uses this same size.
+            fitted=min(self.settings.size,dock.width()-24,dock.height()-24) if dock else self.settings.size
+            self._set_display_size(max(32,fitted))
             position = self._safe_overlay_position(self._dock_home, self.size(), main, screen.availableGeometry(), dock)
             if position is not None and any(isinstance(box,QRect) and QRect(position,self.size()).intersects(box)
                     for box in state.get('obstructions',[])):
@@ -320,6 +332,7 @@ class PetWindow(QWidget):
                     self.show()
                 self._dock_suppressed = False
         else:
+            self._set_display_size(self.settings.size)
             self._dock_bounds = None
             if self._dock_home is not None:
                 self.move(self._dock_home)
@@ -329,6 +342,14 @@ class PetWindow(QWidget):
                 self._dock_suppressed = False
         self._update_notification_anchor()
         self._update_notification_context()
+
+    def _set_display_size(self, size):
+        size=max(32,min(self.settings.size,int(size)))
+        if size==self._display_size and self.width()==size+24: return
+        self._display_size=size
+        self.setFixedSize(size+24,size+24)
+        self._cache.clear();self._render_signature=None;self._previous=QImage()
+        self._draw_frame(force=True)
 
     def moveEvent(self, event):
         super().moveEvent(event)
@@ -365,11 +386,11 @@ class PetWindow(QWidget):
             return
         local = self.mapFromGlobal(QCursor.pos())
         face = self.geometry.get("face_center", [0.5, 0.40])
-        center = QPointF(self._padding + self.settings.size * face[0],
-                         self._padding + self.settings.size * face[1])
+        center = QPointF(self._padding + self._display_size * face[0],
+                         self._padding + self._display_size * face[1])
         dx, dy = local.x() - center.x(), local.y() - center.y()
         distance = math.hypot(dx, dy)
-        near = distance < self.settings.size * (1.15 if self._near else 0.95)
+        near = distance < self._display_size * (1.15 if self._near else 0.95)
         over = self._region.contains(local)
         self._near, self._over = near, over
         if near:
@@ -397,6 +418,7 @@ class PetWindow(QWidget):
         available = not (self._busy or self._dragging or self._pressed_at is not None or self.physics.active
                          or self.panel.isVisible() or self._main_active or self._near or now < self._terminal_until)
         life_pose = self.life.update(now, available=available, system_idle=self._system_idle)
+        self.panel.character.life(life_pose.action)
         self._apply_life_travel(life_pose)
         self.physics.advance(now - self._physics_time, now)
         self._physics_time = now
@@ -410,6 +432,7 @@ class PetWindow(QWidget):
             self.animation.advance()
         if self.animation.completed:
             self._terminal_until = 0.0
+            self.panel.character.terminal_finished()
         self._sync_activity()
         self._draw_frame()
 
@@ -425,24 +448,24 @@ class PetWindow(QWidget):
         if not force and not self.isVisible() and not self._rendered.isNull():
             self._render_signature = None
             return
-        key = (self.animation.state, self.animation.frame, self.settings.size)
+        key = (self.animation.state, self.animation.frame, self._display_size)
         life_pose = self.life.pose()
         use_life = life_pose.action and not self.physics.active and not self._dragging and (not self._busy or life_pose.action == 'return')
         angle = round(self._aim.x() * (1.3 if self._over else 0.65), 2) if self.animation.state == "hover" else 0
         blend = min(1.0, max(0.0, (time.monotonic() - self._transition_started) / 0.16))
         pose = self.physics.pose
-        signature = ((life_pose.action, life_pose.frame, round(life_pose.strength, 2), self.settings.size) if use_life else key,
+        signature = ((life_pose.action, life_pose.frame, round(life_pose.strength, 2), self._display_size) if use_life else key,
                      angle, round(pose.angle, 2), round(pose.sag, 2), round(pose.tuck, 2), round(pose.squash, 2), round(pose.upset, 2), round(pose.embarrassed, 2), round(pose.leg_swing, 2))
         if signature == self._render_signature and blend >= 1:
             return
         self._render_signature = signature if blend >= 1 else None
         if key not in self._cache:
             self._cache[key] = QPixmap.fromImage(self.animation.image).scaled(
-                self.settings.size, self.settings.size, Qt.AspectRatioMode.KeepAspectRatio,
+                self._display_size, self._display_size, Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation)
         if use_life:
             pixmap = QPixmap.fromImage(action_frame(self.library, life_pose)).scaled(
-                self.settings.size, self.settings.size, Qt.AspectRatioMode.KeepAspectRatio,
+                self._display_size, self._display_size, Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation)
         else:
             pixmap = facial_reaction(self._cache[key], pose, self.geometry)
@@ -472,7 +495,7 @@ class PetWindow(QWidget):
             lower = pixmap.copy(0, cut, pixmap.width(), pixmap.height() - cut)
             # Anchor the collar exactly; upper and lower parts have different
             # transforms so up-tuck and down-squat are visible distinct poses.
-            painter.drawPixmap(x, y + pose.squash * self.settings.size * .030, head)
+            painter.drawPixmap(x, y + pose.squash * self._display_size * .030, head)
             torso_height = torso.height() * (1 + .09 * pose.stretch - .13 * pose.squash) + pose.sag
             leg_scale = 1 - .56 * pose.tuck - .28 * pose.squash
             leg_height = lower.height() * leg_scale
@@ -480,8 +503,8 @@ class PetWindow(QWidget):
             middle = lower.width() // 2
             for start, length, sign in ((0, middle, -1), (middle, lower.width() - middle, 1)):
                 leg = lower.copy(start, 0, length, lower.height())
-                offset = sign * pose.tuck * self.settings.size * .028 + sign * pose.squash * self.settings.size * .014
-                swing = sign * pose.leg_swing * self.settings.size * .012
+                offset = sign * pose.tuck * self._display_size * .028 + sign * pose.squash * self._display_size * .014
+                swing = sign * pose.leg_swing * self._display_size * .012
                 painter.drawPixmap(QRectF(x + start + offset + swing, leg_y, length, leg_height), leg, QRectF(leg.rect()))
             # Tucked knees go BEHIND the robe. Painting legs over its hem left
             # a duplicated horizontal strip when the upward pose overlapped it.
@@ -535,8 +558,8 @@ class PetWindow(QWidget):
             event.accept()
 
     def _is_collar(self, point):
-        x = (point.x() - self._padding) / self.settings.size
-        y = (point.y() - self._padding) / self.settings.size
+        x = (point.x() - self._padding) / self._display_size
+        y = (point.y() - self._padding) / self._display_size
         left, top, width, height = self.geometry.get("collar_rect", [0.43, 0.36, 0.21, 0.11])
         return left <= x <= left + width and top <= y <= top + height
 

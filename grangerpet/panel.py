@@ -20,7 +20,7 @@ from .result_view import BLOCKCHAIN_TYPES, ResultDelegate, ResultListModel, sour
 from .result_details import ResultDetails
 from .search import SearchResult as GoogleResult
 from .settings_dialog import SettingsDialog
-from .theme import STYLE
+from .theme import STYLE, style_for_theme, apply_theme
 from .window_chrome import FramelessWindow, WindowHeader
 from .chat import ChatWidget
 from .ai_state import AIState
@@ -122,6 +122,8 @@ class OsintPanel(FramelessWindow):
         self._pending_search = None
         self._ai_busy, self._ai_activity = False, 'idle'
         self._last_activity = None
+        from .character import CharacterController
+        self.character=CharacterController(self)
         self._result_types = set()
         self.chat_widget = None
         self.phase = 'idle'
@@ -129,7 +131,7 @@ class OsintPanel(FramelessWindow):
         self.setObjectName('OsintPanel')
         self.resize(760, 690)
         self.setMinimumSize(460, 420)
-        self.setStyleSheet(STYLE)
+        self.setStyleSheet(style_for_theme(settings.ui_theme))
         self.ai_state = AIState(settings, parent=self)
         self.controller = SearchController(self)
         if hasattr(getattr(self.controller, 'search_event', None), 'connect'):
@@ -377,6 +379,7 @@ class OsintPanel(FramelessWindow):
         self.mode_tabs.addTab(widget, 'Гермиона')
         widget.settings_requested.connect(lambda: self.open_settings('ИИ'))
         widget.activity_changed.connect(lambda state: self._emit_activity(state, origin='ai'))
+        widget.character_event.connect(self.character.handle_event)
         widget.busy_changed.connect(self._on_ai_busy)
         widget.connection_changed.connect(lambda *_: self._update_analysis_button())
         if hasattr(widget, 'evidence_received'):
@@ -476,17 +479,12 @@ class OsintPanel(FramelessWindow):
     def hermione_dock_geometry(self):
         if not self.desktop_surface or not self.isVisible() or self.isMinimized(): return QRect()
         value = self.desktop_surface.bridge._dock_rect
-        if value.isValid() and value.width()>=180:
-            # The DOM figure excludes the sidebar's16px padding. Expand inside
-            # that reserved column; never fall back to a different vertical area.
-            box=QRect(value)
-            if box.width()<240: box.adjust(-(240-box.width())//2,0,(240-box.width()+1)//2,0)
-            # The stage must fit the original maximum195px sprite plus its24px
-            # transparent interaction padding; DOM height must never crop hair.
-            if box.height()<219: box.setHeight(219)
-            return QRect(self.desktop_surface.mapToGlobal(box.topLeft()),box.size())
-        top_left=self.desktop_surface.mapToGlobal(QPoint(max(0,self.desktop_surface.width()-240),100))
-        return QRect(top_left.x(),top_left.y(),240,max(220,self.desktop_surface.height()-150))
+        if not value.isValid(): return QRect()
+        zoom=self.desktop_surface.zoomFactor()
+        box=QRect(round(value.x()*zoom),round(value.y()*zoom),round(value.width()*zoom),round(value.height()*zoom))
+        box=box.intersected(self.desktop_surface.rect())
+        if box.width()<56 or box.height()<56: return QRect()
+        return QRect(self.desktop_surface.mapToGlobal(box.topLeft()),box.size())
 
     def desktop_window_state(self):
         def owned_window(widget):
@@ -523,10 +521,12 @@ class OsintPanel(FramelessWindow):
             chosen = state
         if chosen != self._last_activity:
             self._last_activity = chosen
+            self.character.activity(chosen)
             self.search_state.emit(chosen)
 
     def set_settings(self, settings):
         self.settings = settings
+        apply_theme(QApplication.instance(),settings.ui_theme)
         self.ai_state.set_settings(settings)
         self.settings_dialog.set_settings(settings)
         self.chat_widget.set_settings(settings)

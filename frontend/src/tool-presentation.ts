@@ -1,6 +1,7 @@
 import type { Tool } from './types'
 
 const names: Record<string, string> = {
+  image_metadata:'EXIF и признаки изображения', image_ocr:'Распознавание текста', image_compare:'Локальные дубликаты', map_geocode:'Nominatim', map_overpass:'OpenStreetMap · Overpass', map_wikimedia:'Wikimedia Commons', github_repository:'GitHub · репозиторий', threat_feodo:'Feodo Tracker', hash_virustotal:'VirusTotal · SHA-256',
   web_search: 'Веб-поиск', web_read: 'Чтение страницы', browser_read: 'Чтение в браузере',
   username_maigret: 'Maigret', username_blackbird: 'Blackbird', username_social_analyzer: 'Social Analyzer', username_snoop: 'Snoop', email_holehe: 'Holehe', phone_metadata: 'PhoneInfoga', blockchain_gansar: 'Gansar', web_archive: 'Wayback Machine', telegram_public: 'Telegram', vk_public: 'VK', instagram_public: 'Instagram', domain_lookup: 'Домен · DNS и RDAP', ip_lookup: 'IP · ASN и префикс',
   evidence_get: 'Сохранённые доказательства', tools_list: 'Доступность инструментов',
@@ -10,6 +11,7 @@ const names: Record<string, string> = {
   google: 'Google', google_dork: 'Операторы Google', blockchain: 'Блокчейн', ton: 'TON',
 }
 const states: Record<string, string> = {
+  ready_local:'Локально готов',live_verified:'Проверен запросом',configuration_required:'Нужна настройка',authentication_required:'Нужна авторизация',catalog_only:'Кандидат каталога',temporarily_unavailable:'Временно недоступен',
   ready: 'Готов', available: 'Готов', installed: 'Готов', checking: 'Проверяется', unverified: 'Ещё не проверен', configured_unverified: 'Настроен, доступ не проверен',
   auth_required: 'Нужна авторизация', needs_auth: 'Нужна авторизация', missing_credentials: 'Нужна авторизация',
   missing: 'Нет зависимости', missing_dependency: 'Нет зависимости', dependency_missing: 'Нет зависимости', not_installed: 'Не установлен',
@@ -20,7 +22,7 @@ const states: Record<string, string> = {
   failed: 'Ошибка', cancelled: 'Остановлено', stopped: 'Остановлено', pending: 'Ожидание', waiting: 'Ожидание',
   partial: 'Частичный результат', not_found: 'Совпадений нет', found: 'Есть находки', detected: 'Есть находки', complete: 'Завершено', empty: 'Совпадений нет', timeout: 'Превышено время ожидания',
 }
-const inputTypes: Record<string, string> = { ip: 'IP-адрес', dork: 'Поисковый запрос', username: 'Никнейм', email: 'Email', phone: 'Телефон', url: 'Веб-адрес', domain: 'Домен', web: 'Поисковый запрос', query: 'Поисковый запрос', telegram: 'Telegram ID', vk: 'VK ID', instagram: 'Instagram', blockchain: 'Адрес кошелька', evidence: 'Доказательство', any: 'Открытые данные', none: 'Без параметров' }
+const inputTypes: Record<string, string> = { image:'Идентификатор вложения',coordinates:'Координаты или топоним',repository:'owner/repository',hash:'SHA-256', ip: 'IP-адрес', dork: 'Поисковый запрос', username: 'Никнейм', email: 'Email', phone: 'Телефон', url: 'Веб-адрес', domain: 'Домен', web: 'Поисковый запрос', query: 'Поисковый запрос', telegram: 'Telegram ID', vk: 'VK ID', instagram: 'Instagram', blockchain: 'Адрес кошелька', evidence: 'Доказательство', any: 'Открытые данные', none: 'Без параметров' }
 export function toolName(id: string, displayName?: string) { return displayName || names[id] || id.replace(/_/g, ' ') }
 export function stateLabel(state: string, available?: boolean) { return state === 'unverified' && available ? 'Локально готов' : states[state] || (available ? 'Локально готов' : 'Нужно проверить') }
 export function executionLabel(status: string) { return status === 'error' ? 'Ошибка выполнения' : states[status] || 'Состояние выполнения не уточнено' }

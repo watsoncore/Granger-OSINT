@@ -40,6 +40,21 @@ def test_bridge_reports_only_actual_sources_and_no_secret_settings(bridge):
     assert snapshot['usage']['balance']['status']=='not_supported'
 
 
+def test_catalog_candidates_never_accumulate_in_installed_rows(bridge):
+    bridge._tools=[{'id':'web_read','available':True,'implemented':True,'state':'ready_local'}]
+    first=bridge.snapshot()
+    for _ in range(5): assert len(bridge.snapshot()['tools'])==len(first['tools'])==10
+    assert len(bridge._tools)==1
+    assert first['tool_counts']=={'candidates':9,'implemented':25,'ready_local':1,'verified_execution':0}
+
+
+def test_attachment_snapshots_are_not_aliased_to_later_imports(bridge):
+    before=bridge.snapshot()
+    bridge._attachments.append({'id':'img_'+'a'*64,'name':'Тест.png'})
+    after=bridge.snapshot()
+    assert before['attachments']==[] and len(after['attachments'])==1
+
+
 def test_finite_actions_reject_arbitrary_paths_commands_and_secret_fields(bridge,tmp_path):
     for action,payload in [('shell',{'command':'whoami'}),('settings_save',{'values':{'api_key':'forbidden'}}),
         ('open_url',{'url':'file:///C:/Windows/win.ini'}),('open_url',{'url':'javascript:alert(1)'}),

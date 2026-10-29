@@ -138,6 +138,8 @@ QToolButton#WindowClose:hover {{ background: {palette['danger_soft']}; }}
 def apply_theme(app, theme='dark'):
     """Change only this Qt application's palette and existing native surfaces."""
     selected = theme if theme in PALETTES else 'dark'
+    if app.property('granger_theme')==selected and app.styleSheet():
+        return selected
     colors = PALETTES[selected]
     palette = QPalette()
     for role, name in ((QPalette.ColorRole.Window, 'surface'), (QPalette.ColorRole.WindowText, 'text'),

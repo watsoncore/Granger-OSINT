@@ -477,6 +477,8 @@ class PublicPageReader:
                 if self.allow_url(link['url'],depth=origin['depth']+1,parent_url=final):links.append(link)
             excerpt=data['text'][:2000]
             details={'reading_method':'direct_http','evidence_category':'page_content','content_excerpt':excerpt,
+                     'content_fetched':bool(data['text'].strip()) and not data['javascript_shell'],
+                     'content_length':len(data['text']), 'javascript_shell':bool(data['javascript_shell']),
                      'content_text':data['text'],'headings':data['headings'],'metadata':data['metadata'],'tables':data['tables'],
                      'json_ld':data['json_ld'],'links':links,'requested_url':original,'final_url':final,
                      'crawl_depth':origin['depth'],'parent_url':origin['parent_url'],'redirects':redirects,
