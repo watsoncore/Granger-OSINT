@@ -130,6 +130,27 @@ def main():
         for _ in range(6):time.sleep(1);samples.append(monitor.sample([process.pid]))
         report['metrics']['post_tools_idle']=summarize(samples)
         action('route',{'route':'search'})
+        ciphertext_before={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in encrypted}
+        old_root=process.pid
+        command('stop');process.wait(timeout=20)
+        check('first_run_exit_zero',process.returncode==0)
+        owned=None
+        with (out/'restart.log').open('wb') as log:
+            process=subprocess.Popen([str(exe),'--pet','--interaction-qa'],cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT)
+        row=wait(state);owned=row['pid']
+        check('restart_owned_executable',Path(process_image(owned)).resolve()==exe.resolve())
+        wait(lambda:(s:=state()) and s.get('desktop',{}).get('ready'))
+        command('show_workspace',{'route':'chat'})
+        def restored_theme():
+            command('qa_desktop',{'action':'dom'});time.sleep(.3)
+            return state()['desktop']['dom'].get('theme')=='mono'
+        wait(restored_theme)
+        check('saved_theme_restored_after_restart',True)
+        check('encrypted_images_preserved_after_restart',ciphertext_before=={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in encrypted})
+        same_id=import_image(data.getvalue(),'synthetic-gps.jpg')
+        check('same_encrypted_image_reopens_after_restart',same_id==gps_id)
+        check('GPS_survives_restart',tool('image_metadata',same_id)['metadata']['gps']['latitude']==51.5)
+        command('qa_snapshot',{'name':'restart'})
         report['passed']=True;save()
         if args.keep_open:
             print(json.dumps({'ready_for_native_review':True,'pid':owned,'checks':len(report['checks'])}),flush=True)

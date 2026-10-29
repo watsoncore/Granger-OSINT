@@ -41,7 +41,7 @@ class CredentialDialog(QDialog):
         self.fields, self.deletions = {}, {}
         layout = QVBoxLayout(self)
         label = QLabel(title)
-        label.setStyleSheet('font-size:19px;font-weight:600;color:#f2f3f6')
+        label.setStyleSheet('font-size:19px;font-weight:600')
         layout.addWidget(label)
         storage = 'переносимом зашифрованном хранилище' if portable_enabled() else 'прежнем защищённом хранилище Windows'
         note = (f'Секрет вводится только в этом окне и хранится в {storage}. '
@@ -73,10 +73,7 @@ class CredentialDialog(QDialog):
         buttons.accepted.connect(self.save)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
-        self.setStyleSheet('QDialog{background:#191c23;color:#edf0f6} QLabel,QCheckBox{color:#cbd0db;font-size:14px} '
-            'QLineEdit{background:#10131a;border:1px solid #424958;border-radius:7px;padding:9px;color:#f4f5f8;font-size:15px} '
-            'QPushButton{background:#303849;color:#f4f5f8;border:1px solid #525c70;border-radius:7px;padding:9px 14px;font-size:14px} '
-            'QPushButton:focus{border-color:#a8b1ff} QPushButton:hover{background:#414c62}')
+
 
     def save(self):
         changes = {name: field.text().strip() for name, field in self.fields.items() if field.text().strip()}

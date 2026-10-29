@@ -68,3 +68,22 @@ def test_bundled_native_font_covers_cyrillic_and_real_styles_are_generated():
     assert all(raw.glyphIndexesForString('Гермиона Расследования Источники'))
     assert '#17212b' in style_for_theme('light')
     assert style_for_theme('black') != style_for_theme('light')
+
+
+def test_secret_dialog_inherits_all_four_palettes_without_a_dark_override():
+    from grangerpet.credential_dialog import CredentialDialog
+    from PySide6.QtWidgets import QLabel
+    app=QApplication.instance() or QApplication([])
+    try:
+        for theme in PALETTES:
+            apply_theme(app,theme)
+            dialog=CredentialDialog('deepseek',getter=lambda name:'',setter=lambda *args:None)
+            dialog.show();app.processEvents()
+            title=dialog.findChildren(QLabel)[0]
+            assert 'color:' not in title.styleSheet()
+            assert not dialog.styleSheet()
+            assert dialog.palette().color(QPalette.ColorRole.WindowText).name()==PALETTES[theme]['text']
+            assert not dialog.grab().isNull()
+            dialog.reject();dialog.deleteLater();app.processEvents()
+    finally:
+        apply_theme(app,'dark')

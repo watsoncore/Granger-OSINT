@@ -13,6 +13,24 @@ import zipfile
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 
+PATTERNS=(re.compile(rb'AIza[0-9A-Za-z_-]{30,}'),re.compile(rb'sk-[A-Za-z0-9_-]{25,}'),re.compile(rb'vk1\.[A-Za-z0-9_-]{60,}'))
+PUBLIC_SSH_ALGORITHMS=(b'sk-ecdsa-sha2-nistp256-cert-v01@openssh.com',)
+
+
+def contains_credential_pattern(raw):
+    """Public SSH algorithm names are protocol identifiers, not API keys.
+
+    Match only that exact full OpenSSH name, including its @openssh.com suffix.
+    Saved secret-value checks remain separate and never get this exclusion.
+    """
+    for pattern in PATTERNS:
+        for match in pattern.finditer(raw):
+            if any(raw[match.start():match.start()+len(name)]==name and match.end()<=match.start()+len(name)
+                   for name in PUBLIC_SSH_ALGORITHMS):
+                continue
+            return True
+    return False
+
 
 def main():
     from grangerpet.credentials import NAMES,get_secret,CredentialError
@@ -30,12 +48,11 @@ def main():
         try:value=get_secret(name)
         except CredentialError:value=''
         if len(value)>=8:secrets.append(value.encode('utf-8'))
-    patterns=[re.compile(rb'AIza[0-9A-Za-z_-]{30,}'),re.compile(rb'sk-[A-Za-z0-9_-]{25,}'),re.compile(rb'vk1\.[A-Za-z0-9_-]{60,}')]
     failures=[];checked=0
     def inspect(name,raw):
         nonlocal checked
         checked+=1
-        if any(secret in raw for secret in secrets) or any(pattern.search(raw) for pattern in patterns):failures.append(name)
+        if any(secret in raw for secret in secrets) or contains_credential_pattern(raw):failures.append(name)
     tracked=subprocess.check_output(['git','ls-files','-c','-o','--exclude-standard','-z'],cwd=ROOT)
     for name in tracked.split(b'\0'):
         if name:
