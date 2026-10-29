@@ -1,0 +1,44 @@
+{
+  "product": "Granger-OSINT",
+  "version": "3.1.0-performance",
+  "tested_at_utc": "2026-10-29T07:53:52.437182+00:00",
+  "baseline_commit": "d441ce9d7dc57f0e38bf7f27820992f138a0c009",
+  "baseline_exe_sha256": "b1362c6ef7276034fa4fcb27f1b62acb82703a38fbe33b0eac6b1988c3dc23e9",
+  "exe_sha256": "d8994ea90eb62c600ed8218d8a4a944e69af94d7468a9c3a7fa37cbf14396ddb",
+  "exe_size_bytes": 233999406,
+  "production_commit": "f24d566",
+  "python_tests": {
+    "passed": 661,
+    "skipped": 1,
+    "subtests_passed": 32,
+    "seconds": 95.47
+  },
+  "frontend_tests": {
+    "passed": 62,
+    "files": 9
+  },
+  "frozen_modules": 59,
+  "frozen_resource_checks": 28,
+  "protected_assets": 12,
+  "scenario_checks": {
+    "app": 4,
+    "long": 3,
+    "cycles": 10,
+    "launcher": 15,
+    "ui": 11
+  },
+  "resource_comparison": "comparison.json",
+  "third_party_apps_and_system_changes": false,
+  "cross_application_causation_proven": false,
+  "source_zip_includes_private_profiles": false,
+  "limitations": [
+    "No causal link to Telegram/Firefox/ChatGPT established",
+    "No uniform idle CPU reduction; dynamic online requests are not strict A/B",
+    "Old long-history visible samples collected but later IPC/live stage failed",
+    "GPU Dedicated Usage retention observed; physical residency/leak not proven",
+    "Native browser find covers mounted virtual rows only",
+    "Unsigned EXE; not tested on a clean VM"
+  ],
+  "smoke_checks": 2,
+  "smoke_passed": true
+}

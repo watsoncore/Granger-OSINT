@@ -19,8 +19,9 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--archive',action='store_true')
     parser.add_argument('--git-history',action='store_true')
+    parser.add_argument('--qa',type=Path,default=ROOT/'output/refinement-qa')
     args=parser.parse_args()
-    out=ROOT/'output/refinement-qa';out.mkdir(parents=True,exist_ok=True)
+    out=args.qa.resolve();out.mkdir(parents=True,exist_ok=True)
     baseline=json.loads((ROOT/'output/upgrade-qa/baseline.json').read_text(encoding='utf-8'))
     assets=[{'path':name,'unchanged':hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==expected} for name,expected in baseline.items()]
     (out/'preservation.json').write_text(json.dumps({'passed':all(row['unchanged'] for row in assets),'files':assets},indent=2),encoding='utf-8')
