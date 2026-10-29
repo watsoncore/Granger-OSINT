@@ -106,7 +106,20 @@ export function Chat({ state, draft, setDraft, onSource, onRoute }: { state: Des
     if (previousConversation.current !== state.conversation_id) { pinned.current = true; previousConversation.current = state.conversation_id; setAway(false) }
     if (el && pinned.current && !window.getSelection()?.toString()) el.scrollTop = el.scrollHeight
   }, [end?.text, state.messages.length, state.activity, state.conversation_id])
-  useLayoutEffect(() => { if (textarea.current) { textarea.current.style.height = 'auto'; textarea.current.style.height = `${Math.min(148, textarea.current.scrollHeight)}px` } }, [draft])
+  useLayoutEffect(() => {
+    const element = textarea.current
+    const parent = element?.parentElement
+    if (!element || !parent) return
+    const resize = () => { element.style.height = 'auto'; element.style.height = draft ? `${Math.min(148, element.scrollHeight)}px` : '' }
+    resize()
+    let previousWidth = parent.clientWidth
+    const observer = new ResizeObserver(entries => {
+      const width = entries[0]?.contentRect.width
+      if (typeof width === 'number' && width !== previousWidth) { previousWidth = width; resize() }
+    })
+    observer.observe(parent)
+    return () => observer.disconnect()
+  }, [draft])
   useEffect(() => { if (!state.busy) setSending(false) }, [state.busy])
   useEffect(() => {
     if (!state.message_focus) return

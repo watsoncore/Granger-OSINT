@@ -141,6 +141,19 @@ def install(probe):
             self._numeric_probe_timer.timeout.connect(probe.flush)
             self._numeric_probe_timer.start()
             self.aboutToQuit.connect(probe.flush)
+
+        def notify(self, watched, event):
+            if os.environ.get('GRANGERPET_PERF_NOTIFY') != '1':
+                return super().notify(watched, event)
+            # Fixed class/type labels only: no objectName, user text, URLs,
+            # widget contents or event payloads. Durations include nested Qt
+            # delivery and must not be summed as independent CPU accounting.
+            label = 'qt_notify_' + watched.metaObject().className() + '_' + str(int(event.type()))
+            started = time.perf_counter_ns()
+            try:
+                return super().notify(watched, event)
+            finally:
+                probe.record(label, time.perf_counter_ns()-started)
     application.QApplication = ProbeApplication
 
 

@@ -4,9 +4,21 @@ import { describe, expect, it, vi } from 'vitest'
 import { AttachmentComposer, importDroppedImage } from './components/AttachmentComposer'
 import { emptyState } from './types'
 import { act } from './bridge'
+import { Chat } from './components/Chat'
 
 vi.mock('./bridge', () => ({ act: vi.fn().mockResolvedValue(true) }))
 describe('local image attachment controls', () => {
+  it('does not retain a tall empty composer from the initial narrow native viewport', () => {
+    const old = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'scrollHeight')
+    Object.defineProperty(HTMLTextAreaElement.prototype,'scrollHeight',{configurable:true,get:()=>400})
+    try {
+      render(<Tooltip.Provider><Chat state={emptyState} draft="" setDraft={()=>{}} onSource={()=>{}} onRoute={()=>{}}/></Tooltip.Provider>)
+      expect((screen.getByRole('textbox',{name:'Сообщение Гермионе'}) as HTMLTextAreaElement).style.height).toBe('')
+    } finally {
+      if (old) Object.defineProperty(HTMLTextAreaElement.prototype,'scrollHeight',old)
+      else delete (HTMLTextAreaElement.prototype as unknown as Record<string,unknown>).scrollHeight
+    }
+  })
   it('chooses images through the native picker without reading an arbitrary path', () => {
     render(<Tooltip.Provider><AttachmentComposer state={emptyState}/></Tooltip.Provider>)
     fireEvent.click(screen.getByRole('button', { name: 'Выбрать изображение' }))

@@ -33,6 +33,7 @@ def main():
     parser.add_argument('--project-root', type=Path, default=ROOT)
     parser.add_argument('--group', choices=('app', 'long', 'cycles'), default='app')
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--exe', type=Path, default=ROOT/'dist/Granger-OSINT.exe')
     parser.add_argument('--live', action='store_true')
     parser.add_argument('--repeats', type=int, default=3)
     parser.add_argument('--seconds', type=int, default=6)
@@ -44,7 +45,7 @@ def main():
     if send_command('pet', 'status') or send_command('launcher', 'status'):
         raise SystemExit('An existing Granger instance is active; it will not be touched')
     out.mkdir(parents=True)
-    exe = ROOT/'dist/Granger-OSINT.exe'
+    exe = args.exe.resolve()
     monitor = ProcessSampler(exe)
     processes = []
     owned = {}
