@@ -41,7 +41,9 @@ def test_missing_dependency_name_and_remedy_survive_registry_catalog(tmp_path,mo
     assert row['state']=='missing_dependency' and 'aiohttp' in row['reason']
     assert row['diagnostic']['missing_module']=='aiohttp' and '--groups maigret' in row['diagnostic']['remedy']
     assert not row['available'] and not row['diagnostic']['execution_verified']
-    assert len(updates)==len(catalog)==16
+    from grangerpet.agent_tools import _SPECS
+    assert len(updates)==len(catalog)==len(_SPECS)
+    assert {row['name'] for row in updates}=={spec.name for spec in _SPECS}
 
 
 def test_force_refresh_really_reprobes_and_cancelled_probe_is_not_cached(monkeypatch):

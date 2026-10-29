@@ -115,6 +115,56 @@ def _json(value):
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
 
 
+def _geoint_context(details, maximum):
+    """Bound real structured image/map facts without discarding GPS semantics.
+
+    The complete adapter result stays in evidence. No preview, base64 image,
+    filesystem path, decoder buffer or executable setting enters model context.
+    """
+    if not isinstance(details, dict):
+        return {}
+    names = {"image_metadata", "image_ocr", "image_compare", "map_geocode", "map_overpass", "map_wikimedia"}
+    if details.get("tool") not in names:
+        return {}
+    value = {key: deepcopy(details[key]) for key in ("tool", "status", "attachment_id") if key in details}
+    metadata = details.get("metadata")
+    if isinstance(metadata, dict):
+        value["metadata"] = {key: deepcopy(metadata[key]) for key in ("status", "gps") if key in metadata}
+    # Each optional addition must fit; essential no-GPS/GPS facts are retained.
+    maximum = max(300, int(maximum))
+    def add(key, item):
+        if len(_json({**value, key: item})) <= maximum:
+            value[key] = item
+    if isinstance(details.get("image"), dict):
+        add("image", {key: details["image"][key] for key in
+            ("id", "name", "format", "mime", "width", "height", "bytes", "sha256") if key in details["image"]})
+    if isinstance(metadata, dict):
+        for section in ("exif", "text_metadata"):
+            if isinstance(metadata.get(section), dict):
+                selected = {}
+                for key, item in list(metadata[section].items())[:20]:
+                    candidate = {**value.get("metadata", {}), section: {**selected, str(key)[:80]: deepcopy(item)}}
+                    if len(_json({**value, "metadata": candidate})) <= maximum:
+                        selected[str(key)[:80]] = deepcopy(item)
+                        value["metadata"] = candidate
+    for key in ("visual_features", "languages", "coordinate_space", "width", "height", "radius_m", "attribution"):
+        if key in details:
+            add(key, deepcopy(details[key]))
+    if isinstance(details.get("text"), str):
+        add("text", details["text"][:min(2000, maximum // 2)])
+        add("text_total_chars", len(details["text"]))
+    for key in ("segments", "matches", "places", "objects", "media"):
+        if isinstance(details.get(key), list):
+            selected = []
+            for item in details[key][:30]:
+                if len(_json({**value, key: selected + [item]})) > maximum:
+                    break
+                selected.append(deepcopy(item))
+            add(key, selected)
+            add(key + "_total", len(details[key]))
+    return value
+
+
 class AgentRunner:
     def __init__(self, client, registry, *, limits=None):
         self.client, self.registry = client, registry
@@ -275,7 +325,7 @@ class AgentRunner:
     def _description(self, method):
         function = getattr(self.registry, method)
         parameters = inspect.signature(function).parameters
-        values = {"cancel_event": self._linked, "deadline": self._deadline}
+        values = {"cancel_event": self._linked, "deadline": self._deadline, "task": self._record.get('goal','')}
         return function(**{name: value for name, value in values.items() if name in parameters})
 
     def _messages(self, history, catalog):
@@ -535,6 +585,9 @@ class AgentRunner:
             row['provenance'] = {key:origin[key] for key in ('tool','obtained_at','acquisition') if key in origin}
             row["description"] = relevant_excerpt(record.get("description", ""), self._record.get('goal',''), 450)
             details = record.get('details') or {}
+            if details.get('tool') in ('image_metadata','image_ocr','image_compare','map_geocode','map_overpass','map_wikimedia'):
+                available = self.limits.max_tool_result_chars - len(_json({**value, 'results':rows+[row]})) - 160
+                row['geoint_result'] = _geoint_context(details, available)
             selection = envelope.get('context_selection', {}) if envelope.get('tool')=='evidence_get' else {}
             focus = selection.get('focus') or self._record.get('goal','')
             if envelope.get('tool')=='evidence_get' and details.get('reading_method')!='direct_http':
@@ -744,12 +797,14 @@ class AgentRunner:
                 'ledger': usage_ledger, 'provider': provider, 'model': model, 'on_event': on_event,
                 'checkpoint_callback': checkpoint_callback}
             self._persistence_ready = True
-            self._persist()
-            self._checkpoint()
             if resume_state is not None and hasattr(self.registry, 'restore_investigation'):
                 self.registry.restore_investigation(self._store.records(), self._state.get('registry_state', {}))
             elif hasattr(self.registry, 'begin_investigation'):
                 self.registry.begin_investigation()
+            # Restore capabilities before the first persistence snapshot. A fresh
+            # registry must not overwrite saved attachment/URL scope with emptiness.
+            self._persist()
+            self._checkpoint()
             self._event(on_event, 'planning', message='Продолжаю сохранённое расследование.' if resume_state else 'Выбираю доступные источники и план проверки.')
             catalog = self._description('catalog')
             self._catalog = {item['name']: item for item in catalog if isinstance(item, dict) and isinstance(item.get('name'), str)}

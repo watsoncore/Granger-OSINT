@@ -13,6 +13,7 @@ import json
 import re
 import threading
 import time
+import uuid
 
 from .agent_evidence import normalize_evidence, redact, utc_now
 from .investigation import InvestigationEvidence
@@ -51,6 +52,15 @@ _SPECS = (
     ToolSpec("domain_lookup", "domain_lookup", "domain", "domain", "Пассивные DNS и доступные RDAP-сведения публичного домена. Не сканирование портов или уязвимостей.", max_length=253),
     ToolSpec("ip_lookup", "ip_lookup", "ip", "address", "Публичные сведения RIPEstat об ASN и сетевом префиксе IP. Только глобальный IP, без геолокации человека и активного сканирования.", max_length=64),
     ToolSpec("evidence_get", "evidence_get", "evidence", "evidence_id", "Вернуться к полной безопасной записи ранее полученной находки по точному evidence_id. Не выполняет новый поиск и не доказывает личность.", max_length=23),
+    ToolSpec("github_repository", "github_repository", "repository", "repository", "GitHub REST API: публичные метаданные конкретного репозитория owner/name, без чтения приватного кода.", max_length=140),
+    ToolSpec("threat_feodo", "threat_feodo", "ip", "address", "Feodo Tracker: сверить публичный IP с рекомендованным открытым C2-списком. Отсутствие совпадения не означает безопасность.", max_length=45),
+    ToolSpec("hash_virustotal", "hash_virustotal", "hash", "sha256", "VirusTotal API: прочитать существующий отчёт SHA-256 с собственным ключом. Файлы не загружаются; требуется подтверждение платного/персонального источника.", True, 64),
+    ToolSpec('image_metadata','image_metadata','image','attachment_id','Локально прочитать выбранное изображение: настоящий EXIF/GPS, SHA-256, размеры и dHash. Отсутствие GPS не означает координаты 0,0. Не определяет место по внешности.',max_length=68),
+    ToolSpec('image_ocr','image_ocr','image','attachment_id','Локальный Tesseract: русский и английский текст из пикселей выбранного изображения, bounding boxes и confidence. Без загрузки в облако.',max_length=68),
+    ToolSpec('image_compare','image_compare','image','attachment_id','Сопоставить dHash с ранее выбранными локальными изображениями; сходство не доказывает одинаковое место съёмки.',max_length=68),
+    ToolSpec('map_geocode','map_geocode','coordinates','place','Найти географических кандидатов по публичному топониму на настроенном разрешённом Nominatim endpoint. Требуется подтверждение передачи запроса.',True,300),
+    ToolSpec('map_overpass','map_overpass','coordinates','coordinates','Именованные достопримечательности в радиусе500м от заданных latitude,longitude через разрешённый Overpass endpoint. Требуется подтверждение передачи координат.',True,64),
+    ToolSpec('map_wikimedia','map_wikimedia','coordinates','coordinates','MediaWiki Commons API: геотеги до20медиа в радиусе1км от latitude,longitude. Совпадение пикселей не проверяется. Требуется подтверждение передачи координат.',True,64),
 )
 _BY_NAME = {spec.name: spec for spec in _SPECS}
 _AUTH = {"telegram": ("telegram_api_hash", "telegram_session"), "vk": ("vk_token",), "instagram": ("instagram_session",)}
@@ -78,7 +88,7 @@ class _Cancellation:
 
 
 class ToolRegistry:
-    def __init__(self, settings, *, options=None, readiness=None, adapters=None, secret_getter=None, web_provider=None, redactions=()):
+    def __init__(self, settings, *, options=None, readiness=None, adapters=None, secret_getter=None, web_provider=None, redactions=(), attachment_ids=(), image_store=None):
         self.settings = settings
         self._options = {key: deepcopy(value) for key, value in dict(options or {}).items() if key in _BASE_OPTIONS or key in ("secrets", "google_api_key", "vk_token", "telegram_api_hash", "telegram_session", "instagram_session")}
         self._readiness = readiness or runtime_readiness
@@ -87,6 +97,9 @@ class ToolRegistry:
         self._web_provider = web_provider
         self._availability = {}
         self._last_executions = {}
+        self._attachment_ids=set(attachment_ids)
+        self._image_store=image_store
+        self._mapping_client=None
         self.evidence = InvestigationEvidence()
         self._lock = threading.RLock()
         self._redactions = {value for value in redactions if isinstance(value, str) and len(value) >= 4}
@@ -102,11 +115,16 @@ class ToolRegistry:
         self.web_reader.begin_run()
 
     def checkpoint_state(self):
-        return self.web_reader.checkpoint_state()
+        return {**self.web_reader.checkpoint_state(),'attachment_ids':sorted(self._attachment_ids)}
 
     def restore_investigation(self, records, state):
         self.evidence.restore(records, [])
         self.web_reader.restore_state(state, records)
+        self.allow_attachments(state.get('attachment_ids',[]))
+
+    def allow_attachments(self, identifiers):
+        for value in identifiers:
+            if isinstance(value,str) and re.fullmatch(r'img_[a-f0-9]{64}',value): self._attachment_ids.add(value)
 
     def _secret(self, name):
         value = self._options.get("secrets", {}).get(name) or self._options.get(name)
@@ -147,7 +165,7 @@ class ToolRegistry:
             value=deepcopy(cached[1])
             if spec.name in self._last_executions:
                 value['last_execution']=deepcopy(self._last_executions[spec.name])
-                value.setdefault('diagnostic',{})['execution_verified']=self._last_executions[spec.name]['status'] in ('complete','completed','empty','partial')
+                value.setdefault('diagnostic',{})['execution_verified']=self._last_executions[spec.name]['status'] in ('complete','completed','empty')
             return value
         base = {"name": spec.name, "source": spec.source, "kind": spec.kind, "description": spec.description,
                 "requires_approval": spec.requires_approval, "needs_confirmation": spec.requires_approval,
@@ -166,6 +184,13 @@ class ToolRegistry:
                             reason="Веб-источник проверяется фактическим запросом; наличие настроек не доказывает доступ к выдаче.")
             except (ImportError, RuntimeError, ValueError):
                 base.update(reason="Модуль веб-поиска недоступен.")
+        elif spec.source in ('github_repository','threat_feodo','hash_virustotal'):
+            configured=spec.source!='hash_virustotal' or bool(self._secret('virustotal_api_key'))
+            base.update(available=configured,state='ready' if configured else 'auth_required',
+                reason='Локальный адаптер готов; внешний API ещё не проверен.' if configured else 'Нужен собственный API-ключ VirusTotal.')
+        elif spec.kind in ('image','coordinates'):
+            from .geoint_tools import readiness
+            base.update(readiness(spec.source,self.settings,self._image_store))
         elif spec.source in ("domain_lookup", "ip_lookup"):
             try:
                 from . import agent_web
@@ -239,13 +264,19 @@ class ToolRegistry:
                     except Exception:pass
         rows = {row["name"]: row for row in checked}
         rows.update(instant)
-        return [rows[spec.name] for spec in _SPECS]
+        from .tool_manifest import manifest, technical_state
+        result=[rows[spec.name] for spec in _SPECS]
+        for spec,row in zip(_SPECS,result):
+            row.update(manifest=manifest(spec).to_dict(),readiness_status=technical_state(row),implemented=True)
+        return result
 
-    def schemas(self, *, cancel_event=None, deadline=None):
+    def schemas(self, *, cancel_event=None, deadline=None, task=None):
+        from .tool_manifest import relevant_names
+        selected=relevant_names(_SPECS,task)
         rows = {row["name"]: row for row in self.catalog(cancel_event=cancel_event, deadline=deadline)}
         tools = []
         for spec in _SPECS:
-            if not rows[spec.name]["available"]:
+            if spec.name not in selected or not rows.get(spec.name,{}).get("available"):
                 continue
             tools.append({"type": "function", "function": {"name": spec.name, "description": spec.description,
                 "parameters": {"type": "object", "properties": {
@@ -274,6 +305,18 @@ class ToolRegistry:
         if type(limit) is not int or not 1 <= limit <= maximum:
             raise ValueError("Лимит результата вне допустимого диапазона.")
         options = self._source_options(spec.source)
+        if spec.kind in ('image','coordinates'):
+            if spec.kind=='image':
+                if not re.fullmatch(r'img_[a-f0-9]{64}',value) or value not in self._attachment_ids:
+                    raise ValueError('Изображение не выбрано пользователем для этой задачи.')
+            elif spec.source!='map_geocode':
+                from .geoint.mapping import coordinates
+                coordinates(value)
+            return value,limit,options,None
+        if spec.source in ('github_repository','threat_feodo','hash_virustotal'):
+            from .public_integrations import validate
+            value=validate(spec.source,value)
+            return value,limit,options,None
         if spec.source in ("web_search", "web_read", "domain_lookup", "ip_lookup", "evidence_get"):
             if spec.source == "web_read":
                 from .agent_browser import PageReadError, public_url
@@ -311,6 +354,19 @@ class ToolRegistry:
         return query.text, limit, options, query
 
     def execute(self, name, args, *, cancel_event=None, deadline=None, approved=False, on_event=None):
+        started=utc_now()
+        result=self._execute(name,args,cancel_event=cancel_event,deadline=deadline,approved=approved,on_event=on_event)
+        # Keep compatibility with the existing agent/evidence path while exposing
+        # one versioned invocation contract for every success and failure.
+        result.update(invocation_id=uuid.uuid4().hex,tool_id=result.get('tool',str(name)[:80]),
+            started_at=result.get('started_at',started),finished_at=utc_now(),
+            input_summary={'query':result.get('query','')},data={'results':deepcopy(result.get('results',[]))},
+            evidence_ids=[r['evidence_id'] for r in result.get('results',[]) if r.get('evidence_id')],
+            warnings=list(result.get('limitations',[])),errors=[result['error']] if result.get('error') else
+            [] if result.get('status') in ('complete','completed','empty','partial') else [result.get('status','error')])
+        return result
+
+    def _execute(self, name, args, *, cancel_event=None, deadline=None, approved=False, on_event=None):
         when = utc_now()
         started = time.monotonic()
         envelope = {"tool": str(name)[:80], "status": "invalid_arguments", "query": "", "obtained_at": when,
@@ -386,6 +442,15 @@ class ToolRegistry:
             elif spec.source in ("domain_lookup", "ip_lookup"):
                 from .agent_web import lookup_domain, lookup_ip
                 outcome = (lookup_domain if spec.source == "domain_lookup" else lookup_ip)(value, cancel_event=cancelled, deadline=deadline)
+            elif spec.source in ('github_repository','threat_feodo','hash_virustotal'):
+                from .public_integrations import execute
+                outcome=execute(spec.source,value,secret=self._secret('virustotal_api_key') if spec.source=='hash_virustotal' else '',
+                    cancel_event=cancelled,deadline=deadline)
+            elif spec.kind in ('image','coordinates'):
+                from .geoint_tools import execute,mapping_client
+                if self._mapping_client is None: self._mapping_client=mapping_client(self.settings)
+                outcome=execute(spec.source,value,settings=self.settings,store=self._image_store,maps=self._mapping_client,
+                    cancel_event=cancelled,deadline=deadline)
             else:
                 remaining = max(0, deadline - time.monotonic())
                 query.timeout = min(query.timeout, remaining)
