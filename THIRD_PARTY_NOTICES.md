@@ -30,3 +30,9 @@ The username, email and phone tools have additional terms, including copyleft an
 The desktop application uses Python, PySide6/Qt and Shiboken. PySide6/Qt provide their own LGPL/GPL/commercial licensing options and Qt third-party notices; consult the installed distribution's license files before redistribution. PyInstaller is the build packager and supplies its bootloader under its own license exception. Optional Python dependencies retain their upstream licenses and are recorded per environment in `.toolenvs/<group>/installed-requirements.txt`.
 
 Hermione Granger / Harry Potter character references and the fan artwork are independent of the source-tool licenses. Granger-OSINT is an unofficial fan project and is not endorsed by the named platforms or their rights holders.
+
+## Local GEOINT and portable security
+
+Pillow13.0.0 supplies local image decoding, EXIF and bounded pixel processing. Cryptography50.0.2 supplies Argon2id and AES-GCM; no custom cipher is used. Installed distribution license texts and hashes are preserved in `resources/third-party/Python-geoint-security/` and included in the EXE.
+
+The portable Tesseract5.5.3 runtime and its dynamically linked dependencies are reproduced from checksum-verified official MSYS2 packages. The Russian and English `tessdata_fast` models are pinned to the upstream commit recorded in `resources/ocr/provenance.json`. This runtime contains components with different licences, including copyleft alternatives; their full original notices are included under `resources/ocr/licenses/`. The manifest records original package/source URLs, versions, checksums and every delivered binary/model. `scripts/setup_geoint_ocr.py` reproduces the runtime without executing an installer or changing Windows. Tesseract is invoked as a separate local process; image pixels and TSV travel through anonymous pipes.

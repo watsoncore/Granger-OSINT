@@ -24,6 +24,11 @@ def main():
         if path.is_file():
             name=str(path.relative_to(ROOT)).replace('/','\\')
             rows.append({'path':name,'matches':name in archive.toc and archive.extract(name)==path.read_bytes()})
+    for directory in ('resources/ocr','resources/third-party/Python-geoint-security'):
+        for path in sorted((ROOT/directory).rglob('*')):
+            if path.is_file():
+                name=str(path.relative_to(ROOT)).replace('/','\\')
+                rows.append({'path':name,'matches':name in archive.toc and archive.extract(name)==path.read_bytes()})
     required=('PySide6\\QtWebEngineProcess.exe','PySide6\\resources\\icudtl.dat',
         'PySide6\\resources\\qtwebengine_resources.pak','PySide6\\translations\\qtwebengine_locales\\ru.pak',
         'frontend\\THIRD_PARTY_NOTICES.txt','resources\\Granger-OSINT.ico','resources\\THIRD_PARTY_NOTICES.md')

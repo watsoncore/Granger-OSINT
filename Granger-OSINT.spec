@@ -33,9 +33,10 @@ a = Analysis(
     datas=[(str(assets), "grangerpet/assets"), (str(frontend), "frontend"),
            (str(icon), "resources"), (str(resources / "Granger-OSINT.svg"), "resources"),
            (str(version), "resources"), (str(resources / "third-party"), "resources/third-party"),
-           (str(root / "THIRD_PARTY_NOTICES.md"), "resources")] + [
+           (str(root / "THIRD_PARTY_NOTICES.md"), "resources"),
+           (str(resources / "ocr"), "resources/ocr")] + [
         (str(path), "grangerpet/engine") for path in (root / "grangerpet" / "engine").glob("*.py")
-    ] + copy_metadata("httpx"),
+    ] + copy_metadata("httpx") + copy_metadata("Pillow") + copy_metadata("cryptography"),
     hiddenimports=["PySide6.QtWebEngineCore", "PySide6.QtWebEngineWidgets", "PySide6.QtWebChannel"],
     hookspath=[],
     hooksconfig={},

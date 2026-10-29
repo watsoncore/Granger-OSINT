@@ -1,0 +1,26 @@
+[
+  {
+    "distribution": "Pillow",
+    "version": "13.0.0",
+    "file": "Pillow/LICENSE",
+    "sha256": "988ffe8ab3480b0f4e9a0ab2702bffd73d9fb6b47198043fb3ba101a62fac236"
+  },
+  {
+    "distribution": "cryptography",
+    "version": "50.0.2",
+    "file": "cryptography/LICENSE",
+    "sha256": "3e0c7c091a948b82533ba98fd7cbb40432d6f1a9acbf85f5922d2f99a93ae6bb"
+  },
+  {
+    "distribution": "cryptography",
+    "version": "50.0.2",
+    "file": "cryptography/LICENSE.APACHE",
+    "sha256": "aac73b3148f6d1d7111dbca32099f68d26c644c6813ae1e4f05f6579aa2663fe"
+  },
+  {
+    "distribution": "cryptography",
+    "version": "50.0.2",
+    "file": "cryptography/LICENSE.BSD",
+    "sha256": "602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb"
+  }
+]
