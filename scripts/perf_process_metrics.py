@@ -79,8 +79,13 @@ class _WindowsProcesses:
 
     def counters(self,pid):
         handle=self.kernel.OpenProcess(0x1000|0x10,False,pid)
+        access='query_limited_and_vm_read'
         if not handle:
-            return None
+            # Sandboxed WebEngine children may deny VM_READ. Their CPU/image
+            # counters still permit limited-query access on current Windows.
+            handle=self.kernel.OpenProcess(0x1000,False,pid)
+            access='query_limited'
+        if not handle:return None
         try:
             size=W.DWORD(32768);image=ctypes.create_unicode_buffer(size.value)
             if not self.kernel.QueryFullProcessImageNameW(handle,0,image,ctypes.byref(size)):
@@ -92,6 +97,7 @@ class _WindowsProcesses:
             memory_ok=self.psapi.GetProcessMemoryInfo(handle,ctypes.byref(memory),memory.cb)
             return {'pid':pid,'image':str(Path(image.value).resolve()),'creation_ticks':_ticks(birth),
                 'cpu_seconds':(_ticks(kernel)+_ticks(user))/10_000_000,
+                'query_access':access,
                 'rss_bytes':int(memory.WorkingSetSize) if memory_ok else None,
                 'private_commit_bytes':int(memory.PrivateUsage) if memory_ok else None}
         finally:
@@ -207,26 +213,38 @@ class ProcessSampler:
             for pid,item in tree.items():
                 if pid in rows or item['parent_pid'] not in rows:continue
                 row=self.api.counters(pid)
-                if row and row['creation_ticks']>=rows[item['parent_pid']]['creation_ticks']:
+                parent_birth=rows[item['parent_pid']]['creation_ticks']
+                if row and (parent_birth is None or row['creation_ticks']>=parent_birth):
                     rows[pid]=row;changed=True
+                elif row is None:
+                    # Count ancestry-verified inaccessible children too. Do not
+                    # invent zero CPU/memory or retain an unverified PID after
+                    # its parent exits: creation identity is unavailable.
+                    rows[pid]={'pid':pid,'image':None,'creation_ticks':None,'cpu_seconds':None,
+                        'rss_bytes':None,'private_commit_bytes':None,'query_access':'unavailable'}
+                    changed=True
         now=time.monotonic();wall_ticks=time.time_ns()//100+116444736000000000
         elapsed=now-self._last_time if self._last_time is not None else None
         total_cpu=0.0
         for pid,row in rows.items():
             identity=(pid,row['creation_ticks']);previous=self._previous.get(identity)
-            if previous is None and self._last_wall_ticks is not None and row['creation_ticks']>=self._last_wall_ticks:
+            if previous is None and self._last_wall_ticks is not None and row['creation_ticks'] is not None and row['creation_ticks']>=self._last_wall_ticks:
                 previous=0.0  # A child born inside this interval has no earlier CPU.
-            row['cpu_percent_one_core']=max(0.0,(row['cpu_seconds']-previous)/elapsed*100) if previous is not None and elapsed else None
+            row['cpu_percent_one_core']=max(0.0,(row['cpu_seconds']-previous)/elapsed*100) if previous is not None and row['cpu_seconds'] is not None and elapsed else None
             if row['cpu_percent_one_core'] is not None:total_cpu+=row['cpu_percent_one_core']
             row.update(parent_pid=tree[pid]['parent_pid'],threads=tree[pid]['threads'])
-        self._known={pid:(r['creation_ticks'],r['image']) for pid,r in rows.items()}
-        self._previous={(pid,r['creation_ticks']):r['cpu_seconds'] for pid,r in rows.items()};self._last_time=now;self._last_wall_ticks=wall_ticks
+        self._known={pid:(r['creation_ticks'],r['image']) for pid,r in rows.items() if r['creation_ticks'] is not None}
+        self._previous={(pid,r['creation_ticks']):r['cpu_seconds'] for pid,r in rows.items() if r['cpu_seconds'] is not None};self._last_time=now;self._last_wall_ticks=wall_ticks
         def total(field):return sum(r[field] for r in rows.values()) if all(r[field] is not None for r in rows.values()) else None
         result={'sampled_at_utc':datetime.now(timezone.utc).isoformat(),'process_count':len(rows),
             'thread_count':sum(r['threads'] for r in rows.values()),'rss_bytes_sum':total('rss_bytes'),
             'private_commit_bytes_sum':total('private_commit_bytes'),'private_working_set_bytes':None,
-            'cpu_percent_one_core':total_cpu if elapsed else None,
-            'cpu_percent_machine':total_cpu/(os.cpu_count() or 1) if elapsed else None,
+            'cpu_percent_one_core':total_cpu if elapsed and all(r['cpu_percent_one_core'] is not None for r in rows.values()) else None,
+            'cpu_percent_machine':total_cpu/(os.cpu_count() or 1) if elapsed and all(r['cpu_percent_one_core'] is not None for r in rows.values()) else None,
+            'cpu_percent_one_core_available':total_cpu if elapsed else None,
+            'resource_coverage_process_count':sum(r['rss_bytes'] is not None for r in rows.values()),
+            'cpu_coverage_process_count':sum(r['cpu_percent_one_core'] is not None for r in rows.values()),
+            'unreadable_process_count':sum(r.get('query_access')=='unavailable' for r in rows.values()),
             'logical_processors':os.cpu_count(),'interval_seconds':elapsed,
             'rejected_root_pids':rejected,'processes':sorted(rows.values(),key=lambda r:r['pid']),
             'gpu':self.gpu.sample(set(rows)) if self.gpu else {'diagnostics':{'provider':'disabled_for_measurement'}},

@@ -63,3 +63,34 @@ def test_cpu_delta_and_machine_normalization_and_na_summary(monkeypatch):
     summary=metrics.summarize([first,second])
     assert summary['medians']['cpu_percent_one_core']==50
     assert summary['gpu_medians']['gpu_dedicated_bytes'] is None
+
+
+def test_inaccessible_descendant_counts_without_invented_resource_values(monkeypatch):
+    sampler,api=monitor(monkeypatch,{1:row(1,'Granger-OSINT.exe'),2:row(2,'QtWebEngineProcess.exe',parent=1),
+        3:row(3,'QtWebEngineProcess.exe',parent=2)})
+    original=api.counters
+    api.counters=lambda pid:None if pid==2 else original(pid)
+    value=sampler.sample([1])
+    assert value['process_count']==3
+    assert value['unreadable_process_count']==1
+    assert value['resource_coverage_process_count']==2
+    assert value['rss_bytes_sum'] is None and value['private_commit_bytes_sum'] is None
+    assert next(r for r in value['processes'] if r['pid']==2)['image'] is None
+
+
+def test_vm_read_denial_falls_back_to_limited_query_without_zero_memory():
+    class Kernel:
+        def __init__(self):self.access=[];self.closed=[]
+        def OpenProcess(self,mask,inherit,pid):
+            self.access.append(mask)
+            return 7 if mask==0x1000 else None
+        def QueryFullProcessImageNameW(self,handle,flags,buffer,size):buffer.value=str(Path('Granger-OSINT.exe').resolve());return True
+        def GetProcessTimes(self,handle,birth,exit,kernel,user):birth._obj.dwLowDateTime=123;return True
+        def CloseHandle(self,handle):self.closed.append(handle)
+    class Memory:
+        def GetProcessMemoryInfo(self,*args):return False
+    api=metrics._WindowsProcesses.__new__(metrics._WindowsProcesses);api.kernel=Kernel();api.psapi=Memory()
+    value=api.counters(1)
+    assert api.kernel.access==[0x1010,0x1000] and api.kernel.closed==[7]
+    assert value['query_access']=='query_limited' and value['creation_ticks']==123
+    assert value['rss_bytes'] is None and value['private_commit_bytes'] is None
