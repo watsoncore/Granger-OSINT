@@ -67,6 +67,21 @@ def test_task_schemas_select_relevant_capabilities_and_hide_keys_private_options
     assert 'source_root' not in json.dumps(selected)
 
 
+def test_x_profile_and_post_tools_are_discoverable_from_natural_x_tasks():
+    reg=registry()
+    for task in ('Проверь профиль X jack','Прочитай пост X по URL https://x.com/jack/status/20'):
+        names={s['function']['name'] for s in reg.schemas(task=task)}
+        assert {'x_profile','x_post'}<=names
+    assert 'x_profile' in {s['function']['name'] for s in reg.schemas(task='Проверь публичные профили по никнейму')}
+
+
+def test_scoped_image_offers_visual_pipeline_without_requiring_id_in_user_text(monkeypatch):
+    monkeypatch.setattr('grangerpet.visual_models.tools.readiness',lambda:{'available':True,'state':'ready_local','reason':'Fixture only'})
+    reg=registry();reg.allow_attachments(['img_'+'a'*64])
+    names={s['function']['name'] for s in reg.schemas(task='Посмотри, где это снято')}
+    assert {'visual_geoint','geoclip_predict','waypoint_predict','image_metadata'}<=names
+
+
 def test_virustotal_dispatch_reads_only_its_key_and_requires_approval(monkeypatch):
     requested, invocations = [], []
     def getter(name):
