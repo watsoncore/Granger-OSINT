@@ -1,0 +1,524 @@
+{
+  "schema_version": 1,
+  "scope": "11projectsassignedlocal/authauditof19; remaining8auditedbyrootandotheragents",
+  "projects": [
+    {
+      "number": 4,
+      "name": "LinkedIn OSINT Toolkit",
+      "repository": "https://github.com/michaelelizarov/linkedin-osint-toolkit",
+      "commit": "c2b38ae785ee2530d5f5a1a143df6d3633dc158b",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/michaelelizarov/linkedin-osint-toolkit/blob/c2b38ae785ee2530d5f5a1a143df6d3633dc158b/LICENSE",
+      "decision": "PARTIAL_LOCAL_ONLY",
+      "excluded_reasons": [
+        "MANDATORY_ACCOUNT_SESSION",
+        "UNSUPPORTED_AUTH_BYPASS"
+      ],
+      "allowed_independent_modes": [
+        "LOCAL_PYTHON"
+      ],
+      "integrated_capability_names": [
+        "role_classify"
+      ],
+      "dependencies_reviewed": [
+        "selenium",
+        "webdriver-manager",
+        "python-dotenv",
+        "optionalGroq"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "LINKEDIN_EMAIL andLINKEDIN_PASSWORD required; optionalGROQ_API_KEY. Search/scrapingusesstealthfingerprint/proxies.",
+          "url": "https://github.com/michaelelizarov/linkedin-osint-toolkit/blob/c2b38ae785ee2530d5f5a1a143df6d3633dc158b/README.md",
+          "sha256": "ad779d7dd4adc28da4403aa45f62475a07da8c07802836abebbbd3c834b073da"
+        },
+        {
+          "path": "src/osint_classify_rules.py",
+          "finding": "Purestdlib keywordclassificationindependentfrombrowserandGroq.",
+          "url": "https://github.com/michaelelizarov/linkedin-osint-toolkit/blob/c2b38ae785ee2530d5f5a1a143df6d3633dc158b/src/osint_classify_rules.py",
+          "sha256": "56bcef1f7eadabefd718f5038298dd84782b9ac9b0416c073aa29889e55052a4"
+        },
+        {
+          "path": "src/classification_rules.json",
+          "finding": "Packagedheuristicrules; no profiledata copied.",
+          "url": "https://github.com/michaelelizarov/linkedin-osint-toolkit/blob/c2b38ae785ee2530d5f5a1a143df6d3633dc158b/src/classification_rules.json",
+          "sha256": "844cbf4fb5c6ac549de0a06823498e032c77444e4340178690b52b15e5431db1"
+        }
+      ],
+      "reason": "Networkdiscovery/scrapingnotintegrated; MITkeywordclassifierandrulessubsetadaptedforalreadycollectedtitles. NoGroq, Firefox/geckodriverinstallation or stealth.",
+      "installation_test": "Localadaptation44testsPython3.14.5;noexternaldependencies",
+      "execution_test": "LOCAL_EXECUTION_SUCCESS",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.281277+00:00"
+    },
+    {
+      "number": 5,
+      "name": "Steam Monitor",
+      "repository": "https://github.com/misiektoja/steam_monitor",
+      "commit": "16a603517b0254dc97c6b7109ee6a9ab14fd8630",
+      "repository_verified": true,
+      "license": "GPL-3.0-or-later",
+      "license_file_url": "https://github.com/misiektoja/steam_monitor/blob/16a603517b0254dc97c6b7109ee6a9ab14fd8630/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_PERSONAL_API_KEY"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "requests",
+        "python-dotenv",
+        "Pillow optional",
+        "keyring optional"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "MonitoringrequirestheSteamWebAPIkey; setupwizardasksforit.",
+          "url": "https://github.com/misiektoja/steam_monitor/blob/16a603517b0254dc97c6b7109ee6a9ab14fd8630/README.md",
+          "sha256": "4a8a2953e44da133f3c046985962aa574e412060287e5176bfb1b0a76b3d02b2"
+        },
+        {
+          "path": "pyproject.toml",
+          "finding": "Python>=3.6; existingdependenciesnotinstalled.",
+          "url": "https://github.com/misiektoja/steam_monitor/blob/16a603517b0254dc97c6b7109ee6a9ab14fd8630/pyproject.toml",
+          "sha256": "5811c2655d15f914558b300f59569a99a9855a98688ede5fe4856772a24a2712"
+        }
+      ],
+      "reason": "CoremonitoringrequiresSteamWebAPIkey. Nofakekeycard,notificationsoremailsintroduced; publiclandingpageisnotanindependentmonitormode.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.300384+00:00"
+    },
+    {
+      "number": 6,
+      "name": "x-scraper",
+      "repository": "https://github.com/proxidize/x-scraper",
+      "commit": "90423e9b693102c48c79b42f48bd59c529e56570",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/proxidize/x-scraper/blob/90423e9b693102c48c79b42f48bd59c529e56570/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_ACCOUNT_SESSION",
+        "UNSUPPORTED_AUTH_BYPASS"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "playwright",
+        "openai optional",
+        "browsercookies"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "RequiredTwitterusername/email/password; cookieauthentication,proxy/IProtationandstealthfeatures.",
+          "url": "https://github.com/proxidize/x-scraper/blob/90423e9b693102c48c79b42f48bd59c529e56570/README.md",
+          "sha256": "6535d643d7af6d1daf5835533a53e3880e4673a0e31f1cd5eed0650ff3714747"
+        },
+        {
+          "path": "LICENSE",
+          "finding": "ActualLICENSEisMIT; READMEbadgeEducationalisnotusedasthelicencedetermination.",
+          "url": "https://github.com/proxidize/x-scraper/blob/90423e9b693102c48c79b42f48bd59c529e56570/LICENSE",
+          "sha256": "0b2b4c669983895b08fc8b089950b268fc2a4fb6bdc5aef24f4296e4dccfa97d"
+        }
+      ],
+      "reason": "Noreviewedallowedanonymousoperation; requiresXaccount/session. Noanti-botbypass, proxies orOpenAIbackendadded.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.309049+00:00"
+    },
+    {
+      "number": 8,
+      "name": "insto",
+      "repository": "https://github.com/subzeroid/insto",
+      "commit": "124f8c6814955b521b80ea09a7f485b45b8a3f95",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/subzeroid/insto/blob/124f8c6814955b521b80ea09a7f485b45b8a3f95/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_EXTERNAL_SERVICE_TOKEN",
+        "MANDATORY_ACCOUNT_SESSION"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "hikerapi",
+        "optionalaiograpi",
+        "prompt-toolkit",
+        "httpx",
+        "rich"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "HikerAPIdefaulttokenbackend; aiograpioptionalbackendexplicitlyloggedin.",
+          "url": "https://github.com/subzeroid/insto/blob/124f8c6814955b521b80ea09a7f485b45b8a3f95/README.md",
+          "sha256": "5238627a6fca0fd2b1dcda4114666e620efcf1de20b75e696b62d9c35ca2dcab"
+        },
+        {
+          "path": "insto/cli.py",
+          "finding": "BackendselectionvalidatesHikerAPI_TOKENorInstagramcredentials/session.",
+          "url": "https://github.com/subzeroid/insto/blob/124f8c6814955b521b80ea09a7f485b45b8a3f95/insto/cli.py",
+          "sha256": "46482e3421fcf17574fb99facf606fe8e8a7bba8fbc236f890b84b7fcf895f0b"
+        },
+        {
+          "path": "pyproject.toml",
+          "finding": "Python>=3.11; HikerAPIdependency, aiograpiextra.",
+          "url": "https://github.com/subzeroid/insto/blob/124f8c6814955b521b80ea09a7f485b45b8a3f95/pyproject.toml",
+          "sha256": "e11251b434bd581e907984ae6fe8026166fd1a32c34623a50f7a84d9f6c3f7f7"
+        }
+      ],
+      "reason": "HikerAPIrequiressupplierkeyevenontrial; aiograpirequiresauthorizedInstagramlogin. DTOformattingnotclaimedasfullOSINTintegration.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.327755+00:00"
+    },
+    {
+      "number": 9,
+      "name": "Osintgraph",
+      "repository": "https://github.com/XD-MHLOO/Osintgraph",
+      "commit": "c9bbcabb20604e2db1ae14f5ae7ba91d7938c33a",
+      "repository_verified": true,
+      "license": "GPL-3.0-or-later",
+      "license_file_url": "https://github.com/XD-MHLOO/Osintgraph/blob/c9bbcabb20604e2db1ae14f5ae7ba91d7938c33a/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_ACCOUNT_SESSION",
+        "MANDATORY_EXTERNAL_SERVICE_TOKEN"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "instaloader==4.14.2",
+        "neo4j==5.28.1",
+        "langchain-google-genai==2.1.8",
+        "langgraph==0.6.2",
+        "pydantic==2.11.7"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "SetuprequiresInstagramaccount,Neo4jdatabaseandGeminiAPIkey.",
+          "url": "https://github.com/XD-MHLOO/Osintgraph/blob/c9bbcabb20604e2db1ae14f5ae7ba91d7938c33a/README.md",
+          "sha256": "6a6bf95cee9305181dcf2bc314f1cd12ce08ec19ed497be2ba4ee57fb40f5cdc"
+        },
+        {
+          "path": "src/osintgraph/insta_manager.py",
+          "finding": "auto_loginTrue; createsLLMAnalyzerthen_loginand_initialize_neo4j.",
+          "url": "https://github.com/XD-MHLOO/Osintgraph/blob/c9bbcabb20604e2db1ae14f5ae7ba91d7938c33a/src/osintgraph/insta_manager.py",
+          "sha256": "687cb11a1bdd07441ad85e07bcd83b223e8da55bb5276bb224224ee21849901d"
+        },
+        {
+          "path": "pyproject.toml",
+          "finding": "GPL3codewithmandatoryNeo4j/Geministack.",
+          "url": "https://github.com/XD-MHLOO/Osintgraph/blob/c9bbcabb20604e2db1ae14f5ae7ba91d7938c33a/pyproject.toml",
+          "sha256": "cbeb3f153e29bfa4dc7fef7d6bade2a9817f2fb092a4455465791bd5eda4ef34"
+        }
+      ],
+      "reason": "InstagramgatheringandGeminireasonerexcluded.NoNeo4jserviceinstalled. GenericPerson/Post/CommentrelationshipconceptsmayinformrootsevidencemodelwithoutcopyingGPLmodules; notanOsintgraphcollector.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.353067+00:00"
+    },
+    {
+      "number": 10,
+      "name": "TokIntel",
+      "repository": "https://github.com/HackUnderway/TokIntel",
+      "commit": "0b6cb36bcc0b2a2ab5e43ba829cd3feaa9f0ab66",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/HackUnderway/TokIntel/blob/0b6cb36bcc0b2a2ab5e43ba829cd3feaa9f0ab66/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_PERSONAL_API_KEY"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "apify-client",
+        "python-dotenv",
+        "colorama",
+        "alive-progress"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "ApifyTikTokProfileScraperAPIkeyRequired; freeaccount/trialisstillakey.",
+          "url": "https://github.com/HackUnderway/TokIntel/blob/0b6cb36bcc0b2a2ab5e43ba829cd3feaa9f0ab66/README.md",
+          "sha256": "4a055a80c58d7d8bbfd8d7524b711b5858a1065272690ac6a6cd45bab5f0f965"
+        },
+        {
+          "path": "TokIntel.py",
+          "finding": "ImportsApifyClientandcreatesclientwithAPIFY_TOKEN; checkusesactor.",
+          "url": "https://github.com/HackUnderway/TokIntel/blob/0b6cb36bcc0b2a2ab5e43ba829cd3feaa9f0ab66/TokIntel.py",
+          "sha256": "147ad1ef8776a595f9ca2dfe5326d843f91d3f0c355672f71588c9eaae47d192"
+        }
+      ],
+      "reason": "MainTikTokcollectionrequiresApifykey. Noindependentvaluablecollectionmode.NoApifyclientinstalledorcalled; separateIDtimestampisBellingcatcapability.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.373465+00:00"
+    },
+    {
+      "number": 12,
+      "name": "Bellingcat TikTok Date Extract",
+      "repository": "https://github.com/bellingcat/tiktok-timestamp",
+      "commit": "aa9831e7dfd165a27e0323e5c6cfc05816b4b9ce",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/bellingcat/tiktok-timestamp/blob/aa9831e7dfd165a27e0323e5c6cfc05816b4b9ce/LICENSE",
+      "decision": "LOCAL_EXECUTION_SUCCESS",
+      "excluded_reasons": [],
+      "allowed_independent_modes": [
+        "LOCAL_PYTHON"
+      ],
+      "integrated_capability_names": [
+        "tiktok_timestamp"
+      ],
+      "dependencies_reviewed": [
+        "stdlibonlyportedfromclientJavaScript"
+      ],
+      "source_evidence": [
+        {
+          "path": "index.html",
+          "finding": "BigIntdecimalID->binary->first31significantbits->Unixseconds.",
+          "url": "https://github.com/bellingcat/tiktok-timestamp/blob/aa9831e7dfd165a27e0323e5c6cfc05816b4b9ce/index.html",
+          "sha256": "1b8581ba33a57e57dc5c596e33bfea4f7f0699dc4cb2373a825db00497ef60dd"
+        },
+        {
+          "path": "README.md",
+          "finding": "LinksRyanBensonprimaryresearchandclient-sideoperation.",
+          "url": "https://github.com/bellingcat/tiktok-timestamp/blob/aa9831e7dfd165a27e0323e5c6cfc05816b4b9ce/README.md",
+          "sha256": "9ef5b8d53acc1d5cfb879fb70e7a8ba234e370b2e4281e16c38c7650d9be6edf"
+        }
+      ],
+      "reason": "LocalfullTikTokURLorID,integerprecision,timeUTC. NoTikToknetworkrequest.Extractedtimeisnotindependentpublicationverification.Unsupportedshortlinks/changedformatsreject.",
+      "installation_test": "Localadaptation44testsPython3.14.5;noexternaldependencies",
+      "execution_test": "LOCAL_EXECUTION_SUCCESS",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.396785+00:00"
+    },
+    {
+      "number": 13,
+      "name": "Telegram Phone Number Checker",
+      "repository": "https://github.com/bellingcat/telegram-phone-number-checker",
+      "commit": "0241df1953cd8fad1ff8b89744cba024990170ec",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/bellingcat/telegram-phone-number-checker/blob/0241df1953cd8fad1ff8b89744cba024990170ec/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_PERSONAL_API_KEY",
+        "MANDATORY_ACCOUNT_SESSION"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "telethon==1.33.1",
+        "python-dotenv",
+        "click",
+        "anyio"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "RequiresTelegramaccount,API_ID,API_HASH,phonenumber/session.",
+          "url": "https://github.com/bellingcat/telegram-phone-number-checker/blob/0241df1953cd8fad1ff8b89744cba024990170ec/README.md",
+          "sha256": "b5b023609be25d27233b3a01550c546f917f05dbe8418b6227d3184475c05811"
+        },
+        {
+          "path": "pyproject.toml",
+          "finding": "Telethon-basedtool; optionalproxyextra.",
+          "url": "https://github.com/bellingcat/telegram-phone-number-checker/blob/0241df1953cd8fad1ff8b89744cba024990170ec/pyproject.toml",
+          "sha256": "fc521aaebd641078a1aec5184692ab2fdbc709c8ba875f0cc64c19cc56861d2f"
+        }
+      ],
+      "reason": "MandatoryauthorizedTelegramaccountandAPIcredentials; phonecheckingcanimportcontacts. Noauthentication,contactupload,phonesyncorrecoveryused. ExistingGrangerTelegramadapterpreserved.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.406118+00:00"
+    },
+    {
+      "number": 14,
+      "name": "Instagram Location Search",
+      "repository": "https://github.com/bellingcat/instagram-location-search",
+      "commit": "e4045cc5b19432393c07e1270dbf5082c692d3c7",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/bellingcat/instagram-location-search/blob/e4045cc5b19432393c07e1270dbf5082c692d3c7/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_ACCOUNT_SESSION"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "requests",
+        "numpy",
+        "pandas",
+        "selenium",
+        "webdriver-manager"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "Exampleexplicitlyrequiressessioncookies; undocumentedInstagramAPIandlogged-inbrowserflow.",
+          "url": "https://github.com/bellingcat/instagram-location-search/blob/e4045cc5b19432393c07e1270dbf5082c692d3c7/README.md",
+          "sha256": "2e3f9c4ef3bfffe655d26f43ce331e8a8863fc52db4cfa257d19d13a50026e8a"
+        },
+        {
+          "path": "setup.py",
+          "finding": "Installsrequests/numpy/pandas/selenium/webdriver-manager; noindependentlocationcollector.",
+          "url": "https://github.com/bellingcat/instagram-location-search/blob/e4045cc5b19432393c07e1270dbf5082c692d3c7/setup.py",
+          "sha256": "4942b629eed10b0ec0b9c449edb4b32b697e541ee64a9657769cd352c3c257b5"
+        }
+      ],
+      "reason": "CurrentREADMErequiresInstagramcookies. Noanonymouspermittedendpointverified; nodriverinstall,loginorcookieextractionattempted.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.413835+00:00"
+    },
+    {
+      "number": 15,
+      "name": "ShadowFinder",
+      "repository": "https://github.com/bellingcat/ShadowFinder",
+      "commit": "215485abd5a46a9b98c4ba0fbfce7df6b6bb1be8",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/bellingcat/ShadowFinder/blob/215485abd5a46a9b98c4ba0fbfce7df6b6bb1be8/LICENSE",
+      "decision": "LOCAL_EXECUTION_SUCCESS",
+      "excluded_reasons": [],
+      "allowed_independent_modes": [
+        "LOCAL_PYTHON"
+      ],
+      "integrated_capability_names": [
+        "shadow_regions"
+      ],
+      "dependencies_reviewed": [
+        "portedscalarstdlibmath",
+        "upstreamfullstacknotinstalled:cartopy,pandas,numpy,timezonefinder,matplotlib"
+      ],
+      "source_evidence": [
+        {
+          "path": "src/shadowfinder/shadowfinder.py",
+          "finding": "find_shadowscomputessunaltitudes; height/tan(altitude),relativeerrororaltitudeanglerelativeerror; midnightnotassumed.",
+          "url": "https://github.com/bellingcat/ShadowFinder/blob/215485abd5a46a9b98c4ba0fbfce7df6b6bb1be8/src/shadowfinder/shadowfinder.py",
+          "sha256": "83027a8369b45ed055883917bf93141e9198128b905d5003aeb4e5376a448b41"
+        },
+        {
+          "path": "pyproject.toml",
+          "finding": "ShadowFinder0.7.1MIT; fullpackageheavyplot/timezonevectorstack.",
+          "url": "https://github.com/bellingcat/ShadowFinder/blob/215485abd5a46a9b98c4ba0fbfce7df6b6bb1be8/pyproject.toml",
+          "sha256": "9f4e1a7183b4e584c2a573d5535aeeca16a14fed78cc613d2d5092dcfe5af865"
+        },
+        {
+          "path": "README.md",
+          "finding": "DocumentedCLIexample10height5shadow2024-02-29T13:59:59UTC; alternateanglemode.",
+          "url": "https://github.com/bellingcat/ShadowFinder/blob/215485abd5a46a9b98c4ba0fbfce7df6b6bb1be8/README.md",
+          "sha256": "c3626717432e4b6aaf57edb176d82017d40d714ae3bce12edd294cccc66329d8"
+        }
+      ],
+      "reason": "Realcomputationalpartadapted:SunCalcscalarport,UTCknownscenario,boundedgrid,cancellation/timeout,GeoJSONcells,toleranceandcandidatecompatibility. Notphoto-onlyinference; noautomaticunknownlocaltimezone.",
+      "installation_test": "Localadaptation44testsPython3.14.5;noexternaldependencies",
+      "execution_test": "LOCAL_EXECUTION_SUCCESS",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.437471+00:00"
+    },
+    {
+      "number": 17,
+      "name": "VKAnalysis",
+      "repository": "https://github.com/migalin/VKAnalysis",
+      "commit": "23bfedc490c99d488078039b9aab1c7cd3defce9",
+      "repository_verified": true,
+      "license": "Apache-2.0",
+      "license_file_url": "https://github.com/migalin/VKAnalysis/blob/23bfedc490c99d488078039b9aab1c7cd3defce9/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_ACCOUNT_SESSION",
+        "INCOMPATIBLE_LEGACY_RUNTIME"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "vk-api==9.3",
+        "PyQt5",
+        "pymorphy2",
+        "legacyCaffe/Python3.5/NumPyoptionalphoto"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "RequireslegacyPython3.5forCaffemodule; onlinetimefeaturetemporarilyunavailable.",
+          "url": "https://github.com/migalin/VKAnalysis/blob/23bfedc490c99d488078039b9aab1c7cd3defce9/README.md",
+          "sha256": "95469f3ae5bd43e9427a5e19eb1db9f92426c360f8111b906d360fc2e2a24622"
+        },
+        {
+          "path": "Core/CoreClasses.py",
+          "finding": "VK(vk_api.VkApi)initializerrequireslogin/passwordandself.auth().",
+          "url": "https://github.com/migalin/VKAnalysis/blob/23bfedc490c99d488078039b9aab1c7cd3defce9/Core/CoreClasses.py",
+          "sha256": "784145af3594745917248512e9f31cdbf3f6b050ed7151073083b5ce5facb9c3"
+        },
+        {
+          "path": "VKActivityAnalisys/ActivityAnalysis.py",
+          "finding": "Mutualfriend/city/age/likesanalysisdrivesauthenticatedVKAPI; canacceptalreadycollectedfriendlistsincertainmethods.",
+          "url": "https://github.com/migalin/VKAnalysis/blob/23bfedc490c99d488078039b9aab1c7cd3defce9/VKActivityAnalisys/ActivityAnalysis.py",
+          "sha256": "2b8418bee0f03618b515e961297d69c343b6e20adbf733ed8a8e4f730f2f791a"
+        },
+        {
+          "path": "std_req.txt",
+          "finding": "LegacydependencieskeptoutsideGrangermainPython.",
+          "url": "https://github.com/migalin/VKAnalysis/blob/23bfedc490c99d488078039b9aab1c7cd3defce9/std_req.txt",
+          "sha256": "5f74b861fad4a394d55a60ddc9d70d533cd34bf57b00ca653e034c0051d2881d"
+        }
+      ],
+      "reason": "Authenticatedcollectorandlegacyphoto/textstackexcluded. Noobsoletepackagesinstalled.Rootgenericneighbour/intersectionanalysisonavailableevidenceisindependent,notclaimfullVKAnalysis.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.453337+00:00"
+    }
+  ],
+  "dependencies_added_to_main_runtime": [],
+  "independent_capabilities": [
+    "tiktok_timestamp",
+    "shadow_regions",
+    "role_classify"
+  ],
+  "status_note": "Repositoryverifiedandlocalexecutionareseparatefromagentintegrationandpackagedverification; rootwillupdatestatusonlyafteractualtests.",
+  "local_execution_report": "output/integrations19/local-execution.json",
+  "local_test_log": "output/integrations19/local-tools-tests.log"
+}

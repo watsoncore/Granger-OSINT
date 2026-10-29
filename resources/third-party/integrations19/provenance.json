@@ -1,0 +1,32 @@
+{
+  "shadowfinder": {
+    "repository": "https://github.com/bellingcat/ShadowFinder",
+    "commit": "215485abd5a46a9b98c4ba0fbfce7df6b6bb1be8",
+    "license": "MIT",
+    "local_adaptation": true
+  },
+  "tiktok_timestamp": {
+    "repository": "https://github.com/bellingcat/tiktok-timestamp",
+    "commit": "aa9831e7dfd165a27e0323e5c6cfc05816b4b9ce",
+    "license": "MIT",
+    "local_adaptation": true
+  },
+  "linkedin_role_classifier": {
+    "repository": "https://github.com/michaelelizarov/linkedin-osint-toolkit",
+    "commit": "c2b38ae785ee2530d5f5a1a143df6d3633dc158b",
+    "license": "MIT",
+    "local_adaptation": true
+  },
+  "solar_position": {
+    "repository": "https://github.com/kylebarron/suncalc-py",
+    "commit": "d2847fbfdeb4d3000da6bffd716aff0d8b251e09",
+    "license": "MIT + upstreamSunCalcBSD-2-Clause",
+    "local_adaptation": true
+  },
+  "vendored_files": {
+    "grangerpet/integrations19/_role_classifier.py": "f86c9ddf11d675bb48dc66ccc27916632373532e91dfd2d328ea71ce6fd6ffa4",
+    "grangerpet/integrations19/classification_rules.json": "844cbf4fb5c6ac549de0a06823498e032c77444e4340178690b52b15e5431db1",
+    "grangerpet/integrations19/local_tools.py": "10f841ffdc867d8beaf33a8699a380424791ca4aa30291869fe60f87058e1bf3",
+    "grangerpet/integrations19/solar.py": "8ac4832be8db1b5cd738e578ba152b83503e01ff5aaef36ce9a4cf1f63e78abd"
+  }
+}
