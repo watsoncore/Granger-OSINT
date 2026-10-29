@@ -114,6 +114,15 @@ def test_routing_preserves_ordinary_conversation():
     assert not investigation_requested('Без поиска объясни, что такое DNS и как проверять источники')
 
 
+def test_paused_investigation_does_not_announce_success_with_happy_animation(widget):
+    app,chat=widget;states=[];chat.activity_changed.connect(states.append)
+    investigation={'id':'c'*32,'status':'paused','stop_reason':'manual_pause','evidence':[],'executions':[]}
+    chat._start(lambda cancelled:{'text':'Проверка приостановлена.','investigation':investigation},'thinking',None)
+    wait(app,lambda:not chat.busy)
+    assert 'happy' not in states and states[-1]=='idle'
+    assert chat._last_investigation['status']=='paused'
+
+
 def test_first_agent_provider_error_is_one_real_request_and_keeps_checkpoint_link(widget, monkeypatch):
     app, chat = widget
     class ErrorClient:

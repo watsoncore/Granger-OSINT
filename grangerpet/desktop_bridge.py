@@ -52,6 +52,7 @@ def source_view(record, limits=()):
     details, origin = value.get('details') or {}, value.get('provenance') or {}
     acquisition = origin.get('acquisition')
     kind = 'api' if details.get('acquisition')=='official_api' else 'page' if details.get('reading_method')=='direct_http' else 'snippet' if acquisition=='search_index' or value.get('status')=='indexed' else 'adapter'
+    kind={'image_analysis':'image','map':'map','repository':'repository','archive':'archive'}.get(value.get('type'),kind)
     notes = list(limits) + list(details.get('limitations') or [])
     if any('JavaScript' in str(note) and 'не' in str(note) for note in notes):
         details={**details,'javascript_shell':True}

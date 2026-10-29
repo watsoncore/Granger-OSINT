@@ -11,6 +11,10 @@ vi.mock('./bridge', () => ({ act: vi.fn().mockResolvedValue(true) }))
 const source = (id: string, values: Partial<Source> = {}): Source => ({ evidence_id: id, title: `Источник ${id}`, url: `https://example.org/${id}`, kind: 'page', status: 'unverified', ...values })
 
 describe('truthful current task source inspector', () => {
+  it('labels actual image metadata without claiming the photograph is authenticated or geolocated', () => {
+    expect(sourceLabel(source('pixels',{kind:'image',status:'metadata'}))).toBe('Локальные данные изображения получены')
+    expect(isReadSource(source('pixels',{kind:'image',status:'metadata'}))).toBe(false)
+  })
   beforeEach(() => vi.clearAllMocks())
   it('does not confuse search snippets, shell pages, errors or discovered URLs with read content', () => {
     expect(isReadSource(source('1', { kind: 'snippet', status: 'read', details: { content_fetched: true } }))).toBe(false)

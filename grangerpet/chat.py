@@ -584,7 +584,7 @@ class ChatWidget(QWidget):
                     self.activity_changed.emit('error')
                 else:
                     self.ai_state.request_succeeded(provider=provider, model_id=model)
-                    self.activity_changed.emit('happy')
+                    self.activity_changed.emit('idle' if investigation and investigation.get('status')!='completed' else 'happy')
             self._update_actions()
             self._archive_timer.start()
             if investigation and self.messages:

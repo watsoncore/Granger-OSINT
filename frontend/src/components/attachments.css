@@ -7,3 +7,7 @@
 .attachment-preview strong { overflow-wrap:anywhere;font-size:13px; }
 .attachment-preview small,.attachment-consent { color:var(--muted);font-size:12px;line-height:1.45; }
 .attachment-consent { margin:5px 0; }
+.geoint-observation { margin:16px 0;min-width:0; }
+.geoint-observation small { display:block;color:var(--muted);margin-top:5px; }
+.geoint-observation table { width:100%;border-collapse:collapse;font-size:12px; }
+.geoint-observation td,.geoint-observation th { padding:6px;border-bottom:1px solid var(--border);text-align:left;overflow-wrap:anywhere; }

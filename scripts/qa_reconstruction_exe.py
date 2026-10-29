@@ -94,10 +94,15 @@ def main():
         command('show_workspace',{'route':'chat'})
         for theme in ('dark','black','light','mono'):
             action('settings_save',{'values':{'ui_theme':theme}})
-            command('qa_desktop',{'action':'dom'});time.sleep(.6);dom=state()['desktop']['dom']
+            def theme_rendered():
+                command('qa_desktop',{'action':'dom'});time.sleep(.3)
+                dom=state()['desktop']['dom']
+                return dom if dom.get('theme')==theme else None
+            dom=wait(theme_rendered,25)
             check('theme_'+theme,dom.get('theme')==theme)
             check('font_'+theme,dom.get('font',{}).get('loaded'))
             check('overflow_'+theme,not dom.get('overflow',True))
+            command('qa_snapshot',{'name':'theme-'+theme})
         image=Image.new('RGB',(1150,170),'white')
         font=ImageFont.truetype(str(ROOT/'frontend/public/fonts/Manrope-Variable.ttf'),48)
         ImageDraw.Draw(image).text((25,40),'МОСКВА УЛИЦА МИРА',font=font,fill='black')
