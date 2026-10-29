@@ -65,5 +65,12 @@
     "Original fan art rights are not established"
   ],
   "smoke_checks": 2,
-  "smoke_passed": true
+  "smoke_passed": true,
+  "publication": {
+    "remote": "https://github.com/watsoncore/Granger-OSINT",
+    "branch": "main",
+    "force": false,
+    "published": true,
+    "exact_head_evidence": "output/refinement-qa/git-publication.json in source ZIP"
+  }
 }
