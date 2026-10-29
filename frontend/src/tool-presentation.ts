@@ -1,6 +1,7 @@
 import type { Tool } from './types'
 
 const names: Record<string, string> = {
+  map_panoramax:'Panoramax · эталонные фотографии', x_profile:'Публичный профиль X', nuclei_check:'Nuclei · разрешённое наблюдение заголовков',
   visual_geoint:'GEOINT · последовательный анализ изображения', geoclip_predict:'GeoCLIP · географические гипотезы', waypoint_predict:'Waypoint · географические гипотезы', waypoint_match:'Waypoint · сопоставление изображений',
   tiktok_timestamp:'TikTok · время из ID', shadow_regions:'ShadowFinder · солнечная геометрия', role_classify:'Классификация должностей', evidence_graph:'Сущности и связи', mail_dns:'MailAccess · DNS домена', historical_contacts:'Исторические контакты', x_post:'Публичный пост X', arctic_posts:'Arctic Shift · публикации', arctic_comments:'Arctic Shift · комментарии',
   image_metadata:'EXIF и признаки изображения', image_ocr:'Распознавание текста', image_compare:'Локальные дубликаты', map_geocode:'Nominatim', map_overpass:'OpenStreetMap · Overpass', map_wikimedia:'Wikimedia Commons', github_repository:'GitHub · репозиторий', threat_feodo:'Feodo Tracker', hash_virustotal:'VirusTotal · SHA-256',

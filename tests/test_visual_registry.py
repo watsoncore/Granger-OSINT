@@ -82,3 +82,22 @@ def test_cpu_timeout_is_longer_than_http_but_does_not_change_http_or_user_longer
     assert ToolRegistry.timeout_for('visual_geoint',25)==240
     assert ToolRegistry.timeout_for('visual_geoint',300)==300
     assert ToolRegistry.timeout_for('x_post',25)==25
+
+
+def test_cancel_interrupts_a_full_input_pipe_before_worker_finishes_booting(monkeypatch,tmp_path):
+    import queue,subprocess,sys,time
+    from grangerpet.visual_models.manager import VisualModelManager
+    manager=VisualModelManager(tmp_path)
+    monkeypatch.setattr(manager,'status',lambda:{'installed':True})
+    def start():
+        manager._process=subprocess.Popen([sys.executable,'-c','import time;time.sleep(30)'],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+        manager._replies=queue.Queue(2)
+    monkeypatch.setattr(manager,'_start',start)
+    cancel=threading.Event();reply=[]
+    thread=threading.Thread(target=lambda:reply.append(manager._call({'operation':'waypoint','image':'a'*3_000_000},cancel,time.monotonic()+15)))
+    thread.start()
+    until=time.monotonic()+3
+    while manager._process is None and time.monotonic()<until:time.sleep(.01)
+    time.sleep(.1);started=time.monotonic();cancel.set();thread.join(4)
+    assert not thread.is_alive() and reply[0]['status']=='cancelled'
+    assert manager._process is None and time.monotonic()-started<3

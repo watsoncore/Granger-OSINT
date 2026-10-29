@@ -20,7 +20,7 @@
       "repository_verified": true,
       "license": "MIT (official repo and published PyPI distribution); separate OpenAI CLIP backbone MIT",
       "license_file_url": "https://github.com/VicenteVivan/geo-clip/blob/5ef9c350fff3be42efbbb6b54537288aeab062c7/LICENSE",
-      "decision": "OPTIONAL_CPU_RUNTIME_IMPLEMENTED_PENDING_REAL_INFERENCE",
+      "decision": "OPTIONAL_CPU_INFERENCE_VERIFIED",
       "allowed_independent_modes": [
         "LOCAL_PUBLISHED_WEIGHT_INFERENCE"
       ],
@@ -149,7 +149,13 @@
         "process_peak_rss_bytes",
         "process_private_bytes"
       ],
-      "real_model_inference": "pending parent benchmark run; no success claimed by this audit"
+      "real_model_inference": {
+        "verified": true,
+        "source_report": "output/integrations19/visual-live",
+        "frozen_report": "output/integrations19/frozen-visual-final/report.json",
+        "frozen_exe_sha256": "e9109f90cd53f2b743d899e47a08e4b3d475d84cb9a123317e874c912718fa53",
+        "scope": "Real published weights, three image cases, actual CPU, cancellation/restart; accuracy not calibrated"
+      }
     },
     {
       "number": 19,
@@ -159,7 +165,7 @@
       "repository_verified": true,
       "license": "MIT code; selected model files Apache-2.0 and MIT as individually recorded",
       "license_file_url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/LICENSE",
-      "decision": "PARTIAL_MODULAR_OFFLINE_INFERENCE_PENDING_REAL_RUN",
+      "decision": "PARTIAL_SELECTED_CPU_STAGES_VERIFIED",
       "allowed_independent_modes": [
         "LOCAL_ONNX_COARSE_YFCC",
         "LOCAL_DISK_LIGHTGLUE_PAIR_MATCH"
@@ -168,7 +174,8 @@
       "integration_depth": "real selected ONNX graphs and translated preprocessing/sampler/adaptive matcher; does not claim full upstream desktop pipeline",
       "integrated_capability_names": [
         "waypoint_locate",
-        "waypoint_match"
+        "waypoint_match",
+        "map_panoramax"
       ],
       "source_evidence": [
         {
@@ -384,10 +391,6 @@
           "reason": "not used"
         },
         {
-          "stage": "automatic Panoramax retrieval",
-          "reason": "not implemented by offline worker; public API must be independently connected/tested"
-        },
-        {
           "stage": "OSM contextual scoring and sun plausibility",
           "reason": "not fabricated in worker; existing independent Granger tools may contribute evidence"
         },
@@ -429,7 +432,20 @@
         "process_peak_rss_bytes",
         "process_private_bytes"
       ],
-      "real_model_inference": "pending parent benchmark run; no success claimed by this audit"
+      "real_model_inference": {
+        "verified": true,
+        "source_report": "output/integrations19/visual-live",
+        "frozen_report": "output/integrations19/frozen-visual-final/report.json",
+        "frozen_exe_sha256": "e9109f90cd53f2b743d899e47a08e4b3d475d84cb9a123317e874c912718fa53",
+        "scope": "Real published weights, three image cases, actual CPU, cancellation/restart; accuracy not calibrated"
+      },
+      "panoramax": {
+        "status": "PUBLIC_LIVE_VERIFIED",
+        "implementation": "Independent bounded metadata/asset-link search, no pixels downloaded",
+        "documentation": "https://docs.panoramax.fr/backend/",
+        "proof": "output/integrations19/panoramax-registry-live.json",
+        "automatic_image_reranking": false
+      }
     }
   ],
   "artifact_inventory": [
@@ -1216,8 +1232,128 @@
       "scope": "protocol and math/preprocessing/synthetic geometry; not real model accuracy"
     },
     "runtime_probe": "completed by parent; CPUExecutionProvider Identity execution and exact imported versions; measured63.14seconds/445054976peakRSS; see output/integrations19/visual-probe.json",
-    "real_inference": "pending parent benchmark execution",
-    "benchmark_results": null,
+    "real_inference": "Completed with real published weights in source and actual frozen worker",
+    "benchmark_results": {
+      "report": "output/integrations19/frozen-visual-final/report.json",
+      "passed": true,
+      "checks": 18,
+      "observations": [
+        {
+          "name": "probe",
+          "status": "completed",
+          "wall_seconds": 43.147,
+          "duration_ms": 14424,
+          "cached": false,
+          "error_code": null,
+          "process_peak_rss_bytes": 576872448,
+          "process_peak_private_bytes": 569692160
+        },
+        {
+          "name": "geoclip-moscow-no-gps",
+          "status": "completed",
+          "wall_seconds": 16.369,
+          "duration_ms": 16340,
+          "cached": false,
+          "error_code": null,
+          "process_peak_rss_bytes": 2866966528,
+          "process_peak_private_bytes": 2902712320
+        },
+        {
+          "name": "geoclip-paris-no-gps",
+          "status": "completed",
+          "wall_seconds": 1.511,
+          "duration_ms": 1452,
+          "cached": true,
+          "error_code": null,
+          "process_peak_rss_bytes": 2866966528,
+          "process_peak_private_bytes": 2902712320
+        },
+        {
+          "name": "geoclip-texture-no-clues",
+          "status": "completed",
+          "wall_seconds": 1.206,
+          "duration_ms": 1201,
+          "cached": true,
+          "error_code": null,
+          "process_peak_rss_bytes": 2866966528,
+          "process_peak_private_bytes": 2902712320
+        },
+        {
+          "name": "waypoint-moscow-no-gps",
+          "status": "completed",
+          "wall_seconds": 16.381,
+          "duration_ms": 8362,
+          "cached": false,
+          "error_code": null,
+          "process_peak_rss_bytes": 1541414912,
+          "process_peak_private_bytes": 1620168704
+        },
+        {
+          "name": "waypoint-paris-no-gps",
+          "status": "completed",
+          "wall_seconds": 5.635,
+          "duration_ms": 5573,
+          "cached": true,
+          "error_code": null,
+          "process_peak_rss_bytes": 1719439360,
+          "process_peak_private_bytes": 1799008256
+        },
+        {
+          "name": "waypoint-texture-no-clues",
+          "status": "completed",
+          "wall_seconds": 5.082,
+          "duration_ms": 5078,
+          "cached": true,
+          "error_code": null,
+          "process_peak_rss_bytes": 1719439360,
+          "process_peak_private_bytes": 1799008256
+        },
+        {
+          "name": "same_photo_matching",
+          "status": "completed",
+          "wall_seconds": 16.576,
+          "duration_ms": 8618,
+          "cached": false,
+          "error_code": null,
+          "process_peak_rss_bytes": 3117572096,
+          "process_peak_private_bytes": 4999892992
+        },
+        {
+          "name": "restart_cached_weights",
+          "status": "completed",
+          "wall_seconds": 43.609,
+          "duration_ms": 11861,
+          "cached": false,
+          "error_code": null,
+          "process_peak_rss_bytes": 1594445824,
+          "process_peak_private_bytes": 1671602176
+        }
+      ],
+      "known_photo_distances": {
+        "geoclip-moscow-no-gps": {
+          "minimum_candidate_distance_km": 0.0578188395008879,
+          "meaning": "Distance to known site/camera, observed result; not a model accuracy benchmark"
+        },
+        "geoclip-paris-no-gps": {
+          "minimum_candidate_distance_km": 0.26644545742999054,
+          "meaning": "Distance to known site/camera, observed result; not a model accuracy benchmark"
+        },
+        "waypoint-moscow-no-gps": {
+          "minimum_candidate_distance_km": 0.7635641837338638,
+          "meaning": "Distance to known site/camera, observed result; not a model accuracy benchmark"
+        },
+        "waypoint-paris-no-gps": {
+          "minimum_candidate_distance_km": 0.32601852999697906,
+          "meaning": "Distance to known site/camera, observed result; not a model accuracy benchmark"
+        }
+      },
+      "cancellation": {
+        "elapsed_seconds": 0.035,
+        "status": "cancelled",
+        "thread_finished": true,
+        "child_reaped": true
+      }
+    },
     "no_success_claim_without_run": true,
     "installer_tests": {
       "command": ".venv/Scripts/python.exe -m pytest tests/test_visual_installation.py -q",

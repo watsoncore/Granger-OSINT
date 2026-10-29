@@ -110,7 +110,16 @@ class VisualModelManager:
                 self.close()
             self._state='loading';self._start()
             if operation!='probe':self._component=operation
-            self._process.stdin.write(json.dumps(payload,separators=(',',':')).encode('utf-8')+b'\n');self._process.stdin.flush()
+            process=self._process;replies=self._replies
+            def write_request():
+                try:
+                    process.stdin.write(json.dumps(payload,separators=(',',':')).encode('utf-8')+b'\n');process.stdin.flush()
+                except (OSError,ValueError):
+                    try:replies.put_nowait({'status':'error','error_code':'worker_input_failed','predictions':[]})
+                    except queue.Full:pass
+            # A frozen bootloader may spend seconds extracting before it reads
+            # stdin. Keep cancellation responsive while a large image pipe fills.
+            threading.Thread(target=write_request,daemon=True,name='GrangerVisualInput').start()
             self._state='running'
             while True:
                 if cancel_event and cancel_event.is_set():self.close();return {'status':'cancelled','predictions':[]}

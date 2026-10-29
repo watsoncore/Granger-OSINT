@@ -25,6 +25,7 @@ from ..agent_web import _FetchError, _run, _record, _envelope
 from ..engine.router import normalize_email, _domain
 from ..web_http import fetch_public
 from . import nuclei
+from . import panoramax
 
 
 def schema(properties,required):
@@ -32,6 +33,7 @@ def schema(properties,required):
 
 
 INPUT_SCHEMAS={
+ 'map_panoramax':panoramax.INPUT_SCHEMA,
  'nuclei_check':nuclei.INPUT_SCHEMA,
  'mail_dns':schema({'email':{'type':'string','minLength':3,'maxLength':254}},['email']),
  'historical_contacts':schema({'domain':{'type':'string','minLength':3,'maxLength':253},'max_snapshots':{'type':'integer','minimum':1,'maximum':3}},['domain']),
@@ -48,6 +50,7 @@ _NAME=re.compile(r'[A-Za-z0-9_-]{1,32}')
 
 
 def validate(tool,args):
+    if tool=='map_panoramax':return panoramax.validate(args)
     if tool=='nuclei_check':return nuclei.validate(args)
     if tool not in INPUT_SCHEMAS or not isinstance(args,dict) or set(args)-set(INPUT_SCHEMAS[tool]['properties']):raise ValueError('Invalid arguments')
     values=deepcopy(args)
@@ -341,6 +344,7 @@ def execute(tool,args,*,cancel_event=None,deadline=None,approved=False,settings=
             if tool.startswith('arctic_'):return await _arctic(tool,values,call)
             if tool=='x_post':return await _xpost(values,call)
             if tool=='x_profile':return await _xprofile(values,call)
+            if tool=='map_panoramax':return await panoramax.search(values,call,_json)
             return await _historical(values,call)
         rows,warnings=_run(operation,cancel_event=cancel_event,deadline=end,timeout=25)
         result=_envelope(tool,query,status='partial' if warnings and tool in ('mail_dns','historical_contacts') else 'complete' if rows else 'empty',results=rows,limitations=warnings)

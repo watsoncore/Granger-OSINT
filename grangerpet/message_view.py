@@ -166,7 +166,7 @@ class MessageHistory(QScrollArea):
             bubble.reflow(self._available_width())
         self.rows.activate()
         if following:
-            QTimer.singleShot(0, lambda: self._scroll_to_end(False))
+            QTimer.singleShot(0, self, lambda: self._scroll_to_end(False))
 
     def _available_width(self):
         gutter = max(14, (self.viewport().width()-1120)//2)

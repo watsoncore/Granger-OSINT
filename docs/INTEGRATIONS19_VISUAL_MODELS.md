@@ -154,3 +154,7 @@ CLI: `python scripts/setup_visual_runtime.py --remove --confirm-remove`.
 size/hash, redirect whitelist, отмена, ZIP traversal/symlink, purelib/platlib,
 пропуск entry scripts, отсутствие выполнения `.pth`, atomic staging/rollback,
 строгая принадлежность файлов при удалении и реальные Windows junction fixtures.
+
+## Завершённая проверка
+
+Реальные модели скачаны, hashes проверены, CPU inference выполнен в source и frozen worker. GeoCLIP и Waypoint проверены на Москве, Париже и кадре неба; DISK/LightGlue — на одинаковых изображениях. Это функциональные примеры, не оценка общей точности. Отмена/restart прошли; показатели и ограничения приведены в [общем отчёте](INTEGRATIONS19_REPORT.md). Финальный EXE отдельно проходит GUI QA; не смешивайте исторический план установки с результатом конкретной сборки.

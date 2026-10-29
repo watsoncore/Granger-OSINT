@@ -71,7 +71,7 @@ def _computed(capability, data, args, title):
     digest = hashlib.sha256(json.dumps(args, sort_keys=True, ensure_ascii=False).encode('utf-8')).hexdigest()[:24]
     return {'id': capability+':'+digest, 'type': 'local_computation', 'platform': 'Local GEOINT',
         'title': title, 'url': '', 'description': title, 'status': 'computed', 'sources': [capability],
-        'details': {**data, 'capability': capability, 'attachment_id': args['attachment_id'],
+        'details': {**data, 'tool':capability, 'capability': capability, 'attachment_id': args['attachment_id'],
                     'acquisition': 'local_tool', 'execution_mode': 'LOCAL_PYTHON', 'source_record': True}}
 
 

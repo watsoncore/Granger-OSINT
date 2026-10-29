@@ -129,7 +129,7 @@ def _geoint_context(details, maximum):
     """
     if not isinstance(details, dict):
         return {}
-    names = {"image_metadata", "image_ocr", "image_compare", "map_geocode", "map_overpass", "map_wikimedia",'geoclip','waypoint','waypoint_match','visual_geoint','visual_geoint_comparison','shadow_regions'}
+    names = {"image_metadata", "image_ocr", "image_compare", "map_geocode", "map_overpass", "map_wikimedia",'map_panoramax','geoclip','waypoint','waypoint_match','visual_geoint','visual_geoint_comparison','shadow_regions'}
     if details.get("tool") not in names:
         return {}
     value = {key: deepcopy(details[key]) for key in ("tool", "status", "attachment_id") if key in details}

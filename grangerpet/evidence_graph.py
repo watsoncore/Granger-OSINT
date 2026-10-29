@@ -60,6 +60,12 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                 author_node=node('username',platform+'|'+author,author,record,platform=platform)
                 edge(current,author_node,'source_attributes_authorship',record)
         elif kind=='repository' and url:current=node('repository',url,label,record,url=url)
+        elif kind=='street_image' and url:
+            current=node('image',url,label,record,url=url,reference_photo=True,license=details.get('license'),attribution=details.get('attribution'))
+            lat,lon=details.get('latitude'),details.get('longitude')
+            if type(lat) in (int,float) and type(lon) in (int,float) and math.isfinite(lat+lon) and abs(lat)<=90 and abs(lon)<=180:
+                coordinate=node('coordinate',str(lat)+'|'+str(lon),f'{lat}, {lon}',record,latitude=lat,longitude=lon)
+                edge(current,coordinate,'reference_source_reports_coordinate',record,'source_reported')
         elif kind=='domain':
             domain=details.get('domain') or details.get('query')
             if isinstance(domain,str) and domain and ' ' not in domain:current=node('domain',domain.lower(),domain,record)

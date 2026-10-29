@@ -1,0 +1,2158 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "counts": {
+    "repositories_verified": 19,
+    "projects_excluded": 9,
+    "projects_with_selected_no_key_capabilities": 10,
+    "registry_total": 48,
+    "new_operations": 16,
+    "new_operations_ready_local": 15,
+    "new_operations_default_disabled": 1,
+    "projects_real_agent_tested": 8
+  },
+  "projects": [
+    {
+      "number": 1,
+      "name": "ScopeSentry",
+      "repository": "https://github.com/Autumn-27/ScopeSentry",
+      "commit": "d770b7a137ec2de15816fea4bd561f49cf486db2",
+      "repository_verified": true,
+      "license": "AGPL-3.0 with additional commercial-use conditions in README",
+      "decision": "EXCLUDED_COMPONENT_NOT_READY",
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "Go1.24/toolchain1.24.6",
+        "Gin1.9.1",
+        "MongoDB driver1.14.0",
+        "Redis9.5.1",
+        "Docker Compose",
+        "Yaegi dynamic plugins"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/Autumn-27/ScopeSentry/blob/d770b7a137ec2de15816fea4bd561f49cf486db2/README.md",
+          "sha256": "9f138612c7aacc6aa5e80b4cce6d312e6a87e50de97c1c3ac0e748c858c8e435",
+          "finding": "README lists four containers and additional commercial-license conditions; FastAPI language note is stale against current Go tree."
+        },
+        {
+          "path": "go.mod",
+          "url": "https://github.com/Autumn-27/ScopeSentry/blob/d770b7a137ec2de15816fea4bd561f49cf486db2/go.mod",
+          "sha256": "8e24d65198b2a9d6ac47786a48acc0e7c2144676daa1f1e2a9a0fe612e39cd17",
+          "finding": "Current server is Go1.24.6 with Gin, MongoDB, Redis and certificate-transparency dependencies."
+        },
+        {
+          "path": "single-host-deployment.yml",
+          "url": "https://github.com/Autumn-27/ScopeSentry/blob/d770b7a137ec2de15816fea4bd561f49cf486db2/single-host-deployment.yml",
+          "sha256": "17b7115f74087223664001f5620ceab14a65bd18c7d73ef20c1c7b67d2bb5ee6",
+          "finding": "MongoDB, Redis, server and scan service; no services launched."
+        },
+        {
+          "path": "plugin-template/ct_monitor/ct_monitor.go",
+          "url": "https://github.com/Autumn-27/ScopeSentry/blob/d770b7a137ec2de15816fea4bd561f49cf486db2/plugin-template/ct_monitor/ct_monitor.go",
+          "sha256": "861f7b446dac5e30fa19ad385d1e761bde81e490d2b7335b3f90c2b1b1cc99a4",
+          "finding": "Key-free passive CT plugin exists but uses internal PluginOption/CommonRepo, MongoDB and Redis; continuous multi-log collection, not a standalone bounded CLI."
+        },
+        {
+          "path": "internal/utils/ct/sdk.go",
+          "url": "https://github.com/Autumn-27/ScopeSentry/blob/d770b7a137ec2de15816fea4bd561f49cf486db2/internal/utils/ct/sdk.go",
+          "sha256": "04096fcf16f242838ab90082c10815325ff3176d560e621c6c24bfe848ba9315",
+          "finding": "Internal CT SDK depends on plugin data/checkpoint components; no verified independent distribution was produced."
+        }
+      ],
+      "reason": "No verified bounded standalone passive component. Full infrastructure deliberately not installed; unclear additional license conditions prohibit pretending a copied component is approved. Not excluded for mandatory external API key.",
+      "implementation": "Not installed",
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T19:20:57.526059+00:00",
+      "excluded_reasons": [
+        "UNVERIFIED_STANDALONE_COMPONENT",
+        "ADDITIONAL_LICENSE_CONDITIONS"
+      ],
+      "allowed_independent_modes": [],
+      "public_live_verified": false,
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "EXCLUDED"
+      ]
+    },
+    {
+      "number": 2,
+      "name": "kronikier",
+      "repository": "https://github.com/soxoj/kronikier",
+      "commit": "f46457704787ebed667308dfe3fcd05db6c0d677",
+      "repository_verified": true,
+      "license": "MIT",
+      "decision": "PARTIAL_CAPABILITY_LIVE_SNAPSHOT_VERIFIED_CDX_TRANSIENT",
+      "integrated_capability_names": [
+        "historical_contacts"
+      ],
+      "dependencies_reviewed": [
+        "Python>=3.10",
+        "requests>=2.31",
+        "beautifulsoup4>=4.12",
+        "phonenumbers>=8.13",
+        "rich>=13.7"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/soxoj/kronikier/blob/f46457704787ebed667308dfe3fcd05db6c0d677/README.md",
+          "sha256": "c91ccd8c1eaa8051c45b7cef24df8d077214d3b6e1bbf7d066be08f1b09c555f",
+          "finding": "Domain to historical contacts, snapshots, source timestamps."
+        },
+        {
+          "path": "LICENSE",
+          "url": "https://github.com/soxoj/kronikier/blob/f46457704787ebed667308dfe3fcd05db6c0d677/LICENSE",
+          "sha256": "e2f075e9cd778a8cca0322748428378559d0e438f3ff0a1c63fcc708f70263d1",
+          "finding": "MIT copyright2026 Soxoj."
+        },
+        {
+          "path": "pyproject.toml",
+          "url": "https://github.com/soxoj/kronikier/blob/f46457704787ebed667308dfe3fcd05db6c0d677/pyproject.toml",
+          "sha256": "17f0018c2b3f9a56578d63824bfa4777c726abcee04ccf80a3c0ab9d2e97a084",
+          "finding": "Python>=3.10; requests,bs4,phonenumbers,rich."
+        },
+        {
+          "path": "kronikier/cdx.py",
+          "url": "https://github.com/soxoj/kronikier/blob/f46457704787ebed667308dfe3fcd05db6c0d677/kronikier/cdx.py",
+          "sha256": "2012333b1e524141520372971f678be2b2bb9b1602d88df83f75cb1b9c1dc414",
+          "finding": "Public Wayback CDX domain matching and snapshot URLs."
+        },
+        {
+          "path": "kronikier/pipeline.py",
+          "url": "https://github.com/soxoj/kronikier/blob/f46457704787ebed667308dfe3fcd05db6c0d677/kronikier/pipeline.py",
+          "sha256": "2406086cc9aae250d163e184aa57a654110cee252aad8752fae5b9c46294a9ed",
+          "finding": "Historical pipeline with many contacts/page probes; not imported."
+        },
+        {
+          "path": "kronikier/extractors.py",
+          "url": "https://github.com/soxoj/kronikier/blob/f46457704787ebed667308dfe3fcd05db6c0d677/kronikier/extractors.py",
+          "sha256": "20e2afa9d68f1dd22a1b3f2b959f357aa0bd78dab553ba395cfaefcb98d6aeb0",
+          "finding": "Email obfuscation and phone extraction semantics reviewed; independent smaller extractor authored."
+        }
+      ],
+      "reason": "Independent bounded CDX + raw snapshot + contact extraction, retaining timestamps and historical-only qualifiers. Existing pinned HTTP reused; no second scraping engine or full CLI installed.",
+      "implementation": "Independent adapter using shared Granger transport; no upstream code copied",
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T19:20:57.526059+00:00",
+      "allowed_independent_modes": [
+        "PUBLIC_API_NO_KEY"
+      ],
+      "public_live_verified": false,
+      "partial_live_observation": "CDX HTTP200 observed earlier; full registry chain timeout then503/rate_limited. One bounded raw snapshot probe after backoff returnedHTTP200,6814bytes and one real historical email. Full historical_contacts registry chain remains unverified.",
+      "installation_test": "Independent code available; existing phonenumbers dependency reused; full CLI not installed.",
+      "execution_test": "LOCAL_FIXTURES_PASS; REAL_SINGLE_RAW_SNAPSHOT_PASS; FULL_REGISTRY_CDX_TRANSIENT_FAILURE",
+      "live_snapshot_verified": true,
+      "full_registry_live_verified": false,
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "DEPENDENCIES_VERIFIED",
+        "INSTALLATION_SUCCESS",
+        "SINGLE_SNAPSHOT_VERIFIED_FULL_CDX_CHAIN_TRANSIENT"
+      ]
+    },
+    {
+      "number": 3,
+      "name": "MailAccess",
+      "repository": "https://github.com/KatrielMoses/MailAccess",
+      "commit": "590185d211d00ae2388cb922668bfecacba47212",
+      "repository_verified": true,
+      "license": "MIT",
+      "decision": "PARTIAL_INDEPENDENT_NO_KEY_CAPABILITY",
+      "integrated_capability_names": [
+        "mail_dns"
+      ],
+      "dependencies_reviewed": [
+        "Python>=3.10",
+        "FastAPI>=0.111",
+        "SQLAlchemy>=2",
+        "dnspython>=2.6",
+        "httpx>=0.27",
+        "optional browser/spacy"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/KatrielMoses/MailAccess/blob/590185d211d00ae2388cb922668bfecacba47212/README.md",
+          "sha256": "be2d31a6c96ce281e6d5fef1715d58721e9d578fafaaceaff143d657f1080bc1",
+          "finding": "Account Index requires login/free key; Pro/commercial modules and large account sweep not imported."
+        },
+        {
+          "path": "LICENSE",
+          "url": "https://github.com/KatrielMoses/MailAccess/blob/590185d211d00ae2388cb922668bfecacba47212/LICENSE",
+          "sha256": "2b9db37b22374afa431e3de69c74691e78b04623bbd67ae3afe42020510e7bcb",
+          "finding": "MIT copyright2026 Katriel Moses."
+        },
+        {
+          "path": "pyproject.toml",
+          "url": "https://github.com/KatrielMoses/MailAccess/blob/590185d211d00ae2388cb922668bfecacba47212/pyproject.toml",
+          "sha256": "789dbfadeaa0ed485486cbde1b7db44d64b202c4f6a5a88595d28114681871d4",
+          "finding": "FastAPI/database/backend dependencies and optional browser/spacy; not installed."
+        },
+        {
+          "path": "docs/modules.md",
+          "url": "https://github.com/KatrielMoses/MailAccess/blob/590185d211d00ae2388cb922668bfecacba47212/docs/modules.md",
+          "sha256": "2bfb56af9600ec283dbc7ffbca36eb24d1553332ed58a6031d3c29973ac50df4",
+          "finding": "Reviewed full module inventory; key-free is not synonymous with approved account probing."
+        },
+        {
+          "path": "backend/modules/dns_lookup.py",
+          "url": "https://github.com/KatrielMoses/MailAccess/blob/590185d211d00ae2388cb922668bfecacba47212/backend/modules/dns_lookup.py",
+          "sha256": "2a508990bca0ca075cc8505eaf9e9e3e0fbdf45c04022739e65f027cc86dd98d",
+          "finding": "requires_key=False; MX/SPF/DMARC/DKIM/A/NS. Independent Granger subset performs MX/SPF/DMARC only."
+        },
+        {
+          "path": "backend/core/email_validator.py",
+          "url": "https://github.com/KatrielMoses/MailAccess/blob/590185d211d00ae2388cb922668bfecacba47212/backend/core/email_validator.py",
+          "sha256": "9d6ffc1740c5f1df20631678df446f177ca0e0ea4f134cccc8da3198cfc5f15b",
+          "finding": "Email quality/syntax checks distinct from MX and SMTP."
+        },
+        {
+          "path": "backend/core/domain_validation.py",
+          "url": "https://github.com/KatrielMoses/MailAccess/blob/590185d211d00ae2388cb922668bfecacba47212/backend/core/domain_validation.py",
+          "sha256": "fde954951d91eba9adcffc3780e3b7a167b0c5b35b1ef1ca57a4f457a36409c5",
+          "finding": "Domain validation reviewed."
+        },
+        {
+          "path": "backend/core/mx_resolver.py",
+          "url": "https://github.com/KatrielMoses/MailAccess/blob/590185d211d00ae2388cb922668bfecacba47212/backend/core/mx_resolver.py",
+          "sha256": "0ffa217eb14750e9732048a9e350ca4dc69186d67683dc82840af8aefbf4506e",
+          "finding": "MX existence cannot establish mailbox/account ownership."
+        }
+      ],
+      "reason": "Independent existing-normalizer + public DNS-over-HTTPS adapter. Does not install or claim entire MailAccess. No SMTP/account recovery/signup, mail, paid/Index/leak/stealer modules.",
+      "implementation": "Independent adapter using shared Granger transport; no upstream code copied",
+      "agent_integrated": true,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T19:20:57.526059+00:00",
+      "allowed_independent_modes": [
+        "LOCAL_PYTHON",
+        "PUBLIC_API_NO_KEY"
+      ],
+      "public_live_verified": true,
+      "execution_test": "ToolRegistry mail_dns(info@example.org): complete,1 evidence.",
+      "installation_test": "No additional dependency installed.",
+      "module_inventory": [
+        {
+          "path": "backend/modules/account_discovery.py",
+          "class": "AccountDiscoveryModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "account_discovery",
+          "description": "Probe 250+ platforms via MailAccess's native account-existence engine to detect account registration (no login attempt). Enable via ENABLE_ACCOUNT_DISCOVERY=true."
+        },
+        {
+          "path": "backend/modules/alternate_email.py",
+          "class": "AlternateEmailModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "alternate_email",
+          "description": "Discover alternate email addresses belonging to the same person."
+        },
+        {
+          "path": "backend/modules/alternate_email_anchor.py",
+          "class": "AlternateEmailAnchorModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "alternate_email_anchor",
+          "description": "Checks other emails linked to this person for more accounts, merged under one person (one level deep)."
+        },
+        {
+          "path": "backend/modules/base.py",
+          "class": "BaseModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "dynamic",
+          "description": "dynamic"
+        },
+        {
+          "path": "backend/modules/breach_aggregator.py",
+          "class": "BreachAggregatorModule",
+          "declared_requires_key": true,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "breach_aggregator",
+          "description": "Aggregates breach records for an email across HIBP pastes, Dehashed and Snusbase. Password/hash existence is recorded as boolean flags only — plaintext secrets are never stored or displayed."
+        },
+        {
+          "path": "backend/modules/breach_deep.py",
+          "class": "BreachDeepModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "breach_deep",
+          "description": "Probe account existence on the highest-severity breached websites from HIBP."
+        },
+        {
+          "path": "backend/modules/breachdirectory.py",
+          "class": "BreachDirectoryModule",
+          "declared_requires_key": true,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "breachdirectory",
+          "description": "Search breach records via BreachDirectory (RapidAPI). Requires BREACHDIRECTORY_API_KEY."
+        },
+        {
+          "path": "backend/modules/browser_account_probe.py",
+          "class": "BrowserAccountProbeModule",
+          "declared_requires_key": null,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "browser_account_probe",
+          "description": "Headless-browser email-existence oracles (email-first login + forgot-password) for platforms with JS-only signals.",
+          "inherited_default_requires_key": false
+        },
+        {
+          "path": "backend/modules/code_and_cert_email.py",
+          "class": "CodeAndCertEmailModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "code_and_cert_email",
+          "description": "Email discovery via GitHub code/commit search and Certificate Transparency (crt.sh, certspotter) log records."
+        },
+        {
+          "path": "backend/modules/commoncrawl_email.py",
+          "class": "CommonCrawlEmailModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "commoncrawl_email",
+          "description": "Email discovery via Common Crawl index — fetches indexed pages across multiple collections for the target domain and extracts emails + person records."
+        },
+        {
+          "path": "backend/modules/companies_house.py",
+          "class": "CompaniesHouseModule",
+          "declared_requires_key": true,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "companies_house",
+          "description": "Look up UK company registration data from Companies House."
+        },
+        {
+          "path": "backend/modules/dns_lookup.py",
+          "class": "DnsLookupModule",
+          "declared_requires_key": false,
+          "disposition": "Independent subset: existing syntax validation and public MX/SPF/DMARC only; original module not imported.",
+          "name": "dns_lookup",
+          "description": "Resolve MX, SPF, DMARC, and DKIM DNS records for the email's domain."
+        },
+        {
+          "path": "backend/modules/domain_cluster.py",
+          "class": "DomainClusterModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "domain_cluster",
+          "description": "Group platform domains by shared registrar + /24 IP subnet. Emits infrastructure_correlation findings when 3+ platforms share infrastructure."
+        },
+        {
+          "path": "backend/modules/domain_harvester.py",
+          "class": "DomainHarvesterModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "domain_harvester",
+          "description": "Subdomain enumeration + DNS brute force + hostname resolution for the target email's domain via curated native subdomain collectors."
+        },
+        {
+          "path": "backend/modules/domain_intel.py",
+          "class": "DomainIntelModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "domain_intel",
+          "description": "WHOIS registration data, DNS security signals (SPF/DMARC/MX), website presence, and optional Shodan lookup for the email's domain."
+        },
+        {
+          "path": "backend/modules/email_credibility.py",
+          "class": "EmailCredibilityModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "email_credibility",
+          "description": "Normalize the email, detect aliases and disposable domains, and assess credibility."
+        },
+        {
+          "path": "backend/modules/email_discovery.py",
+          "class": "EmailDiscoveryModule",
+          "declared_requires_key": true,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "email_discovery",
+          "description": "Search public web results for other email addresses linked to a recovered real name."
+        },
+        {
+          "path": "backend/modules/email_identity_enrichment.py",
+          "class": "EmailIdentityEnrichmentModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "email_identity_enrichment",
+          "description": "Enrich discovered emails with public identity, social, and commit evidence"
+        },
+        {
+          "path": "backend/modules/email_search_dork.py",
+          "class": "EmailSearchDorkModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "email_search_dork",
+          "description": "Email discovery via search engine dorking — DuckDuckGo, Bing HTML, and optional Google CSE."
+        },
+        {
+          "path": "backend/modules/emailrep.py",
+          "class": "EmailRepModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "emailrep",
+          "description": "Query EmailRep.io for reputation score, risk flags, and linked profile data."
+        },
+        {
+          "path": "backend/modules/employee_name_discovery.py",
+          "class": "EmployeeNameDiscoveryModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "employee_name_discovery",
+          "description": "Discovers employee / executive names tied to a domain for Phase C2 email-pattern generation."
+        },
+        {
+          "path": "backend/modules/fediverse_discovery.py",
+          "class": "FediverseDiscoveryModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "fediverse_discovery",
+          "description": "Probe popular Fediverse instances via WebFinger to find accounts matching the target email's local-part."
+        },
+        {
+          "path": "backend/modules/github_code_search.py",
+          "class": "GitHubCodeSearchModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "github_code_search",
+          "description": "Search public GitHub code and gists for the target email and surface associates."
+        },
+        {
+          "path": "backend/modules/github_commits.py",
+          "class": "GitHubCommitsModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "github_commits",
+          "description": "Search GitHub commit history for direct author-email matches, related GitHub users, and deep profile extraction."
+        },
+        {
+          "path": "backend/modules/github_commits.py",
+          "class": "GitHubDomainCommitsModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "github_domain_commits",
+          "description": "Search public GitHub commit history for target-domain authors."
+        },
+        {
+          "path": "backend/modules/github_org_members.py",
+          "class": "GitHubOrgMembersModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "github_org_members",
+          "description": "Employee discovery via GitHub organization public member list"
+        },
+        {
+          "path": "backend/modules/google_account_intel.py",
+          "class": "GoogleAccountIntelModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "google_account_intel",
+          "description": "Google-account intelligence: Gmail/Workspace account existence via MX/domain (no credentials), plus the public profile name and photo when an operator Google credential is configured. On by default."
+        },
+        {
+          "path": "backend/modules/google_dork.py",
+          "class": "GoogleDorkModule",
+          "declared_requires_key": true,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "google_dork",
+          "description": "Run Google dork queries via SerpAPI to surface email mentions across LinkedIn, GitHub, Pastebin, and the open web."
+        },
+        {
+          "path": "backend/modules/gravatar.py",
+          "class": "GravatarModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "gravatar",
+          "description": "Deep Gravatar profile extraction: name, location, bio, verified accounts, linked URLs."
+        },
+        {
+          "path": "backend/modules/gravatar_lookup.py",
+          "class": "GravatarLookupModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "gravatar_lookup",
+          "description": "Look up the target email's Gravatar profile for display name, bio, avatar, and linked social accounts."
+        },
+        {
+          "path": "backend/modules/hackernews.py",
+          "class": "HackerNewsModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "hackernews",
+          "description": "Check Hacker News profiles derived from email username candidates."
+        },
+        {
+          "path": "backend/modules/hackertarget_hosts.py",
+          "class": "HackerTargetHostsModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "hackertarget_hosts",
+          "description": "Free HackerTarget subdomain and IP discovery"
+        },
+        {
+          "path": "backend/modules/hibp.py",
+          "class": "HIBPModule",
+          "declared_requires_key": true,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "hibp",
+          "description": "Check if the email appears in known data breaches via the HIBP v3 API."
+        },
+        {
+          "path": "backend/modules/hudson_rock.py",
+          "class": "HudsonRockModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "hudson_rock",
+          "description": "Check if the email appears in infostealer credential logs via Hudson Rock Cavalier."
+        },
+        {
+          "path": "backend/modules/hunter_io.py",
+          "class": "HunterIoModule",
+          "declared_requires_key": true,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "hunter_io",
+          "description": "Verify email deliverability and find associated domain info via Hunter.io."
+        },
+        {
+          "path": "backend/modules/intelx_lookup.py",
+          "class": "IntelxLookupModule",
+          "declared_requires_key": true,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "intelx_lookup",
+          "description": "Email leak/paste/darknet correlation via IntelligenceX (https://intelx.io). Requires a free-tier API key — set INTELX_API_KEY or configure intelx_api_key in settings. Free tier has rate limits; commercial use requires a paid license."
+        },
+        {
+          "path": "backend/modules/ip_intel.py",
+          "class": "IpIntelModule",
+          "declared_requires_key": null,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "ip_intel",
+          "description": "Location, owner, risk and abuse contact for existing IPs via ipgeolocation.io.",
+          "inherited_default_requires_key": false
+        },
+        {
+          "path": "backend/modules/keybase.py",
+          "class": "KeybaseModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "keybase",
+          "description": "Look up Keybase profile and verified cross-platform identity proofs."
+        },
+        {
+          "path": "backend/modules/leakcheck.py",
+          "class": "LeakCheckModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "leakcheck",
+          "description": "Check LeakCheck's public API for direct email-to-breach associations."
+        },
+        {
+          "path": "backend/modules/linkedin_serp.py",
+          "class": "LinkedInSerpModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "linkedin_serp",
+          "description": "Search LinkedIn via DuckDuckGo/SerpAPI using a confirmed real name."
+        },
+        {
+          "path": "backend/modules/marketplace_profile.py",
+          "class": "MarketplaceProfileModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "marketplace_profile",
+          "description": "Extract Etsy shop and eBay profile data for confirmed usernames."
+        },
+        {
+          "path": "backend/modules/messaging_hints.py",
+          "class": "MessagingHintsModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "messaging_hints",
+          "description": "Best-effort Telegram username and WhatsApp phone hints. All findings are low-confidence / experimental."
+        },
+        {
+          "path": "backend/modules/name_to_github_profile.py",
+          "class": "NameToGitHubProfileModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "name_to_github_profile",
+          "description": "Find a person's GitHub profile by name and extract their public email and blog URL"
+        },
+        {
+          "path": "backend/modules/netlas_email_footprint.py",
+          "class": "NetlasEmailFootprintModule",
+          "declared_requires_key": true,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "netlas_email_footprint",
+          "description": "Where an email appears online via Netlas (responses, certs, reverse-WHOIS)."
+        },
+        {
+          "path": "backend/modules/netlas_org_surface.py",
+          "class": "NetlasOrgSurfaceModule",
+          "declared_requires_key": true,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "netlas_org_surface",
+          "description": "Org attack-surface context (subdomains, panels, ports, CVEs) via Netlas."
+        },
+        {
+          "path": "backend/modules/npm_discovery.py",
+          "class": "NpmDiscoveryModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "npm_discovery",
+          "description": "Find npm packages authored or maintained by the target email address."
+        },
+        {
+          "path": "backend/modules/npm_email.py",
+          "class": "NpmEmailModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "npm_email",
+          "description": "Email discovery via npm registry package metadata — extracts author and maintainer emails that match the target domain."
+        },
+        {
+          "path": "backend/modules/opencorporates.py",
+          "class": "OpenCorporatesModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "opencorporates",
+          "description": "Look up company registration data for business email domains."
+        },
+        {
+          "path": "backend/modules/orcid_lookup.py",
+          "class": "ORCIDLookupModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "orcid_lookup",
+          "description": "Search public ORCID records for researcher names and contact links."
+        },
+        {
+          "path": "backend/modules/outlook_autodiscover.py",
+          "class": "OutlookAutodiscoverModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "outlook_autodiscover",
+          "description": "Confirm a consumer Microsoft mailbox (@outlook.com / @hotmail.com / @live.com / @msn.com) via the unauthenticated Autodiscover v1 endpoint."
+        },
+        {
+          "path": "backend/modules/package_ecosystems.py",
+          "class": "PackageEcosystemsModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "package_ecosystems",
+          "description": "RubyGems and Packagist maintainer metadata discovery with exact-domain filtering."
+        },
+        {
+          "path": "backend/modules/pastebin_search.py",
+          "class": "PastebinSearchModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "pastebin_search",
+          "description": "Search public paste sites (Pastebin, paste.ee, etc.) via psbdmp.ws for the target email."
+        },
+        {
+          "path": "backend/modules/pattern_and_verify.py",
+          "class": "PatternAndVerifyModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "pattern_and_verify",
+          "description": "Generates email patterns from discovered employee names and optionally verifies via SMTP probing."
+        },
+        {
+          "path": "backend/modules/permutation_discovery.py",
+          "class": "PermutationDiscovery",
+          "declared_requires_key": null,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "permutation_discovery",
+          "inherited_default_requires_key": false
+        },
+        {
+          "path": "backend/modules/person_email_pivot.py",
+          "class": "PersonEmailPivotModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "person_email_pivot",
+          "description": "Find public email evidence for discovered employee names"
+        },
+        {
+          "path": "backend/modules/persona_email_pivot.py",
+          "class": "PersonaEmailPivotModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "persona_email_pivot",
+          "description": "Dork for a specific person's email addresses across the web"
+        },
+        {
+          "path": "backend/modules/pgp_domain_email.py",
+          "class": "PgpDomainEmailModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "pgp_domain_email",
+          "description": "Email discovery via PGP keyserver domain search — extracts UID-bearing public keys from keys.openpgp.org and the Ubuntu HKP keyserver."
+        },
+        {
+          "path": "backend/modules/pgp_keyserver.py",
+          "class": "PGPKeyserverModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "pgp_keyserver",
+          "description": "Look up public PGP keys and extract real names from key UIDs."
+        },
+        {
+          "path": "backend/modules/phone_intel.py",
+          "class": "PhoneIntelModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "phone_intel",
+          "description": "Validate recovered phone numbers and probe WhatsApp/Telegram hints. Runs automatically when phones are found in primary findings."
+        },
+        {
+          "path": "backend/modules/press_intel.py",
+          "class": "PressIntelModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "press_intel",
+          "description": "Search public press release archives for contact phones tied to a domain."
+        },
+        {
+          "path": "backend/modules/public_forge.py",
+          "class": "PublicForgeModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "public_forge",
+          "description": "Bounded GitLab public project and commit metadata discovery without an API key."
+        },
+        {
+          "path": "backend/modules/public_surface_sweeper.py",
+          "class": "PublicSurfaceSweeper",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "public_surface_sweeper",
+          "description": "Bounded sweep of well-known, contact, support, and machine-readable public pages."
+        },
+        {
+          "path": "backend/modules/pypi_discovery.py",
+          "class": "PyPIDiscoveryModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "pypi_discovery",
+          "description": "Find PyPI packages authored or maintained by the target email address."
+        },
+        {
+          "path": "backend/modules/pypi_email.py",
+          "class": "PyPIEmailModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "pypi_email",
+          "description": "Email discovery via PyPI registry package metadata — extracts author and maintainer emails that match the target domain."
+        },
+        {
+          "path": "backend/modules/ransomware_intel.py",
+          "class": "RansomwareIntelModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "ransomware_intel",
+          "description": "Checks if the email's domain appears in ransomware victim listings."
+        },
+        {
+          "path": "backend/modules/ripe_stat_asn.py",
+          "class": "RIPEStatASNModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "ripe_stat_asn",
+          "description": "Fetch announced CIDR prefixes for discovered ASNs"
+        },
+        {
+          "path": "backend/modules/sec_edgar.py",
+          "class": "SecEdgarModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "sec_edgar",
+          "description": "Search SEC EDGAR filings for contact phones near the email domain."
+        },
+        {
+          "path": "backend/modules/security_txt.py",
+          "class": "SecurityTxtModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "security_txt",
+          "description": "Email discovery via RFC 9116 /.well-known/security.txt"
+        },
+        {
+          "path": "backend/modules/shodan.py",
+          "class": "ShodanModule",
+          "declared_requires_key": true,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "shodan",
+          "description": "Search Shodan for hosts and services associated with the email's domain."
+        },
+        {
+          "path": "backend/modules/shodan_internetdb.py",
+          "class": "ShodanInternetDBModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "shodan_internetdb",
+          "description": "Enrich resolved IPs with open ports and CVEs from InternetDB"
+        },
+        {
+          "path": "backend/modules/social.py",
+          "class": "SocialModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "social",
+          "description": "Check social platform account existence via YAML-defined probes."
+        },
+        {
+          "path": "backend/modules/social_discovery.py",
+          "class": "SocialDiscoveryModule",
+          "declared_requires_key": true,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "social_discovery",
+          "description": "Instagram/Facebook/LinkedIn profiles via Oxylabs Web Search (Pro; needs OXYLABS_SEARCH_TOKEN)."
+        },
+        {
+          "path": "backend/modules/social_links.py",
+          "class": "SocialLinksModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "social_links",
+          "description": "Discover social media profiles plausibly linked to the email address."
+        },
+        {
+          "path": "backend/modules/subdomain_intel.py",
+          "class": "SubdomainIntelModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "subdomain_intel",
+          "description": "Passive and opt-in active subdomain discovery."
+        },
+        {
+          "path": "backend/modules/syndication_feed_sweeper.py",
+          "class": "SyndicationFeedSweeper",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "syndication_feed_sweeper",
+          "description": "Discover feed authors from RSS and Atom syndication feeds."
+        },
+        {
+          "path": "backend/modules/twitter_profile.py",
+          "class": "TwitterProfileModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "twitter_profile",
+          "description": "Extract public Twitter/X profile data for confirmed usernames."
+        },
+        {
+          "path": "backend/modules/username_pivot.py",
+          "class": "UsernamePivotModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "username_pivot",
+          "description": "Pivot recovered usernames across the username platform corpus after primary modules. Enable via ENABLE_USERNAME_PIVOT=true."
+        },
+        {
+          "path": "backend/modules/username_platforms.py",
+          "class": "UsernamePlatformsModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "username_platforms",
+          "description": "Username enumeration across 4000+ platforms via the native MailAccess site corpus. Disable via ENABLE_USERNAME_PLATFORMS=false."
+        },
+        {
+          "path": "backend/modules/wayback.py",
+          "class": "WaybackModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "wayback",
+          "description": "Search the Internet Archive Wayback Machine for historical public mentions of an email address."
+        },
+        {
+          "path": "backend/modules/wayback.py",
+          "class": "WaybackDomainHarvestModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "wayback_domain_harvest",
+          "description": "Domain-wide Wayback Machine email harvest — sweeps CDX for high-signal URLs, fetches archived pages, extracts emails + person records."
+        },
+        {
+          "path": "backend/modules/whois_lookup.py",
+          "class": "WhoisLookupModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "whois_lookup",
+          "description": "Retrieve WHOIS registration data for the email's domain."
+        },
+        {
+          "path": "backend/modules/whoisfreaks_intel.py",
+          "class": "WhoisFreaksIntelModule",
+          "declared_requires_key": null,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "whoisfreaks_intel",
+          "description": "Domains registered with this email and pre-redaction WHOIS owners via WhoisFreaks.",
+          "inherited_default_requires_key": false
+        },
+        {
+          "path": "backend/modules/wordpress_rest.py",
+          "class": "WordPressRestModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "wordpress_rest",
+          "description": "Enumerate public WordPress author data from wp-json users endpoints."
+        },
+        {
+          "path": "backend/modules/xposedornot.py",
+          "class": "XposedOrNotModule",
+          "declared_requires_key": false,
+          "disposition": "Excluded; only independent DNS subset is integrated",
+          "name": "xposedornot",
+          "description": "Check XposedOrNot's public breach corpus for direct breach hits and detailed analytics."
+        }
+      ],
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "DEPENDENCIES_VERIFIED",
+        "INSTALLATION_SUCCESS",
+        "PUBLIC_LIVE_VERIFIED",
+        "AGENT_INTEGRATED"
+      ]
+    },
+    {
+      "number": 4,
+      "name": "LinkedIn OSINT Toolkit",
+      "repository": "https://github.com/michaelelizarov/linkedin-osint-toolkit",
+      "commit": "c2b38ae785ee2530d5f5a1a143df6d3633dc158b",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/michaelelizarov/linkedin-osint-toolkit/blob/c2b38ae785ee2530d5f5a1a143df6d3633dc158b/LICENSE",
+      "decision": "PARTIAL_LOCAL_ONLY",
+      "excluded_reasons": [
+        "MANDATORY_ACCOUNT_SESSION",
+        "UNSUPPORTED_AUTH_BYPASS"
+      ],
+      "allowed_independent_modes": [
+        "LOCAL_PYTHON"
+      ],
+      "integrated_capability_names": [
+        "role_classify"
+      ],
+      "dependencies_reviewed": [
+        "selenium",
+        "webdriver-manager",
+        "python-dotenv",
+        "optionalGroq"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "LINKEDIN_EMAIL andLINKEDIN_PASSWORD required; optionalGROQ_API_KEY. Search/scrapingusesstealthfingerprint/proxies.",
+          "url": "https://github.com/michaelelizarov/linkedin-osint-toolkit/blob/c2b38ae785ee2530d5f5a1a143df6d3633dc158b/README.md",
+          "sha256": "ad779d7dd4adc28da4403aa45f62475a07da8c07802836abebbbd3c834b073da"
+        },
+        {
+          "path": "src/osint_classify_rules.py",
+          "finding": "Purestdlib keywordclassificationindependentfrombrowserandGroq.",
+          "url": "https://github.com/michaelelizarov/linkedin-osint-toolkit/blob/c2b38ae785ee2530d5f5a1a143df6d3633dc158b/src/osint_classify_rules.py",
+          "sha256": "56bcef1f7eadabefd718f5038298dd84782b9ac9b0416c073aa29889e55052a4"
+        },
+        {
+          "path": "src/classification_rules.json",
+          "finding": "Packagedheuristicrules; no profiledata copied.",
+          "url": "https://github.com/michaelelizarov/linkedin-osint-toolkit/blob/c2b38ae785ee2530d5f5a1a143df6d3633dc158b/src/classification_rules.json",
+          "sha256": "844cbf4fb5c6ac549de0a06823498e032c77444e4340178690b52b15e5431db1"
+        }
+      ],
+      "reason": "Networkdiscovery/scrapingnotintegrated; MITkeywordclassifierandrulessubsetadaptedforalreadycollectedtitles. NoGroq, Firefox/geckodriverinstallation or stealth.",
+      "installation_test": "Localadaptation44testsPython3.14.5;noexternaldependencies",
+      "execution_test": "LOCAL_EXECUTION_SUCCESS",
+      "public_live_verified": false,
+      "agent_integrated": true,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.281277+00:00",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "DEPENDENCIES_VERIFIED",
+        "INSTALLATION_SUCCESS",
+        "LOCAL_EXECUTION_SUCCESS",
+        "AGENT_INTEGRATED"
+      ]
+    },
+    {
+      "number": 5,
+      "name": "Steam Monitor",
+      "repository": "https://github.com/misiektoja/steam_monitor",
+      "commit": "16a603517b0254dc97c6b7109ee6a9ab14fd8630",
+      "repository_verified": true,
+      "license": "GPL-3.0-or-later",
+      "license_file_url": "https://github.com/misiektoja/steam_monitor/blob/16a603517b0254dc97c6b7109ee6a9ab14fd8630/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_PERSONAL_API_KEY"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "requests",
+        "python-dotenv",
+        "Pillow optional",
+        "keyring optional"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "MonitoringrequirestheSteamWebAPIkey; setupwizardasksforit.",
+          "url": "https://github.com/misiektoja/steam_monitor/blob/16a603517b0254dc97c6b7109ee6a9ab14fd8630/README.md",
+          "sha256": "4a8a2953e44da133f3c046985962aa574e412060287e5176bfb1b0a76b3d02b2"
+        },
+        {
+          "path": "pyproject.toml",
+          "finding": "Python>=3.6; existingdependenciesnotinstalled.",
+          "url": "https://github.com/misiektoja/steam_monitor/blob/16a603517b0254dc97c6b7109ee6a9ab14fd8630/pyproject.toml",
+          "sha256": "5811c2655d15f914558b300f59569a99a9855a98688ede5fe4856772a24a2712"
+        }
+      ],
+      "reason": "CoremonitoringrequiresSteamWebAPIkey. Nofakekeycard,notificationsoremailsintroduced; publiclandingpageisnotanindependentmonitormode.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.300384+00:00",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "EXCLUDED"
+      ]
+    },
+    {
+      "number": 6,
+      "name": "x-scraper",
+      "repository": "https://github.com/proxidize/x-scraper",
+      "commit": "90423e9b693102c48c79b42f48bd59c529e56570",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/proxidize/x-scraper/blob/90423e9b693102c48c79b42f48bd59c529e56570/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_ACCOUNT_SESSION",
+        "UNSUPPORTED_AUTH_BYPASS"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "playwright",
+        "openai optional",
+        "browsercookies"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "RequiredTwitterusername/email/password; cookieauthentication,proxy/IProtationandstealthfeatures.",
+          "url": "https://github.com/proxidize/x-scraper/blob/90423e9b693102c48c79b42f48bd59c529e56570/README.md",
+          "sha256": "6535d643d7af6d1daf5835533a53e3880e4673a0e31f1cd5eed0650ff3714747"
+        },
+        {
+          "path": "LICENSE",
+          "finding": "ActualLICENSEisMIT; READMEbadgeEducationalisnotusedasthelicencedetermination.",
+          "url": "https://github.com/proxidize/x-scraper/blob/90423e9b693102c48c79b42f48bd59c529e56570/LICENSE",
+          "sha256": "0b2b4c669983895b08fc8b089950b268fc2a4fb6bdc5aef24f4296e4dccfa97d"
+        }
+      ],
+      "reason": "Noreviewedallowedanonymousoperation; requiresXaccount/session. Noanti-botbypass, proxies orOpenAIbackendadded.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.309049+00:00",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "EXCLUDED"
+      ]
+    },
+    {
+      "number": 7,
+      "name": "X Tweet Fetcher",
+      "repository": "https://github.com/ythx-101/x-tweet-fetcher",
+      "commit": "17db968087eaeaf2c0c0683bdede9db8cdc276ea",
+      "repository_verified": true,
+      "license": "MIT",
+      "decision": "PARTIAL_PUBLIC_API_NO_KEY",
+      "integrated_capability_names": [
+        "x_post",
+        "x_profile"
+      ],
+      "dependencies_reviewed": [
+        "Python>=3.10",
+        "stdlib core",
+        "optional Playwright>=1.40",
+        "optional Camofox/Nitter instance"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/ythx-101/x-tweet-fetcher/blob/17db968087eaeaf2c0c0683bdede9db8cdc276ea/README.md",
+          "sha256": "182a4ba632d59ac22047bcc819432ed03060a672fb119f9ab9ff0f187096136d",
+          "finding": "Backend modes distinguish single-post/profile from Nitter timeline/replies/browser."
+        },
+        {
+          "path": "LICENSE",
+          "url": "https://github.com/ythx-101/x-tweet-fetcher/blob/17db968087eaeaf2c0c0683bdede9db8cdc276ea/LICENSE",
+          "sha256": "a1346800bb8b3b04736fd5279341df6a46e10e71e06856382f8c149c38042a69",
+          "finding": "MIT copyright2026 ythx-101."
+        },
+        {
+          "path": "pyproject.toml",
+          "url": "https://github.com/ythx-101/x-tweet-fetcher/blob/17db968087eaeaf2c0c0683bdede9db8cdc276ea/pyproject.toml",
+          "sha256": "afe242bb56cbe3d2ae5c76b332c58c400d01caefaa408f196cf9ed1811e1c3b3",
+          "finding": "Core stdlib; optional Playwright."
+        },
+        {
+          "path": "src/xtf/backends/fxtwitter.py",
+          "url": "https://github.com/ythx-101/x-tweet-fetcher/blob/17db968087eaeaf2c0c0683bdede9db8cdc276ea/src/xtf/backends/fxtwitter.py",
+          "sha256": "14f3843564a17b8a290e51e0e216273e9e63c1734dcadb1b0bd41f752660cdfc",
+          "finding": "Documented no-key api.fxtwitter.com single status and username metadata endpoints."
+        },
+        {
+          "path": "src/xtf/backends/nitter.py",
+          "url": "https://github.com/ythx-101/x-tweet-fetcher/blob/17db968087eaeaf2c0c0683bdede9db8cdc276ea/src/xtf/backends/nitter.py",
+          "sha256": "5d1b09a864be2670a5eba3866e629750f6b670a9e70204431106546f2163203d",
+          "finding": "Nitter requires working separately supplied instance; not verified/not integrated."
+        }
+      ],
+      "reason": "Independent adapter for documented FxTwitter public API. Single post and profile verified separately. No timeline/replies/search assertion, media auto-download, browser fingerprint/login or CAPTCHA bypass.",
+      "implementation": "Independent adapter using shared Granger transport; no upstream code copied",
+      "agent_integrated": true,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T19:20:57.526059+00:00",
+      "allowed_independent_modes": [
+        "PUBLIC_API_NO_KEY"
+      ],
+      "public_live_verified": true,
+      "public_api_documentation_url": "https://docs.fxembed.com/",
+      "execution_test": "ToolRegistry x_post complete/1 evidence; x_profile complete/1 evidence. Distinct real tests for both endpoints.",
+      "installation_test": "No additional dependency installed.",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "DEPENDENCIES_VERIFIED",
+        "INSTALLATION_SUCCESS",
+        "PUBLIC_LIVE_VERIFIED",
+        "AGENT_INTEGRATED"
+      ]
+    },
+    {
+      "number": 8,
+      "name": "insto",
+      "repository": "https://github.com/subzeroid/insto",
+      "commit": "124f8c6814955b521b80ea09a7f485b45b8a3f95",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/subzeroid/insto/blob/124f8c6814955b521b80ea09a7f485b45b8a3f95/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_EXTERNAL_SERVICE_TOKEN",
+        "MANDATORY_ACCOUNT_SESSION"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "hikerapi",
+        "optionalaiograpi",
+        "prompt-toolkit",
+        "httpx",
+        "rich"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "HikerAPIdefaulttokenbackend; aiograpioptionalbackendexplicitlyloggedin.",
+          "url": "https://github.com/subzeroid/insto/blob/124f8c6814955b521b80ea09a7f485b45b8a3f95/README.md",
+          "sha256": "5238627a6fca0fd2b1dcda4114666e620efcf1de20b75e696b62d9c35ca2dcab"
+        },
+        {
+          "path": "insto/cli.py",
+          "finding": "BackendselectionvalidatesHikerAPI_TOKENorInstagramcredentials/session.",
+          "url": "https://github.com/subzeroid/insto/blob/124f8c6814955b521b80ea09a7f485b45b8a3f95/insto/cli.py",
+          "sha256": "46482e3421fcf17574fb99facf606fe8e8a7bba8fbc236f890b84b7fcf895f0b"
+        },
+        {
+          "path": "pyproject.toml",
+          "finding": "Python>=3.11; HikerAPIdependency, aiograpiextra.",
+          "url": "https://github.com/subzeroid/insto/blob/124f8c6814955b521b80ea09a7f485b45b8a3f95/pyproject.toml",
+          "sha256": "e11251b434bd581e907984ae6fe8026166fd1a32c34623a50f7a84d9f6c3f7f7"
+        }
+      ],
+      "reason": "HikerAPIrequiressupplierkeyevenontrial; aiograpirequiresauthorizedInstagramlogin. DTOformattingnotclaimedasfullOSINTintegration.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.327755+00:00",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "EXCLUDED"
+      ]
+    },
+    {
+      "number": 9,
+      "name": "Osintgraph",
+      "repository": "https://github.com/XD-MHLOO/Osintgraph",
+      "commit": "c9bbcabb20604e2db1ae14f5ae7ba91d7938c33a",
+      "repository_verified": true,
+      "license": "GPL-3.0-or-later",
+      "license_file_url": "https://github.com/XD-MHLOO/Osintgraph/blob/c9bbcabb20604e2db1ae14f5ae7ba91d7938c33a/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_ACCOUNT_SESSION",
+        "MANDATORY_EXTERNAL_SERVICE_TOKEN"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "instaloader==4.14.2",
+        "neo4j==5.28.1",
+        "langchain-google-genai==2.1.8",
+        "langgraph==0.6.2",
+        "pydantic==2.11.7"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "SetuprequiresInstagramaccount,Neo4jdatabaseandGeminiAPIkey.",
+          "url": "https://github.com/XD-MHLOO/Osintgraph/blob/c9bbcabb20604e2db1ae14f5ae7ba91d7938c33a/README.md",
+          "sha256": "6a6bf95cee9305181dcf2bc314f1cd12ce08ec19ed497be2ba4ee57fb40f5cdc"
+        },
+        {
+          "path": "src/osintgraph/insta_manager.py",
+          "finding": "auto_loginTrue; createsLLMAnalyzerthen_loginand_initialize_neo4j.",
+          "url": "https://github.com/XD-MHLOO/Osintgraph/blob/c9bbcabb20604e2db1ae14f5ae7ba91d7938c33a/src/osintgraph/insta_manager.py",
+          "sha256": "687cb11a1bdd07441ad85e07bcd83b223e8da55bb5276bb224224ee21849901d"
+        },
+        {
+          "path": "pyproject.toml",
+          "finding": "GPL3codewithmandatoryNeo4j/Geministack.",
+          "url": "https://github.com/XD-MHLOO/Osintgraph/blob/c9bbcabb20604e2db1ae14f5ae7ba91d7938c33a/pyproject.toml",
+          "sha256": "cbeb3f153e29bfa4dc7fef7d6bade2a9817f2fb092a4455465791bd5eda4ef34"
+        }
+      ],
+      "reason": "InstagramgatheringandGeminireasonerexcluded.NoNeo4jserviceinstalled. GenericPerson/Post/CommentrelationshipconceptsmayinformrootsevidencemodelwithoutcopyingGPLmodules; notanOsintgraphcollector.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.353067+00:00",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "EXCLUDED"
+      ]
+    },
+    {
+      "number": 10,
+      "name": "TokIntel",
+      "repository": "https://github.com/HackUnderway/TokIntel",
+      "commit": "0b6cb36bcc0b2a2ab5e43ba829cd3feaa9f0ab66",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/HackUnderway/TokIntel/blob/0b6cb36bcc0b2a2ab5e43ba829cd3feaa9f0ab66/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_PERSONAL_API_KEY"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "apify-client",
+        "python-dotenv",
+        "colorama",
+        "alive-progress"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "ApifyTikTokProfileScraperAPIkeyRequired; freeaccount/trialisstillakey.",
+          "url": "https://github.com/HackUnderway/TokIntel/blob/0b6cb36bcc0b2a2ab5e43ba829cd3feaa9f0ab66/README.md",
+          "sha256": "4a055a80c58d7d8bbfd8d7524b711b5858a1065272690ac6a6cd45bab5f0f965"
+        },
+        {
+          "path": "TokIntel.py",
+          "finding": "ImportsApifyClientandcreatesclientwithAPIFY_TOKEN; checkusesactor.",
+          "url": "https://github.com/HackUnderway/TokIntel/blob/0b6cb36bcc0b2a2ab5e43ba829cd3feaa9f0ab66/TokIntel.py",
+          "sha256": "147ad1ef8776a595f9ca2dfe5326d843f91d3f0c355672f71588c9eaae47d192"
+        }
+      ],
+      "reason": "MainTikTokcollectionrequiresApifykey. Noindependentvaluablecollectionmode.NoApifyclientinstalledorcalled; separateIDtimestampisBellingcatcapability.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.373465+00:00",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "EXCLUDED"
+      ]
+    },
+    {
+      "number": 11,
+      "name": "Arctic Shift",
+      "repository": "https://github.com/ArthurHeitmann/arctic_shift",
+      "commit": "7752f2d2c4e450a0c333e165a70d270e75b6cfa4",
+      "repository_verified": true,
+      "license": "NO_SOURCE_LICENSE_FOUND",
+      "decision": "PUBLIC_DOCUMENTED_API_ONLY",
+      "integrated_capability_names": [
+        "arctic_posts",
+        "arctic_comments"
+      ],
+      "dependencies_reviewed": [
+        "Python>=3.10 for dump scripts",
+        "zstandard only for dump processing; not installed"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/ArthurHeitmann/arctic_shift/blob/7752f2d2c4e450a0c333e165a70d270e75b6cfa4/README.md",
+          "sha256": "24f40dfda762324b813cbb9c2571937a400f614cf4acc20efe26087873685e39",
+          "finding": "Public limited API and large optional dumps; no uptime guarantees."
+        },
+        {
+          "path": "api/README.md",
+          "url": "https://github.com/ArthurHeitmann/arctic_shift/blob/7752f2d2c4e450a0c333e165a70d270e75b6cfa4/api/README.md",
+          "sha256": "5ce3c1081df1b895c6ce7103d15ad3ccec44602035e34c087112f2a2511b2fda",
+          "finding": "Posts/comments/search, anchor constraints, date filters, limits, field selection, rate limits and stale score notes."
+        }
+      ],
+      "reason": "Independent public API client only, no unlicensed upstream source or archive dumps copied/distributed. Anchored author/subreddit, optional dates/query, limit<=20, no bulk archive ingestion.",
+      "implementation": "Independent adapter using shared Granger transport; no upstream code copied",
+      "agent_integrated": true,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T19:20:57.526059+00:00",
+      "allowed_independent_modes": [
+        "PUBLIC_API_NO_KEY"
+      ],
+      "public_live_verified": true,
+      "execution_test": "ToolRegistry comments complete/2 evidence; posts initial unavailable, independent registry retry complete/2 evidence. Earlier invalid permalink field400 fixed; failed artifacts preserved.",
+      "installation_test": "No additional dependency installed.",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "DEPENDENCIES_VERIFIED",
+        "INSTALLATION_SUCCESS",
+        "PUBLIC_LIVE_VERIFIED",
+        "AGENT_INTEGRATED"
+      ]
+    },
+    {
+      "number": 12,
+      "name": "Bellingcat TikTok Date Extract",
+      "repository": "https://github.com/bellingcat/tiktok-timestamp",
+      "commit": "aa9831e7dfd165a27e0323e5c6cfc05816b4b9ce",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/bellingcat/tiktok-timestamp/blob/aa9831e7dfd165a27e0323e5c6cfc05816b4b9ce/LICENSE",
+      "decision": "LOCAL_EXECUTION_SUCCESS",
+      "excluded_reasons": [],
+      "allowed_independent_modes": [
+        "LOCAL_PYTHON"
+      ],
+      "integrated_capability_names": [
+        "tiktok_timestamp"
+      ],
+      "dependencies_reviewed": [
+        "stdlibonlyportedfromclientJavaScript"
+      ],
+      "source_evidence": [
+        {
+          "path": "index.html",
+          "finding": "BigIntdecimalID->binary->first31significantbits->Unixseconds.",
+          "url": "https://github.com/bellingcat/tiktok-timestamp/blob/aa9831e7dfd165a27e0323e5c6cfc05816b4b9ce/index.html",
+          "sha256": "1b8581ba33a57e57dc5c596e33bfea4f7f0699dc4cb2373a825db00497ef60dd"
+        },
+        {
+          "path": "README.md",
+          "finding": "LinksRyanBensonprimaryresearchandclient-sideoperation.",
+          "url": "https://github.com/bellingcat/tiktok-timestamp/blob/aa9831e7dfd165a27e0323e5c6cfc05816b4b9ce/README.md",
+          "sha256": "9ef5b8d53acc1d5cfb879fb70e7a8ba234e370b2e4281e16c38c7650d9be6edf"
+        }
+      ],
+      "reason": "LocalfullTikTokURLorID,integerprecision,timeUTC. NoTikToknetworkrequest.Extractedtimeisnotindependentpublicationverification.Unsupportedshortlinks/changedformatsreject.",
+      "installation_test": "Localadaptation44testsPython3.14.5;noexternaldependencies",
+      "execution_test": "LOCAL_EXECUTION_SUCCESS",
+      "public_live_verified": false,
+      "agent_integrated": true,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.396785+00:00",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "DEPENDENCIES_VERIFIED",
+        "INSTALLATION_SUCCESS",
+        "LOCAL_EXECUTION_SUCCESS",
+        "AGENT_INTEGRATED"
+      ]
+    },
+    {
+      "number": 13,
+      "name": "Telegram Phone Number Checker",
+      "repository": "https://github.com/bellingcat/telegram-phone-number-checker",
+      "commit": "0241df1953cd8fad1ff8b89744cba024990170ec",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/bellingcat/telegram-phone-number-checker/blob/0241df1953cd8fad1ff8b89744cba024990170ec/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_PERSONAL_API_KEY",
+        "MANDATORY_ACCOUNT_SESSION"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "telethon==1.33.1",
+        "python-dotenv",
+        "click",
+        "anyio"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "RequiresTelegramaccount,API_ID,API_HASH,phonenumber/session.",
+          "url": "https://github.com/bellingcat/telegram-phone-number-checker/blob/0241df1953cd8fad1ff8b89744cba024990170ec/README.md",
+          "sha256": "b5b023609be25d27233b3a01550c546f917f05dbe8418b6227d3184475c05811"
+        },
+        {
+          "path": "pyproject.toml",
+          "finding": "Telethon-basedtool; optionalproxyextra.",
+          "url": "https://github.com/bellingcat/telegram-phone-number-checker/blob/0241df1953cd8fad1ff8b89744cba024990170ec/pyproject.toml",
+          "sha256": "fc521aaebd641078a1aec5184692ab2fdbc709c8ba875f0cc64c19cc56861d2f"
+        }
+      ],
+      "reason": "MandatoryauthorizedTelegramaccountandAPIcredentials; phonecheckingcanimportcontacts. Noauthentication,contactupload,phonesyncorrecoveryused. ExistingGrangerTelegramadapterpreserved.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.406118+00:00",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "EXCLUDED"
+      ]
+    },
+    {
+      "number": 14,
+      "name": "Instagram Location Search",
+      "repository": "https://github.com/bellingcat/instagram-location-search",
+      "commit": "e4045cc5b19432393c07e1270dbf5082c692d3c7",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/bellingcat/instagram-location-search/blob/e4045cc5b19432393c07e1270dbf5082c692d3c7/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_ACCOUNT_SESSION"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "requests",
+        "numpy",
+        "pandas",
+        "selenium",
+        "webdriver-manager"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "Exampleexplicitlyrequiressessioncookies; undocumentedInstagramAPIandlogged-inbrowserflow.",
+          "url": "https://github.com/bellingcat/instagram-location-search/blob/e4045cc5b19432393c07e1270dbf5082c692d3c7/README.md",
+          "sha256": "2e3f9c4ef3bfffe655d26f43ce331e8a8863fc52db4cfa257d19d13a50026e8a"
+        },
+        {
+          "path": "setup.py",
+          "finding": "Installsrequests/numpy/pandas/selenium/webdriver-manager; noindependentlocationcollector.",
+          "url": "https://github.com/bellingcat/instagram-location-search/blob/e4045cc5b19432393c07e1270dbf5082c692d3c7/setup.py",
+          "sha256": "4942b629eed10b0ec0b9c449edb4b32b697e541ee64a9657769cd352c3c257b5"
+        }
+      ],
+      "reason": "CurrentREADMErequiresInstagramcookies. Noanonymouspermittedendpointverified; nodriverinstall,loginorcookieextractionattempted.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.413835+00:00",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "EXCLUDED"
+      ]
+    },
+    {
+      "number": 15,
+      "name": "ShadowFinder",
+      "repository": "https://github.com/bellingcat/ShadowFinder",
+      "commit": "215485abd5a46a9b98c4ba0fbfce7df6b6bb1be8",
+      "repository_verified": true,
+      "license": "MIT",
+      "license_file_url": "https://github.com/bellingcat/ShadowFinder/blob/215485abd5a46a9b98c4ba0fbfce7df6b6bb1be8/LICENSE",
+      "decision": "LOCAL_EXECUTION_SUCCESS",
+      "excluded_reasons": [],
+      "allowed_independent_modes": [
+        "LOCAL_PYTHON"
+      ],
+      "integrated_capability_names": [
+        "shadow_regions"
+      ],
+      "dependencies_reviewed": [
+        "portedscalarstdlibmath",
+        "upstreamfullstacknotinstalled:cartopy,pandas,numpy,timezonefinder,matplotlib"
+      ],
+      "source_evidence": [
+        {
+          "path": "src/shadowfinder/shadowfinder.py",
+          "finding": "find_shadowscomputessunaltitudes; height/tan(altitude),relativeerrororaltitudeanglerelativeerror; midnightnotassumed.",
+          "url": "https://github.com/bellingcat/ShadowFinder/blob/215485abd5a46a9b98c4ba0fbfce7df6b6bb1be8/src/shadowfinder/shadowfinder.py",
+          "sha256": "83027a8369b45ed055883917bf93141e9198128b905d5003aeb4e5376a448b41"
+        },
+        {
+          "path": "pyproject.toml",
+          "finding": "ShadowFinder0.7.1MIT; fullpackageheavyplot/timezonevectorstack.",
+          "url": "https://github.com/bellingcat/ShadowFinder/blob/215485abd5a46a9b98c4ba0fbfce7df6b6bb1be8/pyproject.toml",
+          "sha256": "9f4e1a7183b4e584c2a573d5535aeeca16a14fed78cc613d2d5092dcfe5af865"
+        },
+        {
+          "path": "README.md",
+          "finding": "DocumentedCLIexample10height5shadow2024-02-29T13:59:59UTC; alternateanglemode.",
+          "url": "https://github.com/bellingcat/ShadowFinder/blob/215485abd5a46a9b98c4ba0fbfce7df6b6bb1be8/README.md",
+          "sha256": "c3626717432e4b6aaf57edb176d82017d40d714ae3bce12edd294cccc66329d8"
+        }
+      ],
+      "reason": "Realcomputationalpartadapted:SunCalcscalarport,UTCknownscenario,boundedgrid,cancellation/timeout,GeoJSONcells,toleranceandcandidatecompatibility. Notphoto-onlyinference; noautomaticunknownlocaltimezone.",
+      "installation_test": "Localadaptation44testsPython3.14.5;noexternaldependencies",
+      "execution_test": "LOCAL_EXECUTION_SUCCESS",
+      "public_live_verified": false,
+      "agent_integrated": true,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.437471+00:00",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "DEPENDENCIES_VERIFIED",
+        "INSTALLATION_SUCCESS",
+        "LOCAL_EXECUTION_SUCCESS",
+        "AGENT_INTEGRATED"
+      ]
+    },
+    {
+      "number": 16,
+      "name": "Nuclei",
+      "repository": "https://github.com/projectdiscovery/nuclei",
+      "commit": "1f79f786da87147c23146384fcd34e92c394e390",
+      "repository_verified": true,
+      "license": "MIT",
+      "decision": "OPTIONAL_RESTRICTED_LOCAL_CLI",
+      "integrated_capability_names": [
+        "nuclei_check"
+      ],
+      "dependencies_reviewed": [
+        "Official self-contained Windows amd64 CLI v3.11.1",
+        "Current source go.mod Go1.27.3; not built",
+        "No CVE templates downloaded"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/projectdiscovery/nuclei/blob/1f79f786da87147c23146384fcd34e92c394e390/README.md",
+          "sha256": "ca9f092da1a44dec85260ee3e1165c9b92db57305d6f78f0421bfd4ec6c12995",
+          "finding": "ProjectDiscovery CLI; public CVE collections not installed."
+        },
+        {
+          "path": "LICENSE.md",
+          "url": "https://github.com/projectdiscovery/nuclei/blob/1f79f786da87147c23146384fcd34e92c394e390/LICENSE.md",
+          "sha256": "6fdddca72c072cc3e62729c9506639750a98ea3200f3053b57c351b3ca2ba148",
+          "finding": "MIT copyright2025 ProjectDiscovery."
+        },
+        {
+          "path": "go.mod",
+          "url": "https://github.com/projectdiscovery/nuclei/blob/1f79f786da87147c23146384fcd34e92c394e390/go.mod",
+          "sha256": "21bd3fdae63d04f6d897002b104772a6b27034401c7d88882b89a87128f0a93c",
+          "finding": "Current audited source dependencies reviewed; prebuilt official pinned release used instead of building all Go modules."
+        },
+        {
+          "path": "internal/runner/options.go",
+          "url": "https://github.com/projectdiscovery/nuclei/blob/1f79f786da87147c23146384fcd34e92c394e390/internal/runner/options.go",
+          "sha256": "5d8e353fa8a4045b87957ceb0a20f8a4a09eb704f2910eb6b0fe1a128d2e357e",
+          "finding": "DISABLE_NUCLEI_TEMPLATES_{PUBLIC,GITHUB,GITLAB,AWS,AZURE}_DOWNLOAD recognized."
+        },
+        {
+          "path": "internal/runner/runner.go",
+          "url": "https://github.com/projectdiscovery/nuclei/blob/1f79f786da87147c23146384fcd34e92c394e390/internal/runner/runner.go",
+          "sha256": "3d6bc20614efc2ffb3ead14c7a49b5f665c7bd748f88040843a8bb3dd49898f0",
+          "finding": "Updates gated; custom download manager not run when disable-update-check."
+        },
+        {
+          "path": "pkg/catalog/config/nucleiconfig.go",
+          "url": "https://github.com/projectdiscovery/nuclei/blob/1f79f786da87147c23146384fcd34e92c394e390/pkg/catalog/config/nucleiconfig.go",
+          "sha256": "2ab6022e80707c9caafae0c627d62c9724ba4a66b04cd141b8cf85a10015659c",
+          "finding": "DisableUpdateCheck disables template updates as well."
+        },
+        {
+          "path": "pkg/progress/progress.go",
+          "url": "https://github.com/projectdiscovery/nuclei/blob/1f79f786da87147c23146384fcd34e92c394e390/pkg/progress/progress.go",
+          "sha256": "fd82b76f28036af700977d9f7f58c5f37680d23f27816b26ac75eaaf554e3d46",
+          "finding": "Transient localhost metrics listener exists; ephemeral port selected by wrapper."
+        }
+      ],
+      "reason": "Only custom benign single-HEAD header template. Default off, separate explicit approval and exact owned public origin scope; DNS IP pinned, redirects/OAST/downloads/cloud/proxies disabled. Isolated env/config, SHA verified every launch, bounded process/JSON/cancellation. No foreign active targets tested.",
+      "implementation": "Pinned official optional binary",
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T19:20:57.526059+00:00",
+      "allowed_independent_modes": [
+        "LOCAL_CLI"
+      ],
+      "public_live_verified": false,
+      "owned_loopback_verified": true,
+      "runtime": {
+        "version": "3.11.1",
+        "release_commit": "a8c88feb4a1c8e961b7902534ce3af97e9d524a4",
+        "platform": "windows_amd64",
+        "url": "https://github.com/projectdiscovery/nuclei/releases/download/v3.11.1/nuclei_3.11.1_windows_amd64.zip",
+        "published_checksums_url": "https://github.com/projectdiscovery/nuclei/releases/download/v3.11.1/nuclei_3.11.1_checksums.txt",
+        "archive_sha256": "bb6cb9ff8939b753f6fcab06fd30a15f5bc61d8382a597871334c007a85ff9d2",
+        "archive_bytes": 46067128,
+        "binary_sha256": "73d5e5b0dde9ea5d5fc15dcc34c756148ccae20dc431a21e611af11b8649b480",
+        "binary_bytes": 144920576,
+        "installed_source_path": ".toolenvs/nuclei/3.11.1",
+        "optional_sidecar_path": "tools/nuclei/3.11.1",
+        "bundled_core_exe": false
+      },
+      "execution_test": "Actual pinned CLI own loopback: exactly1 HEAD /, status200,CSP=true,HSTS=false; actual CLI cancellation passed; production private target refused.",
+      "installation_test": "Official ZIP checksum matched published checksums; binary hash matched pin; optional local runtime installed with MIT LICENSE.",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "DEPENDENCIES_VERIFIED",
+        "INSTALLATION_SUCCESS",
+        "LOCAL_EXECUTION_SUCCESS"
+      ]
+    },
+    {
+      "number": 17,
+      "name": "VKAnalysis",
+      "repository": "https://github.com/migalin/VKAnalysis",
+      "commit": "23bfedc490c99d488078039b9aab1c7cd3defce9",
+      "repository_verified": true,
+      "license": "Apache-2.0",
+      "license_file_url": "https://github.com/migalin/VKAnalysis/blob/23bfedc490c99d488078039b9aab1c7cd3defce9/LICENSE",
+      "decision": "EXCLUDED",
+      "excluded_reasons": [
+        "MANDATORY_ACCOUNT_SESSION",
+        "INCOMPATIBLE_LEGACY_RUNTIME"
+      ],
+      "allowed_independent_modes": [],
+      "integrated_capability_names": [],
+      "dependencies_reviewed": [
+        "vk-api==9.3",
+        "PyQt5",
+        "pymorphy2",
+        "legacyCaffe/Python3.5/NumPyoptionalphoto"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "finding": "RequireslegacyPython3.5forCaffemodule; onlinetimefeaturetemporarilyunavailable.",
+          "url": "https://github.com/migalin/VKAnalysis/blob/23bfedc490c99d488078039b9aab1c7cd3defce9/README.md",
+          "sha256": "95469f3ae5bd43e9427a5e19eb1db9f92426c360f8111b906d360fc2e2a24622"
+        },
+        {
+          "path": "Core/CoreClasses.py",
+          "finding": "VK(vk_api.VkApi)initializerrequireslogin/passwordandself.auth().",
+          "url": "https://github.com/migalin/VKAnalysis/blob/23bfedc490c99d488078039b9aab1c7cd3defce9/Core/CoreClasses.py",
+          "sha256": "784145af3594745917248512e9f31cdbf3f6b050ed7151073083b5ce5facb9c3"
+        },
+        {
+          "path": "VKActivityAnalisys/ActivityAnalysis.py",
+          "finding": "Mutualfriend/city/age/likesanalysisdrivesauthenticatedVKAPI; canacceptalreadycollectedfriendlistsincertainmethods.",
+          "url": "https://github.com/migalin/VKAnalysis/blob/23bfedc490c99d488078039b9aab1c7cd3defce9/VKActivityAnalisys/ActivityAnalysis.py",
+          "sha256": "2b8418bee0f03618b515e961297d69c343b6e20adbf733ed8a8e4f730f2f791a"
+        },
+        {
+          "path": "std_req.txt",
+          "finding": "LegacydependencieskeptoutsideGrangermainPython.",
+          "url": "https://github.com/migalin/VKAnalysis/blob/23bfedc490c99d488078039b9aab1c7cd3defce9/std_req.txt",
+          "sha256": "5f74b861fad4a394d55a60ddc9d70d533cd34bf57b00ca653e034c0051d2881d"
+        }
+      ],
+      "reason": "Authenticatedcollectorandlegacyphoto/textstackexcluded. Noobsoletepackagesinstalled.Rootgenericneighbour/intersectionanalysisonavailableevidenceisindependent,notclaimfullVKAnalysis.",
+      "installation_test": "Notinstalledbecauseexcludedmandatoryauth/keyorunsupportedmode",
+      "execution_test": "Notrun:excluded;noguessedkey/nologin",
+      "public_live_verified": false,
+      "agent_integrated": false,
+      "packaged_verified": false,
+      "checked_at_utc": "2026-10-29T18:55:21.453337+00:00",
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "EXCLUDED"
+      ]
+    },
+    {
+      "number": 18,
+      "name": "GeoCLIP",
+      "repository": "https://github.com/VicenteVivan/geo-clip",
+      "commit": "5ef9c350fff3be42efbbb6b54537288aeab062c7",
+      "repository_verified": true,
+      "license": "MIT (official repo and published PyPI distribution); separate OpenAI CLIP backbone MIT",
+      "license_file_url": "https://github.com/VicenteVivan/geo-clip/blob/5ef9c350fff3be42efbbb6b54537288aeab062c7/LICENSE",
+      "decision": "OPTIONAL_CPU_INFERENCE_VERIFIED",
+      "allowed_independent_modes": [
+        "LOCAL_PUBLISHED_WEIGHT_INFERENCE"
+      ],
+      "integration_depth": "actual official GeoCLIP 1.3.0 forward encoders/headweights/gallery, not heuristic or remote reverse image API",
+      "integrated_capability_names": [
+        "geoclip_locate"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/VicenteVivan/geo-clip/blob/5ef9c350fff3be42efbbb6b54537288aeab062c7/README.md",
+          "sha256": "602ece9360f806c7208075171f00c30213c590d23e72e97db9a7c0aee526b5ad",
+          "bytes": 4127
+        },
+        {
+          "path": "LICENSE",
+          "url": "https://github.com/VicenteVivan/geo-clip/blob/5ef9c350fff3be42efbbb6b54537288aeab062c7/LICENSE",
+          "sha256": "c272adb7c32db589779b10cc36ee1395af25bbd68aca0be19173f8ef04a23dc3",
+          "bytes": 1072
+        },
+        {
+          "path": "pyproject.toml",
+          "url": "https://github.com/VicenteVivan/geo-clip/blob/5ef9c350fff3be42efbbb6b54537288aeab062c7/pyproject.toml",
+          "sha256": "db776ecbc62ab9e7b9fca5e31e20119d3caaf7cd6f2e938a52685fdd811c713e",
+          "bytes": 1630
+        },
+        {
+          "path": "requirements.txt",
+          "url": "https://github.com/VicenteVivan/geo-clip/blob/5ef9c350fff3be42efbbb6b54537288aeab062c7/requirements.txt",
+          "sha256": "5c348c8cb2b9ff919144f7c9dfda81a515165d75b89ee28e049705f1488df699",
+          "bytes": 179
+        },
+        {
+          "path": "geoclip/model/GeoCLIP.py",
+          "url": "https://github.com/VicenteVivan/geo-clip/blob/5ef9c350fff3be42efbbb6b54537288aeab062c7/geoclip/model/GeoCLIP.py",
+          "sha256": "74c0440733a83a7632254bc8c6a7360bbd3a7602d5346bb37b2f09c273a68ba6",
+          "bytes": 6399
+        },
+        {
+          "path": "geoclip/model/image_encoder.py",
+          "url": "https://github.com/VicenteVivan/geo-clip/blob/5ef9c350fff3be42efbbb6b54537288aeab062c7/geoclip/model/image_encoder.py",
+          "sha256": "0543d74070ba44033633820c70765c188fa1196a32d6e4104c668ba24f066a54",
+          "bytes": 2628
+        },
+        {
+          "path": "geoclip/model/location_encoder.py",
+          "url": "https://github.com/VicenteVivan/geo-clip/blob/5ef9c350fff3be42efbbb6b54537288aeab062c7/geoclip/model/location_encoder.py",
+          "sha256": "7efd3fe2a1f74a230271219d5813f24316a194a65e5e52ae800cf188d76a8340",
+          "bytes": 3136
+        }
+      ],
+      "upstream_dependencies": [
+        "Python>=3.11",
+        "torch>=2,<3",
+        "torchvision>=0.15,<1",
+        "Pillow>=13,<14",
+        "transformers>=4.28,<6",
+        "huggingface-hub>=0.20,<2",
+        "safetensors>=0.4,<1",
+        "pandas>=1.5,<4",
+        "numpy>=1.23,<3",
+        "geopy>=2.3,<3",
+        "tqdm>=4.65,<5"
+      ],
+      "published_weights": {
+        "headweights_and_gallery": {
+          "distribution": "geoclip-1.3.0-py3-none-any.whl",
+          "sha256": "08a93791166a279d52b95c466a952c75f17f654cc61bdf6ab20355325b564dec",
+          "license": "MIT as distributed by upstream; no separately restrictive headweight license found",
+          "format": "torch .pth via weights_only=True",
+          "gallery": "official coordinates_100K.csv"
+        },
+        "backbone": {
+          "repository": "openai/clip-vit-large-patch14",
+          "revision": "32bd64288804d66eefd0ccbe215aa642df71cc41",
+          "license": "MIT upstream OpenAI CLIP; HF conversion",
+          "format": "safetensors"
+        }
+      },
+      "preprocessing": "PIL EXIF transpose, RGB pixels; original AutoProcessor CLIP preprocessing",
+      "outputs": {
+        "predictions": "top-k original GPS gallery lat/lon",
+        "raw_score": "uncalibrated original logit",
+        "optional_score": "gallery softmax, explicitly uncalibrated",
+        "gallery_size": "100K from published gallery"
+      },
+      "excluded_stages": [
+        "training",
+        "demo UI",
+        "Folium/matplotlib dependencies",
+        "automatic public image upload",
+        "reverse_geocoding",
+        "arbitrary checkpoint pickle execution",
+        "heavy weights bundled into EXE"
+      ],
+      "limitations": [
+        "Gallery discreteness and dataset bias; top score is not calibrated confidence.",
+        "No guarantee of exact house/street or identity.",
+        "Training images/datasets are not redistributed."
+      ],
+      "installation": "explicit consent received; pinned artifacts and 47 wheels; static wheel extraction, no .pth/setup/pip execution",
+      "process": "same EXE --visual-model-worker; source uses current CPython3.14; optional site-packages only in child",
+      "isolation": {
+        "cpu_threads": 2,
+        "cpu_only": true,
+        "network_in_worker": false,
+        "model_cache": "one component at a time; manager restarts process on component switch to release native allocators",
+        "cancel": "manager terminates own Windows Job",
+        "idle_unload_seconds": 20,
+        "memory_job_limit_bytes": 6000000000
+      },
+      "inputs": {
+        "image": "existing authorized attachment bytes; base64 over anonymous pipe; no arbitrary path/URL",
+        "maximum_image_bytes": 20971520,
+        "maximum_decoded_pixels": 16000000,
+        "exif": "orientation applied; metadata cleared; GPS excluded from model pixels"
+      },
+      "output_metadata": [
+        "duration_ms",
+        "cached",
+        "device",
+        "model_version",
+        "upstream_commit",
+        "model_sha256",
+        "process_rss_bytes",
+        "process_peak_rss_bytes",
+        "process_private_bytes"
+      ],
+      "real_model_inference": {
+        "verified": true,
+        "source_report": "output/integrations19/visual-live",
+        "frozen_report": "output/integrations19/frozen-visual-final/report.json",
+        "frozen_exe_sha256": "e9109f90cd53f2b743d899e47a08e4b3d475d84cb9a123317e874c912718fa53",
+        "scope": "Real published weights, three image cases, actual CPU, cancellation/restart; accuracy not calibrated"
+      },
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "DEPENDENCIES_VERIFIED",
+        "INSTALLATION_SUCCESS",
+        "LOCAL_EXECUTION_SUCCESS",
+        "AGENT_INTEGRATED"
+      ],
+      "agent_integrated": true,
+      "packaged_verified": false
+    },
+    {
+      "number": 19,
+      "name": "Waypoint OSINT",
+      "repository": "https://github.com/KillaMeep/waypoint-osint",
+      "commit": "502318a7da42bdc38af2ad2f87152492dbf9d671",
+      "repository_verified": true,
+      "license": "MIT code; selected model files Apache-2.0 and MIT as individually recorded",
+      "license_file_url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/LICENSE",
+      "decision": "PARTIAL_SELECTED_CPU_STAGES_VERIFIED",
+      "allowed_independent_modes": [
+        "LOCAL_ONNX_COARSE_YFCC",
+        "LOCAL_DISK_LIGHTGLUE_PAIR_MATCH"
+      ],
+      "upstream_architecture": "current version Rust+ONNX Runtime/Tauri, not Electron/PyTorch desktop subprocess",
+      "integration_depth": "real selected ONNX graphs and translated preprocessing/sampler/adaptive matcher; does not claim full upstream desktop pipeline",
+      "integrated_capability_names": [
+        "waypoint_locate",
+        "waypoint_match",
+        "map_panoramax"
+      ],
+      "source_evidence": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/README.md",
+          "sha256": "aa6578b31c58c8948963dc98f4f8cfc16219f46b95a49e0294090220bbafea88",
+          "bytes": 11355
+        },
+        {
+          "path": "LICENSE",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/LICENSE",
+          "sha256": "82d748a82a3b090b4d6264348a89d07a565c782c274b822cc3bbd1f3af685f99",
+          "bytes": 1066
+        },
+        {
+          "path": "src-tauri/models.json",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/src-tauri/models.json",
+          "sha256": "472568832583e64942dfad4f9a679261fcc8945e84227afd414c9a7f47e23714",
+          "bytes": 2796
+        },
+        {
+          "path": "waypoint-core/Cargo.toml",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/waypoint-core/Cargo.toml",
+          "sha256": "3e361b3d9e9fe5aedb8029a1a9014dada26741f7c973e61cb18140f9415065e3",
+          "bytes": 861
+        },
+        {
+          "path": "waypoint-core/src/onnx.rs",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/waypoint-core/src/onnx.rs",
+          "sha256": "914812c8866f05206d2c0e6958b0536e48d66c6e6f829c982297bd197ba42eb0",
+          "bytes": 20592
+        },
+        {
+          "path": "waypoint-core/src/plonk.rs",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/waypoint-core/src/plonk.rs",
+          "sha256": "a6e309143d8c299a106c0ed646811e46cff813fd5a8c0c2cc383d56744f1c122",
+          "bytes": 9645
+        },
+        {
+          "path": "waypoint-core/src/prep.rs",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/waypoint-core/src/prep.rs",
+          "sha256": "0b40a16ca9d4cbffbfa3a0de60e0cb5c7a6a94efcb92eb54c966a4b0202655c1",
+          "bytes": 7565
+        },
+        {
+          "path": "waypoint-core/src/sun.rs",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/waypoint-core/src/sun.rs",
+          "sha256": "d3250c6e63d3f0bef87e7d85fe90dd10722d1e4dbe68dfcf97ba4b1079396d6b",
+          "bytes": 13299
+        },
+        {
+          "path": "waypoint-core/src/sources/panoramax.rs",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/waypoint-core/src/sources/panoramax.rs",
+          "sha256": "ccc800d727dc63f2c5a4fba950d95c352ca823a54687c2d90e88d63a4916d30a",
+          "bytes": 3412
+        },
+        {
+          "path": "waypoint-core/src/ransac.rs",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/waypoint-core/src/ransac.rs",
+          "sha256": "3016127bf211193dbc93bf4650ce8a2aebf18e9ce90228909149127dad851cc0",
+          "bytes": 10378
+        },
+        {
+          "path": "tools/export/export_plonk.py",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/tools/export/export_plonk.py",
+          "sha256": "7537e52ea2f76bdaf24883082561e3f77ae07248c230cb6bc775fdd049df715e",
+          "bytes": 4791
+        },
+        {
+          "path": "tools/export/export_disk_lightglue.py",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/tools/export/export_disk_lightglue.py",
+          "sha256": "1aa05354b550d343ba5d74939074cd8e0b8e4cb38450f4e3eb9ffbc10a3633e0",
+          "bytes": 8740
+        },
+        {
+          "path": "tools/export/export_dinov2.py",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/tools/export/export_dinov2.py",
+          "sha256": "927e4a743dc1dccce5ce39de40302d7f681fb2c216a9d41c066a7e42cf97f848",
+          "bytes": 2480
+        },
+        {
+          "path": "tools/parity/REPORT.md",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/tools/parity/REPORT.md",
+          "sha256": "60816c62735a0ac815dcea60ac446ae8f3d77f8e6b00ad18e21f246c5bbe8f86",
+          "bytes": 10121
+        },
+        {
+          "path": "tools/parity/reference_pipeline/plonk_core.py",
+          "url": "https://github.com/KillaMeep/waypoint-osint/blob/502318a7da42bdc38af2ad2f87152492dbf9d671/tools/parity/reference_pipeline/plonk_core.py",
+          "sha256": "87e4bb00dbd9911749e6d109ca29275f57740a7f34315e84afebb3a12bf6ea07",
+          "bytes": 3216
+        }
+      ],
+      "upstream_dependencies": [
+        "Rust>=1.90",
+        "ort=2.0.0-rc.13",
+        "image0.25",
+        "jpeg-decoder0.3",
+        "libloading0.8",
+        "serde1",
+        "serde_json1",
+        "ureq2",
+        "regex1",
+        "base640.22",
+        "Tauri desktop frontend"
+      ],
+      "used_dependencies": [
+        "Python CPython3.14",
+        "onnxruntime1.31.1 CPU",
+        "numpy2.5.4",
+        "Pillow13.0.0"
+      ],
+      "model_conversion": {
+        "repository": "https://huggingface.co/killameep/waypoint-models",
+        "revision": "af84a8fbf2e7f7fea9beeddb0bf230ba33fca4e2",
+        "format": "unchanged published ONNX graphs",
+        "license_source": "resources/third-party/visual-models/Waypoint-models-card.md"
+      },
+      "selected_models": [
+        {
+          "files": [
+            "dinov2_vitl14_reg.onnx"
+          ],
+          "original": "facebookresearch/dinov2 ViT-L/14 with registers",
+          "license": "Apache-2.0",
+          "change": "ONNX; position embedding resampled to336 at export"
+        },
+        {
+          "files": [
+            "plonk_yfcc_step.onnx"
+          ],
+          "original": "nicolas-dufour/PLONK_YFCC",
+          "license": "MIT",
+          "change": "one Riemannian Euler flow step exported to ONNX"
+        },
+        {
+          "files": [
+            "disk_unet.onnx"
+          ],
+          "original": "cvlab-epfl/disk depth-save.pth",
+          "license": "Apache-2.0",
+          "change": "DISK UNet exported to ONNX"
+        },
+        {
+          "files": [
+            "lg_front.onnx",
+            "lg_layer0.onnx",
+            "lg_layer1.onnx",
+            "lg_layer2.onnx",
+            "lg_layer3.onnx",
+            "lg_layer4.onnx",
+            "lg_layer5.onnx",
+            "lg_layer6.onnx",
+            "lg_layer7.onnx",
+            "lg_layer8.onnx",
+            "lg_post.onnx",
+            "lg_assign.onnx"
+          ],
+          "original": "cvg/LightGlue disk_lightglue",
+          "license": "Apache-2.0 code AND pretrained weights",
+          "change": "split ONNX graphs with adaptive loop ported"
+        }
+      ],
+      "coarse_pipeline": [
+        "DINOv2 central square RGB→336 bicubic/ImageNet normalization",
+        "SplitMix64/Box-Muller repeatable Gaussian samples",
+        "250 float32 SigmoidScheduler(-7,3,1) Euler steps using PLONK_YFCC ONNX",
+        "lat/lon conversion",
+        "haversine DBSCAN100km/min_samples=max(3,int(n*.03))"
+      ],
+      "matching_pipeline": [
+        "cap1024 bilinear then floor width/height to16; RGB float32",
+        "DISK ONNX output128 descriptors +heat channel",
+        "strict5x5 NMS, >n+1th threshold, L2 descriptors",
+        "published modular LightGlue graphs with early stop/adaptive control",
+        "own bounded normalized8-point RANSAC with3px Sampson threshold"
+      ],
+      "outputs": {
+        "coarse": "cluster coordinates/count/std, raw_score=sample_fraction_uncalibrated, bounded original sample_coordinates, noise fraction",
+        "matching": "resized-frame pixel correspondences and assignment scores, keypoint/match counts, geometric inlier set",
+        "no_clusters": "empty predictions; no fabricated best city",
+        "geometric_evidence": "matching/epipolar agreement is not proof of geographic location"
+      },
+      "deviations_from_upstream": [
+        "CPU keypoint cap1024 vs upstream2048, reported explicitly.",
+        "Own8-point geometry vs upstream7-point estimator, reported explicitly.",
+        "Python NumPy/ORT port of Rust control loop; exact selected graphs unchanged.",
+        "No CPU throughput calibration run during each user request."
+      ],
+      "excluded_stages": [
+        {
+          "stage": "StreetCLIP/PLONK_OSV5M",
+          "reason": "StreetCLIP vision graph CC BY-NC4.0; selected set avoids this noncommercial dependency."
+        },
+        {
+          "stage": "PLONK_iNaturalist",
+          "reason": "not in selected download set"
+        },
+        {
+          "stage": "Cell-DINO/Xray-DINO",
+          "reason": "different models with separate noncommercial licenses; not selected original DINOv2"
+        },
+        {
+          "stage": "SuperPoint LightGlue frontend",
+          "reason": "restrictive SuperPoint license; DISK variant selected"
+        },
+        {
+          "stage": "Mapillary retrieval",
+          "reason": "access token required; not part of no-key integration"
+        },
+        {
+          "stage": "undocumented Google StreetView scraping",
+          "reason": "not used"
+        },
+        {
+          "stage": "OSM contextual scoring and sun plausibility",
+          "reason": "not fabricated in worker; existing independent Granger tools may contribute evidence"
+        },
+        {
+          "stage": "Tauri/Electron/new map/UI",
+          "reason": "existing Granger Qt UI preserved"
+        }
+      ],
+      "limitations": [
+        "Small sample counts may yield no cluster; fractions vary with seed and sample count.",
+        "Arithmetic longitude mean across dateline is flagged.",
+        "ONNX PyTorch full numerical parity awaits actual fixtures; upstream source parity report is not our test result."
+      ],
+      "installation": "explicit consent received; pinned artifacts and 47 wheels; static wheel extraction, no .pth/setup/pip execution",
+      "process": "same EXE --visual-model-worker; source uses current CPython3.14; optional site-packages only in child",
+      "isolation": {
+        "cpu_threads": 2,
+        "cpu_only": true,
+        "network_in_worker": false,
+        "model_cache": "one component at a time; manager restarts process on component switch to release native allocators",
+        "cancel": "manager terminates own Windows Job",
+        "idle_unload_seconds": 20,
+        "memory_job_limit_bytes": 6000000000
+      },
+      "inputs": {
+        "image": "existing authorized attachment bytes; base64 over anonymous pipe; no arbitrary path/URL",
+        "maximum_image_bytes": 20971520,
+        "maximum_decoded_pixels": 16000000,
+        "exif": "orientation applied; metadata cleared; GPS excluded from model pixels"
+      },
+      "output_metadata": [
+        "duration_ms",
+        "cached",
+        "device",
+        "model_version",
+        "upstream_commit",
+        "model_sha256",
+        "process_rss_bytes",
+        "process_peak_rss_bytes",
+        "process_private_bytes"
+      ],
+      "real_model_inference": {
+        "verified": true,
+        "source_report": "output/integrations19/visual-live",
+        "frozen_report": "output/integrations19/frozen-visual-final/report.json",
+        "frozen_exe_sha256": "e9109f90cd53f2b743d899e47a08e4b3d475d84cb9a123317e874c912718fa53",
+        "scope": "Real published weights, three image cases, actual CPU, cancellation/restart; accuracy not calibrated"
+      },
+      "panoramax": {
+        "status": "PUBLIC_LIVE_VERIFIED",
+        "implementation": "Independent bounded metadata/asset-link search, no pixels downloaded",
+        "documentation": "https://docs.panoramax.fr/backend/",
+        "proof": "output/integrations19/panoramax-registry-live.json",
+        "automatic_image_reranking": false
+      },
+      "final_statuses": [
+        "REPOSITORY_VERIFIED",
+        "DEPENDENCIES_VERIFIED",
+        "INSTALLATION_SUCCESS",
+        "LOCAL_EXECUTION_SUCCESS",
+        "AGENT_INTEGRATED"
+      ],
+      "agent_integrated": true,
+      "packaged_verified": false
+    }
+  ],
+  "packaging": "Final GUI/EXE QA pending. Historical model frozen runs are separately identified by SHA.",
+  "qa_report_locations": {
+    "local_agent": "output/integrations19/agent-live-local-complete.json",
+    "image_agent": "output/integrations19/agent-live-image-complete.json",
+    "public_agent": "output/integrations19/agent-live-public19-validated.json",
+    "visual_models": "output/integrations19/frozen-visual-final/report.json"
+  }
+}
