@@ -100,7 +100,7 @@ def python_runtime(source, options=None):
 
 
 class _WindowsJob:
-    def __init__(self, process):
+    def __init__(self, process, *, memory_limit=None):
         self.handle = None
         if os.name != "nt":
             return
@@ -125,6 +125,12 @@ class _WindowsJob:
         handle = kernel.CreateJobObjectW(None, None)
         limits = EXTENDED()
         limits.BasicLimitInformation.LimitFlags = 0x2000  # KILL_ON_JOB_CLOSE, includes descendants.
+        if memory_limit is not None:
+            if type(memory_limit) is not int or not 64*1024*1024<=memory_limit<=4*1024*1024*1024:
+                if handle:kernel.CloseHandle(handle)
+                raise ValueError('Invalid own worker memory budget')
+            limits.BasicLimitInformation.LimitFlags |= 0x200  # JOB_OBJECT_LIMIT_JOB_MEMORY.
+            limits.JobMemoryLimit=memory_limit
         if handle and kernel.SetInformationJobObject(handle, 9, ctypes.byref(limits), ctypes.sizeof(limits)) and kernel.AssignProcessToJobObject(handle, wintypes.HANDLE(process._handle)):
             self.handle, self.kernel = handle, kernel
         elif handle:
