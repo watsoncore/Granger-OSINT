@@ -311,7 +311,9 @@ class ToolRegistry:
                     raise ValueError('Изображение не выбрано пользователем для этой задачи.')
             elif spec.source!='map_geocode':
                 from .geoint.mapping import coordinates
-                coordinates(value)
+                from .geoint import GeointError
+                try: coordinates(value)
+                except GeointError: raise ValueError('Некорректные координаты.') from None
             return value,limit,options,None
         if spec.source in ('github_repository','threat_feodo','hash_virustotal'):
             from .public_integrations import validate

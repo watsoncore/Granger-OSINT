@@ -265,3 +265,11 @@ def test_mapping_manifests_have_actual_official_api_origins():
     assert "mediawiki.org" in manifest(_BY_NAME["map_wikimedia"]).documentation_url
     assert manifest(_BY_NAME["map_geocode"]).access_mode == "OFFICIAL_API"
     assert "nominatim.org" in manifest(_BY_NAME["map_geocode"]).documentation_url
+
+
+def test_invalid_mapping_coordinates_return_a_typed_invocation_without_network():
+    registry=ToolRegistry(Settings(),secret_getter=lambda name:'')
+    for value in ('91,0','NaN,0','not-coordinates'):
+        result=registry.execute('map_wikimedia',{'coordinates':value},approved=True)
+        assert result['status']=='invalid_arguments' and result['results']==[]
+        assert result['invocation_id'] and result['tool_id']=='map_wikimedia'
