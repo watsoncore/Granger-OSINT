@@ -71,6 +71,19 @@ def test_stream_delta_transmits_one_changed_message(bridge):
     assert update['message_updates']==[{'index':1,'message':{**chat.messages[-1],'streaming':False,'sources':[]}}]
 
 
+def test_completed_manual_tool_is_published_after_running_snapshot(bridge):
+    bridge._manual_activity=[{'id':'web_read','tool':'Чтение страниц','status':'running','summary':'Запрос пользователя'}]
+    patches=[]
+    bridge.stateChanged.connect(lambda raw:patches.append(json.loads(raw)))
+    bridge.publish(force=True)
+    bridge._manual_activity[0].update(status='partial',summary='Источник ограничил доступ',resultCount=0)
+    bridge.publish()
+    assert patches[0]['activity'][0]['status']=='running'
+    assert patches[-1]['patch'] is True
+    assert patches[-1]['activity'][0]['status']=='partial'
+    assert patches[-1]['activity'][0]['resultCount']==0
+
+
 def test_asset_origin_cannot_escape_bundle_or_load_remote_content(tmp_path):
     (tmp_path/'index.html').write_text('<html/>')
     assert bundled_url(QUrl('granger://app/index.html'),tmp_path)

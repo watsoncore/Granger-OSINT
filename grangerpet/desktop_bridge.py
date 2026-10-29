@@ -216,7 +216,9 @@ class DesktopBridge(QObject):
             result[key] = {'id':str(key),'tool':TOOL_NAMES.get(tool,tool),'status':state,'summary':event.get('message',''),
                 'inputType':spec.kind if spec else '', 'resultCount':event.get('count'),
                 'error':event.get('error') or event.get('error_code') or ''}
-        return list(result.values())[-30:] + self._manual_activity
+        # The delta publisher retains its previous snapshot. Sharing mutable
+        # rows would mutate that snapshot too and hide completion from React.
+        return list(result.values())[-30:] + [dict(row) for row in self._manual_activity]
 
     def snapshot(self):
         settings = self.host.settings
