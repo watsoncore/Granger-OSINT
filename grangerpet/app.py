@@ -13,7 +13,7 @@ import sys
 
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QFont, QIcon
-from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtWidgets import QApplication
 
 from .config import Settings, SettingsStore, data_directory, resource_path, with_pet_preferences
 from .ipc import InstanceServer, send_command
@@ -27,13 +27,27 @@ def _setup_logging():
     directory.mkdir(parents=True, exist_ok=True)
     role = "pet" if "--pet" in sys.argv else "launcher"
     handler = RotatingFileHandler(directory / f"{role}.log", maxBytes=1024 * 1024, backupCount=2, encoding="utf-8")
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s", handlers=[handler])
+    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+    # basicConfig is a no-op if an imported dependency configured the root
+    # logger first. Always attach this application's actual per-user log.
+    for existing in list(root.handlers):
+        if getattr(existing, '_granger_log', False):
+            root.removeHandler(existing)
+            existing.close()
+    handler._granger_log = True
+    root.addHandler(handler)
 
     def exception_hook(kind, value, traceback):
-        logging.getLogger("grangerpet").critical("Unhandled exception", exc_info=(kind, value, traceback))
-        # GUI exceptions are logged; no console is needed by the packaged executable.
-        if not issubclass(kind, KeyboardInterrupt) and QApplication.instance():
-            QMessageBox.critical(None, PRODUCT_NAME, f"Произошла ошибка: {value}\n\nЖурнал: {directory}")
+        if issubclass(kind, (KeyboardInterrupt, SystemExit)):
+            return
+        from .errors import error_center
+        center = error_center()
+        if center is not None:
+            center.report(kind, value, traceback, operation='qt_callback', stop_task=True)
+        else:
+            logging.getLogger('grangerpet').critical('Startup failed: %s', kind.__name__)
 
     sys.excepthook = exception_hook
 
@@ -56,6 +70,8 @@ def main(argv: list[str] | None = None) -> int:
     from .desktop_surface import register_desktop_scheme
     register_desktop_scheme()
     app = QApplication([sys.argv[0]])
+    from .errors import error_center
+    error_center()
     app.setProperty('web_desktop',True)
     app.setApplicationName(PRODUCT_NAME)
     app.setOrganizationName('Granger-OSINT')

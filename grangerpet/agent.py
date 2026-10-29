@@ -183,6 +183,13 @@ class AgentRunner:
         self._running = False
         self._state = {}
         self._persistence_ready = False
+        self._abort_reason = ''
+
+    def abort(self, reason='data_contract_error'):
+        """Cancel child work and persist a terminal task failure on the worker."""
+        self._abort_reason = reason
+        if hasattr(self, '_stop'):
+            self._stop.set()
 
     def snapshot(self):
         """Public evidence only; no model history, headers, reasoning or options."""
@@ -232,6 +239,8 @@ class AgentRunner:
                 pass  # An observer cannot turn a finished source into an error.
 
     def _checkpoint(self):
+        if self._abort_reason:
+            raise _Stopped(self._abort_reason)
         if self._parent_cancel is not None and self._parent_cancel.is_set():
             raise _Stopped("cancelled")
         if time.monotonic() >= self._deadline:
@@ -803,6 +812,7 @@ class AgentRunner:
         self._parent_cancel, self._stop = cancel_event, threading.Event()
         self._checkpoint_callback = checkpoint_callback
         self._persistence_ready = False
+        self._abort_reason = ''
         self._run_started = time.monotonic()
         self._store = InvestigationEvidence(self.limits.max_evidence)
         text, state, last_metadata = "", "completed", {}
@@ -810,6 +820,8 @@ class AgentRunner:
         self._state, self._record = {}, {}
         try:
             if resume_state is not None:
+                from .investigation_contracts import validate_checkpoint
+                validate_checkpoint(resume_state)
                 if (not isinstance(resume_state, dict) or resume_state.get('version') != 1
                         or not re.fullmatch(r'[a-f0-9]{32}', str(resume_state.get('id', '')))
                         or not isinstance(resume_state.get('record'), dict)
@@ -945,12 +957,13 @@ class AgentRunner:
                 self._checkpoint()
         except _Stopped as stop:
             reason = stop.reason
-            state = 'cancelled' if reason == 'cancelled' else 'paused' if reason in ('manual_pause', 'no_progress', 'interrupted') else 'limit_reached'
+            state = 'failed' if reason == 'data_contract_error' else 'cancelled' if reason == 'cancelled' else 'paused' if reason in ('manual_pause', 'no_progress', 'interrupted') else 'limit_reached'
             if self.limits.budget_behavior == 'stop' and state == 'limit_reached':
                 state = 'stopped'
             self._record['stop_reason'] = reason
             text = {
                 'cancelled': 'Расследование остановлено пользователем. Его можно продолжить с сохранённого места.',
+                'data_contract_error': 'Расследование остановлено из-за неверного формата данных. Полученные сведения сохранены.',
                 'manual_pause': 'Этап исследования завершён. Следующие проверки ожидают продолжения.',
                 'no_progress': 'Проверки начали повторяться или возвращать одинаковые ошибки. Исследование приостановлено; полученные сведения сохранены.',
                 'checkpoint_error': 'Не удалось безопасно сохранить продолжение расследования. Работа остановлена; доступны полученные в этой сессии сведения.'

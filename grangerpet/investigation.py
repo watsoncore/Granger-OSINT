@@ -4,7 +4,7 @@ from __future__ import annotations
 from copy import deepcopy
 import math
 
-from .agent_evidence import EvidenceStore, normalize_evidence, redact
+from .agent_evidence import EvidenceStore, EvidenceContractError, validate_saved_evidence, redact
 
 
 class InvestigationEvidence(EvidenceStore):
@@ -32,20 +32,35 @@ class InvestigationEvidence(EvidenceStore):
             return deepcopy(self._all_executions)
 
     def restore(self, records, executions):
-        """Revalidate provenance before exposing a saved row to tools/models."""
+        """Restore intact rows and diagnose isolated damage without inventing facts.
+
+        This is an in-memory projection. Original journals/checkpoints are never
+        rewritten here, so a rejected legacy row remains available for recovery.
+        """
+        restored = {}
+        if not isinstance(records, list):
+            self._diagnose(EvidenceContractError('evidence', records))
+            records = []
+        for value in records:
+            try:
+                normalized = validate_saved_evidence(value)
+            except EvidenceContractError as error:
+                self._diagnose(error)
+                continue
+            except (TypeError, ValueError, KeyError):
+                self._diagnose(EvidenceContractError('evidence[]', value))
+                continue
+            restored[normalized['evidence_id']] = normalized
+        if not isinstance(executions, list):
+            self._diagnose(EvidenceContractError('executions', executions))
+            executions = []
+        safe_executions = []
+        for row in executions:
+            if not isinstance(row, dict):
+                self._diagnose(EvidenceContractError('executions[]', row))
+                continue
+            safe_executions.append(redact(row))
         with self._lock:
-            for value in records if isinstance(records, list) else []:
-                if not isinstance(value, dict):
-                    raise ValueError('Invalid saved evidence')
-                origin = value.get('provenance', {})
-                try:
-                    normalized = normalize_evidence(value, str(origin['tool']), str(origin['query']), origin.get('obtained_at'))
-                    if normalized['evidence_id'] != value.get('evidence_id'):
-                        raise ValueError()
-                except (TypeError, ValueError, KeyError):
-                    raise ValueError('Invalid saved evidence provenance') from None
-                # Validated saved observations retain their original timestamps
-                # and contradictory statuses; do not turn them into new reads.
-                safe = redact(value)
-                self._records[normalized['evidence_id']] = safe
-            self._all_executions = [redact(row) for row in executions if isinstance(row, dict)] if isinstance(executions, list) else []
+            self._records.update(restored)
+            self._all_executions = safe_executions
+        return self.diagnostics()

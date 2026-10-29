@@ -4,6 +4,8 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
+import re
 from pathlib import Path
 import sys
 from typing import Callable
@@ -16,6 +18,13 @@ from .config import data_directory
 
 def server_name(role: str) -> str:
     identity = str(Path.home()).casefold().encode("utf-8")
+    namespace = os.environ.get('GRANGERPET_QA_NAMESPACE', '')
+    if (os.environ.get('GRANGERPET_INTERACTION_TRACE')
+            and re.fullmatch(r'[a-f0-9]{32}', namespace)
+            and re.fullmatch(r'GrangerPet/QA/[a-zA-Z0-9_-]{8,80}', os.environ.get('GRANGERPET_QA_VAULT', ''))):
+        # Separate same-user pipes as well as profile files. Isolated release
+        # QA must never remove, command or take over the owner's running app.
+        identity += ('|qa|' + namespace).encode('ascii')
     return "GrangerPet-" + hashlib.sha256(identity).hexdigest()[:12] + "-" + role
 
 

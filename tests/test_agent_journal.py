@@ -28,8 +28,9 @@ def test_private_checkpoint_is_encrypted_and_resumable_across_journal_instances(
     value = {'version': 1, 'id': identifier, 'record': {'id': identifier, 'goal': 'Личная цель NOT-REAL-SECRET',
         'status': 'paused', 'resumable': True, 'checkpoint_revision': 2},
         'messages': [{'role': 'user', 'content': 'Личная переписка NOT-REAL-SECRET'}],
-        'pending_calls': [{'id': 'one', 'name': 'web_search', 'arguments': {'query': 'fixture'}}],
-        'call_cache': {'fingerprint': {'status': 'complete'}}, 'headers': {'Authorization': 'not-in-contract'}}
+        'pending_calls': [{'id': 'one', 'name': 'web_search', 'arguments': {'query': 'fixture'}, 'fingerprint': 'fixture'}],
+        'call_cache': {'fingerprint': {'outcome': {'tool': 'web_search', 'status': 'complete', 'results': []}}},
+        'headers': {'Authorization': 'not-in-contract'}}
     store = InvestigationJournal(tmp_path)
     path = store.save_checkpoint(value, secrets=('NOT-REAL-SECRET',))
     encoded = path.read_bytes()

@@ -101,6 +101,7 @@ export interface HistoryItem {
   status?: string
 }
 export interface DesktopState {
+  errors?: { id: string; message: string; code: string; count: number }[]
   visual_models?: {
     state: string; installed: boolean; available: boolean; download_bytes?: number | null; disk_recommended_bytes?: number | null
     ram_recommended_bytes?: number | null; device?: string; components?: unknown; error?: string; probe?: unknown
@@ -196,12 +197,29 @@ export const emptyState: DesktopState = {
 export function parseState(raw: string | Partial<DesktopState>, previous = emptyState): DesktopState {
   const value = typeof raw === 'string' ? JSON.parse(raw) as Partial<DesktopState> & { patch?: boolean; message_updates?: { index: number; message: Message }[]; message_count?: number } : raw
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Некорректное состояние приложения')
+  const object = (row: unknown): row is Record<string, unknown> => !!row && typeof row === 'object' && !Array.isArray(row)
+  // The bridge is a data boundary, including historical state loaded by Python.
+  // Reject corrupt rows before React components dereference their properties.
+  for (const key of ['connection', 'search', 'canvas', 'launcher', 'hermione', 'window', 'settings', 'investigation', 'usage'] as const) {
+    if (value[key] !== undefined && value[key] !== null && !object(value[key])) throw new Error(`Некорректный объект: ${key}`)
+  }
+  for (const key of ['messages', 'activity', 'history', 'evidence', 'task_sources', 'tools', 'errors'] as const) {
+    const rows = value[key]
+    if (rows !== undefined && (!Array.isArray(rows) || rows.some(row => !object(row)))) throw new Error(`Некорректные записи: ${key}`)
+  }
+  for (const row of value.messages || []) {
+    if (typeof row.id !== 'string' || typeof row.text !== 'string' || !['user', 'model', 'status'].includes(row.role)) throw new Error('Некорректное сообщение')
+  }
+  for (const row of [...value.evidence || [], ...value.task_sources || []]) {
+    if (typeof row.evidence_id !== 'string' || typeof row.title !== 'string' || typeof row.url !== 'string' || (row.details !== undefined && !object(row.details))) throw new Error('Некорректное доказательство')
+  }
   const patch = value as Partial<DesktopState> & { message_updates?: { index: number; message: Message }[]; message_count?: number }
   let messages = Array.isArray(value.messages) ? value.messages : previous.messages
   if (Array.isArray(patch.message_updates)) {
     messages = [...messages]
     for (const update of patch.message_updates) {
-      if (Number.isInteger(update.index) && update.index >= 0 && update.index <= messages.length && update.message?.id) messages[update.index] = update.message
+      if (!object(update) || !object(update.message) || typeof update.message.id !== 'string' || typeof update.message.text !== 'string') throw new Error('Некорректное обновление сообщения')
+      if (Number.isInteger(update.index) && update.index >= 0 && update.index <= messages.length && update.message.id) messages[update.index] = update.message
     }
   }
   if (Number.isInteger(patch.message_count) && patch.message_count! >= 0 && patch.message_count! < messages.length) messages = messages.slice(0, patch.message_count)

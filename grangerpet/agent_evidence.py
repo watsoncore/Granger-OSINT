@@ -9,6 +9,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 import hashlib
 import json
+import logging
 import math
 import re
 import threading
@@ -17,6 +18,19 @@ from .engine.models import Result, canonical_url, is_confirmed, result_key
 
 _SECRET = re.compile(r"(?i)(?:api.?key|authorization|password|passwd|access.?token|refresh.?token|session|cookie|credential|secret|private.?key)")
 _INTERNAL = frozenset({"source_root", "tools_root", "runtime_python", "local_path", "cwd", "working_directory", "stderr", "stdout", "traceback", "command", "options"})
+_LOG = logging.getLogger(__name__)
+
+
+class EvidenceContractError(ValueError):
+    """A structural failure whose diagnostic never contains source contents."""
+    code = 'invalid_evidence_contract'
+
+    def __init__(self, path, value):
+        self.path, self.actual_type = path, type(value).__name__
+        super().__init__(f'{self.code}: {path} ({self.actual_type})')
+
+    def diagnostic(self):
+        return {'code': self.code, 'path': self.path, 'actual_type': self.actual_type}
 
 
 def utc_now():
@@ -29,7 +43,14 @@ def redact(value, secrets=(), *, _depth=0, _budget=None):
         _budget = [6000]
     _budget[0] -= 1
     if _depth > 12 or _budget[0] < 0:
-        return "[ограничено]"
+        # A size guard is not a data conversion. In particular, changing late
+        # provenance/details objects into a string broke their public contract
+        # and crashed the Qt snapshot on perfectly valid large adapter results.
+        if isinstance(value, dict):
+            return {}
+        if isinstance(value, (list, tuple)):
+            return []
+        return "[ограничено]" if isinstance(value, str) else None
     if isinstance(value, dict):
         return {str(key)[:160]: redact(item, secrets, _depth=_depth + 1, _budget=_budget)
                 for key, item in list(value.items())[:150] if not _SECRET.search(str(key)) and str(key).casefold() not in _INTERNAL}
@@ -51,9 +72,52 @@ def redact(value, secrets=(), *, _depth=0, _budget=None):
     return None
 
 
+def sanitize_evidence(value, secrets=()):
+    """Bound a fact's payload without spending its identity/provenance budget.
+
+    This is redaction, not verification: callers accepting saved facts still
+    require validate_saved_evidence. Each contract container has its own budget
+    so a large parser result cannot erase a sibling evidence ID or its origin.
+    """
+    value = value.to_dict() if isinstance(value, Result) else value
+    if not isinstance(value, dict):
+        raise EvidenceContractError('record', value)
+    for name, expected in (('details', dict), ('sources', list), ('provenance', dict), ('observations', list)):
+        if name in value and not isinstance(value[name], expected):
+            raise EvidenceContractError('record.' + name, value[name])
+    safe = redact({name: value[name] for name in
+                   ('id', 'title', 'type', 'platform', 'url', 'description', 'date', 'status', 'sources',
+                    'evidence_id', 'resource_id', 'verification') if name in value}, secrets)
+    for name in ('details', 'provenance'):
+        if name in value:
+            safe[name] = redact(value[name], secrets)
+    if 'observations' in value:
+        safe['observations'] = []
+        for observation in value['observations'][-8:]:
+            if not isinstance(observation, dict):
+                raise EvidenceContractError('record.observations[]', observation)
+            # Observations are shallow snapshots, never another observation
+            # ledger. Discard unknown fields rather than accepting recursion.
+            safe['observations'].append(sanitize_evidence({key: observation[key] for key in
+                ('status', 'description', 'details', 'provenance') if key in observation}, secrets))
+    return safe
+
+
 def normalize_evidence(value, tool, query, obtained_at=None, secrets=()):
     """Validate a real adapter finding before adding provenance or model access."""
-    safe = redact(value.to_dict() if isinstance(value, Result) else value, secrets)
+    value = value.to_dict() if isinstance(value, Result) else value
+    if not isinstance(value, dict):
+        raise EvidenceContractError('record', value)
+    for name, expected in (('details', dict), ('sources', list), ('provenance', dict)):
+        if name in value and not isinstance(value[name], expected):
+            raise EvidenceContractError('record.' + name, value[name])
+    if not isinstance(tool, str) or not tool or not isinstance(query, str):
+        raise EvidenceContractError('record.provenance.tool_or_query', None)
+    if obtained_at is not None and not isinstance(obtained_at, str):
+        raise EvidenceContractError('record.provenance.obtained_at', obtained_at)
+    # Adapter details have their own bounded tree. They must not consume the
+    # budget of sibling identity/status fields or of newly added provenance.
+    safe = sanitize_evidence(value, secrets)
     result = Result.from_dict(safe, tool)
     record = result.to_dict()
     when = obtained_at or utc_now()
@@ -62,9 +126,11 @@ def normalize_evidence(value, tool, query, obtained_at=None, secrets=()):
     record["evidence_id"] = "ev_" + identifier
     record["resource_id"] = "res_" + hashlib.sha256(resource.encode("utf-8")).hexdigest()[:20]
     record["verification"] = "source_reported" if is_confirmed(result) else "unconfirmed"
+    basis = result.details.get('verification')
+    basis = basis if isinstance(basis, str) else result.description
     record["provenance"] = {"tool": tool, "query": redact(str(query), secrets), "obtained_at": when,
                             "source_url": canonical_url(record.get("url", "")), "source_status": result.status,
-                            "basis": redact(result.details.get("verification") or result.description, secrets)[:2000],
+                            "basis": redact(basis, secrets)[:2000],
                             "identity_verified": False}
     record['provenance']['acquisition'] = ('direct_page' if result.details.get('reading_method') in ('direct_http','browser_dom') else
                                            'official_api' if result.details.get('acquisition')=='official_api' else
@@ -74,23 +140,77 @@ def normalize_evidence(value, tool, query, obtained_at=None, secrets=()):
     return record
 
 
+def validate_saved_evidence(value):
+    """Rebuild a persisted fact only from intact provenance and a matching ID.
+
+    Broken legacy rows remain in their original encrypted journal. They cannot
+    become facts by guessing an origin or interpreting a truncation marker.
+    """
+    if not isinstance(value, dict):
+        raise EvidenceContractError('record', value)
+    origin = value.get('provenance')
+    if not isinstance(origin, dict):
+        raise EvidenceContractError('record.provenance', origin)
+    for field in ('tool', 'query'):
+        if not isinstance(origin.get(field), str) or (field == 'tool' and not origin[field]):
+            raise EvidenceContractError('record.provenance.' + field, origin.get(field))
+    normalized = normalize_evidence(value, origin['tool'], origin['query'], origin.get('obtained_at'))
+    if normalized['evidence_id'] != value.get('evidence_id'):
+        raise EvidenceContractError('record.evidence_id', value.get('evidence_id'))
+    if value.get('verification') in ('source_reported', 'unconfirmed', 'contradictory'):
+        normalized['verification'] = value['verification']
+    if 'observations' in value:
+        observations = value['observations']
+        if not isinstance(observations, list):
+            raise EvidenceContractError('record.observations', observations)
+        for observation in observations:
+            if not isinstance(observation, dict):
+                raise EvidenceContractError('record.observations[]', observation)
+            for field in ('details', 'provenance'):
+                if not isinstance(observation.get(field), dict):
+                    raise EvidenceContractError('record.observations[].' + field, observation.get(field))
+        normalized['observations'] = sanitize_evidence({'observations': observations})['observations']
+    return normalized
+
+
 class EvidenceStore:
     """Thread-safe snapshots. Compact views refer back to these complete records."""
     def __init__(self, *, max_records=300):
         self.max_records = max(1, min(1000, int(max_records)))
         self._records, self._executions = {}, []
+        self._diagnostics = []
         self._lock = threading.RLock()
+
+    def _diagnose(self, error):
+        diagnostic = error.diagnostic()
+        with self._lock:
+            if diagnostic not in self._diagnostics:
+                self._diagnostics.append(diagnostic)
+                del self._diagnostics[:-100]
+                _LOG.warning('Evidence contract rejected: code=%s path=%s actual_type=%s',
+                             diagnostic['code'], diagnostic['path'], diagnostic['actual_type'])
+        return diagnostic
+
+    def diagnostics(self):
+        with self._lock:
+            return deepcopy(self._diagnostics)
 
     def add(self, envelope):
         identifiers = []
         if not isinstance(envelope, dict):
+            self._diagnose(EvidenceContractError('envelope', envelope))
+            return identifiers
+        values = envelope.get('results', [])
+        if not isinstance(values, list):
+            self._diagnose(EvidenceContractError('envelope.results', values))
             return identifiers
         with self._lock:
             self._executions.append({name: deepcopy(envelope.get(name)) for name in
                                      ("tool", "status", "query", "obtained_at", "limitations", "error") if name in envelope})
             self._executions = self._executions[-100:]
-            for value in envelope.get("results", [])[:50]:
+            for value in values[:50]:
                 if not isinstance(value, dict):
+                    self._diagnose(EvidenceContractError('envelope.results[]', value))
                     continue
                 try:
                     origin = value.get("provenance", {})
@@ -102,7 +222,11 @@ class EvidenceStore:
                     else:
                         record = normalize_evidence(value, str(envelope.get("tool", "unknown")),
                                                     str(envelope.get("query", "")), envelope.get("obtained_at"))
+                except EvidenceContractError as error:
+                    self._diagnose(error)
+                    continue
                 except (ValueError, TypeError):
+                    self._diagnose(EvidenceContractError('envelope.results[]', value))
                     continue
                 identifier = record["evidence_id"]
                 existing = self._records.get(identifier)

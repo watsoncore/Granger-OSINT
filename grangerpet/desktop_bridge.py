@@ -20,7 +20,7 @@ from PySide6.QtGui import QDesktopServices
 from PySide6.QtCore import QUrl
 from PySide6.QtWidgets import QApplication, QMessageBox, QDialog, QFileDialog
 
-from .agent_evidence import normalize_evidence, redact
+from .agent_evidence import normalize_evidence, redact, sanitize_evidence
 from .agent_tools import ToolRegistry, _SPECS
 from .ai_keys import resolve_deepseek_key
 from .credential_dialog import CredentialDialog, credential_presence, SERVICES
@@ -48,7 +48,7 @@ MAX_PAYLOAD = 2_100_000
 
 
 def source_view(record, limits=()):
-    value = redact(record)
+    value = sanitize_evidence(record)
     details, origin = value.get('details') or {}, value.get('provenance') or {}
     acquisition = origin.get('acquisition')
     kind = 'api' if details.get('acquisition')=='official_api' else 'page' if details.get('reading_method') in ('direct_http','browser_dom') else 'snippet' if acquisition=='search_index' or value.get('status')=='indexed' else 'adapter'
@@ -123,10 +123,19 @@ class DesktopBridge(QObject):
         self._publication_enabled = True
         self._force_next = False
         self._closed = False
+        self._snapshot_fault = None
         self._launcher_fingerprint = None
         self.ui_ready = False
         self._key = resolve_deepseek_key()
+        if getattr(self, '_errors', None) is not None:
+            self._errors.register_secrets((self._key,))
         self._load_credential_flags()
+        from .errors import error_center
+        self._errors = error_center()
+        if self._errors is not None:
+            self._errors.register_secrets(self._secret_redactions)
+            self._errors.changed.connect(self.mark_dirty)
+            self._errors.taskFailed.connect(self._fail_active_task)
         self.toolProgress.connect(self._tool_progress)
         self.visualProgress.connect(self._visual_progressed)
         self._flush = QTimer(self)
@@ -157,6 +166,22 @@ class DesktopBridge(QObject):
 
     def _connection_changed(self, *_):
         self._key = resolve_deepseek_key()
+        self.mark_dirty()
+
+    def _fail_active_task(self, fingerprint):
+        if self._closed or self.surface != 'main':
+            return
+        chat = self.host.chat_widget
+        if chat.busy:
+            chat.fail_investigation(fingerprint)
+        if self._manual_job is not None:
+            self._manual_job.cancel()
+            self._manual_job = None
+            for row in self._manual_activity:
+                if row.get('status') == 'running':
+                    row.update(status='failed', error='data_contract_error')
+        if getattr(self.host, '_busy', False):
+            self.host.controller.cancel()
         self.mark_dirty()
 
     def _load_credential_flags(self):
@@ -242,6 +267,7 @@ class DesktopBridge(QObject):
 
     def _sources(self):
         chat = self.host.chat_widget
+        from .investigation_contracts import recover_public_snapshot
         fingerprint=(chat.conversation_id,chat._last_investigation.get('id'),
             len(chat._last_investigation.get('evidence',[])),len(chat._last_investigation.get('executions',[])),
             tuple(row.get('investigation_id') for row in chat.messages if row.get('investigation_id')),
@@ -249,7 +275,8 @@ class DesktopBridge(QObject):
         if fingerprint==self._sources_fingerprint: return self._sources_view
         self._raw_sources={}
         sources, seen = [], set()
-        investigations = [chat._last_investigation] if chat._last_investigation else []
+        investigations = [recover_public_snapshot(chat._last_investigation,
+            chat._last_investigation.get('id'), stop_running=False)] if chat._last_investigation else []
         for row in chat.messages:
             identifier = row.get('investigation_id')
             if identifier and identifier not in self._source_cache:
@@ -310,6 +337,7 @@ class DesktopBridge(QObject):
         base = {'product':PRODUCT_NAME,'version':VERSION,'surface':self.surface,'route':self.route,
             'settings':values,'window':{'maximized':self.host.isMaximized(),'fullscreen':self.host.isFullScreen(),
             'active':bool(self.host.isActiveWindow() and self.host.isVisible() and not self.host.isMinimized())}}
+        base['errors'] = self._errors.snapshot() if self._errors is not None else []
         from .credentials import vault_status
         base['vault']=vault_status()
         if self.surface=='launcher':
@@ -402,8 +430,24 @@ class DesktopBridge(QObject):
             return
         force = force or self._force_next
         self._force_next = False
-        try: state = self.snapshot()
-        except RuntimeError: return
+        investigation = getattr(self.host.chat_widget, '_last_investigation', {}) if self.surface == 'main' else {}
+        fault_key = (getattr(self.host.chat_widget, 'conversation_id', ''),
+                     investigation.get('id') if isinstance(investigation, dict) else id(investigation)) if self.surface == 'main' else ('launcher',)
+        if self._snapshot_fault == fault_key:
+            # Keep the last good view and all controls usable. A failed task
+            # cannot re-enter its broken publisher every streaming/poll signal.
+            self.stateChanged.emit(self._json({'patch': True, 'busy': False,
+                'errors': self._errors.snapshot() if self._errors is not None else []}))
+            return
+        try:
+            state = self.snapshot()
+        except Exception as error:
+            self._snapshot_fault = fault_key
+            from .errors import report_exception
+            report_exception(error, operation='desktop_snapshot', stop_task=True)
+            self.stateChanged.emit(self._json({'patch': True, 'busy': False,
+                'errors': self._errors.snapshot() if self._errors is not None else []}))
+            return
         messages = state.pop('messages', None)
         changes = {key:value for key,value in state.items() if force or self._last.get(key)!=value}
         if messages is not None:
@@ -439,6 +483,12 @@ class DesktopBridge(QObject):
         self.mark_dirty()
 
     def dispatch(self, action, payload):
+        if not isinstance(action, str) or not isinstance(payload, dict):
+            raise ValueError('Ожидались действие и объект параметров.')
+        if action == 'error_dismiss':
+            if self._errors is not None:
+                self._errors.dismiss(payload.get('id'))
+            return None
         if action=='ui_ready':
             if payload.get('surface') != self.surface: raise ValueError('Некорректная поверхность.')
             if not self.ui_ready:

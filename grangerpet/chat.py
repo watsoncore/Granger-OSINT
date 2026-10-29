@@ -632,6 +632,33 @@ class ChatWidget(QWidget):
         self.state_changed.emit()
         self._update_actions()
 
+    def fail_investigation(self, fingerprint=''):
+        """Stop one failed run without auto-resume or discarding its evidence."""
+        if not self._job:
+            return
+        self._generation += 1
+        self._job.cancel()
+        self._job.deleteLater()
+        self._job = None
+        self._close_approval()
+        if self._agent_runner is not None:
+            self._agent_runner.abort('data_contract_error')
+            self._last_investigation = self._agent_runner.snapshot()
+            self._last_investigation.update(status='failed', stop_reason='data_contract_error', error_id=fingerprint)
+            self._persist_investigation(self._last_investigation)
+        self._busy = False
+        self._agent_followup = False
+        self.last_request = {'code': 'data_contract_error'}
+        self.status.setText('Расследование остановлено из-за ошибки. Полученные сведения сохранены.')
+        self.status.show()
+        self.busy_changed.emit(False)
+        self.activity_changed.emit('error')
+        cancel_state = getattr(self.ai_state, 'cancel_request', None)
+        if cancel_state:
+            cancel_state()
+        self._update_actions()
+        self.state_changed.emit()
+
     def clear_history(self):
         if self._busy:
             return False
@@ -718,9 +745,17 @@ class ChatWidget(QWidget):
                 except (OSError,ValueError):
                     try:
                         checkpoint=self._journal.load_checkpoint(row['investigation_id'])
-                        self._last_investigation={**checkpoint['record'],'evidence':checkpoint.get('evidence',[])}
+                        self._last_investigation={**checkpoint['record'],'evidence':checkpoint.get('evidence',[]),
+                                                  'executions': checkpoint.get('executions', [])}
+                        if self._last_investigation.get('status') == 'running':
+                            self._last_investigation.update(status='interrupted', stop_reason='interrupted')
                     except (OSError,ValueError): self._last_investigation = {}
                 self._agent_followup = bool(self._last_investigation)
+                if self._last_investigation.get('validation_warnings'):
+                    from .errors import report_exception
+                    from .investigation_contracts import InvestigationContractError
+                    report_exception(InvestigationContractError('saved_investigation', 'validated evidence', None),
+                                     operation='saved_investigation_recovery')
                 return
 
     def continue_investigation(self, identifier=None):

@@ -6,16 +6,21 @@ its ciphertext uses the portable format after explicit vault migration.
 """
 from __future__ import annotations
 
+from copy import deepcopy
 import json
+import logging
 import os
 from pathlib import Path
 import re
 import tempfile
 import threading
 
-from .agent_evidence import redact
+from .agent_evidence import redact, sanitize_evidence, validate_saved_evidence
 from .config import data_directory
 from .credentials import CredentialsStore, CredentialError, protected_path, portable_enabled
+from .investigation_contracts import (InvestigationContractError,
+                                      recover_public_snapshot, validate_checkpoint,
+                                      validate_public_evidence)
 
 
 CHECKPOINT_LIMIT = 32_000_000
@@ -26,6 +31,59 @@ class InvestigationJournal:
         self._directory = Path(directory) if directory is not None else data_directory() / 'investigations'
         self._lock = threading.RLock()
         self._revisions = {}
+        self._reported_contracts = set()
+
+    def _report_contracts(self, identifier, warnings):
+        """Log a field/type once per journal instance, never the saved value."""
+        for warning in warnings:
+            fingerprint = (identifier, warning.get('path'), warning.get('actual_type'))
+            if fingerprint not in self._reported_contracts:
+                self._reported_contracts.add(fingerprint)
+                logging.getLogger(__name__).warning(
+                    'Investigation data quarantined id=%s path=%s expected=%s actual_type=%s',
+                    identifier, warning.get('path'), warning.get('expected'), warning.get('actual_type'))
+
+    def _recover_checkpoint_evidence(self, identifier, original, safe):
+        """Repair only exact existing evidence IDs from an intact private copy.
+
+        This never imports a checkpoint's messages, pending work or additional
+        findings, and neither original file is rewritten during recovery.
+        """
+        if not safe.get('quarantined_records') or not isinstance(original.get('evidence'), list):
+            return safe
+        checkpoint_path = self.directory / (identifier + '.checkpoint.dpapi')
+        if not checkpoint_path.is_file():
+            return safe
+        try:
+            checkpoint = self.load_checkpoint(identifier)
+        except (OSError, ValueError, UnicodeError, CredentialError):
+            return safe  # Valid public rows remain usable; the private file is retained.
+        matches = {row['evidence_id']: row for row in checkpoint.get('evidence', [])
+                   if isinstance(row, dict) and isinstance(row.get('evidence_id'), str)}
+        recovered, rows = 0, []
+        for index, row in enumerate(original['evidence']):
+            try:
+                validate_public_evidence(row, f'investigation.evidence[{index}]')
+            except InvestigationContractError:
+                pass
+            else:
+                rows.append(deepcopy(row))
+                continue
+            evidence_id = row.get('evidence_id') if isinstance(row, dict) else None
+            candidate = matches.get(evidence_id) if isinstance(evidence_id, str) else None
+            if candidate is not None:
+                try:
+                    replacement = validate_saved_evidence(candidate)
+                except ValueError:
+                    continue
+                rows.append(replacement)
+                recovered += 1
+        if recovered:
+            safe['evidence'] = rows
+            safe['recovered_records'] = recovered
+            safe['quarantined_records'] -= recovered
+            safe['checkpoint_recovery'] = 'validated_matching_evidence_ids'
+        return safe
 
     @property
     def directory(self):
@@ -33,7 +91,7 @@ class InvestigationJournal:
 
     @staticmethod
     def _identifier(identifier):
-        if not re.fullmatch(r'[a-f0-9]{32}', str(identifier)):
+        if not isinstance(identifier, str) or not re.fullmatch(r'[a-f0-9]{32}', identifier):
             raise ValueError('Invalid investigation identifier')
         return identifier
 
@@ -61,10 +119,11 @@ class InvestigationJournal:
                    'failures', 'completed_steps', 'tried_queries', 'pending_work', 'plan',
                    'registry_state', 'usage_requests', 'budget_reserved_tokens', 'protocol_archive', 'sent_content')
         value = {key: checkpoint[key] for key in allowed if key in checkpoint}
-        raw = json.dumps(value, ensure_ascii=False, separators=(',', ':'))
+        validate_checkpoint(value, identifier)
+        raw = json.dumps(value, ensure_ascii=False, separators=(',', ':'), allow_nan=False)
         for secret in secrets:
             if isinstance(secret, str) and secret:
-                raw = raw.replace(secret, '[скрытый ключ]')
+                raw = raw.replace(json.dumps(secret, ensure_ascii=False)[1:-1], '[скрытый ключ]')
         encoded = raw.encode('utf-8')
         if len(encoded) > CHECKPOINT_LIMIT:
             raise ValueError('Investigation checkpoint storage limit exceeded')
@@ -90,10 +149,15 @@ class InvestigationJournal:
         decoded = CredentialsStore._protect(path.read_bytes(), decrypt=True)
         if len(decoded) > CHECKPOINT_LIMIT:
             raise ValueError('Investigation checkpoint storage limit exceeded')
-        value = json.loads(decoded.decode('utf-8'))
-        if (not isinstance(value, dict) or value.get('version') != 1 or value.get('id') != identifier
-                or not isinstance(value.get('record'), dict) or value['record'].get('id') != identifier):
-            raise ValueError('Invalid investigation checkpoint')
+        try:
+            value = json.loads(decoded.decode('utf-8'))
+        except RecursionError:
+            raise InvestigationContractError('checkpoint', 'bounded JSON nesting', decoded) from None
+        try:
+            validate_checkpoint(value, identifier)
+        except InvestigationContractError as error:
+            self._report_contracts(identifier, [error.diagnostic()])
+            raise
         revision = value['record'].get('checkpoint_revision', 0)
         if type(revision) is int:
             with self._lock:
@@ -120,21 +184,26 @@ class InvestigationJournal:
         return result
 
     def save(self, snapshot, *, secrets=()):
-        if not isinstance(snapshot, dict) or not snapshot.get('evidence') and not snapshot.get('executions'):
+        if not isinstance(snapshot, dict):
+            raise InvestigationContractError('investigation', 'dict', snapshot)
+        if not snapshot.get('evidence') and not snapshot.get('executions'):
             return None
         identifier = str(snapshot.get('id', ''))
         self._identifier(identifier)
         # No raw conversation, options, model reasoning, headers or runtime paths.
         safe = redact({key: snapshot[key] for key in
             ('id', 'started_at', 'finished_at', 'status', 'stop_reason', 'steps', 'tool_calls',
-             'accounted_tokens', 'api_error', 'evidence', 'executions', 'usage', 'resumable',
+             'accounted_tokens', 'api_error', 'usage', 'resumable',
              'elapsed_seconds', 'context_compactions', 'budget_reserved_tokens') if key in snapshot}, secrets)
-        # Redact records individually so a general-purpose nested-list budget
-        # cannot silently drop the tail of the bounded evidence ledger.
-        safe['evidence'] = [redact(record, secrets) for record in snapshot.get('evidence', [])
-                            if isinstance(record, dict)]
-        safe['executions'] = [redact(record, secrets) for record in snapshot.get('executions', []) if isinstance(record, dict)]
-        encoded = json.dumps(safe, ensure_ascii=False, indent=2).encode('utf-8')
+        # Validate before redaction; malformed legacy values are quarantined
+        # explicitly. Give each fact separate identity/details/origin budgets.
+        for key in ('evidence', 'executions'):
+            safe[key] = snapshot.get(key, [])
+        safe = recover_public_snapshot(safe, identifier, stop_running=False)
+        self._report_contracts(identifier, safe.get('validation_warnings', []))
+        safe['evidence'] = [sanitize_evidence(row, secrets) for row in safe['evidence']]
+        safe['executions'] = [redact(row, secrets) for row in safe['executions']]
+        encoded = json.dumps(safe, ensure_ascii=False, indent=2, allow_nan=False).encode('utf-8')
         if len(encoded) > CHECKPOINT_LIMIT:
             raise ValueError('Investigation journal limit exceeded')
         target = self.directory / (identifier + '.json')
@@ -150,4 +219,10 @@ class InvestigationJournal:
         encoded = path.read_bytes()
         if portable_enabled():
             encoded = CredentialsStore._protect(encoded, decrypt=True)
-        return json.loads(encoded.decode('utf-8'))
+        try:
+            value = json.loads(encoded.decode('utf-8'))
+        except RecursionError:
+            raise InvestigationContractError('investigation', 'bounded JSON nesting', encoded) from None
+        safe = recover_public_snapshot(value, identifier)
+        self._report_contracts(identifier, safe.get('validation_warnings', []))
+        return self._recover_checkpoint_evidence(identifier, value, safe)
