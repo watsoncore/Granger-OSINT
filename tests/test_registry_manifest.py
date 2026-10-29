@@ -19,7 +19,8 @@ def registry(secret_getter=None):
 def test_every_installed_manifest_has_explicit_input_output_and_access_contract():
     expected = {'id','name','category','description','accepted_inputs','output_schema','access_mode',
                 'auth_requirements','required_permissions','network_requirements','rate_limit_policy',
-                'capabilities','source_url','documentation_url','adapter_version'}
+                'capabilities','source_url','documentation_url','adapter_version','execution_mode','input_schema',
+                'requires_external_key','requires_user_confirmation','supports_cancellation','supports_evidence'}
     ids = set()
     for spec in _SPECS:
         item = manifest(spec).to_dict()

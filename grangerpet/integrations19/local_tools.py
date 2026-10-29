@@ -67,6 +67,16 @@ def readiness(tool,settings=None):
     if tool not in INPUT_SCHEMAS:return {'available':False,'state':'unsupported','reason':'Неизвестная локальная операция.'}
     return {'available':True,'state':'ready','reason':'Локальный вычислительный модуль со стандартной библиотекой; сеть и персональные ключи не нужны.'}
 
+
+def bound_shadow_evidence(data):
+    """Keep valid GeoJSON inside the common bounded evidence envelope."""
+    features=data['regions']['features'];count=len(features)
+    if count>60:
+        data['regions']['features']=[features[round(i*(count-1)/59)] for i in range(60)]
+        data['matching_cells_returned']=60;data['truncated']=True
+        data['warnings'].append('В evidence сохранена выборка из 60 ячеек; candidate_scores сохранены отдельно. Ограниченная карта не является полной границей региона.')
+    return data
+
 def execute(tool,args,*,cancel_event=None,deadline=None,settings=None,**kwargs):
     if not isinstance(args,dict):raise LocalToolError('invalid_arguments','Параметры должны бытьJSONобъектом.')
     if tool=='shadow_regions':return shadow_regions(args,cancel_event=cancel_event,deadline=deadline)

@@ -22,6 +22,12 @@ class ToolManifest:
     source_url: str
     documentation_url: str
     adapter_version: str = '1.0'
+    execution_mode: str = ''
+    input_schema: dict | None = None
+    requires_external_key: bool = False
+    requires_user_confirmation: bool = False
+    supports_cancellation: bool = True
+    supports_evidence: bool = True
 
     def to_dict(self): return asdict(self)
 
@@ -59,22 +65,28 @@ def manifest(spec):
     from .public_sources import SOURCES
     url,mode=OFFICIAL.get(spec.source,('https://github.com/watsoncore/Granger-OSINT','LOCAL_CLI'))
     if spec.source in SOURCES:url,mode=SOURCES[spec.source][2],'OFFICIAL_API'
+    if spec.documentation_url:url=spec.documentation_url
+    if spec.execution_mode=='PUBLIC_API_NO_KEY':mode='OFFICIAL_API'
+    elif spec.execution_mode in ('LOCAL_PYTHON','LOCAL_MODEL'):mode='LOCAL_CLI'
     auth={'telegram':('telegram_api_hash','telegram_session'),'vk':('vk_token',),
           'hash_virustotal':('virustotal_api_key',),'instagram':('instagram_session',)}.get(spec.source,())
     category=('geoint' if spec.kind in ('image','coordinates') else 'threat_intelligence' if spec.kind=='hash' or spec.source=='threat_feodo'
               else 'infrastructure' if spec.kind in ('domain','ip','repository') else 'archives' if spec.source=='wayback'
               else 'blockchain' if spec.kind=='blockchain' else 'web' if spec.kind in ('web','dork','evidence') else 'socmint')
-    return ToolManifest(spec.name,spec.name,category,spec.description,(spec.kind,),
+    return ToolManifest(spec.name,spec.name,spec.category or category,spec.description,(spec.kind,),
         {'type':'object','required':['invocation_id','tool_id','status','started_at','finished_at','data','evidence_ids','warnings','errors']},
         mode,auth,('explicit_user_approval',) if spec.requires_approval else ('public_read_only',),
-        'none' if spec.kind in ('image','evidence') else 'public HTTPS',
+        'one explicitly approved public HTTP(S) origin' if spec.name=='nuclei_check' else
+        'none' if spec.kind in ('image','evidence') or spec.execution_mode.startswith('LOCAL_') else 'public HTTPS',
         ('Local processing; no network requests.' if spec.kind in ('image','evidence') else
          'Public integrations share two worker slots; per-service rate gates and a five-minute cache.'
          if spec.source in ('github_repository','threat_feodo','hash_virustotal') or spec.source in SOURCES else
          'Mapping clients share a per-service rate gate and bounded cache.'
          if spec.kind=='coordinates' or spec.source=='map_geocode' else
          'Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.'),
-        (spec.name,),url,url)
+        (spec.name,),url,url,execution_mode=spec.execution_mode or
+            ('PUBLIC_API_NO_KEY' if mode=='OFFICIAL_API' and not auth else 'OPEN_DATASET' if mode=='OPEN_DATASET' else 'LOCAL_CLI' if mode=='LOCAL_CLI' else 'PERMITTED_HTTP_PARSER'),
+        input_schema=spec.input_schema,requires_external_key=bool(auth),requires_user_confirmation=spec.requires_approval)
 
 
 def technical_state(row):
@@ -96,6 +108,14 @@ def relevant_names(specs, task):
     text=task.casefold()
     kinds={'dork','web','evidence'}
     if re.search(r'img_[a-f0-9]{64}|фото|изображени|картинк|exif|ocr|geoint|геолокац',text): kinds.update(('image','coordinates'))
+    if re.search(r'img_[a-f0-9]{64}|фото|изображени|geoclip|waypoint|geoint',text):kinds.add('visual_geoint')
+    if re.search(r'тень|тени|shadow|солнц|солнечн',text):kinds.add('geoint_geometry')
+    if re.search(r'tiktok|тикток|хронолог|timestamp|время.*публикац',text):kinds.add('chronology')
+    if re.search(r'должност|иерарх|организац|classification|classify',text):kinds.add('social_analytics')
+    if re.search(r'граф|связ|отношени|соседн|повторя|graph|relation|neighbor',text):kinds.add('graph')
+    if re.search(r'\bx\.com/|twitter\.com/|тв[иu]т|tweet|твиттер',text):kinds.add('x_post')
+    if re.search(r'reddit|реддит|subreddit|сабреддит|arctic',text):kinds.add('reddit')
+    if re.search(r'nuclei|уязвим|разреш.*проверк.*безопас',text):kinds.add('active_security')
     if re.search(r'ник|username|профил|аккаунт|пользовател',text): kinds.add('username')
     if re.search(r'email|e-mail|почт|[\w.+-]+@[\w.-]+',text): kinds.add('email')
     if re.search(r'телефон|phone|\+\d{8}',text): kinds.add('phone')

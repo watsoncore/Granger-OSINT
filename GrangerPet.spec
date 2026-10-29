@@ -3,7 +3,7 @@ from pathlib import Path
 import os
 import sys
 import sysconfig
-from PyInstaller.utils.hooks import copy_metadata
+from PyInstaller.utils.hooks import copy_metadata, collect_submodules
 
 root = Path(SPECPATH)
 assets = root / "grangerpet" / "assets"
@@ -33,10 +33,19 @@ a = Analysis(
     datas=[(str(assets), "grangerpet/assets"), (str(frontend), "frontend"),
            (str(icon), "resources"), (str(resources / "Granger-OSINT.svg"), "resources"),
            (str(version), "resources"), (str(resources / "third-party"), "resources/third-party"),
-           (str(root / "THIRD_PARTY_NOTICES.md"), "resources")] + [
+           (str(root / "THIRD_PARTY_NOTICES.md"), "resources"),
+           (str(root / "grangerpet/visual_models/manifest.json"), "grangerpet/visual_models"),
+           (str(root / "grangerpet/integrations19/classification_rules.json"), "grangerpet/integrations19"),
+           (str(resources / "ocr"), "resources/ocr")] + [
         (str(path), "grangerpet/engine") for path in (root / "grangerpet" / "engine").glob("*.py")
-    ] + copy_metadata("httpx"),
-    hiddenimports=["PySide6.QtWebEngineCore", "PySide6.QtWebEngineWidgets", "PySide6.QtWebChannel"],
+    ] + copy_metadata("httpx") + copy_metadata("Pillow") + copy_metadata("cryptography"),
+    hiddenimports=["PySide6.QtWebEngineCore", "PySide6.QtWebEngineWidgets", "PySide6.QtWebChannel",
+                   "pdb", "pydoc", "doctest", "symtable", "fileinput", "pickletools", "codeop", "unittest.mock"] +
+                  [name for package in ("unittest", "asyncio", "multiprocessing", "xml", "importlib.resources", "zoneinfo")
+                   for name in collect_submodules(package)] +
+                  sorted(name for name in sys.stdlib_module_names
+                         if name not in {"_tkinter", "tkinter", "turtle", "turtledemo", "idlelib", "ensurepip", "venv", "antigravity", "this", "test"}
+                         and not name.startswith("_test")),
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

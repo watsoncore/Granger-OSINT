@@ -37,7 +37,7 @@ SETTINGS_FIELDS = frozenset(('ui_theme','geoint_nominatim_url','geoint_overpass_
     'agent_request_timeout','agent_auto_continue','agent_budget_behavior','notifications_enabled',
     'notifications_animate','notifications_reply','notifications_investigation','notifications_errors','reduced_motion',
     'ai_provider','deepseek_model','ollama_url','ollama_model','api_cx','source_root','runtime_python',
-    'telegram_api_id','instagram_username','request_limit','search_timeout','enable_snoop'))
+    'telegram_api_id','instagram_username','request_limit','search_timeout','enable_snoop','nuclei_enabled'))
 ROUTES = frozenset(('chat','search','history','canvas','settings'))
 TOOL_NAMES={'web_search':'Веб-поиск','web_read':'Чтение страниц','username_maigret':'Maigret',
     'username_blackbird':'Blackbird','username_social_analyzer':'Social Analyzer','username_snoop':'Snoop',
@@ -78,6 +78,7 @@ class DesktopBridge(QObject):
     response = Signal(str, str)
     stateChanged = Signal(str)
     toolProgress = Signal(object)
+    visualProgress = Signal(object)
     rendererReady = Signal()
 
     def __init__(self, host, surface='main'):
@@ -95,6 +96,9 @@ class DesktopBridge(QObject):
         self._models_job = None
         self._models = []
         self._models_error = ''
+        self._visual_job=None
+        self._visual_progress={}
+        self._visual_error=''
         self._credentials = {}
         self._secret_redactions = set()
         self.settingsCategory = 'ai'
@@ -123,6 +127,7 @@ class DesktopBridge(QObject):
         self._key = resolve_deepseek_key()
         self._load_credential_flags()
         self.toolProgress.connect(self._tool_progress)
+        self.visualProgress.connect(self._visual_progressed)
         self._flush = QTimer(self)
         self._flush.setSingleShot(True)
         self._flush.setInterval(80)
@@ -368,12 +373,19 @@ class DesktopBridge(QObject):
         current_ids={r.get('evidence_id') for r in current}
         base['task_sources']=self._search_sources_view if self.route=='search' else [s for s in sources if s['evidence_id'] in current_ids]
         installed=list(base['tools'])
+        from .visual_models.manager import get_manager
+        visual_state=get_manager().status()
+        if not visual_state['installed']:
+            model_names={spec.name for spec in _SPECS if spec.execution_mode=='LOCAL_MODEL'}
+            installed=[row for row in installed if row['id'] not in model_names]
         base['tool_counts']={'candidates':0,'implemented':len(_SPECS),
             'ready_local':sum(bool(row.get('available')) for row in installed),
             'verified_execution':sum(row.get('readiness_status')=='live_verified' for row in installed)}
         # Candidate research remains in the technical audit, never executable UI.
         base['tools']=installed
         base['connection'].update(models=self._models,modelsChecking=self._models_job is not None,modelsError=self._models_error)
+        base['visual_models']={**visual_state,'installing':self._visual_job is not None,
+            'progress':dict(self._visual_progress),'installation_error':self._visual_error}
         base['hermione'].update(self.host.character.snapshot())
         if base['vault']['enabled'] and not base['vault']['unlocked']:
             base['connection'].update(canSend=False,status='vault_locked',statusText='Разблокируйте переносимое хранилище в настройках.')
@@ -556,6 +568,8 @@ class DesktopBridge(QObject):
             self.host.search_state.emit('idle')
             self.host.cancel_search()
         elif action=='tools_refresh': self._refresh_tools(force=True)
+        elif action in ('visual_install','visual_cancel','visual_probe','visual_remove'):
+            return self._visual_action(action,payload)
         elif action=='tool_run': self._run_tool(payload)
         elif action=='source_open':
             self._sources()
@@ -626,7 +640,7 @@ class DesktopBridge(QObject):
             raise ValueError('Сначала разблокируйте защищённое хранилище.')
         chat=getattr(self.host,'chat_widget',None)
         connections=getattr(getattr(self.host,'settings_dialog',None),'connections',None)
-        jobs=(self._manual_job,self._balance_job,self._models_job,self._tools_job,
+        jobs=(self._manual_job,self._balance_job,self._models_job,self._tools_job,self._visual_job,
               getattr(self,'_attachment_job',None))
         if ((chat and chat.busy) or getattr(self.host,'_busy',False) or any(jobs)
                 or bool(getattr(connections,'_jobs',[]))):
@@ -637,6 +651,8 @@ class DesktopBridge(QObject):
                 raise ValueError('Не удалось сохранить изменения Canvas. Хранилище не изменено; документ остаётся открыт.')
         if operation in ('create','lock') and chat and not chat._save_archive(): raise ValueError(chat.archive_error)
         if operation=='lock':
+            from .visual_models.manager import get_manager
+            get_manager().close()
             credentials.lock_portable_vault()
             if chat:
                 chat._archive_timer.stop();chat.messages.clear();chat._context.clear();chat.history.clear()
@@ -854,19 +870,34 @@ class DesktopBridge(QObject):
         if self._manual_job or self.host.chat_widget.busy or self.host._busy: raise ValueError('Сначала дождитесь или остановите текущую задачу.')
         spec = next((s for s in _SPECS if s.name==payload.get('tool')),None)
         query = payload.get('query')
-        if not spec or not isinstance(query,str) or not 0<len(query)<=spec.max_length: raise ValueError('Некорректный инструмент или запрос.')
+        if not spec:raise ValueError('Некорректный инструмент.')
+        if spec.input_schema is not None:
+            from .tool_inputs import validate_object
+            arguments=validate_object(payload.get('arguments'),spec.input_schema)
+            query=arguments.get(spec.argument)
+            if not isinstance(query,str):query=json.dumps(arguments,ensure_ascii=False,separators=(',',':'))[:2000]
+        elif not isinstance(query,str) or not 0<len(query)<=spec.max_length: raise ValueError('Некорректный инструмент или запрос.')
         maximum=10 if spec.name=='web_search' else 20
         limit = payload.get('limit',min(maximum,self.host.settings.request_limit))
         if type(limit) is not int or not 1<=limit<=maximum: raise ValueError(f'Число результатов: 1–{maximum}.')
+        if spec.input_schema is None:arguments={spec.argument:query,'limit':limit}
         approved = not spec.requires_approval
         if not approved:
-            approved = QMessageBox.question(self.host,PRODUCT_NAME,'Разрешить '+spec.name+'?\n\n'+spec.description,
+            approved = QMessageBox.question(self.host,PRODUCT_NAME,'Разрешить '+spec.name+'?\n\n'+spec.description+'\n\nПараметры: '+json.dumps(arguments,ensure_ascii=False),
                 QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No,QMessageBox.StandardButton.No)==QMessageBox.StandardButton.Yes
         if not approved: raise ValueError('Действие не подтверждено.')
         registry = self._registry(); registry.seed_urls_from_user(query)
         if spec.kind=='image':
             self._images().get(query)
             registry.allow_attachments([query])
+        if spec.source=='visual_model':
+            for field in ('attachment_id','reference_id'):
+                if field in arguments:
+                    self._images().get(arguments[field]);registry.allow_attachments([arguments[field]])
+        if spec.source=='graph':
+            self._sources()
+            registry.evidence.restore(list(self._raw_sources.values()),registry.evidence.executions())
+        registry._validate(spec,arguments)
         if spec.source=='evidence_get':
             self._sources()
             record=self._raw_sources.get(query)
@@ -879,8 +910,8 @@ class DesktopBridge(QObject):
         self._manual_activity=[{'id':spec.name,'tool':TOOL_NAMES.get(spec.name,spec.name),'status':'running',
             'inputType':spec.kind,'summary':'Запрос пользователя'}]
         self.host.search_state.emit('working')
-        job = UiJob(lambda:registry.execute(spec.name,{spec.argument:query,'limit':limit},cancel_event=job.cancelled,
-            deadline=time.monotonic()+self.host.settings.search_timeout,approved=approved),self)
+        job = UiJob(lambda:registry.execute(spec.name,arguments,cancel_event=job.cancelled,
+            deadline=time.monotonic()+registry.timeout_for(spec.name,self.host.settings.search_timeout),approved=approved),self)
         self._manual_job=job
         def done(outcome,error):
             if self._manual_job is not job:return
@@ -901,12 +932,60 @@ class DesktopBridge(QObject):
             job.deleteLater(); self.mark_dirty()
         job.done.connect(done); job.start()
 
+    def _visual_progressed(self,row):
+        if not self._visual_job:return
+        if 'bytes' in row:row={**row,'downloaded_bytes':row['bytes']}
+        self._visual_progress={**self._visual_progress,**row}
+        self.mark_dirty()
+
+    def _visual_action(self,action,payload):
+        from .visual_models.manager import get_manager
+        manager=get_manager()
+        if payload:raise ValueError('Установка моделей не принимает пути или команды.')
+        if action=='visual_cancel':
+            if self._visual_job:
+                self._visual_job.cancel();self._visual_job.deleteLater();self._visual_job=None
+                self._visual_error='Установка или проверка отменена; незавершённые загрузки сохранены для возобновления.'
+            self.mark_dirty();return
+        if self._visual_job or self._manual_job or self.host.chat_widget.busy or self.host._busy:
+            raise ValueError('Дождитесь завершения текущей задачи или остановите её.')
+        if action=='visual_install':
+            state=manager.status()
+            accepted=QMessageBox.question(self.host,PRODUCT_NAME,
+                f"Скачать отдельный CPU-runtime GeoCLIP/Waypoint?\n\nЗагрузка: {state['download_bytes']:,} байт. Рекомендуется 8 ГБ диска и 6 ГБ RAM. Только CPU, без CUDA. Основное окружение Python не изменяется. Версии, SHA-256 и лицензии закреплены в manifest.json.",
+                QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No,QMessageBox.StandardButton.No)
+            if accepted!=QMessageBox.StandardButton.Yes:return
+        if action=='visual_remove':
+            accepted=QMessageBox.question(self.host,PRODUCT_NAME,
+                'Удалить только скачанный Granger CPU-runtime и его кэш моделей? Изображения, история и другие инструменты сохранятся.',
+                QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No,QMessageBox.StandardButton.No)
+            if accepted!=QMessageBox.StandardButton.Yes:return
+        manager.close();self._visual_progress={};self._visual_error=''
+        def work():
+            if action=='visual_remove':
+                from .visual_models.installation import remove_runtime
+                remove_runtime(manager.root);return {'status':'completed','removed':True}
+            if action=='visual_install':
+                from .visual_models.installation import install
+                install(manager.root,consent=True,cancel_event=job.cancelled,progress=self.visualProgress.emit)
+            return manager.probe(cancel_event=job.cancelled,deadline=time.monotonic()+90)
+        job=UiJob(work,self);self._visual_job=job
+        def done(result,error):
+            if self._visual_job is not job:return
+            self._visual_job=None
+            if error:self._visual_error='Не удалось завершить установку. Части загрузок сохранены; повторите после проверки соединения и свободного диска.'
+            elif not isinstance(result,dict) or result.get('status')!='completed':self._visual_error='CPU-runtime не прошёл проверку: '+str((result or {}).get('error_code','probe_failed'))
+            job.deleteLater();self._refresh_tools(force=True);self.mark_dirty()
+        job.done.connect(done);job.start();self.mark_dirty()
+
     def shutdown(self):
         if self._closed:return
         self._closed = True
         self._flush.stop()
         self.host.removeEventFilter(self)
-        for job in (self._tools_job,self._balance_job,self._models_job,self._attachment_job):
+        from .visual_models.manager import get_manager
+        get_manager().close()
+        for job in (self._tools_job,self._balance_job,self._models_job,self._attachment_job,self._visual_job):
             if job: job.cancel();job.deleteLater()
         self._tools_job=None;self._balance_job=None
         if self._manual_job:

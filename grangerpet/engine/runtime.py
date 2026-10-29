@@ -126,7 +126,7 @@ class _WindowsJob:
         limits = EXTENDED()
         limits.BasicLimitInformation.LimitFlags = 0x2000  # KILL_ON_JOB_CLOSE, includes descendants.
         if memory_limit is not None:
-            if type(memory_limit) is not int or not 64*1024*1024<=memory_limit<=4*1024*1024*1024:
+            if type(memory_limit) is not int or not 64*1024*1024<=memory_limit<=8*1024*1024*1024:
                 if handle:kernel.CloseHandle(handle)
                 raise ValueError('Invalid own worker memory budget')
             limits.BasicLimitInformation.LimitFlags |= 0x200  # JOB_OBJECT_LIMIT_JOB_MEMORY.

@@ -51,6 +51,10 @@ AGENT_SYSTEM = (
     "Рабочий контекст содержит выдержки. Полные первичные записи сохранены: при необходимости вернись к evidence_get по evidence_id. "
     "Когда инструменты больше не предложены или лимит исчерпан, подведи честный итог только по полученным данным. "
     "Не утверждай, что поиск был полным: источники и число проверок ограничены."
+    " Для выбранного изображения используй единый visual_geoint: EXIF/OCR и доступные GeoCLIP/Waypoint по attachment_id; отсутствие GPS не завершает GEOINT. Для отдельных проверок доступны geoclip_predict и waypoint_predict."
+    " Координаты моделей — географические гипотезы; raw_score и доля сэмплов не вероятность. Проверяй их по независимым видимым признакам и открытым картам."
+    " shadow_regions требует известных UTC-даты/времени и измерений тени: если они неизвестны, уточни у пользователя, не угадывай."
+    " evidence_graph строит отношения по evidence_id; совпадающие никнеймы разных платформ не объединяют личность."
 )
 
 
@@ -125,7 +129,7 @@ def _geoint_context(details, maximum):
     """
     if not isinstance(details, dict):
         return {}
-    names = {"image_metadata", "image_ocr", "image_compare", "map_geocode", "map_overpass", "map_wikimedia"}
+    names = {"image_metadata", "image_ocr", "image_compare", "map_geocode", "map_overpass", "map_wikimedia",'geoclip','waypoint','waypoint_match','visual_geoint','visual_geoint_comparison','shadow_regions'}
     if details.get("tool") not in names:
         return {}
     value = {key: deepcopy(details[key]) for key in ("tool", "status", "attachment_id") if key in details}
@@ -149,14 +153,15 @@ def _geoint_context(details, maximum):
                     if len(_json({**value, "metadata": candidate})) <= maximum:
                         selected[str(key)[:80]] = deepcopy(item)
                         value["metadata"] = candidate
-    for key in ("visual_features", "languages", "coordinate_space", "width", "height", "radius_m", "attribution"):
+    for key in ("visual_features", "languages", "coordinate_space", "width", "height", "radius_m", "attribution",'model_version','duration_ms','datetime_utc','observed_sun_altitude_deg','tolerance_fraction','ambiguity','score_semantics','score_calibrated','match_count','keypoints','geometry','metadata_gps','conflicts','screening_threshold_km','models_independent','limitations','warnings'):
         if key in details:
             add(key, deepcopy(details[key]))
     if isinstance(details.get("text"), str):
         add("text", details["text"][:min(2000, maximum // 2)])
         add("text_total_chars", len(details["text"]))
-    for key in ("segments", "matches", "places", "objects", "media"):
+    for key in ("segments", "matches", "places", "objects", "media",'predictions','candidate_scores','distances'):
         if isinstance(details.get(key), list):
+            add(key + "_total", len(details[key]))
             selected = []
             for item in details[key][:30]:
                 if len(_json({**value, key: selected + [item]})) > maximum:
@@ -390,11 +395,15 @@ class AgentRunner:
         query = next((args.get(key) for key in ("username", "email", "phone", "address", "url", "query", "domain") if isinstance(args.get(key), str)), "")
         return {"tool": name, "query": self._safe(query), "status": status, "obtained_at": utc_now(), "results": [], "limitations": [message]}
 
+    def _tool_seconds(self,name):
+        timeout=getattr(self.registry,'timeout_for',None)
+        return timeout(name,self.limits.per_tool_timeout) if callable(timeout) else self.limits.per_tool_timeout
+
     def _execute(self, call, callback, approval_callback):
         name, args = call["name"], call["arguments"]
         if name not in self._names:
             return self._outcome(name, args, "unavailable", "Инструмент не зарегистрирован или недоступен; выполнение не производилось.")
-        deadline = min(self._deadline, time.monotonic() + self.limits.per_tool_timeout)
+        deadline = min(self._deadline, time.monotonic() + self._tool_seconds(name))
         cancelled = _Cancellation(self._parent_cancel, self._stop, deadline)
         if cancelled.is_set():
             return self._outcome(name, args, "cancelled", "Проверка отменена до запуска инструмента.")
@@ -452,7 +461,7 @@ class AgentRunner:
                 self._record['tool_calls'] += 1
                 self._record['calls'].append({'tool': call['name'], 'arguments': self._safe(call['arguments'])})
             self._persist()  # Crash after dispatch must not look like an untried operation.
-            active[key] = (call, time.monotonic() + self.limits.per_tool_timeout)
+            active[key] = (call, time.monotonic() + self._tool_seconds(call['name']))
             def work():
                 try:
                     value = self._execute(call, callback, approval_callback)
@@ -626,14 +635,19 @@ class AgentRunner:
             origin = record.get('provenance') or {}
             row['provenance'] = {key:origin[key] for key in ('tool','obtained_at','acquisition') if key in origin}
             row["description"] = relevant_excerpt(record.get("description", ""), self._record.get('goal',''), 450)
-            details = record.get('details') or {}
+            details = {key:item for key,item in (record.get('details') or {}).items()
+                       if key not in ('preview','base64','image_bytes','local_path')}
+            if details.get('capability')=='evidence_graph':
+                row['graph']={key:details.get(key) for key in ('total_entities','total_relations','next_offset','truncated_input')}
+                row['graph']['entities']=[{key:n.get(key) for key in ('id','type','label','evidence_ids')} for n in details.get('entities',[])[:12]]
+                row['graph']['relations']=details.get('relations',[])[:16]
             if details.get('source_record'):
                 facts={}
                 for key,item in details.items():
                     if key not in ('query','verification','obtained_at') and len(_json({**facts,key:item}))<=2200:
                         facts[key]=deepcopy(item)
                 row['structured_record']=facts
-            if details.get('tool') in ('image_metadata','image_ocr','image_compare','map_geocode','map_overpass','map_wikimedia'):
+            if details.get('tool') in ('image_metadata','image_ocr','image_compare','map_geocode','map_overpass','map_wikimedia','geoclip','waypoint','waypoint_match','visual_geoint','visual_geoint_comparison','shadow_regions'):
                 available = self.limits.max_tool_result_chars - len(_json({**value, 'results':rows+[row]})) - 160
                 row['geoint_result'] = _geoint_context(details, available)
             selection = envelope.get('context_selection', {}) if envelope.get('tool')=='evidence_get' else {}

@@ -34,7 +34,7 @@ export interface Activity {
   details?: Record<string, unknown>
 }
 export interface Tool {
-  manifest?: { access_mode?: string; capabilities?: string[]; accepted_inputs?: string[]; [key: string]: unknown }
+  manifest?: { access_mode?: string; execution_mode?: string; input_schema?: InputSchema | null; capabilities?: string[]; accepted_inputs?: string[]; [key: string]: unknown }
   implemented?: boolean
   readiness_status?: string
   documentation_url?: string
@@ -54,6 +54,23 @@ export interface Tool {
   lastChecked?: string
   diagnostic?: { code?: string; remedy?: string; runtime_ready?: boolean; checked_at?: string; probe_seconds?: number; execution_verified?: boolean }
   last_execution?: { status: string; obtained_at?: string; error_code?: string; result_count?: number }
+}
+export interface InputSchema {
+  type?: string
+  description?: string
+  properties?: Record<string, InputSchema>
+  required?: string[]
+  enum?: (string | number | boolean)[]
+  items?: InputSchema
+  minLength?: number
+  maxLength?: number
+  minimum?: number
+  maximum?: number
+  exclusiveMinimum?: number
+  exclusiveMaximum?: number
+  minItems?: number
+  maxItems?: number
+  additionalProperties?: boolean
 }
 export interface ProviderBalance {
   status: string
@@ -84,6 +101,12 @@ export interface HistoryItem {
   status?: string
 }
 export interface DesktopState {
+  visual_models?: {
+    state: string; installed: boolean; available: boolean; download_bytes?: number | null; disk_recommended_bytes?: number | null
+    ram_recommended_bytes?: number | null; device?: string; components?: unknown; error?: string; probe?: unknown
+    automatic_download: false; progress?: { downloaded_bytes?: number; total_bytes?: number | null; bytes_downloaded?: number; bytes_total?: number | null; [key: string]: unknown } | number | null
+    installing?: boolean
+  }
   tool_counts?: { candidates:number;implemented:number;ready_local:number;verified_execution:number }
   attachments?: ImageAttachment[]
   attachment_busy?: boolean

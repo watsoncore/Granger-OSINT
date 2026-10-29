@@ -46,6 +46,7 @@ class Settings:
     request_limit: int = 20
     search_timeout: int = 25
     enable_snoop: bool = False
+    nuclei_enabled: bool = False
     # Zero disables a USER budget; request timeouts and loop guards remain on.
     agent_steps: int = 0
     agent_calls: int = 0
@@ -110,7 +111,7 @@ class Settings:
                     setattr(settings, key, max(low, min(high, int(value))))
                 except (OverflowError, ValueError):
                     pass
-        for key in ("cursor_reaction", "enable_snoop", "agent_auto_continue", "notifications_enabled",
+        for key in ("cursor_reaction", "enable_snoop", "nuclei_enabled", "agent_auto_continue", "notifications_enabled",
                     "notifications_animate", "notifications_reply", "notifications_investigation", "notifications_errors", "reduced_motion"):
             if isinstance(values.get(key), bool):
                 setattr(settings, key, values[key])

@@ -169,11 +169,11 @@ def _dhash(image):
     return f"{number:016x}"
 
 
-def _preview(image):
+def _preview(image, max_size=400, quality=75):
     preview = ImageOps.exif_transpose(image).convert("RGB")
-    preview.thumbnail((400, 400), Image.Resampling.LANCZOS)
+    preview.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
     buffer = io.BytesIO()
-    preview.save(buffer, "JPEG", quality=75, optimize=True)
+    preview.save(buffer, "JPEG", quality=quality, optimize=True)
     return "data:image/jpeg;base64," + base64.b64encode(buffer.getvalue()).decode("ascii")
 
 
@@ -276,6 +276,19 @@ class AttachmentStore:
         # cached data without checking that the current user can decrypt the record.
         record, _ = self._read(identifier)
         return deepcopy(record)
+
+    def read_bytes(self, identifier, cancel_event=None):
+        """Decrypt one validated attachment for a caller-authorized local worker."""
+        _cancelled(cancel_event)
+        _, data = self._read(identifier)
+        _cancelled(cancel_event)
+        return data
+
+    def small_preview(self, identifier, cancel_event=None):
+        data=self.read_bytes(identifier,cancel_event)
+        image=_decode(data,cancel_event)
+        try:return _preview(image,max_size=128,quality=50)
+        finally:image.close()
 
     def analyze(self, identifier, cancel_event=None):
         started = time.monotonic()

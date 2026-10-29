@@ -28,7 +28,7 @@ def redact(value, secrets=(), *, _depth=0, _budget=None):
     if _budget is None:
         _budget = [6000]
     _budget[0] -= 1
-    if _depth > 8 or _budget[0] < 0:
+    if _depth > 12 or _budget[0] < 0:
         return "[ограничено]"
     if isinstance(value, dict):
         return {str(key)[:160]: redact(item, secrets, _depth=_depth + 1, _budget=_budget)

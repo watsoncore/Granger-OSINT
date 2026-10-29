@@ -22,6 +22,8 @@ def validate_object(value,schema,*,_depth=0,_budget=None):
     elif kind=='array':
         if not isinstance(value,list) or not schema.get('minItems',0)<=len(value)<=schema.get('maxItems',30):raise ValueError('Invalid list')
         result=[validate_object(item,schema['items'],_depth=_depth+1,_budget=budget) for item in value]
+        if schema.get('uniqueItems') and any(item in result[:index] for index,item in enumerate(result)):
+            raise ValueError('Duplicate list item')
     elif kind=='string':
         if not isinstance(value,str) or not schema.get('minLength',0)<=len(value)<=schema.get('maxLength',2000) or any(ord(c)<32 and c not in schema.get('allowedControlCharacters','') for c in value):raise ValueError('Invalid string')
         result=value

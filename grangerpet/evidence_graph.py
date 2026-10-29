@@ -84,7 +84,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             image=node('image',attachment,attachment,record,attachment_id=attachment)
         for prediction in details.get('predictions',[])[:20]:
             if not image or not isinstance(prediction,dict):continue
-            lat,lon=prediction.get('latitude'),prediction.get('longitude')
+            lat,lon=prediction.get('latitude',prediction.get('lat')),prediction.get('longitude',prediction.get('lon'))
             if type(lat) not in (int,float) or type(lon) not in (int,float) or not math.isfinite(lat+lon) or not -90<=lat<=90 or not -180<=lon<=180:continue
             candidate=node('geographic_candidate',record['evidence_id']+'|'+str(prediction.get('rank'))+'|'+str(lat)+'|'+str(lon),
                 f'{lat}, {lon}',record,latitude=lat,longitude=lon,rank=prediction.get('rank'),raw_score=prediction.get('raw_score'),model=details.get('model_version'),calibrated_probability=False)
@@ -117,8 +117,10 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
     if entity_types:all_nodes=[n for n in all_nodes if n['type'] in entity_types]
     selected=all_nodes[offset:offset+limit];selected_ids={n['id'] for n in selected}
     # Cross-page edges retain endpoint IDs; request the neighbor page to expand.
-    selected_edges=[e for e in all_edges if e['from_id'] in selected_ids or e['to_id'] in selected_ids][:200]
+    page_edges=[e for e in all_edges if e['from_id'] in selected_ids or e['to_id'] in selected_ids]
+    selected_edges=page_edges[:100]
     return {'entities':selected,'relations':selected_edges,'total_entities':len(all_nodes),'total_relations':len(all_edges),
         'next_offset':offset+len(selected) if offset+len(selected)<len(all_nodes) else None,'evidence_ids':sorted(used),
         'source_records_examined':min(len(records),500),'truncated_input':len(records)>500,
+        'relations_truncated':len(page_edges)>100,
         'warnings':['Граф отражает основания источников. Одинаковый никнейм, метка сервиса и model score не устанавливают общую личность.']}

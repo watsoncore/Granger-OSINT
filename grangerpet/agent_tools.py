@@ -9,6 +9,7 @@ from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 import ipaddress
+import hashlib
 import json
 import re
 import threading
@@ -33,6 +34,10 @@ class ToolSpec:
     description: str
     requires_approval: bool = False
     max_length: int = 300
+    input_schema: dict | None = None
+    execution_mode: str = ''
+    documentation_url: str = ''
+    category: str = ''
 
 
 _SPECS = (
@@ -71,6 +76,35 @@ _SPECS = (
 )
 _BY_NAME = {spec.name: spec for spec in _SPECS}
 _PUBLIC_SOURCES=frozenset(('github_profile','github_users','github_repositories','hn_search','hn_profile','openlibrary_search','wikipedia_search'))
+# Multi-input operations still belong to this registry and the same agent loop.
+from .integrations19.local_tools import INPUT_SCHEMAS as _LOCAL19_INPUTS
+from .integrations19.public_tools import INPUT_SCHEMAS as _PUBLIC19_INPUTS
+from .visual_models.tools import INPUT_SCHEMAS as _VISUAL_INPUTS
+from .visual_models.pipeline import INPUT_SCHEMA as _VISUAL_PIPELINE_INPUT
+_GRAPH_INPUT={'type':'object','properties':{
+    'evidence_ids':{'type':'array','maxItems':100,'items':{'type':'string','minLength':23,'maxLength':23}},
+    'entity_types':{'type':'array','maxItems':16,'items':{'type':'string','maxLength':30}},
+    'entity_id':{'type':'string','minLength':28,'maxLength':28},
+    'offset':{'type':'integer','minimum':0,'maximum':10000},
+    'limit':{'type':'integer','minimum':1,'maximum':100}},'required':[],'additionalProperties':False}
+_SPECS += (
+    ToolSpec('visual_geoint','visual_model','visual_geoint','attachment_id','Единый Visual GEOINT: реальные EXIF/OCR, выбранные GeoCLIP/Waypoint, сравнение географических кандидатов и при известных параметрах ShadowFinder. Без GPS исследование продолжается. Результаты моделей — гипотезы, не установленное место. Локальный CPU, без передачи снимка в API.',input_schema=_VISUAL_PIPELINE_INPUT,execution_mode='LOCAL_MODEL',documentation_url='https://github.com/watsoncore/Granger-OSINT',category='geoint'),
+    ToolSpec('geoclip_predict','visual_model','visual_geoint','attachment_id','GeoCLIP: локальные географические гипотезы по пикселям выбранного изображения даже без EXIF. Raw scores не вероятности. Нужен отдельно установленный CPU-runtime.',input_schema=_VISUAL_INPUTS['geoclip_predict'],execution_mode='LOCAL_MODEL',documentation_url='https://github.com/VicenteVivan/geo-clip',category='geoint'),
+    ToolSpec('waypoint_predict','visual_model','visual_geoint','attachment_id','Waypoint: локальные DINOv2 + PLONK YFCC, географические гипотезы по пикселям без EXIF. Доли сэмплов не вероятность. Не угадывай место по слабым кандидатам.',input_schema=_VISUAL_INPUTS['waypoint_predict'],execution_mode='LOCAL_MODEL',documentation_url='https://github.com/KillaMeep/waypoint-osint',category='geoint'),
+    ToolSpec('waypoint_match','visual_model','visual_geoint','attachment_id','Waypoint: локальное DISK/LightGlue-сопоставление двух выбранных пользователем изображений. Совпадения признаков не доказывают одно место.',input_schema=_VISUAL_INPUTS['waypoint_match'],execution_mode='LOCAL_MODEL',documentation_url='https://github.com/KillaMeep/waypoint-osint',category='geoint'),
+    ToolSpec('tiktok_timestamp','local19','chronology','value','Локально извлечь UTC-время из поддержанного TikTok video ID или полного URL. Это кодируемое время, не независимая проверка публикации.',input_schema=_LOCAL19_INPUTS['tiktok_timestamp'],execution_mode='LOCAL_PYTHON',documentation_url='https://github.com/bellingcat/tiktok-timestamp',category='chronology'),
+    ToolSpec('shadow_regions','local19','geoint_geometry','datetime_utc','ShadowFinder: вычислить неоднозначные географические полосы по известным UTC-дате/времени и высоте объекта/длине тени либо высоте Солнца. Не определяет место по одному фото; параметры не угадывать.',input_schema=_LOCAL19_INPUTS['shadow_regions'],execution_mode='LOCAL_PYTHON',documentation_url='https://github.com/bellingcat/ShadowFinder',category='geoint'),
+    ToolSpec('role_classify','local19','social_analytics','titles','Локально классифицировать уже полученные англоязычные должности по ключевым словам LinkedIn Toolkit. Без LinkedIn login и Groq; эвристика не подтверждает трудоустройство.',input_schema=_LOCAL19_INPUTS['role_classify'],execution_mode='LOCAL_PYTHON',documentation_url='https://github.com/michaelelizarov/linkedin-osint-toolkit',category='social_graph'),
+    ToolSpec('evidence_graph','graph','graph','entity_id','Получить локальные сущности, направления связей и основания из сохранённого evidence. Пагинация, фильтр по типам, соседи entity_id; не объединяет владельцев по никнейму.',input_schema=_GRAPH_INPUT,execution_mode='LOCAL_PYTHON',documentation_url='https://github.com/watsoncore/Granger-OSINT',category='social_graph'),
+    ToolSpec('mail_dns','public19','email','email','MailAccess · независимое бесплатное ядро: проверить синтаксис email и публичные MX/SPF/DMARC домена. Не подтверждает ящик; письма, recovery и регистрацию не запускает.',input_schema=_PUBLIC19_INPUTS['mail_dns'],execution_mode='PUBLIC_API_NO_KEY',documentation_url='https://github.com/KatrielMoses/MailAccess',category='socmint'),
+    ToolSpec('historical_contacts','public19','domain','domain','kronikier · ограниченный поиск исторически опубликованных email/телефонов в3илименее снимках Wayback. Исторические контакты не доказывают нынешнего владельца.',input_schema=_PUBLIC19_INPUTS['historical_contacts'],execution_mode='PUBLIC_API_NO_KEY',documentation_url='https://github.com/soxoj/kronikier',category='archives'),
+    ToolSpec('x_post','public19','x_post','url','X Tweet Fetcher · один публичный пост по точному URL через документированный FxTwitter API без ключа. Не поиск, не лента и не доступ к закрытым/удалённым данным.',input_schema=_PUBLIC19_INPUTS['x_post'],execution_mode='PUBLIC_API_NO_KEY',documentation_url='https://github.com/ythx-101/x-tweet-fetcher',category='socmint'),
+    ToolSpec('x_profile','public19','x_post','username','X Tweet Fetcher · один публичный профиль по точному username через FxTwitter API без ключа. Только опубликованные поля, не timeline, не владелец и не обход закрытого доступа.',input_schema=_PUBLIC19_INPUTS['x_profile'],execution_mode='PUBLIC_API_NO_KEY',documentation_url='https://github.com/ythx-101/x-tweet-fetcher',category='socmint'),
+    ToolSpec('arctic_posts','public19','reddit','query','Arctic Shift: исторические Reddit-публикации с ограничением по author/subreddit, времени и лимиту20. Архив неполон; совпадение username не устанавливает личность.',input_schema=_PUBLIC19_INPUTS['arctic_posts'],execution_mode='PUBLIC_API_NO_KEY',documentation_url='https://github.com/ArthurHeitmann/arctic_shift',category='archives'),
+    ToolSpec('arctic_comments','public19','reddit','query','Arctic Shift: исторические комментарии Reddit по author/subreddit, времени и лимиту20; без массового скачивания дампов и без персональных ключей.',input_schema=_PUBLIC19_INPUTS['arctic_comments'],execution_mode='PUBLIC_API_NO_KEY',documentation_url='https://github.com/ArthurHeitmann/arctic_shift',category='archives'),
+    ToolSpec('nuclei_check','public19','active_security','target','Nuclei: только один HEAD-запрос к явно подтверждённому своему origin. Наблюдает статус и наличие HTTP-заголовков, не устанавливает уязвимость. Выключен по умолчанию; каждую цель подтверждает пользователь.',True,input_schema=_PUBLIC19_INPUTS['nuclei_check'],execution_mode='LOCAL_CLI',documentation_url='https://github.com/projectdiscovery/nuclei',category='security'),
+)
+_BY_NAME={spec.name:spec for spec in _SPECS}
 _AUTH = {"telegram": ("telegram_api_hash", "telegram_session"), "vk": ("vk_token",), "instagram": ("instagram_session",)}
 _BASE_OPTIONS = ("source_root", "tools_root", "runtime_python", "telegram_api_id", "instagram_username", "google_cx", "api_cx", "enable_snoop", "profile_sites")
 
@@ -134,6 +168,13 @@ class ToolRegistry:
         for value in identifiers:
             if isinstance(value,str) and re.fullmatch(r'img_[a-f0-9]{64}',value): self._attachment_ids.add(value)
 
+    @staticmethod
+    def timeout_for(name, requested):
+        spec=_BY_NAME.get(name)
+        # CPU model cold starts are materially slower than HTTP requests.
+        # An overall investigation deadline still takes precedence.
+        return max(requested,240 if name=='visual_geoint' else 180) if spec and spec.execution_mode=='LOCAL_MODEL' else requested
+
     def _secret(self, name):
         value = self._options.get("secrets", {}).get(name) or self._options.get(name)
         if not value:
@@ -183,6 +224,17 @@ class ToolRegistry:
             return base
         if spec.source == "web_read":
             base.update(available=True, state="unverified", reason="Прямое чтение обнаруженных публичных URL; DNS и каждый переход проверяются при запросе.")
+        elif spec.source=='local19':
+            from .integrations19.local_tools import readiness
+            base.update(readiness(spec.name,self.settings))
+        elif spec.source=='visual_model':
+            from .visual_models.tools import readiness
+            base.update(readiness())
+        elif spec.source=='public19':
+            from .integrations19.public_tools import readiness
+            base.update(readiness(spec.name,self.settings))
+        elif spec.source=='graph':
+            base.update(available=True,state='ready',reason='Локальные связи только из уже сохранённых evidence; сеть и внешние ключи не используются.')
         elif spec.source == "evidence_get":
             base.update(available=True, state="ready", reason="Только уже полученные безопасные находки текущего диалога.")
         elif spec.source == "web_search":
@@ -288,6 +340,10 @@ class ToolRegistry:
         for spec in _SPECS:
             if spec.name not in selected or not rows.get(spec.name,{}).get("available"):
                 continue
+            if spec.input_schema is not None:
+                tools.append({'type':'function','function':{'name':spec.name,'description':spec.description,
+                    'parameters':deepcopy(spec.input_schema)}})
+                continue
             tools.append({"type": "function", "function": {"name": spec.name, "description": spec.description,
                 "parameters": {"type": "object", "properties": {
                     spec.argument: {"type": "string", "minLength": 1, "maxLength": spec.max_length},
@@ -303,6 +359,16 @@ class ToolRegistry:
     descriptions = schemas
 
     def _validate(self, spec, args):
+        if spec.input_schema is not None:
+            from .tool_inputs import validate_object
+            arguments=validate_object(args,spec.input_schema)
+            if spec.source=='visual_model':
+                for field in ('attachment_id','reference_id'):
+                    if field in arguments and (not re.fullmatch(r'img_[a-f0-9]{64}',arguments[field]) or arguments[field] not in self._attachment_ids):
+                        raise ValueError('Изображение не выбрано пользователем для этой задачи.')
+            summary=arguments.get(spec.argument)
+            if not isinstance(summary,str):summary=json.dumps(arguments,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+            return summary[:2000],arguments.get('limit',20),{'structured_arguments':arguments},None
         permitted = {spec.argument, 'limit'} | ({'focus','offset','length'} if spec.source=='evidence_get' else set())
         if not isinstance(args, dict) or set(args) - permitted or spec.argument not in args:
             raise ValueError("Аргументы не соответствуют зарегистрированной схеме.")
@@ -391,7 +457,7 @@ class ToolRegistry:
             envelope.update(status="unknown_tool", error="Инструмент не зарегистрирован.")
             return envelope
         if deadline is None:
-            deadline = time.monotonic() + 25
+            deadline = time.monotonic() + self.timeout_for(name,25)
         cancelled = _Cancellation(cancel_event, deadline)
         if cancelled.is_set():
             envelope["status"] = "cancelled" if cancel_event and cancel_event.is_set() else "timeout"
@@ -447,7 +513,9 @@ class ToolRegistry:
                 receive(row.get("result"))
         outcome=None
         try:
-            if spec.source == "web_read":
+            if spec.input_schema is not None:
+                outcome=self._structured_operation(spec,options['structured_arguments'],cancelled,deadline,approved,on_result=receive)
+            elif spec.source == "web_read":
                 # Search evidence is the URL authority. The model cannot invent
                 # a new URL and gain network access through ordinary text.
                 self.web_reader.add_evidence(self.evidence.records())
@@ -479,7 +547,7 @@ class ToolRegistry:
             for raw in outcome.get("results", [])[:limit] if isinstance(outcome.get("results"), list) else []:
                 receive(raw)
             status = str(outcome.get("status", "error"))
-            allowed = {"complete", "completed", "partial", "empty", "error", "timeout", "cancelled", "unavailable", "auth_required", "blocked", "limit_reached", "rate_limited"}
+            allowed = {"complete", "completed", "partial", "empty", "error", "timeout", "cancelled", "unavailable", "auth_required", "blocked", "limit_reached", "rate_limited", "invalid_arguments"}
             envelope["status"] = status if status in allowed else "error"
             if spec.source == 'web_read' and outcome.get('error'):
                 envelope['error'] = str(outcome['error'])[:80]
@@ -492,6 +560,8 @@ class ToolRegistry:
                 envelope["limitations"] = redact(limitations if isinstance(limitations, list) else [str(limitations)], tuple(self._redactions))
             if outcome.get("message"):
                 envelope["limitations"].append(redact(str(outcome["message"]), tuple(self._redactions))[:1000])
+            code=outcome.get('error_code')
+            if isinstance(code,str) and re.fullmatch(r'[a-zA-Z0-9_.:-]{1,80}',code):envelope['error_code']=code
         except InterruptedError:
             envelope["status"] = "cancelled"
         except Exception:
@@ -511,3 +581,45 @@ class ToolRegistry:
             self._last_executions[spec.name]={'status':envelope['status'],'obtained_at':envelope['obtained_at'],
                 'result_count':len(envelope['results']),'error_code':error_code, 'kind':'source_request'}
         return envelope
+
+    def _structured_operation(self,spec,args,cancelled,deadline,approved,on_result=None):
+        """Repository-owned dispatch, without model-defined handlers or paths."""
+        if spec.source=='local19':
+            from .integrations19.local_tools import execute
+            from .integrations19.solar import LocalToolError
+            try:data=execute(spec.name,args,cancel_event=cancelled,deadline=deadline,settings=self.settings)
+            except LocalToolError as error:
+                return {'status':error.code if error.code in ('cancelled','timeout','invalid_arguments') else 'error','error_code':error.code,'results':[],'limitations':[str(error)]}
+            if spec.name=='shadow_regions':
+                from .integrations19.local_tools import bound_shadow_evidence
+                data=bound_shadow_evidence(data)
+            url=data.get('source_url','');title={'tiktok_timestamp':'Время из TikTok ID','shadow_regions':'ShadowFinder · солнечная геометрия','role_classify':'Локальная классификация должностей'}[spec.name]
+            description=(data.get('date_utc') or 'Получены результаты локального вычисления по явно переданным параметрам.')
+        elif spec.source=='graph':
+            from .evidence_graph import build
+            records=self.evidence.records();ids=args.get('evidence_ids')
+            if ids:
+                if any(not re.fullmatch(r'ev_[a-f0-9]{20}',i) for i in ids):raise ValueError('Invalid evidence ID')
+                selected={r['evidence_id']:r for r in records}
+                if any(i not in selected for i in ids):raise ValueError('Evidence not in this conversation')
+                records=[selected[i] for i in ids]
+            data=build(records,limit=args.get('limit',50),offset=args.get('offset',0),entity_types=args.get('entity_types',()),center=args.get('entity_id',''),cancel_event=cancelled)
+            data['request_arguments']=args
+            title='Сущности и связи сохранённых свидетельств';url=''
+            description=f"Сущностей: {data['total_entities']}; связей: {data['total_relations']}. Это отношения источников, не установленная общая личность."
+        elif spec.source=='public19':
+            from .integrations19.public_tools import execute
+            return execute(spec.name,args,cancel_event=cancelled,deadline=deadline,settings=self.settings,approved=approved)
+        elif spec.source=='visual_model':
+            from .geoint_tools import attachment_store
+            if spec.name=='visual_geoint':
+                from .visual_models.pipeline import execute
+                return execute(args,settings=self.settings,store=self._image_store or attachment_store(),cancel_event=cancelled,deadline=deadline,on_result=on_result)
+            from .visual_models.tools import execute
+            return execute(spec.name,args,store=self._image_store or attachment_store(),cancel_event=cancelled,deadline=deadline)
+        else:raise ValueError('Unsupported structured operation')
+        data={**data,'execution_mode':spec.execution_mode,'capability':spec.name,'source_record':True}
+        identifier=hashlib.sha256(json.dumps(args,ensure_ascii=False,sort_keys=True).encode('utf-8')).hexdigest()[:24]
+        return {'status':'complete','results':[{'id':spec.name+':'+identifier,'title':title,'type':'evidence_graph' if spec.source=='graph' else 'local_computation',
+            'platform':spec.name,'url':url,'description':description,'status':'computed','details':data,'sources':[spec.name]}],
+            'limitations':data.get('warnings',[])}
