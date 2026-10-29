@@ -13,15 +13,6 @@ from grangerpet.agent_web import WebSearchProvider, lookup_domain, lookup_ip
 from grangerpet.engine.models import Result
 
 
-HTML = '''<!doctype html><html><body>
-<div class="result"><a class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fexample.org%2Fprofile">Example <b>public</b> profile</a>
-<a class="result__snippet">Actual indexed description<br> with кириллица.</a></div>
-<a class="result__a" href="javascript:alert(1)">Invalid URL</a>
-<a class="result__a" href="https://127.0.0.1/admin">Private destination</a>
-<a class="result__a" href="https://example.org/profile">Duplicate</a>
-</body></html>'''
-
-
 class Fixture:
     def __init__(self, handler):
         self.handler, self.requests, self.clients = handler, [], []
@@ -36,47 +27,22 @@ class Fixture:
         return client
 
 
-def test_keyless_search_parses_real_markup_urls_snippets_and_deduplicates():
-    fixture = Fixture(lambda _: httpx.Response(200, text=HTML))
-    provider = WebSearchProvider(client_factory=fixture.factory)
-    assert provider.availability()['state'] == 'unverified'
-    result = provider.search('solvnox', limit=5)
-    assert result['status'] == 'complete' and len(result['results']) == 1
-    row = result['results'][0]
-    assert row['url'] == 'https://example.org/profile'
-    assert row['title'] == 'Example public profile'
-    assert 'Actual indexed description' in row['description'] and 'кириллица' in row['description']
-    assert row['details']['query'] == 'solvnox' and row['date']
-    assert Result.from_dict(row).confirmed
-    assert len(fixture.requests) == 1 and fixture.requests[0].url.host == 'html.duckduckgo.com'
-    assert fixture.requests[0].url.params['q'] == 'solvnox'
-    assert all(client.is_closed for client in fixture.clients)
+def test_keyless_provider_dispatches_to_documented_public_sources(monkeypatch):
+    from grangerpet import public_sources
+    calls=[]
+    def search(query,**kwargs):
+        calls.append((query,kwargs))
+        return {'tool':'web_search','status':'partial','results':[],
+                'limitations':['Fixture: public source unreachable'],'source_attempts':[{'source':'github_users','status':'unavailable'}]}
+    monkeypatch.setattr(public_sources,'search',search)
+    provider=WebSearchProvider()
+    result=provider.search('solvnox',limit=3)
+    assert provider.provider=='public_sources' and provider.availability()['available']
+    assert calls[0][0]=='solvnox' and calls[0][1]['limit']==3
+    assert result['source_attempts'][0]['source']=='github_users'
 
 
-@pytest.mark.parametrize('status,body', [(202, ''), (403, ''), (429, ''), (200, '<form action="anomaly.js">Challenge</form>')])
-def test_challenges_are_unavailable_without_retry_or_endpoint_bypass(status, body):
-    fixture = Fixture(lambda _: httpx.Response(status, text=body))
-    provider = WebSearchProvider(client_factory=fixture.factory)
-    first, second = provider.search('one'), provider.search('two')
-    assert first['status'] == second['status'] == 'unavailable'
-    assert first['results'] == second['results'] == []
-    assert not provider.availability()['available']
-    assert len(fixture.requests) == 1
-
-
-def test_unknown_html_is_not_false_empty_search():
-    fixture = Fixture(lambda _: httpx.Response(200, text='<html>Maintenance</html>'))
-    result = WebSearchProvider(client_factory=fixture.factory).search('test')
-    assert result['status'] == 'unavailable' and result['error_code'] == 'unrecognized_search_response'
-
-
-def test_explicit_no_results_is_honest_empty():
-    fixture = Fixture(lambda _: httpx.Response(200, text='<div class="no-results">No results found</div>'))
-    result = WebSearchProvider(client_factory=fixture.factory).search('no-match')
-    assert result['status'] == 'empty' and result['results'] == []
-
-
-def test_configured_google_cse_is_used_without_automatic_provider_fallback(caplog):
+def test_optional_google_cse_success_and_safe_public_fallback_on_failure(caplog,monkeypatch):
     secret = 'LOCAL-TRANSPORT-ONLY-CSE-FIXTURE'
     fixture = Fixture(lambda _: httpx.Response(200, json={'items': [
         {'title': 'Источник', 'link': 'https://example.org/fact', 'snippet': 'Настоящий фрагмент фикстуры'}]}))
@@ -90,38 +56,36 @@ def test_configured_google_cse_is_used_without_automatic_provider_fallback(caplo
     assert fixture.requests[0].url.params['num'] == '3'
     assert secret not in caplog.text and secret not in json.dumps(result)
     failed = Fixture(lambda _: httpx.Response(403, json={'error': {'message': secret}}))
+    forwarded=[]
+    def public(query,**kwargs):
+        forwarded.append(kwargs)
+        return {'tool':'web_search','status':'empty','results':[],'limitations':[]}
+    monkeypatch.setattr('grangerpet.public_sources.search',public)
     result = WebSearchProvider(SimpleNamespace(api_key=secret, api_cx='fixture-cx'), client_factory=failed.factory).search('one')
-    assert result['status'] == 'unavailable' and len(failed.requests) == 1
+    assert result['status'] == 'empty' and len(failed.requests) == 1 and forwarded
     assert secret not in json.dumps(result)
+    assert secret not in repr(forwarded)
 
 
-@pytest.mark.parametrize('query,limit', [('', 1), ('x'*301, 1), ('x\nsecret', 1), ('ok', 0), ('ok', 11), ('ok', True)])
-def test_search_validation_precedes_network(query, limit):
-    fixture = Fixture(lambda _: (_ for _ in ()).throw(AssertionError('Unexpected HTTP')))
-    result = WebSearchProvider(client_factory=fixture.factory).search(query, limit=limit)
-    assert result['status'] == 'invalid_arguments' and not fixture.requests
+@pytest.mark.parametrize('query,limit', [('',1),('x'*301,1),('x\nsecret',1),('ok',0),('ok',11),('ok',True)])
+def test_search_validation_precedes_any_public_dispatch(query,limit,monkeypatch):
+    monkeypatch.setattr('grangerpet.public_sources.search',lambda *a,**k:pytest.fail('No public request permitted'))
+    assert WebSearchProvider().search(query,limit=limit)['status']=='invalid_arguments'
 
 
-def test_search_cancellation_and_timeout_close_http_and_stop_waiting():
-    cancelled = threading.Event()
+def test_configured_api_cancellation_timeout_and_response_limit(monkeypatch):
+    event=threading.Event()
     async def pending(_):
-        cancelled.set()
-        await asyncio.sleep(10)
-        return httpx.Response(200, text=HTML)
-    fixture = Fixture(pending)
-    start = time.monotonic()
-    result = WebSearchProvider(client_factory=fixture.factory).search('test', cancel_event=cancelled)
-    assert result['status'] == 'cancelled' and time.monotonic()-start < 1
+        event.set();await asyncio.sleep(5);return httpx.Response(200,json={})
+    fixture=Fixture(pending);provider=WebSearchProvider(SimpleNamespace(api_key='SYNTHETIC-CSE-KEY',api_cx='fixture-cx'),client_factory=fixture.factory)
+    start=time.monotonic();result=provider.search('test',cancel_event=event)
+    assert result['status']=='cancelled' and time.monotonic()-start<1
     assert all(client.is_closed for client in fixture.clients)
-    fixture = Fixture(pending)
-    result = WebSearchProvider(client_factory=fixture.factory).search('test', deadline=time.monotonic()-.01)
-    assert result['status'] == 'timeout' and not fixture.requests
-
-
-def test_search_response_size_bound():
-    fixture = Fixture(lambda _: httpx.Response(200, content=b'x'*2_000_001))
-    result = WebSearchProvider(client_factory=fixture.factory).search('test')
-    assert result['status'] == 'unavailable' and result['error_code'] == 'response_too_large'
+    assert provider.search('test',deadline=time.monotonic()-.1)['status']=='timeout'
+    monkeypatch.setattr('grangerpet.public_sources.search',lambda *a,**k:{'status':'empty','results':[],'limitations':[]})
+    large=Fixture(lambda _:httpx.Response(200,content=b'x'*2_000_001))
+    result=WebSearchProvider(SimpleNamespace(api_key='SYNTHETIC-CSE-KEY',api_cx='fixture-cx'),client_factory=large.factory).search('test')
+    assert any('response_too_large' in warning for warning in result['limitations'])
 
 
 def test_domain_lookup_has_real_dns_types_rdap_provenance_and_no_arbitrary_hosts():

@@ -176,15 +176,29 @@ def test_real_fixture_adapter_emits_records_asynchronously_and_finishes_without_
     assert panel.count_label.text()=='Найдено: 1'
     assert states.count('thinking')==states.count('working')==states.count('happy')==1
 
-def test_google_browser_fallback_is_explicit_and_has_no_embedded_results(panel,app,monkeypatch):
-    opened=[]
+def test_public_search_without_google_key_uses_real_controller_and_keeps_findings_in_panel(panel,app,monkeypatch):
+    opened=[];queries=[]
     monkeypatch.setattr('grangerpet.panel.QDesktopServices.openUrl',lambda url:opened.append(url.toString()) or True)
+    class PublicFixture:
+        id,label,kinds='public_web','Explicit no-network public source fixture',('dork',)
+        def run(self,query,context):
+            queries.append(query)
+            return {'status':'complete','results':[{'id':'public-fixture','title':'Public extraction fixture',
+                'type':'web','platform':'Example','url':'https://example.org/public-report',
+                'description':'Explicit test fixture, not a live source.','status':'content_observed',
+                'details':{'content_fetched':True,'reading_method':'direct_http'}}]}
+    panel.controller.adapters=[PublicFixture()]
     states=[];panel.search_state.connect(states.append)
     panel.text.setText('site:example.org "public report"');panel.start_search()
-    assert len(opened)==1 and opened[0].startswith('https://www.google.com/search?')
-    assert states==['thinking','working','idle']
-    assert panel.result_model.rowCount()==0
-    assert 'фактическая выдача здесь недоступна' in panel.status.text()
+    wait(app,lambda:not panel._busy)
+    assert not opened, 'Basic public search must not hand the task to an external browser'
+    assert len(queries)==1 and queries[0].kind=='dork'
+    assert not queries[0].options.get('google_api_key')
+    assert panel.result_model.rowCount()==1
+    assert panel.result_model.record(0)['title']=='Public extraction fixture'
+    assert states.count('thinking')==states.count('working')==1
+    assert 'фактическая выдача здесь недоступна' not in panel.status.text()
+
 
 def test_cancel_drops_late_old_generation_results_and_new_search_can_start(panel,app):
     class Source:

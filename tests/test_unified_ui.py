@@ -65,7 +65,7 @@ def test_same_source_url_preserves_distinct_blockchain_observations(app,vault):
         assert len(panel._records)==panel.result_model.rowCount()==2
     finally:panel.shutdown();panel.deleteLater()
 
-def test_vault_unavailable_does_not_disable_browser_fallback(app,vault,monkeypatch):
+def test_unavailable_secret_backend_does_not_disable_keyless_public_search(app,vault,monkeypatch):
     def unavailable(name):raise CredentialError('Vault unavailable')
     monkeypatch.setattr('grangerpet.connections.get_secret',unavailable)
     monkeypatch.setattr('grangerpet.panel.get_secret',unavailable)
@@ -73,7 +73,12 @@ def test_vault_unavailable_does_not_disable_browser_fallback(app,vault,monkeypat
     opened=Mock(return_value=True);monkeypatch.setattr('grangerpet.panel.QDesktopServices.openUrl',opened)
     panel=OsintPanel(Settings(ai_provider='deepseek',deepseek_model='fixture'))
     try:
-        panel.text.setText('site:example.org report');panel.start_search();opened.assert_called_once()
+        dispatched=[]
+        monkeypatch.setattr(panel.controller,'start',lambda query,options:dispatched.append((query,options)) or False)
+        panel.text.setText('site:example.org report');panel.start_search()
+        opened.assert_not_called()
+        assert len(dispatched)==1 and dispatched[0][0].kind=='dork'
+        assert not dispatched[0][1].get('google_api_key')
         assert not panel._has_api()
         panel._engine_result(Result('one','Evidence','web','Example','https://example.org/'))
         monkeypatch.setattr(panel,'open_settings',lambda *args:None)

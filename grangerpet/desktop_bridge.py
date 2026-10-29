@@ -51,7 +51,7 @@ def source_view(record, limits=()):
     value = redact(record)
     details, origin = value.get('details') or {}, value.get('provenance') or {}
     acquisition = origin.get('acquisition')
-    kind = 'api' if details.get('acquisition')=='official_api' else 'page' if details.get('reading_method')=='direct_http' else 'snippet' if acquisition=='search_index' or value.get('status')=='indexed' else 'adapter'
+    kind = 'api' if details.get('acquisition')=='official_api' else 'page' if details.get('reading_method') in ('direct_http','browser_dom') else 'snippet' if acquisition=='search_index' or value.get('status')=='indexed' else 'adapter'
     kind={'image_analysis':'image','map':'map','repository':'repository','archive':'archive'}.get(value.get('type'),kind)
     notes = list(limits) + list(details.get('limitations') or [])
     if any('JavaScript' in str(note) and 'не' in str(note) for note in notes):
@@ -59,7 +59,7 @@ def source_view(record, limits=()):
     if details.get('javascript_shell'):
         notes.append('JavaScript-содержимое не исполнено; доступны только HTTP-текст и метаданные.')
     identifier=value.get('evidence_id') or details.get('evidence_id') or ''
-    read = (details.get('reading_method')=='direct_http' and not details.get('javascript_shell')
+    read = (details.get('reading_method') in ('direct_http','browser_dom') and not details.get('javascript_shell')
             and bool(str(details.get('content_text') or details.get('content_excerpt') or '').strip())
             and value.get('status') not in ('error','failed','blocked','restricted','unconfirmed'))
     details = {**details,'content_fetched':read}
@@ -367,15 +367,12 @@ class DesktopBridge(QObject):
         current=chat._last_investigation.get('evidence',[])
         current_ids={r.get('evidence_id') for r in current}
         base['task_sources']=self._search_sources_view if self.route=='search' else [s for s in sources if s['evidence_id'] in current_ids]
-        from .catalog_candidates import catalog_candidates,catalog_audit
-        candidates=catalog_candidates()
         installed=list(base['tools'])
-        base['tool_counts']={'candidates':len(candidates),'implemented':len(_SPECS),
+        base['tool_counts']={'candidates':0,'implemented':len(_SPECS),
             'ready_local':sum(bool(row.get('available')) for row in installed),
             'verified_execution':sum(row.get('readiness_status')=='live_verified' for row in installed)}
-        base['catalog_audit']=catalog_audit()
-        base['tools']=installed+[{**row,'inputTypes':row['accepted_inputs'],'sensitive':False,
-                          'manual_url':row['source_url'] if row['runtime_mode']=='manual_handoff' else ''} for row in candidates]
+        # Candidate research remains in the technical audit, never executable UI.
+        base['tools']=installed
         base['connection'].update(models=self._models,modelsChecking=self._models_job is not None,modelsError=self._models_error)
         base['hermione'].update(self.host.character.snapshot())
         if base['vault']['enabled'] and not base['vault']['unlocked']:

@@ -58,11 +58,19 @@ _SPECS = (
     ToolSpec('image_metadata','image_metadata','image','attachment_id','Локально прочитать выбранное изображение: настоящий EXIF/GPS, SHA-256, размеры и dHash. Отсутствие GPS не означает координаты 0,0. Не определяет место по внешности.',max_length=68),
     ToolSpec('image_ocr','image_ocr','image','attachment_id','Локальный Tesseract: русский и английский текст из пикселей выбранного изображения, bounding boxes и confidence. Без загрузки в облако.',max_length=68),
     ToolSpec('image_compare','image_compare','image','attachment_id','Сопоставить dHash с ранее выбранными локальными изображениями; сходство не доказывает одинаковое место съёмки.',max_length=68),
-    ToolSpec('map_geocode','map_geocode','coordinates','place','Найти географических кандидатов по публичному топониму на настроенном разрешённом Nominatim endpoint. Требуется подтверждение передачи запроса.',True,300),
-    ToolSpec('map_overpass','map_overpass','coordinates','coordinates','Именованные достопримечательности в радиусе500м от заданных latitude,longitude через разрешённый Overpass endpoint. Требуется подтверждение передачи координат.',True,64),
-    ToolSpec('map_wikimedia','map_wikimedia','coordinates','coordinates','MediaWiki Commons API: геотеги до20медиа в радиусе1км от latitude,longitude. Совпадение пикселей не проверяется. Требуется подтверждение передачи координат.',True,64),
+    ToolSpec('map_geocode','map_geocode','coordinates','place','Найти географических кандидатов по публичному топониму через ограниченный публичный Nominatim: единичный запрос, кэш и атрибуция, без массового геокодирования.',False,300),
+    ToolSpec('map_overpass','map_overpass','coordinates','coordinates','Именованные достопримечательности в радиусе500м от заданных latitude,longitude через ограниченный публичный Overpass, кэш и backoff; координаты передаются провайдеру.',False,64),
+    ToolSpec('map_wikimedia','map_wikimedia','coordinates','coordinates','MediaWiki Commons API: геотеги до20медиа в радиусе1км от latitude,longitude. Совпадение пикселей не проверяется; координаты передаются Commons.',False,64),
+    ToolSpec('github_profile','github_profile','username','username','GitHub: настоящая публичная запись точного username через официальный API без персонального ключа.',max_length=39),
+    ToolSpec('github_users','github_users','dork','query','GitHub: поиск публичных профилей по запросу через официальный API без ключа; совпадение имени не устанавливает личность.',max_length=256),
+    ToolSpec('github_repositories','github_repositories','dork','query','GitHub: публичные репозитории по запросу, описания, язык и даты; без приватного кода и без ключа.',max_length=256),
+    ToolSpec('hn_search','hn_search','dork','query','Hacker News Algolia: реальные публичные публикации/комментарии, автор, дата и текст при наличии, без ключа.',max_length=300),
+    ToolSpec('hn_profile','hn_profile','username','username','Hacker News: точный публичный username, about, karma и дата через официальный Firebase API без ключа.',max_length=32),
+    ToolSpec('openlibrary_search','openlibrary_search','dork','query','Open Library: поиск опубликованных книг, авторов, дат и идентификаторов через публичный API без ключа.',max_length=300),
+    ToolSpec('wikipedia_search','wikipedia_search','dork','query','Wikipedia: поиск статей и фактическое извлечение вступительного текста через MediaWiki API без ключа.',max_length=300),
 )
 _BY_NAME = {spec.name: spec for spec in _SPECS}
+_PUBLIC_SOURCES=frozenset(('github_profile','github_users','github_repositories','hn_search','hn_profile','openlibrary_search','wikipedia_search'))
 _AUTH = {"telegram": ("telegram_api_hash", "telegram_session"), "vk": ("vk_token",), "instagram": ("instagram_session",)}
 _BASE_OPTIONS = ("source_root", "tools_root", "runtime_python", "telegram_api_id", "instagram_username", "google_cx", "api_cx", "enable_snoop", "profile_sites")
 
@@ -105,7 +113,7 @@ class ToolRegistry:
         self._redactions = {value for value in redactions if isinstance(value, str) and len(value) >= 4}
         from .agent_browser import PublicPageReader
         self.web_reader = PublicPageReader(max_pages=getattr(settings, 'agent_page_limit', 0),
-                                           max_depth=getattr(settings, 'agent_page_depth', 2))
+                                           max_depth=getattr(settings, 'agent_page_depth', 2),agent_model=getattr(settings,'deepseek_model',''))
 
     def seed_urls_from_user(self, text):
         """Only the human's actual text seeds initial URLs, never model output."""
@@ -184,6 +192,8 @@ class ToolRegistry:
                             reason="Веб-источник проверяется фактическим запросом; наличие настроек не доказывает доступ к выдаче.")
             except (ImportError, RuntimeError, ValueError):
                 base.update(reason="Модуль веб-поиска недоступен.")
+        elif spec.source in _PUBLIC_SOURCES:
+            base.update(available=True,state='ready',reason='Встроенный публичный адаптер без персонального ключа; сеть подтверждается только выполнением.')
         elif spec.source in ('github_repository','threat_feodo','hash_virustotal'):
             configured=spec.source!='hash_virustotal' or bool(self._secret('virustotal_api_key'))
             base.update(available=configured,state='ready' if configured else 'auth_required',
@@ -231,7 +241,7 @@ class ToolRegistry:
         with self._lock:
             if spec.name in self._last_executions:
                 base['last_execution']=deepcopy(self._last_executions[spec.name])
-                base['diagnostic']['execution_verified']=base['last_execution']['status'] in ('complete','completed','empty','partial')
+                base['diagnostic']['execution_verified']=base['last_execution']['status'] in ('complete','completed','empty')
         if cancelled is None or not cancelled.is_set():
             with self._lock:
                 self._availability[spec.name] = (time.monotonic(), deepcopy(base))
@@ -315,6 +325,9 @@ class ToolRegistry:
                 try: coordinates(value)
                 except GeointError: raise ValueError('Некорректные координаты.') from None
             return value,limit,options,None
+        if spec.source in _PUBLIC_SOURCES:
+            from .public_sources import validate
+            return validate(spec.source,value),limit,options,None
         if spec.source in ('github_repository','threat_feodo','hash_virustotal'):
             from .public_integrations import validate
             value=validate(spec.source,value)
@@ -365,7 +378,7 @@ class ToolRegistry:
             input_summary={'query':result.get('query','')},data={'results':deepcopy(result.get('results',[]))},
             evidence_ids=[r['evidence_id'] for r in result.get('results',[]) if r.get('evidence_id')],
             warnings=list(result.get('limitations',[])),errors=[result['error']] if result.get('error') else
-            [] if result.get('status') in ('complete','completed','empty','partial') else [result.get('status','error')])
+            [] if result.get('status') in ('complete','completed','empty') else [result.get('status','error')])
         return result
 
     def _execute(self, name, args, *, cancel_event=None, deadline=None, approved=False, on_event=None):
@@ -444,6 +457,9 @@ class ToolRegistry:
             elif spec.source in ("domain_lookup", "ip_lookup"):
                 from .agent_web import lookup_domain, lookup_ip
                 outcome = (lookup_domain if spec.source == "domain_lookup" else lookup_ip)(value, cancel_event=cancelled, deadline=deadline)
+            elif spec.source in _PUBLIC_SOURCES:
+                from .public_sources import execute
+                outcome=execute(spec.source,value,limit=limit,cancel_event=cancelled,deadline=deadline,agent_model=getattr(self.settings,'deepseek_model',''))
             elif spec.source in ('github_repository','threat_feodo','hash_virustotal'):
                 from .public_integrations import execute
                 outcome=execute(spec.source,value,secret=self._secret('virustotal_api_key') if spec.source=='hash_virustotal' else '',

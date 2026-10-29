@@ -52,7 +52,25 @@ def google_outcome(query, options):
 
 
 def default_adapters(options=None):
-    return [SourceAdapter(source, label, kinds) for source, (label, kinds) in SOURCE_META.items()]
+    return [PublicSearchAdapter('public_web','Публичные источники без ключа',('username','web','dork')),
+            *[SourceAdapter(source, label, kinds) for source, (label, kinds) in SOURCE_META.items() if source!='google']]
+
+
+class PublicSearchAdapter(SourceAdapter):
+    def run(self,query,context):
+        import time
+        deadline=time.monotonic()+query.timeout
+        if query.kind=='web':
+            from ..agent_browser import PublicPageReader
+            reader=PublicPageReader(max_pages=2,max_depth=1)
+            reader.seed_urls_from_user(query.text)
+            result=reader.read(query.text,cancel_event=context.cancelled,deadline=deadline)
+        else:
+            from ..agent_web import WebSearchProvider
+            result=WebSearchProvider(options=context.options).search(query.text,limit=min(10,query.limit),cancel_event=context.cancelled,deadline=deadline)
+        result['source']=self.id
+        result['message']=' · '.join(result.get('limitations',[]))[:1000]
+        return result
 
 
 def select_adapters(query, options, adapters=None, *, verify_runtime=True, cancelled=None):
@@ -73,10 +91,12 @@ def select_adapters(query, options, adapters=None, *, verify_runtime=True, cance
     from .readiness import runtime_readiness
     preferred = sorted(candidates, key=lambda item: ["maigret", "blackbird", "social_analyzer", "snoop"].index(item.id)
                        if item.id in {"maigret", "blackbird", "social_analyzer", "snoop"} else 10)
+    builtins=[item for item in preferred if item.id=='public_web']
     for item in preferred:
+        if item.id=='public_web':continue
         if cancelled is not None and cancelled.is_set():
             return []
         if runtime_readiness(item.id, options, cancelled)["runtime_ready"]:
-            return [item]
+            return builtins+[item]
     # A real source invocation will return a truthful unavailable diagnostic.
-    return preferred[:1]
+    return builtins or preferred[:1]

@@ -56,7 +56,9 @@ OFFICIAL = {
 
 
 def manifest(spec):
+    from .public_sources import SOURCES
     url,mode=OFFICIAL.get(spec.source,('https://github.com/watsoncore/Granger-OSINT','LOCAL_CLI'))
+    if spec.source in SOURCES:url,mode=SOURCES[spec.source][2],'OFFICIAL_API'
     auth={'telegram':('telegram_api_hash','telegram_session'),'vk':('vk_token',),
           'hash_virustotal':('virustotal_api_key',),'instagram':('instagram_session',)}.get(spec.source,())
     category=('geoint' if spec.kind in ('image','coordinates') else 'threat_intelligence' if spec.kind=='hash' or spec.source=='threat_feodo'
@@ -68,7 +70,7 @@ def manifest(spec):
         'none' if spec.kind in ('image','evidence') else 'public HTTPS',
         ('Local processing; no network requests.' if spec.kind in ('image','evidence') else
          'Public integrations share two worker slots; per-service rate gates and a five-minute cache.'
-         if spec.source in ('github_repository','threat_feodo','hash_virustotal') else
+         if spec.source in ('github_repository','threat_feodo','hash_virustotal') or spec.source in SOURCES else
          'Mapping clients share a per-service rate gate and bounded cache.'
          if spec.kind=='coordinates' or spec.source=='map_geocode' else
          'Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.'),

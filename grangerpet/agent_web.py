@@ -1,15 +1,14 @@
 """Bounded public web/DNS/network observations for the local agent registry.
 
-No browser automation, challenge solving, arbitrary page fetch or paid service
-registration. Search uses the existing Google configuration when present;
-otherwise one ordinary public DuckDuckGo HTML request is attempted.
+No challenge solving or paid service registration. Search uses an explicit
+Google configuration when present; otherwise a bounded federation of documented
+public APIs. DuckDuckGo /html and /lite are not queried: robots.txt disallows it.
 """
 from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timezone
 import hashlib
-from html.parser import HTMLParser
 import ipaddress
 import json
 import logging
@@ -22,7 +21,6 @@ import httpx
 from .search import SearchError, parse_results
 
 
-_DDG = "https://html.duckduckgo.com/html/"
 _GOOGLE = "https://www.googleapis.com/customsearch/v1"
 _MAX_BYTES = 2_000_000
 
@@ -139,55 +137,6 @@ def _public_url(value):
         return ""
 
 
-def _search_url(value):
-    value = urljoin(_DDG, value)
-    parsed = urlsplit(value)
-    if parsed.hostname in ("duckduckgo.com", "www.duckduckgo.com", "html.duckduckgo.com"):
-        value = parse_qs(parsed.query).get("uddg", [""])[0]
-    return _public_url(value)
-
-
-class _SearchHTML(HTMLParser):
-    def __init__(self):
-        super().__init__(convert_charrefs=True)
-        self.rows, self.stack = [], []
-        self.title, self.snippet = None, None
-
-    def handle_starttag(self, tag, attrs):
-        attrs = dict(attrs)
-        classes = attrs.get("class", "").split()
-        if tag in {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}:
-            return
-        self.stack.append(tag)
-        if tag == "a" and "result__a" in classes:
-            self.title = {"depth": len(self.stack), "url": _search_url(attrs.get("href", "")), "text": []}
-        if "result__snippet" in classes and self.rows:
-            self.snippet = {"depth": len(self.stack), "text": []}
-
-    def handle_endtag(self, tag):
-        depth = len(self.stack)
-        if self.title is not None and tag == "a" and depth == self.title["depth"]:
-            if self.title["url"]:
-                self.rows.append({"url": self.title["url"], "title": _clean("".join(self.title["text"]), 500), "snippet": ""})
-            self.title = None
-        if self.snippet is not None and depth == self.snippet["depth"]:
-            self.rows[-1]["snippet"] = _clean("".join(self.snippet["text"]))
-            self.snippet = None
-        # Tolerate ordinary void elements / imperfect upstream HTML.
-        if tag in self.stack:
-            last = len(self.stack) - 1 - self.stack[::-1].index(tag)
-            del self.stack[last:]
-
-    def handle_startendtag(self, tag, attrs):
-        pass
-
-    def handle_data(self, value):
-        if self.title is not None:
-            self.title["text"].append(value)
-        if self.snippet is not None:
-            self.snippet["text"].append(value)
-
-
 def _record(source, query, title, url, description, *, kind="web", details=None):
     now = _utc()
     return {"id": hashlib.sha256((source + "|" + query + "|" + url + "|" + title).encode("utf-8")).hexdigest()[:24],
@@ -212,16 +161,20 @@ class WebSearchProvider:
         self._key = str(options.get("google_api_key") or secrets.get("google_api_key") or getattr(settings, "api_key", "") or "")
         self._cx = str(options.get("google_cx") or options.get("api_cx") or getattr(settings, "api_cx", "") or "")
         self._factory, self._blocked = client_factory, None
-        self.provider = "google_cse" if self._key and self._cx else "duckduckgo_html"
+        self._model=str(getattr(settings,'deepseek_model','') or '')
+        self.provider = "google_cse" if self._key and self._cx else "public_sources"
 
     def availability(self):
         return {"available": self._blocked is None, "state": "unavailable" if self._blocked else "configured" if self.provider == "google_cse" else "unverified",
-                "provider": self.provider, "reason": self._blocked or ("Используется существующая настройка Google CSE." if self.provider == "google_cse" else "Публичный HTML-поиск без ключа; доступность проверяется самим запросом, возможны ограничения источника.")}
+                "provider": self.provider, "reason": self._blocked or ("Используется существующая настройка Google CSE." if self.provider == "google_cse" else "Ограниченный поиск по документированным публичным источникам без персонального ключа; доступность проверяется запросом.")}
 
     def search(self, query, *, limit=5, cancel_event=None, deadline=None):
         if not isinstance(query, str) or not 1 <= len(query.strip()) <= 300 or any(ord(c) < 32 for c in query) or type(limit) is not int or not 1 <= limit <= 10:
             return _envelope("web_search", "", status="invalid_arguments", error_code="invalid_query")
         query = query.strip()
+        if self.provider == 'public_sources':
+            from .public_sources import search
+            return search(query,limit=limit,cancel_event=cancel_event,deadline=deadline,client_factory=self._factory,agent_model=self._model)
         if self._blocked:
             return _envelope("web_search", query, status="unavailable", limitations=[self._blocked], error_code="source_blocked")
         async def operation():
@@ -235,27 +188,20 @@ class WebSearchProvider:
                     records = [_record("google_cse", query, row.title, row.url, row.snippet) for row in rows[:limit] if _public_url(row.url)]
                     return _envelope("web_search", query, status="complete" if records else "empty", results=records,
                         limitations=["Выдача индекса не гарантирует полноту упоминаний; фрагменты не проверяют содержимое страницы."])
-                html = (await _fetch(client, _DDG, params={"q": query})).decode("utf-8", errors="replace")
-                lowered = html.lower()
-                if any(marker in lowered for marker in ("anomaly.js", "anomaly-modal", "challenge-form", "bots use duckduckgo")):
-                    raise _FetchError("source_challenge")
-                parser = _SearchHTML()
-                parser.feed(html)
-                records, seen = [], set()
-                for row in parser.rows:
-                    if row["url"] in seen or not row["title"]:
-                        continue
-                    seen.add(row["url"])
-                    records.append(_record("duckduckgo_html", query, row["title"], row["url"], row["snippet"] or "Описание не предоставлено источником."))
-                    if len(records) >= limit:
-                        break
-                if not records and not any(marker in lowered for marker in ("no-results", "no results found", "no more results")):
-                    raise _FetchError("unrecognized_search_response")
-                return _envelope("web_search", query, status="complete" if records else "empty", results=records,
-                    limitations=["Публичная HTML-выдача ограничена источником и может блокироваться. Найденный URL не доказывает принадлежность аккаунта."])
         try:
             return _run(operation, cancel_event=cancel_event, deadline=deadline, timeout=15)
         except _FetchError as error:
+            if error.status=='cancelled' or deadline is not None and time.monotonic()>=deadline:
+                return _envelope('web_search',query,status=error.status,error_code=error.code)
+            if self.provider=='google_cse':
+                # Optional personal configuration must not disable basic public
+                # search. Start fresh clients: no CSE key/header reaches them.
+                self.provider='public_sources'
+                from .public_sources import search
+                result=search(query,limit=limit,cancel_event=cancel_event,deadline=deadline,
+                    client_factory=self._factory,agent_model=self._model)
+                result.setdefault('limitations',[]).insert(0,'Google CSE: '+error.code+'. Использованы отдельные публичные источники без передачи ключа.')
+                return result
             reason = ("Источник ограничил автоматический доступ. CAPTCHA, авторизация и ограничения не обходились."
                       if error.code in ("source_challenge", "http_202", "http_401", "http_403", "http_429") else
                       "Веб-поиск сейчас не выполнил запрос; сгенерированная выдача не подставляется.")

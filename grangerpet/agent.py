@@ -32,6 +32,8 @@ AGENT_SYSTEM = (
     "Независимые проверки можно запросить одновременно; зависимые проверки делай следующим шагом после настоящих результатов. "
     "Недоступные источники не запускались; пустой ответ источника не доказывает отсутствия сущности в интернете. "
     "Не повторяй одинаковые вызовы. Не запрашивай активные, массовые или чувствительные действия без подтверждения пользователя. "
+    "Если источник требует отсутствующий персональный ключ, заблокирован или не отвечает, переходи к другому доступному публичному адаптеру. "
+    "web_search без Google CSE ищет по документированным публичным источникам; это ограниченная федерация, не глобальный индекс. "
     "Сохраняй краткий план и перечисляй оставшиеся проверки в тексте перед вызовами. Продолжай обоснованные проверки до выполнения цели, "
     "исчерпания доступных путей или явно заданного пользователем бюджета. Не считай большой номер шага причиной остановки. "
     "При восстановлении учитывай сохранённую цель, выполненные проверки и доказательства; не начинай с нуля. "
@@ -570,9 +572,49 @@ class AgentRunner:
         if page_limit:
             raise _Stopped('page_limit')
         if self._record['no_progress_rounds'] >= self.limits.no_progress_rounds:
-            raise _Stopped('no_progress')
+            if self._queue_public_fallback():
+                self._record['no_progress_rounds']=0
+                self._persist()
+            else:
+                raise _Stopped('no_progress')
         if not self.limits.auto_continue:
             raise _Stopped('manual_pause')
+
+    def _queue_public_fallback(self):
+        """A bounded, provenance-preserving alternative before a stalled pause.
+
+        This does not retry a protected URL, infer a new URL or defeat an auth
+        denial. It offers a different registered public source for the same
+        already-dispatched query. Explicit source-only requests stay scoped.
+        """
+        if (not self.limits.auto_continue or self._record.get('fallback_attempts',0)>=3
+                or re.search(r'(?i)\b(?:только|исключительно|only|solely)\b',self._record.get('goal',''))):
+            return False
+        for failed in reversed(self._state.get('failures',[])[-8:]):
+            args=failed.get('arguments',{})
+            name=failed.get('tool')
+            nickname=args.get('username')
+            query=args.get('query') or args.get('place')
+            if isinstance(nickname,str) and re.fullmatch(r'[A-Za-z0-9_-]{2,39}',nickname):
+                candidates=[('github_profile',{'username':nickname}),('hn_profile',{'username':nickname}),('github_users',{'query':nickname,'limit':3})]
+            elif isinstance(query,str) and 1<=len(query)<=256 and not any(ord(c)<32 for c in query) and name in ('web_search','github_users','github_repositories','hn_search','wikipedia_search','archive_search','openlibrary_search','map_geocode'):
+                candidates=[(tool,{'query':query,'limit':3}) for tool in ('hn_search','wikipedia_search','github_users','archive_search')]
+            else:continue
+            for tool,arguments in candidates:
+                if tool not in self._names or self._catalog.get(tool,{}).get('requires_approval'):continue
+                call={'id':'fallback_'+uuid.uuid4().hex,'name':tool,'arguments':arguments,'dispatched':False}
+                call['fingerprint']=self._fingerprint(call)
+                if call['fingerprint'] in self._state['call_cache'] or any(row.get('tool')==tool and row.get('arguments')==arguments for row in self._record.get('calls',[])):continue
+                proposal={'role':'assistant','content':'Проверенный источник недоступен. Перехожу к другому разрешённому публичному источнику для того же запроса.',
+                    'tool_calls':[{'id':call['id'],'type':'function','function':{'name':tool,'arguments':_json(arguments)}}]}
+                self._state['messages'].append(proposal);self._state['protocol_archive'].append(deepcopy(proposal))
+                self._state['pending_calls']=[call];self._state['pending_outcomes']={}
+                self._state['seen_call_ids'].append(call['id'])
+                self._record['fallback_attempts']=self._record.get('fallback_attempts',0)+1
+                self._state['pending_work']=[{'tool':tool,'arguments':self._safe(arguments)}]
+                self._persist()
+                return True
+        return False
 
     def _compact(self, envelope):
         value = {key: envelope.get(key) for key in ("tool", "status", "query", "obtained_at", "limitations", "error", "cached_status", "page_budget") if key in envelope}
@@ -585,12 +627,18 @@ class AgentRunner:
             row['provenance'] = {key:origin[key] for key in ('tool','obtained_at','acquisition') if key in origin}
             row["description"] = relevant_excerpt(record.get("description", ""), self._record.get('goal',''), 450)
             details = record.get('details') or {}
+            if details.get('source_record'):
+                facts={}
+                for key,item in details.items():
+                    if key not in ('query','verification','obtained_at') and len(_json({**facts,key:item}))<=2200:
+                        facts[key]=deepcopy(item)
+                row['structured_record']=facts
             if details.get('tool') in ('image_metadata','image_ocr','image_compare','map_geocode','map_overpass','map_wikimedia'):
                 available = self.limits.max_tool_result_chars - len(_json({**value, 'results':rows+[row]})) - 160
                 row['geoint_result'] = _geoint_context(details, available)
             selection = envelope.get('context_selection', {}) if envelope.get('tool')=='evidence_get' else {}
             focus = selection.get('focus') or self._record.get('goal','')
-            if envelope.get('tool')=='evidence_get' and details.get('reading_method')!='direct_http':
+            if envelope.get('tool')=='evidence_get' and details.get('reading_method') not in ('direct_http','browser_dom'):
                 description=str(record.get('description',''))
                 maximum=selection.get('length',3000)
                 row['description']=(description[selection['offset']:selection['offset']+maximum] if 'offset'in selection else relevant_excerpt(description,focus,maximum))
@@ -601,19 +649,26 @@ class AgentRunner:
                     'obtained_at':entry.get('provenance',{}).get('obtained_at'),
                     'excerpt':relevant_excerpt(entry.get('description',''),focus,220)}for entry in
                     (observations if len(observations)<=2 else [observations[0],observations[-1]])]
-            if details.get('reading_method') == 'direct_http':
+            if details.get('reading_method') in ('direct_http','browser_dom'):
                 row.pop('description',None)
                 content = str(details.get('content_text') or details.get('content_excerpt') or '')
                 maximum = selection.get('length',5000 if envelope.get('tool')=='evidence_get' else 1800)
                 excerpt = (content[selection['offset']:selection['offset']+maximum] if 'offset' in selection else
                            relevant_excerpt(content, focus, maximum))
-                row['page_content'] = {'reading_method': 'direct_http',
+                row['page_content'] = {'reading_method': details.get('reading_method'),
                     'content_excerpt': excerpt,
                     'content_total_chars':len(content),
                     'headings': details.get('headings', [])[:6],
                     'metadata': {key:value for key,value in details.get('metadata',{}).items() if key in ('description','og:description','og:title','published_time','modified_time')},
                     'links': details.get('links', [])[:8], 'tables': details.get('tables', [])[:1],
                     'crawl_depth': details.get('crawl_depth', 0)}
+                structured=(details.get('scrape_result') or {}).get('structured_data')
+                if isinstance(structured,dict):
+                    facts={}
+                    for key,item in structured.items():
+                        if key not in ('links','text','main_text') and len(_json({**facts,key:item}))<=1800:
+                            facts[key]=deepcopy(item)
+                    row['page_content']['structured_data']=facts
                 if 'offset' in selection:
                     row['page_content']['content_range'] = [min(len(content),selection['offset']),min(len(content),selection['offset']+maximum)]
                 # Keep the result useful when a page has unusually large metadata.
@@ -622,7 +677,7 @@ class AgentRunner:
                 if len(_json(row)) > self.limits.max_tool_result_chars - 700:
                     row['page_content'].pop('tables', None)
                     row['page_content']['metadata'] = {}
-            if envelope.get('tool') == 'evidence_get' and details.get('reading_method') != 'direct_http':
+            if envelope.get('tool') == 'evidence_get' and details.get('reading_method') not in ('direct_http','browser_dom'):
                 row['details'] = deepcopy(details)
                 while len(_json(row)) > self.limits.max_tool_result_chars-800 and row['details']:
                     row['details'].pop(next(reversed(row['details'])))
@@ -824,6 +879,8 @@ class AgentRunner:
                 self._checkpoint()
                 if self._state['pending_calls']:
                     self._finish_pending(on_event, approval_callback)
+                    if self._state['pending_calls']:
+                        continue  # A public fallback was queued before a stalled pause.
                 if self.limits.max_steps and self._record['steps'] >= self.limits.max_steps:
                     raise _Stopped('step_limit')
                 if self.limits.max_tool_calls and self._record['tool_calls'] >= self.limits.max_tool_calls:
@@ -849,6 +906,8 @@ class AgentRunner:
                     value = message.get('content', '')
                     if not isinstance(value, str) or not value.strip():
                         raise AIError('Провайдер не вернул итоговый текст.', code='empty_response')
+                    if not self._store.records() and self._state.get('failures') and self._queue_public_fallback():
+                        continue
                     messages.append(deepcopy(message))
                     self._state['protocol_archive'].append(deepcopy(message))
                     self._state['pending_work'] = []

@@ -151,12 +151,12 @@ def detect_query(text, chosen_kind=None, options=None):
     try:
         if chosen == "dork" or not chosen and re.search(r"(?:^|\s)-?(?:site|filetype|intitle|inurl|intext):", value, re.I):
             from ..dorks import validate_custom
-            return _resolution(validate_custom(value), "dork", "Поисковый запрос", "Поиск упоминаний", ("google",))
+            return _resolution(validate_custom(value), "dork", "Поисковый запрос", "Поиск упоминаний", ("public_web",))
         if chosen == "username":
             name = value.lstrip("@")
             if not re.fullmatch(r"[\w.-]{1,64}", name, re.UNICODE):
                 raise ValueError("Введите один никнейм без пробелов.")
-            return _resolution(name, "username", "Никнейм", "Поиск публичных профилей", ("maigret", "blackbird", "social_analyzer", "snoop"))
+            return _resolution(name, "username", "Никнейм", "Поиск публичных профилей", ("public_web", "maigret", "blackbird", "social_analyzer", "snoop"))
         if chosen == "email" or not chosen and "@" in value and not value.startswith("@"):
             return _resolution(normalize_email(value), "email", "Email", "Проверка публичных регистраций", ("holehe",))
         if chosen == "phone" or not chosen and re.fullmatch(r"(?:\+|00)[\d ()-]{6,24}", value):
@@ -187,7 +187,7 @@ def detect_query(text, chosen_kind=None, options=None):
             kind = "telegram" if host in {"t.me", "telegram.me", "www.t.me"} else "vk" if host in {"vk.com", "m.vk.com", "vk.ru", "m.vk.ru", "www.vk.com"} else "instagram" if host.removeprefix("www.") == "instagram.com" else "web"
             if kind != "web":
                 return detect_query(normalized, kind, options)
-            return _resolution(normalized, "web", "Веб-ссылка", "Веб-архив", ("wayback",))
+            return _resolution(normalized, "web", "Веб-ссылка", "Чтение публичной страницы и архив", ("public_web", "wayback"))
         if not chosen and re.fullmatch(r"(?:id|club|public|event)\d+", value, re.I):
             return detect_query(value, "vk", options)
         blockchain_shape = (bool(re.fullmatch(r"0x[0-9a-fA-F]{40}", value)) or bool(re.fullmatch(r"(?:bc1|[13])[A-Za-z0-9]{25,90}", value))
@@ -196,20 +196,20 @@ def detect_query(text, chosen_kind=None, options=None):
             return _resolution(value, "blockchain", "Блокчейн-адрес / имя", "Gansar · проверка поддерживаемой сети", ("blockchain",))
         if chosen == "web":
             _, _, normalized = _url(value)
-            return _resolution(normalized, "web", "Веб-ссылка", "Веб-архив", ("wayback",))
+            return _resolution(normalized, "web", "Веб-ссылка", "Чтение публичной страницы и архив", ("public_web", "wayback"))
         if "." in value and "/" not in value and " " not in value:
             try:
                 domain = _domain(value)
             except ValueError:
                 domain = ""
             if domain and domain.rsplit(".", 1)[1] in DOMAIN_TLDS:
-                return _resolution("https://" + domain + "/", "web", "Домен", "Веб-архив", ("wayback",))
+                return _resolution("https://" + domain + "/", "web", "Домен", "Чтение публичной страницы и архив", ("public_web", "wayback"))
             if domain:
                 return QueryResolution(value, choices=(("Веб-архив", "web"),) + PROFILE_CHOICES, label="Неоднозначный текст", requires_clarification=True)
         if re.fullmatch(r"@?[\w.-]{1,64}", value, re.UNICODE):
             return QueryResolution(value, label="Возможный никнейм или упоминание", source_label="Что искать?", choices=PROFILE_CHOICES, requires_clarification=True)
         if re.fullmatch(r"\d[\d ()-]{5,24}", value):
             return QueryResolution(value, label="Номер без кода страны или текст", choices=PROFILE_CHOICES, requires_clarification=True)
-        return _resolution(value, "dork", "Поисковый текст", "Поиск упоминаний", ("google",))
+        return _resolution(value, "dork", "Поисковый текст", "Поиск упоминаний", ("public_web",))
     except (ValueError, TypeError, OverflowError) as exc:
         return _error(value, str(exc))

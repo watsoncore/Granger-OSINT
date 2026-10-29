@@ -688,18 +688,6 @@ class OsintPanel(FramelessWindow):
         self.find.setText('Остановить')
         self.activity.show()
         self._set_phase('detecting')
-        if resolution.kind == 'dork' and not self._has_api():
-            self._emit_activity('thinking')
-            self._emit_activity('working')
-            opened = QDesktopServices.openUrl(QUrl(google_url(resolution.text)))
-            self._busy, self._accept_results = False, False
-            self.find.setText('Найти')
-            self.activity.hide()
-            self.phase = 'completed_empty' if opened else 'failed'
-            self.status.setText('Поиск открыт в браузере. API не настроен, поэтому фактическая выдача здесь недоступна.' if opened else 'Не удалось открыть браузер.')
-            self.empty.setText('Результаты находятся на странице Google.\nВстроенная выдача не загружалась.')
-            self._emit_activity('idle' if opened else 'error')
-            return
         options = self._search_options(resolution.kind)
         request = SearchQuery(resolution.text, kind=resolution.kind,
             limit=getattr(self.settings, 'request_limit', 20), timeout=getattr(self.settings, 'search_timeout', 25), options=options)
