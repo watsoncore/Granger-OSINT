@@ -210,6 +210,51 @@ def test_real_local_tesseract_english_and_russian_pixels(store, text, languages,
     assert result["coordinate_space"] == "exif_oriented_original_pixels"
 
 
+def test_real_blank_image_ocr_is_low_confidence_without_invented_text(store):
+    if not store._ocr_paths()[0]:
+        pytest.skip("Real Tesseract unavailable")
+    raw=io.BytesIO();Image.new("RGB",(500,180),"white").save(raw,"PNG")
+    identifier=store.import_bytes(raw.getvalue(),"blank.png")["id"]
+    result=store.ocr(identifier,("eng",))
+    assert result["status"]=="low_confidence" and result["confidence"]==0
+    assert result["text"]=="" and result["segments"]==[]
+    assert any("Низкая уверенность" in note for note in result["limitations"])
+    from grangerpet.geoint_tools import execute
+    from grangerpet.config import Settings
+    invocation=execute("image_ocr",identifier,settings=Settings(),store=store)
+    assert invocation["status"]=="partial" and len(invocation["results"])==1
+    assert invocation["results"][0]["details"]["status"]=="low_confidence"
+
+
+def test_real_ocr_applies_exif_orientation_before_recognizing_pixels(store):
+    if not store._ocr_paths()[0]:
+        pytest.skip("Real Tesseract unavailable")
+    original=Image.open(io.BytesIO(text_fixture("LONDON BRIDGE")))
+    rotated=original.rotate(90,expand=True);exif=Image.Exif();exif[274]=6
+    raw=io.BytesIO();rotated.save(raw,"JPEG",exif=exif)
+    identifier=store.import_bytes(raw.getvalue(),"orientation.jpg")["id"]
+    result=store.ocr(identifier,("eng",))
+    assert result["status"]=="completed" and "LONDON" in result["text"].upper()
+    assert (result["width"],result["height"])==original.size
+    assert result["orientation"]["automatic_rotation_without_exif"] is False
+
+
+def test_real_ocr_uses_installed_subset_of_requested_language_packages(store,tmp_path):
+    executable,tessdata=store._ocr_paths()
+    if not executable or not tessdata:
+        pytest.skip("Bundled Tesseract data unavailable")
+    import shutil
+    selected=tmp_path/"selected-languages";selected.mkdir();(selected/"configs").mkdir()
+    shutil.copy2(Path(tessdata)/"eng.traineddata",selected/"eng.traineddata")
+    shutil.copy2(Path(tessdata)/"configs/tsv",selected/"configs/tsv")
+    store.tesseract=str(executable);store.tessdata=str(selected)
+    identifier=store.import_bytes(text_fixture("LONDON BRIDGE"),"languages.png")["id"]
+    result=store.ocr(identifier,("rus","eng"))
+    assert result["languages"]==["eng"] and result["requested_languages"]==["rus","eng"]
+    assert "LONDON" in result["text"].upper() and result["status"]=="completed"
+    assert any("Недоступные" in note for note in result["limitations"])
+
+
 def test_damaged_exif_does_not_invent_gps(store):
     result = store.analyze(store.import_bytes(image_bytes("JPEG", b"Exif\x00\x00BROKEN"), "bad-exif.jpg")["id"])
     assert result["metadata"]["gps"] is None

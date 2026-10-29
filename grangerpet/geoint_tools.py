@@ -33,7 +33,7 @@ def execute(tool,value,*,settings,store=None,maps=None,cancel_event=None,deadlin
                 timeout=max(.1,min(30,deadline-time.monotonic())) if deadline else 30
                 data=store.ocr(value,cancel_event=cancel_event,timeout=timeout)
         else: data=(maps or mapping_client(settings)).execute(tool,value,cancel_event=cancel_event)
-        if data.get('status') not in ('complete','completed'):
+        if data.get('status') not in ('complete','completed','low_confidence'):
             return _envelope(tool,value,status=data.get('status','unavailable'),error_code=data.get('error_code'),limitations=data.get('limitations'))
         local=tool.startswith('image_')
         url='' if local else 'https://commons.wikimedia.org/' if tool=='map_wikimedia' else 'https://www.openstreetmap.org/'
@@ -43,7 +43,7 @@ def execute(tool,value,*,settings,store=None,maps=None,cancel_event=None,deadlin
         row={'id':tool+':'+value,'type':'image_analysis' if local else 'map', 'platform':'Local GEOINT' if local else 'Wikimedia Commons' if tool=='map_wikimedia' else 'OpenStreetMap',
             'title':title,'url':url,'description':data.get('text','')[:2000] or title,
             'details':{**data,'acquisition':'local_tool' if local else 'official_api'},'status':'metadata','sources':[tool]}
-        return _envelope(tool,value,results=[row],limitations=data.get('limitations',[]))
+        return _envelope(tool,value,results=[row],status='partial' if data.get('status')=='low_confidence' else 'complete',limitations=data.get('limitations',[]))
     except GeointError as exc:
         status={'cancelled':'cancelled','timeout':'timeout','rate_limited':'rate_limited','forbidden':'blocked','endpoint_required':'unavailable'}.get(exc.code,'error')
         return _envelope(tool,value,status=status,error_code=exc.code,limitations=[str(exc)])

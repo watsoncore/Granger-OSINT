@@ -347,16 +347,18 @@ class AttachmentStore:
                     "limitations": ["Для OCR нужен локальный Tesseract и модели rus/eng. Распознавание не выполнялось."]}
         if not isinstance(languages, (list, tuple)) or not languages or any(v not in ("rus", "eng") for v in languages):
             raise GeointError("invalid_language", "OCR поддерживает только выбранные модели rus и eng.")
-        languages = tuple(dict.fromkeys(languages))
-        if tessdata is not None and any(not (Path(tessdata) / (lang + ".traineddata")).is_file() for lang in languages):
+        requested_languages = tuple(dict.fromkeys(languages))
+        languages = tuple(lang for lang in requested_languages if tessdata is None or (Path(tessdata) / (lang + ".traineddata")).is_file())
+        if not languages:
             return {"tool": "image_ocr", "status": "configuration_required", "error_code": "ocr_language_missing",
-                    "attachment_id": identifier, "segments": [], "text": "", "languages": list(languages),
-                    "limitations": ["Нет одной из выбранных языковых моделей Tesseract; OCR не запускался."]}
+                    "attachment_id": identifier, "segments": [], "text": "", "languages": [],
+                    "limitations": ["Нет ни одной выбранной языковой модели Tesseract; OCR не запускался."]}
         image = _decode(data, cancel_event)
         try:
             oriented = ImageOps.exif_transpose(image).convert("RGB")
             source_width, source_height = oriented.size
             oriented.thumbnail((3000, 3000), Image.Resampling.LANCZOS)
+            oriented = ImageOps.autocontrast(ImageOps.grayscale(oriented))
             buffer = io.BytesIO()
             # Strip metadata before OCR. Input and TSV travel via anonymous pipes;
             # there are no decrypted temporary pictures or result files.
@@ -405,12 +407,22 @@ class AttachmentStore:
                 raise GeointError("ocr_output_limit", "Результат OCR превышает безопасный размер.")
             scale_x, scale_y = source_width / oriented.width, source_height / oriented.height
             segments = parse_tsv(output.decode("utf-8", "replace"), scale_x, scale_y)
-            return {"tool": "image_ocr", "status": "completed", "attachment_id": identifier,
+            confidence = sum(segment["confidence"] * len(segment["text"]) for segment in segments) / max(1, sum(len(segment["text"]) for segment in segments))
+            low_confidence = not segments or confidence < .6
+            limitations = ["OCR может ошибаться; confidence — оценка распознавателя, а не подтверждение содержания."]
+            if requested_languages != languages:
+                limitations.append("Недоступные языковые пакеты исключены; использованы только установленные модели: " + ", ".join(languages) + ".")
+            if low_confidence:
+                limitations.append("Низкая уверенность OCR. Исходные строки сохранены как неподтверждённые; попробуйте более чёткое изображение или другой язык распознавания.")
+            return {"tool": "image_ocr", "status": "low_confidence" if low_confidence else "completed", "attachment_id": identifier,
                     "languages": list(languages), "segments": segments,
+                    "requested_languages": list(requested_languages), "confidence": round(confidence, 4),
+                    "orientation": {"method": "EXIF transpose", "automatic_rotation_without_exif": False},
+                    "preprocessing": ["EXIF orientation", "bounded resize3000px", "grayscale", "autocontrast"],
                     "text": " ".join(segment["text"] for segment in segments)[:20000],
                     "coordinate_space": "exif_oriented_original_pixels", "width": source_width, "height": source_height,
                     "duration_ms": round((time.monotonic() - begin) * 1000, 2),
-                    "limitations": ["OCR может ошибаться; confidence — оценка распознавателя, а не подтверждение содержания."]}
+                    "limitations": limitations}
         except OSError as exc:
             raise GeointError("ocr_launch_failed", "Не удалось запустить локальный Tesseract.") from exc
         finally:

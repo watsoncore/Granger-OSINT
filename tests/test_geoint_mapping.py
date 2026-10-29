@@ -4,17 +4,16 @@ import httpx
 import pytest
 
 from grangerpet.geoint.images import GeointError
-from grangerpet.geoint.mapping import MappingClient, coordinates, reverse_search_providers
+from grangerpet.geoint.mapping import MappingClient, coordinates, reverse_search_providers, DEFAULT_NOMINATIM, DEFAULT_OVERPASS
 
 
-def test_default_osm_endpoints_require_operator_configuration():
+def test_default_osm_endpoints_are_bounded_public_clients_without_key():
     client = MappingClient()
-    assert client.readiness("map_geocode")["state"] == "configuration_required"
-    assert client.readiness("map_overpass")["available"] is False
+    assert client.readiness("map_geocode")["state"] == "ready_local"
+    assert client.readiness("map_overpass")["available"] is True
     assert client.readiness("map_wikimedia")["state"] == "ready_local"
-    with pytest.raises(GeointError) as error:
-        client.execute("map_overpass", "51.5,-.125")
-    assert error.value.code == "endpoint_required"
+    assert client.nominatim_endpoint == DEFAULT_NOMINATIM
+    assert client.overpass_endpoint == DEFAULT_OVERPASS
 
 
 @pytest.mark.parametrize("value", ["nan,0", "1,inf", "91,0", "0,181", "0,0,0", "https://example.org", "1;DROP,2"])
@@ -71,6 +70,54 @@ def test_429_blocks_immediate_retry_without_another_request():
             client.execute("map_wikimedia", "51.5,-.125")
         assert error.value.code == "rate_limited"
     assert len(requests) == 1
+
+
+def test_geocoder_empty_config_uses_public_default_and_validates_actual_schema():
+    requests=[]
+    def handler(request):
+        requests.append(request)
+        assert request.url.host=="nominatim.openstreetmap.org"
+        assert request.url.params["limit"]=="5" and request.url.params["q"]=="London"
+        assert "Authorization" not in request.headers
+        return httpx.Response(200,json=[{"lat":"51.5","lon":"-.125","osm_type":"relation","osm_id":1,"display_name":"Fixture London"},
+            {"lat":"nan","lon":"-.125","osm_type":"node","osm_id":2,"display_name":"Invalid"}])
+    client=MappingClient(nominatim_endpoint="",transport=httpx.MockTransport(handler))
+    result=client.execute("map_geocode","London")
+    assert len(result["places"])==1 and result["places"][0]["latitude"]==51.5
+    assert result["usage_policy"].endswith("nominatim/") and "OpenStreetMap" in result["attribution"]
+    assert client.execute("map_geocode","London")["cached"] and len(requests)==1
+
+
+def test_hourly_public_geocoder_budget_blocks_before_network_but_cache_remains_available():
+    import time
+    requests=[]
+    client=MappingClient(transport=httpx.MockTransport(lambda request:(requests.append(request) or httpx.Response(200,json=[]))))
+    client.execute("map_geocode","London")
+    client._request_times["nominatim.openstreetmap.org"].extend([time.monotonic()]*29)
+    assert client.execute("map_geocode","London")["cached"]
+    with pytest.raises(GeointError) as error:
+        client.execute("map_geocode","Paris")
+    assert error.value.code=="rate_limited" and len(requests)==1
+
+
+def test_server_failure_sets_bounded_backoff_and_does_not_retry_blindly():
+    requests=[]
+    client=MappingClient(transport=httpx.MockTransport(lambda request:(requests.append(request) or httpx.Response(503))))
+    for code in ("service_unavailable","rate_limited"):
+        with pytest.raises(GeointError) as error:
+            client.execute("map_overpass","51.5,-.125")
+        assert error.value.code==code
+    assert len(requests)==1
+
+
+@pytest.mark.parametrize("tool,query,payload",[("map_geocode","London",[{"changed_schema":True}]),
+    ("map_overpass","51.5,-.125",{"elements":[{"changed_schema":True}]}),
+    ("map_wikimedia","51.5,-.125",{"query":{"geosearch":[{"changed_schema":True}]}})])
+def test_changed_nonempty_mapping_schema_is_an_error_not_a_fabricated_empty_success(tool,query,payload):
+    client=MappingClient(transport=httpx.MockTransport(lambda request:httpx.Response(200,json=payload)))
+    with pytest.raises(GeointError) as error:
+        client.execute(tool,query)
+    assert error.value.code=="invalid_response"
 
 
 def test_cancelled_geographic_lookup_never_calls_network():
