@@ -45,8 +45,12 @@ def test_launcher_button_starts_real_pet_and_close_leaves_it_running(tmp_path, m
         status = send_command("pet", "status", timeout=500)
         assert status["ok"] and status["running"]
         actual_pid = status["pid"]
-        launcher.refresh_status()
-        assert launcher.running
+        # A single short IPC poll may time out while the child initializes
+        # WebEngine. The launcher normally polls until its start deadline.
+        def launcher_confirms_running():
+            launcher.refresh_status()
+            return launcher.running
+        assert wait_until(launcher_confirms_running)
         assert launcher.process_state == 'running'
         assert not launcher.start_button.isEnabled()
         assert launcher.stop_button.isEnabled()
