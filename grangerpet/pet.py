@@ -100,7 +100,6 @@ class PetWindow(QWidget):
         self.cursor_timer = QTimer(self)
         self.cursor_timer.setInterval(85)
         self.cursor_timer.timeout.connect(self._poll_cursor)
-        self.cursor_timer.start()
         self.drag_timer = QTimer(self)
         self.drag_timer.setTimerType(Qt.TimerType.PreciseTimer)
         self.drag_timer.setInterval(12)
@@ -185,19 +184,27 @@ class PetWindow(QWidget):
             self._cache.clear()
             self._clamp_position()
         self.frame_timer.start(round(1000 / settings.fps))
-        if not settings.cursor_reaction:
-            self._near = self._over = False
-            self._aim_target = QPointF()
-            if not self._busy and not self._dragging:
-                self._sync_activity()
+        self._sync_cursor_polling()
         self.panel.set_settings(settings)
         self._draw_frame()
         if self.panel.isVisible():
             self._position_panel()
 
+    def _sync_cursor_polling(self):
+        if self.settings.cursor_reaction and not self._ending:
+            if not self.cursor_timer.isActive():
+                self.cursor_timer.start()
+        else:
+            self.cursor_timer.stop()
+            self._near = self._over = False
+            self._aim_target = QPointF()
+            if not self._busy and not self._dragging:
+                self._sync_activity()
+
     def _panel_settings_saved(self, settings):
         self.settings = settings
         self.notification.apply_settings(settings)
+        self._sync_cursor_polling()
 
     def notify(self, kind, message_id=None, *, index=None, conversation_id=None):
         """Notify only an actual completed reply, investigation or error."""
@@ -330,8 +337,12 @@ class PetWindow(QWidget):
 
     def notify_user_activity(self, *_):
         """Typing, a new reply or a user gesture interrupts local idle actions."""
+        previous_action = self.life.action
         self.life.notify_activity()
-        self._render_signature = None
+        # A stationary nearby cursor is activity too, but does not change a
+        # pose. Preserve the render guard unless an idle action was interrupted.
+        if self.life.action != previous_action:
+            self._render_signature = None
 
     def _restore_life_position(self):
         if self._life_home is not None:
@@ -407,7 +418,13 @@ class PetWindow(QWidget):
         self._transition_started = time.monotonic()
         self._render_signature = None
 
-    def _draw_frame(self):
+    def _draw_frame(self, *, force=False):
+        # Keep the animation/life clocks running while an owned modal suppresses
+        # this overlay, but do not build invisible images or native hit regions.
+        # Initial construction still prepares its first alpha mask before show.
+        if not force and not self.isVisible() and not self._rendered.isNull():
+            self._render_signature = None
+            return
         key = (self.animation.state, self.animation.frame, self.settings.size)
         life_pose = self.life.pose()
         use_life = life_pose.action and not self.physics.active and not self._dragging and (not self._busy or life_pose.action == 'return')
@@ -477,9 +494,19 @@ class PetWindow(QWidget):
         self._rendered = image
         # A real native window region makes every transparent pixel click-through,
         # even over windows belonging to other processes. Recomputed with animation.
-        self._region = QRegion(QBitmap.fromImage(image.createAlphaMask()))
-        self.setMask(self._region)
+        region = QRegion(QBitmap.fromImage(image.createAlphaMask()))
+        if region != self._region:
+            self._region = region
+            self.setMask(region)
         self.update()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        # A hidden overlay may have advanced to another frame/state. Render the
+        # current pose before presenting it again, without replaying old frames.
+        if hasattr(self, '_rendered'):
+            self._render_signature = None
+            self._draw_frame(force=True)
 
     def paintEvent(self, event):
         painter = QPainter(self)
