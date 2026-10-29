@@ -32,4 +32,10 @@ describe('real backend state', () => {
     expect(next.window.fullscreen).toBe(true)
     expect(next.window.maximized).toBe(false)
   })
+  it('preserves unchanged nested slice identities during a streaming patch', () => {
+    const previous = parseState({ messages: [{ id: 'm', role: 'model', text: 'Начало', streaming: true }] })
+    const next = parseState('{"message_updates":[{"index":0,"message":{"id":"m","role":"model","text":"Продолжение","streaming":true}}]}', previous)
+    for (const key of ['connection', 'search', 'canvas', 'launcher', 'hermione', 'window', 'activity', 'history', 'evidence', 'tools'] as const) expect(next[key]).toBe(previous[key])
+    expect(next.messages).not.toBe(previous.messages)
+  })
 })

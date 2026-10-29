@@ -84,6 +84,72 @@ def test_completed_manual_tool_is_published_after_running_snapshot(bridge):
     assert patches[-1]['activity'][0]['resultCount']==0
 
 
+def test_idle_bridge_does_not_rebuild_snapshots_on_a_poll_timer(bridge,monkeypatch):
+    snapshots=[]
+    original=bridge.snapshot
+    monkeypatch.setattr(bridge,'snapshot',lambda:(snapshots.append(True),original())[1])
+    bridge._flush.stop()
+    QTest.qWait(1450)
+    assert snapshots==[]
+
+
+def test_hidden_renderer_defers_updates_but_keeps_chat_and_archive_timer_running(bridge):
+    packets=[]
+    bridge.stateChanged.connect(lambda value:packets.append(json.loads(value)))
+    bridge.publish(force=True)
+    packets.clear()
+    bridge.set_publication_visible(False)
+    bridge.host.chat_widget._append('model','Finished while the renderer is hidden')
+    QTest.qWait(150)
+    assert packets==[] and not bridge._flush.isActive()
+    assert bridge.host.chat_widget._archive_timer.isActive()
+    assert bridge.host.chat_widget.messages[-1]['text']=='Finished while the renderer is hidden'
+    bridge.set_publication_visible(True)
+    QTest.qWait(150)
+    assert len(packets)==1 and packets[0]['patch'] is False
+    assert packets[0]['messages'][-1]['text']=='Finished while the renderer is hidden'
+
+
+def test_usage_read_cache_invalidates_after_a_real_committed_request(bridge,monkeypatch):
+    chat=bridge.host.chat_widget
+    calls=[]
+    ledger=chat._usage_ledger
+    original=ledger.snapshot
+    monkeypatch.setattr(ledger,'snapshot',lambda **values:(calls.append(values),original(**values))[1])
+    first=bridge.snapshot()['usage']['conversation']
+    for _ in range(3):assert bridge.snapshot()['usage']['conversation']==first
+    assert len(calls)==1
+    ledger.record_response({'usage':{'prompt_tokens':10,'completion_tokens':3,'total_tokens':13}},conversation_id=chat.conversation_id)
+    assert bridge.snapshot()['usage']['conversation']['total_tokens']==13
+    assert len(calls)==2
+
+
+def test_saved_history_title_is_published_without_periodic_polling(bridge):
+    packets=[]
+    bridge.stateChanged.connect(lambda value:packets.append(json.loads(value)))
+    assert bridge.snapshot()['history']==[]
+    bridge.host.chat_widget._append('user','Новый сохранённый разговор')
+    QTest.qWait(1000)
+    assert bridge.snapshot()['history'][0]['title']=='Новый сохранённый разговор'
+    assert any(row.get('history',[{}])[0].get('title')=='Новый сохранённый разговор' for row in packets if row.get('history'))
+
+
+def test_controller_progress_and_window_activation_are_event_driven(bridge):
+    bridge._flush.stop()
+    bridge.host.controller.search_event.emit(1,'progress',(1,3))
+    assert bridge._flush.isActive()
+    bridge._flush.stop()
+    bridge.host.show()
+    QApplication.instance().processEvents()
+    assert bridge._publication_enabled and bridge._flush.isActive()
+    bridge.host.showMinimized()
+    QApplication.instance().processEvents()
+    assert not bridge._publication_enabled and not bridge._flush.isActive()
+    bridge.host.showNormal()
+    QApplication.instance().processEvents()
+    assert bridge._publication_enabled
+
+
 def test_asset_origin_cannot_escape_bundle_or_load_remote_content(tmp_path):
     (tmp_path/'index.html').write_text('<html/>')
     assert bundled_url(QUrl('granger://app/index.html'),tmp_path)

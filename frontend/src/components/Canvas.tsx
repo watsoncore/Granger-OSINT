@@ -29,7 +29,19 @@ export function CanvasWorkspace({ state }: { state: DesktopState }) {
       documentId.current = state.canvas.id; setText(state.canvas.text); textRef.current = state.canvas.text
     }
   }, [state.canvas.id, state.canvas.text])
-  useEffect(() => () => { if (timer.current) { clearTimeout(timer.current); void act('canvas_edit', { text: textRef.current, document_id: documentId.current }) } }, [])
+  useEffect(() => {
+    const flushPending = () => {
+      if (!timer.current) return
+      clearTimeout(timer.current); timer.current = undefined
+      void act('canvas_edit', { text: textRef.current, document_id: documentId.current })
+    }
+    const hide = () => { if (document.hidden) flushPending() }
+    // Hand pending edits to the Python controller before Qt freezes this page.
+    // The native save timer keeps running while renderer timers are paused.
+    document.addEventListener('visibilitychange', hide)
+    document.addEventListener('freeze', flushPending)
+    return () => { document.removeEventListener('visibilitychange', hide); document.removeEventListener('freeze', flushPending); flushPending() }
+  }, [])
   const change = (value: string) => { setText(value); textRef.current = value; if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(() => { timer.current = undefined; void act('canvas_edit', { text: value, document_id: documentId.current }) }, 350) }
   const flush = async () => { if (timer.current) { clearTimeout(timer.current); timer.current = undefined }; return act('canvas_edit', { text: textRef.current, document_id: documentId.current }) }
   if (!state.canvas.id && !state.canvas.text) return <EmptyState icon={<FileText size={30}/>} title="Отдельное пространство для выводов">Откройте ответ Гермионы в Canvas: редактируйте Markdown, проверяйте структуру и сохраняйте документ.</EmptyState>

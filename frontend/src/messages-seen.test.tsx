@@ -43,6 +43,33 @@ describe('unread acknowledgement from visible content', () => {
     expect(observe).not.toHaveBeenCalled()
     expect(act).not.toHaveBeenCalled()
   })
+  it('retains the observer and does no old-row DOM lookups for streaming updates', () => {
+    const messages = Array.from({ length: 100 }, (_, index) => ({ id: `m${index}`, role: 'model' as const, text: `Ответ ${index}` }))
+    const streaming = { id: 'stream', role: 'model' as const, text: 'Начало', streaming: true }
+    const state = { ...emptyState, conversation_id: 'conversation', window: { ...emptyState.window, active: true }, messages: [...messages, streaming] }
+    const { container, rerender, unmount } = render(<Tooltip.Provider><Chat {...props} state={state}/></Tooltip.Provider>)
+    expect(observe).toHaveBeenCalledTimes(100)
+    const scroll = container.querySelector('.chat-scroll')!
+    const queries = vi.spyOn(scroll, 'querySelector')
+    rerender(<Tooltip.Provider><Chat {...props} state={{ ...state, messages: [...messages, { ...streaming, text: 'Продолжение' }] }}/></Tooltip.Provider>)
+    expect(queries).not.toHaveBeenCalled()
+    expect(observe).toHaveBeenCalledTimes(100)
+    expect(disconnect).not.toHaveBeenCalled()
+    rerender(<Tooltip.Provider><Chat {...props} state={{ ...state, messages: [...messages, { ...streaming, text: 'Готово', streaming: false }] }}/></Tooltip.Provider>)
+    expect(observe).toHaveBeenCalledTimes(101)
+    unmount()
+    expect(disconnect).toHaveBeenCalledOnce()
+  })
+  it('disconnects when deactivated and restores visibility tracking once on reactivation', () => {
+    const state = { ...emptyState, conversation_id: 'conversation', window: { ...emptyState.window, active: true }, messages: [{ id: 'm1', role: 'model' as const, text: 'Ответ' }] }
+    const { rerender, unmount } = render(<Tooltip.Provider><Chat {...props} state={state}/></Tooltip.Provider>)
+    rerender(<Tooltip.Provider><Chat {...props} state={{ ...state, window: { ...state.window, active: false } }}/></Tooltip.Provider>)
+    expect(disconnect).toHaveBeenCalledOnce()
+    rerender(<Tooltip.Provider><Chat {...props} state={state}/></Tooltip.Provider>)
+    expect(observe).toHaveBeenCalledTimes(2)
+    unmount()
+    expect(disconnect).toHaveBeenCalledTimes(2)
+  })
   it('acknowledges a visible final error status and never observes user or streaming status messages', async () => {
     const state = { ...emptyState, conversation_id: 'conversation', window: { ...emptyState.window, active: true }, messages: [{ id: 'error-1', role: 'status' as const, text: 'Провайдер не ответил.' }, { id: 'status-stream', role: 'status' as const, text: 'Выполняется', streaming: true }, { id: 'user-1', role: 'user' as const, text: 'Вопрос' }] }
     const { container } = render(<Tooltip.Provider><Chat {...props} state={state}/></Tooltip.Provider>)

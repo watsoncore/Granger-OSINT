@@ -9,7 +9,7 @@ from pathlib import Path
 import sys
 import mimetypes
 
-from PySide6.QtCore import QUrl, Qt, QFile, QIODevice
+from PySide6.QtCore import QEvent, QTimer, QUrl, Qt, QFile, QIODevice
 from PySide6.QtWebChannel import QWebChannel
 from PySide6.QtWebEngineCore import (QWebEnginePage, QWebEngineProfile, QWebEngineSettings,
     QWebEngineUrlRequestInterceptor, QWebEngineUrlScheme, QWebEngineUrlSchemeHandler, QWebEngineUrlRequestJob)
@@ -92,6 +92,13 @@ class TrustedPage(QWebEnginePage):
 class DesktopSurface(QWebEngineView):
     def __init__(self,host,surface='main'):
         super().__init__(host)
+        self.host = host
+        self._closing = False
+        self._renderer_visible = False
+        self._freeze_timer = QTimer(self)
+        self._freeze_timer.setSingleShot(True)
+        self._freeze_timer.setInterval(500)
+        self._freeze_timer.timeout.connect(self._freeze_hidden_page)
         self.setObjectName('DesktopSurface')
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
         self.root=frontend_directory()
@@ -122,6 +129,9 @@ class DesktopSurface(QWebEngineView):
         settings.setAttribute(QWebEngineSettings.WebAttribute.JavascriptEnabled,True)
         self.trusted_page.permissionRequested.connect(self._deny_permission)
         self.bridge=DesktopBridge(host,surface)
+        self.bridge.rendererReady.connect(lambda:QTimer.singleShot(0,self._sync_visibility))
+        host.installEventFilter(self)
+        self.trusted_page.recommendedStateChanged.connect(self._apply_lifecycle)
         self.qa_last_response={}
         self.bridge.response.connect(self._qa_response)
         self.channel=QWebChannel(self.trusted_page)
@@ -130,8 +140,49 @@ class DesktopSurface(QWebEngineView):
         url=QUrl('granger://app/index.html')
         url.setQuery('surface='+surface)
         self.setUrl(url)
+        QTimer.singleShot(0,self._sync_visibility)
 
-    def _load_finished(self,ok): self.load_ok=bool(ok)
+    def _load_finished(self,ok):
+        self.load_ok=bool(ok)
+        self._sync_visibility()
+
+    def eventFilter(self,watched,event):
+        if watched is self.host and event.type() in (QEvent.Type.Show,QEvent.Type.Hide,QEvent.Type.WindowStateChange):
+            QTimer.singleShot(0,self._sync_visibility)
+        return super().eventFilter(watched,event)
+
+    def _sync_visibility(self):
+        if self._closing:return
+        visible=bool(self.host.isVisible() and not self.host.isMinimized() and self.isVisible())
+        self._renderer_visible=visible
+        if visible:
+            self.trusted_page.setLifecycleState(QWebEnginePage.LifecycleState.Active)
+        self.trusted_page.setVisible(visible)
+        self.bridge.set_publication_visible(visible)
+        self._apply_lifecycle()
+
+    def _apply_lifecycle(self,*_):
+        if self._closing:return
+        page=self.trusted_page
+        active=QWebEnginePage.LifecycleState.Active
+        # Qt's recommendation protects loading/media/active pages. Freezing
+        # pauses only this local page's JS/timers, retaining DOM and drafts.
+        # Never discard: discard would reload and lose unsent renderer state.
+        target=active if not self.bridge.ui_ready or self._renderer_visible or page.isVisible() or page.recommendedState()==active else QWebEnginePage.LifecycleState.Frozen
+        if target==active:
+            self._freeze_timer.stop()
+            if page.lifecycleState()!=active:page.setLifecycleState(active)
+        elif page.lifecycleState()!=target and not self._freeze_timer.isActive():
+            # Deliver visibilitychange/freeze and pending Canvas edits before
+            # suspending the renderer's task queues. Restore cancels this grace.
+            self._freeze_timer.start()
+
+    def _freeze_hidden_page(self):
+        if self._closing:return
+        page=self.trusted_page
+        if (self.bridge.ui_ready and not self._renderer_visible and not page.isVisible()
+                and page.recommendedState()!=QWebEnginePage.LifecycleState.Active):
+            page.setLifecycleState(QWebEnginePage.LifecycleState.Frozen)
 
     def _qa_response(self,identifier,value):
         if identifier=='qa' and '--interaction-qa' in sys.argv:
@@ -146,6 +197,10 @@ class DesktopSurface(QWebEngineView):
     def _deny_permission(permission): permission.deny()
 
     def shutdown(self):
+        if self._closing:return
+        self._closing=True
+        self._freeze_timer.stop()
+        self.host.removeEventFilter(self)
         self.bridge.shutdown()
         self.stop()
         self.trusted_page.setWebChannel(None)

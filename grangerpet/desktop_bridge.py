@@ -14,7 +14,7 @@ from pathlib import Path
 import time
 from urllib.parse import urlsplit
 
-from PySide6.QtCore import QObject, QRect, QTimer, Signal, Slot
+from PySide6.QtCore import QEvent, QObject, QRect, QTimer, Signal, Slot
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtCore import QUrl
 from PySide6.QtWidgets import QApplication, QMessageBox, QDialog, QFileDialog
@@ -72,6 +72,7 @@ class DesktopBridge(QObject):
     response = Signal(str, str)
     stateChanged = Signal(str)
     toolProgress = Signal(object)
+    rendererReady = Signal()
 
     def __init__(self, host, surface='main'):
         super().__init__(host)
@@ -100,8 +101,14 @@ class DesktopBridge(QObject):
         self._sources_view = []
         self._search_sources_view = []
         self._history_cache = []
-        self._history_time = 0
+        self._history_key = None
+        self._usage_cache_key = None
+        self._usage_cache = ({}, {})
         self._dock_rect = QRect()
+        self._publication_enabled = True
+        self._force_next = False
+        self._closed = False
+        self._launcher_fingerprint = None
         self.ui_ready = False
         self._key = resolve_deepseek_key()
         self._load_credential_flags()
@@ -110,19 +117,26 @@ class DesktopBridge(QObject):
         self._flush.setSingleShot(True)
         self._flush.setInterval(80)
         self._flush.timeout.connect(self.publish)
-        self._poll = QTimer(self)
-        self._poll.setInterval(650)
-        self._poll.timeout.connect(self.mark_dirty)
-        self._poll.start()
+        # State already arrives through Qt signals. Rebuilding the entire
+        # conversation/usage snapshot on an idle650ms timer did needless work,
+        # including while the WebEngine view was hidden.
+        host.installEventFilter(self)
         if surface=='main':
             chat = host.chat_widget
             chat.state_changed.connect(self.mark_dirty)
             chat.busy_changed.connect(self.mark_dirty)
             chat.turn_completed.connect(self.mark_dirty)
+            chat._archive_timer.timeout.connect(self.mark_dirty)
             host.ai_state.changed.connect(self._connection_changed)
             host.result_model.dataChanged.connect(self.mark_dirty)
             host.result_model.rowsInserted.connect(self.mark_dirty)
             host.result_model.modelReset.connect(self.mark_dirty)
+            host.search_state.connect(self.mark_dirty)
+            host.controller.search_event.connect(self.mark_dirty)
+        elif hasattr(host, 'poll_timer'):
+            # The launcher still needs its existing IPC poll for an independent
+            # Pet. Only a real status change needs a renderer update.
+            host.poll_timer.timeout.connect(self._launcher_changed)
 
     def _connection_changed(self, *_):
         self._key = resolve_deepseek_key()
@@ -141,7 +155,53 @@ class DesktopBridge(QObject):
                     self._secret_redactions.add(value)
 
     def mark_dirty(self, *_):
-        if not self._flush.isActive(): self._flush.start()
+        if not self._closed and self._publication_enabled and not self._flush.isActive(): self._flush.start()
+
+    def set_publication_visible(self, visible):
+        """Suspend only renderer work; Python requests and archive writes run on."""
+        visible = bool(visible)
+        if self._closed or visible == self._publication_enabled:
+            return
+        self._publication_enabled = visible
+        if not visible:
+            self._flush.stop()
+        else:
+            self._force_next = True
+            self.mark_dirty()
+
+    def eventFilter(self, watched, event):
+        if watched is self.host and event.type() in (QEvent.Type.Show, QEvent.Type.Hide,
+                QEvent.Type.WindowStateChange, QEvent.Type.ActivationChange):
+            self.set_publication_visible(self.host.isVisible() and not self.host.isMinimized())
+            self.mark_dirty()
+        return super().eventFilter(watched, event)
+
+    def _launcher_changed(self):
+        signature = (self.host.running, self.host.process_state, self.host.status.text(),
+            self.host.settings.size, self.host.settings.fps, self.host.settings.cursor_reaction)
+        if signature != self._launcher_fingerprint:
+            self._launcher_fingerprint = signature
+            self.mark_dirty()
+
+    def _usage(self, chat):
+        ledger = chat._usage_ledger
+        if ledger is None:
+            return {}, {}
+        # The SQLite ledger is written by Python workers. Its committed file
+        # fingerprint invalidates this read cache without reopening/querying
+        # the database for every streaming token or window activation.
+        try:
+            stamp = ledger.path.stat()
+            fingerprint = (stamp.st_mtime_ns, stamp.st_size)
+        except OSError:
+            fingerprint = None
+        key = (id(ledger), fingerprint, chat.conversation_id, chat._last_investigation.get('id'))
+        if key != self._usage_cache_key:
+            conversation = ledger.snapshot(conversation_id=chat.conversation_id)
+            investigation = ledger.snapshot(investigation_id=key[-1]) if key[-1] else {}
+            self._usage_cache_key = key
+            self._usage_cache = conversation, investigation
+        return self._usage_cache
 
     def _json(self, value):
         raw = json.dumps(value, ensure_ascii=False, separators=(',', ':'), default=str)
@@ -151,9 +211,16 @@ class DesktopBridge(QObject):
 
     def _history(self):
         chat = self.host.chat_widget
-        if chat._library and time.monotonic()-self._history_time>2:
+        if not chat._library:return []
+        try:
+            stamp=chat._archive.path.stat()
+            fingerprint=(stamp.st_mtime_ns,stamp.st_size)
+        except OSError:
+            fingerprint=None
+        key=(chat.conversation_id,fingerprint)
+        if key!=self._history_key:
             self._history_cache = chat._library.list()
-            self._history_time = time.monotonic()
+            self._history_key=key
         return self._history_cache
 
     def _sources(self):
@@ -242,9 +309,7 @@ class DesktopBridge(QObject):
             value['sources'] = [by_id[i] for i in row.get('evidence_ids',[]) if i in by_id]
             messages.append(value)
         canvas = self.host.canvas
-        usage = chat._usage_ledger
-        conversation_usage = usage.snapshot(conversation_id=chat.conversation_id) if usage else {}
-        investigation_usage = usage.snapshot(investigation_id=chat._last_investigation.get('id')) if usage and chat._last_investigation.get('id') else {}
+        conversation_usage, investigation_usage = self._usage(chat)
         balance=self._balance.snapshot() if settings.ai_provider=='deepseek' else {
             'status':'not_supported','amount':None,'message':'Баланс доступен только для подключённого шлюза DeepSeek.'}
         investigation = {key:value for key,value in chat._last_investigation.items() if key not in ('evidence','executions','messages')}
@@ -286,6 +351,10 @@ class DesktopBridge(QObject):
         return base
 
     def publish(self, *, force=False):
+        if self._closed or not self._publication_enabled and not force:
+            return
+        force = force or self._force_next
+        self._force_next = False
         try: state = self.snapshot()
         except RuntimeError: return
         messages = state.pop('messages', None)
@@ -326,6 +395,7 @@ class DesktopBridge(QObject):
             if payload.get('surface') != self.surface: raise ValueError('Некорректная поверхность.')
             if not self.ui_ready:
                 self.ui_ready=True
+                self.rendererReady.emit()
                 logging.getLogger('grangerpet.desktop').info('Desktop surface ready: %s',self.surface)
                 if self.surface=='main':
                     QTimer.singleShot(0,self._refresh_tools)
@@ -660,7 +730,10 @@ class DesktopBridge(QObject):
         job.done.connect(done); job.start()
 
     def shutdown(self):
-        self._poll.stop(); self._flush.stop()
+        if self._closed:return
+        self._closed = True
+        self._flush.stop()
+        self.host.removeEventFilter(self)
         for job in (self._tools_job,self._balance_job,self._models_job):
             if job: job.cancel();job.deleteLater()
         self._tools_job=None;self._balance_job=None

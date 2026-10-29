@@ -169,12 +169,12 @@ export function parseState(raw: string | Partial<DesktopState>, previous = empty
   if (Number.isInteger(patch.message_count) && patch.message_count! >= 0 && patch.message_count! < messages.length) messages = messages.slice(0, patch.message_count)
   return {
     ...previous, ...value,
-    connection: { ...previous.connection, ...value.connection },
-    search: { ...previous.search, ...value.search },
-    canvas: { ...previous.canvas, ...value.canvas },
-    launcher: { ...previous.launcher, ...value.launcher },
-    hermione: { ...previous.hermione, ...value.hermione },
-    window: { ...previous.window, ...value.window }, messages,
+    connection: value.connection ? { ...previous.connection, ...value.connection } : previous.connection,
+    search: value.search ? { ...previous.search, ...value.search } : previous.search,
+    canvas: value.canvas ? { ...previous.canvas, ...value.canvas } : previous.canvas,
+    launcher: value.launcher ? { ...previous.launcher, ...value.launcher } : previous.launcher,
+    hermione: value.hermione ? { ...previous.hermione, ...value.hermione } : previous.hermione,
+    window: value.window ? { ...previous.window, ...value.window } : previous.window, messages,
     activity: Array.isArray(value.activity) ? value.activity : previous.activity,
     history: Array.isArray(value.history) ? value.history : previous.history,
     evidence: Array.isArray(value.evidence) ? value.evidence : previous.evidence,

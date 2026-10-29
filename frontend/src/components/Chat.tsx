@@ -33,17 +33,56 @@ export function Chat({ state, draft, setDraft, onSource, onRoute }: { state: Des
   const [away, setAway] = useState(false)
   const [sending, setSending] = useState(false)
   const seenIds = useRef(new Set<string>())
+  const seenConversation = useRef(state.conversation_id)
+  const visibility = useRef<{ observer: IntersectionObserver; elements: Map<string, Element> } | null>(null)
+  const observedRows = useRef<Message[]>([])
   useEffect(() => {
-    if (!state.window.active || state.route !== 'chat' || !state.conversation_id || !scroll.current) return
-    const observer = new IntersectionObserver(entries => {
-      const ids = entries.filter(entry => entry.isIntersecting).map(entry => (entry.target as HTMLElement).dataset.messageId!).filter(id => !seenIds.current.has(`${state.conversation_id}:${id}`))
-      if (ids.length) void act('messages_seen', { conversation_id: state.conversation_id, message_ids: ids }).then(result => { if (result !== null) ids.forEach(id => seenIds.current.add(`${state.conversation_id}:${id}`)) })
-    }, { root: scroll.current, rootMargin: '-32px 0px', threshold: 0 })
-    for (const message of state.messages) if ((message.role === 'model' || message.role === 'status') && !message.streaming) {
-      const element = scroll.current.querySelector(`[data-message-id="${CSS.escape(message.id)}"]`)
-      if (element) observer.observe(element)
+    if (seenConversation.current !== state.conversation_id) {
+      seenIds.current.clear()
+      seenConversation.current = state.conversation_id
     }
-    return () => observer.disconnect()
+    if (!state.window.active || state.route !== 'chat' || !state.conversation_id || !scroll.current) return
+    const conversation = state.conversation_id
+    const pending = new Set<string>()
+    const elements = new Map<string, Element>()
+    const observer = new IntersectionObserver(entries => {
+      const ids = entries.filter(entry => entry.isIntersecting).map(entry => (entry.target as HTMLElement).dataset.messageId!).filter(id => elements.has(id) && !pending.has(id) && !seenIds.current.has(`${conversation}:${id}`))
+      if (ids.length) {
+        ids.forEach(id => pending.add(id))
+        void act('messages_seen', { conversation_id: conversation, message_ids: ids }).then(result => {
+          if (result !== null && result !== false) ids.forEach(id => {
+            if (seenConversation.current === conversation) seenIds.current.add(`${conversation}:${id}`)
+            const element = elements.get(id)
+            if (element) observer.unobserve(element)
+            elements.delete(id)
+          })
+        }).finally(() => ids.forEach(id => pending.delete(id)))
+      }
+    }, { root: scroll.current, rootMargin: '-32px 0px', threshold: 0 })
+    visibility.current = { observer, elements }
+    observedRows.current = []
+    return () => { observer.disconnect(); elements.clear(); visibility.current = null; observedRows.current = [] }
+  }, [state.window.active, state.route, state.conversation_id])
+  useEffect(() => {
+    const current = visibility.current
+    if (!current || !scroll.current) return
+    const remove = (id: string) => { const element = current.elements.get(id); if (element) current.observer.unobserve(element); current.elements.delete(id) }
+    // A streaming delta preserves old message identities. Only changed/new
+    // rows need DOM lookup; retain one observer instead of rescanning and
+    // re-observing the whole transcript for every token batch.
+    state.messages.forEach((message, index) => {
+      const previous = observedRows.current[index]
+      if (message === previous) return
+      if (previous && previous.id !== message.id) remove(previous.id)
+      if ((message.role === 'model' || message.role === 'status') && !message.streaming) {
+        if (!current.elements.has(message.id) && !seenIds.current.has(`${state.conversation_id}:${message.id}`)) {
+          const element = scroll.current!.querySelector(`[data-message-id="${CSS.escape(message.id)}"]`)
+          if (element) { current.elements.set(message.id, element); current.observer.observe(element) }
+        }
+      } else remove(message.id)
+    })
+    observedRows.current.slice(state.messages.length).forEach(message => remove(message.id))
+    observedRows.current = state.messages
   }, [state.window.active, state.route, state.conversation_id, state.messages])
   const lastModel = state.messages.findLast(item => item.role === 'model')?.id
   const end = state.messages.at(-1)
@@ -68,5 +107,5 @@ export function Chat({ state, draft, setDraft, onSource, onRoute }: { state: Des
     if (result !== null) setDraft('')
     setSending(false)
   }
-  return <div className="chat-workspace"><div className="chat-scroll" ref={scroll} onScroll={() => { const el = scroll.current; if (el) { pinned.current = el.scrollHeight - el.scrollTop - el.clientHeight < 90; setAway(!pinned.current) } }}><div className="conversation">{!state.messages.length ? <div className="chat-welcome"><span className="eyebrow">ВАШЕ ИССЛЕДОВАНИЕ НАЧИНАЕТСЯ ЗДЕСЬ</span><h1>Давайте разберёмся.</h1><p>Гермиона поможет проверить открытые сведения,<br className="wide-only"/> сопоставить источники и увидеть главное.</p><div className="welcome-actions"><button onClick={() => { setDraft('Гермиона, помоги составить план исследования по открытым источникам.'); textarea.current?.focus() }}><FileText size={17}/><span>Составить план<small>С чего начать исследование</small></span></button><button onClick={() => onRoute('search')}><Search size={17}/><span>Проверить сведения<small>Открыть OSINT-инструменты</small></span></button></div>{!state.connection.canSend && <div className="connect-hint"><span className="status-dot"/>Настройте подключение к ИИ, чтобы начать диалог.<button onClick={() => onRoute('settings')}>Настроить</button></div>}</div> : state.messages.map(message => <MessageRow key={message.id} message={message} lastModel={message.id === lastModel} busy={state.busy} onSource={onSource}/>)}<ActivityBlock activity={state.activity} busy={state.busy}/>{state.investigation.canResume && !state.busy && <div className="resume-card"><div><strong>Исследование можно продолжить</strong><p>{state.investigation.stop_reason || 'План и собранные доказательства сохранены.'}</p></div><Button variant="secondary" size="sm" onClick={() => void act('investigation_continue')}>Продолжить<ArrowUp size={13}/></Button></div>}</div></div><AnimatePresence>{away && <motion.div className="jump-latest" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><Button variant="secondary" size="sm" onClick={() => { pinned.current = true; setAway(false); scroll.current?.scrollTo({ top: scroll.current.scrollHeight, behavior: 'smooth' }) }}><ArrowDown size={14}/>К последнему сообщению</Button></motion.div>}</AnimatePresence><div className="composer-zone">{state.archiveError && <div className="notice-inline notice-error" role="alert">{state.archiveError}</div>}<div className="composer"><textarea ref={textarea} value={draft} onChange={event => setDraft(event.target.value)} placeholder="Спросите Гермиону или опишите задачу…" aria-label="Сообщение Гермионе" rows={1} disabled={sending} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send() } }}/><div className="composer-bottom"><span className="composer-provider"><span className={`status-dot ${state.connection.status === 'connected' ? 'is-connected' : ''}`}/>{state.connection.model || 'ИИ не подключён'}</span>{state.busy ? <IconButton label="Остановить ответ" className="send-button stop-button" onClick={() => void act('chat_stop')}><Square size={15} fill="currentColor"/></IconButton> : <IconButton label="Отправить сообщение" className="send-button" disabled={!draft.trim() || !state.connection.canSend || sending} onClick={() => void send()}>{sending ? <LoaderCircle size={17} className="spin"/> : <ArrowUp size={18}/>}</IconButton>}</div></div><div className="composer-caption"><span>Enter — отправить<span className="caption-divider">·</span>Shift+Enter — новая строка</span><span>Проверяйте важные сведения</span></div></div></div>
+  return <div className="chat-workspace"><div className="chat-scroll" ref={scroll} onScroll={() => { const el = scroll.current; if (el) { pinned.current = el.scrollHeight - el.scrollTop - el.clientHeight < 90; setAway(!pinned.current) } }}><div className="conversation">{!state.messages.length ? <div className="chat-welcome"><span className="eyebrow">ВАШЕ ИССЛЕДОВАНИЕ НАЧИНАЕТСЯ ЗДЕСЬ</span><h1>Давайте разберёмся.</h1><p>Гермиона поможет проверить открытые сведения,<br className="wide-only"/> сопоставить источники и увидеть главное.</p><div className="welcome-actions"><button onClick={() => { setDraft('Гермиона, помоги составить план исследования по открытым источникам.'); textarea.current?.focus() }}><FileText size={17}/><span>Составить план<small>С чего начать исследование</small></span></button><button onClick={() => onRoute('search')}><Search size={17}/><span>Проверить сведения<small>Открыть OSINT-инструменты</small></span></button></div>{!state.connection.canSend && <div className="connect-hint"><span className="status-dot"/>Настройте подключение к ИИ, чтобы начать диалог.<button onClick={() => onRoute('settings')}>Настроить</button></div>}</div> : state.messages.map(message => <MessageRow key={message.id} message={message} lastModel={message.id === lastModel} busy={message.id === lastModel && state.busy} onSource={onSource}/>)}<ActivityBlock activity={state.activity} busy={state.busy}/>{state.investigation.canResume && !state.busy && <div className="resume-card"><div><strong>Исследование можно продолжить</strong><p>{state.investigation.stop_reason || 'План и собранные доказательства сохранены.'}</p></div><Button variant="secondary" size="sm" onClick={() => void act('investigation_continue')}>Продолжить<ArrowUp size={13}/></Button></div>}</div></div><AnimatePresence>{away && <motion.div className="jump-latest" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><Button variant="secondary" size="sm" onClick={() => { pinned.current = true; setAway(false); scroll.current?.scrollTo({ top: scroll.current.scrollHeight, behavior: 'smooth' }) }}><ArrowDown size={14}/>К последнему сообщению</Button></motion.div>}</AnimatePresence><div className="composer-zone">{state.archiveError && <div className="notice-inline notice-error" role="alert">{state.archiveError}</div>}<div className="composer"><textarea ref={textarea} value={draft} onChange={event => setDraft(event.target.value)} placeholder="Спросите Гермиону или опишите задачу…" aria-label="Сообщение Гермионе" rows={1} disabled={sending} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send() } }}/><div className="composer-bottom"><span className="composer-provider"><span className={`status-dot ${state.connection.status === 'connected' ? 'is-connected' : ''}`}/>{state.connection.model || 'ИИ не подключён'}</span>{state.busy ? <IconButton label="Остановить ответ" className="send-button stop-button" onClick={() => void act('chat_stop')}><Square size={15} fill="currentColor"/></IconButton> : <IconButton label="Отправить сообщение" className="send-button" disabled={!draft.trim() || !state.connection.canSend || sending} onClick={() => void send()}>{sending ? <LoaderCircle size={17} className="spin"/> : <ArrowUp size={18}/>}</IconButton>}</div></div><div className="composer-caption"><span>Enter — отправить<span className="caption-divider">·</span>Shift+Enter — новая строка</span><span>Проверяйте важные сведения</span></div></div></div>
 }
