@@ -8,15 +8,19 @@ import type { Source } from '../types'
 import { Badge, Button, IconButton } from './ui'
 import { safeUrl } from './Markdown'
 
-const statuses: Record<string, string> = { detected: 'Обнаружено источником', verified: 'Сообщено источником', found: 'Сообщено источником', confirmed: 'Сообщено источником', read: 'Результат получен', readable: 'Результат получен', success: 'Получен результат', partial: 'Частичные данные', error: 'Ошибка получения', failed: 'Ошибка получения', blocked: 'Доступ ограничен', requires_browser: 'Нужен браузер', unavailable: 'Недоступен', not_found: 'Совпадений нет', unconfirmed: 'Не подтверждено', indexed: 'Поисковый сниппет', auth_required: 'Требуется авторизация', rate_limited: 'Ограничение сервиса', timeout: 'Превышено время ожидания', deleted: 'Профиль удалён', private: 'Доступ ограничен владельцем', invalid: 'Некорректный ответ', complete: 'Результат получен' }
+const statuses: Record<string, string> = { content_observed: 'Данные источника получены', low_confidence: 'Низкая уверенность OCR', detected: 'Обнаружено источником', verified: 'Сообщено источником', found: 'Сообщено источником', confirmed: 'Сообщено источником', read: 'Результат получен', readable: 'Результат получен', success: 'Получен результат', partial: 'Частичные данные', error: 'Ошибка получения', failed: 'Ошибка получения', blocked: 'Доступ ограничен', requires_browser: 'Нужен браузер', unavailable: 'Недоступен', not_found: 'Совпадений нет', unconfirmed: 'Не подтверждено', indexed: 'Поисковый сниппет', auth_required: 'Требуется авторизация', rate_limited: 'Ограничение сервиса', timeout: 'Превышено время ожидания', deleted: 'Профиль удалён', private: 'Доступ ограничен владельцем', invalid: 'Некорректный ответ', complete: 'Результат получен' }
 export function isReadSource(source: Source) {
   return source.kind === 'page' && !source.details?.javascript_shell && !['failed', 'error', 'blocked', 'restricted', 'empty', 'timeout'].includes(source.status) && (typeof source.details?.content_fetched === 'boolean' ? source.details.content_fetched : ['read', 'readable', 'fetched', 'analyzed'].includes(source.status))
 }
 export function sourceLabel(source: Source) {
   if (source.status === 'metadata') return source.kind === 'image' ? 'Локальные данные изображения получены' : 'Наблюдение инструмента получено'
   if (source.kind === 'snippet') return 'Поисковый сниппет'
-  if (source.kind === 'page' && source.details?.javascript_shell) return 'Доступен только HTTP-текст'
-  if (isReadSource(source)) return source.status === 'analyzed' ? 'Прочитан и проанализирован' : 'Содержимое получено'
+  if (source.kind === 'page' && source.details?.javascript_shell) return 'Доступен только HTML-каркас'
+  if (isReadSource(source)) {
+    if (source.details?.extraction_status === 'record_extracted') return 'Запись извлечена из источника'
+    if (source.details?.extraction_status === 'parsed_page') return source.details?.reading_method === 'browser_dom' ? 'Страница разобрана в браузере' : 'Страница разобрана'
+    return source.status === 'analyzed' ? 'Прочитан и проанализирован' : 'Содержимое получено'
+  }
   if (['discovered', 'unverified'].includes(source.status)) return 'URL обнаружен · не прочитан'
   if (source.status === 'restricted') return 'Доступ ограничен'
   return statuses[source.status] || 'Статус не уточнён'
@@ -46,7 +50,7 @@ function GeoObservation({ source }: { source: Source }) {
     {image && <><div><dt>Изображение</dt><dd>{String(image.width)} × {String(image.height)} · {String(image.format)}</dd></div><div><dt>SHA-256</dt><dd className="monospace">{String(image.sha256)}</dd></div></>}
     {metadata && <div><dt>GPS из метаданных</dt><dd>{gpsLabel}<small>Метаданные могут быть изменены; подлинность не подтверждена.</small></dd></div>}
     {typeof data.duration_ms === 'number' && <div><dt>Обработка</dt><dd>{data.duration_ms.toLocaleString('ru-RU')} мс</dd></div>}
-  </dl>{segments.length > 0 && <details><summary>Распознанные области · {segments.length}</summary><div className="markdown-table"><table><thead><tr><th>Текст</th><th>Уверенность OCR</th><th>Область</th></tr></thead><tbody>{segments.slice(0,20).map((segment,index) => <tr key={index}><td>{String(segment.text || '')}</td><td>{typeof segment.confidence === 'number' ? `${Math.round(segment.confidence * 100)}%` : 'Нет оценки'}</td><td>{Array.isArray(segment.bbox) ? segment.bbox.join(', ') : ''}</td></tr>)}</tbody></table></div>{segments.length > 20 && <p>Первые20 областей. Полный результат сохранён в доказательстве.</p>}</details>}</section>
+  </dl>{data.status === 'low_confidence' && <p className="notice-inline" role="status">Низкая уверенность OCR. Проверьте исходное изображение или повторите распознавание с другими параметрами.</p>}{typeof data.confidence === 'number' && <p className="muted">Средняя уверенность OCR: {Math.round(data.confidence * 100)}%</p>}{segments.length > 0 && <details><summary>Распознанные области · {segments.length}</summary><div className="markdown-table"><table><thead><tr><th>Текст</th><th>Уверенность OCR</th><th>Область</th></tr></thead><tbody>{segments.slice(0,20).map((segment,index) => <tr key={index}><td>{String(segment.text || '')}</td><td>{typeof segment.confidence === 'number' ? `${Math.round(segment.confidence * 100)}%` : 'Нет оценки'}</td><td>{Array.isArray(segment.bbox) ? segment.bbox.join(', ') : ''}</td></tr>)}</tbody></table></div>{segments.length > 20 && <p>Первые20 областей. Полный результат сохранён в доказательстве.</p>}</details>}</section>
 }
 
 function SourceList({ sources, onSelect, onFocus, canFocus, group = 'none' }: {
@@ -90,9 +94,14 @@ export function SourceInspector({ sources, onSelect, onFocus, canFocus }: {
 }
 export function Sources({ sources, onSelect }: { sources: Source[]; onSelect(source: Source): void }) {
   const [open, setOpen] = useState(false)
+  const [page, setPage] = useState(0)
+  const pageSize = 6
+  useEffect(() => setPage(0), [sources.length])
   if (!sources.length) return null
-  return <div className="sources-group"><button className="sources-trigger" aria-expanded={open} onClick={() => setOpen(!open)}><ShieldCheck size={14}/><span>Источники</span><span className="count">{sources.length}</span><ChevronDown size={14} className={open ? 'rotate' : ''}/></button><AnimatePresence initial={false}>{open && <motion.div className="sources-list sources-bounded" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.18 }}><SourceList sources={sources} onSelect={onSelect}/></motion.div>}</AnimatePresence></div>
+  const visible = sources.slice(page * pageSize, (page + 1) * pageSize)
+  return <div className="sources-group"><button className="sources-trigger" aria-expanded={open} onClick={() => setOpen(!open)}><ShieldCheck size={14}/><span>Источники</span><span className="count">{sources.length}</span><ChevronDown size={14} className={open ? 'rotate' : ''}/></button><AnimatePresence initial={false}>{open && <motion.div className="sources-list" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>{visible.map((source, index) => <SourceCard key={source.evidence_id || `${source.url}:${index}`} source={source} onSelect={onSelect} compact/>)}{sources.length > pageSize && <nav className="inline-source-pages" aria-label="Страницы источников ответа"><Button variant="ghost" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>Назад</Button><span>{page * pageSize + 1}–{Math.min((page + 1) * pageSize, sources.length)} из {sources.length}</span><Button variant="ghost" size="sm" disabled={(page + 1) * pageSize >= sources.length} onClick={() => setPage(page + 1)}>Далее</Button></nav>}</motion.div>}</AnimatePresence></div>
 }
+
 export function SourceDialog({ source: initialSource, onClose }: { source: Source | null; onClose(): void }) {
   const [record, setRecord] = useState<Source | null>(null)
   const technical = useRef<HTMLDetailsElement>(null)

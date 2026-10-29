@@ -34,6 +34,7 @@ export interface Activity {
   details?: Record<string, unknown>
 }
 export interface Tool {
+  manifest?: { access_mode?: string; capabilities?: string[]; accepted_inputs?: string[]; [key: string]: unknown }
   implemented?: boolean
   readiness_status?: string
   documentation_url?: string

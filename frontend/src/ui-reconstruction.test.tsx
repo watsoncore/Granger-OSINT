@@ -11,6 +11,12 @@ vi.mock('./bridge', () => ({ act: vi.fn().mockResolvedValue(true) }))
 const source = (id: string, values: Partial<Source> = {}): Source => ({ evidence_id: id, title: `Источник ${id}`, url: `https://example.org/${id}`, kind: 'page', status: 'unverified', ...values })
 
 describe('truthful current task source inspector', () => {
+  it('distinguishes fetched content, parsed pages and extracted records without asserting identity facts', () => {
+    expect(sourceLabel(source('http',{status:'content_observed',details:{content_fetched:true,extraction_status:'parsed_page',reading_method:'direct_http'}}))).toBe('Страница разобрана')
+    expect(sourceLabel(source('dom',{status:'content_observed',details:{content_fetched:true,extraction_status:'parsed_page',reading_method:'browser_dom'}}))).toBe('Страница разобрана в браузере')
+    expect(sourceLabel(source('record',{status:'content_observed',details:{content_fetched:true,extraction_status:'record_extracted'}}))).toBe('Запись извлечена из источника')
+    expect(isReadSource(source('shell',{status:'partial',details:{content_fetched:false,javascript_shell:true}}))).toBe(false)
+  })
   it('labels actual image metadata without claiming the photograph is authenticated or geolocated', () => {
     expect(sourceLabel(source('pixels',{kind:'image',status:'metadata'}))).toBe('Локальные данные изображения получены')
     expect(isReadSource(source('pixels',{kind:'image',status:'metadata'}))).toBe(false)
