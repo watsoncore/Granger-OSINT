@@ -1,4 +1,4 @@
-"""Compact provider settings. User secrets remain in the Windows vault."""
+"""Compact provider settings. User secrets remain in the protected vault."""
 from __future__ import annotations
 
 import hashlib
@@ -333,7 +333,7 @@ class ConnectionsPane(QWidget):
 
     def _refresh_key_source(self):
         if "deepseek_api_key" in self._pending_deletions and not self.deepseek_key.text().strip():
-            self.key_source.setText("Ключ будет удалён из Windows только после сохранения.")
+            self.key_source.setText("Ключ будет удалён из защищённого хранилища только после сохранения.")
             self.deepseek_key.setPlaceholderText("Будет удалено при сохранении")
             return
         try:
@@ -341,11 +341,12 @@ class ConnectionsPane(QWidget):
         except Exception:
             source = "missing"
         titles = {"windows": "Ключ сохранён в Windows Credential Manager.",
+                  "portable": "Ключ сохранён в переносимом зашифрованном хранилище.",
                   "input": "Введённый ключ будет сохранён только по кнопке «Сохранить».",
                   "missing": "Введите свой ключ шлюза aikeysforyou.com."}
         self.key_source.setText(titles.get(source, titles["missing"]))
         if not self.deepseek_key.text():
-            self.deepseek_key.setPlaceholderText("Сохранён в Windows" if source == "windows" else "API-ключ шлюза")
+            self.deepseek_key.setPlaceholderText("Сохранён в защищённом хранилище" if source in ("windows", "portable") else "API-ключ шлюза")
 
     def _preferences_signature(self):
         return (self.provider.currentData(), self.selected_model(), self.source_root.text(), self.runtime_python.text(),
@@ -421,7 +422,7 @@ class ConnectionsPane(QWidget):
                 saved = bool(get_secret(name))
             except Exception:
                 saved = False
-            field.setPlaceholderText("Сохранено в Windows" if saved else "Не настроено")
+            field.setPlaceholderText("Сохранено в защищённом хранилище" if saved else "Не настроено")
         self._refresh_key_source()
         self.reset_secret_visibility()
         self._baseline = self._preferences_signature()
@@ -651,7 +652,7 @@ class ConnectionsPane(QWidget):
             self.settings = deepcopy(settings)
             for name, field in self.secret_fields.items():
                 field.clear()
-                field.setPlaceholderText("Сохранено в Windows" if (changed_secrets.get(name) or name not in changed_secrets and get_secret(name)) else "Не настроено")
+                field.setPlaceholderText("Сохранено в защищённом хранилище" if (changed_secrets.get(name) or name not in changed_secrets and get_secret(name)) else "Не настроено")
             self._pending_deletions.clear()
             self.reset_secret_visibility()
             self._baseline = self._preferences_signature()
@@ -682,7 +683,7 @@ class ConnectionsPane(QWidget):
             self._updating = False
             self.reset_secret_visibility()
             self.ai_state.save_failed()
-            self.status.setText("Не удалось сохранить. Проверьте доступ к хранилищу Windows и файлу настроек.")
+            self.status.setText("Не удалось сохранить. Проверьте, что защищённое хранилище разблокировано и файл настроек доступен.")
             self.dirty_changed.emit(True)
             return False
 

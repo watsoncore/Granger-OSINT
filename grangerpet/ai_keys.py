@@ -1,4 +1,4 @@
-"""DeepSeek gateway credentials from the existing Windows vault.
+"""DeepSeek gateway credentials from the active protected vault.
 
 Old Gemini credentials, environment and local example/development files are not
 used for this different third-party service.
@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .credentials import CredentialError, get_secret
+from .credentials import CredentialError, get_secret, portable_enabled
 
 DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
 DEEPSEEK_BASE_URL = "https://api.aikeysforyou.com/v1"
@@ -32,7 +32,7 @@ def deepseek_credentials(*, override=None, secret_getter=None):
     except CredentialError:
         saved = ""
     if isinstance(saved, str) and saved.strip():
-        return DeepSeekCredential(saved.strip(), "windows")
+        return DeepSeekCredential(saved.strip(), "portable" if portable_enabled() else "windows")
     return DeepSeekCredential()
 
 

@@ -16,6 +16,9 @@ from PySide6.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
 from .config import data_directory
 from .markdown_view import MarkdownView, headings
 from .typography import ui_font
+from .credentials import (CredentialError, open_bytes, portable_enabled,
+                          protected_path, seal_bytes)
+from .portable_vault import atomic_write
 
 
 def write_utf8(path, text):
@@ -37,7 +40,7 @@ class CanvasWorkspace(QWidget):
     def __init__(self, parent=None, *, directory=None):
         super().__init__(parent)
         self.setObjectName('CanvasWorkspace')
-        self.directory = Path(directory) if directory is not None else data_directory()/'canvas'
+        self._directory = Path(directory) if directory is not None else data_directory()/'canvas'
         self.document_id = ''
         self._original_source = ''
         self._loading, self._dirty = False, False
@@ -129,6 +132,17 @@ class CanvasWorkspace(QWidget):
         self._preview_timer.setInterval(180)
         self._preview_timer.timeout.connect(self._refresh_preview)
 
+    @property
+    def directory(self):
+        return protected_path(self._directory)
+
+    @staticmethod
+    def _write_local(path, text):
+        if portable_enabled():
+            atomic_write(path, seal_bytes(str(text).encode('utf-8')))
+            return path
+        return write_utf8(path, text)
+
     def open_document(self, text, document_id=None):
         if self.document_id and self._dirty:
             self.save_document()
@@ -140,9 +154,12 @@ class CanvasWorkspace(QWidget):
         current = self._documents.get(identifier)
         path = self.directory/(identifier+'.md')
         if current is None and path.is_file():
-            if path.stat().st_size > 2_000_000:
+            if path.stat().st_size > 2_000_000 + 64:
                 raise ValueError('Документ превышает допустимый размер.')
-            current = path.read_text(encoding='utf-8')
+            encoded = path.read_bytes()
+            if portable_enabled():
+                encoded = open_bytes(encoded)
+            current = encoded.decode('utf-8')
         self._loading = True
         self.editor.setPlainText(source if current is None else current)
         self._loading = False
@@ -208,13 +225,13 @@ class CanvasWorkspace(QWidget):
             self.status.setText('Документ слишком большой для локального сохранения.')
             return None
         try:
-            destination = write_utf8(self.directory/(self.document_id+'.md'), text)
+            destination = self._write_local(self.directory/(self.document_id+'.md'), text)
             # Metadata describes only the local editable copy, never evidence.
-            write_utf8(self.directory/(self.document_id+'.json'), json.dumps({
+            self._write_local(self.directory/(self.document_id+'.json'), json.dumps({
                 'id':self.document_id, 'updated_at':datetime.now(timezone.utc).isoformat(),
                 'original_sha256':hashlib.sha256(self._original_source.encode('utf-8')).hexdigest(),
                 'title':self.title.text()}, ensure_ascii=False, indent=2))
-        except OSError:
+        except (OSError, CredentialError):
             self.status.setText('Не удалось сохранить документ. Текст остаётся в Canvas.')
             return None
         self._documents[self.document_id] = text

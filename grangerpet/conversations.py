@@ -1,7 +1,7 @@
 """Named encrypted conversations, retaining the legacy current-archive location.
 
 The index contains only an opaque identifier. Titles are derived in memory from
-DPAPI-protected content; they are never written into an unencrypted index.
+Encrypted content; they are never written into an unencrypted index.
 """
 from __future__ import annotations
 
@@ -32,8 +32,6 @@ def _atomic(path, data):
 class ConversationLibrary:
     def __init__(self, current_archive):
         self.archive = current_archive
-        self.directory = self.archive.path.parent / 'conversations'
-        self.pointer = self.directory / 'current.json'
         self._metadata_cache = {}
         try:
             value = json.loads(self.pointer.read_text(encoding='utf-8'))['id']
@@ -41,6 +39,14 @@ class ConversationLibrary:
             value = ''
         self.current_id = value if self.valid_id(value) else uuid.uuid4().hex
         self._write_pointer()
+
+    @property
+    def directory(self):
+        return self.archive.path.parent / 'conversations'
+
+    @property
+    def pointer(self):
+        return self.directory / 'current.json'
 
     @staticmethod
     def valid_id(value):
@@ -71,7 +77,7 @@ class ConversationLibrary:
         source_archive = ChatArchive(source)
         value = source_archive.load()
         if not value:
-            raise ValueError('Не удалось расшифровать этот диалог текущим пользователем Windows.')
+            raise ValueError('Не удалось расшифровать этот диалог. Проверьте состояние защищённого хранилища.')
         if source_archive._format_version != 2:
             backup=source.with_name(source.name+'.v1-backup')
             if not backup.exists():_atomic(backup,source.read_bytes())

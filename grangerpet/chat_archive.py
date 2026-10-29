@@ -1,4 +1,4 @@
-"""Local conversation continuity protected by the signed-in Windows user's DPAPI."""
+"""Encrypted conversation continuity with portable-vault and legacy readers."""
 from __future__ import annotations
 
 import json
@@ -8,7 +8,7 @@ from pathlib import Path
 import tempfile
 import shutil
 
-from .credentials import CredentialsStore, CredentialError
+from .credentials import CredentialsStore, CredentialError, protected_path
 
 # Storage safety is a byte policy, not an invisible message-retention policy.
 # Exceeding it raises on save and leaves the previous ciphertext intact.
@@ -17,9 +17,13 @@ MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
 
 class ChatArchive:
     def __init__(self, path):
-        self.path = Path(path)
+        self._path = Path(path)
         self.last_error = None
         self._format_version = None
+
+    @property
+    def path(self):
+        return protected_path(self._path)
 
     def load(self):
         try:
@@ -43,6 +47,9 @@ class ChatArchive:
                     if key == 'messages' and isinstance(row.get('id'), str) and len(row['id']) <= 64:
                         item['id'] = row['id']
                     if key == 'messages':
+                        if isinstance(row.get('attachments'),list):
+                            item['attachments']=[{k:v for k,v in image.items() if k in ('id','name','mime','format','bytes','width','height','sha256')}
+                                for image in row['attachments'][:4] if isinstance(image,dict) and re.fullmatch(r'img_[a-f0-9]{64}',str(image.get('id','')))]
                         if isinstance(row.get('investigation_id'), str) and re.fullmatch(r'[a-f0-9]{16,64}', row['investigation_id']):
                             item['investigation_id'] = row['investigation_id']
                         if isinstance(row.get('evidence_ids'), list):

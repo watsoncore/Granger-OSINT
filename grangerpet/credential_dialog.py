@@ -5,10 +5,11 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QFormLayout, QVBoxLayout,
                                QLabel, QLineEdit, QCheckBox)
 
-from .credentials import CredentialError, get_secret, set_secret
+from .credentials import CredentialError, get_secret, set_secret, portable_enabled
 
 
 SERVICES = {
+    'virustotal': ('VirusTotal — отчёты SHA-256', (('virustotal_api_key', 'API-ключ'),)),
     'deepseek': ('DeepSeek — ключ шлюза', (('deepseek_api_key', 'API-ключ'),)),
     'google': ('Google Search API', (('google_api_key', 'API-ключ'),)),
     'vk': ('VK — официальный API', (('vk_token', 'Access token'),)),
@@ -42,7 +43,8 @@ class CredentialDialog(QDialog):
         label = QLabel(title)
         label.setStyleSheet('font-size:19px;font-weight:600;color:#f2f3f6')
         layout.addWidget(label)
-        note = ('Секрет вводится только в этом окне и хранится в Windows Credential Manager. '
+        storage = 'переносимом зашифрованном хранилище' if portable_enabled() else 'прежнем защищённом хранилище Windows'
+        note = (f'Секрет вводится только в этом окне и хранится в {storage}. '
                 'Пустое поле сохраняет текущий ключ. Проверка подключения доступна в настройках приложения.')
         if service == 'vk':
             note += ' Ранее опубликованный VK-токен необходимо отозвать и перевыпустить. Введите новый собственный токен.'
@@ -56,7 +58,7 @@ class CredentialDialog(QDialog):
             edit = QLineEdit()
             edit.setEchoMode(QLineEdit.EchoMode.Password)
             edit.setMaxLength(500_000 if name.endswith('session') else 12_000)
-            edit.setPlaceholderText('Сохранено в Windows' if getter(name) else 'Не настроено')
+            edit.setPlaceholderText('Сохранено в защищённом хранилище' if getter(name) else 'Не настроено')
             form.addRow(caption, edit)
             remove = QCheckBox('Удалить сохранённое значение')
             form.addRow('', remove)
@@ -66,7 +68,7 @@ class CredentialDialog(QDialog):
         self.status.setWordWrap(True)
         layout.addWidget(self.status)
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel)
-        buttons.button(QDialogButtonBox.StandardButton.Save).setText('Сохранить в Windows')
+        buttons.button(QDialogButtonBox.StandardButton.Save).setText('Сохранить')
         buttons.button(QDialogButtonBox.StandardButton.Cancel).setText('Отмена')
         buttons.accepted.connect(self.save)
         buttons.rejected.connect(self.reject)
@@ -86,14 +88,14 @@ class CredentialDialog(QDialog):
                 applied.append(name)
                 self.setter(name, value)
                 if self.getter(name) != value:
-                    raise CredentialError('Windows не подтвердила сохранение.')
+                    raise CredentialError('Хранилище не подтвердило сохранение.')
         except Exception:
             for name in reversed(applied):
                 try:
                     self.setter(name, previous[name])
                 except Exception:
                     pass
-            self.status.setText('Windows не смогла сохранить учётные данные. Проверьте доступ к защищённому хранилищу.')
+            self.status.setText('Не удалось сохранить учётные данные. Проверьте, что защищённое хранилище разблокировано.')
             return
         self._clear()
         self.accept()

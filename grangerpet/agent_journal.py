@@ -1,7 +1,8 @@
-"""Atomic public evidence journals and DPAPI-protected resumable checkpoints.
+"""Atomic evidence journals and encrypted resumable checkpoints.
 
-Legacy .json evidence reports retain their format. Conversation/protocol state
-is written only to .checkpoint.dpapi, bound to the current Windows account.
+Legacy .json evidence reports retain their format. Portable mode additionally
+encrypts these reports; the .checkpoint.dpapi filename remains compatible while
+its ciphertext uses the portable format after explicit vault migration.
 """
 from __future__ import annotations
 
@@ -14,7 +15,7 @@ import threading
 
 from .agent_evidence import redact
 from .config import data_directory
-from .credentials import CredentialsStore, CredentialError
+from .credentials import CredentialsStore, CredentialError, protected_path, portable_enabled
 
 
 CHECKPOINT_LIMIT = 32_000_000
@@ -22,9 +23,13 @@ CHECKPOINT_LIMIT = 32_000_000
 
 class InvestigationJournal:
     def __init__(self, directory=None):
-        self.directory = Path(directory) if directory is not None else data_directory() / 'investigations'
+        self._directory = Path(directory) if directory is not None else data_directory() / 'investigations'
         self._lock = threading.RLock()
         self._revisions = {}
+
+    @property
+    def directory(self):
+        return protected_path(self._directory)
 
     @staticmethod
     def _identifier(identifier):
@@ -133,6 +138,8 @@ class InvestigationJournal:
         if len(encoded) > CHECKPOINT_LIMIT:
             raise ValueError('Investigation journal limit exceeded')
         target = self.directory / (identifier + '.json')
+        if portable_enabled():
+            encoded = CredentialsStore._protect(encoded)
         return self._write(target, encoded)
 
     def load(self, identifier):
@@ -140,4 +147,7 @@ class InvestigationJournal:
         path = self.directory / (identifier + '.json')
         if path.stat().st_size > CHECKPOINT_LIMIT:
             raise ValueError('Investigation journal limit exceeded')
-        return json.loads(path.read_text(encoding='utf-8'))
+        encoded = path.read_bytes()
+        if portable_enabled():
+            encoded = CredentialsStore._protect(encoded, decrypt=True)
+        return json.loads(encoded.decode('utf-8'))

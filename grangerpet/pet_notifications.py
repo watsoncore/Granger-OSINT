@@ -13,7 +13,7 @@ import uuid
 from PySide6.QtCore import QPoint, QRect, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QPainter, QPolygon, QRegion
 from PySide6.QtWidgets import QApplication, QWidget
-from .credentials import CredentialError, CredentialsStore
+from .credentials import CredentialError, CredentialsStore, protected_path
 from .motion import reduced_motion
 
 KINDS = frozenset(('reply', 'investigation', 'error'))
@@ -48,10 +48,14 @@ def notification_pose(elapsed, animate=True):
 class UnreadLedger:
     """Opaque references only; unread entries are never silently evicted."""
     def __init__(self, path=None):
-        self.path = Path(path) if path is not None else None
+        self._path = Path(path) if path is not None else None
         self.unread, self.seen = OrderedDict(), OrderedDict()
         self.persistence_error = False
         self._load()
+
+    @property
+    def path(self):
+        return protected_path(self._path) if self._path is not None else None
 
     @staticmethod
     def valid(row):
