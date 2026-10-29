@@ -1,7 +1,16 @@
-"""Readable system typography and restrained native messenger surfaces."""
+"""Shared themes for native dialogs; web palettes use the same semantic values."""
+import re
+from PySide6.QtGui import QColor, QPalette
+
+PALETTES = {
+    'dark': dict(background='#111417', surface='#171b20', raised='#1d252d', hover='#29343e', text='#edf0f4', secondary='#bdc6d1', muted='#9faebb', border='#35424e', strong='#647482', accent='#d7bc94', accent_text='#201b15', soft='#302a22', danger='#f2b2b0', danger_soft='#462b2d'),
+    'black': dict(background='#000000', surface='#000000', raised='#0b0b0b', hover='#202020', text='#f6f6f6', secondary='#cecece', muted='#ababab', border='#333333', strong='#757575', accent='#e0c59f', accent_text='#17120e', soft='#241f19', danger='#f0b7b7', danger_soft='#301818'),
+    'light': dict(background='#ffffff', surface='#ffffff', raised='#f2f4f6', hover='#e5e9ed', text='#17212b', secondary='#384b5b', muted='#506273', border='#bdc7d0', strong='#6c7e8d', accent='#705020', accent_text='#ffffff', soft='#f4eadb', danger='#a12a2f', danger_soft='#fae5e5'),
+    'mono': dict(background='#000000', surface='#090909', raised='#171717', hover='#292929', text='#ffffff', secondary='#d0d0d0', muted='#aaaaaa', border='#444444', strong='#888888', accent='#ffffff', accent_text='#000000', soft='#292929', danger='#ffffff', danger_soft='#333333'),
+}
 
 STYLE = """
-QWidget { background: #17212b; color: #f1f3f5; font-family: 'Segoe UI Variable', 'Segoe UI'; font-size: 14px; }
+QWidget { background: #17212b; color: #f1f3f5; font-family: 'Manrope', 'Segoe UI Variable', 'Segoe UI'; font-size: 14px; }
 QLabel { background: transparent; border: none; }
 QLabel#WindowTitle { font-size: 18px; font-weight: 600; }
 QLabel#LauncherTitle { font-size: 22px; font-weight: 600; }
@@ -95,3 +104,54 @@ QTabBar::tab:hover { background: #202b36; color: #f1f3f5; }
 QTableWidget { background: #202b36; border: none; gridline-color: #30404e; selection-background-color: #2b4055; }
 QHeaderView::section { background: #243442; color: #c6d5e3; border: none; padding: 6px; }
 """
+
+
+def style_for_theme(theme='dark'):
+    """Resolve legacy native declarations through a small semantic palette."""
+    palette = PALETTES.get(theme, PALETTES['dark'])
+
+    def declaration(match):
+        prop, value = match.group(1), match.group(2)
+        def colour(found):
+            original = found.group(0)
+            color = QColor(original)
+            _, saturation, brightness, _ = color.getHsvF()
+            if 'border' in prop or 'gridline' in prop:
+                return palette['border']
+            if prop in ('background', 'selection-background-color'):
+                return palette['background'] if brightness < .14 else palette['surface'] if brightness < .22 else palette['raised'] if brightness < .3 else palette['hover']
+            if prop == 'color':
+                return palette['text'] if brightness > .83 else palette['secondary'] if brightness > .6 else palette['muted']
+            return original
+        return prop + ':' + re.sub(r'#[0-9a-fA-F]{6}\b', colour, value)
+
+    sheet = re.sub(r'([a-zA-Z-]+):([^;{}]+)', declaration, STYLE)
+    sheet += f"""
+QPushButton#PrimaryButton, QPushButton#primary {{ background: {palette['accent']}; color: {palette['accent_text']}; border-color: {palette['accent']}; }}
+QPushButton#PrimaryButton:hover, QPushButton#primary:hover {{ background: {palette['accent']}; color: {palette['accent_text']}; }}
+QWidget:focus, QLineEdit:focus, QPlainTextEdit:focus, QComboBox:focus {{ border-color: {palette['accent']}; }}
+QToolButton#WindowClose:hover {{ background: {palette['danger_soft']}; }}
+"""
+    return sheet
+
+
+def apply_theme(app, theme='dark'):
+    """Change only this Qt application's palette and existing native surfaces."""
+    selected = theme if theme in PALETTES else 'dark'
+    colors = PALETTES[selected]
+    palette = QPalette()
+    for role, name in ((QPalette.ColorRole.Window, 'surface'), (QPalette.ColorRole.WindowText, 'text'),
+                       (QPalette.ColorRole.Base, 'background'), (QPalette.ColorRole.AlternateBase, 'raised'),
+                       (QPalette.ColorRole.Text, 'text'), (QPalette.ColorRole.Button, 'raised'),
+                       (QPalette.ColorRole.ButtonText, 'text'), (QPalette.ColorRole.Highlight, 'accent'),
+                       (QPalette.ColorRole.HighlightedText, 'accent_text'), (QPalette.ColorRole.PlaceholderText, 'muted')):
+        palette.setColor(role, QColor(colors[name]))
+    app.setPalette(palette)
+    app.setProperty('granger_theme', selected)
+    app.setStyleSheet(style_for_theme(selected))
+    # OsintPanel historically set a local copy of STYLE, which would mask the app palette.
+    for widget in app.topLevelWidgets():
+        if widget.objectName() in ('OsintPanel', 'SettingsDialog') and widget.styleSheet():
+            widget.setStyleSheet(style_for_theme(selected))
+        widget.update()
+    return selected

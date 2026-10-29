@@ -4,8 +4,9 @@ from __future__ import annotations
 import ctypes
 import sys
 
-from PySide6.QtCore import QEvent, QPoint, QPointF, QRect, QSize, Qt, QVariantAnimation, QEasingCurve
-from PySide6.QtGui import QColor, QFont, QIcon, QPainter, QPen, QPixmap, QShortcut, QKeySequence
+from PySide6.QtCore import QByteArray, QEvent, QPoint, QPointF, QRect, QRectF, QSize, Qt, QVariantAnimation, QEasingCurve
+from PySide6.QtGui import QColor, QFont, QIcon, QPainter, QPen, QPixmap, QPalette, QShortcut, QKeySequence
+from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QApplication, QHBoxLayout, QLabel, QToolButton, QVBoxLayout, QWidget
 
 from .typography import ui_font
@@ -51,32 +52,26 @@ class HeaderControl(QToolButton):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        color = QColor('#344656')
-        color.setAlphaF(.9 * self._hover)
+        color = self.palette().color(QPalette.ColorRole.Button)
+        color.setAlphaF(1.0 if self.isDown() else .9 * self._hover)
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(color)
         painter.drawRoundedRect(self.rect().adjusted(1, 1, -1, -1), 7, 7)
         if self.hasFocus():
-            painter.setPen(QPen(QColor('#6C9ED2'), 1))
+            painter.setPen(QPen(self.palette().color(QPalette.ColorRole.Highlight), 1))
             painter.setBrush(Qt.BrushStyle.NoBrush)
             painter.drawRoundedRect(self.rect().adjusted(2, 2, -2, -2), 6, 6)
-        if self._kind == 'close':
-            painter.setPen(QPen(QColor('#A6B2BF'), 1.6, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
-            center = self.rect().center()
-            painter.drawLine(QPointF(center.x()-4, center.y()-4), QPointF(center.x()+4, center.y()+4))
-            painter.drawLine(QPointF(center.x()-4, center.y()+4), QPointF(center.x()+4, center.y()-4))
-        elif self._kind == 'minimize':
-            painter.setPen(QPen(QColor('#A6B2BF'), 1.4))
-            painter.drawLine(QPointF(12, 18), QPointF(22, 18))
-        elif self._kind == 'maximize':
-            painter.setPen(QPen(QColor('#A6B2BF'), 1.3))
-            painter.setBrush(Qt.BrushStyle.NoBrush)
-            if self.window().isMaximized():
-                painter.drawRect(QRect(13, 10, 9, 9))
-                painter.setBrush(QColor('#17212B'))
-                painter.drawRect(QRect(10, 13, 9, 9))
-            else:
-                painter.drawRect(QRect(11, 11, 11, 11))
+        if self._kind in ('close', 'minimize', 'maximize'):
+            stroke = self.palette().color(QPalette.ColorRole.ButtonText).name()
+            shapes = {
+                'close': '<path d="M5 5 15 15M15 5 5 15"/>',
+                'minimize': '<path d="M4 11h12"/>',
+                'maximize': '<rect x="4" y="4" width="12" height="12" rx=".5"/>',
+                'restore': '<path d="M7 5V3h10v10h-2"/><rect x="3" y="7" width="10" height="10" rx=".5"/>',
+            }
+            key = 'restore' if self._kind == 'maximize' and (self.window().isMaximized() or self.window().isFullScreen()) else self._kind
+            svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="{stroke}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">{shapes[key]}</svg>'
+            QSvgRenderer(QByteArray(svg.encode('ascii'))).render(painter, QRectF((self.width()-18)/2, (self.height()-18)/2, 18, 18))
         else:
             self.icon().paint(painter, QRect((self.width()-20)//2, (self.height()-20)//2, 20, 20))
 

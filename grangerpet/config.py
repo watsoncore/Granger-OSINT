@@ -25,6 +25,9 @@ def resource_path(relative: str) -> Path:
 
 @dataclass
 class Settings:
+    ui_theme: str = "dark"
+    geoint_nominatim_url: str = ""
+    geoint_overpass_url: str = ""
     size: int = 195
     fps: int = 24
     cursor_reaction: bool = True
@@ -75,6 +78,17 @@ class Settings:
         if not isinstance(values, dict):
             return settings
         values = dict(values)
+        if values.get("ui_theme") in ("dark", "black", "light", "mono"):
+            settings.ui_theme = values["ui_theme"]
+        from urllib.parse import urlsplit
+        for field in ('geoint_nominatim_url','geoint_overpass_url'):
+            raw=values.get(field,'')
+            if isinstance(raw,str) and len(raw)<=2048:
+                try:
+                    parsed=urlsplit(raw)
+                    if not raw or parsed.scheme=='https' and parsed.hostname and not parsed.username and not parsed.password and not parsed.query and not parsed.fragment:
+                        setattr(settings,field,raw.rstrip('/'))
+                except ValueError: pass
         previous_defaults = {"agent_steps": 10, "agent_calls": 14, "agent_timeout": 240,
                              "agent_tokens": 48000, "agent_page_limit": 6, "agent_page_depth": 2}
         revision = values.get("research_settings_version", 1)
