@@ -95,10 +95,6 @@ class DesktopSurface(QWebEngineView):
         self.host = host
         self._closing = False
         self._renderer_visible = False
-        self._freeze_timer = QTimer(self)
-        self._freeze_timer.setSingleShot(True)
-        self._freeze_timer.setInterval(500)
-        self._freeze_timer.timeout.connect(self._freeze_hidden_page)
         self.setObjectName('DesktopSurface')
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
         self.root=frontend_directory()
@@ -131,7 +127,6 @@ class DesktopSurface(QWebEngineView):
         self.bridge=DesktopBridge(host,surface)
         self.bridge.rendererReady.connect(lambda:QTimer.singleShot(0,self._sync_visibility))
         host.installEventFilter(self)
-        self.trusted_page.recommendedStateChanged.connect(self._apply_lifecycle)
         self.qa_last_response={}
         self.bridge.response.connect(self._qa_response)
         self.channel=QWebChannel(self.trusted_page)
@@ -159,30 +154,10 @@ class DesktopSurface(QWebEngineView):
             self.trusted_page.setLifecycleState(QWebEnginePage.LifecycleState.Active)
         self.trusted_page.setVisible(visible)
         self.bridge.set_publication_visible(visible)
-        self._apply_lifecycle()
-
-    def _apply_lifecycle(self,*_):
-        if self._closing:return
-        page=self.trusted_page
-        active=QWebEnginePage.LifecycleState.Active
-        # Qt's recommendation protects loading/media/active pages. Freezing
-        # pauses only this local page's JS/timers, retaining DOM and drafts.
-        # Never discard: discard would reload and lose unsent renderer state.
-        target=active if not self.bridge.ui_ready or self._renderer_visible or page.isVisible() or page.recommendedState()==active else QWebEnginePage.LifecycleState.Frozen
-        if target==active:
-            self._freeze_timer.stop()
-            if page.lifecycleState()!=active:page.setLifecycleState(active)
-        elif page.lifecycleState()!=target and not self._freeze_timer.isActive():
-            # Deliver visibilitychange/freeze and pending Canvas edits before
-            # suspending the renderer's task queues. Restore cancels this grace.
-            self._freeze_timer.start()
-
-    def _freeze_hidden_page(self):
-        if self._closing:return
-        page=self.trusted_page
-        if (self.bridge.ui_ready and not self._renderer_visible and not page.isVisible()
-                and page.recommendedState()!=QWebEnginePage.LifecycleState.Active):
-            page.setLifecycleState(QWebEnginePage.LifecycleState.Frozen)
+        # Explicit Frozen caused higher visible-window CPU in our native A/B
+        # measurements. Page visibility already enables Chromium background
+        # scheduling; no bridge snapshots are sent while hidden. Retain DOM,
+        # drafts and Python work without forcing Frozen or Discarded.
 
     def _qa_response(self,identifier,value):
         if identifier=='qa' and '--interaction-qa' in sys.argv:
@@ -199,7 +174,6 @@ class DesktopSurface(QWebEngineView):
     def shutdown(self):
         if self._closing:return
         self._closing=True
-        self._freeze_timer.stop()
         self.host.removeEventFilter(self)
         self.bridge.shutdown()
         self.stop()
