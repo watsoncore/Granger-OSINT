@@ -1,0 +1,69 @@
+{
+  "product": "Granger-OSINT",
+  "version": "3.1.0",
+  "tested_at_utc": "2026-10-29T06:08:21.274447+00:00",
+  "exe_sha256": "b1362c6ef7276034fa4fcb27f1b62acb82703a38fbe33b0eac6b1988c3dc23e9",
+  "size_bytes": 233982717,
+  "implementation_commit": "ff3fe55",
+  "tested_source_commit": "daff5b8",
+  "mock": false,
+  "python_tests": {
+    "passed": 636,
+    "skipped": 1,
+    "subtests_passed": 32,
+    "seconds": 90.35,
+    "skip_reason": "Ollama is not running"
+  },
+  "frontend_tests": {
+    "passed": 53,
+    "files": 7
+  },
+  "frozen_python_modules_verified": 59,
+  "frozen_asset_checks": 28,
+  "protected_original_assets": 12,
+  "live_exe_checks": 17,
+  "real_manual_tools_dispatched": 14,
+  "agent_tool_calls": 1,
+  "actual_exe_usage": {
+    "requests": 3,
+    "successful_requests": 3,
+    "failed_requests": 0,
+    "pending_requests": 0,
+    "usage_reported_requests": 3,
+    "usage_missing_requests": 0,
+    "prompt_tokens": 8288,
+    "completion_tokens": 190,
+    "total_tokens": 8478,
+    "partial_usage": false
+  },
+  "dpi_checks": 78,
+  "launcher_checks": 30,
+  "balance": {
+    "live_value_received": true,
+    "unit": "gateway_units",
+    "denomination_documented": false,
+    "financial_value_included": false
+  },
+  "notification_physical_click": {
+    "exe_sha256": "b1362c6ef7276034fa4fcb27f1b62acb82703a38fbe33b0eac6b1988c3dc23e9",
+    "mock": false,
+    "physical_cua_click": true,
+    "expected_message": "76edd98678b249e89c0b42a4176b2b52",
+    "opened_message": "76edd98678b249e89c0b42a4176b2b52",
+    "unread": 0,
+    "overlay_visible": false,
+    "main_active": true,
+    "passed": true
+  },
+  "manual_completion_renderer_verified_by_cua": true,
+  "limitations": [
+    "External OSINT runtimes are installed separately",
+    "VK live access needs a new own token; Telegram a permitted session",
+    "Gateway token_balance has undocumented denomination; model context limit unknown",
+    "HTTP reader does not execute JavaScript or bypass access restrictions",
+    "Unsigned executable, no clean VM or remote GitHub Actions validation claimed",
+    "Original fan art rights are not established"
+  ],
+  "smoke_checks": 2,
+  "smoke_passed": true
+}

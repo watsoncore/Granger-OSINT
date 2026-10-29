@@ -1,6 +1,7 @@
 """Native final-EXE DPI/window checks using the real, encrypted QA conversation.
 
-No network requests or new conversations. Qt's documented testing scale override
+No generation requests or new conversations. The configured gateway may receive
+an automatic read-only balance GET. Qt's documented testing scale override
 simulates 100/125/150% without modifying Windows display settings.
 """
 from datetime import datetime, timezone
@@ -41,7 +42,7 @@ def main():
     exe = ROOT/'dist/Granger-OSINT.exe'
     report = {'tested_at_utc': datetime.now(timezone.utc).isoformat(),
               'exe_sha256': hashlib.sha256(exe.read_bytes()).hexdigest(),
-              'method': 'Native Windows EXE; QT_SCALE_FACTOR relative to measured native DPR; real previous chat; no API calls',
+              'method': 'Native Windows EXE; QT_SCALE_FACTOR relative to measured native DPR; real previous chat; no generation requests; automatic balance GET possible',
               'native_dpr': native_scale,
               'source': 'https://doc.qt.io/qt-6/highdpi.html', 'runs': []}
     process = None
@@ -87,7 +88,7 @@ def main():
                 return current
             def command(name, payload=None):
                 state()
-                answer = send_command('pet', name, payload, timeout=700)
+                answer = send_command('pet', name, payload, timeout=2500)
                 if not answer or not answer.get('ok'):
                     raise RuntimeError('QA command rejected: '+name)
                 time.sleep(.35)
@@ -112,7 +113,15 @@ def main():
                     check('windowed_fits_work_area', state()['window']['height'] <= physical_area[1]/scale + 2)
             command('qa_window_mode', {'mode': 'fullscreen'})
             check('restores_maximized', state()['window']['maximized'] and not state()['window']['fullscreen'])
-            check('no_network_on_restore', not state()['ai_request'])
+            check('no_generation_on_restore', not state()['ai_request'])
+            for route in ('settings','search','chat'):
+                command('qa_desktop',{'action':'route','payload':{'route':route}})
+                command('qa_desktop',{'action':'dom'})
+                document=state()['desktop']['dom']
+                check(route+'_manrope_loaded',document.get('font',{}).get('loaded'))
+                check(route+'_no_horizontal_overflow',not document.get('overflow',True))
+                check(route+'_dock_fit',document.get('dock',{}).get('width',0)>=219 and document.get('dock',{}).get('height',0)>=280)
+                command('qa_snapshot',{'name':name+'-'+route})
             command('stop')
             process.wait(timeout=10)
             process = None

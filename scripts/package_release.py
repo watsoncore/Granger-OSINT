@@ -1,6 +1,7 @@
 """Package application sources and explicit release evidence, excluding runtimes/profiles."""
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -11,6 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--qa',type=Path,default=ROOT/'output/refinement-qa')
+    args=parser.parse_args()
     dist = ROOT / "dist"
     archive = dist / "archive"
     archive.mkdir(parents=True, exist_ok=True)
@@ -34,24 +38,36 @@ def main():
         for path in (ROOT / name).rglob("*"):
             if path.is_file() and not any(part in path.parts for part in ("__pycache__", "node_modules", ".vite", ".cache")) and path.suffix not in (".pyc", ".pyo", ".tsbuildinfo"):
                 files.add(path)
-    qa = ROOT / "output/upgrade-qa"
+    qa = args.qa.resolve()
     for name in ("baseline.json", "preservation.json", "profile-preservation.json", "candidate-findings.json", "frozen-sources.json", "frozen-assets.json", "release-summary.json",
-                 "secret-scan.json", "freeze-verified.log", "smoke-verified.log", "tests-verified.log", "frontend-package-tests.log", "frontend-package-build.log", "git-publication.json"):
+                 "secret-scan.json", "freeze-delivery.log", "smoke-verified.log", "tests-release-verified.log", "frontend-package-tests.log", "frontend-package-build.log", "git-publication.json",
+                 "balance-live.json", "profile-preservation.json", "candidate-findings.json", "source-probes.json"):
         path = qa / name
         if path.is_file():
             files.add(path)
     summary = json.loads((qa / "release-summary.json").read_text(encoding="utf-8"))
-    for name in summary.get("evidence_directories", []):
-        if Path(name).name != name:
-            raise ValueError("Evidence must be a direct QA subdirectory")
-        for path in (qa / name).iterdir() if (qa / name).is_dir() else ():
-            if path.is_file() and path.suffix in (".json", ".jsonl", ".png", ".md"):
-                files.add(path)
+    # Include only an explicit public subset. Full renderer snapshots contain
+    # account balance / session-local state and are not release evidence.
+    for relative in summary.get('public_evidence_files',[]):
+        path=(qa/relative).resolve()
+        path.relative_to(qa)
+        if path.is_file() and path.suffix in ('.json','.png','.md'):
+            files.add(path)
+    if summary.get("evidence_directories"):
+        raise ValueError("Publish only individually reviewed public_evidence_files")
     files.add(dist / "binarysmoke.json")
     temporary = dist / "Granger-OSINT-source.pending.zip"
     with zipfile.ZipFile(temporary, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as bundle:
         for path in sorted(files):
-            bundle.write(path, "Granger-OSINT/" + path.relative_to(ROOT).as_posix())
+            name="Granger-OSINT/" + path.relative_to(ROOT).as_posix()
+            if (path.is_relative_to(qa) or path==dist/'binarysmoke.json') and path.suffix in ('.json','.jsonl','.log','.md'):
+                payload=path.read_bytes()
+                for location,label in ((ROOT,'<workspace>'),(Path.home(),'<user-profile>')):
+                    for raw in (str(location),location.as_posix(),json.dumps(str(location))[1:-1]):
+                        payload=payload.replace(raw.encode('utf-8'),label.encode('ascii'))
+                bundle.writestr(name,payload)
+            else:
+                bundle.write(path,name)
     temporary.replace(dist / "Granger-OSINT-source.zip")
     print(f"Packaged {len(files)} source/evidence files; EXE SHA-256 {binary_hash}")
 
