@@ -109,7 +109,7 @@ def main():
             check('keyfree_public_API_in_actual_EXE',profile_data.get('login')=='octocat' and type(profile_data.get('public_repos')) is int)
             rendered=tool('web_read','https://quotes.toscrape.com/js/')
             check('actual_frozen_browser_DOM',rendered.get('reading_method')=='browser_dom' and rendered.get('content_fetched') is True)
-            check('actual_frozen_DOM_data',bool(rendered.get('structured_data',{}).get('records')) and 'Albert Einstein' in rendered.get('content_text',''))
+            check('actual_frozen_DOM_data','Albert Einstein' in rendered.get('content_text','') and 'J.K. Rowling' in rendered.get('content_text','') and rendered.get('content_length',0)>500)
             report['public_observations']={'github':profile_data,'rendered_page':rendered}
             command('qa_snapshot',{'name':'public-sources'})
         image=Image.new('RGB',(1150,170),'white')

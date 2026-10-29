@@ -20,7 +20,7 @@
 | Пунктов с подтверждённым контрактом авторизации | 12 |
 | Пунктов с подтверждённым API без персонального ключа | 11 |
 | Конкретных scraping-операций из перечня проверено | 0 |
-| Пунктов с реализованной узкой операцией | 24 |
+| Пунктов с реализованной узкой операцией | 23 |
 | Интегрировано по извлечённым записям Start.me | 0 |
 | Live-проверено по извлечённым записям Start.me | 0 |
 
@@ -146,7 +146,7 @@ Default Overpass завершился timeout12 с; отдельный огра�
 | supplied_088 | Карты · **ArcGIS Living Atlas** | [livingatlas.arcgis.com](https://livingatlas.arcgis.com/) | public_website_or_unresolved / not_verified | HTTP200 | operation_permission_or_parser_not_verified; — |
 | supplied_089 | Карты · **FIRMS** | [firms.modaps.eosdis.nasa.gov](https://firms.modaps.eosdis.nasa.gov/api/) | public_website_or_unresolved / not_verified | HTTP200 | operation_permission_or_parser_not_verified; — |
 | supplied_090 | Карты · **OpenStreetMap-based services** | Не установлен | public_website_or_unresolved / not_verified | Не live | unresolved_source_or_direction; — |
-| supplied_091 | Архивы и новости · **Internet Archive** | [archive.org](https://archive.org/advancedsearch.php) | public_api_or_documentation / documented_no_personal_key | PageReadError | existing_or_implemented_scoped_adapter; archive_search |
+| supplied_091 | Архивы и новости · **Internet Archive** | [archive.org](https://archive.org/advancedsearch.php) | public_api_or_documentation / documented_no_personal_key | PageReadError | operation_not_live_verified; исключён из рабочего реестра после двух timeout |
 | supplied_092 | Архивы и новости · **Wayback Machine** | [archive.org](https://archive.org/help/wayback_api.php) | public_api_or_documentation / documented_no_personal_key | PageReadError | existing_or_implemented_scoped_adapter; web_archive |
 | supplied_093 | Архивы и новости · **Google News** | [news.google.com](https://news.google.com/) | public_website_or_unresolved / not_verified | HTTP302 | operation_permission_or_parser_not_verified; — |
 | supplied_094 | Архивы и новости · **NewsLookup** | [www.newslookup.com](https://www.newslookup.com/) | public_website_or_unresolved / not_verified | HTTP200 | operation_permission_or_parser_not_verified; — |

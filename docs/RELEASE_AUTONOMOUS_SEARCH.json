@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "tested_at_utc": "2026-10-29T18:07:09.009802+00:00",
+  "baseline_git": "79a295937b28f72558b0d657c22594ae0565297e",
+  "executable": {
+    "path": "dist/Granger-OSINT.exe",
+    "size_bytes": 275538501,
+    "sha256": "37fffea2c33bdd929503b15ed019020ecb7f5b25dc06891f1d0c323d98fb4ecf"
+  },
+  "tests": {
+    "python_full": {
+      "passed": 892,
+      "skipped": 1,
+      "subtests": 32,
+      "seconds": 220.01
+    },
+    "post_full_engine_sources": {
+      "passed": 157,
+      "seconds": 50.79
+    },
+    "frontend": {
+      "passed": 85,
+      "files": 12
+    },
+    "chat_layout": {
+      "cases": 304,
+      "DOM_checks": 2992
+    },
+    "actual_EXE": {
+      "passed": true,
+      "checks": 41
+    },
+    "frozen_modules": 73,
+    "resource_checks": 137,
+    "unchanged_protected_assets": 12
+  },
+  "registry": {
+    "implemented": 32,
+    "ready_local_no_source_keys": 28,
+    "verified_runtime_in_fresh_offline_catalog": 0,
+    "new_live_verified_adapters": 7
+  },
+  "new_live_adapters": [
+    "github_profile",
+    "github_users",
+    "github_repositories",
+    "hn_search",
+    "hn_profile",
+    "openlibrary_search",
+    "wikipedia_search"
+  ],
+  "catalog_audit": {
+    "catalog_records_discovered": 0,
+    "supplied_entries_reviewed": 153,
+    "supplied_exact_url_identified": 119,
+    "supplied_without_exact_url": 34,
+    "duplicate_entries": 6,
+    "unique_urls_http_checked": 113,
+    "http200_landing_or_docs": 71,
+    "unavailable_in_this_probe": 20,
+    "challenge_pages": 5,
+    "documented_auth_or_key_entries": 12,
+    "documented_no_personal_key_api_entries": 11,
+    "permitted_scraping_operations_verified": 0,
+    "entries_with_scoped_implemented_adapter": 23,
+    "catalog_adapters_integrated": 0,
+    "catalog_adapters_live_verified": 0
+  },
+  "live_examples": {
+    "solvnox": {
+      "status": "complete",
+      "records": 3,
+      "sources": [
+        "github_users",
+        "hn_search"
+      ],
+      "identity_verified": false
+    },
+    "default_nominatim": {
+      "query": "London Bridge",
+      "records": 5
+    },
+    "permitted_JS": "https://quotes.toscrape.com/js/",
+    "deepseek": {
+      "model": "deepseek-v4-flash",
+      "requests": 2,
+      "tool_calls": 1,
+      "tokens_total": 6583,
+      "source_keys_used": false,
+      "checkpoint_count": 13
+    }
+  },
+  "limits": [
+    "Start.me403/challenge: whole collection not extracted,0actualhrefs recovered.",
+    "Internet Archive search timed out twice and is excluded from active registry.",
+    "Overpass default timed out at12s and20s; no successful live claim.",
+    "Generic browser is offline DOM with pinned-prefetched classic scripts, not arbitrary XHR/ESmodules/login/CAPTCHA automation.",
+    "Search is a bounded federation of documented public sources, not a full internet index.",
+    "PhysicaladditionalDPI andotherOS nottested.",
+    "Previous nativeWebEngineCPU variability unresolved; no system/otherapp changes."
+  ],
+  "user_data_deleted": false,
+  "personal_source_credentials_used_for_basic_tests": false,
+  "performance": {
+    "rows": [
+      {
+        "scenario": "long_1000_visible",
+        "before": {
+          "process_count": 3.0,
+          "thread_count": 70.0,
+          "rss_bytes_sum": 510464000.0,
+          "private_commit_bytes_sum": 371900416.0,
+          "cpu_percent_one_core": 5.4099067130471585,
+          "cpu_percent_machine": 0.4508255594205965,
+          "monitor_seconds": 0.010633450001478195
+        },
+        "after": {
+          "process_count": 3.0,
+          "thread_count": 71.0,
+          "rss_bytes_sum": 481345536.0,
+          "private_commit_bytes_sum": 338743296.0,
+          "cpu_percent_one_core": 6.178386222656147,
+          "cpu_percent_machine": 0.5148655185546789,
+          "monitor_seconds": 0.010727350017987192
+        },
+        "before_foreground": [
+          false,
+          false,
+          false
+        ],
+        "after_foreground": [
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "scenario": "long_1000_minimized",
+        "before": {
+          "process_count": 3.0,
+          "thread_count": 70.0,
+          "rss_bytes_sum": 510541824.0,
+          "private_commit_bytes_sum": 371900416.0,
+          "cpu_percent_one_core": 6.182970745512973,
+          "cpu_percent_machine": 0.515247562126081,
+          "monitor_seconds": 0.01047285000095144
+        },
+        "after": {
+          "process_count": 3.0,
+          "thread_count": 71.0,
+          "rss_bytes_sum": 481423360.0,
+          "private_commit_bytes_sum": 338743296.0,
+          "cpu_percent_one_core": 5.411656934997591,
+          "cpu_percent_machine": 0.4509714112497992,
+          "monitor_seconds": 0.010399349994258955
+        },
+        "before_foreground": [
+          false,
+          false,
+          false
+        ],
+        "after_foreground": [
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "scenario": "after_long_exit",
+        "before": {
+          "process_count": 0.0,
+          "thread_count": 0.0,
+          "rss_bytes_sum": 0.0,
+          "private_commit_bytes_sum": 0.0,
+          "cpu_percent_one_core": 0.0,
+          "cpu_percent_machine": 0.0,
+          "monitor_seconds": 0.008524100005161017
+        },
+        "after": {
+          "process_count": 0.0,
+          "thread_count": 0.0,
+          "rss_bytes_sum": 0.0,
+          "private_commit_bytes_sum": 0.0,
+          "cpu_percent_one_core": 0.0,
+          "cpu_percent_machine": 0.0,
+          "monitor_seconds": 0.008468600019114092
+        },
+        "before_foreground": [
+          null
+        ],
+        "after_foreground": [
+          null
+        ]
+      }
+    ],
+    "method": "Same script,fresh1000messages,3x6s per scenario,onlyimage-verifiedownprocesses",
+    "cpu_units": "100% one logical core;12logical CPUs",
+    "memory_units": "SumRSS includes sharedpages;notprivateworking-set",
+    "active_investigation_CPU_not_separately_measured": true,
+    "old_nativeCPU_variability_not_claimed_fixed": true
+  }
+}

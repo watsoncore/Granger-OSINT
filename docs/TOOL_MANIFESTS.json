@@ -806,7 +806,7 @@
       "id": "map_geocode",
       "name": "map_geocode",
       "category": "geoint",
-      "description": "Найти географических кандидатов по публичному топониму на настроенном разрешённом Nominatim endpoint. Требуется подтверждение передачи запроса.",
+      "description": "Найти географических кандидатов по публичному топониму через ограниченный публичный Nominatim: единичный запрос, кэш и атрибуция, без массового геокодирования.",
       "accepted_inputs": [
         "coordinates"
       ],
@@ -827,7 +827,7 @@
       "access_mode": "OFFICIAL_API",
       "auth_requirements": [],
       "required_permissions": [
-        "explicit_user_approval"
+        "public_read_only"
       ],
       "network_requirements": "public HTTPS",
       "rate_limit_policy": "Mapping clients share a per-service rate gate and bounded cache.",
@@ -842,7 +842,7 @@
       "id": "map_overpass",
       "name": "map_overpass",
       "category": "geoint",
-      "description": "Именованные достопримечательности в радиусе500м от заданных latitude,longitude через разрешённый Overpass endpoint. Требуется подтверждение передачи координат.",
+      "description": "Именованные достопримечательности в радиусе500м от заданных latitude,longitude через ограниченный публичный Overpass, кэш и backoff; координаты передаются провайдеру.",
       "accepted_inputs": [
         "coordinates"
       ],
@@ -863,7 +863,7 @@
       "access_mode": "OFFICIAL_API",
       "auth_requirements": [],
       "required_permissions": [
-        "explicit_user_approval"
+        "public_read_only"
       ],
       "network_requirements": "public HTTPS",
       "rate_limit_policy": "Mapping clients share a per-service rate gate and bounded cache.",
@@ -878,7 +878,7 @@
       "id": "map_wikimedia",
       "name": "map_wikimedia",
       "category": "geoint",
-      "description": "MediaWiki Commons API: геотеги до20медиа в радиусе1км от latitude,longitude. Совпадение пикселей не проверяется. Требуется подтверждение передачи координат.",
+      "description": "MediaWiki Commons API: геотеги до20медиа в радиусе1км от latitude,longitude. Совпадение пикселей не проверяется; координаты передаются Commons.",
       "accepted_inputs": [
         "coordinates"
       ],
@@ -899,7 +899,7 @@
       "access_mode": "OFFICIAL_API",
       "auth_requirements": [],
       "required_permissions": [
-        "explicit_user_approval"
+        "public_read_only"
       ],
       "network_requirements": "public HTTPS",
       "rate_limit_policy": "Mapping clients share a per-service rate gate and bounded cache.",
@@ -908,6 +908,258 @@
       ],
       "source_url": "https://www.mediawiki.org/wiki/Extension:GeoData#API",
       "documentation_url": "https://www.mediawiki.org/wiki/Extension:GeoData#API",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "github_profile",
+      "name": "github_profile",
+      "category": "socmint",
+      "description": "GitHub: настоящая публичная запись точного username через официальный API без персонального ключа.",
+      "accepted_inputs": [
+        "username"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Public integrations share two worker slots; per-service rate gates and a five-minute cache.",
+      "capabilities": [
+        "github_profile"
+      ],
+      "source_url": "https://docs.github.com/en/rest/users/users#get-a-user",
+      "documentation_url": "https://docs.github.com/en/rest/users/users#get-a-user",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "github_users",
+      "name": "github_users",
+      "category": "web",
+      "description": "GitHub: поиск публичных профилей по запросу через официальный API без ключа; совпадение имени не устанавливает личность.",
+      "accepted_inputs": [
+        "dork"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Public integrations share two worker slots; per-service rate gates and a five-minute cache.",
+      "capabilities": [
+        "github_users"
+      ],
+      "source_url": "https://docs.github.com/en/rest/search/search#search-users",
+      "documentation_url": "https://docs.github.com/en/rest/search/search#search-users",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "github_repositories",
+      "name": "github_repositories",
+      "category": "web",
+      "description": "GitHub: публичные репозитории по запросу, описания, язык и даты; без приватного кода и без ключа.",
+      "accepted_inputs": [
+        "dork"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Public integrations share two worker slots; per-service rate gates and a five-minute cache.",
+      "capabilities": [
+        "github_repositories"
+      ],
+      "source_url": "https://docs.github.com/en/rest/search/search#search-repositories",
+      "documentation_url": "https://docs.github.com/en/rest/search/search#search-repositories",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "hn_search",
+      "name": "hn_search",
+      "category": "web",
+      "description": "Hacker News Algolia: реальные публичные публикации/комментарии, автор, дата и текст при наличии, без ключа.",
+      "accepted_inputs": [
+        "dork"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Public integrations share two worker slots; per-service rate gates and a five-minute cache.",
+      "capabilities": [
+        "hn_search"
+      ],
+      "source_url": "https://hn.algolia.com/api",
+      "documentation_url": "https://hn.algolia.com/api",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "hn_profile",
+      "name": "hn_profile",
+      "category": "socmint",
+      "description": "Hacker News: точный публичный username, about, karma и дата через официальный Firebase API без ключа.",
+      "accepted_inputs": [
+        "username"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Public integrations share two worker slots; per-service rate gates and a five-minute cache.",
+      "capabilities": [
+        "hn_profile"
+      ],
+      "source_url": "https://github.com/HackerNews/API#users",
+      "documentation_url": "https://github.com/HackerNews/API#users",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "openlibrary_search",
+      "name": "openlibrary_search",
+      "category": "web",
+      "description": "Open Library: поиск опубликованных книг, авторов, дат и идентификаторов через публичный API без ключа.",
+      "accepted_inputs": [
+        "dork"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Public integrations share two worker slots; per-service rate gates and a five-minute cache.",
+      "capabilities": [
+        "openlibrary_search"
+      ],
+      "source_url": "https://openlibrary.org/dev/docs/api/search",
+      "documentation_url": "https://openlibrary.org/dev/docs/api/search",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "wikipedia_search",
+      "name": "wikipedia_search",
+      "category": "web",
+      "description": "Wikipedia: поиск статей и фактическое извлечение вступительного текста через MediaWiki API без ключа.",
+      "accepted_inputs": [
+        "dork"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Public integrations share two worker slots; per-service rate gates and a five-minute cache.",
+      "capabilities": [
+        "wikipedia_search"
+      ],
+      "source_url": "https://www.mediawiki.org/wiki/Extension:TextExtracts#API",
+      "documentation_url": "https://www.mediawiki.org/wiki/Extension:TextExtracts#API",
       "adapter_version": "1.0"
     }
   ]

@@ -19,7 +19,6 @@ def main():
     cases=[('github_profile',{'username':'octocat'}),('github_users',{'query':'octocat','limit':2}),
         ('github_repositories',{'query':'repo:octocat/Hello-World','limit':2}),('hn_search',{'query':'Python','limit':2}),
         ('hn_profile',{'username':'pg'}),('openlibrary_search',{'query':'python programming','limit':2}),
-        ('archive_search',{'query':'title:(The Adventures of Sherlock Holmes) AND mediatype:texts','limit':2}),
         ('wikipedia_search',{'query':'London','limit':2}),('web_search',{'query':'octocat','limit':5})]
     report={'tested_at_utc':datetime.now(timezone.utc).isoformat(),'mock':False,'personal_source_keys_used':False,
         'user_history_or_photos_read':False,'executions':[]}

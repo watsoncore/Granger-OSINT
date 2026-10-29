@@ -38,7 +38,7 @@ URLS={
 API_FREE={25,48,50,63,65,66,69,90,91,99,108}
 API_KEY={14,32,33,35,47,67,68,70,81,83,101,107}
 LOCAL={16,17,18,19,124,130,133,142,147,148,149,150}
-ADAPTERS={16:['username_maigret'],18:['username_social_analyzer'],25:['github_repository','github_profile','github_users','github_repositories'],32:['telegram_public'],33:['vk_public'],35:['instagram_public'],47:['telegram_public'],48:['domain_lookup'],50:['domain_lookup'],63:['domain_lookup'],64:['map_overpass','map_geocode'],65:['map_overpass'],66:['map_geocode'],69:['map_wikimedia'],79:['map_overpass','map_geocode'],90:['archive_search'],91:['web_archive'],99:['wikipedia_search'],101:['hash_virustotal'],108:['threat_feodo'],124:['blockchain_gansar'],133:['image_metadata','image_ocr','image_compare'],149:['email_holehe'],150:['phone_metadata']}
+ADAPTERS={16:['username_maigret'],18:['username_social_analyzer'],25:['github_repository','github_profile','github_users','github_repositories'],32:['telegram_public'],33:['vk_public'],35:['instagram_public'],47:['telegram_public'],48:['domain_lookup'],50:['domain_lookup'],63:['domain_lookup'],64:['map_overpass','map_geocode'],65:['map_overpass'],66:['map_geocode'],69:['map_wikimedia'],79:['map_overpass','map_geocode'],91:['web_archive'],99:['wikipedia_search'],101:['hash_virustotal'],108:['threat_feodo'],124:['blockchain_gansar'],133:['image_metadata','image_ocr','image_compare'],149:['email_holehe'],150:['phone_metadata']}
 NOTES={
 3:'robots.txt disallows /html and /lite; these search endpoints are not automated. Manual site use is not a backend integration.',
 10:'Open-source metasearch software, not one guaranteed public endpoint; each instance has its own permission and JSON policy.',

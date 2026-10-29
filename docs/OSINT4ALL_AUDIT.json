@@ -54,12 +54,11 @@
     "documented_auth_or_key_entries": 12,
     "documented_no_personal_key_api_entries": 11,
     "permitted_scraping_operations_verified": 0,
-    "entries_with_scoped_implemented_adapter": 24,
+    "entries_with_scoped_implemented_adapter": 23,
     "catalog_adapters_integrated": 0,
     "catalog_adapters_live_verified": 0
   },
   "implemented_distinct_adapter_names": [
-    "archive_search",
     "blockchain_gansar",
     "domain_lookup",
     "email_holehe",
@@ -138,7 +137,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057077+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267192+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -166,7 +165,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057114+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267224+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -194,7 +193,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057131+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267240+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -222,7 +221,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057144+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267252+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -250,7 +249,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057157+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267264+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -278,7 +277,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057169+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267275+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -306,7 +305,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057180+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267285+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -334,7 +333,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057190+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267295+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -362,7 +361,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057200+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267304+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -390,7 +389,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057209+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267314+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -418,7 +417,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057220+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267323+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -446,7 +445,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057230+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267333+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -474,7 +473,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057240+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267342+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -502,7 +501,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057249+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267351+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -530,7 +529,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057260+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267362+00:00"
     },
     {
       "category": "Поисковики и общий веб-поиск",
@@ -558,7 +557,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057270+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267372+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -608,7 +607,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057282+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267383+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -636,7 +635,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057292+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267394+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -686,7 +685,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057304+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267405+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -714,7 +713,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057314+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267414+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -742,7 +741,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057324+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267425+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -770,7 +769,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057335+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267435+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -798,7 +797,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057345+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267444+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -826,7 +825,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057350+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267449+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -854,7 +853,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057374+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267460+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -925,7 +924,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057390+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267473+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -953,7 +952,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057401+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267484+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -981,7 +980,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057412+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267494+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -1009,7 +1008,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057422+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267503+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -1037,7 +1036,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057433+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267513+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -1065,7 +1064,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057444+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267523+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -1093,7 +1092,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057453+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267532+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -1143,7 +1142,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057465+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267542+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -1193,7 +1192,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057485+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267553+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -1221,7 +1220,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057496+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267563+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -1271,7 +1270,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057507+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267573+00:00"
     },
     {
       "category": "Username / SOCMINT",
@@ -1299,7 +1298,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057518+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267583+00:00"
     },
     {
       "category": "Telegram",
@@ -1327,7 +1326,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057528+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267593+00:00"
     },
     {
       "category": "Telegram",
@@ -1355,7 +1354,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057533+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267597+00:00"
     },
     {
       "category": "Telegram",
@@ -1383,7 +1382,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057538+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267601+00:00"
     },
     {
       "category": "Telegram",
@@ -1411,7 +1410,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057548+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267611+00:00"
     },
     {
       "category": "Telegram",
@@ -1439,7 +1438,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057552+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267615+00:00"
     },
     {
       "category": "Telegram",
@@ -1467,7 +1466,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057557+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267619+00:00"
     },
     {
       "category": "Telegram",
@@ -1495,7 +1494,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057561+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267623+00:00"
     },
     {
       "category": "Telegram",
@@ -1523,7 +1522,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057565+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267627+00:00"
     },
     {
       "category": "Telegram",
@@ -1551,7 +1550,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057574+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267636+00:00"
     },
     {
       "category": "Telegram",
@@ -1579,7 +1578,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057579+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267641+00:00"
     },
     {
       "category": "Telegram",
@@ -1629,7 +1628,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057586+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267648+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -1679,7 +1678,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057597+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267659+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -1707,7 +1706,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057608+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267669+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -1757,7 +1756,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057618+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267680+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -1785,7 +1784,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057633+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267693+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -1813,7 +1812,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057643+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267702+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -1841,7 +1840,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057653+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267711+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -1869,7 +1868,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057661+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267720+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -1897,7 +1896,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057671+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267729+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -1925,7 +1924,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057681+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267738+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -1953,7 +1952,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057691+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267747+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -1981,7 +1980,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057700+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267755+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -2009,7 +2008,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057709+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267764+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -2037,7 +2036,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057718+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267773+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -2065,7 +2064,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057728+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267782+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -2093,7 +2092,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057737+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267790+00:00"
     },
     {
       "category": "Домены, IP, DNS и инфраструктура",
@@ -2143,7 +2142,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057744+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267797+00:00"
     },
     {
       "category": "GEOINT",
@@ -2200,7 +2199,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057755+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267807+00:00"
     },
     {
       "category": "GEOINT",
@@ -2250,7 +2249,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057766+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267818+00:00"
     },
     {
       "category": "GEOINT",
@@ -2300,7 +2299,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057776+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267828+00:00"
     },
     {
       "category": "GEOINT",
@@ -2328,7 +2327,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057786+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267837+00:00"
     },
     {
       "category": "GEOINT",
@@ -2356,7 +2355,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057796+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267846+00:00"
     },
     {
       "category": "GEOINT",
@@ -2406,7 +2405,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057806+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267856+00:00"
     },
     {
       "category": "GEOINT",
@@ -2434,7 +2433,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057816+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267867+00:00"
     },
     {
       "category": "GEOINT",
@@ -2462,7 +2461,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057820+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267871+00:00"
     },
     {
       "category": "GEOINT",
@@ -2490,7 +2489,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057825+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267876+00:00"
     },
     {
       "category": "GEOINT",
@@ -2518,7 +2517,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057834+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267885+00:00"
     },
     {
       "category": "GEOINT",
@@ -2546,7 +2545,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057843+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267895+00:00"
     },
     {
       "category": "GEOINT",
@@ -2574,7 +2573,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057848+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267900+00:00"
     },
     {
       "category": "Карты",
@@ -2602,7 +2601,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057857+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267909+00:00"
     },
     {
       "category": "Карты",
@@ -2630,7 +2629,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057866+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267918+00:00"
     },
     {
       "category": "Карты",
@@ -2658,7 +2657,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057876+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267934+00:00"
     },
     {
       "category": "Карты",
@@ -2715,7 +2714,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057883+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267941+00:00"
     },
     {
       "category": "Карты",
@@ -2743,7 +2742,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057893+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267951+00:00"
     },
     {
       "category": "Карты",
@@ -2771,7 +2770,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057900+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267958+00:00"
     },
     {
       "category": "Карты",
@@ -2799,7 +2798,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057911+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267969+00:00"
     },
     {
       "category": "Карты",
@@ -2827,7 +2826,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057917+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267975+00:00"
     },
     {
       "category": "Карты",
@@ -2855,7 +2854,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057922+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267979+00:00"
     },
     {
       "category": "Карты",
@@ -2883,7 +2882,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057931+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267989+00:00"
     },
     {
       "category": "Карты",
@@ -2911,7 +2910,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057941+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.267998+00:00"
     },
     {
       "category": "Карты",
@@ -2939,7 +2938,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057950+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268007+00:00"
     },
     {
       "category": "Карты",
@@ -2967,7 +2966,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057960+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268017+00:00"
     },
     {
       "category": "Карты",
@@ -2995,7 +2994,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.057964+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268021+00:00"
     },
     {
       "category": "Архивы и новости",
@@ -3016,36 +3015,14 @@
       "challenge": false,
       "error_type": "PageReadError",
       "duplicate_of": null,
-      "decision": "existing_or_implemented_scoped_adapter",
+      "decision": "operation_permission_or_parser_not_verified",
       "reason": "Official advanced search API supports bounded public metadata search; copyrighted full content is not automatically downloaded.",
-      "adapter_names": [
-        "archive_search"
-      ],
-      "supported_input": [
-        {
-          "adapter": "archive_search",
-          "kind": "dork",
-          "argument": "query",
-          "max_length": 300
-        }
-      ],
-      "supported_output": {
-        "type": "normalized_tool_invocation",
-        "fields": [
-          "tool_id",
-          "invocation_id",
-          "status",
-          "started_at",
-          "finished_at",
-          "data",
-          "evidence_ids",
-          "warnings",
-          "errors"
-        ]
-      },
+      "adapter_names": [],
+      "supported_input": [],
+      "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057978+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268039+00:00"
     },
     {
       "category": "Архивы и новости",
@@ -3095,7 +3072,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.057990+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268050+00:00"
     },
     {
       "category": "Архивы и новости",
@@ -3123,7 +3100,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058002+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268060+00:00"
     },
     {
       "category": "Архивы и новости",
@@ -3151,7 +3128,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058012+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268069+00:00"
     },
     {
       "category": "Архивы и новости",
@@ -3179,7 +3156,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058021+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268078+00:00"
     },
     {
       "category": "Архивы и новости",
@@ -3207,7 +3184,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058030+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268087+00:00"
     },
     {
       "category": "Архивы и новости",
@@ -3235,7 +3212,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058035+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268091+00:00"
     },
     {
       "category": "Архивы и новости",
@@ -3263,7 +3240,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058044+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268100+00:00"
     },
     {
       "category": "Архивы и новости",
@@ -3291,7 +3268,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058049+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268105+00:00"
     },
     {
       "category": "Архивы и новости",
@@ -3341,7 +3318,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058059+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268115+00:00"
     },
     {
       "category": "Архивы и новости",
@@ -3369,7 +3346,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058063+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268119+00:00"
     },
     {
       "category": "Threat Intelligence",
@@ -3419,7 +3396,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058073+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268131+00:00"
     },
     {
       "category": "Threat Intelligence",
@@ -3447,7 +3424,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058083+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268141+00:00"
     },
     {
       "category": "Threat Intelligence",
@@ -3475,7 +3452,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058092+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268150+00:00"
     },
     {
       "category": "Threat Intelligence",
@@ -3503,7 +3480,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058102+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268159+00:00"
     },
     {
       "category": "Threat Intelligence",
@@ -3531,7 +3508,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058111+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268168+00:00"
     },
     {
       "category": "Threat Intelligence",
@@ -3559,7 +3536,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058124+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268180+00:00"
     },
     {
       "category": "Threat Intelligence",
@@ -3587,7 +3564,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058134+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268189+00:00"
     },
     {
       "category": "Threat Intelligence",
@@ -3637,7 +3614,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058145+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268199+00:00"
     },
     {
       "category": "Публичные данные",
@@ -3665,7 +3642,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058156+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268209+00:00"
     },
     {
       "category": "Публичные данные",
@@ -3693,7 +3670,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058167+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268220+00:00"
     },
     {
       "category": "Публичные данные",
@@ -3721,7 +3698,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058176+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268229+00:00"
     },
     {
       "category": "Публичные данные",
@@ -3749,7 +3726,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058186+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268238+00:00"
     },
     {
       "category": "Публичные данные",
@@ -3777,7 +3754,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058195+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268247+00:00"
     },
     {
       "category": "Публичные данные",
@@ -3805,7 +3782,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058205+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268256+00:00"
     },
     {
       "category": "Публичные данные",
@@ -3833,7 +3810,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058214+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268265+00:00"
     },
     {
       "category": "Публичные данные",
@@ -3861,7 +3838,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058218+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268269+00:00"
     },
     {
       "category": "Публичные данные",
@@ -3889,7 +3866,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058223+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268274+00:00"
     },
     {
       "category": "Публичные данные",
@@ -3917,7 +3894,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058227+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268277+00:00"
     },
     {
       "category": "Blockchain",
@@ -3945,7 +3922,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058231+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268281+00:00"
     },
     {
       "category": "Blockchain",
@@ -3973,7 +3950,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058235+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268285+00:00"
     },
     {
       "category": "Blockchain",
@@ -4001,7 +3978,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058239+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268290+00:00"
     },
     {
       "category": "Blockchain",
@@ -4029,7 +4006,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058250+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268299+00:00"
     },
     {
       "category": "Blockchain",
@@ -4057,7 +4034,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058255+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268303+00:00"
     },
     {
       "category": "Blockchain",
@@ -4107,7 +4084,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058265+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268313+00:00"
     },
     {
       "category": "Blockchain",
@@ -4135,7 +4112,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058271+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268317+00:00"
     },
     {
       "category": "Изображения и метаданные",
@@ -4163,7 +4140,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058281+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268327+00:00"
     },
     {
       "category": "Изображения и метаданные",
@@ -4191,7 +4168,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058290+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268335+00:00"
     },
     {
       "category": "Изображения и метаданные",
@@ -4219,7 +4196,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058300+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268344+00:00"
     },
     {
       "category": "Изображения и метаданные",
@@ -4247,7 +4224,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058308+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268353+00:00"
     },
     {
       "category": "Изображения и метаданные",
@@ -4275,7 +4252,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058318+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268362+00:00"
     },
     {
       "category": "Изображения и метаданные",
@@ -4303,7 +4280,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058322+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268367+00:00"
     },
     {
       "category": "Изображения и метаданные",
@@ -4331,7 +4308,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058326+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268373+00:00"
     },
     {
       "category": "Изображения и метаданные",
@@ -4395,7 +4372,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058336+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268379+00:00"
     },
     {
       "category": "Авиация и транспорт",
@@ -4423,7 +4400,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058346+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268391+00:00"
     },
     {
       "category": "Авиация и транспорт",
@@ -4451,7 +4428,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058356+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268400+00:00"
     },
     {
       "category": "Авиация и транспорт",
@@ -4479,7 +4456,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058365+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268409+00:00"
     },
     {
       "category": "Авиация и транспорт",
@@ -4507,7 +4484,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058374+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268418+00:00"
     },
     {
       "category": "Авиация и транспорт",
@@ -4535,7 +4512,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058383+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268427+00:00"
     },
     {
       "category": "Авиация и транспорт",
@@ -4563,7 +4540,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058392+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268436+00:00"
     },
     {
       "category": "Авиация и транспорт",
@@ -4591,7 +4568,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058397+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268440+00:00"
     },
     {
       "category": "YouTube",
@@ -4619,7 +4596,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058401+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268444+00:00"
     },
     {
       "category": "YouTube",
@@ -4647,7 +4624,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058410+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268454+00:00"
     },
     {
       "category": "YouTube",
@@ -4675,7 +4652,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058416+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268459+00:00"
     },
     {
       "category": "YouTube",
@@ -4703,7 +4680,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058421+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268463+00:00"
     },
     {
       "category": "YouTube",
@@ -4731,7 +4708,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058425+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268467+00:00"
     },
     {
       "category": "YouTube",
@@ -4759,7 +4736,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058429+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268471+00:00"
     },
     {
       "category": "GitHub/локальные инструменты",
@@ -4787,7 +4764,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058438+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268479+00:00"
     },
     {
       "category": "GitHub/локальные инструменты",
@@ -4815,7 +4792,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058447+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268487+00:00"
     },
     {
       "category": "GitHub/локальные инструменты",
@@ -4865,7 +4842,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058456+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268496+00:00"
     },
     {
       "category": "GitHub/локальные инструменты",
@@ -4915,7 +4892,7 @@
       },
       "live_verified": false,
       "last_checked": "2026-10-29 (landing/documentation probe)",
-      "last_reviewed_at": "2026-10-29T16:31:24.058465+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268506+00:00"
     },
     {
       "category": "GitHub/локальные инструменты",
@@ -4943,7 +4920,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058470+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268510+00:00"
     },
     {
       "category": "GitHub/локальные инструменты",
@@ -4971,7 +4948,7 @@
       "supported_output": null,
       "live_verified": false,
       "last_checked": null,
-      "last_reviewed_at": "2026-10-29T16:31:24.058474+00:00"
+      "last_reviewed_at": "2026-10-29T18:04:51.268514+00:00"
     }
   ],
   "url_probes": {
