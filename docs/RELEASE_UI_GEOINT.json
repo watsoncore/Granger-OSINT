@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "tested_at_utc": "2026-10-29T15:13:24.329685+00:00",
+  "scope": "Existing Granger-OSINT UI, event character, local GEOINT, bounded adapters and opt-in portable security",
+  "executable": {
+    "relative_path": "dist/Granger-OSINT.exe",
+    "size_bytes": 275475620,
+    "sha256": "191bf4f33a968e5f30c9235abed821a5338c3f3af875cd00a6c97c7bde59afbe"
+  },
+  "tests": {
+    "python_full": {
+      "passed": 818,
+      "skipped": 1,
+      "subtests_passed": 32,
+      "seconds": 177.31,
+      "log": "python-delivery-tests.log",
+      "collection_note": "Final coordinate regression test was added after this full collection; separately covered by 66-test run."
+    },
+    "python_post_full_coordinates": {
+      "passed": 66,
+      "seconds": 14.84,
+      "log": "geoint-validation-final-tests.log"
+    },
+    "python_final_manifest_geoint": {
+      "passed": 56,
+      "seconds": 9.15,
+      "log": "manifest-final-tests.log"
+    },
+    "frontend": {
+      "passed": 78,
+      "files": 11,
+      "log": "frontend-delivery-tests.log"
+    },
+    "source_ui_checks": 52,
+    "source_native_pet_checks": 166,
+    "actual_final_exe_checks": 36,
+    "frozen_modules": 69,
+    "frozen_resource_checks": 137
+  },
+  "osint_counts": {
+    "documented_candidates": 9,
+    "implemented_adapters": 25,
+    "ready_local_no_user_secrets": 19,
+    "executed_real_in_this_update": 8,
+    "extracted_from_requested_start_me": 0
+  },
+  "deepseek_live": {
+    "real_gateway": true,
+    "model": "deepseek-v4-flash",
+    "model_requests": 2,
+    "tool_calls": 2,
+    "tokens_total": 6359,
+    "image_uploaded": false,
+    "report": "geoint-agent-live-2.json"
+  },
+  "security": {
+    "portable_vault": "Argon2id 64MiB/t3/p4 + AES-256-GCM",
+    "migration": "explicit opt-in; copy, decrypt/verify, activate; originals retained",
+    "real_user_profile_migrated": false,
+    "user_data_deleted": false,
+    "password_in_webchannel": false
+  },
+  "known_limits": [
+    "High/low native WebEngine CPU observed on both old and final EXE; cause unresolved, no guaranteed acceleration claim.",
+    "Physical Windows DPI beyond current1.25 and other OS were not tested.",
+    "Full XMP/IPTC/MakerNotes, semantic photo geolocation and automated reverse-image API not implemented.",
+    "Overpass live timed out; Nominatim endpoint unconfigured; VirusTotal live unavailable without key.",
+    "Dedicated shy/annoyed/laptop sprite frames absent.",
+    "Source start.me collection returned403; no bypass or invented imports.",
+    "Legacy plaintext artifacts retained after explicit migration; no actual user profile migration performed."
+  ],
+  "performance": {
+    "matched_final_comparison": [
+      {
+        "scenario": "long_1000_visible",
+        "before": {
+          "process_count": 3.0,
+          "thread_count": 70.0,
+          "rss_bytes_sum": 476573696.0,
+          "private_commit_bytes_sum": 336134144.0,
+          "cpu_percent_one_core": 6.189579633376445,
+          "cpu_percent_machine": 0.5157983027813704,
+          "monitor_seconds": 0.009132549981586635
+        },
+        "after": {
+          "process_count": 3.0,
+          "thread_count": 70.0,
+          "rss_bytes_sum": 484777984.0,
+          "private_commit_bytes_sum": 343949312.0,
+          "cpu_percent_one_core": 6.191393839252811,
+          "cpu_percent_machine": 0.515949486604401,
+          "monitor_seconds": 0.008466200029943138
+        },
+        "owned_window_foreground_before_trials": [
+          true,
+          true,
+          true
+        ],
+        "owned_window_foreground_after_trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "scenario": "long_1000_minimized",
+        "before": {
+          "process_count": 3.0,
+          "thread_count": 70.0,
+          "rss_bytes_sum": 477163520.0,
+          "private_commit_bytes_sum": 336134144.0,
+          "cpu_percent_one_core": 6.185048207057903,
+          "cpu_percent_machine": 0.515420683921492,
+          "monitor_seconds": 0.00928359999670647
+        },
+        "after": {
+          "process_count": 3.0,
+          "thread_count": 70.0,
+          "rss_bytes_sum": 485294080.0,
+          "private_commit_bytes_sum": 343953408.0,
+          "cpu_percent_one_core": 6.1935421770175125,
+          "cpu_percent_machine": 0.5161285147514594,
+          "monitor_seconds": 0.00882160000037402
+        },
+        "owned_window_foreground_before_trials": [
+          false,
+          false,
+          false
+        ],
+        "owned_window_foreground_after_trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "scenario": "after_long_exit",
+        "before": {
+          "process_count": 0.0,
+          "thread_count": 0.0,
+          "rss_bytes_sum": 0.0,
+          "private_commit_bytes_sum": 0.0,
+          "cpu_percent_one_core": 0.0,
+          "cpu_percent_machine": 0.0,
+          "monitor_seconds": 0.007617399969603866
+        },
+        "after": {
+          "process_count": 0.0,
+          "thread_count": 0.0,
+          "rss_bytes_sum": 0.0,
+          "private_commit_bytes_sum": 0.0,
+          "cpu_percent_one_core": 0.0,
+          "cpu_percent_machine": 0.0,
+          "monitor_seconds": 0.006635049998294562
+        },
+        "owned_window_foreground_before_trials": [
+          null
+        ],
+        "owned_window_foreground_after_trials": [
+          null
+        ]
+      }
+    ],
+    "method": "Same script, fresh1000-message profile,3x6s; own foreground true for every visible trial of both EXEs",
+    "cpu_variability_unresolved": true,
+    "high_observations_preserved": [
+      "performance-old-recheck/report.json",
+      "performance-release/report.json"
+    ]
+  },
+  "evidence_root": "output/reconstruction-qa",
+  "git_publication": "output/reconstruction-qa/git-publication.json"
+}

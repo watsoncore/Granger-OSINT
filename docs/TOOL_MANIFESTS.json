@@ -1,0 +1,914 @@
+{
+  "schema_version": 1,
+  "tools": [
+    {
+      "id": "username_maigret",
+      "name": "username_maigret",
+      "category": "socmint",
+      "description": "Maigret: ограниченная проверка существования публичных профилей по точному никнейму. Совпадение никнейма не доказывает общего владельца.",
+      "accepted_inputs": [
+        "username"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "LOCAL_CLI",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "username_maigret"
+      ],
+      "source_url": "https://github.com/soxoj/maigret",
+      "documentation_url": "https://github.com/soxoj/maigret",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "username_blackbird",
+      "name": "username_blackbird",
+      "category": "socmint",
+      "description": "Blackbird: независимая проверка публичных профилей по точному никнейму, по локальной базе WhatsMyName.",
+      "accepted_inputs": [
+        "username"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "LOCAL_CLI",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "username_blackbird"
+      ],
+      "source_url": "https://github.com/p1ngul1n0/blackbird",
+      "documentation_url": "https://github.com/p1ngul1n0/blackbird",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "username_social_analyzer",
+      "name": "username_social_analyzer",
+      "category": "socmint",
+      "description": "Social Analyzer: проверка публичных страниц профилей по никнейму; не устанавливает личность.",
+      "accepted_inputs": [
+        "username"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "LOCAL_CLI",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "username_social_analyzer"
+      ],
+      "source_url": "https://github.com/qeeqbox/social-analyzer",
+      "documentation_url": "https://github.com/qeeqbox/social-analyzer",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "username_snoop",
+      "name": "username_snoop",
+      "category": "socmint",
+      "description": "Snoop: дополнительная локальная проверка публичных профилей, только если интеграция включена пользователем.",
+      "accepted_inputs": [
+        "username"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "LOCAL_CLI",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "username_snoop"
+      ],
+      "source_url": "https://github.com/snooppr/snoop",
+      "documentation_url": "https://github.com/snooppr/snoop",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "email_holehe",
+      "name": "email_holehe",
+      "category": "socmint",
+      "description": "Holehe: проверка сигналов регистрации email у ограниченного набора сервисов. Это взаимодействие с сервисами, требуется явное подтверждение пользователя; не доказывает личность.",
+      "accepted_inputs": [
+        "email"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "LOCAL_CLI",
+      "auth_requirements": [],
+      "required_permissions": [
+        "explicit_user_approval"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "email_holehe"
+      ],
+      "source_url": "https://github.com/megadose/holehe",
+      "documentation_url": "https://github.com/megadose/holehe",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "phone_metadata",
+      "name": "phone_metadata",
+      "category": "socmint",
+      "description": "PhoneInfoga bridge: формат, код страны и доступные метаданные номера. Не поиск владельца и не сканирование телефона.",
+      "accepted_inputs": [
+        "phone"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "LOCAL_CLI",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "phone_metadata"
+      ],
+      "source_url": "https://github.com/sundowndev/phoneinfoga",
+      "documentation_url": "https://github.com/sundowndev/phoneinfoga",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "blockchain_gansar",
+      "name": "blockchain_gansar",
+      "category": "blockchain",
+      "description": "Gansar: публичные наблюдения блокчейна — баланс, транзакции и доступные метки адреса. TON и другие поддержанные локальным валидатором сети; метки не устанавливают личность.",
+      "accepted_inputs": [
+        "blockchain"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "blockchain_gansar"
+      ],
+      "source_url": "https://github.com/watsoncore/Granger-OSINT",
+      "documentation_url": "https://github.com/watsoncore/Granger-OSINT",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "web_archive",
+      "name": "web_archive",
+      "category": "archives",
+      "description": "Wayback: публичные архивные снимки конкретной HTTP(S)-страницы. Только публичные сайты, без обхода доступа.",
+      "accepted_inputs": [
+        "web"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "web_archive"
+      ],
+      "source_url": "https://archive.org/help/wayback_api.php",
+      "documentation_url": "https://archive.org/help/wayback_api.php",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "telegram_public",
+      "name": "telegram_public",
+      "category": "socmint",
+      "description": "Telegram через существующую разрешённую сессию: доступные публичные сведения по точному имени. Требуется авторизация и явное подтверждение пользователя.",
+      "accepted_inputs": [
+        "telegram"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [
+        "telegram_api_hash",
+        "telegram_session"
+      ],
+      "required_permissions": [
+        "explicit_user_approval"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "telegram_public"
+      ],
+      "source_url": "https://core.telegram.org/api",
+      "documentation_url": "https://core.telegram.org/api",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "vk_public",
+      "name": "vk_public",
+      "category": "socmint",
+      "description": "VK через существующий разрешённый API-токен: публичный профиль по точному идентификатору. Требуется явное подтверждение пользователя.",
+      "accepted_inputs": [
+        "vk"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [
+        "vk_token"
+      ],
+      "required_permissions": [
+        "explicit_user_approval"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "vk_public"
+      ],
+      "source_url": "https://dev.vk.com/ru/method/users.get",
+      "documentation_url": "https://dev.vk.com/ru/method/users.get",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "instagram_public",
+      "name": "instagram_public",
+      "category": "socmint",
+      "description": "Instagram: доступный публичный профиль по точному имени, без обхода авторизации. Доступ зависит от ограничений сервиса; требуется подтверждение.",
+      "accepted_inputs": [
+        "instagram"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "LOCAL_CLI",
+      "auth_requirements": [
+        "instagram_session"
+      ],
+      "required_permissions": [
+        "explicit_user_approval"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "instagram_public"
+      ],
+      "source_url": "https://instaloader.github.io/",
+      "documentation_url": "https://instaloader.github.io/",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "web_search",
+      "name": "web_search",
+      "category": "web",
+      "description": "Поиск индексируемых публичных упоминаний: реальные URL, заголовки и фрагменты. Отдельный веб-поиск, не проверка регистрации и не выдуманная выдача.",
+      "accepted_inputs": [
+        "dork"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "web_search"
+      ],
+      "source_url": "https://developers.google.com/custom-search/v1/overview",
+      "documentation_url": "https://developers.google.com/custom-search/v1/overview",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "web_read",
+      "name": "web_read",
+      "category": "web",
+      "description": "Непосредственно прочитать найденную публичную страницу: основной текст, фрагмент, заголовки, метаданные, таблицы, JSON-LD и связанные ссылки. Это прямое чтение, не сниппет поисковика. Только URL из реальных находок, ссылок прочитанных страниц или явно указанные пользователем; глубина и число страниц ограничены.",
+      "accepted_inputs": [
+        "web"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "PERMITTED_HTTP",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "web_read"
+      ],
+      "source_url": "https://developer.mozilla.org/en-US/docs/Web/HTTP",
+      "documentation_url": "https://developer.mozilla.org/en-US/docs/Web/HTTP",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "domain_lookup",
+      "name": "domain_lookup",
+      "category": "infrastructure",
+      "description": "Пассивные DNS и доступные RDAP-сведения публичного домена. Не сканирование портов или уязвимостей.",
+      "accepted_inputs": [
+        "domain"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "domain_lookup"
+      ],
+      "source_url": "https://developers.google.com/speed/public-dns/docs/doh/json",
+      "documentation_url": "https://developers.google.com/speed/public-dns/docs/doh/json",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "ip_lookup",
+      "name": "ip_lookup",
+      "category": "infrastructure",
+      "description": "Публичные сведения RIPEstat об ASN и сетевом префиксе IP. Только глобальный IP, без геолокации человека и активного сканирования.",
+      "accepted_inputs": [
+        "ip"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Adapter/provider-specific limits; no shared cross-adapter concurrency guarantee.",
+      "capabilities": [
+        "ip_lookup"
+      ],
+      "source_url": "https://stat.ripe.net/docs/data-api/api-endpoints/network-info",
+      "documentation_url": "https://stat.ripe.net/docs/data-api/api-endpoints/network-info",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "evidence_get",
+      "name": "evidence_get",
+      "category": "web",
+      "description": "Вернуться к полной безопасной записи ранее полученной находки по точному evidence_id. Не выполняет новый поиск и не доказывает личность.",
+      "accepted_inputs": [
+        "evidence"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "LOCAL_CLI",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "none",
+      "rate_limit_policy": "Local processing; no network requests.",
+      "capabilities": [
+        "evidence_get"
+      ],
+      "source_url": "https://github.com/watsoncore/Granger-OSINT",
+      "documentation_url": "https://github.com/watsoncore/Granger-OSINT",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "github_repository",
+      "name": "github_repository",
+      "category": "infrastructure",
+      "description": "GitHub REST API: публичные метаданные конкретного репозитория owner/name, без чтения приватного кода.",
+      "accepted_inputs": [
+        "repository"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Public integrations share two worker slots; per-service rate gates and a five-minute cache.",
+      "capabilities": [
+        "github_repository"
+      ],
+      "source_url": "https://docs.github.com/en/rest/repos/repos#get-a-repository",
+      "documentation_url": "https://docs.github.com/en/rest/repos/repos#get-a-repository",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "threat_feodo",
+      "name": "threat_feodo",
+      "category": "threat_intelligence",
+      "description": "Feodo Tracker: сверить публичный IP с рекомендованным открытым C2-списком. Отсутствие совпадения не означает безопасность.",
+      "accepted_inputs": [
+        "ip"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OPEN_DATASET",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Public integrations share two worker slots; per-service rate gates and a five-minute cache.",
+      "capabilities": [
+        "threat_feodo"
+      ],
+      "source_url": "https://feodotracker.abuse.ch/blocklist/",
+      "documentation_url": "https://feodotracker.abuse.ch/blocklist/",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "hash_virustotal",
+      "name": "hash_virustotal",
+      "category": "threat_intelligence",
+      "description": "VirusTotal API: прочитать существующий отчёт SHA-256 с собственным ключом. Файлы не загружаются; требуется подтверждение платного/персонального источника.",
+      "accepted_inputs": [
+        "hash"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [
+        "virustotal_api_key"
+      ],
+      "required_permissions": [
+        "explicit_user_approval"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Public integrations share two worker slots; per-service rate gates and a five-minute cache.",
+      "capabilities": [
+        "hash_virustotal"
+      ],
+      "source_url": "https://docs.virustotal.com/reference/file-info",
+      "documentation_url": "https://docs.virustotal.com/reference/file-info",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "image_metadata",
+      "name": "image_metadata",
+      "category": "geoint",
+      "description": "Локально прочитать выбранное изображение: настоящий EXIF/GPS, SHA-256, размеры и dHash. Отсутствие GPS не означает координаты 0,0. Не определяет место по внешности.",
+      "accepted_inputs": [
+        "image"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "LOCAL_CLI",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "none",
+      "rate_limit_policy": "Local processing; no network requests.",
+      "capabilities": [
+        "image_metadata"
+      ],
+      "source_url": "https://pillow.readthedocs.io/en/stable/",
+      "documentation_url": "https://pillow.readthedocs.io/en/stable/",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "image_ocr",
+      "name": "image_ocr",
+      "category": "geoint",
+      "description": "Локальный Tesseract: русский и английский текст из пикселей выбранного изображения, bounding boxes и confidence. Без загрузки в облако.",
+      "accepted_inputs": [
+        "image"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "LOCAL_CLI",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "none",
+      "rate_limit_policy": "Local processing; no network requests.",
+      "capabilities": [
+        "image_ocr"
+      ],
+      "source_url": "https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html",
+      "documentation_url": "https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "image_compare",
+      "name": "image_compare",
+      "category": "geoint",
+      "description": "Сопоставить dHash с ранее выбранными локальными изображениями; сходство не доказывает одинаковое место съёмки.",
+      "accepted_inputs": [
+        "image"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "LOCAL_CLI",
+      "auth_requirements": [],
+      "required_permissions": [
+        "public_read_only"
+      ],
+      "network_requirements": "none",
+      "rate_limit_policy": "Local processing; no network requests.",
+      "capabilities": [
+        "image_compare"
+      ],
+      "source_url": "https://pillow.readthedocs.io/en/stable/",
+      "documentation_url": "https://pillow.readthedocs.io/en/stable/",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "map_geocode",
+      "name": "map_geocode",
+      "category": "geoint",
+      "description": "Найти географических кандидатов по публичному топониму на настроенном разрешённом Nominatim endpoint. Требуется подтверждение передачи запроса.",
+      "accepted_inputs": [
+        "coordinates"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "explicit_user_approval"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Mapping clients share a per-service rate gate and bounded cache.",
+      "capabilities": [
+        "map_geocode"
+      ],
+      "source_url": "https://nominatim.org/release-docs/latest/api/Search/",
+      "documentation_url": "https://nominatim.org/release-docs/latest/api/Search/",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "map_overpass",
+      "name": "map_overpass",
+      "category": "geoint",
+      "description": "Именованные достопримечательности в радиусе500м от заданных latitude,longitude через разрешённый Overpass endpoint. Требуется подтверждение передачи координат.",
+      "accepted_inputs": [
+        "coordinates"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "explicit_user_approval"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Mapping clients share a per-service rate gate and bounded cache.",
+      "capabilities": [
+        "map_overpass"
+      ],
+      "source_url": "https://wiki.openstreetmap.org/wiki/Overpass_API",
+      "documentation_url": "https://wiki.openstreetmap.org/wiki/Overpass_API",
+      "adapter_version": "1.0"
+    },
+    {
+      "id": "map_wikimedia",
+      "name": "map_wikimedia",
+      "category": "geoint",
+      "description": "MediaWiki Commons API: геотеги до20медиа в радиусе1км от latitude,longitude. Совпадение пикселей не проверяется. Требуется подтверждение передачи координат.",
+      "accepted_inputs": [
+        "coordinates"
+      ],
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "invocation_id",
+          "tool_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "data",
+          "evidence_ids",
+          "warnings",
+          "errors"
+        ]
+      },
+      "access_mode": "OFFICIAL_API",
+      "auth_requirements": [],
+      "required_permissions": [
+        "explicit_user_approval"
+      ],
+      "network_requirements": "public HTTPS",
+      "rate_limit_policy": "Mapping clients share a per-service rate gate and bounded cache.",
+      "capabilities": [
+        "map_wikimedia"
+      ],
+      "source_url": "https://www.mediawiki.org/wiki/Extension:GeoData#API",
+      "documentation_url": "https://www.mediawiki.org/wiki/Extension:GeoData#API",
+      "adapter_version": "1.0"
+    }
+  ]
+}

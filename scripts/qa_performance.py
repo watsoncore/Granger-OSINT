@@ -23,6 +23,42 @@ sys.path.insert(0, str(ROOT))
 from perf_process_metrics import ProcessSampler, summarize
 
 
+def own_window_state(pid):
+    """Numeric state of owned top-level HWNDs, without titles or foreign details.
+
+    The caller verifies the process image before invoking this helper. Windows
+    belonging to other processes are filtered using only their owner PID; no
+    title, class, bounds or text is read. The foreground HWND is compared only
+    with this process's handles and is never retained in the report.
+    """
+    import ctypes
+    from ctypes import wintypes
+    user=ctypes.WinDLL('user32',use_last_error=True)
+    callback_type=ctypes.WINFUNCTYPE(wintypes.BOOL,wintypes.HWND,wintypes.LPARAM)
+    user.EnumWindows.argtypes=[callback_type,wintypes.LPARAM]
+    user.EnumWindows.restype=wintypes.BOOL
+    user.GetWindowThreadProcessId.argtypes=[wintypes.HWND,ctypes.POINTER(wintypes.DWORD)]
+    user.GetWindowThreadProcessId.restype=wintypes.DWORD
+    user.IsWindowVisible.argtypes=[wintypes.HWND];user.IsWindowVisible.restype=wintypes.BOOL
+    user.IsIconic.argtypes=[wintypes.HWND];user.IsIconic.restype=wintypes.BOOL
+    user.GetForegroundWindow.argtypes=[];user.GetForegroundWindow.restype=wintypes.HWND
+    foreground=user.GetForegroundWindow()
+    windows=[]
+    @callback_type
+    def visit(handle,_):
+        owner=wintypes.DWORD()
+        user.GetWindowThreadProcessId(handle,ctypes.byref(owner))
+        if owner.value==pid:
+            windows.append({'visible':bool(user.IsWindowVisible(handle)),
+                'minimized':bool(user.IsIconic(handle)),'has_foreground':handle==foreground})
+        return True
+    if not user.EnumWindows(visit,0):
+        raise OSError(ctypes.get_last_error(),'Owned window enumeration failed')
+    return {'own_window_has_foreground':any(row['has_foreground'] for row in windows),
+        'own_window_count':len(windows),'visible_window_count':sum(row['visible'] for row in windows),
+        'minimized_window_count':sum(row['minimized'] for row in windows),'windows':windows}
+
+
 def main():
     from PySide6.QtCore import QCoreApplication
     from grangerpet.config import Settings
@@ -49,6 +85,7 @@ def main():
     monitor = ProcessSampler(exe)
     processes = []
     owned = {}
+    owned_images = {}
     roots = []
     source_roots = []
     report = {'tested_at_utc': datetime.now(timezone.utc).isoformat(),
@@ -111,9 +148,11 @@ def main():
         processes.append(process)
         (roots if args.mode=='exe' else source_roots).append(process.pid)
         value=wait(lambda:send_command(role,'status',timeout=500),40)
-        if args.mode=='exe' and Path(process_image(value['pid'])).resolve()!=exe.resolve():
+        image=Path(process_image(value['pid'])).resolve()
+        if args.mode=='exe' and image!=exe.resolve():
             raise RuntimeError('Unexpected executable')
         owned[role]=value['pid']
+        owned_images[role]=image
         wait(lambda:(s.get('desktop',{}).get('ready') if role=='pet' else s.get('desktop_ready'))
             if (s:=state(role)) else None,35)
         # Readiness may briefly start local workers; do not count startup as idle.
@@ -123,6 +162,12 @@ def main():
     def probe(folder):
         path=folder/'numeric-probe.json'
         return json.loads(path.read_text()) if args.mode=='source-probe' and path.is_file() else None
+    def owned_windows():
+        if 'pet' not in owned:return None
+        pid=owned['pet']
+        if Path(process_image(pid)).resolve()!=owned_images['pet']:
+            raise RuntimeError('Owned process image changed; window sampling stopped')
+        return own_window_state(pid)
     def measure(name,folder=None,repeats=None):
         row={'name':name,'trials':[]}
         if 'pet' in owned:
@@ -133,10 +178,12 @@ def main():
         report['scenarios'].append(row)
         for repeat in range(repeats or args.repeats):
             before=probe(folder) if folder else None
+            windows_before=owned_windows()
             sample();samples=[]
             for _ in range(args.seconds):
                 time.sleep(1);samples.append(sample())
-            trial={'samples':samples,'summary':summarize(samples)}
+            trial={'samples':samples,'summary':summarize(samples),
+                'own_windows_before':windows_before,'own_windows_after':owned_windows()}
             after=probe(folder) if folder else None
             if before and after:
                 seconds=(after['elapsed_ns']-before['elapsed_ns'])/1e9
@@ -157,6 +204,7 @@ def main():
             else:command('qa_launcher',{'name':'perf-close','action':'window','payload':{'mode':'close'}},role='launcher')
             wait(lambda:not state(role),20)
         owned.pop(role,None)
+        owned_images.pop(role,None)
         time.sleep(2)
     def live(name,text,minimized=False,folder=None):
         if minimized:command('show_workspace',{'route':'chat'})
