@@ -97,6 +97,7 @@ class DesktopBridge(QObject):
         self._models = []
         self._models_error = ''
         self._visual_job=None
+        self._visual_operation=''
         self._visual_progress={}
         self._visual_error=''
         self._credentials = {}
@@ -375,6 +376,11 @@ class DesktopBridge(QObject):
         installed=list(base['tools'])
         from .visual_models.manager import get_manager
         visual_state=get_manager().status()
+        if self._visual_job is not None:
+            visual_state={**visual_state,'state':
+                'removing' if self._visual_operation=='visual_remove' else
+                'installing' if self._visual_operation=='visual_install' and self._visual_progress.get('phase')=='extracting' else
+                'downloading' if self._visual_operation=='visual_install' else 'loading'}
         if not visual_state['installed']:
             model_names={spec.name for spec in _SPECS if spec.execution_mode=='LOCAL_MODEL'}
             installed=[row for row in installed if row['id'] not in model_names]
@@ -969,7 +975,7 @@ class DesktopBridge(QObject):
                 from .visual_models.installation import install
                 install(manager.root,consent=True,cancel_event=job.cancelled,progress=self.visualProgress.emit)
             return manager.probe(cancel_event=job.cancelled,deadline=time.monotonic()+90)
-        job=UiJob(work,self);self._visual_job=job
+        job=UiJob(work,self);self._visual_job=job;self._visual_operation=action
         def done(result,error):
             if self._visual_job is not job:return
             self._visual_job=None

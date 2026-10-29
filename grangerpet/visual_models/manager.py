@@ -46,6 +46,7 @@ class VisualModelManager:
         except (OSError,ValueError,KeyError):pass
         state=self._state if installed and self._state in ('loading','running','ready','error') else 'installed' if installed else 'not_installed'
         verified=installed and isinstance(self._probe,dict) and self._probe.get('status')=='completed'
+        if verified and state=='installed':state='ready'
         return {'state':state,'installed':installed,'available':verified,'runtime_verified':verified,'download_bytes':lock['total_download_bytes'],
             'disk_recommended_bytes':8_000_000_000,'ram_recommended_bytes':6_000_000_000,'device':'cpu','cuda_required':False,
             'components':['geoclip','waypoint','waypoint_match'],'error':self._last_error,'probe':self._probe,

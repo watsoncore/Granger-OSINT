@@ -57,6 +57,20 @@ def test_attachment_snapshots_are_not_aliased_to_later_imports(bridge):
     assert before['attachments']==[] and len(after['attachments'])==1
 
 
+def test_model_settings_distinguish_download_extract_probe_and_remove(bridge):
+    bridge._visual_job=object()
+    try:
+        bridge._visual_operation='visual_install';bridge._visual_progress={'artifact':'weights','bytes':10,'total_bytes':100}
+        assert bridge.snapshot()['visual_models']['state']=='downloading'
+        bridge._visual_progress={'phase':'extracting'}
+        assert bridge.snapshot()['visual_models']['state']=='installing'
+        bridge._visual_operation='visual_probe'
+        assert bridge.snapshot()['visual_models']['state']=='loading'
+        bridge._visual_operation='visual_remove'
+        assert bridge.snapshot()['visual_models']['state']=='removing'
+    finally:bridge._visual_job=None
+
+
 def test_finite_actions_reject_arbitrary_paths_commands_and_secret_fields(bridge,tmp_path):
     for action,payload in [('shell',{'command':'whoami'}),('settings_save',{'values':{'api_key':'forbidden'}}),
         ('open_url',{'url':'file:///C:/Windows/win.ini'}),('open_url',{'url':'javascript:alert(1)'}),

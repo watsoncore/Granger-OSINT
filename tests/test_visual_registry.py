@@ -101,3 +101,20 @@ def test_cancel_interrupts_a_full_input_pipe_before_worker_finishes_booting(monk
     time.sleep(.1);started=time.monotonic();cancel.set();thread.join(4)
     assert not thread.is_alive() and reply[0]['status']=='cancelled'
     assert manager._process is None and time.monotonic()-started<3
+
+
+def test_verified_runtime_remains_ready_across_close_and_new_manager(tmp_path,monkeypatch):
+    import hashlib
+    from pathlib import Path
+    from grangerpet.visual_models import manager as module
+    # A tiny installed-file fixture, not an inference/accuracy success claim.
+    monkeypatch.setattr(module.installation,'manifest',lambda:{'id':'fixture','artifacts':[],'total_download_bytes':0})
+    (tmp_path/'site-packages/torch').mkdir(parents=True)
+    digest=hashlib.sha256(Path(module.__file__).with_name('manifest.json').read_bytes()).hexdigest()
+    (tmp_path/'receipt.json').write_text(json.dumps({'manifest_sha256':digest,'runtime_probe':{'status':'completed'}}))
+    first=module.VisualModelManager(tmp_path)
+    assert first.status()['state']=='ready' and first.status()['available'] is True
+    first.close()
+    assert first.status()['state']=='ready'
+    restarted=module.VisualModelManager(tmp_path)
+    assert restarted.status()['state']=='ready' and restarted.status()['runtime_verified'] is True
