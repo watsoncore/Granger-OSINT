@@ -9,6 +9,25 @@ def page(details,url='https://github.com/solvnox'):
         'details':{'reading_method':'direct_http','body_sha256':'a'*64,**details}},'web_read',url)
 
 
+def test_unscoped_css_like_marker_stays_in_evidence_without_a_service_claim():
+    from copy import deepcopy
+    from grangerpet.investigation_analysis import analyze
+    address='0:'+'a'*64
+    row=normalize_evidence({'id':'marker','type':'label','title':'Telegram marker: @media','platform':'TON',
+        'details':{'chain':'ton','address':address,'target_address':address,'label':'Telegram marker: @media',
+            'source':'tonscan_public','owner_verified':False}},'blockchain_gansar',address)
+    original=deepcopy(row)
+    assert relevance([row],address)[row['evidence_id']]['level']=='background'
+    graph=build([row],full=True,limit=5000,goal=address)
+    assert not any(n['type']=='service_claim' for n in graph['entities'])
+    assert graph['technical_exclusions'][0]['evidence_id']==row['evidence_id']
+    assert not analyze({'goal':address,'evidence':[row]})['assets']
+    assert row==original
+    actual=deepcopy(row);actual['url']='https://t.me/media'
+    from grangerpet.link_relevance import unscoped_web_marker
+    assert not unscoped_web_marker(actual)  # A real linked username is not rejected by its spelling.
+
+
 def test_navigation_divs_and_footer_links_do_not_turn_into_author_claims():
     parser=PageParser('https://github.com/solvnox')
     parser.feed('''<div role="navigation"><a href="https://example.org/menu">Menu</a></div>

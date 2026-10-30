@@ -266,3 +266,12 @@ Stage 9: полный повторный backend suite — 1412 passed, 1 skippe
 но не расходует budget_reserved_tokens этапа сбора. 36 targeted tests passed
 (2,43 с), включая SSE continuation и поздний usage после отмены. Это дополнительная
 исправленная ошибка, а не новая заявленная функция. Финальная сборка проверяется далее.
+
+Live photo-set-01 выявил неточное объяснение spatial_coverage языковой моделью:
+доли площади двух кадров были названы горизонтальным/вертикальным покрытием.
+Системная инструкция уточнена: это площади bounding box согласованных точек
+в каждом изображении; inlier ratio не подтверждает геолокацию. Сам расчёт не менялся.
+Также unscoped scraped «Telegram marker: @media» из tonscan_public без Telegram URL
+теперь остаётся первичным evidence с background relevance и audit-исключением из
+service claims. Настоящий t.me/media по написанию не отбрасывается. Исходный Gansar
+и сырые записи не изменены. 32 targeted tests passed (2,73 с).

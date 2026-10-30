@@ -1,5 +1,18 @@
 """Technical page navigation stays available as evidence, outside main branches."""
 from urllib.parse import urlsplit
+import re
+
+
+def unscoped_web_marker(record):
+    """CSS-like scraped markers without a Telegram source need source review."""
+    details=record.get('details') or {}
+    if record.get('type')!='label' or not isinstance(details,dict) or record.get('url'):
+        return False
+    label=details.get('label') or record.get('title') or ''
+    if not isinstance(label,str) or not re.fullmatch(r'Telegram marker: @(?:media|supports|font-face|keyframes|import|page|charset|layer)',label,re.I):
+        return False
+    return str(details.get('source') or '').endswith('_public') and not any(
+        details.get(field) for field in ('source_url','telegram_url','observed_text','content_region'))
 
 
 def technical_url(value):

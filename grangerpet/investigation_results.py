@@ -82,6 +82,11 @@ def relevance(records, goal):
             'score':45 if exact else 25 if contextual or not targets else 0,
             'reason':'Есть совпадение текста/идентификатора; прямая связь с целью ещё не подтверждена.' if exact or contextual or not targets else
                      'Нет точного идентификатора или доказанной цепочки ссылок к исходной цели.', 'via_evidence_ids':[]}
+    from .link_relevance import unscoped_web_marker
+    for row in records:
+        if unscoped_web_marker(row):
+            result[row['evidence_id']]={'level':'background','score':0,'via_evidence_ids':[],
+                'reason':'Маркер совпадает с CSS-директивой; нет исходной Telegram-ссылки или контекста извлечения. Требуется проверка источника.'}
     return result
 
 

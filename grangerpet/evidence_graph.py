@@ -130,7 +130,10 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         record=current_observation(record)
         details=record.get('details') or {};kind=record.get('type');url=record.get('url','');platform=str(record.get('platform',''))
         if not isinstance(details,dict) or not isinstance(url,str):bad_fields+=1;continue
-        from .link_relevance import technical_url
+        from .link_relevance import technical_url, unscoped_web_marker
+        if unscoped_web_marker(record):
+            technical_exclusions.append({'evidence_id':record.get('evidence_id'),'url':url,'reason':'unscoped_css_like_marker_requires_source_review'})
+            continue
         if url and technical_url(url) and canonical_url(url) not in explicit_urls:
             technical_exclusions.append({'evidence_id':record.get('evidence_id'),'url':url,'reason':'site_navigation_or_media_metadata'})
             continue
