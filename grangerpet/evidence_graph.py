@@ -7,7 +7,7 @@ from copy import deepcopy
 import hashlib
 import math
 import re
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, localcontext
 from urllib.parse import urlsplit
 from .engine.models import canonical_url
 
@@ -24,12 +24,8 @@ def verification(value):
 
 
 def _wallet(chain, value):
-    chain=str(chain)
-    if chain.lower() == 'ton':
-        from .validators.ton_address import parse_ton_address
-        parsed = parse_ton_address(value)
-        if parsed: return parsed['raw']
-    return value.lower() if chain.lower() in ('eth','ethereum','bsc','polygon','arbitrum','optimism','avalanche') else value
+    from .engine.blockchain_analytics import canonical_address
+    return canonical_address(str(chain),value)
 
 
 def _id(kind,key):return 'ent_'+hashlib.sha256((kind+'\0'+str(key)).encode('utf-8')).hexdigest()[:24]
@@ -58,6 +54,10 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             attributes['reference_only'] = current['attributes'].get('reference_only', True) and attributes['reference_only']
         if current['attributes'].get('display_type') == 'telegram_channel': attributes.pop('display_type', None)
         current['attributes'].update(deepcopy(attributes))
+        if kind=='blockchain_address':
+            originals=current['attributes'].setdefault('original_addresses',[])
+            for value in (str(label),attributes.get('address')):
+                if value and value not in originals:originals.append(value)
         if record and kind in ('asset','public_profile','repository','image','website','public_post'):
             from .public_media import media_reference
             media=media_reference(record)
@@ -71,7 +71,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
     def edge(a,b,kind,record,status='source_reported',**attributes):
         nonlocal truncated
         if not a or not b or a not in nodes or b not in nodes: return None
-        key=(a,b,kind,attributes.get('asset',''));eid=record.get('evidence_id') if record else None
+        key=(a,b,kind,attributes.get('asset_key') or attributes.get('asset',''));eid=record.get('evidence_id') if record else None
         if key not in edges and len(edges)>=20000:
             truncated=True;return None
         if key not in edges:edges[key]={'id':'rel_'+hashlib.sha256(repr(key).encode()).hexdigest()[:24],
@@ -153,7 +153,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         elif kind in ('token_asset','nft_asset'):
             chain=details.get('chain') or 'ton'
             identity=details.get('asset_id') or details.get('contract') or record.get('id')
-            current=node('asset',chain+'|'+str(identity),label,record,chain=chain,url=url,asset_type=kind,
+            current=node('asset',chain+'|'+_wallet(chain,identity),label,record,chain=chain,url=url,asset_type=kind,
                 asset_id=identity,
                 contract=details.get('contract'),amount=details.get('amount_decimal'),image_url=details.get('image_url'),
                 ownership_status=details.get('ownership_status') or details.get('holding_status'),metadata_verified=False)
@@ -198,16 +198,22 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                     wallets[field]=wallet
                     edge(current,wallet,relation,record)
             if full and all(wallets.get(field) for field in ('from_address','to_address')):
-                asset=str(details.get('asset') or 'unknown')[:40]
-                key=(wallets['from_address'],wallets['to_address'],asset)
-                group=transfers.setdefault(key,{'records':[],'transactions':{},'amount':Decimal(0),'known':0,'unknown':0})
-                if str(event) not in group['transactions']:
+                from .engine.blockchain_analytics import asset_identity, _date
+                asset=str(details.get('asset') or 'unknown')
+                asset_key,contract,identity_status=asset_identity(details,chain,record.get('evidence_id'))
+                key=(wallets['from_address'],wallets['to_address'],asset_key)
+                group=transfers.setdefault(key,{'records':[],'transactions':{},'amount':Decimal(0),'known':0,'unknown':0,
+                    'asset':asset,'contract':contract,'identity_status':identity_status,'dates':[]})
+                if str(event) not in group['transactions'] and details.get('success') is not False and details.get('status') not in ('failed','reverted','aborted'):
                     group['transactions'][str(event)]=current
+                    if stamp:=_date(details.get('timestamp')):group['dates'].append(stamp)
                     try:
                         amount=Decimal(str(details.get('amount_decimal',details.get('amount'))))
                         if not amount.is_finite() or amount<0 or amount.adjusted()>60 or amount.adjusted()<-60:raise ValueError()
                     except (InvalidOperation,ValueError):group['unknown']+=1
-                    else:group['amount']+=amount;group['known']+=1
+                    else:
+                        with localcontext() as context:context.prec=160;group['amount']+=amount
+                        group['known']+=1
                 group['records'].append(record)
         elif kind=='label' and details.get('address') and details.get('label'):
             chain=details.get('chain') or platform
@@ -215,6 +221,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             wallet=node('blockchain_address',chain+'|'+canonical,details['address'],record,chain=chain,address=canonical,owner_verified=False)
             service=node('service',platform+'|'+details['label'],details['label'],record,label_is_source_claim=True)
             edge(wallet,service,'source_labels_address',record,'unverified_label')
+            if wallet and details['label'] not in nodes[wallet]['attributes'].setdefault('labels',[]):nodes[wallet]['attributes']['labels'].append(details['label'])
             current=wallet
         elif kind=='balance' and full:
             chain=str(details.get('chain') or platform);address=details.get('target_address') or details.get('address')
@@ -279,14 +286,38 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             source=node('source',source_key,str(record.get('platform') or 'Локальное свидетельство'),record,url=url,
                 obtained_at=(record.get('provenance') or {}).get('obtained_at') if isinstance(record.get('provenance'),dict) else None)
             edge(current,source,'supported_by',record,'source_reported')
-    for (a,b,asset),group in transfers.items():
+    wallet_events={};wallet_peers={};wallet_assets={}
+    for (a,b,asset_key),group in transfers.items():
         if cancel_event and cancel_event.is_set():raise InterruptedError('Graph cancelled')
+        if not group['transactions']:continue
+        for wallet,peer in ((a,b),(b,a)):
+            wallet_events.setdefault(wallet,set()).update(group['transactions'].values())
+            if wallet!=peer:wallet_peers.setdefault(wallet,set()).add(peer)
+            wallet_assets.setdefault(wallet,set()).add(group['asset'])
         for record in group['records']:
-            relation=edge(a,b,'transfers',record,'source_reported',asset=asset)
+            relation=edge(a,b,'transfers',record,'source_reported',asset=group['asset'],asset_key=asset_key)
             if relation is not None:relation['aggregate']={'count':len(group['transactions']),
-                'amount':format(group['amount'],'f') if group['known'] else None,'asset':asset,
+                'amount':format(group['amount'],'f') if group['known'] else None,'asset':group['asset'],'asset_key':asset_key,
+                'contract':group['contract'],'identity_status':group['identity_status'],
                 'known_amount_count':group['known'],'unknown_amount_count':group['unknown'],
+                'first_seen':min(group['dates']) if group['dates'] else None,'last_seen':max(group['dates']) if group['dates'] else None,
                 'transaction_ids':list(group['transactions'].values()),'coverage':'observed_transactions_only','owner_verified':False}
+    for wallet,events in wallet_events.items():
+        nodes[wallet]['attributes'].update(transaction_count=len(events),counterparty_count=len(wallet_peers.get(wallet,())),assets=sorted(wallet_assets[wallet]))
+    for record in records[:cap]:
+        if not isinstance(record,dict) or record.get('type')!='blockchain_analytics':continue
+        from .agent_evidence import current_observation
+        record=current_observation(record);details=record.get('details') or {};data=details.get('data') or {}
+        if not isinstance(data,dict):continue
+        chain=str(details.get('chain') or '');target=details.get('target_address')
+        if not chain or not isinstance(target,str):continue
+        wallet=node('blockchain_address',chain+'|'+_wallet(chain,target),target,record,chain=chain,address=_wallet(chain,target),owner_verified=False)
+        if wallet:
+            nodes[wallet]['attributes'].update(transaction_count=data.get('unique_events'),
+                resolved_transaction_count=len(wallet_events.get(wallet,())),counterparty_count=data.get('unique_counterparties'),
+                unresolved_event_count=(data.get('directions') or {}).get('unresolved',0),
+                metric_coverage='full_returned_sample_not_full_chain_history',metrics_source_evidence_id=record.get('evidence_id'),
+                first_seen=data.get('first_seen'),last_seen=data.get('last_seen'))
     root_id=''
     if full and goal:
         from .entity_router import route_goal

@@ -119,6 +119,17 @@ def test_legacy_attachment_protocol_is_not_part_of_analysis_goal():
     assert value['goal'] == 'Найди место'
 
 
+def test_report_gateway_does_not_silently_cut_structured_facts_at_50000_characters():
+    captured=[]
+    def transport(request):
+        captured.append(json.loads(request.content))
+        return httpx.Response(200,headers={'content-type':'text/event-stream'},stream=Bytes([frame('Отчёт.'),frame('',finish='stop'),b'data: [DONE]\n\n']))
+    client=DeepSeekClient('FIXTURE-NOT-REAL-KEY',client_factory=lambda **kw:httpx.AsyncClient(transport=httpx.MockTransport(transport),**kw))
+    data=json.dumps({'early':'a'*51000,'last_fact':'Значимый факт в конце контекста'},ensure_ascii=False)
+    client.stream_report('deepseek-v4-flash',[{'role':'user','content':data}],system_instruction='fixture',on_text=lambda text:None)
+    assert json.loads(captured[0]['messages'][-1]['content'])['last_fact']=='Значимый факт в конце контекста'
+
+
 def test_source_ids_are_validated_and_labels_are_human_even_mid_stream():
     runner = AgentRunner(Client([]), Registry())
     runner._record = {'goal':''}

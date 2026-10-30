@@ -17,6 +17,12 @@ SYNTHESIS_SYSTEM = (
     'Сначала ответь по существу цели, затем объясни значимые закономерности, связи и ограничения. '
     'Для blockchain используй реальные агрегаты, направления, периоды, активы и крупных контрагентов. '
     'Суммы разных активов не складывай. Выборка не равна полной истории. '
+    'Строго различай крупнейшую ОДИНОЧНУЮ операцию из largest_transfers_by_asset и суммарный оборот контрагента '
+    'из volumes_by_asset: суммарный оборот нельзя называть одной транзакцией. '
+    'Не делай вывод о транзитном использовании из одного паритета входа/выхода. '
+    'Различай остаток токенов на дату наблюдения и исторические потоки этих токенов. '
+    'При ownership_verified=false пиши «источник сообщает о владении», не утверждай текущее владение как факт. '
+    'Рассчитанные таблицы событий и активов уже будут показаны перед твоим текстом; поясни их, не повторяй целиком. '
     'Обязательно укажи число уникальных событий, контрагентов и неизвестных направлений, если они рассчитаны. '
     'Не выводи технические имена полей или значения enum: объясняй их обычными русскими словами. '
     'Паритет потоков — лишь возможный поведенческий признак, не доказательство прокси-функции или намерений. '
@@ -38,6 +44,28 @@ SYNTHESIS_SYSTEM = (
 
 def _details(row):
     return row.get('details') if isinstance(row.get('details'), dict) else {}
+
+
+def _asset_observation(assets,key,row,data,kind):
+    """Correlate alternate DTO sections without erasing more complete fields."""
+    existing=assets.get(key)
+    if existing is None:
+        existing={'kind':kind,'title':row.get('title'),'source_url':row.get('url'),
+            'evidence_id':row.get('evidence_id'),'verification':row.get('verification'),'data':{},'evidence_ids':[],'source_urls':[],'field_sources':{}}
+        assets[key]=existing
+    for field,value in data.items():
+        if value is None or value=='' or value=='unknown' or value=={} or value==[]:continue
+        if isinstance(value,dict) and isinstance(existing['data'].get(field),dict):
+            existing['data'][field].update(deepcopy(value))
+        else:existing['data'][field]=deepcopy(value)
+        if field in ('amount_decimal','contract','asset_id','ownership_status','ownership_verified','collection','image_url'):
+            existing['field_sources'][field]={'evidence_id':row.get('evidence_id'),'source_url':row.get('url'),'observed_at':data.get('collected_at')}
+    for field,destination in (('evidence_id','evidence_ids'),('url','source_urls')):
+        if row.get(field) and row[field] not in existing[destination]:existing[destination].append(row[field])
+    if not existing.get('source_url') and row.get('url'):existing['source_url']=row['url']
+    if row.get('type')=='nft_asset':existing.update(evidence_id=row.get('evidence_id'),source_url=row.get('url') or existing.get('source_url'))
+    if len(str(row.get('title') or ''))>len(str(existing.get('title') or '')):existing['title']=row['title']
+    existing['data']['ownership_verified']=existing['data'].get('ownership_verified') is True
 
 
 def analyze(snapshot):
@@ -64,9 +92,10 @@ def analyze(snapshot):
                 'supporting_evidence': [row.get('evidence_id')], 'source_url': row.get('url')}
         if row.get('type') in ('balance', 'token_asset', 'nft_asset', 'web3_identity', 'label', 'contract_observation'):
             identity = data.get('asset_id') or data.get('contract') or data.get('name') or data.get('asset') or row.get('id')
-            key = (row.get('type'), chain, canonical_address(chain, target), canonical_address(chain, identity))
-            assets[key] = {'kind': row.get('type'), 'title': row.get('title'), 'source_url': row.get('url'),
-                'evidence_id': row.get('evidence_id'), 'verification': row.get('verification'), 'data': data}
+            if row.get('type')=='token_asset' and data.get('asset_identity_status')=='contract_unknown_not_aggregated':identity=row.get('id')
+            asset_kind='nft_asset' if row.get('type')=='token_asset' and (data.get('symbol')=='NFT' or data.get('type') in ('nft','collectible','gift','domain','username')) else row.get('type')
+            key = (asset_kind, chain, canonical_address(chain, target), canonical_address(chain, identity))
+            _asset_observation(assets,key,row,data,asset_kind)
         if data.get('tool') == 'image_understand':
             scenes.append({'attachment_id': data.get('attachment_id'), 'evidence_id': row.get('evidence_id'),
                 **{key: deepcopy(data[key]) for key in ('scene_type', 'description', 'observations', 'readable_text',
@@ -127,13 +156,18 @@ def model_context(analysis):
         selected = {name: deepcopy(data.get(name)) for name in ('target_address', 'canonical_target', 'coverage',
             'input_observations', 'unique_events', 'excluded', 'directions', 'unique_counterparties',
             'first_seen', 'last_seen', 'undated_events', 'limitations', 'supporting_evidence')}
-        selected.update(assets=data.get('assets', [])[:20], counterparties=data.get('counterparties', [])[:20],
+        peers=[{**{name:deepcopy(peer.get(name)) for name in ('chain','address','event_count','incoming','outgoing',
+            'asset_keys','first_seen','last_seen','volumes_by_asset')},'evidence_ids':peer.get('evidence_ids',[])[:3],
+            'source_urls':peer.get('source_urls',[])[:3]} for peer in data.get('counterparties',[])[:20]]
+        selected.update(assets=data.get('assets', [])[:20], counterparties=peers,
             largest_transfers_by_asset={asset: rows[:5] for asset, rows in list(data.get('largest_transfers_by_asset', {}).items())[:12]},
-            activity_by_day_utc=data.get('activity_by_day_utc', {}))
+            activity_by_day_utc=data.get('activity_by_day_utc', {}),repeated_patterns=data.get('repeated_patterns',[])[:12],
+            repeated_patterns_total=data.get('repeated_patterns_total',0),
+            activity_peaks_utc=sorted(data.get('activity_by_hour_utc',{}).items(),key=lambda item:-item[1])[:12])
         value['blockchain'][key] = selected
     value['assets'] = [{**row, 'data': {key: row['data'][key] for key in ('chain', 'amount_decimal', 'asset', 'symbol',
-        'contract', 'asset_id', 'type', 'name', 'title', 'collection', 'ownership_status', 'ownership_verified',
-        'image_url', 'address', 'label', 'source', 'collected_at', 'holding_status', 'reverse_valid') if key in row['data']}}
+        'contract', 'asset_id', 'type', 'name', 'title', 'collection','collection_address','token_id','metadata','asset_identity_status','ownership_status', 'ownership_verified',
+        'image_url', 'address', 'label', 'source', 'collected_at','ownership_observed_at', 'holding_status', 'reverse_valid') if key in row['data']}}
         for row in analysis['assets'][:80]]
     # Select across categories; the complete factual report can include all rows.
     counts = Counter()
@@ -163,7 +197,27 @@ def report_header(analysis):
             f"Входящих — {direction.get('incoming', 0)}, исходящих — {direction.get('outgoing', 0)}, "
             f"самопереводов — {direction.get('self', 0)}, с неопределённым направлением — {direction.get('unresolved', 0)}. "
             'Это расчёт по полученным данным, не полная история сети.']
-    return '\n\n'.join(lines)
+        largest=[item for transfers in data.get('largest_transfers_by_asset',{}).values() for item in transfers[:2]]
+        if largest:
+            lines += ['### Крупнейшие отдельные события по каждому активу',
+                '| Сумма | Актив / контракт | Направление | Дата UTC | Основание |','| ---: | --- | --- | --- | --- |']
+            for item in largest:
+                lines.append('| '+' | '.join(_cell(value) for value in (item['amount'],item['asset'],
+                    'Входящее' if item['direction']=='incoming' else 'Исходящее',item['timestamp'],_source(item)))+' |')
+    inventory=[row for row in analysis['assets'] if row['kind'] in ('balance','token_asset','nft_asset')]
+    if inventory:
+        lines += ['### Активы по сохранённым наблюдениям',
+            '| Актив | Тип | Сеть | Контракт / ID | Количество / статус | Наблюдалось | Источник |',
+            '| --- | --- | --- | --- | --- | --- | --- |']
+        for row in inventory:
+            item=row['data']
+            status=item.get('amount_decimal')
+            if row['kind']=='nft_asset':status='Источник сообщает о владении; '+('on-chain проверено' if item.get('ownership_verified') is True else 'on-chain не подтверждено')
+            lines.append('| '+' | '.join(_cell(value) for value in (row['title'],{'balance':'Баланс','token_asset':'Токен','nft_asset':'NFT'}[row['kind']],
+                item.get('chain'),item.get('contract') or item.get('asset_id') or 'не установлено',status,
+                item.get('ownership_observed_at') or item.get('collected_at'),_source(row)))+' |')
+        lines += ['', 'Название, тикер и NFT-метаданные — утверждения источника; они не подтверждают личность или подлинность актива.']
+    return '\n'.join(lines)
 
 
 def factual_report(analysis, *, reason='', language_unavailable=False):
@@ -180,7 +234,7 @@ def factual_report(analysis, *, reason='', language_unavailable=False):
         if direction.get('unresolved'):
             lines += [f"Для {direction['unresolved']} событий направление относительно адреса не установлено.", '']
         lines += [f"Наблюдаемый период UTC: {data.get('first_seen') or 'неизвестно'} — {data.get('last_seen') or 'неизвестно'}.", '',
-            '| Актив / контракт | Получено | Отправлено | Неизвестные суммы |', '| --- | ---: | ---: | ---: |']
+            '| Актив / контракт | Получено (известные суммы) | Отправлено (известные суммы) | Неизвестные суммы |', '| --- | ---: | ---: | ---: | ---: |']
         for item in data.get('assets', []):
             lines.append('| '+ ' | '.join(_cell(v) for v in (item['asset']+' / '+str(item.get('contract') or item['chain']),
                 item['incoming'], item['outgoing'], item['unknown_amounts']))+' |')
@@ -196,14 +250,19 @@ def factual_report(analysis, *, reason='', language_unavailable=False):
         if days:
             peak = max(days, key=days.get)
             lines += ['', f'Наиболее активный день в выборке: {peak}, событий — {days[peak]}. Это частота наблюдений, а не оценка намерений владельца.', '']
+        for pattern in data.get('repeated_patterns',[]):
+            lines += [f"Повторяющаяся сумма {_cell(pattern['amount'])} ({_cell(pattern['asset_key'])}): {pattern['count']} отдельных событий "
+                f"с контрагентом `{pattern['counterparty']}`. Период: {pattern['first_seen'] or 'неизвестно'} — {pattern['last_seen'] or 'неизвестно'}; "
+                f"медианный интервал между датированными событиями: {_cell(pattern['median_interval_seconds'])} секунд. "
+                'Критерий — минимум три события одной суммы, актива, контрагента и направления; причина повторов не установлена.', '']
         lines += ['', *data.get('limitations', []), '']
     if analysis['assets']:
-        lines += ['## Активы, имена и метки', '', '| Объект | Сеть | Количество / статус | Источник |', '| --- | --- | --- | --- |']
+        lines += ['## Активы, имена и метки', '', '| Объект / тип | Сеть | Контракт / ID | Количество / статус | Наблюдалось | Источник |', '| --- | --- | --- | --- | --- | --- |']
         for row in analysis['assets']:
             data = row['data']
-            lines.append('| '+' | '.join(_cell(v) for v in (row['title'], data.get('chain'),
+            lines.append('| '+' | '.join(_cell(v) for v in (str(row['title'])+' / '+str(data.get('type') or row['kind']), data.get('chain'), data.get('contract') or data.get('asset_id') or 'не установлено',
                 data.get('amount_decimal') if row['kind'] in ('balance', 'token_asset') else
-                data.get('ownership_status') or row.get('verification'), _source(row)))+' |')
+                data.get('ownership_status') or row.get('verification'),data.get('collected_at'), _source(row)))+' |')
         lines += ['', 'NFT-метаданные и сервисные метки не подтверждают личность. Владение требует свежей on-chain проверки.', '']
     for scene in analysis['scenes']:
         lines += ['## Что видно на фотографии', '', str(scene.get('description') or '')]

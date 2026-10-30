@@ -272,7 +272,7 @@ class DeepSeekClient:
             raise AIError("DeepSeek не вернул текст ответа.", code="empty_response")
         return _redact_text(text.strip()).replace(self._key, "[скрытый ключ]")
 
-    def _history(self, messages, system_instruction=None):
+    def _history(self, messages, system_instruction=None, *, preserve_context=False):
         contents = [{"role": "system", "content": _redact_text(system_instruction or HERMIONE_SYSTEM).replace(self._key, "[скрытый ключ]")}]
         try:
             history = list(messages)[-40:]
@@ -284,8 +284,11 @@ class DeepSeekClient:
             text = message.get("text", message.get("content", ""))
             if not isinstance(text, str) or not text.strip():
                 raise AIError("Сообщение не должно быть пустым.", code="invalid_request")
+            safe=_redact_text(text).replace(self._key, "[скрытый ключ]")
+            if preserve_context and len(safe)>200000:
+                raise AIError('Структурированный контекст отчёта превышает допустимый размер; требуется выборка по разделам.',code='context_too_large')
             contents.append({"role": "assistant" if message["role"] == "model" else message["role"],
-                             "content": _redact_text(text).replace(self._key, "[скрытый ключ]")[:50000]})
+                             "content": safe if preserve_context else safe[:50000]})
         if len(contents) == 1:
             raise AIError("Введите сообщение Гермионе.", code="invalid_request")
         return contents
@@ -427,7 +430,7 @@ class DeepSeekClient:
         return self._run(operation, cancel_event)
 
     def stream_chat(self, model, messages, *, on_text, cancel_event=None,
-                    system_instruction=None, max_output_tokens=2400):
+                    system_instruction=None, max_output_tokens=2400,preserve_context=False):
         """Ordinary chat SSE only; callback receives safe cumulative visible text.
 
         A tail is withheld until subsequent chunks arrive, so a reflected API
@@ -438,7 +441,7 @@ class DeepSeekClient:
         self._respect_retry_after(model)
         if type(max_output_tokens) is not int or not 1 <= max_output_tokens <= 8192:
             raise AIError('Неверный лимит длины ответа.', code='invalid_request')
-        payload = {"model": model, "messages": self._history(messages, system_instruction),
+        payload = {"model": model, "messages": self._history(messages, system_instruction,preserve_context=preserve_context),
                    "stream": True, "stream_options": {"include_usage": True}, "max_tokens": max_output_tokens}
         async def operation():
             text, metadata, finished, ended, last_emit = "", {"model": model}, False, False, 0.0
@@ -550,7 +553,7 @@ class DeepSeekClient:
                       cancel_event=None, max_output_tokens=8192):
         """Tool-free final synthesis; preserves real SSE usage/finish metadata."""
         text = self.stream_chat(model, messages, on_text=on_text, cancel_event=cancel_event,
-            system_instruction=system_instruction, max_output_tokens=max_output_tokens)
+            system_instruction=system_instruction, max_output_tokens=max_output_tokens,preserve_context=True)
         return {'message': {'role': 'assistant', 'content': text},
                 'metadata': dict(self.last_response_metadata)}
 

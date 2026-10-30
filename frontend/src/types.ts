@@ -26,7 +26,7 @@ export interface GraphEntity {
 export interface GraphRelation {
   id:string; from_id:string; to_id:string; relation_type:string; direction:string; evidence_ids:string[]
   verification_status:Verification; source_urls?:string[]; attributes?:Record<string,unknown>; claim_kind?:string
-  aggregate?: { count:number; amount:string|null; asset:string; known_amount_count:number; unknown_amount_count:number; transaction_ids:string[]; coverage?:string; owner_verified:false }
+  aggregate?: { count:number; amount:string|null; asset:string; asset_key?:string;contract?:string|null;first_seen?:string|null;last_seen?:string|null;known_amount_count:number; unknown_amount_count:number; transaction_ids:string[]; coverage?:string; owner_verified:false }
 }
 export interface GraphView {
   version:1; mode?:GraphMode; positions?:Record<string,GraphPoint>; tree_positions?:Record<string,GraphPoint>

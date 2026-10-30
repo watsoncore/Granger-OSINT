@@ -215,7 +215,7 @@ class ToolRegistry:
             args.setdefault('operation','profile');args.setdefault('chain','auto');args.setdefault('mode',self.settings.research_mode)
             from .validators.ton_address import parse_ton_address
             parsed=parse_ton_address(args.get('address'))
-            if parsed:
+            if parsed and not parsed['test_only']:
                 args['address']=parsed['raw']
                 if args['chain']=='auto':args['chain']='ton'
             if args['operation']=='nft':args.setdefault('scope','auto')

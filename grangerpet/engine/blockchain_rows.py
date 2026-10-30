@@ -79,7 +79,10 @@ def normalize_dossier(report,*,operation='profile',max_transactions=200,transpor
             detail={**{k:v for k,v in row.items() if k!='raw'},'amount_decimal':amount,
                 'metadata':{k:raw[k] for k in ('decimals','token_id','token_standard','image_url','image','logo','logo_url','price','price_usd','price_timestamp','price_source') if k in raw},
                 'image_url':media,'metadata_verified':False}
-            add('token_asset',f"{row.get('chain')}|{target}|{row.get('contract') or row.get('symbol')}",
+            identity=canonical_address(str(row.get('chain') or ''),row.get('contract')) if row.get('contract') else 'unidentified:'+hashlib.sha256(
+                json.dumps(finding_fields(row),sort_keys=True,ensure_ascii=False,default=str).encode()).hexdigest()
+            detail['asset_identity_status']='contract_reported' if row.get('contract') else 'contract_unknown_not_aggregated'
+            add('token_asset',f"{row.get('chain')}|{canonical_address(str(row.get('chain') or ''),target)}|{identity}",
                 str(row.get('name') or row.get('symbol') or 'Токен'),detail,chain=row.get('chain',''),url=row.get('url'),source=row.get('source'),
                 description=f"Количество: {amount if amount is not None else 'неизвестно'}; статус: {row.get('holding_status','unknown')}. Тикер/название не подтверждают подлинность.")
     if include('assets','nft'):
@@ -113,7 +116,7 @@ def normalize_dossier(report,*,operation='profile',max_transactions=200,transpor
     if include('contracts','attribution'):
         for row in _items(report.get('contract_observations')):
             identifier=hashlib.sha256(json.dumps(row,sort_keys=True,default=str).encode()).hexdigest()[:24]
-            add('contract_observation',identifier,'Наблюдение контракта',row,chain=row.get('blockchain',''),url=row.get('source_url'),source=row.get('source'),
+            add('contract_observation',identifier,'Наблюдение контракта',row,chain=row.get('blockchain') or row.get('chain',''),url=row.get('source_url'),source=row.get('source'),
                 description='Публичная проверка кода/развёртывания или состояния. Название контракта не устанавливает владельца.')
     if include('identity'):
         profile=_dict(report.get('ens_profile'))
