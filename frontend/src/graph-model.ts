@@ -135,12 +135,13 @@ export function layoutGraph(nodes:GraphEntity[],edges:GraphRelation[],root:strin
     // A newly expanded collection must not occupy positions reserved by the
     // existing cards. Preserve the user's layout and place new cards beside it.
     const occupied=nodes.filter(node=>saved[node.id]).map(node=>positions[node.id])
-    const anchorX=occupied.length?Math.max(...occupied.map(point=>point.x))+360:0
+    const anchorX=occupied.length?Math.min(...occupied.map(point=>point.x)):0
+    const anchorY=occupied.length?Math.max(...occupied.map(point=>point.y))+192:0
     let slot=0
     for(const node of nodes.filter(node=>!saved[node.id])){
       let point=positions[node.id]
       if(occupied.some(other=>Math.abs(other.x-point.x)<260&&Math.abs(other.y-point.y)<120)){
-        do{point={x:anchorX+(slot%5)*280,y:Math.floor(slot/5)*132};slot++}
+        do{point={x:anchorX+(slot%5)*280,y:anchorY+Math.floor(slot/5)*132};slot++}
         while(occupied.some(other=>Math.abs(other.x-point.x)<260&&Math.abs(other.y-point.y)<120))
         positions[node.id]=point
       }
