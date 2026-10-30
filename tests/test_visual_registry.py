@@ -57,7 +57,8 @@ def test_lat_lon_worker_candidates_reach_graph_without_identity_assertions():
         'attachment_id':IMAGE,'predictions':[{'lat':55.75,'lon':37.62,'raw_score':19.1}]}}
     result=build([record]);candidate=next(n for n in result['entities'] if n['type']=='geographic_candidate')
     assert candidate['attributes']['raw_score']==19.1 and candidate['attributes']['calibrated_probability'] is False
-    assert result['relations'][0]['verification_status']=='model_hypothesis'
+    assert result['relations'][0]['verification_status']=='inferred'
+    assert result['relations'][0]['claim_kind']=='model_hypothesis'
 
 
 def test_duplicate_model_methods_are_rejected_before_dispatch():

@@ -150,4 +150,4 @@ def project(snapshot, goal=None, *, cancel_event=None):
             'unique_documents':len(source_urls),'errors':len(failures),'cached_results':sum(row.get('status')=='duplicate_skipped' for row in executions),
             'findings':len(findings),'hypotheses':len(hypotheses),'background':len(background),
             'verified_relations':sum(row['verification_status']=='verified' for row in graph['relations'])},
-        'evidence':evidence, 'relevance':ranking, 'synthetic':False}
+        'evidence':evidence, 'relevance':ranking, 'synthetic':snapshot.get('synthetic') is True}

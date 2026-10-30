@@ -40,14 +40,17 @@ class PixelContractGateway:
         assert "data:image/" not in encoded and "base64" not in encoded
         assert "C:\\" not in encoded and "file:///" not in encoded
         tools = [row for row in messages if row.get("role") == "tool"]
-        if not tools:
+        # The deterministic literal-image route may already have read metadata
+        # before asking the planner. Request only the missing OCR operation.
+        ocr_done=any(row.get('name')=='image_ocr' or '"tool":"image_ocr"' in row.get('content','') for row in tools)
+        if not ocr_done:
             import re
             identifier = re.search(r"img_[a-f0-9]{64}", encoded).group(0)
             names = {row["function"]["name"] for row in options["tools"]}
             assert {"image_metadata", "image_ocr"} <= names
             calls = [{"id": "fixture_" + name, "type": "function", "function": {
                 "name": name, "arguments": json.dumps({"attachment_id": identifier})}}
-                for name in ("image_metadata", "image_ocr")]
+                for name in (("image_ocr",) if tools else ("image_metadata", "image_ocr"))]
             message = {"role": "assistant", "content": "Проверяю реальные локальные метаданные и надписи.", "tool_calls": calls}
         else:
             content = "\n".join(row["content"] for row in tools)

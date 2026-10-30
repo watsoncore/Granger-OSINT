@@ -12,6 +12,37 @@ export interface Source {
   details?: Record<string, unknown>
   related_evidence_ids?: string[]
   message_ids?: string[]
+  relevance?: { level: string; score: number; reason: string; via_evidence_ids?: string[] }
+  duplicate_count?: number
+}
+export type GraphMode = 'overview' | 'tree' | 'graph' | 'evidence'
+export type Verification = 'verified' | 'source_reported' | 'inferred' | 'unverified' | 'contradicted'
+export interface GraphPoint { x:number; y:number; pinned?:boolean }
+export interface GraphViewport { x:number; y:number; scale:number }
+export interface GraphEntity {
+  id:string; type:string; label:string; attributes:Record<string,unknown>; evidence_ids:string[]; source?:string[]
+  verification_status?:Verification; relevance?: {level:string;score:number;reason?:string}
+}
+export interface GraphRelation {
+  id:string; from_id:string; to_id:string; relation_type:string; direction:string; evidence_ids:string[]
+  verification_status:Verification; source_urls?:string[]; attributes?:Record<string,unknown>; claim_kind?:string
+  aggregate?: { count:number; amount:string|null; asset:string; known_amount_count:number; unknown_amount_count:number; transaction_ids:string[]; coverage?:string; owner_verified:false }
+}
+export interface GraphView {
+  version:1; mode?:GraphMode; positions?:Record<string,GraphPoint>; tree_positions?:Record<string,GraphPoint>
+  viewport?:GraphViewport; tree_viewport?:GraphViewport; selected_id?:string; selected_relation?:string
+  expanded?:string[]; collapsed?:string[]; query?:string
+  filters?: {types?:string[];statuses?:Verification[];include_background?:boolean;show_sources?:boolean;show_transactions?:boolean}
+}
+export interface GraphFinding { evidence_id:string; title:string; description:string; url:string; status:string; relevance?:Source['relevance'] }
+export interface InvestigationGraph {
+  state:'idle'|'loading'|'ready'|'empty'|'locked'|'cancelled'|'error'; investigation_id?:string; goal?:string; status?:string
+  revision?:string|number; root_id?:string; entities?:GraphEntity[]; relations?:GraphRelation[]; evidence?:Source[]
+  warnings?:string[]; view?:GraphView; error?:string; synthetic?:boolean; total_entities?:number; total_relations?:number
+  truncated_input?:boolean; relations_truncated?:boolean
+  refreshing?:boolean;generation?:number
+  counts?:Record<string,number|null>
+  summary?:{findings:GraphFinding[];hypotheses:GraphFinding[];background_count:number;limitations:string[];failed_sources:{tool:string;status:string;error?:string}[];report?:string;stop_reason?:string}
 }
 export interface Message {
   id: string
@@ -102,6 +133,8 @@ export interface HistoryItem {
 }
 export interface DesktopState {
   errors?: { id: string; message: string; code: string; count: number }[]
+  investigation_graph?:InvestigationGraph
+  investigation_choices?:{id:string;title:string;status:string;updated_at?:string}[]
   visual_models?: {
     state: string; installed: boolean; available: boolean; download_bytes?: number | null; disk_recommended_bytes?: number | null
     ram_recommended_bytes?: number | null; device?: string; components?: unknown; error?: string; probe?: unknown
@@ -141,6 +174,7 @@ export interface DesktopState {
   task_sources?: Source[]
   history: HistoryItem[]
   search: {
+    investigation_id?:string
     query: string
     kind: string
     busy: boolean
@@ -200,10 +234,10 @@ export function parseState(raw: string | Partial<DesktopState>, previous = empty
   const object = (row: unknown): row is Record<string, unknown> => !!row && typeof row === 'object' && !Array.isArray(row)
   // The bridge is a data boundary, including historical state loaded by Python.
   // Reject corrupt rows before React components dereference their properties.
-  for (const key of ['connection', 'search', 'canvas', 'launcher', 'hermione', 'window', 'settings', 'investigation', 'usage'] as const) {
+  for (const key of ['connection', 'search', 'canvas', 'launcher', 'hermione', 'window', 'settings', 'investigation', 'usage', 'investigation_graph'] as const) {
     if (value[key] !== undefined && value[key] !== null && !object(value[key])) throw new Error(`Некорректный объект: ${key}`)
   }
-  for (const key of ['messages', 'activity', 'history', 'evidence', 'task_sources', 'tools', 'errors'] as const) {
+  for (const key of ['messages', 'activity', 'history', 'evidence', 'task_sources', 'tools', 'errors', 'investigation_choices'] as const) {
     const rows = value[key]
     if (rows !== undefined && (!Array.isArray(rows) || rows.some(row => !object(row)))) throw new Error(`Некорректные записи: ${key}`)
   }
@@ -212,6 +246,24 @@ export function parseState(raw: string | Partial<DesktopState>, previous = empty
   }
   for (const row of [...value.evidence || [], ...value.task_sources || []]) {
     if (typeof row.evidence_id !== 'string' || typeof row.title !== 'string' || typeof row.url !== 'string' || (row.details !== undefined && !object(row.details))) throw new Error('Некорректное доказательство')
+  }
+  const graph=value.investigation_graph
+  if(graph){
+    if(!['idle','loading','ready','empty','locked','cancelled','error'].includes(graph.state))throw new Error('Некорректное состояние графа')
+    if(graph.state==='ready'){
+      if(typeof graph.investigation_id!=='string'||!Array.isArray(graph.entities)||!Array.isArray(graph.relations)||!Array.isArray(graph.evidence))throw new Error('Некорректный граф')
+      for(const node of graph.entities)if(!object(node)||typeof node.id!=='string'||typeof node.label!=='string'||typeof node.type!=='string'||!object(node.attributes)||!Array.isArray(node.evidence_ids)||node.evidence_ids.some(id=>typeof id!=='string'))throw new Error('Некорректный узел графа')
+      const ids=new Set(graph.entities.map(node=>node.id))
+      for(const edge of graph.relations)if(!object(edge)||typeof edge.id!=='string'||!ids.has(edge.from_id)||!ids.has(edge.to_id)||!Array.isArray(edge.evidence_ids)||!['verified','source_reported','inferred','unverified','contradicted'].includes(edge.verification_status))throw new Error('Некорректная связь графа')
+      for(const edge of graph.relations)if(edge.aggregate&&(!object(edge.aggregate)||!Array.isArray(edge.aggregate.transaction_ids)||edge.aggregate.transaction_ids.some(id=>typeof id!=='string')||typeof edge.aggregate.count!=='number'||typeof edge.aggregate.asset!=='string'))throw new Error('Некорректная агрегация графа')
+      for(const row of graph.evidence)if(!object(row)||typeof row.evidence_id!=='string'||typeof row.title!=='string'||typeof row.url!=='string')throw new Error('Некорректное доказательство графа')
+      if(graph.summary){
+        if(!object(graph.summary))throw new Error('Некорректный обзор графа')
+        for(const key of ['findings','hypotheses','limitations','failed_sources'] as const)if(!Array.isArray(graph.summary[key]))throw new Error('Некорректные записи обзора графа')
+        for(const row of [...graph.summary.findings,...graph.summary.hypotheses])if(!object(row)||typeof row.evidence_id!=='string'||typeof row.title!=='string'||typeof row.description!=='string')throw new Error('Некорректная находка графа')
+      }
+      if(graph.view&&(!object(graph.view)||graph.view.version!==1))throw new Error('Некорректное состояние представления графа')
+    }
   }
   const patch = value as Partial<DesktopState> & { message_updates?: { index: number; message: Message }[]; message_count?: number }
   let messages = Array.isArray(value.messages) ? value.messages : previous.messages

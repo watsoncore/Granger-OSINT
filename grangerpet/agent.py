@@ -452,7 +452,7 @@ class AgentRunner:
             approved = self._approve(name, args, metadata.get("reason", "Требуется явное подтверждение пользователя."), cancelled, approval_callback)
             if not approved:
                 return self._outcome(name, args, "approval_denied", "Пользователь не подтвердил чувствительное действие; источник не запускался.")
-        self._event(callback, "tool_start", tool=name, query=self._safe(args))
+        self._event(callback, "tool_start", tool=name, tool_call_id=call['id'], query=self._safe(args))
         outcome = self.registry.execute(name, args, cancel_event=cancelled, deadline=deadline, approved=approved, on_event=observe)
         if isinstance(outcome, dict) and outcome.get("status") == "approval_required" and not approved:
             if self._approve(name, args, "Требуется подтверждение этого действия.", cancelled, approval_callback):
@@ -521,7 +521,8 @@ class AgentRunner:
                 accepted = self._save_tool_outcome(call, outcome, callback)
                 done[identifier] = accepted
                 self._event(callback, "tool_result", tool=accepted.get("tool"), status=accepted.get("status"),
-                            count=len(accepted.get("results", [])), error_code=accepted.get('error_code') or accepted.get('error'))
+                            count=len(accepted.get("results", [])), tool_call_id=call['id'], query=self._safe(call['arguments']),
+                            error_code=accepted.get('error_code') or accepted.get('error'))
             for identifier, (call, deadline) in list(active.items()):
                 if time.monotonic() >= deadline:
                     active.pop(identifier)

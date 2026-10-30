@@ -41,7 +41,7 @@ def validate_view(value):
         if key in result:
             viewport=result[key]
             if not isinstance(viewport,dict) or set(viewport)!={'x','y','scale'}:raise ValueError('Invalid graph viewport')
-            _number(viewport['x']);_number(viewport['y']);_number(viewport['scale'],.05,10)
+            _number(viewport['x']);_number(viewport['y']);_number(viewport['scale'],.001,10)
     for key,pattern in (('selected_id',ENTITY_ID),('selected_relation',RELATION_ID)):
         if key in result and (not isinstance(result[key],str) or result[key] and not pattern.fullmatch(result[key])):raise ValueError('Invalid graph selection')
     for key in ('expanded','collapsed'):

@@ -60,5 +60,8 @@ def test_account_credentials_do_not_manufacture_verified_external_service():
     registry=ToolRegistry(Settings(telegram_api_id='12345'),secret_getter=lambda name:'fixture' if name in
         ('telegram_api_hash','telegram_session','vk_token')else'',readiness=lambda *args,**kwargs:{'runtime_ready':True})
     rows={row['name']:row for row in registry.catalog()}
-    assert rows['telegram_public']['state']=='configured_unverified' and rows['vk_public']['available']
+    # Public preview no longer requires or verifies an account session.
+    assert rows['telegram_public']['state']=='ready' and rows['telegram_public']['available']
+    assert not rows['telegram_public']['diagnostic']['execution_verified']
+    assert rows['vk_public']['available']
     assert not rows['vk_public']['diagnostic']['execution_verified']

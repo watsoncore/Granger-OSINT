@@ -852,7 +852,7 @@ class ChatWidget(QWidget):
         kind = event.get('type')
         if kind != 'text':
             self._activity_log.append({key:deepcopy(value) for key,value in event.items() if key in
-                ('type','tool','status','step','count','message','request_id','usage','error_code','evidence_ids','tool_call_id','id')})
+                ('type','tool','status','step','count','message','request_id','usage','error_code','evidence_ids','tool_call_id','id','query')})
             self._activity_log = self._activity_log[-120:]
         self.state_changed.emit()
         if kind == 'text':

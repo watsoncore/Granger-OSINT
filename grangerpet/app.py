@@ -204,8 +204,15 @@ def main(argv: list[str] | None = None) -> int:
                     name=payload.get('name','state')
                     if not isinstance(name,str) or not re.fullmatch(r'[a-zA-Z0-9_-]{1,60}',name): return {'ok':False}
                     (Path(pet._trace_path).parent/(name+'.json')).write_text(surface.bridge._json(surface.bridge.snapshot()),encoding='utf-8')
+                elif payload.get('action')=='input' and qa_vault_active:
+                    from .qa_input import deliver
+                    QTimer.singleShot(0,lambda:deliver(surface,payload.get('payload',{})))
+                elif payload.get('action')=='graph_scroll' and qa_vault_active:
+                    surface.page().runJavaScript("document.querySelector('.investigation-tabs')?.scrollIntoView({block:'start'})")
                 elif payload.get('action')=='dom':
                     script="""JSON.stringify({text:document.body.innerText.slice(0,18000),title:document.title,theme:document.documentElement.dataset.theme,background:getComputedStyle(document.body).backgroundColor,buttons:[...document.querySelectorAll('button')].map(b=>({text:b.innerText,label:b.getAttribute('aria-label'),disabled:b.disabled})),headings:[...document.querySelectorAll('h1,h2,h3')].map(h=>h.innerText),tables:document.querySelectorAll('.markdown table').length,messages:document.querySelectorAll('[data-message-id]').length,overflow:document.documentElement.scrollWidth>innerWidth+2,width:innerWidth,height:innerHeight,font:{loaded:document.fonts.check('15px Manrope','Гермиона Ёжик'),family:getComputedStyle(document.body).fontFamily,size:getComputedStyle(document.body).fontSize},dock:(()=>{let r=document.getElementById('hermione-dock')?.getBoundingClientRect();return r?{x:r.x,y:r.y,width:r.width,height:r.height}:null})()})"""
+                    # Fixed read-only inspection, never arbitrary script from IPC.
+                    script=script.replace('text:document.body', "elements:[...document.querySelectorAll('button,input,select,summary,[role=tab]')].map(b=>{let r=b.getBoundingClientRect();return {text:(b.innerText||'').slice(0,120),label:b.getAttribute('aria-label'),type:b.type,checked:b.checked,value:b.value,x:r.x,y:r.y,width:r.width,height:r.height}}),graph:(()=>{let g=document.querySelector('.investigation-workspace'),c=document.querySelector('.investigation-graph-canvas'),r=c?.getBoundingClientRect();return g?{...g.dataset,canvas:c?{...c.dataset,x:r.x,y:r.y,width:r.width,height:r.height}:null}:null})(),text:document.body")
                     def receive(value):
                         try: surface.qa_dom=json.loads(value)
                         except (ValueError,TypeError): surface.qa_dom={}

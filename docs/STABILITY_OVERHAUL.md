@@ -200,3 +200,43 @@ graph bridge/followup tests passed in the focused runs (overlapping suites, not 
 sum of unique tests). The live Telegram capture projects to40 entities/41
 relations with4 source URLs and5 actual tool calls. **This backend stage alone
 is not claimed as completion of the required interactive UI.**
+
+## Stage 6 — interactive Search workspace in the actual executable
+
+Search now contains Overview / Tree / Graph / Evidence over that same projection.
+The bundled Canvas2D renderer supports node/edge selection, a provenance inspector,
+dragging/pinning, background pan, anchored wheel zoom, fit, filters, node search,
+branch expansion/collapse, separate tree coordinates and saved investigation
+selection. Evidence uses a virtual list. Layout runs in a bundled module worker;
+explicit cancellation terminates that worker and stale replies are ignored.
+Small graphs show readable labels; large graphs default to a bounded visible
+subset with an explicit expansion control. No animation loop runs while idle.
+The four existing palettes and the existing pet/dock remain in use.
+
+Structured graph followups now also bound individual strings/evidence arrays,
+omit aggregate transaction-ID collections and enforce an18,000-character
+structured envelope. The selected endpoints are preserved. Large selected
+wallets cannot silently serialize the whole investigation into model context.
+Activity rows carry real call IDs/arguments and result counts, including parallel
+calls of the same tool. Search can stop the current existing agent task.
+
+Native own-window mouse/wheel/key events were delivered to the real WebEngine
+widget in an isolated QA profile. The final candidate passed20 graph checks,
+including **1000 simultaneously rendered nodes /5000 relations**, the actual
+bundled worker, drag/pin, wheel, background pan, search, collapse/expand,
+virtualized evidence, all four themes and state recovery after a second EXE
+launch. Measured initial stress layout22.1ms and paint68.4ms on this machine;
+these are observations, not guaranteed frame times. Stress evidence is explicitly
+synthetic and is never reported as a real investigation. The full graph includes
+additional hidden provenance/domain nodes. The same candidate separately passed
+16 corrupt-state/restart checks without rewriting the damaged originals.
+
+118 frontend tests and the production frontend build passed. A full Python run
+found four assertions using the former contracts: account-required Telegram,
+mandatory arguments for the local graph view, the old hypothesis status, and an
+LLM fixture assuming metadata had not already been routed. They were updated to
+verify the current contracts; all48 tests in those affected suites passed. Full
+suite confirmation and new live EXE scenarios are recorded below when complete.
+
+Candidate: `output/stability/candidate/Granger-OSINT.exe`, SHA-256
+`692d9d36ed9de78606d8b737ce1e3ac1a1dbab99f340a81bafe79eff766a1de2`.
