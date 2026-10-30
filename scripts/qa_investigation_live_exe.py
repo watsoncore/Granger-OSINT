@@ -96,6 +96,10 @@ def main():
     def graph(identifier):
         action('route',{'route':'search'});action('investigation_graph_get',{'id':identifier})
         value=wait(lambda:s['investigation_graph'] if (s:=snapshot()).get('investigation_graph',{}).get('state')=='ready' and s['investigation_graph'].get('investigation_id')==identifier else None)
+        action('graph_scroll')
+        element=wait(lambda:next((e for e in dom().get('elements',[]) if e.get('text')=='Граф' and e['width']>0 and e['y']>0),None))
+        action('input',{'kind':'click','at':[element['x']+element['width']/2,element['y']+element['height']/2]})
+        wait(lambda:(g if g.get('graphMode')=='graph' and g.get('canvas') and g.get('layoutPending')=='false' else None) if (g:=dom().get('graph') or {}) else None)
         return value
     try:
         start(0)
@@ -108,6 +112,7 @@ def main():
         check('real_chat_telegram_and_discovered_repository_tools',{'telegram_public','github_repository'}<=tools and bool(value['evidence']))
         check('telegram_useful_final_report',any(m['role']=='model' and len(m['text'])>200 for m in value['messages']) and inv['status']!='running')
         g=graph(identifier);check('real_telegram_in_search_graph',bool(g['relations']) and any(e['relation_type']=='publishes_link' for e in g['relations']))
+        command('qa_snapshot',{'name':'telegram-search-graph'})
         root=g['root_id'];calls_before=inv.get('tool_calls',0);requests_before=inv.get('usage',{}).get('successful_requests',0)
         action('investigation_graph_analyze',{'id':identifier,'intent':'explain','entity_id':root})
         value=finish('graph-explain-live');current=value['investigation']
@@ -144,9 +149,13 @@ def main():
         action('tool_run',{'tool':'blockchain_gansar','query':'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c','limit':10})
         value=wait(lambda:s if not (s:=snapshot())['search']['busy'] else None,100)
         snapshot('ton-manual')
-        transactions=[row for row in value['search']['results'] if row.get('type')=='transaction']
-        report['scenarios']['ton_manual']={'transactions':len(transactions),'status':value['search'].get('phase')}
+        # Search exposes Source views, not raw normalized evidence. Preserve
+        # that boundary: observed transaction details carry their real tx_hash.
+        transactions=[row for row in value['search']['results'] if row.get('details',{}).get('tx_hash')]
+        report['scenarios']['ton_manual']={'transactions':len(transactions),'status':value['search'].get('phase'),
+            'execution_status':value['activity'][-1].get('status')}
         check('actual_exe_ton_source_returns_observed_transactions',bool(transactions))
+        check('partial_source_is_not_reported_as_total_search_failure',value['search']['phase'] in ('completed','completed_with_errors'))
         manual_id=value['search']['investigation_id'];g=graph(manual_id)
         check('actual_ton_graph_preserves_direction_and_owner_uncertainty',any(e['relation_type']=='transfers' and e.get('aggregate',{}).get('owner_verified') is False for e in g['relations']))
         command('qa_snapshot',{'name':'ton-search-graph'})
@@ -157,9 +166,11 @@ def main():
     except Exception as error:
         report.update(passed=False,error_type=type(error).__name__,error=str(error)[:200]);save();raise
     finally:
-        if process and process.poll() is None:command('stop');process.wait(timeout=35)
-        credentials.delete_secret('deepseek_api_key')
-        report['qa_gateway_secret_removed']=not credentials.get_secret('deepseek_api_key');save()
+        try:
+            if process and process.poll() is None:command('stop');process.wait(timeout=35)
+        finally:
+            credentials.delete_secret('deepseek_api_key')
+            report['qa_gateway_secret_removed']=not credentials.get_secret('deepseek_api_key');save()
 
 
 if __name__=='__main__':main()

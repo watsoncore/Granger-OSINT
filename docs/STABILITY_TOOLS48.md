@@ -10,17 +10,17 @@
 | `username_snoop` | да | нет | нет | не проверено | не проверено | не проверено | disabled |
 | `email_holehe` | да | да | да | не проверено | не проверено | не проверено | ready |
 | `phone_metadata` | да | да | да | не проверено | не проверено | не проверено | ready |
-| `blockchain_gansar` | да | да | да | да | да | не проверено | ready |
+| `blockchain_gansar` | да | да | да | да | да | да | ready |
 | `web_archive` | да | да | да | не проверено | не проверено | не проверено | ready |
-| `telegram_public` | да | да | да | да | да | не проверено | ready |
+| `telegram_public` | да | да | да | да | да | да | ready |
 | `vk_public` | да | да | да | не проверено | не проверено | не проверено | configured_unverified |
 | `instagram_public` | да | да | да | не проверено | не проверено | не проверено | configured_unverified |
 | `web_search` | да | да | да | не проверено | не проверено | не проверено | unverified |
-| `web_read` | да | да | да | не проверено | не проверено | не проверено | unverified |
+| `web_read` | да | да | да | да | да | да | unverified |
 | `domain_lookup` | да | да | да | не проверено | не проверено | не проверено | unverified |
 | `ip_lookup` | да | да | да | не проверено | не проверено | не проверено | unverified |
 | `evidence_get` | да | да | да | не проверено | не проверено | не проверено | ready |
-| `github_repository` | да | да | да | да | да | не проверено | ready |
+| `github_repository` | да | да | да | да | да | да | ready |
 | `threat_feodo` | да | да | да | не проверено | не проверено | не проверено | ready |
 | `hash_virustotal` | да | нет | нет | не проверено | не проверено | не проверено | auth_required |
 | `image_metadata` | да | да | да | не проверено | не проверено | не проверено | ready_local |
@@ -29,22 +29,22 @@
 | `map_geocode` | да | да | да | не проверено | не проверено | не проверено | ready_local |
 | `map_overpass` | да | да | да | не проверено | не проверено | не проверено | ready_local |
 | `map_wikimedia` | да | да | да | не проверено | не проверено | не проверено | ready_local |
-| `github_profile` | да | да | да | не проверено | не проверено | не проверено | ready |
+| `github_profile` | да | да | да | да | да | да | ready |
 | `github_users` | да | да | да | не проверено | не проверено | не проверено | ready |
-| `github_repositories` | да | да | да | не проверено | не проверено | не проверено | ready |
+| `github_repositories` | да | да | да | да | да | да | ready |
 | `hn_search` | да | да | да | не проверено | не проверено | не проверено | ready |
 | `hn_profile` | да | да | да | не проверено | не проверено | не проверено | ready |
 | `openlibrary_search` | да | да | да | не проверено | не проверено | не проверено | ready |
 | `wikipedia_search` | да | да | да | не проверено | не проверено | не проверено | ready |
 | `map_panoramax` | да | да | да | не проверено | не проверено | не проверено | ready_local |
-| `visual_geoint` | да | да | да | не проверено | не проверено | не проверено | ready_local |
+| `visual_geoint` | да | да | да | да | да | да | ready_local |
 | `geoclip_predict` | да | да | да | не проверено | не проверено | не проверено | ready_local |
 | `waypoint_predict` | да | да | да | не проверено | не проверено | не проверено | ready_local |
 | `waypoint_match` | да | да | да | не проверено | не проверено | не проверено | ready_local |
 | `tiktok_timestamp` | да | да | да | не проверено | не проверено | не проверено | ready |
 | `shadow_regions` | да | да | да | не проверено | не проверено | не проверено | ready |
 | `role_classify` | да | да | да | не проверено | не проверено | не проверено | ready |
-| `evidence_graph` | да | да | да | да | да | не проверено | ready |
+| `evidence_graph` | да | да | да | да | да | да | ready |
 | `mail_dns` | да | да | да | не проверено | не проверено | не проверено | ready_local |
 | `historical_contacts` | да | да | да | не проверено | не проверено | не проверено | ready_local |
 | `x_post` | да | да | да | не проверено | не проверено | не проверено | ready_local |
@@ -59,7 +59,11 @@
 
 Идентификаторы фактических файлов доказательства по адаптерам:
 
-- `blockchain_gansar`: `agent-ton-live.json`
-- `telegram_public`: `agent-telegram-canonical-live.json`
-- `github_repository`: `agent-telegram-canonical-live.json`
-- `evidence_graph`: `agent-ton-live.json`
+- `blockchain_gansar`: `agent-ton-live.json`, `live-exe-05/ton-manual.json`, `live-exe-06/ton-manual.json`
+- `telegram_public`: `agent-telegram-canonical-live.json`, `live-exe-05/graph-explain-live.json`, `live-exe-05/telegram-live.json`, `live-exe-06/graph-explain-live.json`, `live-exe-06/telegram-live.json`
+- `web_read`: `live-exe-05/graph-explain-live.json`, `live-exe-05/telegram-live.json`, `live-exe-06/graph-explain-live.json`, `live-exe-06/telegram-live.json`
+- `github_repository`: `agent-telegram-canonical-live.json`, `live-exe-05/graph-explain-live.json`, `live-exe-05/telegram-live.json`, `live-exe-06/graph-explain-live.json`, `live-exe-06/telegram-live.json`
+- `github_profile`: `live-exe-05/graph-explain-live.json`, `live-exe-05/telegram-live.json`, `live-exe-06/graph-explain-live.json`, `live-exe-06/telegram-live.json`
+- `github_repositories`: `live-exe-05/graph-explain-live.json`, `live-exe-05/telegram-live.json`
+- `visual_geoint`: `live-exe-05/ton-manual.json`, `live-exe-05/visual-geoint-live.json`, `live-exe-06/ton-manual.json`, `live-exe-06/visual-geoint-live.json`
+- `evidence_graph`: `agent-ton-live.json`, `live-exe-05/graph-explain-live.json`, `live-exe-05/telegram-live.json`, `live-exe-06/graph-explain-live.json`, `live-exe-06/telegram-live.json`

@@ -1041,7 +1041,11 @@ class DesktopBridge(QObject):
                     except (OSError,ValueError,CredentialError) as failure:
                         from .errors import report_exception
                         report_exception(failure,operation='manual_investigation_save')
-            self.host._set_phase('completed_with_errors' if status=='partial' else
+            # A timed-out source can retain streamed observations. Keep the
+            # execution's timeout status, but describe the usable Search result
+            # as incomplete rather than saying the whole search failed.
+            has_results=bool((outcome or {}).get('results'))
+            self.host._set_phase('completed_with_errors' if status=='partial' or has_results and status not in ('complete','completed') else
                 'completed' if status in ('complete','completed') and (outcome or {}).get('results') else
                 'completed_empty' if status in ('complete','completed','empty') else 'failed')
             self.host.search_state.emit('happy' if not error and status in ('complete','completed','partial','empty') else 'error')

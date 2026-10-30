@@ -339,6 +339,24 @@ def test_queued_cancelled_tool_result_cannot_overwrite_next_job(bridge,monkeypat
     assert bridge._manual_activity[0]['status']=='running'
 
 
+def test_manual_timeout_keeps_streamed_observations_and_truthful_incomplete_status(bridge,monkeypatch):
+    from grangerpet.agent_evidence import normalize_evidence
+    row=normalize_evidence({'id':'partial','type':'web','title':'Observed before timeout',
+        'url':'https://example.org/','platform':'Fixture','details':{},'description':'Actual retained fixture observation'},
+        'web_read','https://example.org/')
+    registry=bridge._registry()
+    monkeypatch.setattr(registry,'execute',lambda *a,**kw:{'tool':'web_read','status':'timeout','query':'https://example.org/',
+        'results':[row],'limitations':['Source timed out after the observed row.']})
+    monkeypatch.setattr(bridge,'_refresh_tools',lambda **kw:None)
+    bridge.dispatch('tool_run',{'tool':'web_read','query':'https://example.org/'})
+    wait_until(lambda:bridge._manual_job is None)
+    state=bridge.snapshot()
+    assert state['search']['phase']=='completed_with_errors'
+    assert state['search']['results'][0]['evidence_id']==row['evidence_id']
+    assert state['activity'][-1]['status']=='timeout'
+    assert state['search']['investigation_id']
+
+
 def test_real_manual_result_keeps_evidence_identity_through_qt_model_and_renderer(bridge,monkeypatch):
     from grangerpet.agent_evidence import normalize_evidence
     record=normalize_evidence({'id':'https://example.org/','title':'Example','type':'web','platform':'example.org',

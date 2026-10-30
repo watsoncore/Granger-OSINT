@@ -13,7 +13,7 @@ def main():
     from grangerpet.config import SettingsStore
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,required=True)
-    parser.add_argument('--gui-dir',type=Path)
+    parser.add_argument('--gui-dir',type=Path,action='append',default=[])
     parser.add_argument('--agent-report',type=Path,action='append',default=[])
     args=parser.parse_args()
     live,agent,gui,proof={},{},{},{}
@@ -38,12 +38,12 @@ def main():
         report=json.loads(path.read_text(encoding='utf-8'))
         if report.get('mock') is not False or not report.get('passed'):raise ValueError('Agent proof must be an actual successful capability test')
         observe(report['result'],path.name)
-    if args.gui_dir:
-        report=json.loads((args.gui_dir/'report.json').read_text(encoding='utf-8'))
+    for directory in args.gui_dir:
+        report=json.loads((directory/'report.json').read_text(encoding='utf-8'))
         if report.get('mock') is not False or not report.get('passed'):raise ValueError('GUI proof must be a completed actual-run report')
         for name in ('telegram-live','graph-explain-live','resumed-live','visual-geoint-live','ton-manual'):
-            path=args.gui_dir/(name+'.json')
-            if path.exists():observe(json.loads(path.read_text(encoding='utf-8')),path.name,True)
+            path=directory/(name+'.json')
+            if path.exists():observe(json.loads(path.read_text(encoding='utf-8')),directory.name+'/'+path.name,True)
     registry=ToolRegistry(SettingsStore().load())
     catalog={row['name']:row for row in registry.catalog()}
     rows=[]
