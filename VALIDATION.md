@@ -1,5 +1,24 @@
 # Granger-OSINT — проверка текущей сборки
 
+## Master Fix — текущая поставка
+
+Windows x64: **276882699 байт**; SHA-256
+`f6849c5b1e4a8d3e4d93e616680223cd171e9b3ef3b50fb563521baa68be5be9`.
+
+- Python: **1336 passed, 2 skipped, 32 subtests passed**.
+- Frontend: **118 passed**, TypeScript/Vite build прошёл.
+- Реальная сеть: 11 сетей с разным покрытием; отдельные NFT, TON DNS, ENS и contract probes.
+- EXE: 24 проверки графа; реальные NFT/image/tree/evidence; 6 сценариев DeepSeek,
+  адресный identity-retest, отмена с сохранением фактов и перезапуск.
+- Целостность: 105 Python-модулей и 138 проверок ресурсов; 27 файлов исходного
+  профиля, 121 модуль оригинального Gansar и visual-runtime receipt не изменены.
+- Публичные провайдеры дают частичные данные. TON/ENS этапы чата могут останавливаться
+  защитой повторов; это не утверждение о полном поиске. Полный NFT engine — TON.
+
+Подробности и фактические границы: [MASTER_FIX_RELEASE.md](docs/MASTER_FIX_RELEASE.md).
+
+## Историческая сборка до Master Fix
+
 30 октября2026. Windows x64: **276823658 байт**; SHA256
 `3957a014519c6176577a432ccefd971cf2a4483348762ec7bbcc4fae41df9047`.
 
