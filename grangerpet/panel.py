@@ -839,7 +839,7 @@ class OsintPanel(FramelessWindow):
         self.diagnostics.setVisible(checked)
 
     def _progress(self, done, total):
-        self.checked_label.setText(f'Проверено: {done}/{total}')
+        self.checked_label.setText(f'Адаптеры: {done}/{total}')
 
     def _engine_state(self, state):
         if not self._ending and self._busy:
@@ -868,7 +868,7 @@ class OsintPanel(FramelessWindow):
             phase = 'completed_with_errors' if errors else 'completed_empty'
         self._set_phase(phase)
         checked = getattr(summary, 'checked_sources', sum(bool(getattr(item, 'started_at', None)) for item in statuses))
-        self.checked_label.setText(f'Проверено: {checked}')
+        self.checked_label.setText(f'Адаптеров выполнено: {checked}')
         self._update_count()
         confirmed = self.result_model.confirmed_count
         self._emit_activity('happy' if confirmed and not getattr(summary, 'cancelled', False) else 'error' if phase == 'failed' else 'idle')

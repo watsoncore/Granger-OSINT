@@ -63,3 +63,18 @@ def test_graph_analyze_passes_structured_subgraph_and_same_id_to_existing_chat(b
     assert context['selected_entity_ids']==[node['id']] and context['entities']
     assert len(context['entities'])<=12 and len(context['relations'])<=24
     assert bridge.route=='chat'
+
+
+def test_automatic_ton_routes_to_existing_checkpoint_and_graph_pipeline(bridge,monkeypatch):
+    calls=[]
+    monkeypatch.setattr(bridge,'_run_tool',lambda payload:calls.append(payload))
+    target='UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd'
+    bridge.dispatch('search_run',{'query':target,'kind':'auto'})
+    assert calls==[{'tool':'blockchain_gansar','query':target}]
+    assert bridge.route=='search'
+
+
+def test_executed_adapter_count_does_not_claim_provider_checks(bridge):
+    bridge.host._progress(1,2)
+    assert bridge.snapshot()['search']['checkedLabel']=='Адаптеры: 1/2'
+    assert bridge.snapshot()['search']['checked']==1

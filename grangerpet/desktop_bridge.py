@@ -653,6 +653,11 @@ class DesktopBridge(QObject):
                 specialized = {'tool': 'ip_lookup', 'query': target.identifier}
             elif kind == 'auto' and target and target.entity_type == 'geographic_coordinates':
                 specialized = {'tool': 'map_wikimedia', 'query': target.identifier}
+            elif kind in ('auto','blockchain') and target and target.entity_type == 'blockchain_address' and 'blockchain_gansar' in target.tools:
+                # Use the same normalized evidence/checkpoint pipeline as the
+                # catalog and agent; the legacy form-only route never saved an
+                # investigation and could not publish its graph.
+                specialized = {'tool':'blockchain_gansar','query':text}
             self.route='search'
             if specialized:
                 self._run_tool(specialized)
@@ -1031,6 +1036,7 @@ class DesktopBridge(QObject):
             self._manual_activity[0]['summary']=error or str((outcome or {}).get('error') or '')
             self._manual_activity[0]['resultCount']=len((outcome or {}).get('results',[]))
             self._manual_activity[0]['error']=error or str((outcome or {}).get('error') or '')
+            self.host.checked_label.setText('Адаптеров выполнено: 1')
             if isinstance(outcome,dict):
                 self.host._agent_evidence(outcome.get('results',[]))
                 for row in outcome.get('results',[]): self._raw_sources[row['evidence_id']]=row
