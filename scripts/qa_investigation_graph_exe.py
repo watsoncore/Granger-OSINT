@@ -119,6 +119,7 @@ def main():
         wait(lambda:0<int(graph().get('canvas',{}).get('drawnEdges',0))<=3000)
         g=graph();c=g['canvas'];report['metrics'].update(layout_ms=float(g['layoutMs']),paint_ms=float(c['paintMs']),displayed_nodes=int(c['drawnNodes']),displayed_edges=int(c['drawnEdges']))
         check('1000_nodes_5000_edges_retained_with_readable_backbone',int(c['drawnNodes'])>=1000 and 0<int(c['drawnEdges'])<=3000)
+        screenshot('stress-overview')
         if monitor:
             samples=[]
             for _ in range(12):samples.append(monitor.sample([owned]));time.sleep(.15)
@@ -178,6 +179,7 @@ def main():
         wait(lambda:graph().get('investigationId')==record['id'] and graph().get('canvas') and graph().get('layoutPending')=='false')
         action('graph_scroll');click('Дерево');wait(lambda:graph().get('graphMode')=='tree' and graph().get('canvas'))
         check('tree_has_independent_layout',bool(views.load(record['id']).get('positions')))
+        screenshot('tree')
         click('Доказательства');wait(lambda:'нормализованных записей' in dom()['text'])
         screenshot('evidence')
         check('evidence_virtualized',len([e for e in dom()['elements'] if e.get('text','').startswith('Синтетический объект')])<80)

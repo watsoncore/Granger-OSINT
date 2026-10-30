@@ -28,6 +28,8 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--visual',action='store_true')
     parser.add_argument('--source',action='store_true',help='Run current source with a QA-only stack watchdog')
+    parser.add_argument('--identity-only',action='store_true',help='Targeted real EXE check of the final identity-routing fix')
+    parser.add_argument('--cancel-only',action='store_true',help='Actual cancel after observed blockchain evidence, then restart')
     args=parser.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Prior paid test retained; choose a new output directory')
     out.mkdir(parents=True);namespace=uuid.uuid4().hex
@@ -111,56 +113,80 @@ def main():
         start(0)
         action('connection_test');wait(lambda:snapshot()['connection'].get('status') in ('connected','ready','verified'),90)
         check('actual_gateway_connection_proof',snapshot()['connection']['canSend'])
-        target='UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd'
-        prompt='Гермиона, исследуй этот TON-адрес '+target+'. В режиме quick найди активы, транзакции, NFT и контрагентов. Используй реальные blockchain_gansar operation profile и nft scope wallet, затем evidence_graph. Дай краткий итог с ограничениями источников. Не исследуй соседние адреса сейчас.'
-        action('chat_send',{'text':prompt});value=finish('ton-agent',360)
-        inv=value['investigation'];identifier=inv['id']
-        calls=inv.get('calls',[])
-        report['scenarios']['ton']={'id':identifier,'status':inv['status'],'calls':calls}
-        check('actual_chat_blockchain_calls',any(row.get('tool')=='blockchain_gansar' for row in calls))
-        check('actual_chat_nft_branch',any(row.get('tool')=='blockchain_gansar' and row.get('arguments',{}).get('operation')=='nft' for row in calls))
-        check('actual_chat_graph_tool',any(row.get('tool')=='evidence_graph' for row in calls))
-        g=graph(identifier);command('qa_snapshot',{'name':'ton-agent-graph'})
-        check('actual_asset_nodes',any(node['type']=='asset' for node in g['entities']))
-        wallet=next(node for node in g['entities'] if node['type']=='blockchain_address' and node.get('attributes',{}).get('is_root'))
-        action('investigation_graph_select',{'id':identifier,'entity_id':wallet['id']})
-        previous_calls=len(inv.get('calls',[]))
-        action('chat_send',{'text':'Покажи активы кошелька '+target+' из сохранённых данных: blockchain_gansar operation cached section assets. Новых сетевых поисков не запускай.'})
-        value=finish('cached-assets',150);cached_inv=value['investigation']
-        report['scenarios']['cached_assets']={'id':cached_inv['id'],'calls':cached_inv.get('calls',[])}
-        check('cached_assets_have_actual_backend_call',cached_inv['id']==identifier and any(row.get('tool') in ('blockchain_gansar','evidence_get') for row in cached_inv.get('calls',[])[previous_calls:]))
-        from grangerpet.agent_journal import InvestigationJournal
-        journal=InvestigationJournal(profile/'investigations')
-        saved=journal.load_checkpoint(identifier)
-        local=[row for row in saved.get('executions',[]) if row.get('from_saved_data')]
-        check('cached_assets_perform_zero_http_requests',bool(local) and all(row.get('source_diagnostics',{}).get('http_requests')==0 for row in local))
-        g=graph(identifier)
-        counterparty=next(node for node in g['entities'] if node['type']=='blockchain_address' and node['id']!=wallet['id'] and node.get('attributes',{}).get('address'))
-        action('investigation_graph_select',{'id':identifier,'entity_id':counterparty['id']})
-        previous_calls=len(cached_inv.get('calls',[]))
-        action('chat_send',{'text':'Исследуй выделенного контрагента '+str(counterparty['attributes']['address'])+' на один уровень глубже. Используй blockchain_gansar operation trace chain ton mode quick depth 1. Обнови evidence_graph один раз и дай краткий итог.'})
-        value=finish('selected-counterparty',240);focused=value['investigation']
-        new=focused.get('calls',[])[previous_calls:]
-        check('selected_counterparty_uses_same_investigation',focused['id']==identifier)
-        check('selected_counterparty_has_real_blockchain_call',any(row.get('tool')=='blockchain_gansar' and row.get('arguments',{}).get('operation') in ('trace','profile','transactions') for row in new))
-        report['scenarios']['counterparty']={'id':identifier,'calls':new}
-        g=graph(identifier);edge=next(row for row in g['relations'] if row.get('evidence_ids'))
-        previous_calls=len(focused.get('calls',[]))
-        action('investigation_graph_select',{'id':identifier,'relation_id':edge['id']})
-        action('investigation_graph_analyze',{'id':identifier,'intent':'explain','relation_id':edge['id']})
-        value=finish('explain-edge',150);explained=value['investigation'];new=explained.get('calls',[])[previous_calls:]
-        check('explain_edge_stays_local_and_keeps_identity',explained['id']==identifier and not any(row.get('tool') not in ('evidence_get','evidence_graph') for row in new))
-        report['scenarios']['explain_edge']={'id':identifier,'calls':new,'relation_id':edge['id']}
-        command('stop');process.wait(timeout=35);owned=None;start(1)
-        previous_calls=len(explained.get('calls',[]))
-        action('chat_send',{'text':'Продолжи сохранённое расследование. Используй уже собранные данные и blockchain_gansar operation cached section assets для '+target+'. Не повторяй сетевые проверки. Дай краткий итог.'})
-        value=finish('resumed-investigation',180)
-        check('actual_restart_resume_keeps_investigation',value['investigation']['id']==identifier)
-        report['scenarios']['restart_resume']={'id':identifier,'calls':value['investigation'].get('calls',[])[previous_calls:]}
-        action('chat_new')
-        action('chat_send',{'text':'Проверь ENS и Web3-идентификаторы публичного адреса 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045. Выполни blockchain_gansar operation identity mode quick, не полный финансовый поиск. Укажи forward/reverse проверку и ограничения.'})
-        value=finish('ens-agent',200);report['scenarios']['ens']={'status':value['investigation']['status'],'calls':value['investigation'].get('calls',[])}
-        check('real_identity_tool_call',any(row.get('tool')=='blockchain_gansar' and row.get('arguments',{}).get('operation')=='identity' for row in value['investigation'].get('calls',[])))
+        if args.cancel_only:
+            from grangerpet.agent_journal import InvestigationJournal
+            target='UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd'
+            action('chat_send',{'text':'Исследуй '+target+' через blockchain_gansar operation profile mode deep; сохраняй полученные наблюдения.'})
+            value=wait(lambda:(s if any(row.get('details',{}).get('tx_hash') for row in s.get('evidence',[])) else None) if (s:=snapshot()) else None,100)
+            identifier=value['investigation']['id'];started=time.monotonic();action('chat_stop')
+            value=finish('cancelled-blockchain',30)
+            report['scenarios']['cancel']={'seconds_until_ui_idle':round(time.monotonic()-started,3),'id':identifier,'status':value['investigation'].get('status')}
+            check('cancel_returns_control_without_waiting_for_query_deadline',time.monotonic()-started<8)
+            journal=InvestigationJournal(profile/'investigations')
+            saved=wait(lambda:p if (p:=journal.load_checkpoint(identifier)).get('record',{}).get('status') in ('cancelled','paused','interrupted','limit_reached') else None,35)
+            check('cancel_retains_actual_observed_evidence',bool(saved.get('evidence')))
+            before=len(saved['evidence'])
+            command('stop');process.wait(timeout=35);owned=None;start(1)
+            saved=journal.load_checkpoint(identifier)
+            check('cancelled_evidence_survives_actual_restart',len(saved.get('evidence',[]))>=before)
+            check('restart_does_not_automatically_repeat_cancelled_query',not snapshot()['busy'])
+        else:
+            if not args.identity_only:
+                target='UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd'
+                prompt='Гермиона, исследуй этот TON-адрес '+target+'. В режиме quick найди активы, транзакции, NFT и контрагентов. Используй реальные blockchain_gansar operation profile и nft scope wallet, затем evidence_graph. Дай краткий итог с ограничениями источников. Не исследуй соседние адреса сейчас.'
+                action('chat_send',{'text':prompt});value=finish('ton-agent',360)
+                inv=value['investigation'];identifier=inv['id']
+                calls=inv.get('calls',[])
+                report['scenarios']['ton']={'id':identifier,'status':inv['status'],'calls':calls}
+                check('actual_chat_blockchain_calls',any(row.get('tool')=='blockchain_gansar' for row in calls))
+                check('actual_chat_nft_branch',any(row.get('tool')=='blockchain_gansar' and row.get('arguments',{}).get('operation')=='nft' for row in calls))
+                check('actual_chat_graph_tool',any(row.get('tool')=='evidence_graph' for row in calls))
+                g=graph(identifier);command('qa_snapshot',{'name':'ton-agent-graph'})
+                check('actual_asset_nodes',any(node['type']=='asset' for node in g['entities']))
+                wallet=next(node for node in g['entities'] if node['type']=='blockchain_address' and node.get('attributes',{}).get('is_root'))
+                action('investigation_graph_select',{'id':identifier,'entity_id':wallet['id']})
+                previous_calls=len(inv.get('calls',[]))
+                action('chat_send',{'text':'Покажи активы кошелька '+target+' из сохранённых данных: blockchain_gansar operation cached section assets. Новых сетевых поисков не запускай.'})
+                value=finish('cached-assets',150);cached_inv=value['investigation']
+                report['scenarios']['cached_assets']={'id':cached_inv['id'],'calls':cached_inv.get('calls',[])}
+                check('cached_assets_have_actual_backend_call',cached_inv['id']==identifier and any(row.get('tool') in ('blockchain_gansar','evidence_get') for row in cached_inv.get('calls',[])[previous_calls:]))
+                from grangerpet.agent_journal import InvestigationJournal
+                journal=InvestigationJournal(profile/'investigations')
+                saved=journal.load_checkpoint(identifier)
+                local=[row for row in saved.get('executions',[]) if row.get('from_saved_data')]
+                check('cached_assets_perform_zero_http_requests',bool(local) and all(row.get('source_diagnostics',{}).get('http_requests')==0 for row in local))
+                g=graph(identifier)
+                counterparty=next(node for node in g['entities'] if node['type']=='blockchain_address' and node['id']!=wallet['id'] and node.get('attributes',{}).get('address'))
+                action('investigation_graph_select',{'id':identifier,'entity_id':counterparty['id']})
+                previous_calls=len(cached_inv.get('calls',[]))
+                action('chat_send',{'text':'Исследуй выделенного контрагента '+str(counterparty['attributes']['address'])+' на один уровень глубже. Используй blockchain_gansar operation trace chain ton mode quick depth 1. Обнови evidence_graph один раз и дай краткий итог.'})
+                value=finish('selected-counterparty',240);focused=value['investigation']
+                new=focused.get('calls',[])[previous_calls:]
+                check('selected_counterparty_uses_same_investigation',focused['id']==identifier)
+                check('selected_counterparty_has_real_blockchain_call',any(row.get('tool')=='blockchain_gansar' and row.get('arguments',{}).get('operation') in ('trace','profile','transactions') for row in new))
+                report['scenarios']['counterparty']={'id':identifier,'calls':new}
+                g=graph(identifier);edge=next(row for row in g['relations'] if row.get('evidence_ids'))
+                previous_calls=len(focused.get('calls',[]))
+                action('investigation_graph_select',{'id':identifier,'relation_id':edge['id']})
+                action('investigation_graph_analyze',{'id':identifier,'intent':'explain','relation_id':edge['id']})
+                value=finish('explain-edge',150);explained=value['investigation'];new=explained.get('calls',[])[previous_calls:]
+                check('explain_edge_stays_local_and_keeps_identity',explained['id']==identifier and not any(row.get('tool') not in ('evidence_get','evidence_graph') for row in new))
+                report['scenarios']['explain_edge']={'id':identifier,'calls':new,'relation_id':edge['id']}
+                command('stop');process.wait(timeout=35);owned=None;start(1)
+                previous_calls=len(explained.get('calls',[]))
+                action('chat_send',{'text':'Продолжи сохранённое расследование. Используй уже собранные данные и blockchain_gansar operation cached section assets для '+target+'. Не повторяй сетевые проверки. Дай краткий итог.'})
+                value=finish('resumed-investigation',180)
+                check('actual_restart_resume_keeps_investigation',value['investigation']['id']==identifier)
+                report['scenarios']['restart_resume']={'id':identifier,'calls':value['investigation'].get('calls',[])[previous_calls:]}
+                action('chat_new')
+            action('chat_send',{'text':'Проверь ENS и Web3-идентификаторы публичного адреса 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045. Выполни blockchain_gansar operation identity mode quick, не полный финансовый поиск. Укажи forward/reverse проверку и ограничения.'})
+            value=finish('ens-agent',200);report['scenarios']['ens']={'status':value['investigation']['status'],'calls':value['investigation'].get('calls',[])}
+            check('real_identity_tool_call',any(row.get('tool')=='blockchain_gansar' and row.get('arguments',{}).get('operation')=='identity' for row in value['investigation'].get('calls',[])))
+            if args.identity_only:
+                actual=value['investigation'].get('calls',[])
+                check('identity_goal_skips_financial_profile',actual[0]['arguments'].get('operation')=='identity' and not any(row.get('tool')=='blockchain_gansar' and row.get('arguments',{}).get('operation') in (None,'profile') for row in actual))
+                identity=[row for row in actual if row.get('tool')=='blockchain_gansar' and row.get('arguments',{}).get('operation')=='identity' and row.get('arguments',{}).get('address','').lower()=='0xd8da6bf26964af9d7eed9e03e53415d37aa96045']
+                check('equivalent_identity_options_do_not_repeat_network_operation',len(identity)==1)
         report['process_metrics']=monitor.sample([owned]);save()
         command('stop');process.wait(timeout=35);owned=None;check('final_exit_zero',process.returncode==0)
         wait(lambda:monitor.sample()['process_count']==0,30);check('no_owned_orphan_processes',True)

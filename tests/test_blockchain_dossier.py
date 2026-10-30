@@ -79,6 +79,17 @@ def test_agent_dedup_uses_effective_ton_operation_instead_of_encoding_or_refresh
     assert first==repeated
 
 
+def test_identity_dedup_ignores_financial_options_and_explicit_goal_routes_directly():
+    from grangerpet.agent_tools import ToolRegistry
+    from grangerpet.config import Settings
+    r=ToolRegistry(Settings(research_mode='quick'),secret_getter=lambda name:'')
+    address='0x'+'1'*40
+    expected=r.canonical_arguments('blockchain_gansar',{'address':address,'operation':'identity'})
+    assert r.canonical_arguments('blockchain_gansar',{'address':address,'operation':'identity','chain':'eth','section':'identity','depth':1,'limit':100,'refresh':True})==expected
+    calls=r.initial_calls('Проверь ENS и Web3-идентификаторы '+address+'. operation identity')
+    assert calls==[{'name':'blockchain_gansar','arguments':{'address':address,'operation':'identity'}}]
+
+
 def test_selected_focus_calls_only_selected_address_and_never_neighbor_labels():
     from grangerpet.agent_tools import ToolRegistry
     from grangerpet.config import Settings

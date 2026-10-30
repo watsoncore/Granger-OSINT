@@ -180,6 +180,10 @@ class ToolRegistry:
                 value = target.canonical_url
             args = {spec.argument: value}
             if target.properties.get('blockchain_operation'):args['operation']=target.properties['blockchain_operation']
+            if name=='blockchain_gansar':
+                requested=re.search(r'(?iu)\boperation\s+(profile|balances|assets|transactions|nft|identity|contracts|labels|attribution|trace|cached)\b',goal)
+                if requested:args['operation']=requested.group(1).lower()
+                elif re.search(r'(?iu)\bENS\b|Web3.{0,20}идентификатор',goal) and not re.search(r'(?iu)баланс|актив|транзакц|NFT',goal):args['operation']='identity'
             if name == 'visual_geoint':
                 args.update(methods=['geoclip_predict', 'waypoint_predict'], top_k=3, samples=32)
             calls.append({'name': name, 'arguments': args})
@@ -205,6 +209,12 @@ class ToolRegistry:
             chosen=blockchain_policy(args,self.settings.research_mode)
             args['limit']=chosen['transactions'];args.setdefault('depth',chosen['depth'])
             if args['operation']=='cached':args.setdefault('section','all')
+            else:args.pop('section',None)
+            if args['operation']=='identity':
+                # The identity collector always uses Ethereum ENS and exact
+                # public Web3 context; financial-chain/tx/depth flags do not
+                # change that operation and cannot justify another request.
+                args['chain']='eth';args.pop('limit',None);args.pop('depth',None)
         spec = _BY_NAME.get(name)
         default = getattr(self.settings, 'request_limit', 20) if spec and spec.input_schema is None else None
         return normalized_arguments(name, args, default)

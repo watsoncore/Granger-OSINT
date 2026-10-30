@@ -97,10 +97,11 @@ def main():
         action('graph_scroll')
         def graph():return dom().get('graph') or {}
         wait(lambda:graph().get('canvas') and graph().get('layoutPending')=='false')
-        button=wait(lambda:next((e for e in dom()['elements'] if e.get('text')=='В центр' and e['width']>0),None))
-        click(button)
+        action('graph_scroll')
+        wait(lambda:0<(graph().get('canvas') or {}).get('y',10000)<350)
         c=wait(lambda:graph().get('canvas'))
         node=next(row for row in json.loads(c['qaNodes']) if row['id']==media_node['id'])
+        check('native_media_hit_target_is_inside_visible_canvas',0<node['x']<c['width'] and 0<node['y']<c['height'] and c['y']+node['y']<dom()['height']-25)
         action('input',{'kind':'click','at':[c['x']+node['x'],c['y']+node['y']]})
         value=wait(lambda:media if (media:=next((node.get('attributes',{}).get('media',{})for node in snapshot().get('investigation_graph',{}).get('entities',[]) if node['id']==media_node['id']),{})).get('state') in ('ready','unavailable') else None,35)
         check('native_selected_real_nft_media_loaded',value.get('state')=='ready' and str(value.get('thumbnail','')).startswith('data:image/jpeg;base64,'))
@@ -112,6 +113,13 @@ def main():
         report['native_node_selected']=graph().get('selectedId')==media_node['id']
         check('actual_node_selection_retains_evidence',report['native_node_selected'])
         report['elapsed_seconds']=round(time.monotonic()-media_started,3);report['result_count']=len(rows);report['search']={'investigation_id':saved['id']}
+        report['mode']='actual_frozen_Qt_WebEngine_real_NFT_media'
+        for label,mode in (('Дерево','tree'),('Доказательства','evidence')):
+            button=wait(lambda:next((e for e in dom()['elements'] if e.get('text')==label and e['width']>0),None))
+            click(button);wait(lambda:graph().get('graphMode')==mode)
+            if mode=='tree':wait(lambda:graph().get('canvas') and graph().get('layoutPending')=='false')
+            command('qa_snapshot',{'name':'real-nft-'+mode})
+            check('real_NFT_'+mode+'_renders',not snapshot().get('errors'))
         command('stop');process.wait(timeout=30);owned=None;check('clean_exit',process.returncode==0)
         report['passed']=True;save()
     except Exception as error:

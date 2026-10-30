@@ -339,7 +339,7 @@ class DesktopBridge(QObject):
                     raw_sources[identifier] = record
                     sources.append(source_view(record,compact=True))
 
-        
+
 
             for record in graph_records:
                 if record.get('evidence_id'):raw_sources.setdefault(record['evidence_id'],record)

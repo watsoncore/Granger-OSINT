@@ -3,6 +3,39 @@
 Аудит исходников на HEAD `2caceea93bed4fffcfcca9a7e353007197e5f1f6`.
 
 Измеренные сетевые результаты и ограничения: [MASTER_FIX_VERIFICATION.md](MASTER_FIX_VERIFICATION.md).
+
+## Матрица интеграции и доказательств
+
+«Гермиона: доступно» означает зарегистрированную строго типизированную операцию,
+а не live-проверку каждой возможной сети/провайдера через LLM. GUI-проверки ниже
+отдельно ограничены фактически показанными сущностями. Все операции используют
+один существующий инструмент и изолированный runtime, без нового Gansar UI.
+
+| Function | Original Gansar module | Supported networks | Integration method | Dependencies | Live tested | Hermione accessible | GUI verified | Limitations |
+|---|---|---|---|---|---|---|---|---|
+| Account/profile | aggregator.analyzer |11 | profile → protected AddressReport | existing pydantic/httpx runtime |11, partial | да, profile | TON | разные глубина/источники |
+| Native balance | sources/*, models.report.Balance |11 | exact decimal findings | existing runtime |11 | да, balances/cached | TON | неизвестное не0 |
+| Tokens | ton_tonapi, eth*, bsc, tron*, solana | покрытие источников | TokenHolding → token_asset | existing runtime | TON/ETH/Tron/Solana | да, assets | TON | current/historical/metadata различаются |
+| Financial history | financial_operations, event_identity, sources/* |11 с разным покрытием | transactions → qualified events | existing runtime | BTC/DOGE/ETH/Optimism/Tron/TON/Solana | да | TON transfers/inspector | полная история не гарантируется |
+| Counterparties | aggregator.analyzer, counterparty_ranking | по наблюдаемым tx | scoped address nodes | existing runtime | UTXO/EVM/TON/Tron | да, trace/profile | TON | нет утверждения общего владельца |
+| NFT inventory | ton_nft.service | TON | nft wallet/item/collection/auto | sqlite in temporary cwd | wallet6 items, domain item | да, nft | NFT node/image | другой сети full NFT engine нет |
+| NFT owners/collection | ton_nft.protocol/providers | TON | actual projected observations | existing runtime | wallet/item/domain | да, nft | source-scoped asset/collection | сбор не доказывает полноту владельцев |
+| NFT events/market | ton_nft.analytics/service | TON | event semantics + complete protected DTO | existing runtime | wallet/domain events | да, nft/transactions | evidence | sale price ≠ NFT quantity |
+| NFT cursors/resume | ton_nft.service._resume_report | TON | saved typed report → resumed engine | protected Granger store | реальное восстановление/повтор | да при продолжении | protected checkpoint path | private vendor DB не используется |
+| ENS | sources.ethereum_ens | ETH | identity; resolver/block provenance | ens-normalize in runtime | vitalik.eth,48 HTTP200 | да, identity | typed graph contract; chat QA отдельно | reverse требует forward check |
+| TON DNS | ton_nft.discovery | TON | exact domain → NFT | existing runtime | foundation.ton | да | asset/evidence projection | NFT owner ≠ доказанный человек |
+| Lens/Basenames/EAS | web3_identity, basenames, eas_public | ETH/Base context | identity/source-scoped claims | existing runtime | profile probes; отдельные claims не гарантированы | да | typed Web3 graph, unit contract | Base не финансовая12-я сеть |
+| Contract metadata/code | attribution.network, evm_rpc |6 EVM/Tron context | contracts → contract_observation | RPC/Sourcify/provider availability | ETH USDT,1 observation | да | graph contract | verification ≠ ownership |
+| Labels/public datasets | attribution.datasets, engine | поддержанные сети | labels/attribution, bundled snapshot | bundled licensed public data | labels in TON/ETH/BSC/Tron | да | labels/evidence | private datasets не читаются |
+| Behavioral/timeline/migration | fingerprints, wallet_timeline, inference | по исходному коду | bounded analysis findings + full DTO | existing runtime | analyzer reports | да, attribution | hypotheses/evidence | объяснимые гипотезы, не личность |
+| Multi-hop frontier | attribution.investigation_planner | compatible history collectors | trace with time/request/depth budgets | existing runtime | selected TON operation | да, selected focus | same investigation graph | key-only providers недоступны без ключей |
+| Media URLs | ton_nft models/providers, metadata | TON и фактические public records | evidence-bound Granger MediaStore | existing Pillow/httpx | actual Fragment WebP | URL metadata, без отправки пикселей LLM | decoded local preview/inspector | robots/SSRF/MIME/размер;404 сохранён |
+| Exported raw dossier | models.report |11 | encrypted local storage | existing DPAPI/portable vault | save/load/cache restore | cached sections | source inspector/provenance |16 МБ budget, не vendor DB export |
+
+Готовый GUI/exporter самого Gansar намеренно не запускается: пользователь просил
+сохранить существующий интерфейс Granger. Private datasets, original searches,
+cookies и keyed provider sessions исключены. Они не считаются интегрированными
+или протестированными за счёт наличия файлов в другом проекте.
 Оригинал: `C:/Users/Admin/Desktop/crypto_osint`, чистый git status.
 121 Python-модуль побайтово совпадает с локальным `Gansar-main` Granger.
 Исходники Gansar не изменяются и не публикуются этим заданием. Базы SQLite,
