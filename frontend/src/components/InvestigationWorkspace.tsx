@@ -68,7 +68,7 @@ export function InvestigationWorkspace({state,onSource}:{state:DesktopState;onSo
     return()=>clearTimeout(saveTimer.current)
   },[view,id,initialized,ready])
   const allNodes=data?.entities||[],allEdges=data?.relations||[]
-  const visible=useMemo(()=>visibleGraph(allNodes,allEdges,data?.root_id||'',view,limit),[allNodes,allEdges,data?.root_id,view.filters,view.query,view.expanded,view.collapsed,view.selected_id,limit])
+  const visible=useMemo(()=>visibleGraph(allNodes,allEdges,data?.root_id||'',view,limit),[allNodes,allEdges,data?.root_id,view.filters,view.query,view.expanded,view.expanded_relations,view.collapsed,view.selected_id,view.selected_relation,limit])
   const index=useMemo(()=>indexGraph(allNodes,allEdges),[allNodes,allEdges])
   const topology=useMemo(()=>visible.nodes.map(node=>node.id).sort().join('|')+'#'+visible.edges.map(edge=>edge.id).sort().join('|'),[visible.nodes,visible.edges])
   const mode=view.mode||'overview',plot=mode==='graph'||mode==='tree',positionKey=mode==='tree'?'tree_positions':'positions',viewportKey=mode==='tree'?'tree_viewport':'viewport'

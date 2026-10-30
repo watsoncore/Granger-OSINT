@@ -1,0 +1,125 @@
+{
+  "selection": "7 classes from 5 distinct licensed photographs selected before inference; documented pixel derivatives, not 7 independent originals; no synthetic images",
+  "original_sources": 5,
+  "cases": [
+    {
+      "id": "photo-01",
+      "file": "01.jpg",
+      "class": "urban_street",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=d6f8bec6-4250-405c-a54f-a417f6349ef7",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "author": "nuxper_np",
+      "captured_at": "2025-05-03T11:08:01+00:00",
+      "transform": "original pixels, re-encoded JPEG without metadata",
+      "annotated_coordinate": [
+        45.760241279,
+        4.835712817
+      ],
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "919a63209d4c6fcf0392f8f052dfe5956d9e0c42f584dba750f63dafd99a8181"
+    },
+    {
+      "id": "photo-02",
+      "file": "02.jpg",
+      "class": "architectural_landmark",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=d45df449-551f-4cff-af60-9f91ff5cbbd8",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "author": "mapillarymatt",
+      "captured_at": "2019-08-31T03:39:29.971000+00:00",
+      "transform": "original pixels, re-encoded JPEG without metadata",
+      "annotated_coordinate": [
+        55.750658173,
+        37.626865093
+      ],
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "d3cceb76b9352ff1d0c3dc42876584f7bbf6712048006cca11caebda397723ba"
+    },
+    {
+      "id": "photo-03",
+      "file": "03.jpg",
+      "class": "natural_landscape",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=79538352-8569-4b36-b315-29b9f96bf444",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "author": "ordinatous",
+      "captured_at": "2020-04-11T16:05:35+00:00",
+      "transform": "crop upper mountain ridge: x=0.40..0.80, y=0.24..0.43; no generated pixels",
+      "annotated_coordinate": [
+        45.923641944,
+        6.868633889
+      ],
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "9a6279a3197820470cb6e85140e98b18ea7d55f76adde7a63446bde5b5e9c05c"
+    },
+    {
+      "id": "photo-04",
+      "file": "04.jpg",
+      "class": "rural",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=91e2ff37-92c7-47d5-ac47-e0979e175a3e",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "author": "trouyer",
+      "captured_at": "2023-08-18T08:50:44+00:00",
+      "transform": "original pixels, re-encoded JPEG without metadata",
+      "annotated_coordinate": [
+        44.8021465,
+        1.2168783
+      ],
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "e76b05625b35785cfe8d5630f1f2458b73381cb4b12ef4bc16d0c5af97678d24"
+    },
+    {
+      "id": "photo-05",
+      "file": "05.png",
+      "class": "no_exif",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=d6f8bec6-4250-405c-a54f-a417f6349ef7",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "author": "nuxper_np",
+      "captured_at": "2025-05-03T11:08:01+00:00",
+      "transform": "same urban photo, metadata-free PNG",
+      "annotated_coordinate": [
+        45.760241279,
+        4.835712817
+      ],
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "907d86f3770aa4475357d9e06e76d188232a9e8ca3d656086f47a114bf9bd935"
+    },
+    {
+      "id": "photo-06",
+      "file": "06.jpg",
+      "class": "poor_ocr",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=91e2ff37-92c7-47d5-ac47-e0979e175a3e",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "author": "trouyer",
+      "captured_at": "2023-08-18T08:50:44+00:00",
+      "transform": "real rural photo reduced to 320x240 and JPEG quality 35, then Gaussian blur radius 0.6",
+      "annotated_coordinate": [
+        44.8021465,
+        1.2168783
+      ],
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "118792f9cc50e8343628e60c9a062c619e4a765ec78edde6c0ba185745fa8ddd"
+    },
+    {
+      "id": "photo-07",
+      "file": "07.jpg",
+      "class": "ambiguous_regions",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=68bc5f7f-fc6e-488d-bc8d-ae030fb28c2f",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "author": "osm-operon",
+      "captured_at": "2017-03-05T13:42:59.156000+00:00",
+      "transform": "unaltered rural road pixels; archive claims Paris but visible scene contradicts an Eiffel Tower location; annotation explicitly untrusted",
+      "annotated_coordinate": [
+        48.858335,
+        2.294067
+      ],
+      "annotation_trust": "conflicting_not_ground_truth",
+      "sha256": "a09ebc4239263a42c1cf420c1d48ce9abd154a94c4533109304f7e2e317ebdb7"
+    }
+  ]
+}

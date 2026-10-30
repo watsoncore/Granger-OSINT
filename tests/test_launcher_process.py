@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import time
+import uuid
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -19,6 +20,10 @@ def test_launcher_button_starts_real_pet_and_close_leaves_it_running(tmp_path, m
     app.setQuitOnLastWindowClosed(False)
     if send_command("pet", "status", timeout=100):
         pytest.skip("A desktop pet is already running; leave the user's process untouched")
+    namespace=uuid.uuid4().hex
+    monkeypatch.setenv('GRANGERPET_QA_NAMESPACE',namespace)
+    monkeypatch.setenv('GRANGERPET_INTERACTION_TRACE',str(tmp_path/'interaction.jsonl'))
+    monkeypatch.setenv('GRANGERPET_QA_VAULT','GrangerPet/QA/launcher_'+namespace)
     monkeypatch.setenv("APPDATA", str(tmp_path / "appdata"))
     monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
     store = SettingsStore()

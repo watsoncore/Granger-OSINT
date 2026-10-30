@@ -163,17 +163,24 @@ def test_absent_usage_remains_unknown_and_reservations_are_separate():
 
 
 def test_individual_provider_timeout_does_not_hang_and_late_usage_is_accounted(tmp_path):
+    release=threading.Event()
     class SlowClient(Client):
         def complete_turn(self, *args, **kwargs):
-            time.sleep(.15)  # Deliberately ignores cancellation to test wrapper.
+            release.wait(5)  # Deliberately ignores cancellation; controlled independently of host load.
             return response(text='Late response')
     ledger = UsageLedger(tmp_path / 'usage.sqlite3')
     runner = AgentRunner(SlowClient([]), Registry(), limits=AgentLimits(per_request_timeout=.03))
     started = time.monotonic()
-    with pytest.raises(AIError) as caught:
-        runner.run('fixture', HISTORY, usage_ledger=ledger)
-    assert caught.value.code == 'timeout' and time.monotonic() - started < .14
-    time.sleep(.19)
+    try:
+        with pytest.raises(AIError) as caught:
+            runner.run('fixture', HISTORY, usage_ledger=ledger)
+        assert caught.value.code == 'timeout' and not release.is_set()
+        assert time.monotonic()-started<2  # Return while the provider is still blocked.
+    finally:
+        release.set()
+    end=time.monotonic()+3
+    while time.monotonic()<end and ledger.snapshot()['totals'].get('total_tokens')!=35:
+        time.sleep(.02)
     totals = ledger.snapshot()['totals']
     assert totals['requests'] == 1 and totals['total_tokens'] == 35
 

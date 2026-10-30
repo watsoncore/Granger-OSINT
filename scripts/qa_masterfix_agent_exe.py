@@ -27,6 +27,7 @@ def main():
     parser.add_argument('--exe',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--visual',action='store_true')
+    parser.add_argument('--image',type=Path,help='Explicit authorized photo for the real visual chat scenario')
     parser.add_argument('--source',action='store_true',help='Run current source with a QA-only stack watchdog')
     parser.add_argument('--identity-only',action='store_true',help='Targeted real EXE check of the final identity-routing fix')
     parser.add_argument('--cancel-only',action='store_true',help='Actual cancel after observed blockchain evidence, then restart')
@@ -113,7 +114,39 @@ def main():
         start(0)
         action('connection_test');wait(lambda:snapshot()['connection'].get('status') in ('connected','ready','verified'),90)
         check('actual_gateway_connection_proof',snapshot()['connection']['canSend'])
-        if args.cancel_only:
+        if args.visual:
+            if not args.image or not args.image.is_file():raise ValueError('--visual requires an explicit --image')
+            action('attachment_import',{'name':'photo.jpg','base64':base64.b64encode(args.image.read_bytes()).decode('ascii')})
+            chosen=wait(lambda:s['attachments'] if (s:=snapshot()).get('attachments') and not s.get('attachment_busy') else None,40)
+            action('chat_send',{'text':'Гермиона, исследуй географические признаки выбранной фотографии. Опиши реальные видимые объекты, '
+                'получи GeoCLIP и Waypoint кандидаты, проверь их через geoint_research, покажи реальные сравнительные фотографии и объясни ограничения. '
+                'Не повторяй inference без новой задачи и не утверждай точный адрес без независимых признаков.',
+                'attachment_ids':[chosen[-1]['id']]})
+            value=finish('visual-agent-answer',800);inv=value['investigation'];identifier=inv['id']
+            calls=inv.get('calls',[]);names=[c.get('tool') for c in calls]
+            report['scenarios']['visual']={'id':identifier,'status':inv['status'],'calls':calls,
+                'report_status':inv.get('report_status'),'source_sha256':hashlib.sha256(args.image.read_bytes()).hexdigest()}
+            check('actual_visual_pipeline_backend_call','visual_geoint' in names)
+            check('actual_geoint_research_backend_call','geoint_research' in names)
+            from grangerpet.agent_journal import InvestigationJournal
+            journal=InvestigationJournal(profile/'investigations');saved=journal.load_checkpoint(identifier)
+            rows=saved.get('evidence',[])
+            check('actual_pixel_description_in_evidence',any(r.get('details',{}).get('capability')=='image_understand' and r['details'].get('description') for r in rows))
+            refs=[r for r in rows if r.get('type')=='reference_image']
+            report['scenarios']['visual']['references_found']=len(refs)
+            report['scenarios']['visual']['references_fetched']=sum(r['details'].get('image_fetched') is True for r in refs)
+            answer=inv.get('final_report','')
+            check('visual_answer_has_substance_and_no_raw_protocol',len(answer)>500 and not __import__('re').search(r'(?<!#)ev_[a-f0-9]{20}',answer) and 'Выбранные локальные изображения (служебный протокол)' not in answer)
+            g=graph(identifier);command('qa_snapshot',{'name':'visual-agent-graph'})
+            check('visual_graph_keeps_original_image',any(n['type']=='image' and n.get('attributes',{}).get('original_image') for n in g['entities']))
+            action('route',{'route':'chat'});command('qa_snapshot',{'name':'visual-agent-chat'})
+            previous_calls=len(calls)
+            action('investigation_graph_analyze',{'id':identifier,'intent':'explain','entity_id':g['root_id']})
+            value=finish('visual-local-followup',180)
+            fresh=value['investigation'].get('calls',[])[previous_calls:]
+            check('visual_followup_keeps_identity_without_model_rerun',value['investigation']['id']==identifier and all(c.get('tool') in ('evidence_get','evidence_graph') for c in fresh))
+            report['scenarios']['visual_followup']={'id':identifier,'calls':fresh}
+        elif args.cancel_only:
             from grangerpet.agent_journal import InvestigationJournal
             target='UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd'
             action('chat_send',{'text':'Исследуй '+target+' через blockchain_gansar operation profile mode deep; сохраняй полученные наблюдения.'})

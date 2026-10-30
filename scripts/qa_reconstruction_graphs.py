@@ -46,7 +46,8 @@ def main():
         graph=build(rows,full=True,limit=5000,goal=goal)
         cases.append({'name':name,'id':record['id'],'synthetic':synthetic,'input_rows':len(rows),'raw_entities':len(graph['entities']),
             'raw_relations':len(graph['relations']),'groups':sum(node['type']=='entity_group' for node in graph['entities']),
-            'publication_links':sum(edge['relation_type']=='publishes_link' for edge in graph['relations'])})
+            'publication_links':sum(edge['relation_type']=='publishes_link' for edge in graph['relations']),
+            'aggregate_relation_ids':[edge['id'] for edge in graph['relations'] if edge.get('aggregate')]})
     for count in (20,100,500,1000):
         # Five independent source domains allow meaningful, reversible source groups.
         url=lambda index:f'https://stress{index%5}.example/{index}'
@@ -137,6 +138,19 @@ def main():
                     action('input',{'kind':'drag','at':[e['x']+e['width']/2,e['y']+35],'to':[e['x']-100,e['y']+35]})
                     wait(lambda:next(element['x'] for element in dom()['elements'] if element.get('label')=='Ширина инспектора')<e['x']-50)
                     check('native_inspector_resize',True);screenshot('actual-ton-resized-inspector')
+                    c=graph()['canvas'];before_nodes=int(c['drawnNodes'])
+                    for point in json.loads(c['qaEdges']):
+                        if point['id'] not in case['aggregate_relation_ids']:continue
+                        if not 5<point['x']<c['width']-5 or not 5<point['y']<c['height']-10:continue
+                        action('input',{'kind':'click','at':[c['x']+point['x'],c['y']+point['y']]})
+                        if graph().get('selectedRelation') in case['aggregate_relation_ids']:break
+                    wait(lambda:graph().get('selectedRelation') in case['aggregate_relation_ids'])
+                    click('Раскрыть транзакции')
+                    wait(lambda:int(graph()['canvas']['drawnNodes'])>before_nodes)
+                    wait(lambda:len(views.load(case['id']).get('expanded_relations',[]))==1)
+                    check('native_expansion_is_scoped_to_one_selected_flow',not views.load(case['id']).get('filters',{}).get('show_transactions'))
+                    screenshot('actual-ton-selected-flow')
+                    click('Свернуть транзакции');wait(lambda:int(graph()['canvas']['drawnNodes'])==before_nodes)
                 click('Скрыть свойства');wait(lambda:any(e.get('label')=='Показать свойства' for e in dom().get('elements',[])))
                 click('Показать свойства');click('Закрыть свойства графа')
                 if case['name']=='synthetic-20':

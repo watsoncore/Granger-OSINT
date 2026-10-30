@@ -44,6 +44,7 @@ class Client:
 def widget(monkeypatch,tmp_path):
     app=QApplication.instance() or QApplication([])
     monkeypatch.setattr('grangerpet.ai_state.resolve_deepseek_key',lambda:'explicit-ui-fixture')
+    monkeypatch.setattr('grangerpet.chat.resolve_deepseek_key',lambda:'explicit-ui-fixture')
     monkeypatch.setattr('grangerpet.chat.DeepSeekClient',Client)
     monkeypatch.setattr('grangerpet.chat.ToolRegistry',Registry)
     Registry.approval=Registry.hold=False
@@ -89,7 +90,7 @@ def test_cancel_keeps_received_evidence_and_stops_following_llm_step(widget):
     chat.input.setPlainText('Найди fixture');chat.send_message()
     wait(app,lambda:bool(facts))
     chat.cancel();assert not chat.busy
-    QTest.qWait(100);app.processEvents()
+    wait(app,lambda:bool(list(chat._journal.directory.glob('*.json'))))
     saved=json.loads(next(chat._journal.directory.glob('*.json')).read_text(encoding='utf-8'))
     assert saved['status']=='cancelled' and saved['evidence']
     assert len(chat._context)==0 and len(chat._agent_registry.calls)==1
