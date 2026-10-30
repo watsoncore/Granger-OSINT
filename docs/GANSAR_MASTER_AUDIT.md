@@ -1,6 +1,8 @@
 # Gansar: фактические функции и граница интеграции
 
 Аудит исходников на HEAD `2caceea93bed4fffcfcca9a7e353007197e5f1f6`.
+
+Измеренные сетевые результаты и ограничения: [MASTER_FIX_VERIFICATION.md](MASTER_FIX_VERIFICATION.md).
 Оригинал: `C:/Users/Admin/Desktop/crypto_osint`, чистый git status.
 121 Python-модуль побайтово совпадает с локальным `Gansar-main` Granger.
 Исходники Gansar не изменяются и не публикуются этим заданием. Базы SQLite,

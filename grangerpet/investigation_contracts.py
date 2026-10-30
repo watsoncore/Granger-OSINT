@@ -214,7 +214,7 @@ def validate_checkpoint(value, identifier=None):
             focus=_expect(value[key],dict,'checkpoint.'+key)
             if (set(focus)-{'text','context','intent'} or not isinstance(focus.get('text'),str)
                     or not 0<len(focus['text'])<=4000 or not isinstance(focus.get('context'),dict)
-                    or focus.get('intent') not in ('explain','investigate','compare')
+                    or focus.get('intent') not in ('explain','investigate','compare','cached')
                     or len(json.dumps(focus,ensure_ascii=False))>20000):
                 raise InvestigationContractError('checkpoint.'+key,'bounded graph followup',focus)
     if 'focus_budget' in value:
@@ -248,6 +248,11 @@ def validate_checkpoint(value, identifier=None):
             _integer(registry['downloaded_bytes'], 'checkpoint.registry_state.downloaded_bytes')
         if 'attachment_ids' in registry:
             _string_list(registry['attachment_ids'], 'checkpoint.registry_state.attachment_ids')
+        if 'blockchain_refs' in registry:
+            import re
+            refs=_expect(registry['blockchain_refs'],dict,'checkpoint.registry_state.blockchain_refs')
+            if len(refs)>100 or any(not isinstance(key,str) or not re.fullmatch(r'[a-f0-9]{64}',key) or not isinstance(item,str) or not re.fullmatch(r'bc_[a-f0-9]{32}',item) for key,item in refs.items()):
+                raise InvestigationContractError('checkpoint.registry_state.blockchain_refs','bounded opaque dataset references',refs)
         if 'known' in registry:
             for index, origin in enumerate(_expect(registry['known'], list, 'checkpoint.registry_state.known')):
                 path = f'checkpoint.registry_state.known[{index}]'

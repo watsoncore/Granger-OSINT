@@ -27,6 +27,8 @@ def relevance(records, goal):
         identifier = row.get('evidence_id')
         details = row.get('details') if isinstance(row.get('details'), dict) else {}
         url = canonical_url(row.get('url', ''))
+        from .link_relevance import technical_url
+        if url and url not in root_urls and technical_url(url):return None
         target = route(url)
         direct = url in root_urls or target and _key(target) in seeds
         if target and target.platform == 'telegram':
@@ -60,6 +62,8 @@ def relevance(records, goal):
             for link in links[:100]:
                 if not isinstance(link, dict): continue
                 url = canonical_url(link.get('url', ''))
+                from .link_relevance import technical_url
+                if technical_url(url):continue
                 if not url or urlsplit(url).hostname in ('telegram.org','desktop.telegram.org','apps.apple.com','play.google.com'): continue
                 linked_urls.setdefault(url, set()).add(identifier)
                 target = route(url)
@@ -108,7 +112,8 @@ def readable_finding(row):
 
 def project(snapshot, goal=None, *, cancel_event=None):
     from .evidence_graph import build
-    records = [row for row in snapshot.get('evidence', []) if isinstance(row, dict) and row.get('evidence_id')
+    from .agent_evidence import current_observation
+    records = [current_observation(row) for row in snapshot.get('evidence', []) if isinstance(row, dict) and row.get('evidence_id')
                and row.get('type') != 'evidence_graph']
     goal = goal if isinstance(goal, str) else str(snapshot.get('goal') or '')
     ranking = relevance(records, goal)
@@ -138,6 +143,8 @@ def project(snapshot, goal=None, *, cancel_event=None):
     source_urls = {canonical_url(row.get('url','')) for row in records if row.get('url')}
     source_urls.discard('')
     findings = [row for row in evidence if row['relevance']['level'] in ('direct','linked') and row.get('status') != 'hypothesis']
+    priority={'blockchain_summary':0,'balance':1,'token_asset':2,'nft_asset':3,'web3_identity':4,'contract_observation':5,'transaction':7,'blockchain_counterparty':8}
+    findings.sort(key=lambda row:priority.get(row.get('type'),6))
     hypotheses = [row for row in evidence if row.get('status') == 'hypothesis' or row['relevance']['level'] == 'potential']
     background = [row for row in evidence if row['relevance']['level'] == 'background']
     return {**graph, 'investigation_id':snapshot.get('id'), 'goal':goal, 'status':snapshot.get('status','stopped'),

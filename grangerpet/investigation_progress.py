@@ -15,6 +15,8 @@ _TELEMETRY = frozenset(('query', 'original_query', 'retrieved_at', 'obtained_at'
     'acquisition', 'agent_tool', 'source_confirmations', 'preview', 'base64',
     'content_excerpt', 'content_length', 'content_total_chars', 'observations'))
 
+_TELEMETRY=_TELEMETRY|frozenset(('collected_at','observed_at','source_diagnostics'))
+
 
 def normalized_arguments(name, arguments, default_limit=None):
     """Conservative normalization: never case-fold a wallet or a URL path."""
@@ -79,7 +81,7 @@ def semantic_facts(records):
         if not isinstance(row, dict):
             continue
         details = row.get('details') or {}
-        if not isinstance(details, dict) or details.get('capability') == 'evidence_graph':
+        if not isinstance(details, dict) or details.get('capability') == 'evidence_graph' or row.get('type')=='blockchain_summary':
             continue
         observation = row
         if row.get('observations'):
@@ -99,7 +101,10 @@ def stop_report(snapshot, reason, introduction=''):
     goal = str(snapshot.get('goal') or 'Проверка публичных сведений')[:1400]
     from .investigation_results import relevance
     ranks = relevance(all_records, goal)
-    records = [row for row in all_records if ranks.get(row.get('evidence_id'),{}).get('level') != 'background']
+    from .agent_evidence import current_observation
+    records = [current_observation(row) for row in all_records if ranks.get(row.get('evidence_id'),{}).get('level') != 'background']
+    order={'blockchain_summary':0,'balance':1,'nft_asset':2,'token_asset':3,'web3_identity':4,'contract_observation':5,'transaction':7}
+    records.sort(key=lambda row:order.get(row.get('type'),6))
     reasons = {'no_progress': 'Дальнейшие проверки не добавляют новых сведений.',
         'cancelled': 'Работа остановлена пользователем.', 'manual_pause': 'Автоматическое продолжение отключено.',
         'step_limit': 'Достигнут выбранный бюджет шагов.', 'tool_limit': 'Достигнут выбранный бюджет инструментов.',

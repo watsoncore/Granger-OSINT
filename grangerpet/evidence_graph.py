@@ -13,7 +13,7 @@ from .engine.models import canonical_url
 
 ENTITY_TYPES=('username','public_profile','organization','domain','email','public_post','phone','image',
     'geographic_candidate','coordinate','repository','infrastructure_asset','blockchain_address','transaction','service',
-    'root_entity','telegram_channel','social_profile','github_profile','github_repository','website','source','asset')
+    'root_entity','telegram_channel','social_profile','github_profile','github_repository','website','source','asset','web3_identity')
 
 
 def verification(value):
@@ -58,6 +58,13 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             attributes['reference_only'] = current['attributes'].get('reference_only', True) and attributes['reference_only']
         if current['attributes'].get('display_type') == 'telegram_channel': attributes.pop('display_type', None)
         current['attributes'].update(deepcopy(attributes))
+        if record and kind in ('asset','public_profile','repository','image','website','public_post'):
+            from .public_media import media_reference
+            media=media_reference(record)
+            if media and kind not in ('source','domain','username'):current['attributes']['media']=media
+        if record and record.get('url'):
+            from .link_relevance import technical_url
+            if technical_url(record['url']):current['attributes']['technical']=True
         current['verification_status'] = ('unverified' if current['attributes'].get('reference_only') or not current['evidence_ids'] else
             'inferred' if kind=='geographic_candidate' else 'source_reported')
         return identifier
@@ -78,6 +85,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         return current
     def url_node(url,record,*,reference=False,label=''):
         from .entity_router import route
+        from .link_relevance import technical_url
         target=route(url)
         if target is None:return None
         if target.platform=='telegram' and target.entity_type!='public_post':
@@ -93,11 +101,13 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         if target.entity_type=='public_post':
             return node('public_post',target.canonical_url,label or target.canonical_url,record,url=target.canonical_url,platform=target.platform,reference_only=reference)
         return node('website',target.canonical_url or url,label or target.canonical_url or url,record,
-            url=target.canonical_url or url,reference_only=reference)
+            url=target.canonical_url or url,reference_only=reference,technical=technical_url(url))
     cap=5000 if full else 500
     for record in records[:cap]:
         if cancel_event and cancel_event.is_set():raise InterruptedError('Graph cancelled')
         if not isinstance(record,dict) or not str(record.get('evidence_id','')).startswith('ev_') or record.get('type')=='evidence_graph':continue
+        from .agent_evidence import current_observation
+        record=current_observation(record)
         details=record.get('details') or {};kind=record.get('type');url=record.get('url','');platform=str(record.get('platform',''))
         if not isinstance(details,dict) or not isinstance(url,str):bad_fields+=1;continue
         resource=url or str(record.get('id',''));label=record.get('title') or resource
@@ -140,6 +150,40 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             domain=details.get('domain') or details.get('query')
             if isinstance(domain,str) and domain and ' ' not in domain:current=node('domain',domain.lower(),domain,record)
         elif kind=='ip':current=node('infrastructure_asset',details.get('address') or label,label,record,asset_type='ip')
+        elif kind in ('token_asset','nft_asset'):
+            chain=details.get('chain') or 'ton'
+            identity=details.get('asset_id') or details.get('contract') or record.get('id')
+            current=node('asset',chain+'|'+str(identity),label,record,chain=chain,url=url,asset_type=kind,
+                asset_id=identity,
+                contract=details.get('contract'),amount=details.get('amount_decimal'),image_url=details.get('image_url'),
+                ownership_status=details.get('ownership_status') or details.get('holding_status'),metadata_verified=False)
+            wallet=details.get('target_address')
+            collection=details.get('collection_address')
+            if isinstance(collection,str) and collection:
+                parent=node('asset',chain+'|collection|'+_wallet(chain,collection),details.get('collection') or collection,record,chain=chain,asset_type='nft_collection',collection=collection)
+                # The item artwork belongs to the item, not to its collection.
+                if parent:nodes[parent]['attributes'].pop('media',None)
+                edge(current,parent,'source_reports_collection',record,'source_reported',metadata_verified=False)
+            if wallet:
+                owner=node('blockchain_address',chain+'|'+_wallet(chain,wallet),wallet,record,chain=chain,address=_wallet(chain,wallet),owner_verified=False)
+                edge(owner,current,'source_reports_asset',record,'source_reported',ownership_verified=details.get('ownership_verified') is True,observed_at=details.get('collected_at'))
+        elif kind=='contract_observation':
+            chain=details.get('chain') or details.get('blockchain') or ''
+            address=details.get('address') or details.get('target_address')
+            current=node('infrastructure_asset',chain+'|contract|'+str(address),label,record,chain=chain,address=address,asset_type='blockchain_contract',url=url,
+                observation={key:details[key] for key in ('source','status','code_verified','is_contract','deployer','proxy') if key in details},owner_verified=False)
+            if address:
+                wallet=node('blockchain_address',chain+'|'+_wallet(chain,address),address,record,chain=chain,address=address,owner_verified=False)
+                edge(wallet,current,'has_contract_observation',record,'source_reported')
+        elif kind=='web3_identity':
+            chain=details.get('chain') or 'eth';wallet=details.get('address') or details.get('target_address')
+            current=node('public_profile',str(record.get('id')),label,record,chain=chain,url=url,display_type='web3_identity',identity_verified=False)
+            if wallet:
+                owner=node('blockchain_address',chain+'|'+_wallet(chain,wallet),wallet,record,chain=chain,address=wallet,owner_verified=False)
+                edge(owner,current,'has_public_web3_record',record,'source_reported',owner_verified=False)
+        elif kind=='blockchain_counterparty':
+            chain=details.get('chain') or '';address=details.get('address')
+            if address:current=node('blockchain_address',chain+'|'+_wallet(chain,address),address,record,chain=chain,address=address,owner_verified=False)
         elif kind=='transaction':
             chain=details.get('chain') or platform;tx=details.get('tx_hash') or record.get('id')
             event=details.get('event_id') or tx

@@ -4,7 +4,7 @@ import json
 
 def selection_context(nodes, edges, selected, relation_id=None, records=()):
     attrs={'url','address','username','repository','chain','latitude','longitude','attachment_id',
-        'owner_verified','identity_verified','reference_only','calibrated_probability','model','raw_score','display_type'}
+        'owner_verified','identity_verified','reference_only','calibrated_probability','model','raw_score','display_type','asset_id','asset_type','collection','amount','ownership_status'}
     def compact(value, depth=0):
         if isinstance(value,str):return value[:360]
         if value is None or type(value) in (int,float,bool):return value

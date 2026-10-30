@@ -45,6 +45,7 @@ class Settings:
     instagram_username: str = ""
     request_limit: int = 20
     search_timeout: int = 25
+    research_mode: str = 'standard'
     enable_snoop: bool = False
     nuclei_enabled: bool = False
     # Zero disables a USER budget; request timeouts and loop guards remain on.
@@ -83,6 +84,8 @@ class Settings:
         values = dict(values)
         if values.get("ui_theme") in ("dark", "black", "light", "mono"):
             settings.ui_theme = values["ui_theme"]
+        if values.get('research_mode') in ('quick','standard','deep'):
+            settings.research_mode=values['research_mode']
         from urllib.parse import urlsplit
         for field in ('geoint_nominatim_url','geoint_overpass_url'):
             raw=values.get(field,'')

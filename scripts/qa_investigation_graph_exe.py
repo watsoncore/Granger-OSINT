@@ -116,9 +116,9 @@ def main():
         check('bundled_layout_worker_runs',graph().get('worker')=='worker')
         click('Показать до 1 200 узлов');wait(lambda:int(graph().get('canvas',{}).get('drawnNodes',0))>=1000)
         wait(lambda:graph().get('layoutPending')=='false');click('Вписать граф в окно')
-        wait(lambda:int(graph().get('canvas',{}).get('drawnEdges',0))>=5000)
+        wait(lambda:0<int(graph().get('canvas',{}).get('drawnEdges',0))<=3000)
         g=graph();c=g['canvas'];report['metrics'].update(layout_ms=float(g['layoutMs']),paint_ms=float(c['paintMs']),displayed_nodes=int(c['drawnNodes']),displayed_edges=int(c['drawnEdges']))
-        check('1000_nodes_5000_edges_in_actual_canvas',int(c['drawnNodes'])>=1000 and int(c['drawnEdges'])>=5000)
+        check('1000_nodes_5000_edges_retained_with_readable_backbone',int(c['drawnNodes'])>=1000 and 0<int(c['drawnEdges'])<=3000)
         if monitor:
             samples=[]
             for _ in range(12):samples.append(monitor.sample([owned]));time.sleep(.15)

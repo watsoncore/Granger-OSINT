@@ -42,7 +42,11 @@ describe('investigation graph transformations',()=>{
     const nodes=Array.from({length:1000},(_,i)=>node(String(i)))
     const edges=Array.from({length:5000},(_,i)=>edge(String(i%1000),String((i%1000+Math.floor(i/1000)+1)%1000),String(i)))
     const selected=visibleGraph(nodes,edges,'0',view,1200)
-    expect(selected.nodes).toHaveLength(1000);expect(selected.edges).toHaveLength(5000)
+    expect(selected.nodes).toHaveLength(1000);expect(selected.edges).toHaveLength(999)
+    expect(selected.hiddenRelations).toBe(4001);expect(edges).toHaveLength(5000)
+    const focused=visibleGraph(nodes,edges,'0',{...view,expanded:['10']},1200)
+    const incident=edges.filter(edge=>edge.from_id==='10'||edge.to_id==='10')
+    expect(incident.every(edge=>focused.edges.some(visible=>visible.id===edge.id))).toBe(true)
     for(const mode of ['tree','graph'] as const){const result=layoutGraph(nodes,edges,'0',mode);expect(Object.keys(result)).toHaveLength(1000);expect(Object.values(result).every(p=>Number.isFinite(p.x+p.y))).toBe(true)}
   })
 })

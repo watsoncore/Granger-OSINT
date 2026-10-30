@@ -1,0 +1,185 @@
+"""Real saved-key gateway and CPU-model scenarios through an isolated frozen GUI.
+
+Only the gateway secret is copied directly between protected stores and removed
+from the QA namespace afterwards. No credential enters IPC, source, env or logs.
+"""
+from __future__ import annotations
+import argparse
+import base64
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+import uuid
+
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
+
+
+def main():
+    from grangerpet.ai_keys import resolve_deepseek_key
+    key=resolve_deepseek_key()
+    if not key:raise SystemExit('No saved gateway key; actual API test not executed')
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--exe',type=Path,required=True)
+    parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--visual',action='store_true')
+    parser.add_argument('--source',action='store_true',help='Run current source with a QA-only stack watchdog')
+    args=parser.parse_args();out=args.output.resolve()
+    if out.exists():raise SystemExit('Prior paid test retained; choose a new output directory')
+    out.mkdir(parents=True);namespace=uuid.uuid4().hex
+    os.environ.update(APPDATA=str(out/'appdata'),GRANGERPET_QA_NAMESPACE=namespace,
+        GRANGERPET_INTERACTION_TRACE=str(out/'interaction.jsonl'),GRANGERPET_QA_VAULT='GrangerPet/QA/live_'+namespace)
+    for name in ('QT_QPA_PLATFORM','DEEPSEEK_API_KEY','GEMINI_API_KEY','GRANGERPET_QA_INPUT_KEY'):os.environ.pop(name,None)
+    from PySide6.QtCore import QCoreApplication
+    app=QCoreApplication.instance() or QCoreApplication([])
+    from grangerpet import credentials
+    from grangerpet.config import Settings
+    from grangerpet.ipc import send_command
+    from perf_process_metrics import ProcessSampler
+    credentials._STORE=credentials.CredentialsStore(prefix=os.environ['GRANGERPET_QA_VAULT'])
+    credentials.set_secret('deepseek_api_key',key)
+    profile=out/'appdata/GrangerPet';profile.mkdir(parents=True,exist_ok=True)
+    (profile/'settings.json').write_text(json.dumps(Settings(ai_provider='deepseek',source_root=str(ROOT),
+        cursor_reaction=False,reduced_motion=True,agent_steps=30,agent_calls=60,agent_timeout=900,
+        agent_tokens=180000,research_mode='quick',search_timeout=45,agent_tool_timeout=45).to_dict()),encoding='utf-8')
+    report={'mock':False,'mode':'actual_source_Qt_WebEngine' if args.source else 'actual_frozen_Qt_WebEngine','user_history_read':False,
+        'private_source_keys_used':False,'images_sent_to_model':False,
+        'exe_sha256':hashlib.sha256(args.exe.read_bytes()).hexdigest(),'checks':[],'scenarios':{}}
+    def save():
+        raw=json.dumps(report,ensure_ascii=False,indent=2)
+        if key in raw:raise RuntimeError('Secret detected; report not written')
+        (out/'report.json').write_text(raw,encoding='utf-8')
+    def check(name,ok):
+        report['checks'].append({'name':name,'passed':bool(ok)});save();print(json.dumps({'check':name,'passed':bool(ok)}),flush=True)
+        if not ok:raise AssertionError(name)
+    owned=None;process=None;monitor=ProcessSampler(args.exe,gpu=False)
+    def state():
+        value=send_command('pet','status',timeout=2000)
+        if value and owned and value.get('pid')!=owned:raise RuntimeError('Own isolated PID mismatch')
+        return value
+    def command(name,payload=None):
+        value=send_command('pet',name,payload,timeout=4000)
+        if value is None and name=='qa_desktop' and payload.get('action')=='save_state':
+            # This read is idempotent. Do not retry chat/tool mutations after an
+            # ambiguous transport response; record any snapshot retry honestly.
+            report['ipc_snapshot_retries']=report.get('ipc_snapshot_retries',0)+1;save()
+            time.sleep(.2);value=send_command('pet',name,payload,timeout=4000)
+        if not value or not value.get('ok'):raise RuntimeError('Own GUI action failed: '+name)
+        return value
+    def action(name,payload=None):
+        command('qa_desktop',{'action':name,'payload':payload or {}});time.sleep(.2)
+    def snapshot(label='current'):
+        command('qa_desktop',{'action':'save_state','name':label})
+        value=json.loads((out/(label+'.json')).read_text(encoding='utf-8'))
+        if key in json.dumps(value,ensure_ascii=False):raise RuntimeError('Secret crossed UI boundary')
+        return value
+    def dom():action('dom');return state()['desktop'].get('dom',{})
+    def wait(fn,seconds=60):
+        end=time.monotonic()+seconds
+        while time.monotonic()<end:
+            value=fn()
+            if value:return value
+            time.sleep(.5)
+        raise TimeoutError('Bounded own-GUI scenario wait expired')
+    def finish(label,seconds=450):
+        value=wait(lambda:(s if not s['busy'] else None) if (s:=snapshot()) else None,seconds)
+        command('qa_snapshot',{'name':label});snapshot(label)
+        return value
+    def start(run):
+        nonlocal process,owned
+        argv=[str(args.exe.resolve()),'--pet','--interaction-qa']
+        if args.source:
+            wrapper=out/'source-watchdog.py'
+            wrapper.write_text('import sys,faulthandler\nsys.path.insert(0,'+repr(str(ROOT))+')\nf=open('+repr(str(out/'stacks.log'))+',"w")\nfaulthandler.dump_traceback_later(15,repeat=True,file=f)\nfrom main import main\nraise SystemExit(main())\n',encoding='utf-8')
+            argv=[sys.executable,str(wrapper),'--pet','--interaction-qa']
+        with (out/f'process-{run}.log').open('wb') as log:process=subprocess.Popen(argv,cwd=ROOT,env=os.environ.copy(),stdout=log,stderr=subprocess.STDOUT)
+        owned=wait(state)['pid'];wait(lambda:state()['desktop']['ready']);monitor.sample([owned])
+        command('show_workspace',{'route':'chat'})
+    def graph(identifier):
+        action('route',{'route':'search'});action('investigation_graph_get',{'id':identifier})
+        value=wait(lambda:s['investigation_graph'] if (s:=snapshot()).get('investigation_graph',{}).get('state')=='ready' and s['investigation_graph'].get('investigation_id')==identifier else None)
+        action('graph_scroll')
+        element=wait(lambda:next((e for e in dom().get('elements',[]) if e.get('text')=='Граф' and e['width']>0 and e['y']>0),None))
+        action('input',{'kind':'click','at':[element['x']+element['width']/2,element['y']+element['height']/2]})
+        wait(lambda:(g if g.get('graphMode')=='graph' and g.get('canvas') and g.get('layoutPending')=='false' else None) if (g:=dom().get('graph') or {}) else None)
+        return value
+    try:
+        start(0)
+        action('connection_test');wait(lambda:snapshot()['connection'].get('status') in ('connected','ready','verified'),90)
+        check('actual_gateway_connection_proof',snapshot()['connection']['canSend'])
+        target='UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd'
+        prompt='Гермиона, исследуй этот TON-адрес '+target+'. В режиме quick найди активы, транзакции, NFT и контрагентов. Используй реальные blockchain_gansar operation profile и nft scope wallet, затем evidence_graph. Дай краткий итог с ограничениями источников. Не исследуй соседние адреса сейчас.'
+        action('chat_send',{'text':prompt});value=finish('ton-agent',360)
+        inv=value['investigation'];identifier=inv['id']
+        calls=inv.get('calls',[])
+        report['scenarios']['ton']={'id':identifier,'status':inv['status'],'calls':calls}
+        check('actual_chat_blockchain_calls',any(row.get('tool')=='blockchain_gansar' for row in calls))
+        check('actual_chat_nft_branch',any(row.get('tool')=='blockchain_gansar' and row.get('arguments',{}).get('operation')=='nft' for row in calls))
+        check('actual_chat_graph_tool',any(row.get('tool')=='evidence_graph' for row in calls))
+        g=graph(identifier);command('qa_snapshot',{'name':'ton-agent-graph'})
+        check('actual_asset_nodes',any(node['type']=='asset' for node in g['entities']))
+        wallet=next(node for node in g['entities'] if node['type']=='blockchain_address' and node.get('attributes',{}).get('is_root'))
+        action('investigation_graph_select',{'id':identifier,'entity_id':wallet['id']})
+        previous_calls=len(inv.get('calls',[]))
+        action('chat_send',{'text':'Покажи активы кошелька '+target+' из сохранённых данных: blockchain_gansar operation cached section assets. Новых сетевых поисков не запускай.'})
+        value=finish('cached-assets',150);cached_inv=value['investigation']
+        report['scenarios']['cached_assets']={'id':cached_inv['id'],'calls':cached_inv.get('calls',[])}
+        check('cached_assets_have_actual_backend_call',cached_inv['id']==identifier and any(row.get('tool') in ('blockchain_gansar','evidence_get') for row in cached_inv.get('calls',[])[previous_calls:]))
+        from grangerpet.agent_journal import InvestigationJournal
+        journal=InvestigationJournal(profile/'investigations')
+        saved=journal.load_checkpoint(identifier)
+        local=[row for row in saved.get('executions',[]) if row.get('from_saved_data')]
+        check('cached_assets_perform_zero_http_requests',bool(local) and all(row.get('source_diagnostics',{}).get('http_requests')==0 for row in local))
+        g=graph(identifier)
+        counterparty=next(node for node in g['entities'] if node['type']=='blockchain_address' and node['id']!=wallet['id'] and node.get('attributes',{}).get('address'))
+        action('investigation_graph_select',{'id':identifier,'entity_id':counterparty['id']})
+        previous_calls=len(cached_inv.get('calls',[]))
+        action('chat_send',{'text':'Исследуй выделенного контрагента '+str(counterparty['attributes']['address'])+' на один уровень глубже. Используй blockchain_gansar operation trace chain ton mode quick depth 1. Обнови evidence_graph один раз и дай краткий итог.'})
+        value=finish('selected-counterparty',240);focused=value['investigation']
+        new=focused.get('calls',[])[previous_calls:]
+        check('selected_counterparty_uses_same_investigation',focused['id']==identifier)
+        check('selected_counterparty_has_real_blockchain_call',any(row.get('tool')=='blockchain_gansar' and row.get('arguments',{}).get('operation') in ('trace','profile','transactions') for row in new))
+        report['scenarios']['counterparty']={'id':identifier,'calls':new}
+        g=graph(identifier);edge=next(row for row in g['relations'] if row.get('evidence_ids'))
+        previous_calls=len(focused.get('calls',[]))
+        action('investigation_graph_select',{'id':identifier,'relation_id':edge['id']})
+        action('investigation_graph_analyze',{'id':identifier,'intent':'explain','relation_id':edge['id']})
+        value=finish('explain-edge',150);explained=value['investigation'];new=explained.get('calls',[])[previous_calls:]
+        check('explain_edge_stays_local_and_keeps_identity',explained['id']==identifier and not any(row.get('tool') not in ('evidence_get','evidence_graph') for row in new))
+        report['scenarios']['explain_edge']={'id':identifier,'calls':new,'relation_id':edge['id']}
+        command('stop');process.wait(timeout=35);owned=None;start(1)
+        previous_calls=len(explained.get('calls',[]))
+        action('chat_send',{'text':'Продолжи сохранённое расследование. Используй уже собранные данные и blockchain_gansar operation cached section assets для '+target+'. Не повторяй сетевые проверки. Дай краткий итог.'})
+        value=finish('resumed-investigation',180)
+        check('actual_restart_resume_keeps_investigation',value['investigation']['id']==identifier)
+        report['scenarios']['restart_resume']={'id':identifier,'calls':value['investigation'].get('calls',[])[previous_calls:]}
+        action('chat_new')
+        action('chat_send',{'text':'Проверь ENS и Web3-идентификаторы публичного адреса 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045. Выполни blockchain_gansar operation identity mode quick, не полный финансовый поиск. Укажи forward/reverse проверку и ограничения.'})
+        value=finish('ens-agent',200);report['scenarios']['ens']={'status':value['investigation']['status'],'calls':value['investigation'].get('calls',[])}
+        check('real_identity_tool_call',any(row.get('tool')=='blockchain_gansar' and row.get('arguments',{}).get('operation')=='identity' for row in value['investigation'].get('calls',[])))
+        report['process_metrics']=monitor.sample([owned]);save()
+        command('stop');process.wait(timeout=35);owned=None;check('final_exit_zero',process.returncode==0)
+        wait(lambda:monitor.sample()['process_count']==0,30);check('no_owned_orphan_processes',True)
+        report['passed']=True;save()
+    except Exception as error:
+        report.update(passed=False,error_type=type(error).__name__,error=str(error)[:200]);save();raise
+    finally:
+        try:
+            if process and process.poll() is None:
+                try:command('stop');process.wait(timeout=35)
+                except (RuntimeError,subprocess.TimeoutExpired):
+                    import signal
+                    if owned:
+                        try:os.kill(owned,signal.SIGTERM)
+                        except (OSError,ProcessLookupError):pass
+                    process.terminate();process.wait(timeout=15)
+        finally:
+            credentials.delete_secret('deepseek_api_key')
+            report['qa_gateway_secret_removed']=not credentials.get_secret('deepseek_api_key');save()
+
+
+if __name__=='__main__':main()

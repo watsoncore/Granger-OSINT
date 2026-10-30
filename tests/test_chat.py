@@ -44,6 +44,19 @@ def wait(app, condition, seconds=3):
     assert condition()
 
 
+def test_explicit_saved_asset_request_resumes_same_investigation_before_starting_another(chat,monkeypatch):
+    app,widget=chat
+    widget._last_investigation={'id':'existing-investigation'}
+    continuation=Mock()
+    monkeypatch.setattr(widget,'continue_investigation',continuation)
+    factory=Mock();monkeypatch.setattr('grangerpet.chat.DeepSeekClient',factory)
+    widget._submit_text('Покажи активы из сохранённых данных; не запускай сетевой поиск.')
+    continuation.assert_called_once()
+    assert continuation.call_args.args==('existing-investigation',)
+    assert continuation.call_args.kwargs['followup']['intent']=='cached'
+    factory.assert_not_called()
+
+
 def test_chat_never_calls_cloud_on_creation_typing_or_settings_change(chat, monkeypatch):
     app, widget = chat
     factory = Mock()

@@ -22,7 +22,7 @@ class UiJob(QObject):
             result, error = self.function(), ""
         except Exception as exc:
             from .errors import report_exception
-            report_exception(exc, operation='background_job')
+            if not self.cancelled.is_set():report_exception(exc, operation='background_job')
             result, error = None, str(exc) if exc.__class__.__module__.startswith("grangerpet") else "Не удалось выполнить запрос к сервису."
         finally:
             # Release captured files/passwords/large payloads even when a

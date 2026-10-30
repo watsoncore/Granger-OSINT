@@ -53,6 +53,8 @@ def route(value):
         return Target('blockchain_address', value, 'ton', properties={'validation_error': 'invalid_checksum_or_tag'}, tools=())
     if re.fullmatch(r'0x[0-9a-fA-F]{40}', value):
         return Target('blockchain_address', value, 'evm', tools=('blockchain_gansar',))
+    if re.fullmatch(r'[\w-]+(?:\.[\w-]+)*\.(?:eth|ton)',value,re.I):
+        return Target('blockchain_address',value.lower(),'eth' if value.lower().endswith('.eth') else 'ton',properties={'name_resolution_pending':True},tools=('blockchain_gansar',))
     if re.fullmatch(r'(?:bc1|[13])[a-zA-Z0-9]{25,90}|T[1-9A-HJ-NP-Za-km-z]{33}|[1-9A-HJ-NP-Za-km-z]{32,44}', value):
         return Target('blockchain_address', value, properties={'network_validation_pending': True}, tools=('blockchain_gansar',))
     if '@' in value and not value.startswith('@') and '://' not in value:
@@ -71,6 +73,8 @@ def route(value):
         if not url:
             return None
         parsed = urlsplit(url)
+        if parsed.hostname in ('fragment.com','www.fragment.com','getgems.io','www.getgems.io') and (parsed.path.startswith('/username/') or any(parse_ton_address(part) for part in parsed.path.split('/'))):
+            return Target('blockchain_address',url,'ton',url,{'blockchain_operation':'nft'},('blockchain_gansar',))
         host = parsed.hostname or ''
         parts = [p for p in parsed.path.split('/') if p]
         if host == 't.me':

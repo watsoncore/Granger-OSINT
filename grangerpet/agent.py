@@ -57,6 +57,10 @@ AGENT_SYSTEM = (
     " Координаты моделей — географические гипотезы; raw_score и доля сэмплов не вероятность. Проверяй их по независимым видимым признакам и открытым картам."
     " shadow_regions требует известных UTC-даты/времени и измерений тени: если они неизвестны, уточни у пользователя, не угадывай."
     " evidence_graph строит отношения по evidence_id; совпадающие никнеймы разных платформ не объединяют личность."
+    " Для blockchain_gansar profile сначала изучи evidence_sections и counts: активы/транзакции могут уже присутствовать."
+    " Для NFT используй отдельную operation nft, для ENS/Web3 identity — identity; cached/assets/transactions читают сохранённый dossier без новой сети."
+    " Не меняй limit или представление TON-адреса ради повторного поиска тех же данных. Не перестраивай evidence_graph с почти теми же evidence_id без новой аналитической цели."
+    " После выполнения запрошенных направлений дай содержательный итог; частичное покрытие внешних источников не требует бесконечных повторов."
 )
 
 
@@ -249,7 +253,7 @@ class AgentRunner:
             raise _Stopped("time_limit")
 
     def _focus_budget(self):
-        return self._state.get('focus_budget') if (self._state.get('active_focus') or {}).get('intent') in ('explain','compare') else None
+        return self._state.get('focus_budget') if (self._state.get('active_focus') or {}).get('intent') in ('explain','compare','cached') else None
 
     def _budget_limit(self, name):
         configured=getattr(self.limits,name)
@@ -364,6 +368,12 @@ class AgentRunner:
         if method in ('schemas','descriptions') and focus.get('intent') in ('explain','compare'):
             allowed={'evidence_get','evidence_graph'} | ({'image_compare','waypoint_match'} if focus['intent']=='compare' else set())
             result=[row for row in result if row['function']['name'] in allowed]
+        elif method in ('schemas','descriptions') and focus.get('intent')=='cached':
+            result=[deepcopy(row) for row in result if row['function']['name'] in ('evidence_get','evidence_graph','blockchain_gansar')]
+            for row in result:
+                if row['function']['name']=='blockchain_gansar':
+                    row['function']['parameters']['properties']['operation']={'type':'string','enum':['cached']}
+                    row['function']['parameters']['required']=['address','operation']
         return result
 
     def _messages(self, history, catalog):
@@ -447,6 +457,8 @@ class AgentRunner:
 
     def _execute(self, call, callback, approval_callback):
         name, args = call["name"], call["arguments"]
+        if (self._state.get('active_focus') or {}).get('intent')=='cached' and (name not in ('evidence_get','evidence_graph','blockchain_gansar') or name=='blockchain_gansar' and (args.get('operation')!='cached' or args.get('refresh'))):
+            return self._outcome(name,args,'invalid_arguments','Этот этап читает сохранённые доказательства; новые сетевые операции не разрешены целью пользователя.')
         if name not in self._names:
             return self._outcome(name, args, "unavailable", "Инструмент не зарегистрирован или недоступен; выполнение не производилось.")
         deadline = min(self._deadline, time.monotonic() + self._tool_seconds(name))
@@ -635,13 +647,30 @@ class AgentRunner:
         if any(outcomes[call['id']].get('error') == 'download_limit' for call in calls):
             raise _Stopped('download_limit')
         if self._record['no_progress_rounds'] >= self.limits.no_progress_rounds:
-            if self._queue_public_fallback():
+            if self._queue_goal_frontier() or self._queue_public_fallback():
                 self._record['no_progress_rounds']=0
                 self._persist()
             else:
                 raise _Stopped('no_progress')
         if not self.limits.auto_continue:
             raise _Stopped('manual_pause')
+
+    def _queue_goal_frontier(self):
+        if not self.limits.auto_continue or self._focus_budget() is not None:return False
+        candidates=getattr(self.registry,'continuation_calls',lambda goal:[])(self._record.get('current_focus') or self._record['goal'])
+        for candidate in candidates:
+            if candidate['name'] not in self._names:continue
+            call={**candidate,'id':'frontier_'+uuid.uuid4().hex,'dispatched':False}
+            call['fingerprint']=self._fingerprint(call)
+            if call['fingerprint'] in self._state['call_cache']:continue
+            if any(row.get('tool')==call['name'] and row.get('arguments')==call['arguments'] for row in self._record.get('calls',[])):continue
+            message={'role':'assistant','content':'Проверяю ещё не выполненное направление исходной задачи.',
+                'tool_calls':[{'id':call['id'],'type':'function','function':{'name':call['name'],'arguments':_json(call['arguments'])}}]}
+            self._state['messages'].append(message);self._state['protocol_archive'].append(deepcopy(message))
+            self._state['pending_calls']=[call];self._state['pending_outcomes']={};self._state['seen_call_ids'].append(call['id'])
+            self._state['pending_work']=[{'tool':call['name'],'arguments':self._safe(call['arguments'])}]
+            self._persist();return True
+        return False
 
     def _queue_public_fallback(self):
         """A bounded, provenance-preserving alternative before a stalled pause.
@@ -684,14 +713,23 @@ class AgentRunner:
         return False
 
     def _compact(self, envelope):
-        value = {key: envelope.get(key) for key in ("tool", "status", "query", "obtained_at", "limitations", "error", "cached_status", "page_budget") if key in envelope}
+        value = {key: envelope.get(key) for key in ("tool", "status", "query", "obtained_at", "limitations", "error", "cached_status", "page_budget",'source_diagnostics','from_saved_data') if key in envelope}
+        sections={}
+        for record in envelope.get('results',[]):
+            section=sections.setdefault(record.get('type','unknown'),{'count':0,'sample_evidence_ids':[]})
+            section['count']+=1
+            if len(section['sample_evidence_ids'])<2:section['sample_evidence_ids'].append(record.get('evidence_id'))
+        if envelope.get('tool')=='blockchain_gansar':value['evidence_sections']=sections
         rows = []
         from .investigation_results import relevance
         ranks = relevance(self._store.records(), self._record.get('goal',''))
-        selected_records = sorted(envelope.get('results', []), key=lambda row:-ranks.get(row.get('evidence_id'),{}).get('score',0))
+        priorities={'blockchain_summary':0,'balance':1,'nft_asset':2,'token_asset':3,'web3_identity':4,'contract_observation':5,'transaction':7,'blockchain_counterparty':8}
+        selected_records = sorted(envelope.get('results', []), key=lambda row:(-ranks.get(row.get('evidence_id'),{}).get('score',0),priorities.get(row.get('type'),6)))
         for record in selected_records[:30]:
             if not isinstance(record, dict):
                 continue
+            from .agent_evidence import current_observation
+            record=current_observation(record)
             row = {key: record.get(key) for key in ("evidence_id", "title", "type", "platform", "url", "status", "verification") if key in record}
             row['relevance'] = ranks.get(record.get('evidence_id'), {'level':'unverified','reason':'Связь с исходной целью не установлена.'})
             origin = record.get('provenance') or {}
@@ -704,6 +742,9 @@ class AgentRunner:
                 row['graph']['entities']=[{key:n.get(key) for key in ('id','type','label','evidence_ids')} for n in details.get('entities',[])[:12]]
                 row['graph']['relations']=details.get('relations',[])[:16]
             if details.get('source_record'):
+                if details.get('capability')=='blockchain_gansar':
+                    preferred=('chain','target_address','address','asset','asset_id','amount_decimal','holding_status','ownership_status','ownership_verified','name','symbol','contract','type','owner_address','image_url','tx_hash','event_id','from_address','to_address','timestamp','input_resolution','counts','source_diagnostics')
+                    details={**{key:details[key] for key in preferred if key in details},**details}
                 facts={}
                 for key,item in details.items():
                     if key not in ('query','verification','obtained_at') and len(_json({**facts,key:item}))<=2200:
@@ -933,13 +974,13 @@ class AgentRunner:
                     if (not isinstance(followup,dict) or set(followup)-{'text','context','intent'}
                             or not isinstance(followup.get('text'),str) or not 0<len(followup['text'])<=4000
                             or not isinstance(followup.get('context'),dict) or len(_json(followup))>20000
-                            or followup.get('intent') not in ('explain','investigate','compare')):
+                            or followup.get('intent') not in ('explain','investigate','compare','cached')):
                         raise AIError('Неверный контекст выбранного объекта.',code='invalid_request')
                     self._state['active_focus']=self._safe(followup)
                     self._state['followup_request']=self._safe(followup)
                     self._record['current_focus']=self._safe(followup['text'])
                     self._record['no_progress_rounds']=0
-                    if followup['intent'] in ('explain','compare'):
+                    if followup['intent'] in ('explain','compare','cached'):
                         # A user's new local analysis request gets a separate
                         # bounded phase. Cumulative research usage is retained;
                         # this never renews external investigation budgets.
@@ -1006,16 +1047,21 @@ class AgentRunner:
                 if not isinstance(self._state['messages'][0], dict) or self._state['messages'][0].get('role') != 'system':
                     raise AIError('Нет системного контекста сохранённого расследования.', code='invalid_request')
                 self._state['messages'][0] = fresh[0]
-            if resume_state is None and callable(getattr(self.registry, 'initial_calls', None)):
+            route_calls=[]
+            if resume_state is None and callable(getattr(self.registry,'initial_calls',None)):
+                route_calls=self.registry.initial_calls(self._record['goal'])
+            elif followup and not self._state.get('pending_calls') and callable(getattr(self.registry,'focus_calls',None)):
+                route_calls=self.registry.focus_calls(followup)
+            if route_calls:
                 calls = []
-                for route_call in self.registry.initial_calls(self._record['goal']):
+                for route_call in route_calls:
                     if route_call.get('name') not in self._names:
                         continue
                     call = {**route_call, 'id': 'route_' + uuid.uuid4().hex, 'dispatched': False}
                     call['fingerprint'] = self._fingerprint(call)
                     calls.append(call)
                 if calls:
-                    proposal = {'role': 'assistant', 'content': 'Проверяю исходные объекты профильными публичными инструментами.',
+                    proposal = {'role': 'assistant', 'content': 'Проверяю выбранные объекты профильными публичными инструментами.',
                         'tool_calls': [{'id': call['id'], 'type': 'function', 'function': {'name': call['name'], 'arguments': _json(call['arguments'])}} for call in calls]}
                     self._state['messages'].append(proposal)
                     self._state['protocol_archive'].append(deepcopy(proposal))
@@ -1075,6 +1121,7 @@ class AgentRunner:
                     value = message.get('content', '')
                     if not isinstance(value, str) or not value.strip():
                         raise AIError('Провайдер не вернул итоговый текст.', code='empty_response')
+                    if self._queue_goal_frontier():continue
                     if not self._store.records() and self._state.get('failures') and self._queue_public_fallback():
                         continue
                     messages.append(deepcopy(message))

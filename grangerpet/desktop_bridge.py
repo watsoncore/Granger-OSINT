@@ -38,7 +38,7 @@ SETTINGS_FIELDS = frozenset(('ui_theme','geoint_nominatim_url','geoint_overpass_
     'agent_request_timeout','agent_no_progress_rounds','agent_download_mb','agent_auto_continue','agent_budget_behavior','notifications_enabled',
     'notifications_animate','notifications_reply','notifications_investigation','notifications_errors','reduced_motion',
     'ai_provider','deepseek_model','ollama_url','ollama_model','api_cx','source_root','runtime_python',
-    'telegram_api_id','instagram_username','request_limit','search_timeout','enable_snoop','nuclei_enabled'))
+    'telegram_api_id','instagram_username','request_limit','search_timeout','enable_snoop','nuclei_enabled','research_mode'))
 ROUTES = frozenset(('chat','search','history','canvas','settings'))
 TOOL_NAMES={'web_search':'Веб-поиск','web_read':'Чтение страниц','username_maigret':'Maigret',
     'username_blackbird':'Blackbird','username_social_analyzer':'Social Analyzer','username_snoop':'Snoop',
@@ -48,7 +48,13 @@ TOOL_NAMES={'web_search':'Веб-поиск','web_read':'Чтение стран
 MAX_PAYLOAD = 2_100_000
 
 
-def source_view(record, limits=()):
+def source_view(record, limits=(), *, compact=False):
+    from .agent_evidence import current_observation
+    record=current_observation(record)
+    if compact:
+        details=record.get('details') if isinstance(record.get('details'),dict) else {}
+        keep=('content_fetched','javascript_shell','reading_method','extraction_status','capability','tool','latitude','longitude','attachment_id','predictions','geojson','metadata','chain','amount_decimal','asset','asset_id','holding_status','ownership_status','ownership_verified','target_address','tx_hash','event_id','image_url','username','source_record')
+        record={**{key:value for key,value in record.items() if key not in ('observations','details')},'details':{key:details[key] for key in keep if key in details}}
     value = sanitize_evidence(record)
     details, origin = value.get('details') or {}, value.get('provenance') or {}
     acquisition = origin.get('acquisition')
@@ -64,6 +70,9 @@ def source_view(record, limits=()):
             and bool(str(details.get('content_text') or details.get('content_excerpt') or '').strip())
             and value.get('status') not in ('error','failed','blocked','restricted','unconfirmed'))
     details = {**details,'content_fetched':read}
+    if compact:
+        from .engine.blockchain_rows import compact_observation
+        details=compact_observation({key:item for key,item in details.items() if key not in ('provenance','raw','content_text')},budget=[150])
     return {'evidence_id':identifier, 'title':value.get('title') or value.get('platform') or 'Источник',
         'url':value.get('url',''), 'domain':urlsplit(value.get('url','')).hostname or value.get('platform',''),
         'excerpt':str(details.get('content_excerpt') or value.get('description') or '')[:2000],
@@ -112,6 +121,7 @@ class DesktopBridge(QObject):
         self._manual_registry = None
         self._manual_activity = []
         self._source_cache = {}
+        self._source_job = None
         self._raw_sources = {}
         self._sources_fingerprint = None
         self._sources_view = []
@@ -126,6 +136,7 @@ class DesktopBridge(QObject):
         self._closed = False
         self._snapshot_fault = None
         self._graph_job = None
+        self._media_job = None
         self._graph_generation = 0
         self._graph_data = {'state':'idle'}
         self._graph_records = []
@@ -279,57 +290,70 @@ class DesktopBridge(QObject):
         return self._history_cache
 
     def _sources(self):
-        chat = self.host.chat_widget
-        from .investigation_contracts import recover_public_snapshot
-        fingerprint=(chat.conversation_id,chat._last_investigation.get('id'),
+        chat=self.host.chat_widget
+        fingerprint=(chat.conversation_id,chat._last_investigation.get('id'),chat._last_investigation.get('checkpoint_revision'),
             len(chat._last_investigation.get('evidence',[])),len(chat._last_investigation.get('executions',[])),
             tuple(row.get('investigation_id') for row in chat.messages if row.get('investigation_id')),
             tuple(id(value) for value in self.host.result_model.records.values()))
-        if fingerprint==self._sources_fingerprint: return self._sources_view
-        self._raw_sources={}
-        sources, seen = [], set()
-        investigations = [recover_public_snapshot(chat._last_investigation,
-            chat._last_investigation.get('id'), stop_running=False)] if chat._last_investigation else []
-        for row in chat.messages:
-            identifier = row.get('investigation_id')
-            if identifier and identifier not in self._source_cache:
-                try: self._source_cache[identifier] = chat._journal.load(identifier)
-                except (OSError, ValueError): self._source_cache[identifier] = {}
-            if identifier: investigations.append(self._source_cache[identifier])
-        for investigation in investigations:
-            limitations = {entry.get('query'):entry.get('limitations',[]) for entry in investigation.get('executions',[]) if entry.get('limitations')}
-            for record in investigation.get('evidence',[]):
-                identifier = record.get('evidence_id')
-                if identifier and identifier not in seen:
+        if fingerprint==self._sources_fingerprint or self._source_job is not None:return self._sources_view
+        from .investigation_contracts import recover_public_snapshot
+        current=chat._last_investigation;messages=list(chat.messages);journal=chat._journal
+        model_records=[self.host.result_model.record(index) for index in range(min(500,self.host.result_model.rowCount()))]
+        query=self.host.text.text();cache=dict(self._source_cache);graph_records=self._graph_records
+        def prepare():
+            raw_sources={}
+            sources, seen = [], set()
+            investigations = [recover_public_snapshot(current,
+                current.get('id'), stop_running=False)] if current else []
+            for row in messages:
+                identifier = row.get('investigation_id')
+                if identifier and identifier not in cache:
+                    try: cache[identifier] = journal.load(identifier)
+                    except (OSError, ValueError): cache[identifier] = {}
+                if identifier: investigations.append(cache[identifier])
+            for investigation in investigations:
+                limitations = {entry.get('query'):entry.get('limitations',[]) for entry in investigation.get('executions',[]) if entry.get('limitations')}
+                for record in investigation.get('evidence',[]):
+                    identifier = record.get('evidence_id')
+                    if identifier and identifier not in seen:
+                        seen.add(identifier)
+                        raw_sources[identifier] = record
+                        sources.append(source_view(record, limitations.get(record.get('provenance',{}).get('query'),()),compact=True))
+            search_sources=[]
+            for record in model_records:
+                identifier = record.get('details',{}).get('evidence_id') or record.get('evidence_id')
+                if not identifier:
+                    record = normalize_evidence(record, 'manual_search', query)
+                    identifier = record['evidence_id']
+                elif not record.get('provenance') and record.get('details',{}).get('agent_tool'):
+                    details=record['details']
+                    restored=normalize_evidence(record,details['agent_tool'],details.get('original_query',''),details.get('obtained_at') or None)
+                    if restored['evidence_id']!=identifier:
+                        continue
+                    if details.get('evidence_verification')=='contradictory':
+                        restored['verification']='contradictory'
+                    record=restored
+                search_sources.append(source_view(record,compact=True))
+                if identifier not in seen:
                     seen.add(identifier)
-                    self._raw_sources[identifier] = record
-                    sources.append(source_view(record, limitations.get(record.get('provenance',{}).get('query'),())))
-        search_sources=[]
-        for index in range(min(500, self.host.result_model.rowCount())):
-            record = self.host.result_model.record(index)
-            identifier = record.get('details',{}).get('evidence_id') or record.get('evidence_id')
-            if not identifier:
-                record = normalize_evidence(record, 'manual_search', self.host.text.text())
-                identifier = record['evidence_id']
-            elif not record.get('provenance') and record.get('details',{}).get('agent_tool'):
-                details=record['details']
-                restored=normalize_evidence(record,details['agent_tool'],details.get('original_query',''),details.get('obtained_at') or None)
-                if restored['evidence_id']!=identifier:
-                    continue
-                if details.get('evidence_verification')=='contradictory':
-                    restored['verification']='contradictory'
-                record=restored
-            search_sources.append(source_view(record))
-            if identifier not in seen:
-                seen.add(identifier)
-                self._raw_sources[identifier] = record
-                sources.append(source_view(record))
-        self._sources_fingerprint=fingerprint
-        self._sources_view=sources
-        self._search_sources_view=search_sources
-        for record in self._graph_records:
-            if record.get('evidence_id'):self._raw_sources.setdefault(record['evidence_id'],record)
-        return sources
+                    raw_sources[identifier] = record
+                    sources.append(source_view(record,compact=True))
+
+        
+
+            for record in graph_records:
+                if record.get('evidence_id'):raw_sources.setdefault(record['evidence_id'],record)
+            return sources,search_sources,raw_sources,cache
+        job=UiJob(prepare,self);self._source_job=job
+        def ready(value,error):
+            if self._source_job is job:self._source_job=None
+            if not self._closed and not error and isinstance(value,tuple) and not job.cancelled.is_set():
+                self._sources_view,self._search_sources_view,self._raw_sources,self._source_cache=value
+                self._sources_fingerprint=fingerprint
+                self.mark_dirty()
+            job.deleteLater()
+        job.done.connect(ready);job.start()
+        return self._sources_view
 
     def _activity(self):
         result = {}
@@ -657,7 +681,7 @@ class DesktopBridge(QObject):
                 # Use the same normalized evidence/checkpoint pipeline as the
                 # catalog and agent; the legacy form-only route never saved an
                 # investigation and could not publish its graph.
-                specialized = {'tool':'blockchain_gansar','query':text}
+                specialized = {'tool':'blockchain_gansar','arguments':{'address':text,**({'operation':target.properties['blockchain_operation']} if target.properties.get('blockchain_operation') else {})}}
             self.route='search'
             if specialized:
                 self._run_tool(specialized)
@@ -750,7 +774,9 @@ class DesktopBridge(QObject):
             raise ValueError('Сначала разблокируйте защищённое хранилище.')
         chat=getattr(self.host,'chat_widget',None)
         connections=getattr(getattr(self.host,'settings_dialog',None),'connections',None)
-        jobs=(self._manual_job,self._balance_job,self._models_job,self._tools_job,self._visual_job,self._graph_job,
+        if self._source_job is not None:
+            self._source_job.cancel();self._source_job.deleteLater();self._source_job=None
+        jobs=(self._manual_job,self._balance_job,self._models_job,self._tools_job,self._visual_job,self._graph_job,self._media_job,
               getattr(self,'_attachment_job',None))
         if ((chat and chat.busy) or getattr(self.host,'_busy',False) or any(jobs)
                 or bool(getattr(connections,'_jobs',[]))):
@@ -988,7 +1014,9 @@ class DesktopBridge(QObject):
         if not spec:raise ValueError('Некорректный инструмент.')
         if spec.input_schema is not None:
             from .tool_inputs import validate_object
-            arguments=validate_object(payload.get('arguments'),spec.input_schema)
+            supplied=payload.get('arguments')
+            if supplied is None and spec.source=='blockchain' and isinstance(query,str):supplied={'address':query}
+            arguments=validate_object(supplied,spec.input_schema)
             query=arguments.get(spec.argument)
             if not isinstance(query,str):query=json.dumps(arguments,ensure_ascii=False,separators=(',',':'))[:2000]
         elif not isinstance(query,str) or not 0<len(query)<=spec.max_length: raise ValueError('Некорректный инструмент или запрос.')
@@ -1036,7 +1064,12 @@ class DesktopBridge(QObject):
             self._manual_activity[0]['summary']=error or str((outcome or {}).get('error') or '')
             self._manual_activity[0]['resultCount']=len((outcome or {}).get('results',[]))
             self._manual_activity[0]['error']=error or str((outcome or {}).get('error') or '')
-            self.host.checked_label.setText('Адаптеров выполнено: 1')
+            diagnostic=outcome.get('source_diagnostics') if isinstance(outcome,dict) else None
+            if isinstance(diagnostic,dict) and diagnostic.get('from_saved_data'):
+                self.host.checked_label.setText('Сохранённые данные · новых запросов: 0')
+            elif isinstance(diagnostic,dict):
+                self.host.checked_label.setText(f"Коллекторы Gansar: {diagnostic.get('providers_attempted',0)} · HTTP-запросы: {diagnostic.get('http_requests') if diagnostic.get('http_requests') is not None else 'неизвестно'}")
+            else:self.host.checked_label.setText('Адаптеров выполнено: 1')
             if isinstance(outcome,dict):
                 self.host._agent_evidence(outcome.get('results',[]))
                 for row in outcome.get('results',[]): self._raw_sources[row['evidence_id']]=row
@@ -1079,6 +1112,15 @@ class DesktopBridge(QObject):
                 from .investigation_results import project
                 snapshot=self._workspace.load(identifier,live)
                 data=project(snapshot,cancel_event=job.cancelled)
+                from .public_media import MediaStore
+                media_store=MediaStore()
+                for node in data.get('entities',[]):
+                    reference=node.get('attributes',{}).get('media')
+                    if reference:
+                        try:
+                            cached=media_store.cached(reference)
+                            if cached:node['attributes']['media']=cached
+                        except (OSError,ValueError,CredentialError):pass
                 try:data['view']=self._workspace.views.load(identifier)
                 except (ValueError,OSError):
                     data['view']={'version':1,'mode':'overview','positions':{}}
@@ -1125,6 +1167,7 @@ class DesktopBridge(QObject):
             return {'pending':True,'id':identifier,'generation':generation}
         if action=='investigation_graph_cancel':
             if self._graph_job:self._graph_job.cancel();self._graph_job=None
+            if self._media_job:self._media_job.cancel();self._media_job=None
             self._graph_generation+=1
             self._graph_data={'state':'cancelled','investigation_id':identifier}
             return None
@@ -1137,10 +1180,39 @@ class DesktopBridge(QObject):
             if entity and entity not in {row['id']for row in self._graph_data['entities']}:raise ValueError('Узел не относится к открытому графу.')
             if relation and relation not in {row['id']for row in self._graph_data['relations']}:raise ValueError('Связь не относится к открытому графу.')
             self._graph_selection={'entity_id':entity,'relation_id':relation}
+            from .graph_context import selection_context
+            nodes={row['id']:row for row in self._graph_data['entities']};edges={row['id']:row for row in self._graph_data['relations']}
+            requested={entity} if entity else {edges[relation]['from_id'],edges[relation]['to_id']} if relation else set()
+            if requested:self.host.chat_widget._graph_focus={'investigation_id':identifier,'context':selection_context(nodes,edges,requested,relation,self._graph_records)}
+            if entity:self._load_node_media(identifier,entity)
             return self._graph_selection
         if action=='investigation_graph_analyze':
             return self._analyze_graph(identifier,payload)
         raise ValueError('Неизвестное действие графа.')
+
+    def _load_node_media(self,identifier,entity):
+        node=next((row for row in self._graph_data.get('entities',[]) if row['id']==entity),None)
+        reference=node.get('attributes',{}).get('media') if node else None
+        if not reference or reference.get('state')=='ready':return
+        if reference.get('state')=='loading' and self._media_job is not None:return
+        if self._media_job is not None:self._media_job.cancel()
+        from .public_media import MediaStore
+        import asyncio
+        generation=self._graph_generation
+        def set_media(value):
+            self._graph_data={**self._graph_data,'entities':[
+                {**item,'attributes':{**item['attributes'],'media':value}} if item['id']==entity else item
+                for item in self._graph_data.get('entities',[])]}
+        set_media({**reference,'state':'loading'})
+        def prepare():return asyncio.run(MediaStore().fetch(reference,cancel_event=job.cancelled))
+        job=UiJob(prepare,self);self._media_job=job
+        def ready(value,error):
+            if self._media_job is job:self._media_job=None
+            if not self._closed and generation==self._graph_generation and self._graph_data.get('investigation_id')==identifier:
+                set_media(value if isinstance(value,dict) and not error else {**reference,'state':'unavailable','error':'Изображение недоступно или отклонено проверкой формата/доступа.'})
+                self.mark_dirty()
+            job.deleteLater()
+        job.done.connect(ready);job.start();self.mark_dirty()
 
     def _analyze_graph(self,identifier,payload):
         chat=self.host.chat_widget
@@ -1224,7 +1296,7 @@ class DesktopBridge(QObject):
         self.host.removeEventFilter(self)
         from .visual_models.manager import get_manager
         get_manager().close()
-        for job in (self._tools_job,self._balance_job,self._models_job,self._attachment_job,self._visual_job,self._graph_job):
+        for job in (self._tools_job,self._balance_job,self._models_job,self._attachment_job,self._visual_job,self._graph_job,self._media_job,self._source_job):
             if job: job.cancel();job.deleteLater()
         self._tools_job=None;self._balance_job=None
         if self._manual_job:

@@ -175,7 +175,7 @@ def detect_query(text, chosen_kind=None, options=None):
                 return _error(value, "Это TON testnet-адрес. Текущий Gansar использует mainnet; тестовая сеть не подключена.", "blockchain", "TON testnet")
             return _resolution(parsed["raw"], "blockchain", "TON-адрес", "TON · Gansar", ("blockchain",), chain="ton")
         if lower.endswith(".ton"):
-            return _error(value, "В текущем Gansar нет прямого разрешения TON DNS. Вставьте EQ/UQ или raw адрес.", "blockchain", "TON DNS")
+            return _resolution(value,"blockchain","TON DNS / NFT","Gansar · TON NFT intelligence",("blockchain",),chain="ton")
         if chosen in ("telegram", "vk", "instagram"):
             return _resolution(_platform(value, chosen), chosen, {"telegram": "Telegram-ссылка", "vk": "VK-ссылка", "instagram": "Instagram-ссылка"}[chosen],
                                {"telegram": "Telegram", "vk": "ВКонтакте", "instagram": "Instagram"}[chosen], (chosen,))

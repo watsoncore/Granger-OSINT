@@ -26,6 +26,7 @@ from .engine.readiness import runtime_readiness
 from .tool_contracts import ToolContractError, validate_outcome, log_contract, execution_status
 from .download_budget import DownloadBudget, DownloadLimit, CURRENT as DOWNLOAD_BUDGET
 from .telegram_public import INPUT_SCHEMA as _TELEGRAM_INPUT
+from .engine.blockchain_contracts import INPUT_SCHEMA as _BLOCKCHAIN_INPUT,policy as blockchain_policy
 
 
 @dataclass(frozen=True)
@@ -50,7 +51,7 @@ _SPECS = (
     ToolSpec("username_snoop", "snoop", "username", "username", "Snoop: дополнительная локальная проверка публичных профилей, только если интеграция включена пользователем.", max_length=64),
     ToolSpec("email_holehe", "holehe", "email", "email", "Holehe: проверка сигналов регистрации email у ограниченного набора сервисов. Это взаимодействие с сервисами, требуется явное подтверждение пользователя; не доказывает личность.", True, 254),
     ToolSpec("phone_metadata", "phoneinfoga", "phone", "phone", "PhoneInfoga bridge: формат, код страны и доступные метаданные номера. Не поиск владельца и не сканирование телефона.", max_length=32),
-    ToolSpec("blockchain_gansar", "blockchain", "blockchain", "address", "Gansar: публичные наблюдения блокчейна — баланс, транзакции и доступные метки адреса. TON и другие поддержанные локальным валидатором сети; метки не устанавливают личность.", max_length=128),
+    ToolSpec("blockchain_gansar", "blockchain", "blockchain", "address", "Gansar: реальные profile/balances/assets/transactions/NFT/identity/contracts/labels/attribution/trace и сохранённый cached результат.11 сетей с разным покрытием; EVM неоднозначен. ENS/TON DNS и NFT там, где реализованы. Режим управляет временем/пагинацией; ошибки провайдеров сохраняются. Имена/метки не устанавливают личность.", max_length=200,input_schema=_BLOCKCHAIN_INPUT,execution_mode='LOCAL_ENGINE'),
     ToolSpec("web_archive", "wayback", "web", "url", "Wayback: публичные архивные снимки конкретной HTTP(S)-страницы. Только публичные сайты, без обхода доступа.", max_length=1000),
     ToolSpec("telegram_public", "telegram_preview", "telegram", "username", "Telegram: публичные метаданные и доступное превью публикаций точного имени/URL без сессии. Тип объекта проверяется по содержимому, владелец не угадывается. Дополнительный access_mode=authorized использует прежнюю собственную сессию только после явного подтверждения.", input_schema=_TELEGRAM_INPUT, execution_mode='PERMITTED_HTTP_PARSER', documentation_url='https://telegram.org/faq_channels'),
     ToolSpec("vk_public", "vk", "vk", "username", "VK через существующий разрешённый API-токен: публичный профиль по точному идентификатору. Требуется явное подтверждение пользователя.", True, 64),
@@ -148,6 +149,7 @@ class ToolRegistry:
         self._mapping_client=None
         self.evidence = InvestigationEvidence()
         self._lock = threading.RLock()
+        self._blockchain_refs={}
         self._download_budget = DownloadBudget(getattr(settings, 'agent_download_mb', 20) * 1024 * 1024)
         self._redactions = {value for value in redactions if isinstance(value, str) and len(value) >= 4}
         from .agent_browser import PublicPageReader
@@ -177,6 +179,7 @@ class ToolRegistry:
             if name == 'telegram_public' or spec.argument == 'url' and target.canonical_url:
                 value = target.canonical_url
             args = {spec.argument: value}
+            if target.properties.get('blockchain_operation'):args['operation']=target.properties['blockchain_operation']
             if name == 'visual_geoint':
                 args.update(methods=['geoclip_predict', 'waypoint_predict'], top_k=3, samples=32)
             calls.append({'name': name, 'arguments': args})
@@ -186,17 +189,74 @@ class ToolRegistry:
 
     def canonical_arguments(self, name, args):
         from .investigation_progress import normalized_arguments
+        if name=='blockchain_gansar':
+            args={**args}
+            args.setdefault('operation','profile');args.setdefault('chain','auto');args.setdefault('mode',self.settings.research_mode)
+            from .validators.ton_address import parse_ton_address
+            parsed=parse_ton_address(args.get('address'))
+            if parsed:
+                args['address']=parsed['raw']
+                if args['chain']=='auto':args['chain']='ton'
+            if args['operation']=='nft':args.setdefault('scope','auto')
+            else:args.pop('scope',None)
+            # An agent cannot bypass same-investigation dedup merely by
+            # toggling refresh; the direct manual registry still accepts it.
+            args.pop('refresh',None)
+            chosen=blockchain_policy(args,self.settings.research_mode)
+            args['limit']=chosen['transactions'];args.setdefault('depth',chosen['depth'])
+            if args['operation']=='cached':args.setdefault('section','all')
         spec = _BY_NAME.get(name)
         default = getattr(self.settings, 'request_limit', 20) if spec and spec.input_schema is None else None
         return normalized_arguments(name, args, default)
 
     def begin_investigation(self):
         self.web_reader.begin_run()
+        self._blockchain_refs={}
         self._download_budget = DownloadBudget(getattr(self.settings, 'agent_download_mb', 20) * 1024 * 1024)
+
+    def continuation_calls(self,goal):
+        """Independent requested branches; empty NFT results cannot stop identity."""
+        from .entity_router import route_goal
+        operations=[]
+        for pattern,operation in ((r'(?i)\bnft\b|нфт|коллекци','nft'),(r'(?i)\bens\b|web3|идентификатор','identity'),
+                (r'(?i)контракт|contract','contracts'),(r'(?i)глубже|one.hop|один.уровень','trace')):
+            if re.search(pattern,goal):operations.append(operation)
+        calls=[]
+        for target in route_goal(goal):
+            if 'blockchain_gansar' not in target.tools:continue
+            for operation in operations:
+                if operation=='identity' and target.platform not in ('eth','evm'):continue
+                calls.append({'name':'blockchain_gansar','arguments':{'address':target.identifier,'operation':operation,
+                    **({'scope':'wallet'} if operation=='nft' else {}),**({'depth':1} if operation=='trace' else {})}})
+        return calls[:12]
+
+    def focus_calls(self,followup):
+        from .entity_router import route_goal,route
+        context=followup.get('context',{});intent=followup.get('intent');text=followup.get('text','')
+        if intent=='explain':
+            evidence=[row.get('evidence_id') for row in context.get('sources',[]) if row.get('evidence_id')]
+            return [{'name':'evidence_get','arguments':{'evidence_id':evidence[0],'focus':text[:300],'length':3000}}] if evidence else []
+        selected=set(context.get('selected_entity_ids',[]))
+        values=[]
+        for node in context.get('entities',[]):
+            if node.get('id') not in selected:continue
+            attrs=node.get('attributes',{})
+            value=attrs.get('asset_id') or attrs.get('address') or attrs.get('url') or attrs.get('attachment_id')
+            if isinstance(value,str):values.append(value)
+        if not values:values=[target.identifier for target in route_goal(text)]
+        calls=[]
+        for value in values[:3]:
+            target=route(value)
+            if not target or not target.tools:continue
+            if 'blockchain_gansar' in target.tools:
+                args={'address':value,'operation':'cached','section':'assets'} if intent=='cached' else {'address':value,'operation':'trace','depth':1} if re.search(r'(?iu)глубже|уровень|trace',text) else {'address':value,'operation':'profile'}
+                calls.append({'name':'blockchain_gansar','arguments':args})
+            elif intent=='investigate':calls.extend(self.initial_calls(value))
+        return calls
 
     def checkpoint_state(self):
         return {**self.web_reader.checkpoint_state(),'attachment_ids':sorted(self._attachment_ids),
-                'downloaded_bytes': self._download_budget.snapshot()['used_bytes']}
+                'downloaded_bytes': self._download_budget.snapshot()['used_bytes'],'blockchain_refs':deepcopy(self._blockchain_refs)}
 
     def restore_investigation(self, records, state):
         self.evidence.restore(records, [])
@@ -206,6 +266,9 @@ class ToolRegistry:
         if type(count) is not int or count < 0:
             raise ValueError('Invalid saved download budget')
         self._download_budget.used = count
+        refs=state.get('blockchain_refs',{})
+        if not isinstance(refs,dict) or len(refs)>100 or any(not isinstance(key,str) or not re.fullmatch(r'[a-f0-9]{64}',key) or not isinstance(value,str) or not re.fullmatch(r'bc_[a-f0-9]{32}',value) for key,value in refs.items()):raise ValueError('Invalid blockchain references')
+        self._blockchain_refs=deepcopy(refs)
 
     def allow_attachments(self, identifiers):
         for value in identifiers:
@@ -216,6 +279,7 @@ class ToolRegistry:
         spec=_BY_NAME.get(name)
         # CPU model cold starts are materially slower than HTTP requests.
         # An overall investigation deadline still takes precedence.
+        if name=='blockchain_gansar':return max(requested,260)
         return max(requested,240 if name=='visual_geoint' else 180) if spec and spec.execution_mode=='LOCAL_MODEL' else requested
 
     def _secret(self, name):
@@ -383,7 +447,11 @@ class ToolRegistry:
         from .tool_manifest import relevant_names
         if task and self._attachment_ids:task=task+' · выбранное фото'
         selected=relevant_names(_SPECS,task,self.evidence.records())
-        rows = {row["name"]: row for row in self.catalog(cancel_event=cancel_event, deadline=deadline)}
+        end=min(deadline,time.monotonic()+12) if deadline is not None else time.monotonic()+12
+        cancelled=_Cancellation(cancel_event,end)
+        # Refresh only capabilities relevant to this goal. In particular a
+        # wallet follow-up must not probe unrelated CPU-model environments.
+        rows={spec.name:self._state(spec,cancelled) for spec in _SPECS if spec.name in selected}
         tools = []
         for spec in _SPECS:
             if spec.name not in selected or not rows.get(spec.name,{}).get("available"):
@@ -420,7 +488,7 @@ class ToolRegistry:
                         raise ValueError('Изображение не выбрано пользователем для этой задачи.')
             summary=arguments.get(spec.argument)
             if not isinstance(summary,str):summary=json.dumps(arguments,ensure_ascii=False,sort_keys=True,separators=(',',':'))
-            return summary[:2000],arguments.get('limit',20),{'structured_arguments':arguments},None
+            return summary[:2000],2000 if spec.source=='blockchain' else arguments.get('limit',20),{'structured_arguments':arguments},None
         permitted = {spec.argument, 'limit'} | ({'focus','offset','length'} if spec.source=='evidence_get' else set())
         if not isinstance(args, dict) or set(args) - permitted or spec.argument not in args:
             raise ValueError("Аргументы не соответствуют зарегистрированной схеме.")
@@ -528,7 +596,11 @@ class ToolRegistry:
             envelope["error"] = "Некорректные аргументы инструмента. Используйте его строго заданный тип и допустимый лимит."
             return envelope
         envelope["query"] = redact(value, self._redactions)
-        state = self._state(spec, cancelled)
+        local_blockchain=False
+        if spec.source=='blockchain' and isinstance(args,dict) and not args.get('refresh'):
+            from .blockchain_store import target_key
+            local_blockchain=args.get('operation')=='cached' or (args.get('operation') in ('assets','balances','transactions','labels','contracts','attribution') and target_key(args['address'],args.get('chain','auto')) in self._blockchain_refs)
+        state = {'available':True} if local_blockchain else self._state(spec, cancelled)
         if not state["available"]:
             envelope.update(status=state["state"], error=state["reason"])
             return envelope
@@ -561,7 +633,7 @@ class ToolRegistry:
                 log_contract(error, spec.name)
                 return
             key = record["evidence_id"]
-            if key in records or len(records) >= limit:
+            if key in records and (spec.source!='blockchain' or records[key].get('details')==record.get('details')) or key not in records and len(records)>=limit:
                 return
             records[key] = record
             self.web_reader.add_evidence([record])
@@ -610,6 +682,9 @@ class ToolRegistry:
             for raw in outcome.get("results", [])[:limit]:
                 receive(raw)
             status = str(outcome.get("status", "error"))
+            if spec.source=='blockchain' and isinstance(outcome.get('source_diagnostics'),dict):
+                envelope['source_diagnostics']=redact(outcome['source_diagnostics'],self._redactions)
+                envelope['from_saved_data']=outcome.get('from_saved_data') is True
             allowed = {"complete", "completed", "partial", "empty", "error", "timeout", "cancelled", "unavailable", "auth_required", "blocked", "limit_reached", "rate_limited", "invalid_arguments", 'approval_required', 'approval_denied'}
             envelope["status"] = status if status in allowed else "error"
             if contract_errors:
@@ -658,6 +733,43 @@ class ToolRegistry:
 
     def _structured_operation(self,spec,args,cancelled,deadline,approved,on_result=None):
         """Repository-owned dispatch, without model-defined handlers or paths."""
+        if spec.source=='blockchain':
+            from .blockchain_store import BlockchainStore,target_key,merge_reports
+            from .engine.blockchain_rows import normalize_dossier
+            options=self._source_options('blockchain');store=BlockchainStore()
+            key=target_key(args['address'],args.get('chain','auto'));reference=self._blockchain_refs.get(key)
+            operation=args.get('operation','profile')
+            if reference and not args.get('refresh') and operation in ('cached','assets','balances','transactions','labels','contracts','attribution'):
+                saved=store.load(reference)
+                section=args.get('section','all') if operation=='cached' else operation
+                rows=normalize_dossier(saved,operation=section,max_transactions=blockchain_policy(args)['transactions'])
+                return {'status':'complete','results':rows,'from_saved_data':True,'source_diagnostics':{'providers_attempted':0,'http_requests':0,'from_saved_data':True},
+                    'limitations':['Сохранённые наблюдения, не новая проверка баланса/владения. Новых сетевых запросов не выполнялось.']}
+            if operation=='cached':return {'status':'empty','results':[],'limitations':['В этом расследовании ещё нет сохранённого Gansar dossier этого объекта.']}
+            chosen=blockchain_policy(args,getattr(self.settings,'research_mode','standard'))
+            args={**args,'mode':chosen['mode']}
+            resume_options={}
+            if reference and not args.get('refresh') and operation in ('nft','trace'):
+                previous=store.load(reference)
+                if operation=='nft' and isinstance(previous.get('nft_intelligence'),dict):resume_options['_gansar_nft_resume']=previous['nft_intelligence']
+                if operation=='trace':resume_options['_gansar_trace_resume']=previous
+            query=SearchQuery(args['address'],'blockchain',chosen['transactions'],min(chosen['seconds']+5,max(.1,deadline-time.monotonic())),
+                {**options,'blockchain':args,**resume_options})
+            adapter=self._adapters.get('blockchain') or SourceAdapter('blockchain',SOURCE_META['blockchain'][0],SOURCE_META['blockchain'][1])
+            def event(row):
+                if isinstance(row,dict) and row.get('event')=='result' and callable(on_result):on_result(row.get('result'))
+            result=adapter.run(query,Context(cancelled,options,event))
+            if isinstance(result,dict) and isinstance(result.get('gansar_report'),dict):
+                report=result.pop('gansar_report')
+                try:
+                    previous=store.load(reference) if reference else {}
+                    report=merge_reports(previous,report,operation)
+                    identifier=store.save(report,secrets=self._redactions,identifier=reference)
+                    self._blockchain_refs[key]=identifier
+                    if len(self._blockchain_refs)>100:self._blockchain_refs.pop(next(iter(self._blockchain_refs)))
+                except (ValueError,OSError,CredentialError):
+                    result.setdefault('limitations',[]).append('Полный dossier не сохранён; нормализованные evidence остаются в checkpoint.')
+            return result
         if spec.source == 'telegram_preview':
             if args.get('access_mode', 'public') == 'authorized':
                 if not approved:

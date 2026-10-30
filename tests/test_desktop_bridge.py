@@ -33,7 +33,7 @@ def test_bridge_reports_only_actual_sources_and_no_secret_settings(bridge):
     bridge.host.chat_widget._append('model','# Actual stored fixture')
     bridge.host._agent_evidence([{'evidence_id':'ev_'+'a'*20,'id':'fixture','title':'Known fixture page','url':'https://example.org/',
         'type':'web','platform':'Example','description':'Fixture body','details':{'reading_method':'direct_http'},'status':'verified'}])
-    snapshot=bridge.snapshot()
+    snapshot=ready_sources(bridge)
     assert snapshot['messages'][-1]['text']=='# Actual stored fixture'
     assert snapshot['evidence'][0]['kind']=='page'
     assert 'api_key' not in snapshot['settings'] and snapshot['connection']['balance'] is None
@@ -233,11 +233,11 @@ def test_new_search_does_not_relabel_old_chat_evidence_as_its_results(bridge):
         'details':{'reading_method':'direct_http'},'status':'verified'}, 'web_read', 'https://example.org/old')
     bridge.host.chat_widget._last_investigation={'id':'c'*32,'evidence':[record]}
     bridge.host._agent_evidence([record])
-    assert bridge.snapshot()['search']['results']
+    assert ready_sources(bridge)['search']['results']
     bridge.host.result_model.clear()
     bridge.host.text.setText('site:example.net new query')
     bridge.host.phase='completed_empty'
-    snapshot=bridge.snapshot()
+    snapshot=ready_sources(bridge)
     assert snapshot['search']['results']==[]
     assert snapshot['evidence'][0]['evidence_id']==record['evidence_id']
 
@@ -350,7 +350,7 @@ def test_manual_timeout_keeps_streamed_observations_and_truthful_incomplete_stat
     monkeypatch.setattr(bridge,'_refresh_tools',lambda **kw:None)
     bridge.dispatch('tool_run',{'tool':'web_read','query':'https://example.org/'})
     wait_until(lambda:bridge._manual_job is None)
-    state=bridge.snapshot()
+    state=ready_sources(bridge)
     assert state['search']['phase']=='completed_with_errors'
     assert state['search']['results'][0]['evidence_id']==row['evidence_id']
     assert state['activity'][-1]['status']=='timeout'
@@ -363,7 +363,7 @@ def test_real_manual_result_keeps_evidence_identity_through_qt_model_and_rendere
         'url':'https://example.org/','description':'Primary text','status':'verified','details':{'reading_method':'direct_http'}},
         'web_read','https://example.org/')
     bridge.host._agent_evidence([record])
-    source=bridge.snapshot()['search']['results'][0]
+    source=ready_sources(bridge)['search']['results'][0]
     assert source['evidence_id']==record['evidence_id']
     assert bridge.dispatch('source_open',{'evidence_id':source['evidence_id']})['evidence_id']==record['evidence_id']
     bridge._manual_registry=None
@@ -372,7 +372,7 @@ def test_real_manual_result_keeps_evidence_identity_through_qt_model_and_rendere
     bridge.dispatch('tool_run',{'tool':'evidence_get','query':source['evidence_id'],'limit':1})
     wait_until(lambda:bridge._manual_job is None)
     assert bridge._manual_activity[-1]['status']=='complete'
-    assert bridge.snapshot()['search']['results'][0]['evidence_id']==record['evidence_id']
+    assert ready_sources(bridge)['search']['results'][0]['evidence_id']==record['evidence_id']
     assert registry.evidence.get(record['evidence_id'])['provenance']['tool']=='web_read'
 
 
@@ -382,4 +382,10 @@ def test_flattened_conflict_is_never_promoted_when_sources_are_reconstructed(bri
         'type':'web','platform':'example.org','status':'verified'},'web_read','https://example.org/')
     row['verification']='contradictory'
     bridge.host._agent_evidence([row])
-    assert bridge.snapshot()['search']['results'][0]['verification']=='contradictory'
+    assert ready_sources(bridge)['search']['results'][0]['verification']=='contradictory'
+
+
+def ready_sources(bridge):
+    bridge.snapshot()
+    wait_until(lambda:bridge._source_job is None)
+    return bridge.snapshot()

@@ -65,9 +65,9 @@ def test_invalid_ton_never_falls_through_to_profiles(address):
         SearchQuery(address).normalized()
 
 
-def test_ton_dns_support_is_not_invented():
+def test_ton_dns_routes_to_actual_gansar_nft_resolver():
     resolution = detect_query("wallet.ton")
-    assert not resolution.valid and "нет прямого разрешения" in resolution.error
+    assert resolution.valid and resolution.kind=='blockchain' and resolution.chain=='ton'
 
 
 @pytest.mark.parametrize("tag", [0x91, 0xd1])

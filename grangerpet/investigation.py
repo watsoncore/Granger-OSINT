@@ -36,7 +36,7 @@ class InvestigationEvidence(EvidenceStore):
             identifiers = super().add(envelope)
             if isinstance(envelope, dict) and envelope.get('stream_event') is not True:
                 self._all_executions.append({key: deepcopy(envelope[key]) for key in
-                    ('tool', 'status', 'query', 'obtained_at', 'limitations', 'error') if key in envelope})
+                      ('tool', 'status', 'query', 'obtained_at', 'limitations', 'error','source_diagnostics','from_saved_data') if key in envelope})
             return identifiers
 
     def executions(self):

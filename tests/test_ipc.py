@@ -34,6 +34,8 @@ def announce(status):
     temporary.write_text(json.dumps({"status": status, "pid": os.getpid()}), encoding="utf-8")
     temporary.replace(ready_file)
 def handle(command, payload):
+    if command == "large_reply":
+        return {"ok": True, "text": "Русский текст 😀" * 100000}
     if command == "status":
         return {"ok": True, "running": True, "pid": os.getpid(), "settings": state}
     if command == "settings":
@@ -138,6 +140,13 @@ class ProcessIpcTests(unittest.TestCase):
         self.assertTrue(send_command(self.role, "stop", timeout=1000)["ok"])
         self.assertEqual(worker.wait(timeout=5), 0)
         self.assertIsNone(send_command(self.role, "status", timeout=100))
+
+    def test_large_utf8_reply_is_read_until_full_json_line(self):
+        worker,result=self._start_worker()
+        self.assertEqual(result,'ready')
+        reply=send_command(self.role,'large_reply',timeout=5000)
+        self.assertIsNotNone(reply)
+        self.assertEqual(reply['text'],'Русский текст 😀'*100000)
 
     def test_dead_process_lock_is_recovered_even_with_zero_stale_time(self):
         worker, result = self._start_worker()

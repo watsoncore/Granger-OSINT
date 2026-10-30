@@ -70,7 +70,7 @@ def test_automatic_ton_routes_to_existing_checkpoint_and_graph_pipeline(bridge,m
     monkeypatch.setattr(bridge,'_run_tool',lambda payload:calls.append(payload))
     target='UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd'
     bridge.dispatch('search_run',{'query':target,'kind':'auto'})
-    assert calls==[{'tool':'blockchain_gansar','query':target}]
+    assert calls==[{'tool':'blockchain_gansar','arguments':{'address':target}}]
     assert bridge.route=='search'
 
 
@@ -78,3 +78,17 @@ def test_executed_adapter_count_does_not_claim_provider_checks(bridge):
     bridge.host._progress(1,2)
     assert bridge.snapshot()['search']['checkedLabel']=='Адаптеры: 1/2'
     assert bridge.snapshot()['search']['checked']==1
+
+
+def test_media_completion_replaces_graph_without_mutating_previous_renderer_state(bridge,monkeypatch):
+    original,row=prepare(bridge)
+    node=bridge._graph_data['entities'][0]
+    reference={'id':'media_'+'a'*64,'url':'https://example.org/image.png','evidence_id':row['evidence_id']}
+    node['attributes']['media']=reference
+    async def fetch(self,reference,**kwargs):return {**reference,'state':'ready','thumbnail':'data:image/jpeg;base64,eA=='}
+    monkeypatch.setattr('grangerpet.public_media.MediaStore.fetch',fetch)
+    before=bridge._graph_data
+    bridge._load_node_media(original['id'],node['id'])
+    wait(lambda:bridge._media_job is None)
+    assert before['entities'][0]['attributes']['media']==reference
+    assert bridge._graph_data['entities'][0]['attributes']['media']['state']=='ready'

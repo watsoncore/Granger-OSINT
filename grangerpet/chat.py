@@ -222,6 +222,8 @@ class ChatWidget(QWidget):
         self._last_failed_text = ''
         self._agent_registry = None
         self._agent_runner = None
+        self._progress_snapshot_job = None
+        self._progress_snapshot_at = 0.0
         self._last_investigation = {}
         self._agent_followup = False
         self._approval_box = None
@@ -399,6 +401,15 @@ class ChatWidget(QWidget):
             return
         if consume_draft:
             self.input.clear()
+        if (not getattr(self,'_pending_images',[]) and len(text)<=4000 and self.ai_state.committed_snapshot()['provider']=='deepseek'
+                and re.search(r'(?iu)(продолжи.{0,35}(расслед|исслед|сохран)|выбранн|выделенн|из\s+сохран[её]нн|сохран[её]нн.{0,30}(данн|расслед))',text)):
+            selected=getattr(self,'_graph_focus',{})
+            identifier=selected.get('investigation_id') if re.search(r'(?iu)выбранн|выделенн',text) else self._last_investigation.get('id')
+            identifier=identifier or self._last_investigation.get('id')
+            if identifier:
+                intent='explain' if re.search(r'(?iu)объясни|какими доказательствами',text) else 'compare' if re.search(r'(?iu)^сравни',text) else 'cached' if re.search(r'(?iu)из\s+сохран[её]нн|operation\s+cached|не\s+повторяй\s+сетевые',text) else 'investigate'
+                self.continue_investigation(identifier,followup={'text':text,'context':selected.get('context',{}) if selected.get('investigation_id')==identifier else {},'intent':intent})
+                return
         images=getattr(self,'_pending_images',[])
         self._pending_images=[]
         if images:
@@ -529,7 +540,7 @@ class ChatWidget(QWidget):
             if isinstance(investigation, dict):
                 self._last_investigation = investigation
                 self._agent_followup = True
-                self._persist_investigation(investigation)
+                # _run_investigation persisted this in its worker already.
             if isinstance(result, dict) and result.get('error'):
                 self.last_request = {key: result.get(key) for key in ('code', 'http_status', 'retry_after')}
                 error = result['error']
@@ -620,9 +631,8 @@ class ChatWidget(QWidget):
         self._job.deleteLater()
         self._close_approval()
         if self._agent_runner is not None:
-            self._last_investigation = self._agent_runner.snapshot()
             self._last_investigation['status'] = 'cancelled'
-            self._persist_investigation(self._last_investigation)
+            self._save_stopped_snapshot(self._agent_runner,'cancelled')
         self._job = None
         self._busy = False
         self.last_request = {'code':'cancelled'}
@@ -630,7 +640,8 @@ class ChatWidget(QWidget):
         self.status.show()
         self._append('status', 'Ожидание ответа отменено.')
         if self._agent_runner is not None and (self._last_investigation.get('evidence') or self._last_investigation.get('executions')):
-            self._append('model', self._agent_runner.stop_summary('cancelled'))
+            from .investigation_progress import stop_report
+            self._append('model', stop_report(self._last_investigation,'cancelled'))
         if self._last_investigation.get('id'):
             self.messages[-1]['investigation_id']=self._last_investigation['id']
             self.messages[-1]['evidence_ids']=[r['evidence_id'] for r in self._last_investigation.get('evidence',[]) if r.get('evidence_id')]
@@ -654,9 +665,8 @@ class ChatWidget(QWidget):
         self._close_approval()
         if self._agent_runner is not None:
             self._agent_runner.abort('data_contract_error')
-            self._last_investigation = self._agent_runner.snapshot()
             self._last_investigation.update(status='failed', stop_reason='data_contract_error', error_id=fingerprint)
-            self._persist_investigation(self._last_investigation)
+            self._save_stopped_snapshot(self._agent_runner,'failed',fingerprint)
         self._busy = False
         self._agent_followup = False
         self.last_request = {'code': 'data_contract_error'}
@@ -823,6 +833,7 @@ class ChatWidget(QWidget):
     def shutdown(self):
         self._ending = True
         self.cancel()
+        if self._progress_snapshot_job:self._progress_snapshot_job.cancel()
         self._save_archive()
 
     def _set_archive_error(self, message):
@@ -886,8 +897,33 @@ class ChatWidget(QWidget):
             if isinstance(records, list):
                 self.evidence_received.emit(deepcopy(records))
         if kind in ('evidence', 'tool_result') and self._agent_runner is not None:
-            self._last_investigation = self._agent_runner.snapshot()
-            self._persist_investigation(self._last_investigation)
+            self._refresh_agent_snapshot(generation,force=kind=='tool_result')
+
+    def _refresh_agent_snapshot(self,generation,force=False):
+        if self._progress_snapshot_job is not None or not force and time.monotonic()-self._progress_snapshot_at<2:return
+        runner=self._agent_runner
+        self._progress_snapshot_at=time.monotonic()
+        job=UiJob(runner.snapshot,self);self._progress_snapshot_job=job
+        def ready(value,error):
+            if self._progress_snapshot_job is job:self._progress_snapshot_job=None
+            if not self._ending and self._busy and generation==self._generation and not error and isinstance(value,dict):
+                self._last_investigation=value;self.state_changed.emit()
+            job.deleteLater()
+        job.done.connect(ready);job.start()
+
+    def _save_stopped_snapshot(self,runner,status,error_id=''):
+        generation=self._generation
+        def prepare():
+            value=runner.snapshot();value['status']=status
+            if error_id:value.update(stop_reason='data_contract_error',error_id=error_id)
+            self._journal.save(value)
+            return value
+        job=UiJob(prepare,self)
+        def ready(value,error):
+            if not self._ending and generation==self._generation and not error and isinstance(value,dict):
+                self._last_investigation=value;self.state_changed.emit()
+            job.deleteLater()
+        job.done.connect(ready);job.start()
 
     def _persist_investigation(self, value):
         try:

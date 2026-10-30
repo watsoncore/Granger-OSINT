@@ -34,7 +34,7 @@ export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:stri
     if (node.id===root) return true
     const type=entityType(node)
     if (filters.types!==undefined&&!filters.types.includes(type)&&!filters.types.includes(node.type)) return false
-    if (!filters.show_sources&&node.type==='source') return false
+    if (!filters.show_sources&&(node.type==='source'||node.attributes.technical===true)) return false
     if (!filters.show_transactions&&node.type==='transaction'&&!expandedTransactions.has(node.id)) return false
     if (!filters.show_sources&&['domain','username'].includes(node.type)&&!filters.types?.includes(node.type)) return false
     if (!filters.include_background&&node.relevance?.level==='background') return false
@@ -61,8 +61,16 @@ export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:stri
   const ranked=[...allowed].sort((a,b)=> (a.id===root?-1:b.id===root?1:a.id===view.selected_id?-1:b.id===view.selected_id?1:expanded.has(a.id)?-1:expanded.has(b.id)?1:(b.relevance?.score||0)-(a.relevance?.score||0)))
   const selected=ranked.slice(0,Math.max(limit,Math.min(1200,expanded.size*50+limit)))
   const selectedIds=new Set(selected.map(node=>node.id))
-  const relations=edges.filter(edge=>selectedIds.has(edge.from_id)&&selectedIds.has(edge.to_id)&&(filters.statuses===undefined||filters.statuses.includes(edge.verification_status)))
-  return {nodes:selected,edges:relations,available:allowed.length,truncated:allowed.length>selected.length}
+  let relations=edges.filter(edge=>selectedIds.has(edge.from_id)&&selectedIds.has(edge.to_id)&&(filters.statuses===undefined||filters.statuses.includes(edge.verification_status)))
+  const totalRelations=relations.length
+  if(relations.length>selected.length*3){
+    const parent=new Map(selected.map(node=>[node.id,node.id]))
+    const find=(id:string):string=>{let current=id;while(parent.get(current)!==current)current=parent.get(current)!;return current}
+    const backbone=new Set<string>()
+    for(const edge of relations){const a=find(edge.from_id),b=find(edge.to_id);if(a!==b){parent.set(a,b);backbone.add(edge.id)}}
+    relations=relations.filter(edge=>backbone.has(edge.id)||edge.id===view.selected_relation||expanded.has(edge.from_id)||expanded.has(edge.to_id)||edge.from_id===view.selected_id||edge.to_id===view.selected_id)
+  }
+  return {nodes:selected,edges:relations,available:allowed.length,truncated:allowed.length>selected.length,hiddenRelations:totalRelations-relations.length}
 }
 export function layoutGraph(nodes:GraphEntity[],edges:GraphRelation[],root:string,mode:'tree'|'graph',saved:Record<string,GraphPoint>={},preserve=true):Record<string,GraphPoint> {
   const index=indexGraph(nodes,edges);const positions:Record<string,GraphPoint>={};const visited=new Set<string>()
@@ -79,19 +87,22 @@ export function layoutGraph(nodes:GraphEntity[],edges:GraphRelation[],root:strin
     }
     const offsetX=component===0?0:((component-1)%5-2)*420, offsetY=component===0?0:650+Math.floor((component-1)/5)*280
     let top=0
-    tiers.forEach((tier,level)=> {
+    tiers.forEach(tier=> {
       if (mode==='tree') {
         const columns=Math.min(tier.length,Math.max(1,Math.ceil(Math.sqrt(tier.length)*1.8)))
         tier.forEach((id,i)=>{positions[id]={x:offsetX+(i%columns-(columns-1)/2)*145,y:offsetY+top+Math.floor(i/columns)*90}})
         top+=Math.ceil(tier.length/columns)*90+90
-      } else tier.forEach((id,i)=> {
-        if (level===0){positions[id]={x:offsetX,y:offsetY};return}
-        const ring=Math.floor(i/32), ringStart=ring*32, count=Math.min(32,tier.length-ringStart)
-        const angle=(i-ringStart)/count*Math.PI*2-Math.PI/2+level*.17
-        const radius=level*210+ring*125
-        positions[id]={x:offsetX+Math.cos(angle)*radius,y:offsetY+Math.sin(angle)*radius}
-      })
+      }
     })
+    if(mode==='graph') {
+      positions[seed]={x:offsetX,y:offsetY}
+      const ordered=tiers.flat().filter(id=>id!==seed)
+      let cursor=0,ring=1
+      while(cursor<ordered.length){const radius=ring*165,capacity=Math.max(8,Math.floor(2*Math.PI*radius/115)),count=Math.min(capacity,ordered.length-cursor)
+        for(let index=0;index<count;index++){const angle=index/count*Math.PI*2-Math.PI/2+ring*.17;positions[ordered[cursor+index]]={x:offsetX+Math.cos(angle)*radius,y:offsetY+Math.sin(angle)*radius}}
+        cursor+=count;ring++
+      }
+    }
     component++
   }
   for (const node of nodes) if (saved[node.id]&&(preserve||saved[node.id].pinned)) positions[node.id]={...saved[node.id]}

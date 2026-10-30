@@ -16,6 +16,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
   const [size,setSize]=useState({width:800,height:440})
   const sizeRef=useRef(size);sizeRef.current=size
   const frame=useRef<number|undefined>(undefined),wheelTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined)
+  const thumbnails=useRef(new Map<string,HTMLImageElement>())
   const drag=useRef<{id?:string;startX:number;startY:number;point?:GraphPoint;view:GraphViewport;moved:boolean}|undefined>(undefined)
   function draw() {
     frame.current=undefined
@@ -39,21 +40,36 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       const selected=edge.id===p.selectedEdge
       if(selected){ctx.strokeStyle=accent;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
       if(distance>24){const x=b.x-Math.cos(angle)*13,y=b.y-Math.sin(angle)*13;ctx.fillStyle=selected?accent:muted;ctx.globalAlpha=selected?1:.65;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-Math.cos(angle-.5)*6,y-Math.sin(angle-.5)*6);ctx.lineTo(x-Math.cos(angle+.5)*6,y-Math.sin(angle+.5)*6);ctx.closePath();ctx.fill()}
-      if(selected||(edge.aggregate&&p.nodes.length<120)) {const label=edge.aggregate?`${edge.aggregate.count} операций · ${edge.aggregate.amount??'?'} ${edge.aggregate.asset}`:relationLabels[edge.relation_type]||edge.relation_type;ctx.font='11px Manrope, sans-serif';const measure=ctx.measureText(label),x=(a.x+b.x)/2,y=(a.y+b.y)/2;ctx.globalAlpha=.96;ctx.fillStyle=panel;ctx.fillRect(x-measure.width/2-4,y-10,measure.width+8,17);ctx.globalAlpha=1;ctx.fillStyle=selected?accent:muted;ctx.fillText(label,x-measure.width/2,y+2)}
+      if(selected||(edge.aggregate&&p.nodes.length<30&&v.scale>.8)) {const label=edge.aggregate?`${edge.aggregate.count} операций · ${edge.aggregate.amount??'?'} ${edge.aggregate.asset}`:relationLabels[edge.relation_type]||edge.relation_type;ctx.font='11px Manrope, sans-serif';const measure=ctx.measureText(label),x=(a.x+b.x)/2,y=(a.y+b.y)/2;ctx.globalAlpha=.96;ctx.fillStyle=panel;ctx.fillRect(x-measure.width/2-4,y-10,measure.width+8,17);ctx.globalAlpha=1;ctx.fillStyle=selected?accent:muted;ctx.fillText(label,x-measure.width/2,y+2)}
     }
     ctx.globalAlpha=1
     const qaNodes:{id:string;x:number;y:number;label:string}[]=[]
-    for(const node of p.nodes){const point=screen(node.id);if(!point||!onScreen(point))continue;const selected=node.id===p.selected||node.id===p.second,root=node.id===p.root,type=entityType(node),radius=Math.max(5,Math.min(root?14:11,(root?12:8)*Math.sqrt(v.scale)))
+    const occupied:{x:number;y:number;w:number;h:number}[]=[]
+    const labels=[...p.nodes].sort((a,b)=>(a.id===p.selected?-1:b.id===p.selected?1:a.id===p.root?-1:b.id===p.root?1:0))
+    const labelCandidates:{node:GraphEntity;point:{x:number;y:number};radius:number}[]=[]
+    for(const node of labels){const point=screen(node.id);if(!point||!onScreen(point))continue;const selected=node.id===p.selected||node.id===p.second,root=node.id===p.root,type=entityType(node),radius=Math.max(5,Math.min(root?14:11,(root?12:8)*Math.sqrt(v.scale)))
       ctx.fillStyle=selected?accent:panel;ctx.strokeStyle=selected||root?accent:node.verification_status==='inferred'?warning:border;ctx.lineWidth=selected?2:1.3;ctx.beginPath()
       if(['coordinate','geographic_candidate'].includes(node.type)){ctx.moveTo(point.x,point.y-radius);ctx.lineTo(point.x+radius,point.y);ctx.lineTo(point.x,point.y+radius);ctx.lineTo(point.x-radius,point.y);ctx.closePath()}
       else if(['repository','github_repository','website','image','transaction'].includes(type)){ctx.roundRect(point.x-radius,point.y-radius*.75,radius*2,radius*1.5,2)}
       else if(type==='telegram_channel'){ctx.moveTo(point.x-radius,point.y-radius*.6);ctx.lineTo(point.x+radius,point.y-radius);ctx.lineTo(point.x+radius*.25,point.y+radius);ctx.closePath()}
       else ctx.arc(point.x,point.y,radius,0,Math.PI*2)
       ctx.fill();ctx.stroke()
+      const media=node.attributes.media as Record<string,unknown>|undefined
+      if(media){const key=String(media.id),preview=media.thumbnail
+        if(typeof preview==='string'&&preview.startsWith('data:image/jpeg;base64,')&&!thumbnails.current.has(key)&&thumbnails.current.size<24){const picture=new Image();thumbnails.current.set(key,picture);picture.onload=requestDraw;picture.src=preview}
+        const picture=thumbnails.current.get(key)
+        if(picture?.complete&&picture.naturalWidth){ctx.save();ctx.beginPath();ctx.arc(point.x,point.y,radius,0,Math.PI*2);ctx.clip();ctx.drawImage(picture,point.x-radius,point.y-radius,radius*2,radius*2);ctx.restore()}
+        else {ctx.fillStyle=accent;ctx.fillRect(point.x+radius-3,point.y+radius-3,5,5)}
+      }
       if(positions[node.id]?.pinned){ctx.fillStyle=accent;ctx.fillRect(point.x+radius-2,point.y-radius-3,4,4)}
-      if(selected||root||p.nodes.length<85||v.scale>1.25&&p.nodes.length<250){const label=shortLabel(node);ctx.font=`${selected||root?'600':'500'} ${root?12:11}px Manrope, sans-serif`;const measured=ctx.measureText(label);ctx.fillStyle=panel;ctx.globalAlpha=.93;ctx.fillRect(point.x-measured.width/2-3,point.y+radius+4,measured.width+6,17);ctx.globalAlpha=1;ctx.fillStyle=selected||root?text:muted;ctx.textAlign='center';ctx.fillText(label,point.x,point.y+radius+17);ctx.textAlign='left'}
+      if(selected||root||p.nodes.length<85||v.scale>.75)labelCandidates.push({node,point,radius})
       if(qaNodes.length<20)qaNodes.push({id:node.id,x:point.x,y:point.y,label:shortLabel(node)})
     }
+    for(const {node,point,radius} of labelCandidates){const selected=node.id===p.selected||node.id===p.second,root=node.id===p.root,label=shortLabel(node);ctx.font=`${selected||root?'600':'500'} ${root?12:11}px Manrope, sans-serif`;const measured=ctx.measureText(label),box={x:point.x-measured.width/2-3,y:point.y+radius+4,w:measured.width+6,h:17}
+      if(!selected&&!root&&occupied.some(other=>box.x<other.x+other.w+4&&box.x+box.w+4>other.x&&box.y<other.y+other.h+3&&box.y+box.h+3>other.y))continue
+      occupied.push(box);ctx.fillStyle=panel;ctx.globalAlpha=.93;ctx.fillRect(box.x,box.y,box.w,box.h);ctx.globalAlpha=1;ctx.fillStyle=selected||root?text:muted;ctx.textAlign='center';ctx.fillText(label,point.x,point.y+radius+17);ctx.textAlign='left'
+    }
+    element.dataset.drawnLabels=String(occupied.length)
     element.dataset.qaNodes=JSON.stringify(qaNodes)
     element.dataset.qaEdges=JSON.stringify(visibleEdges.slice(0,10).map(edge=>{const a=screen(edge.from_id)!,b=screen(edge.to_id)!;return{id:edge.id,x:a.x*.4+b.x*.6,y:a.y*.4+b.y*.6}}))
     element.dataset.zoom=String(v.scale);element.dataset.panX=String(v.x);element.dataset.panY=String(v.y)

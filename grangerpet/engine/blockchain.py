@@ -198,6 +198,12 @@ def run_adapter(source: str, query: dict, options: dict) -> dict:
         return {"source": source, "status": "unavailable", "results": [], "message": "Не найден локальный исходный движок Gansar-main."}
     sys.path.insert(0, str(vendor))
     try:
+        if isinstance(query.get('options',{}).get('blockchain'),dict):
+            if __package__:
+                from .blockchain_runner import execute_gansar
+            else:
+                from blockchain_runner import execute_gansar
+            return asyncio.run(execute_gansar(query,options))
         import httpx
         from unittest.mock import patch
         budget = max(5, min(int(options.get("request_limit", query.get("limit", 20))), 50))

@@ -120,7 +120,7 @@ def _mapping(source,data,query,limit,endpoint):
             login=item.get('login')
             if not isinstance(login,str) or not re.fullmatch(r'[A-Za-z0-9-]{1,39}',login) or type(item.get('id')) is not int:raise ValueError()
             url='https://github.com/'+quote(login,safe='');title=login;kind='profile'
-            fields={k:item[k] for k in ('id','login','type','name','bio','company','location','public_repos','followers','following','created_at','updated_at') if k in item}
+            fields={k:item[k] for k in ('id','login','type','name','bio','company','location','public_repos','followers','following','created_at','updated_at','avatar_url') if k in item}
             description=plain(item.get('bio') or item.get('name') or 'Публичная запись GitHub; совпадение имени не устанавливает владельца других профилей.')
         elif source=='github_repositories':
             name=item.get('full_name')

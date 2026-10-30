@@ -39,10 +39,21 @@ def send_command(role: str, command: str, payload: dict | None = None, timeout: 
     if not socket.bytesAvailable() and not socket.waitForReadyRead(timeout):
         socket.abort()
         return None
-    response = bytes(socket.readAll())
+    import time
+    response = bytearray(socket.readAll())
+    deadline=time.monotonic()+timeout/1000
+    # Local sockets are byte streams. A large QA/status reply can arrive in
+    # several chunks even when the server wrote a single JSON line.
+    while b'\n' not in response:
+        if len(response)>32_000_000 or time.monotonic()>=deadline:
+            socket.abort();return None
+        if socket.bytesAvailable():response.extend(bytes(socket.readAll()));continue
+        if not socket.waitForReadyRead(max(1,int((deadline-time.monotonic())*1000))):
+            response.extend(bytes(socket.readAll()))
+            if b'\n' not in response:socket.abort();return None
     socket.disconnectFromServer()
     try:
-        parsed = json.loads(response.split(b"\n", 1)[0])
+        parsed = json.loads(bytes(response).split(b"\n", 1)[0])
         return parsed if isinstance(parsed, dict) else None
     except (ValueError, UnicodeError):
         return None

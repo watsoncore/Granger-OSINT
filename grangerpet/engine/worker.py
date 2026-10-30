@@ -49,11 +49,12 @@ def main():
         output.write(json.dumps(event, ensure_ascii=False, default=str) + "\n")
         output.flush()
     try:
-        raw = sys.stdin.readline(100_001)
-        if len(raw) > 100_000:
+        raw = sys.stdin.readline(16_000_001)
+        if len(raw) > 16_000_000:
             raise ValueError("request too large")
         request = json.loads(raw)
         source, query, options = request["source"], request["query"], request.get("options", {})
+        if source!='blockchain' and len(raw)>100_000:raise ValueError('request too large')
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         logging.disable(logging.CRITICAL)
         # Legacy modules can create output dirs or start terminal-oriented loggers.

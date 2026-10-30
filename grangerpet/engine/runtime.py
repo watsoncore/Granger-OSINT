@@ -178,7 +178,12 @@ def _run_worker(source, query, options, cancelled, event=None):
             return {"source": source, "status": "unavailable", "results": [], "message": "Не найден мост локальных источников; проверьте комплект поставки."}
         command = [str(python), "-X", "utf8", "-I", str(worker)]
     environment = os.environ.copy()
-    environment.update({"PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8", "PYTHONNOUSERSITE": "1"})
+    environment.update({"PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8", "PYTHONNOUSERSITE": "1",'PYTHONDONTWRITEBYTECODE':'1'})
+    if source=='blockchain':
+        for key in tuple(environment):
+            if key.startswith(('GANSAR_','TONAPI_','TON_API_','TONCENTER_','TONCONSOLE_','ETHEREUM_','ETHERSCAN_','WEB3_')):
+                environment.pop(key,None)
+        environment.update(GANSAR_TRUST_ENV='0',GANSAR_VERIFY_TLS='1')
     # No inherited source search paths; legacy dependency resolution is isolated.
     environment.pop("PYTHONPATH", None)
     environment.pop("PYTHONHOME", None)
@@ -198,9 +203,9 @@ def _run_worker(source, query, options, cancelled, event=None):
     def read_output():
         try:
             total = 0
-            for line in iter(lambda: process.stdout.readline(1_000_001), b""):
+            for line in iter(lambda: process.stdout.readline(16_000_001 if source=='blockchain' else 1_000_001), b""):
                 total += len(line)
-                if len(line) > 1_000_000 or total > 4_000_000:
+                if len(line) > (16_000_000 if source=='blockchain' else 1_000_000) or total > (64_000_000 if source=='blockchain' else 4_000_000):
                     lines.put({"event": "transport_error"})
                     return
                 try:
@@ -228,6 +233,8 @@ def _run_worker(source, query, options, cancelled, event=None):
     deadline = time.monotonic() + float(query.get("timeout", 25))
     outcome = None
     partial = []
+    partial_ids={}
+    gansar_state={}
     try:
         payload_options = dict(options)
         payload_options["tools_root"] = str(root)
@@ -235,9 +242,9 @@ def _run_worker(source, query, options, cancelled, event=None):
         process.stdin.close()
         while True:
             if cancelled.is_set():
-                return {"source": source, "status": "cancelled", "results": partial, "message": "Поиск отменён."}
+                return {"source": source, "status": "cancelled", "results": partial, **gansar_state,"message": "Поиск отменён."}
             if time.monotonic() >= deadline:
-                return {"source": source, "status": "timeout", "results": partial, "message": "Источник превысил время ожидания."}
+                return {"source": source, "status": "timeout", "results": partial, **gansar_state,"message": "Источник превысил время ожидания."}
             try:
                 item = lines.get(timeout=0.06)
             except queue.Empty:
@@ -249,18 +256,24 @@ def _run_worker(source, query, options, cancelled, event=None):
             if item.get("event") == "result":
                 result = item.get("result")
                 if isinstance(result, dict):
-                    partial.append(result)
+                    identifier=result.get('id') if source=='blockchain' else None
+                    if identifier and identifier in partial_ids:partial[partial_ids[identifier]]=result
+                    else:
+                        if identifier:partial_ids[identifier]=len(partial)
+                        partial.append(result)
                     if event:
                         event(item)
             elif item.get("event") == "final":
                 outcome = item.get("outcome")
+            elif source=='blockchain' and item.get('event')=='gansar_snapshot' and isinstance(item.get('report'),dict):
+                gansar_state={'gansar_report':item['report'],'source_diagnostics':item.get('source_diagnostics',{})}
             elif item.get("event") == "transport_error":
-                return {"source": source, "status": "error", "results": partial, "message": "Источник превысил допустимый объём ответа."}
+                return {"source": source, "status": "partial" if partial else "error", "results": partial, **gansar_state,"message": "Источник превысил допустимый объём ответа."}
             elif event:
                 event(item)
         if not isinstance(outcome, dict):
             code = process.poll()
-            return {"source": source, "status": "error", "results": partial,
+            return {"source": source, "status": "error", "results": partial, **gansar_state,
                     "exit_code": code, "stderr_bytes": stderr_count[0],
                     "message": "Локальный источник завершился без структурированного ответа; проверьте его зависимости." + (f" Код: {code}." if code is not None else "")}
         try:
@@ -268,6 +281,11 @@ def _run_worker(source, query, options, cancelled, event=None):
         except subprocess.TimeoutExpired:
             code = None
         outcome["exit_code"] = code
+        if source=='blockchain':
+            outcome={**gansar_state,**outcome}
+            if partial and not outcome.get('results'):
+                outcome['results']=partial
+                if outcome.get('status')=='error':outcome['status']='partial'
         outcome["stderr_bytes"] = stderr_count[0]
         if code not in (0, None) and outcome.get("status") in {"complete", "ready", "empty"}:
             outcome["status"] = "partial" if outcome.get("results") else "error"

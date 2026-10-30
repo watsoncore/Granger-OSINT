@@ -37,6 +37,13 @@ def utc_now():
     return datetime.now(timezone.utc).isoformat()
 
 
+def current_observation(record):
+    """Presentation of the latest observation, retaining the original ledger."""
+    observations=record.get('observations')
+    if not isinstance(observations,list) or not observations or not isinstance(observations[-1],dict):return record
+    return {**record,**{key:value for key,value in observations[-1].items() if key in ('status','description','details','provenance')}}
+
+
 def redact(value, secrets=(), *, _depth=0, _budget=None):
     """Keep public JSON data, remove credential fields and exact secret values."""
     if _budget is None:
@@ -209,7 +216,7 @@ class EvidenceStore:
                 self._executions.append({name: deepcopy(envelope.get(name)) for name in
                                          ("tool", "status", "query", "obtained_at", "limitations", "error") if name in envelope})
             self._executions = self._executions[-100:]
-            for value in values[:50]:
+            for value in values[:2000]:
                 if not isinstance(value, dict):
                     self._diagnose(EvidenceContractError('envelope.results[]', value))
                     continue
