@@ -112,6 +112,8 @@ def test_sse_report_continues_on_real_finish_length_without_clipping_16000_chars
     assert result['metadata']['usage']['total_tokens'] == 100
     assert next(row for row in reversed(events) if row['type'] == 'text')['text'] == result['text']
     assert runner.checkpoint()['report_parts'] == pieces
+    assert runner.checkpoint()['budget_reserved_tokens']==0  # Report usage never consumes the collection budget.
+    assert all(row['budget_phase']=='synthesis' for row in runner.checkpoint()['usage_requests'].values())
 
 
 def test_legacy_attachment_protocol_is_not_part_of_analysis_goal():

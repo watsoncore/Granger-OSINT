@@ -259,3 +259,10 @@ Live подготовка выявила отсутствие EXIF Artist у ч�
 После этого 50 targeted tests passed (6,12 с), ещё 42 targeted tests passed (2,34 с).
 Аудит source/Git/QA: 1795 payloads, 12 protected assets, секретов не найдено.
 Полный повторный suite и конечная EXE-проверка выполняются на Stage 9.
+
+Stage 9: полный повторный backend suite — 1412 passed, 1 skipped,
+32 subtests passed (280,95 с). После проверки разделения бюджетов добавлено
+явное budget_phase в usage journal: synthesis сохраняет общий фактический usage,
+но не расходует budget_reserved_tokens этапа сбора. 36 targeted tests passed
+(2,43 с), включая SSE continuation и поздний usage после отмены. Это дополнительная
+исправленная ошибка, а не новая заявленная функция. Финальная сборка проверяется далее.

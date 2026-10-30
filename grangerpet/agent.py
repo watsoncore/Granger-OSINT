@@ -286,9 +286,11 @@ class AgentRunner:
             reserved = previous.get('budget_reservation', 0)
             prior_total = previous.get('usage', {}).get('total_tokens')
             reported_total = row['usage'].get('total_tokens')
-            if type(reported_total) is int and type(prior_total) is not int:
+            phase = previous.get('budget_phase', 'research')
+            if phase != 'synthesis' and type(reported_total) is int and type(prior_total) is not int:
                 state['budget_reserved_tokens'] = max(0, state.get('budget_reserved_tokens', 0) - reserved + reported_total)
             row['budget_reservation'] = reserved
+            row['budget_phase'] = phase
             state['usage_requests'][request_id] = row
             record['checkpoint_revision'] = record.get('checkpoint_revision', 0) + 1
             record['usage'] = usage_totals(state['usage_requests'].values())
@@ -328,8 +330,9 @@ class AgentRunner:
         context = self._usage_context
         with self._lock:
             self._state['usage_requests'][request_id] = {'request_id': request_id, 'status': 'in_flight',
-                'usage': {}, 'budget_reservation': reservation, 'obtained_at': utc_now()}
-            self._state['budget_reserved_tokens'] += reservation
+                'usage': {}, 'budget_reservation': reservation, 'budget_phase':'synthesis' if synthesis else 'research', 'obtained_at': utc_now()}
+            if not synthesis:
+                self._state['budget_reserved_tokens'] += reservation
         def work():
             try:
                 if synthesis and callable(getattr(self.client, 'stream_report', None)):

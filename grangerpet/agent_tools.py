@@ -653,8 +653,8 @@ class ToolRegistry:
             envelope["error"] = "Некорректные аргументы инструмента. Используйте его строго заданный тип и допустимый лимит."
             return envelope
         envelope["query"] = redact(value, self._redactions)
-        from .visual_models.observations import cached
-        saved = cached(name, args, self.evidence.records())
+        from .visual_models.observations import cached, TOOLS
+        saved = cached(name, args, self.evidence.records()) if name in TOOLS else None
         if saved:
             saved.update(obtained_at=when, started_at=when, result_count=len(saved['results']))
             return saved
