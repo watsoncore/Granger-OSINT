@@ -105,7 +105,7 @@ def test_exact_gateway_bearer_utf8_model_and_safe_token_metadata():
     assert "thinking_config" not in payload and "tools" not in payload
     assert fixture.options[0]["follow_redirects"] is False
     assert all(value.is_closed for value in fixture.clients)
-    assert client.last_response_metadata == {"model": DEFAULT_DEEPSEEK_MODEL, "model_version": DEFAULT_DEEPSEEK_MODEL,
+    assert client.last_response_metadata == {"model": DEFAULT_DEEPSEEK_MODEL, "model_version": DEFAULT_DEEPSEEK_MODEL, 'finish_reason':'stop',
         "usage": {"prompt_tokens": 21, "completion_tokens": 8, "total_tokens": 29}}
 
 
@@ -266,7 +266,7 @@ def test_gateway_reflection_of_credential_is_redacted_from_text_and_metadata(cap
     reply = client.generate(DEFAULT_DEEPSEEK_MODEL, "Test " + secret)
     assert secret not in reply and secret not in json.dumps(client.last_response_metadata)
     assert secret.encode() not in fixture.calls[0].content and secret not in caplog.text
-    assert client.last_response_metadata == {"model": DEFAULT_DEEPSEEK_MODEL, "usage": {"total_tokens": 3}}
+    assert client.last_response_metadata == {"model": DEFAULT_DEEPSEEK_MODEL, "usage": {"total_tokens": 3}, 'finish_reason':'stop'}
 
 
 def tool_response(payload, *, wrong_name=False):

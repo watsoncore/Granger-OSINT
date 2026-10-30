@@ -5,8 +5,10 @@ import json
 
 if __package__:
     from .blockchain_contracts import exact,diagnostics
+    from .blockchain_analytics import analyze_transactions,canonical_address
 else:
     from blockchain_contracts import exact,diagnostics
+    from blockchain_analytics import analyze_transactions,canonical_address
 
 
 def _items(value):return [row for row in value if isinstance(row,dict)] if isinstance(value,list) else []
@@ -55,6 +57,16 @@ def normalize_dossier(report,*,operation='profile',max_transactions=200,transpor
             +f"Коллекторов запущено: {health['providers_attempted']}; HTTP-запросов: {health['http_requests'] if health['http_requests'] is not None else 'неизвестно'}. "
             +'Источники: '+'; '.join(row['provider']+': '+row['status']+' ('+row['reason_code']+')' for row in health['health'][:12])+'. Полнота не определяется числом карточек.')
     include=lambda *names:operation in ('profile','all') or operation in names
+    if include('transactions','trace') and report.get('transactions'):
+        network=chains[0] if len(chains)==1 else ''
+        analysis=analyze_transactions(_items(report.get('transactions')),target,network)
+        # Compute ALL returned transfers before normal row pagination; only the
+        # model-facing peer ranking is bounded, totals still cover the full DTO.
+        analysis['counterparties']=analysis['counterparties'][:30]
+        analysis['peer_ranking_bounded']=analysis['unique_counterparties']>30
+        add('blockchain_analytics',network+'|'+target,'Анализ полученной транзакционной выборки',
+            {'data':analysis,'computation':'local_decimal_aggregation','input_coverage':'full_returned_gansar_dto'},
+            chain=network,description=f"Уникальных событий: {analysis['unique_events']}; контрагентов: {analysis['unique_counterparties']}. Полная история сети не установлена.")
     if include('balances','assets'):
         for row in _items(report.get('balances')):
             amount=exact(row.get('amount_decimal',row.get('amount')))
@@ -77,7 +89,7 @@ def normalize_dossier(report,*,operation='profile',max_transactions=200,transpor
             collection=raw.get('collection_address') or _dict(raw.get('collection')).get('address')
             if isinstance(collection,str):detail['collection_address']=collection
             add('nft_asset' if row.get('type') in ('nft','collectible','gift','domain','username') else 'token_asset',
-                'ton|'+str(row.get('asset_id')),row.get('title') or row.get('name') or row.get('asset_id'),detail,
+                'ton|'+canonical_address('ton',row.get('asset_id')),row.get('title') or row.get('name') or row.get('asset_id'),detail,
                 chain='ton',url=row.get('evidence_url') or row.get('external_url'),source=row.get('source'),
                 description=f"Тип: {row.get('type')}; владение: {row.get('ownership_status','unknown')}; свежая on-chain проверка: {row.get('ownership_verified') is True}. Метаданные не подтверждают подлинность.")
     if include('transactions','trace'):

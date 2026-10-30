@@ -33,7 +33,8 @@ def test_investigation_retains_more_than_fifty_structured_rows_without_losing_as
     store=InvestigationEvidence()
     records=[normalize_evidence(row,'blockchain_gansar','wallet','2026-10-30T00:00:00Z',())for row in rows]
     store.add({'tool':'blockchain_gansar','query':'wallet','status':'partial','obtained_at':'2026-10-30T00:00:00Z','results':records})
-    assert len(store.records())==101
+    assert len(store.records())==102
+    assert any(row['type']=='blockchain_analytics' for row in store.records())
 
 
 def test_distinct_asset_categories_survive_large_transaction_history_with_exact_values():

@@ -44,6 +44,17 @@ def current_observation(record):
     return {**record,**{key:value for key,value in observations[-1].items() if key in ('status','description','details','provenance')}}
 
 
+def redact_text(value, secrets=()):
+    """Redact a report without applying the evidence-field excerpt limit."""
+    for secret in secrets:
+        if isinstance(secret, str) and len(secret) >= 4:
+            value = value.replace(secret, "[скрыто]")
+    value = re.sub(r"(?i)\b(?:bearer|basic)\s+[A-Za-z0-9+/_=.-]+", "[скрытая авторизация]", value)
+    value = re.sub(r"AIza[A-Za-z0-9_-]{25,}", "[скрытый ключ]", value)
+    value = re.sub(r"(?i)\b(?:api[_ -]?key|password|access[_ -]?token|session|cookie)\s*[:=]\s*[^\s,;]+", "[скрыто]", value)
+    return re.sub(r"(?i)\b[A-Z]:[\\/][^\s\"<>|]+", "[локальный путь]", value)
+
+
 def redact(value, secrets=(), *, _depth=0, _budget=None):
     """Keep public JSON data, remove credential fields and exact secret values."""
     if _budget is None:
@@ -64,14 +75,7 @@ def redact(value, secrets=(), *, _depth=0, _budget=None):
     if isinstance(value, (list, tuple)):
         return [redact(item, secrets, _depth=_depth + 1, _budget=_budget) for item in value[:150]]
     if isinstance(value, str):
-        for secret in secrets:
-            if isinstance(secret, str) and len(secret) >= 4:
-                value = value.replace(secret, "[скрыто]")
-        value = re.sub(r"(?i)\b(?:bearer|basic)\s+[A-Za-z0-9+/_=.-]+", "[скрытая авторизация]", value)
-        value = re.sub(r"AIza[A-Za-z0-9_-]{25,}", "[скрытый ключ]", value)
-        value = re.sub(r"(?i)\b(?:api[_ -]?key|password|access[_ -]?token|session|cookie)\s*[:=]\s*[^\s,;]+", "[скрыто]", value)
-        value = re.sub(r"(?i)\b[A-Z]:[\\/][^\s\"<>|]+", "[локальный путь]", value)
-        return value[:16000]
+        return redact_text(value, secrets)[:16000]
     if type(value) is float and not math.isfinite(value):
         return None
     if value is None or type(value) in (bool, int, float):

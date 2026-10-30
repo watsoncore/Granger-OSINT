@@ -243,6 +243,11 @@ class DeepSeekClient:
                       if type(usage.get(name)) is int and 0 <= usage[name] <= 2**63 - 1}
             if counts:
                 metadata["usage"] = counts
+        choices = result.get('choices')
+        if isinstance(choices, list) and choices and isinstance(choices[0], dict):
+            finish = choices[0].get('finish_reason')
+            if finish in ('stop', 'length', 'tool_calls', 'content_filter'):
+                metadata['finish_reason'] = finish
         self.last_response_metadata = metadata
 
     @staticmethod
@@ -421,7 +426,8 @@ class DeepSeekClient:
                 return {"message": answer, "metadata": dict(self.last_response_metadata)}
         return self._run(operation, cancel_event)
 
-    def stream_chat(self, model, messages, *, on_text, cancel_event=None):
+    def stream_chat(self, model, messages, *, on_text, cancel_event=None,
+                    system_instruction=None, max_output_tokens=2400):
         """Ordinary chat SSE only; callback receives safe cumulative visible text.
 
         A tail is withheld until subsequent chunks arrive, so a reflected API
@@ -430,7 +436,10 @@ class DeepSeekClient:
         """
         model = self._model(model)
         self._respect_retry_after(model)
-        payload = {"model": model, "messages": self._history(messages), "stream": True, "max_tokens": 2400}
+        if type(max_output_tokens) is not int or not 1 <= max_output_tokens <= 8192:
+            raise AIError('Неверный лимит длины ответа.', code='invalid_request')
+        payload = {"model": model, "messages": self._history(messages, system_instruction),
+                   "stream": True, "stream_options": {"include_usage": True}, "max_tokens": max_output_tokens}
         async def operation():
             text, metadata, finished, ended, last_emit = "", {"model": model}, False, False, 0.0
             def emit(final=False):
@@ -536,6 +545,14 @@ class DeepSeekClient:
             emit(final=True)
             return _redact_text(text.strip()).replace(self._key, "[скрытый ключ]")
         return self._run(operation, cancel_event)
+
+    def stream_report(self, model, messages, *, system_instruction, on_text,
+                      cancel_event=None, max_output_tokens=8192):
+        """Tool-free final synthesis; preserves real SSE usage/finish metadata."""
+        text = self.stream_chat(model, messages, on_text=on_text, cancel_event=cancel_event,
+            system_instruction=system_instruction, max_output_tokens=max_output_tokens)
+        return {'message': {'role': 'assistant', 'content': text},
+                'metadata': dict(self.last_response_metadata)}
 
     def list_models(self, *, cancel_event=None):
         """Only the configured model; connection verification uses a real request."""

@@ -160,6 +160,9 @@ class ToolRegistry:
         """Only the human's actual text seeds initial URLs, never model output."""
         self.web_reader.seed_urls_from_user(text)
 
+    def attachment_context(self):
+        return [{'attachment_id': identifier} for identifier in sorted(self._attachment_ids)]
+
     def initial_calls(self, goal):
         """A bounded first route from literal targets, before broad discovery."""
         from .entity_router import route_goal

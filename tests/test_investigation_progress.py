@@ -19,10 +19,10 @@ def test_distinct_empty_queries_stop_as_no_progress_with_meaningful_report():
     client = Client([response(tool(str(i), 'empty_' + str(i))) for i in range(12)])
     runner = AgentRunner(client, registry)
     result = runner.run('fixture', HISTORY)
-    assert len(registry.calls) == len(client.requests) == 3
+    assert len(registry.calls) == 3 and len(client.requests) == 4
     assert result['investigation']['stop_reason'] == 'no_progress'
-    assert 'Цель:' in result['text'] and HISTORY[0]['text'] in result['text']
     assert 'Пригодных доказательств не получено' in result['text']
+    assert result['investigation']['report_status']=='fallback'
     assert result['investigation']['final_report'] == result['text']
     assert runner.checkpoint()['record']['final_report'] == result['text']
 
@@ -64,20 +64,21 @@ def test_real_change_or_contradiction_is_progress_but_derived_graph_is_not():
 
 
 @pytest.mark.parametrize('reason,limits', [('step_limit', AgentLimits(max_steps=1)), ('tool_limit', AgentLimits(max_tool_calls=1))])
-def test_budget_stop_keeps_findings_and_never_spends_an_extra_provider_request(reason, limits):
+def test_budget_stop_ends_research_and_attempts_separate_tool_free_synthesis(reason, limits):
     client = Client([response(tool('a'), tool('b', 'next'))] if reason == 'tool_limit' else [response(tool())])
     result = AgentRunner(client, Registry(), limits=limits).run('fixture', HISTORY)
-    assert len(client.requests) == 1
+    assert len(client.requests) == 2
     assert result['investigation']['stop_reason'] == reason
-    assert result['evidence'] and '**Сведения источников**' in result['text']
-    assert 'https://example.org/' in result['text'] and '**Ограничения' in result['text']
+    assert result['evidence'] and '**Сведения источников**' not in result['text']
+    assert 'https://example.org/' in result['text'] and '## Ограничения' in result['text']
+    assert result['investigation']['report_status']=='fallback'
 
 
 def test_api_failure_has_source_report_without_more_model_calls():
     client = Client([response(tool()), AIError('Fixture unavailable', code='network')])
     result = AgentRunner(client, Registry()).run('fixture', HISTORY)
     assert len(client.requests) == 2
-    assert 'Наблюдение источника' in result['text'] and 'Провайдер прервал анализ' in result['text']
+    assert 'Наблюдение источника' in result['text'] and 'Языковой анализ недоступен' in result['text']
 
 
 def test_scoped_telegram_does_not_fallback_to_unrelated_github_or_hn_names():

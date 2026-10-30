@@ -412,12 +412,6 @@ class ChatWidget(QWidget):
                 return
         images=getattr(self,'_pending_images',[])
         self._pending_images=[]
-        if images:
-            text+='\n\nВыбранные локальные изображения (это идентификаторы вложений, не содержимое пикселей):\n'+json.dumps(images,ensure_ascii=False)
-            if re.search(r'(?iu)(geoint|geoclip|waypoint|мест[оа].{0,25}с[ъь]ём|где.{0,30}снят|определи.{0,30}мест)', text):
-                text+='\nИспользуй visual_geoint по attachment_id с доступными GeoCLIP и Waypoint либо эти модели отдельно; EXIF/OCR доступны в том же pipeline. Отсутствие GPS не завершает анализ. Делай выводы только по реальным результатам; кандидаты моделей — гипотезы.'
-            else:
-                text+='\nИспользуй локальные image_metadata/image_ocr по attachment_id по цели запроса. Не утверждай содержимое пикселей без выполненного анализа.'
         self._append('user', text)
         if images: self.messages[-1]['attachments']=images
         history = conversation_context(self.messages, text)
@@ -640,8 +634,10 @@ class ChatWidget(QWidget):
         self.status.show()
         self._append('status', 'Ожидание ответа отменено.')
         if self._agent_runner is not None and (self._last_investigation.get('evidence') or self._last_investigation.get('executions')):
-            from .investigation_progress import stop_report
-            self._append('model', stop_report(self._last_investigation,'cancelled'))
+            # Streaming text is already in the conversation. Preserve it when
+            # Stop is pressed instead of replacing it with a raw evidence list.
+            if self._stream_bubble is None:
+                self._append('model', 'Работа остановлена. Полученные данные сохранены; фактический отчёт доступен в расследовании.')
         if self._last_investigation.get('id'):
             self.messages[-1]['investigation_id']=self._last_investigation['id']
             self.messages[-1]['evidence_ids']=[r['evidence_id'] for r in self._last_investigation.get('evidence',[]) if r.get('evidence_id')]

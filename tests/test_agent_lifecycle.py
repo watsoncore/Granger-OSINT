@@ -94,7 +94,8 @@ def test_resume_cannot_reset_unchanged_explicit_budget():
     runner.run('fixture', HISTORY)
     client = Client([])
     result = AgentRunner(client, Registry(), limits=AgentLimits(max_steps=1)).run('fixture', [], resume_state=runner.checkpoint())
-    assert not client.requests and result['investigation']['stop_reason'] == 'step_limit'
+    assert len(client.requests)==1 and result['investigation']['stop_reason'] == 'step_limit'
+    assert result['investigation']['steps']==1  # Synthesis never resets research counters.
 
 
 def test_duplicate_calls_in_same_round_execute_only_once():
@@ -104,12 +105,14 @@ def test_duplicate_calls_in_same_round_execute_only_once():
     assert len(registry.calls) == 1 and result['investigation']['tool_calls'] == 1
 
 
-def test_repetitive_cached_loop_is_paused_with_resumable_reason():
+def test_repetitive_cached_loop_switches_to_report_not_raw_pause():
     registry = Registry()
     client = Client([response(tool('call_' + str(index))) for index in range(8)])
     result = AgentRunner(client, registry).run('fixture', HISTORY)
     assert len(registry.calls) == 1 and result['investigation']['stop_reason'] == 'no_progress'
-    assert result['investigation']['resumable'] and result['investigation']['status'] == 'paused'
+    assert result['investigation']['resumable'] and result['investigation']['status'] == 'partial'
+    assert result['investigation']['report_status']=='fallback'
+    assert '**Сведения источников**' not in result['text']
 
 
 def test_manual_continuation_stops_between_complete_protocol_rounds():

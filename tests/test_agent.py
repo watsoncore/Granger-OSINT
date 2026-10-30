@@ -160,7 +160,8 @@ def test_unverified_urls_never_appear_as_real_findings_even_when_no_results():
     assert 'made-up.invalid' not in result['text'] and not result['evidence']
 
 
-def test_token_budget_stops_before_sending_oversized_context():
+def test_token_budget_stops_research_and_uses_separate_report_budget():
     client=Client([])
     result=run(client,limits=AgentLimits(max_tokens=200))
-    assert not client.requests and result['investigation']['stop_reason']=='token_limit'
+    assert len(client.requests)==1 and result['investigation']['stop_reason']=='token_limit'
+    assert result['investigation']['steps']==0 and result['investigation']['report_status']=='fallback'
