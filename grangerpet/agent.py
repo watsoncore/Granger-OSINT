@@ -22,6 +22,7 @@ from .agent_evidence import redact, utc_now
 from .investigation import InvestigationEvidence
 from .usage import actual_usage, usage_totals
 from .context import relevant_excerpt, conversation_context, terms
+from .investigation_progress import normalized_arguments, semantic_facts, stop_report
 
 
 AGENT_SYSTEM = (
@@ -503,7 +504,7 @@ class AgentRunner:
 
     @staticmethod
     def _fingerprint(call):
-        return hashlib.sha256((call['name'] + '\0' + _json(call['arguments'])).encode('utf-8')).hexdigest()
+        return hashlib.sha256((call['name'] + '\0' + _json(normalized_arguments(call['name'], call['arguments']))).encode('utf-8')).hexdigest()
 
     def _save_tool_outcome(self, call, envelope, callback):
         outcome = self._accept(envelope, callback)
@@ -522,6 +523,7 @@ class AgentRunner:
         calls = self._state['pending_calls']
         if not calls:
             return
+        before = semantic_facts(self._store.records())
         executable, aliases, fingerprints = [], {}, {}
         for call in calls:
             if call['id'] in self._state['pending_outcomes']:
@@ -538,8 +540,7 @@ class AgentRunner:
                 previous = cached['outcome'].get('results', [])
                 if not previous or current != previous[0]:
                     cached = None
-            if cached and (cached['outcome'].get('status') in ('complete', 'completed', 'empty')
-                           or cached.get('resume_count', 0) == self._record.get('resume_count', 0)):
+            if cached:
                 original = cached['outcome']
                 outcome = self._outcome(call['name'], call['arguments'], 'duplicate_skipped',
                     'Этот запрос уже выполнялся. Возвращены сохранённые сведения; новый сетевой запрос не выполнялся.')
@@ -569,8 +570,10 @@ class AgentRunner:
                 outcomes[identifier] = self._accept(outcome, callback)
         if any(call['id'] not in outcomes for call in calls):
             raise _Stopped('interrupted')
-        meaningful = any(outcomes[call['id']].get('status') in ('complete', 'completed', 'empty', 'partial')
-                         and outcomes[call['id']].get('cached_status') is None for call in calls)
+        after = semantic_facts(self._store.records())
+        added = len(after - before)
+        meaningful = added > 0
+        self._record['progress'] = {'new_facts': added, 'semantic_facts': len(after)}
         if meaningful:
             self._record['no_progress_rounds'] = 0
         else:
@@ -579,7 +582,7 @@ class AgentRunner:
             message = {'role': 'tool', 'tool_call_id': call['id'], 'content': self._compact(outcomes[call['id']])}
             self._state['messages'].append(message)
             self._state['protocol_archive'].append(deepcopy(message))
-        self._state['completed_steps'].append({'step': self._record['steps'], 'finished_at': utc_now(),
+        self._state['completed_steps'].append({'step': self._record['steps'], 'finished_at': utc_now(), 'new_facts': added,
             'calls': [{'tool': call['name'], 'status': outcomes[call['id']].get('status'),
                        'evidence_ids': [row['evidence_id'] for row in outcomes[call['id']].get('results', []) if row.get('evidence_id')]}
                       for call in calls]})
@@ -607,6 +610,10 @@ class AgentRunner:
         """
         if (not self.limits.auto_continue or self._record.get('fallback_attempts',0)>=3
                 or re.search(r'(?i)\b(?:только|исключительно|only|solely)\b',self._record.get('goal',''))):
+            return False
+        # A Telegram target is not a license to probe a similar GitHub/HN name.
+        # Source pivots require actual discovered links, not generated guesses.
+        if re.search(r'(?i)(https?://|\btelegram\b|\bтон\b|\bton\b|blockchain|блокчейн|кошел[её]к|geoclip|waypoint|img_[a-f0-9]+)', self._record.get('goal', '')):
             return False
         for failed in reversed(self._state.get('failures',[])[-8:]):
             args=failed.get('arguments',{})
@@ -797,11 +804,15 @@ class AgentRunner:
     def _ledger(self, text=""):
         records = self._store.records()
         allowed_urls = {record.get("url") for record in records if record.get("url")}
+        allowed_urls.update(re.findall(r'https?://[^\s<>\]\)\"]+', self._record.get('goal', '')))
         def known_url(match):
             url = match.group(0).rstrip(".,;:!?")
             return match.group(0) if url in allowed_urls else "[ссылка не подтверждена инструментами]"
         text = re.sub(r"https?://[^\s<>\]\)\"]+", known_url, text)
         return self._safe(text).strip()
+
+    def stop_summary(self, reason='cancelled'):
+        return self._ledger(stop_report(self.snapshot(), reason))
 
     def run(self, model, history, *, cancel_event=None, on_event=None, approval_callback=None,
             resume_state=None, checkpoint_callback=None, conversation_id=None, usage_ledger=None):
@@ -831,6 +842,15 @@ class AgentRunner:
                     raise AIError('Это расследование уже завершено.', code='invalid_request')
                 self._state = deepcopy(resume_state)
                 self._record = self._state.pop('record')
+                # Re-key old v1 literal signatures in memory; no checkpoint
+                # migration/write is required and prior outcomes are retained.
+                cache = self._state.get('call_cache', {})
+                for previous in self._record.get('calls', []):
+                    if not isinstance(previous, dict) or not isinstance(previous.get('arguments'), dict):
+                        continue
+                    legacy = hashlib.sha256((previous['tool'] + '\0' + _json(previous['arguments'])).encode('utf-8')).hexdigest()
+                    if legacy in cache:
+                        cache.setdefault(self._fingerprint({'name': previous['tool'], 'arguments': previous['arguments']}), cache[legacy])
                 self._state.setdefault('protocol_archive', deepcopy(self._state.get('messages',[])))
                 self._state.setdefault('sent_content', {})
                 self._store.restore(self._state.pop('evidence', []), self._state.pop('executions', []))
@@ -982,6 +1002,9 @@ class AgentRunner:
             raise AIError('Не удалось восстановить сохранённое расследование.', code='invalid_request') from None
         finally:
             self._stop.set()
+            if state != 'completed' and self._record.get('id'):
+                text = stop_report(self.snapshot(), self._record.get('stop_reason', 'interrupted'), text)
+            self._record['final_report'] = self._ledger(text)
             with self._lock:
                 self._record.update(status=state, finished_at=utc_now(),
                     elapsed_seconds=round(previous_elapsed + time.monotonic() - self._run_started, 3), resumable=state != 'completed')

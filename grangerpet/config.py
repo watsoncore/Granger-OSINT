@@ -57,6 +57,7 @@ class Settings:
     agent_parallel: int = 2
     agent_tool_timeout: int = 25
     agent_request_timeout: int = 90
+    agent_no_progress_rounds: int = 3
     agent_auto_continue: bool = True
     agent_budget_behavior: str = "pause"
     research_settings_version: int = 2
@@ -111,6 +112,8 @@ class Settings:
                     setattr(settings, key, max(low, min(high, int(value))))
                 except (OverflowError, ValueError):
                     pass
+        if type(values.get('agent_no_progress_rounds')) is int:
+            settings.agent_no_progress_rounds = max(2, min(10, values['agent_no_progress_rounds']))
         for key in ("cursor_reaction", "enable_snoop", "nuclei_enabled", "agent_auto_continue", "notifications_enabled",
                     "notifications_animate", "notifications_reply", "notifications_investigation", "notifications_errors", "reduced_motion"):
             if isinstance(values.get(key), bool):

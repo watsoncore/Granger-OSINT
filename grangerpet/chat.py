@@ -544,6 +544,8 @@ class ChatWidget(QWidget):
                 retry_after = self.last_request.get('retry_after')
                 if isinstance(retry_after, (int, float)) and retry_after > 0:
                     message += f' Повторите не раньше чем через {math.ceil(retry_after)} с.'
+                if investigation and investigation.get('final_report'):
+                    self._append('model', investigation['final_report'])
                 bubble = self._append('status', message, self._retry_last if submitted_text else None)
                 if submitted_text and isinstance(retry_after, (int, float)) and retry_after > 0:
                     bubble.retry.setEnabled(False)
@@ -620,6 +622,8 @@ class ChatWidget(QWidget):
         self.status.setText('Запрос отменён. История сохранена.')
         self.status.show()
         self._append('status', 'Ожидание ответа отменено.')
+        if self._agent_runner is not None and (self._last_investigation.get('evidence') or self._last_investigation.get('executions')):
+            self._append('model', self._agent_runner.stop_summary('cancelled'))
         if self._last_investigation.get('id'):
             self.messages[-1]['investigation_id']=self._last_investigation['id']
             self.messages[-1]['evidence_ids']=[r['evidence_id'] for r in self._last_investigation.get('evidence',[]) if r.get('evidence_id')]
@@ -687,6 +691,7 @@ class ChatWidget(QWidget):
             max_parallel=getattr(settings, 'agent_parallel', 2),
             per_tool_timeout=getattr(settings, 'agent_tool_timeout', 25),
             per_request_timeout=getattr(settings, 'agent_request_timeout', 90),
+            no_progress_rounds=getattr(settings, 'agent_no_progress_rounds', 3),
             auto_continue=getattr(settings, 'agent_auto_continue', True),
             budget_behavior=getattr(settings, 'agent_budget_behavior', 'pause'))
 
