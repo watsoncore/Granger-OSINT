@@ -109,8 +109,13 @@ def analyze(snapshot):
             grouped[(chain, canonical_address(chain, target))].append({**data,
                 'evidence_id': row.get('evidence_id'), 'url': row.get('url')})
         if row.get('type') == 'blockchain_analytics' and isinstance(data.get('data'), dict):
-            computed[(chain, canonical_address(chain, target))] = {**deepcopy(data['data']),
-                'supporting_evidence': [row.get('evidence_id')], 'source_url': row.get('url')}
+            key=(chain, canonical_address(chain, target))
+            candidate={**deepcopy(data['data']), 'supporting_evidence':[row.get('evidence_id')], 'source_url':row.get('url')}
+            previous=computed.get(key)
+            # A later NFT-only/page subset must not replace the full dossier.
+            # Acquisition duplicates inflate input_observations, not coverage.
+            if previous is None or candidate.get('unique_events',0)>previous.get('unique_events',0):
+                computed[key]=candidate
         if row.get('type') in ('balance', 'token_asset', 'nft_asset', 'web3_identity', 'label', 'contract_observation'):
             identity = data.get('asset_id') or data.get('contract') or data.get('name') or data.get('asset') or row.get('id')
             if row.get('type')=='token_asset' and data.get('asset_identity_status')=='contract_unknown_not_aggregated':identity=row.get('id')
@@ -153,7 +158,7 @@ def analyze(snapshot):
         local = analyze_transactions(grouped[key], key[1], key[0])
         # The worker computed over the FULL returned DTO before row pagination.
         # Never add that aggregate to its constituent transfer rows.
-        result = computed.get(key) if computed.get(key, {}).get('input_observations', 0) > local['input_observations'] else local
+        result = computed.get(key) if computed.get(key, {}).get('unique_events', 0) > local['unique_events'] else local
         chains['|'.join(key)] = result
     return {'version': 1, 'goal': goal, 'evidence_examined': len(rows), 'relevant_evidence': len(relevant),
         'blockchain': chains, 'assets': list(assets.values()), 'scenes': scenes,'image_observations':image_observations,

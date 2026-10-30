@@ -1,5 +1,6 @@
 """Actual native graph rendering; synthetic stress and saved live evidence kept distinct."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -71,6 +72,7 @@ def main():
     views.select(cases[0]['id'])
     report={'mode':'actual_frozen_Qt_WebEngine' if args.exe else 'actual_source_Qt_WebEngine','gateway_calls':0,
         'inference_calls':0,'cases':cases,'checks':[],'manual_visual_review':'pending'}
+    if args.exe:report['exe_sha256']=hashlib.sha256(args.exe.read_bytes()).hexdigest()
     owned=None;process=None
     def save():(out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     def check(name,ok):
@@ -92,7 +94,10 @@ def main():
         if not value or not value.get('ok'):raise RuntimeError('Own command failed: '+name)
         return value
     def action(name,payload=None):command('qa_desktop',{'action':name,'payload':payload or {}});time.sleep(.2)
-    def dom():action('dom');return state()['desktop'].get('dom',{})
+    def dom():
+        action('dom')
+        value=wait(state,10)
+        return value['desktop'].get('dom',{})
     def click(label):
         value=wait(lambda:next((e for e in dom().get('elements',[]) if (e.get('label')==label or e.get('text')==label) and e['width']>0 and 0<e['y']<dom().get('height',0)-10),None))
         action('input',{'kind':'click','at':[value['x']+value['width']/2,value['y']+min(18,value['height']/2)]})

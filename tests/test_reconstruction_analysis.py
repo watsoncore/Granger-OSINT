@@ -74,6 +74,21 @@ def test_aggregate_uses_entire_dto_before_evidence_transaction_page_limit():
     assert '**Сведения источников**' not in report and 'ev_' not in report
 
 
+def test_later_nft_subset_and_repeated_acquisitions_do_not_shrink_full_coverage():
+    full={'target_address':TON,'detected_chains':['ton'],'transactions':[tx(str(i),'1') for i in range(302)]}
+    subset={**full,'transactions':full['transactions'][:6]}
+    rows=[normalize_evidence(r,'blockchain_gansar','full') for r in normalize_dossier(full,max_transactions=20)]
+    # More observed copies than the full DTO, but only 20 unique events.
+    for i in range(20):
+        rows.extend(normalize_evidence(r,'blockchain_gansar','page-'+str(i))
+            for r in normalize_dossier(full,max_transactions=20) if r['type']=='transaction')
+    rows.extend(normalize_evidence(r,'blockchain_gansar','nft-only') for r in normalize_dossier(subset))
+    for ordered in (rows,list(reversed(rows))):
+        result=analyze({'goal':TON,'evidence':ordered})
+        data=next(iter(result['blockchain'].values()))
+        assert data['unique_events']==302 and data['assets'][0]['outgoing']=='302'
+
+
 def test_no_progress_runs_tool_free_synthesis_and_completes_answer():
     registry = Registry()
     client = Client([*[response(tool(str(index))) for index in range(4)], response(text='По полученным страницам установлены публичные сведения; полнота ограничена.')])

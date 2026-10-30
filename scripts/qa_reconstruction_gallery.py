@@ -3,6 +3,7 @@
 No ML, API key, user profile or image upload is needed to inspect the evidence.
 """
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -50,6 +51,7 @@ def main():
     GraphViewStore(journal).select(record['id'])
     report={'mode':'actual_frozen_Qt_WebEngine' if args.exe else 'actual_source_Qt_WebEngine','mock':False,
         'inference_calls':0,'gateway_calls':0,'image_uploads':0,'checks':[]}
+    if args.exe:report['exe_sha256']=hashlib.sha256(args.exe.read_bytes()).hexdigest()
     owned=None;process=None
     def check(name,ok):
         report['checks'].append({'name':name,'passed':bool(ok)})

@@ -116,7 +116,10 @@ def main():
         check('actual_gateway_connection_proof',snapshot()['connection']['canSend'])
         if args.visual:
             if not args.image or not args.image.is_file():raise ValueError('--visual requires an explicit --image')
-            action('attachment_import',{'name':'photo.jpg','base64':base64.b64encode(args.image.read_bytes()).decode('ascii')})
+            # The local command pipe is intentionally limited to 16 KiB.
+            # Existing QA attachment_file reads only this named isolated input.
+            (out/'photo.jpg').write_bytes(args.image.read_bytes())
+            action('attachment_file',{'name':'photo.jpg'})
             chosen=wait(lambda:s['attachments'] if (s:=snapshot()).get('attachments') and not s.get('attachment_busy') else None,40)
             action('chat_send',{'text':'Гермиона, исследуй географические признаки выбранной фотографии. Опиши реальные видимые объекты, '
                 'получи GeoCLIP и Waypoint кандидаты, проверь их через geoint_research, покажи реальные сравнительные фотографии и объясни ограничения. '
