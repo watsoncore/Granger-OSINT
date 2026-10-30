@@ -83,3 +83,13 @@ class MediaStore:
             atomic_write(self._path(reference['id']),CredentialsStore._protect(json.dumps(value,ensure_ascii=False).encode('utf-8')))
             return {k:v for k,v in value.items() if k!='original_base64'}
         finally:_SLOTS.release()
+
+    def read_original(self, reference):
+        """Backend-only decoded bytes for a scoped local comparison, never IPC."""
+        if not self.cached(reference):
+            raise ValueError('Public media has not been fetched')
+        value=json.loads(CredentialsStore._protect(self._path(reference['id']).read_bytes(),decrypt=True).decode('utf-8'))
+        raw=base64.b64decode(value['original_base64'],validate=True)
+        if len(raw)>2_000_000 or hashlib.sha256(raw).hexdigest()!=value['sha256']:
+            raise ValueError('Public media cache failed integrity check')
+        return raw

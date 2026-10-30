@@ -103,3 +103,17 @@ redaction в 16 000 символов больше не обрезает отчё
 visual_geoint. Полный контракт, условия и реальные результаты описаны в
 [SCENE_VISION_RUNTIME.md](SCENE_VISION_RUNTIME.md). 96 targeted tests passed.
 Передачи пользовательского снимка в облако и изменений прежнего CPU runtime нет.
+
+## Stage 4: проверка географических гипотез и эталонов
+
+Выполнен production backend pipeline с настоящими открытыми API, загрузкой
+лицензированных сравнительных фотографий, pixel caption эталонов и локальным
+matching. Существующий AgentRunner самостоятельно ставит research после
+visual_geoint. Отдельный агент не создавался.
+
+Добавлены optional официальные Google Vision/Yandex/Mapillary через существующий
+редактор защищённых ключей, без обязательных облачных зависимостей. У пользователя
+эти credentials отсутствуют: положительные live-тесты не заявляются. Реальные
+ошибки открытых источников, ограничения matching и протоколы описаны в
+[GEOINT_RESEARCH.md](GEOINT_RESEARCH.md). Backend: 88 passed; frontend settings:
+13 passed; TypeScript passed. Пользовательский граф и галерея ещё не приняты.

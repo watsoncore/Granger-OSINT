@@ -250,7 +250,7 @@ def reverse_search_providers():
          "reason": "Официальная справка описывает ручную загрузку. Публичный Lens API не подключён."},
         {"id": "yandex_images", "name": "Яндекс Картинки", "mode": "manual_handoff", "url": "https://yandex.com/images/",
          "documentation_url": "https://yandex.com/support/images/en/similar", "automated": False,
-         "reason": "Ручной поиск в интерфейсе сервиса; разрешённый программный reverse-image API не подтверждён."},
+         "reason": "Ручной поиск в интерфейсе. Официальный Yandex SearchByImage подключается отдельно с вашим ключом и разрешением на передачу снимка."},
         {"id": "bing_visual_search", "name": "Bing Visual Search API", "mode": "unavailable", "automated": False,
          "documentation_url": "https://learn.microsoft.com/en-us/lifecycle/announcements/bing-search-api-retirement",
          "reason": "Прежние Bing Search APIs выведены из эксплуатации 11.08.2025; замена reverse-image API не подключена."},

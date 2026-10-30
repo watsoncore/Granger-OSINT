@@ -51,7 +51,7 @@ def analyze(snapshot):
     relevant = [row for row in rows if ranks.get(row.get('evidence_id'), {}).get('level') != 'background'
                 and row.get('type') != 'evidence_graph']
     grouped, computed = defaultdict(list), {}
-    assets, facts, candidates, scenes, contradictions = {}, [], {}, [], []
+    assets, facts, candidates, scenes, contradictions, references = {}, [], {}, [], [], []
     for row in relevant:
         data = _details(row)
         chain = str(data.get('chain') or '')
@@ -71,6 +71,16 @@ def analyze(snapshot):
             scenes.append({'attachment_id': data.get('attachment_id'), 'evidence_id': row.get('evidence_id'),
                 **{key: deepcopy(data[key]) for key in ('scene_type', 'description', 'observations', 'readable_text',
                     'possible_languages', 'road_features', 'vegetation', 'terrain', 'distinctive_landmarks', 'limitations') if key in data}})
+        if row.get('type')=='geoint_candidate':
+            key=(data.get('attachment_id'),round(data.get('latitude',0),5),round(data.get('longitude',0),5))
+            candidates[key]={key:deepcopy(data[key]) for key in ('candidate_id','latitude','longitude','region','source_model',
+                'raw_score','verification_status','nearby_landmarks','model_observations','reference_images','research_queries',
+                'supporting_evidence','contradicting_evidence') if key in data}
+            candidates[key]['evidence_id']=row.get('evidence_id')
+        if row.get('type')=='reference_image':
+            references.append({'evidence_id':row.get('evidence_id'),'source_url':row.get('url'),'title':row.get('title'),
+                **{key:deepcopy(data[key]) for key in ('candidate_id','image_url','original_image_url','description','author',
+                    'license','license_url','captured_at','latitude','longitude','comparison','reference_scene','match_kind','image_fetched') if key in data}})
         for prediction in data.get('predictions', []) if isinstance(data.get('predictions'), list) else []:
             if not isinstance(prediction, dict):
                 continue
@@ -97,7 +107,7 @@ def analyze(snapshot):
         chains['|'.join(key)] = result
     return {'version': 1, 'goal': goal, 'evidence_examined': len(rows), 'relevant_evidence': len(relevant),
         'blockchain': chains, 'assets': list(assets.values()), 'scenes': scenes,
-        'geographic_candidates': list(candidates.values()), 'facts': facts,
+        'geographic_candidates': list(candidates.values()), 'reference_images':references, 'facts': facts,
         'contradictions': contradictions, 'coverage': 'saved_observations_only',
         'unresolved_questions': ['Полнота внешних источников и независимая проверка выводов ограничены полученными данными.'],
         'source_failures': dict(Counter(str(row.get('tool'))+': '+str(row.get('status'))
@@ -109,6 +119,9 @@ def model_context(analysis):
     """Aggregate first; do not feed hundreds of raw transactions to a text model."""
     value = {key: deepcopy(analysis[key]) for key in ('goal', 'evidence_examined', 'coverage', 'scenes',
         'geographic_candidates', 'contradictions', 'unresolved_questions', 'source_failures')}
+    value['reference_images']=[{**{key:item for key,item in row.items() if key!='comparison'},
+        'comparison':{key:row.get('comparison',{}).get(key) for key in ('status','match_count','geometry','spatial_coverage','support_kind','geolocation_verified','score_calibrated','interpretation')}
+        } for row in analysis.get('reference_images',[])[:12]]
     value['blockchain'] = {}
     for key, data in analysis['blockchain'].items():
         selected = {name: deepcopy(data.get(name)) for name in ('target_address', 'canonical_target', 'coverage',

@@ -928,6 +928,16 @@ class AgentRunner:
     def _ledger(self, text=""):
         records = self._store.records()
         allowed_urls = {record.get("url") for record in records if record.get("url")}
+        def source_urls(value, depth=0):
+            if depth>10:return
+            if isinstance(value,dict):
+                for key,item in value.items():
+                    if key in ('url','source_url','image_url','original_image_url','thumbnail_url','license_url') and isinstance(item,str) and item.startswith(('https://','http://')):
+                        allowed_urls.add(item)
+                    elif isinstance(item,(dict,list)):source_urls(item,depth+1)
+            elif isinstance(value,list):
+                for item in value:source_urls(item,depth+1)
+        for record in records:source_urls(record.get('details',{}))
         allowed_urls.update(re.findall(r'https?://[^\s<>\]\)\"]+', self._record.get('goal', '')))
         identifiers = {row.get('evidence_id') for row in records}
         def citation(match):
@@ -1105,6 +1115,14 @@ class AgentRunner:
                             or not isinstance(followup.get('context'),dict) or len(_json(followup))>20000
                             or followup.get('intent') not in ('explain','investigate','compare','cached')):
                         raise AIError('Неверный контекст выбранного объекта.',code='invalid_request')
+                    if self._state.get('report_parts') or self._state.get('report_draft'):
+                        self._state.setdefault('completed_reports',[]).append({
+                            'goal':self._record.get('current_focus') or self._record.get('goal'),
+                            'parts':self._state.pop('report_parts',[]),'draft':self._state.pop('report_draft',''),
+                            'final_report':self._record.get('final_report',''),'status':self._record.get('report_status')})
+                    self._state['synthesis_reserved_tokens']=0
+                    self._record.pop('report_status',None)
+                    self._record.pop('synthesis_error',None)
                     self._state['active_focus']=self._safe(followup)
                     self._state['followup_request']=self._safe(followup)
                     self._record['current_focus']=self._safe(followup['text'])

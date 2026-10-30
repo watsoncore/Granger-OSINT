@@ -85,6 +85,8 @@ from .integrations19.local_tools import INPUT_SCHEMAS as _LOCAL19_INPUTS
 from .integrations19.public_tools import INPUT_SCHEMAS as _PUBLIC19_INPUTS
 from .visual_models.tools import INPUT_SCHEMAS as _VISUAL_INPUTS
 from .visual_models.pipeline import INPUT_SCHEMA as _VISUAL_PIPELINE_INPUT
+from .geoint.research import INPUT_SCHEMA as _GEORESEARCH_INPUT
+from .geoint.optional_apis import REVERSE_INPUT as _REVERSE_INPUT
 _GRAPH_INPUT={'type':'object','properties':{
     'evidence_ids':{'type':'array','maxItems':100,'items':{'type':'string','minLength':23,'maxLength':23}},
     'entity_types':{'type':'array','maxItems':16,'items':{'type':'string','maxLength':30}},
@@ -92,6 +94,8 @@ _GRAPH_INPUT={'type':'object','properties':{
     'offset':{'type':'integer','minimum':0,'maximum':10000},
     'limit':{'type':'integer','minimum':1,'maximum':100}},'required':[],'additionalProperties':False}
 _SPECS += (
+    ToolSpec('image_reverse_search','image_reverse_search','visual_geoint','attachment_id','Официальный Google Cloud Vision Web Detection или Yandex SearchByImage. Требует персонального ключа и отдельного подтверждения: выбранная фотография передаётся провайдеру. Это не Google Lens API. Результат не доказывает координаты.',requires_approval=True,input_schema=_REVERSE_INPUT,execution_mode='OFFICIAL_API',documentation_url='https://docs.cloud.google.com/vision/docs/detecting-web',category='geoint'),
+    ToolSpec('geoint_research','geoint_research','visual_geoint','attachment_id','Проверка уже полученных GEOINT-кандидатов: OSM-ориентиры, мультиязычные запросы, реальные Commons/Panoramax-фотографии, локальное сравнение. Сначала нужен visual_geoint; исходное фото не передаётся в сеть.',input_schema=_GEORESEARCH_INPUT,execution_mode='PUBLIC_API_NO_KEY',documentation_url='https://commons.wikimedia.org/wiki/Commons:Search_by_location',category='geoint'),
     ToolSpec('image_understand','scene_vision','visual_geoint','attachment_id','Florence-2-base-ft: локальное описание реальных пикселей, видимые объекты и области кадра. Оценка модели, не подтверждение места или личности; без передачи фото в сеть.',input_schema={'type':'object','properties':{'attachment_id':{'type':'string','minLength':68,'maxLength':68}},'required':['attachment_id'],'additionalProperties':False},execution_mode='LOCAL_MODEL',documentation_url='https://huggingface.co/microsoft/Florence-2-base-ft',category='geoint'),
     ToolSpec('map_panoramax','public19','coordinates','latitude','Panoramax: ограниченный поиск публичных street-level фотографий рядом с координатами через STAC API без ключа. Дата, координаты, лицензия, автор и ссылки на эталоны; пиксели не загружаются. Близость не подтверждает место исходного фото.',input_schema=_PUBLIC19_INPUTS['map_panoramax'],execution_mode='PUBLIC_API_NO_KEY',documentation_url='https://docs.panoramax.fr/backend/api/',category='geoint'),
     ToolSpec('visual_geoint','visual_model','visual_geoint','attachment_id','Единый Visual GEOINT: реальные EXIF/OCR, выбранные GeoCLIP/Waypoint, сравнение географических кандидатов и при известных параметрах ShadowFinder. Без GPS исследование продолжается. Результаты моделей — гипотезы, не установленное место. Локальный CPU, без передачи снимка в API.',input_schema=_VISUAL_PIPELINE_INPUT,execution_mode='LOCAL_MODEL',documentation_url='https://github.com/watsoncore/Granger-OSINT',category='geoint'),
@@ -146,11 +150,13 @@ class ToolRegistry:
         self._availability = {}
         self._last_executions = {}
         self._attachment_ids=set(attachment_ids)
+        self._recent_attachment_ids=set(attachment_ids)
         self._image_store=image_store
         self._mapping_client=None
         self.evidence = InvestigationEvidence()
         self._lock = threading.RLock()
         self._blockchain_refs={}
+        self._local_scope=None
         self._download_budget = DownloadBudget(getattr(settings, 'agent_download_mb', 20) * 1024 * 1024)
         self._redactions = {value for value in redactions if isinstance(value, str) and len(value) >= 4}
         from .agent_browser import PublicPageReader
@@ -162,7 +168,7 @@ class ToolRegistry:
         self.web_reader.seed_urls_from_user(text)
 
     def attachment_context(self):
-        return [{'attachment_id': identifier} for identifier in sorted(self._attachment_ids)]
+        return [{'attachment_id': identifier} for identifier in sorted(self._recent_attachment_ids or self._attachment_ids)]
 
     def initial_calls(self, goal):
         """A bounded first route from literal targets, before broad discovery."""
@@ -170,6 +176,12 @@ class ToolRegistry:
         if re.search(r'(?iu)(какие|доступн|готов|available|readiness).{0,50}(инструмент|модел|geoint|geoclip|waypoint)|(?:geoclip|waypoint).{0,25}готов', goal):
             return []
         calls = []
+        if self._recent_attachment_ids and re.search(r'(?iu)фото|изображени|сним[ко]|geoint|geoclip|waypoint',goal):
+            geographical=bool(re.search(r'(?iu)geoint|geoclip|waypoint|мест[оа]|где|географ|координат',goal))
+            for identifier in sorted(self._recent_attachment_ids)[:3]:
+                metadata_only=bool(re.search(r'(?iu)только.{0,45}(метаданн|\bocr\b)|\bimage_metadata\b',goal))
+                name='image_metadata' if metadata_only else 'visual_geoint' if geographical else 'image_understand'
+                calls.append({'name':name,'arguments':{'attachment_id':identifier}})
         for target in route_goal(goal):
             if not target.tools or target.entity_type == 'username':
                 continue
@@ -190,7 +202,8 @@ class ToolRegistry:
                 elif re.search(r'(?iu)\bENS\b|Web3.{0,20}идентификатор',goal) and not re.search(r'(?iu)баланс|актив|транзакц|NFT',goal):args['operation']='identity'
             if name == 'visual_geoint':
                 args.update(methods=['geoclip_predict', 'waypoint_predict'], top_k=3, samples=32)
-            calls.append({'name': name, 'arguments': args})
+            if not any(call['name']==name and call['arguments'].get(spec.argument)==value for call in calls):
+                calls.append({'name': name, 'arguments': args})
             if len(calls) >= 3:
                 break
         return calls
@@ -229,6 +242,15 @@ class ToolRegistry:
         self._download_budget = DownloadBudget(getattr(self.settings, 'agent_download_mb', 20) * 1024 * 1024)
 
     def continuation_calls(self,goal):
+        records=self.evidence.records()
+        identifiers={row.get('details',{}).get('attachment_id') for row in records
+            if isinstance(row.get('details'),dict) and row['details'].get('predictions')}
+        researched={row.get('details',{}).get('attachment_id') for row in records
+            if isinstance(row.get('details'),dict) and row['details'].get('tool')=='geoint_research'}
+        if re.search(r'(?iu)geoint|географ|мест[оа].{0,30}с[ъьеё]|где.{0,30}снят|сравнител.{0,15}фото',goal):
+            pending=[{'name':'geoint_research','arguments':{'attachment_id':identifier}}
+                for identifier in sorted(identifiers-researched) if identifier in self._attachment_ids]
+            if pending:return pending[:2]
         """Independent requested branches; empty NFT results cannot stop identity."""
         from .entity_router import route_goal
         operations=[]
@@ -285,8 +307,10 @@ class ToolRegistry:
         self._blockchain_refs=deepcopy(refs)
 
     def allow_attachments(self, identifiers):
+        self._recent_attachment_ids=set()
         for value in identifiers:
-            if isinstance(value,str) and re.fullmatch(r'img_[a-f0-9]{64}',value): self._attachment_ids.add(value)
+            if isinstance(value,str) and re.fullmatch(r'img_[a-f0-9]{64}',value):
+                self._attachment_ids.add(value);self._recent_attachment_ids.add(value)
 
     @staticmethod
     def timeout_for(name, requested):
@@ -294,6 +318,7 @@ class ToolRegistry:
         # CPU model cold starts are materially slower than HTTP requests.
         # An overall investigation deadline still takes precedence.
         if name=='blockchain_gansar':return max(requested,260)
+        if name=='geoint_research':return max(requested,180)
         return max(requested,240 if name=='visual_geoint' else 180) if spec and spec.execution_mode=='LOCAL_MODEL' else requested
 
     def _secret(self, name):
@@ -356,6 +381,12 @@ class ToolRegistry:
         elif spec.source=='scene_vision':
             from .visual_models.scene import readiness
             base.update(readiness())
+        elif spec.source=='geoint_research':
+            base.update(available=True,state='ready_local',reason='Публичные геоданные и архивные изображения; реальный доступ проверяется выполнением. Исходные пиксели не отправляются.')
+        elif spec.source=='image_reverse_search':
+            configured=bool(self._secret('google_vision_api_key') or self._secret('yandex_search_api_key') and self._secret('yandex_folder_id'))
+            base.update(available=configured,state='ready' if configured else 'optional_unconfigured',
+                reason='Официальный optional API требует ключа и отдельного разрешения передать выбранное фото.' if configured else 'Optional: настройте собственный Google Vision или Yandex Search API. Без ключей работает бесплатная GEOINT-ветка.')
         elif spec.source=='public19':
             from .integrations19.public_tools import readiness
             base.update(readiness(spec.name,self.settings))
@@ -461,6 +492,10 @@ class ToolRegistry:
         return result
 
     def schemas(self, *, cancel_event=None, deadline=None, task=None):
+        local_only=bool(task and re.search(r'(?iu)только.{0,50}(локальн|метаданн|\bocr\b)|без\s+внешних\s+источников|без\s+сетевых\s+запросов',task))
+        metadata_only=bool(task and re.search(r'(?iu)только.{0,45}(метаданн|\bocr\b)',task))
+        self._local_scope=({'image_metadata','image_ocr','evidence_get','evidence_graph'} if metadata_only else
+            {'image_metadata','image_ocr','image_understand','image_compare','visual_geoint','geoclip_predict','waypoint_predict','waypoint_match','shadow_regions','evidence_get','evidence_graph'}) if local_only else None
         from .tool_manifest import relevant_names
         if task and self._attachment_ids:task=task+' · выбранное фото'
         selected=relevant_names(_SPECS,task,self.evidence.records())
@@ -471,6 +506,8 @@ class ToolRegistry:
         rows={spec.name:self._state(spec,cancelled) for spec in _SPECS if spec.name in selected}
         tools = []
         for spec in _SPECS:
+            if self._local_scope is not None and spec.name not in self._local_scope:
+                continue
             if spec.name not in selected or not rows.get(spec.name,{}).get("available"):
                 continue
             if spec.input_schema is not None:
@@ -499,13 +536,13 @@ class ToolRegistry:
                 from .engine.router import _platform
                 from .engine.models import canonical_url
                 arguments['username'] = canonical_url(_platform(arguments['username'], 'telegram'))
-            if spec.source in ('visual_model','scene_vision'):
+            if spec.source in ('visual_model','scene_vision','geoint_research','image_reverse_search'):
                 for field in ('attachment_id','reference_id'):
                     if field in arguments and (not re.fullmatch(r'img_[a-f0-9]{64}',arguments[field]) or arguments[field] not in self._attachment_ids):
                         raise ValueError('Изображение не выбрано пользователем для этой задачи.')
             summary=arguments.get(spec.argument)
             if not isinstance(summary,str):summary=json.dumps(arguments,ensure_ascii=False,sort_keys=True,separators=(',',':'))
-            return summary[:2000],2000 if spec.source=='blockchain' else arguments.get('limit',20),{'structured_arguments':arguments},None
+            return summary[:2000],2000 if spec.source=='blockchain' else 100 if spec.source=='geoint_research' else arguments.get('limit',20),{'structured_arguments':arguments},None
         permitted = {spec.argument, 'limit'} | ({'focus','offset','length'} if spec.source=='evidence_get' else set())
         if not isinstance(args, dict) or set(args) - permitted or spec.argument not in args:
             raise ValueError("Аргументы не соответствуют зарегистрированной схеме.")
@@ -572,6 +609,9 @@ class ToolRegistry:
         return query.text, limit, options, query
 
     def execute(self, name, args, *, cancel_event=None, deadline=None, approved=False, on_event=None):
+        if self._local_scope is not None and name not in self._local_scope:
+            return {'tool':name,'status':'unavailable','query':'','results':[],
+                'error_code':'outside_user_local_scope','limitations':['Пользователь ограничил задачу локальными операциями; внешний запрос не выполнялся.']}
         started=utc_now()
         monotonic_start = time.monotonic()
         token = DOWNLOAD_BUDGET.set(self._download_budget)
@@ -650,7 +690,7 @@ class ToolRegistry:
                 log_contract(error, spec.name)
                 return
             key = record["evidence_id"]
-            if key in records and (spec.source!='blockchain' or records[key].get('details')==record.get('details')) or key not in records and len(records)>=limit:
+            if key in records and (spec.source not in ('blockchain','geoint_research') or records[key].get('details')==record.get('details')) or key not in records and len(records)>=limit:
                 return
             records[key] = record
             self.web_reader.add_evidence([record])
@@ -835,6 +875,16 @@ class ToolRegistry:
             from .geoint_tools import attachment_store
             from .visual_models.scene import execute
             return execute(args,store=self._image_store or attachment_store(),cancel_event=cancelled,deadline=deadline)
+        elif spec.source=='geoint_research':
+            from .geoint_tools import attachment_store
+            from .geoint.research import execute
+            return execute(args,records=self.evidence.records(),settings=self.settings,
+                store=self._image_store or attachment_store(),secret_getter=self._secret,cancel_event=cancelled,deadline=deadline,on_result=on_result)
+        elif spec.source=='image_reverse_search':
+            from .geoint_tools import attachment_store
+            from .geoint.optional_apis import reverse
+            return reverse(args,store=self._image_store or attachment_store(),getter=self._secret,approved=approved,
+                cancel_event=cancelled,deadline=deadline)
         else:raise ValueError('Unsupported structured operation')
         data={**data,'execution_mode':spec.execution_mode,'capability':spec.name,'source_record':True}
         identifier=hashlib.sha256(json.dumps(args,ensure_ascii=False,sort_keys=True).encode('utf-8')).hexdigest()[:24]

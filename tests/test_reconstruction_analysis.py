@@ -128,3 +128,21 @@ def test_source_ids_are_validated_and_labels_are_human_even_mid_stream():
     assert runner._ledger('['+identifier+'](#'+identifier+')') == '[доказательство](#'+identifier+')'
     assert runner._ledger('`'+identifier+'`') == '[доказательство](#'+identifier+')'
     assert runner._ledger('[evidence](#ev_'+'f'*20+')') == '[доказательство не найдено]'
+
+
+def test_new_followup_preserves_previous_report_and_starts_its_own_parts():
+    class Reports(Client):
+        def __init__(self,text):super().__init__([]);self.text=text
+        def stream_report(self,*args,on_text,**kwargs):
+            on_text(self.text)
+            return response(text=self.text)
+    first=AgentRunner(Reports('Первый готовый отчёт.'),Registry(),limits=AgentLimits(max_tokens=1))
+    first.run('fixture',HISTORY)
+    second=AgentRunner(Reports('Новый ответ на уточнение.'),Registry(),limits=AgentLimits(max_tokens=1))
+    result=second.run('fixture',[],resume_state=first.checkpoint(),
+        followup={'text':'Объясни сохранённые выводы.','context':{},'intent':'explain'})
+    saved=second.checkpoint()
+    assert result['text']=='Новый ответ на уточнение.'
+    assert saved['report_parts']==['Новый ответ на уточнение.']
+    assert saved['completed_reports'][0]['parts']==['Первый готовый отчёт.']
+    assert saved['synthesis_reserved_tokens']==8192

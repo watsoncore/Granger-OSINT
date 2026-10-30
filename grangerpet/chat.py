@@ -875,6 +875,7 @@ class ChatWidget(QWidget):
                 self.messages[self._stream_index]['text'] = value
             return
         messages = {'planning': 'Гермиона выбирает доступные инструменты…',
+                    'phase': str(event.get('message') or 'Гермиона анализирует сохранённые сведения…'),
                     'tool_start': 'Проверка источника: ' + str(event.get('tool', ''))[:80],
                     'tool_result': 'Получены результаты источника…', 'analyzing': 'Гермиона сопоставляет найденные сведения…',
                     'final': 'Гермиона формирует итог…', 'error': 'Исследование завершилось с ограничениями.'}

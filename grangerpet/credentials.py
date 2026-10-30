@@ -21,7 +21,8 @@ from .portable_vault import (ARTIFACT_MAGIC, PortableVault, VaultError,
                              atomic_write)
 
 NAMES = frozenset({"google_api_key", "gemini_api_key", "deepseek_api_key", "vk_token", "telegram_api_hash",
-                   "telegram_session", "instagram_session", "virustotal_api_key"})
+                   "telegram_session", "instagram_session", "virustotal_api_key",
+                   'google_vision_api_key','yandex_search_api_key','yandex_folder_id','mapillary_token'})
 
 
 CredentialError = VaultError
