@@ -15,7 +15,7 @@ def main():
     parser.add_argument('--result', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--goal',help='Explicit goal for other saved real observations; default is the public TON regression')
-    parser.add_argument('--chunk-tokens',type=int,choices=(256,384,512),help='QA-only actual gateway output cap to exercise real finish_reason=length continuation')
+    parser.add_argument('--chunk-tokens',type=int,choices=(256,384,512,1024,1536),help='QA-only actual gateway output cap to exercise real finish_reason=length continuation')
     args = parser.parse_args()
     if args.output.exists():
         raise SystemExit('Prior live evidence exists; choose another directory explicitly.')
@@ -36,7 +36,7 @@ def main():
         def schemas(self): return []
         def execute(self, *args, **kwargs): raise AssertionError('No external tool is allowed during synthesis')
         def begin_investigation(self):
-            runner._store.restore(source['results'],[])
+            runner._store.restore(source['results'],source.get('executions',[]))
     source = json.loads(args.result.read_text(encoding='utf-8'))
     goal = ('Разбери сохранённые данные TON-адреса UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd. '
         'Объясни направления и объёмы переводов по активам, крупнейшие операции, основных контрагентов, '

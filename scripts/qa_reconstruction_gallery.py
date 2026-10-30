@@ -97,7 +97,7 @@ def main():
         check('actual_osm_basemap_and_attribution',(dom().get('geo') or {}).get('attribution')=='© OpenStreetMap contributors')
         action('geoint_scroll',{'section':'map'})
         snapshot('actual-geoint-map')
-        action('graph_scroll')
+        action('geoint_scroll',{'section':'header'})
         click('Фото')
         wait(lambda:any(image['loaded'] for image in (dom().get('geo') or {}).get('images',[]) if image['alt']=='Исходная фотография пользователя'))
         check('rendered_pixels_are_local_cache_data',all(image['source_is_local'] for image in dom()['geo']['images']))
@@ -113,7 +113,7 @@ def main():
         wait(lambda:(dom().get('geo') or {}).get('comparison'))
         check('native_side_by_side_comparison',sum(image['loaded'] for image in dom()['geo']['images'])>=2)
         snapshot('actual-photo-comparison')
-        action('graph_scroll')
+        action('geoint_scroll',{'section':'controls'})
         click('Совпадения деталей')
         wait(lambda:(dom().get('geo') or {}).get('overlays')==2)
         check('native_geometry_overlays_without_claiming_verified_location',True)
@@ -121,6 +121,12 @@ def main():
         snapshot('actual-feature-overlays')
         check('no_horizontal_window_overflow',not dom()['overflow'])
         command('stop');process.wait(timeout=30);owned=None
+    except Exception as error:
+        snapshot('failure')
+        (out/'failure-dom.json').write_text(json.dumps(dom(),ensure_ascii=False,indent=2),encoding='utf-8')
+        report.update(passed=False,error_type=type(error).__name__)
+        (out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+        raise
     finally:
         if owned and process and process.poll() is None:
             try:command('stop');process.wait(timeout=30)

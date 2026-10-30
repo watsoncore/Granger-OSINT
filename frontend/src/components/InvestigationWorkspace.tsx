@@ -83,6 +83,7 @@ export function InvestigationWorkspace({state,onSource}:{state:DesktopState;onSo
     let alive=true,timer:ReturnType<typeof setTimeout>|undefined
     worker.current?.terminate();setLayingOut(true)
     const saved=latest.current.query?.trim()?{}:latest.current[positionKey]||{}
+    const addedNodes=visible.nodes.some(node=>!saved[node.id])
     const preserve=!latest.current.query?.trim()&&latest.current.layout_algorithm==='semantic_cards'&&lastManualLayout.current===layoutTick
     lastManualLayout.current=layoutTick
     const apply=(points:Record<string,GraphPoint>,duration:number)=>{
@@ -93,7 +94,7 @@ export function InvestigationWorkspace({state,onSource}:{state:DesktopState;onSo
       for(const [key,value]of Object.entries(current))if(value.pinned&&points[key])points[key]={...value}
       const merged={...current,...points}
       const patch:Partial<GraphView>={[positionKey]:merged,layout_algorithm:'semantic_cards'}
-      if(!latest.current[viewportKey]||latest.current.layout_algorithm!=='semantic_cards')patch[viewportKey]=fitViewport(points,sizeRef.current.width,sizeRef.current.height)
+      if(addedNodes||!latest.current[viewportKey]||latest.current.layout_algorithm!=='semantic_cards')patch[viewportKey]=fitViewport(points,sizeRef.current.width,sizeRef.current.height)
       if(JSON.stringify(current)!==JSON.stringify(merged)||patch[viewportKey])update(patch)
     }
     const request={id:generation,nodes:visible.nodes.map(node=>({...node,attributes:{display_type:node.attributes.display_type,parent_group_id:node.attributes.parent_group_id,chain:node.attributes.chain},evidence_ids:[]})),edges:visible.edges.map(edge=>({...edge,attributes:{},evidence_ids:[],aggregate:undefined})),root:data?.root_id||'',mode:selectedMode,saved,preserve}

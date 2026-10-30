@@ -33,6 +33,14 @@ describe('investigation graph transformations',()=>{
     expect(layoutGraph(nodes,edges,'r','tree').b).not.toEqual(positions.b)
     expect(layoutGraph(nodes,edges,'r','graph',positions)).toEqual(positions)
   })
+  it('places newly expanded transactions outside preserved cards without moving existing nodes',()=>{
+    const initial=['r','a','b','c','d','e','f','g','h','i'].map(id=>node(id)),edges=initial.slice(1).map(n=>edge('r',n.id))
+    const saved=layoutGraph(initial,edges,'r','graph')
+    const added=Array.from({length:10},(_,i)=>node('tx'+i,'transaction'))
+    const result=layoutGraph([...initial,...added],[...edges,...added.map(n=>edge('r',n.id))],'r','graph',saved)
+    initial.forEach(n=>expect(result[n.id]).toEqual(saved[n.id]))
+    added.forEach(n=>initial.forEach(old=>expect(Math.abs(result[n.id].x-result[old.id].x)>=260||Math.abs(result[n.id].y-result[old.id].y)>=120).toBe(true)))
+  })
   it('uses anchored zoom, fit and hit tests in screen coordinates',()=>{
     const points={r:{x:0,y:0},a:{x:100,y:0}},v={x:40,y:50,scale:2}
     expect(zoomAt(v,80,100,2)).toEqual({x:0,y:0,scale:4})

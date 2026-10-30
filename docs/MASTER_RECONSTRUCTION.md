@@ -304,3 +304,16 @@ alias resolver от пользовательского хранилища клю
 говорила «метаданные не переданы», когда проверенный файл не имел GPS. Серийный
 номер камеры не включается. После правки 41 targeted tests passed (13,30 с).
 Frontend после исправления memo: 124 passed, 17 files, build/typecheck passed.
+
+EXE graph-03 успешно выполнил 26 native checks: все размеры/real TON/GitHub/GEOINT,
+выбранный поток 10 событий, restart. Визуальный осмотр обнаружил пересечение новых
+transaction cards с сохранёнными asset positions при раскрытии. Layout теперь
+оставляет существующие позиции и размещает новые карточки вне занятых областей;
+при добавлении узлов viewport включает их. Добавлен тест непересечения новых
+и сохранённых карточек. Frontend: 125 passed / 17 files, build/typecheck passed.
+Новая финальная EXE-приёмка повторяется.
+
+Реальный gateway length-continuation: 4 ответа finish_reason=length, затем stop,
+5 частей, 15133 символа, 506 text events, 43,464 с, 60116 reported tokens,
+0 новых внешних tool calls, нет видимых raw IDs/секрета. Последний ответ просмотрен:
+no_gps_metadata и пустой low-confidence OCR объяснены корректно.
