@@ -1,6 +1,7 @@
 import {describe,it,expect} from 'vitest'
 import {fitViewport,hitNode,hitRelation,layoutGraph,visibleGraph,zoomAt} from './graph-model'
 import type {GraphEntity,GraphRelation,GraphView} from './types'
+import {routeEdges} from './graph-geometry'
 
 const node=(id:string,type='website'):GraphEntity=>({id,type,label:id,attributes:{},evidence_ids:[],verification_status:'source_reported'})
 const edge=(a:string,b:string,id=a+b):GraphRelation=>({id,from_id:a,to_id:b,relation_type:'publishes_link',direction:'directed',evidence_ids:[],verification_status:'verified'})
@@ -48,5 +49,19 @@ describe('investigation graph transformations',()=>{
     const incident=edges.filter(edge=>edge.from_id==='10'||edge.to_id==='10')
     expect(incident.every(edge=>focused.edges.some(visible=>visible.id===edge.id))).toBe(true)
     for(const mode of ['tree','graph'] as const){const result=layoutGraph(nodes,edges,'0',mode);expect(Object.keys(result)).toHaveLength(1000);expect(Object.values(result).every(p=>Number.isFinite(p.x+p.y))).toBe(true)}
+  })
+  it('picks opposing transfers separately and supports self-transfer loops',()=>{
+    const nodes=[node('a','blockchain_address'),node('b','blockchain_address')],positions={a:{x:0,y:0},b:{x:500,y:0}},v={x:200,y:150,scale:1}
+    const edges=[edge('a','b','out'),edge('b','a','in'),edge('a','a','self')]
+    for(const route of routeEdges(edges,positions,v,nodes)){
+      const point=route.points[Math.floor(route.points.length/2)]
+      expect(hitRelation(edges,positions,v,point.x,point.y,nodes)?.id).toBe(route.edge.id)
+    }
+  })
+  it('queries public object fields without matching thousands of internal member IDs or image bytes',()=>{
+    const nodes=[node('root'),{...node('group','entity_group'),attributes:{member_ids:['needle','other'],media:{thumbnail:'needle'}}},
+      {...node('target'),label:'needle',attributes:{parent_group_id:'group'}},...Array.from({length:100},(_,i)=>({...node('extra'+i),attributes:{parent_group_id:'group'}}))]
+    const edges=nodes.slice(2).map(item=>edge('group',item.id))
+    expect(visibleGraph(nodes,edges,'root',{version:1,query:'needle'}).nodes.map(item=>item.id)).toEqual(['root','group','target'])
   })
 })

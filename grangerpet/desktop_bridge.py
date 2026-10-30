@@ -1197,8 +1197,15 @@ class DesktopBridge(QObject):
                 from .public_media import MediaStore
                 media_store=MediaStore()
                 for node in data.get('entities',[]):
+                    attachment=node.get('attributes',{}).get('attachment_id')
+                    if node.get('attributes',{}).get('original_image') and attachment:
+                        try:
+                            from .geoint_tools import attachment_store
+                            node['attributes']['media']={'id':attachment,'kind':'local_attachment','state':'ready','url':'',
+                                'thumbnail':attachment_store().small_preview(attachment,job.cancelled)}
+                        except (OSError,ValueError,CredentialError):pass
                     reference=node.get('attributes',{}).get('media')
-                    if reference:
+                    if reference and reference.get('kind')!='local_attachment':
                         try:
                             cached=media_store.cached(reference)
                             if cached:node['attributes']['media']=cached
@@ -1255,10 +1262,10 @@ class DesktopBridge(QObject):
             self._graph_generation+=1
             self._graph_data={'state':'cancelled','investigation_id':identifier}
             return None
-        if self._graph_data.get('investigation_id')!=identifier or self._graph_data.get('state')!='ready':raise ValueError('Сначала откройте граф этого расследования.')
         if action=='investigation_graph_view_save':
             view=self._workspace.views.save(identifier,payload.get('view'))
             return {'saved':True,'version':view['version']}
+        if self._graph_data.get('investigation_id')!=identifier or self._graph_data.get('state')!='ready':raise ValueError('Сначала откройте граф этого расследования.')
         if action=='investigation_graph_select':
             entity=payload.get('entity_id','');relation=payload.get('relation_id','')
             if entity and entity not in {row['id']for row in self._graph_data['entities']}:raise ValueError('Узел не относится к открытому графу.')
@@ -1288,7 +1295,12 @@ class DesktopBridge(QObject):
                 {**item,'attributes':{**item['attributes'],'media':value}} if item['id']==entity else item
                 for item in self._graph_data.get('entities',[])]}
         set_media({**reference,'state':'loading'})
-        def prepare():return asyncio.run(MediaStore().fetch(reference,cancel_event=job.cancelled))
+        def prepare():
+            from .agent_browser import PageReadError
+            try:return asyncio.run(MediaStore().fetch(reference,cancel_event=job.cancelled))
+            except (PageReadError,OSError,ValueError,CredentialError) as error:
+                return {**reference,'state':'unavailable','error_code':getattr(error,'code','media_unavailable'),
+                    'error':'Изображение недоступно или отклонено проверкой формата/доступа.'}
         job=UiJob(prepare,self);self._media_job=job
         def ready(value,error):
             if self._media_job is job:self._media_job=None

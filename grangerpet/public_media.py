@@ -82,6 +82,8 @@ class MediaStore:
                 'original_base64':base64.b64encode(body).decode('ascii')}
             atomic_write(self._path(reference['id']),CredentialsStore._protect(json.dumps(value,ensure_ascii=False).encode('utf-8')))
             return {k:v for k,v in value.items() if k!='original_base64'}
+        except (Image.DecompressionBombWarning,Image.DecompressionBombError):
+            raise ValueError('Public media resolution exceeds budget') from None
         finally:_SLOTS.release()
 
     def read_original(self, reference):

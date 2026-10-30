@@ -63,6 +63,7 @@ def parse_xml(text, base_url, public_url, max_text=12_000):
     def child_text(element,name):
         return next((clean(''.join(c.itertext())) for c in element if local(c.tag)==name),'')
     links=[];records=[];sections=[]
+    parents={child:parent for parent in nodes for child in parent}
     for element in nodes:
         tag=local(element.tag)
         if tag=='link':
@@ -70,7 +71,11 @@ def parse_xml(text, base_url, public_url, max_text=12_000):
             try:
                 from urllib.parse import urljoin
                 url=public_url(urljoin(base_url,candidate.strip()))
-                if len(links)<60 and url not in [r['url'] for r in links]:links.append({'url':url,'text':clean(element.attrib.get('title',''),180)})
+                parent=parents.get(element)
+                record_link=parent is not None and local(parent.tag) in ('entry','item')
+                if len(links)<60 and url not in [r['url'] for r in links]:links.append({'url':url,'text':clean(element.attrib.get('title',''),180),
+                    'content_region':'record_field' if record_link else 'unclassified','extraction_method':'inert_xml_parser',
+                    'selector':(local(parent.tag)+'/' if parent is not None else '')+'link'})
             except (RuntimeError,ValueError):pass
         if tag in ('item','entry') and len(records)<100:
             record={}

@@ -24,11 +24,14 @@ def _number(value, low=-10_000_000, high=10_000_000):
 def validate_view(value):
     if not isinstance(value,dict): raise ValueError('Graph view must be an object')
     allowed={'version','mode','positions','tree_positions','viewport','tree_viewport','selected_id',
-        'selected_relation','expanded','collapsed','filters','query'}
+        'selected_relation','expanded','collapsed','filters','query','layout_algorithm','inspector_width','inspector_hidden'}
     if set(value)-allowed or value.get('version',1)!=1: raise ValueError('Unsupported graph view')
     result=deepcopy(value)
     result['version']=1
     if result.get('mode','overview') not in ('overview','tree','graph','evidence','geo'):raise ValueError('Invalid graph mode')
+    if 'layout_algorithm'in result and result['layout_algorithm']!='semantic_cards':raise ValueError('Invalid graph algorithm')
+    if 'inspector_width'in result:_number(result['inspector_width'],260,560)
+    if 'inspector_hidden'in result and type(result['inspector_hidden']) is not bool:raise ValueError('Invalid graph inspector')
     for key in ('positions','tree_positions'):
         positions=result.get(key,{})
         if not isinstance(positions,dict) or len(positions)>5000:raise ValueError('Invalid graph positions')
@@ -89,10 +92,14 @@ class GraphViewStore:
         # This is a new v1 sidecar. Never migrate or replace an unknown version
         # without preserving its original protected bytes for rollback.
         if path.exists():
-            try:self.load(identifier)
+            try:previous=self.load(identifier)
             except (ValueError,UnicodeError):
+                previous={}
                 backup=path.with_name(path.name+'.recovery-backup')
                 if not backup.exists():atomic_write(backup,path.read_bytes())
                 if backup.read_bytes()!=path.read_bytes():raise ValueError('Graph recovery backup verification failed')
+            if value.get('layout_algorithm')=='semantic_cards' and previous.get('layout_algorithm')!='semantic_cards':
+                backup=path.with_name(path.name+'.layout-v1-backup')
+                if not backup.exists():atomic_write(backup,path.read_bytes())
         atomic_write(path,CredentialsStore._protect(encoded))
         return value

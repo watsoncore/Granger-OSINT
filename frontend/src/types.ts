@@ -26,10 +26,12 @@ export interface GraphEntity {
 export interface GraphRelation {
   id:string; from_id:string; to_id:string; relation_type:string; direction:string; evidence_ids:string[]
   verification_status:Verification; source_urls?:string[]; attributes?:Record<string,unknown>; claim_kind?:string
-  aggregate?: { count:number; amount:string|null; asset:string; asset_key?:string;contract?:string|null;first_seen?:string|null;last_seen?:string|null;known_amount_count:number; unknown_amount_count:number; transaction_ids:string[]; coverage?:string; owner_verified:false }
+  provenance?:{subject:string;predicate:string;object:string;source_url:string;source_record_id?:string|null;observed_text_or_field:string;observed_field?:string;extraction_method:string;verification_status:Verification;observed_at?:string|null}[]
+  aggregate?: { count:number; amount:string|null; asset:string;asset_label?:string; asset_key?:string;contract?:string|null;first_seen?:string|null;last_seen?:string|null;known_amount_count:number; unknown_amount_count:number; transaction_ids:string[]; coverage?:string; owner_verified:false }
 }
 export interface GraphView {
   version:1; mode?:GraphMode; positions?:Record<string,GraphPoint>; tree_positions?:Record<string,GraphPoint>
+  layout_algorithm?:'semantic_cards';inspector_width?:number;inspector_hidden?:boolean
   viewport?:GraphViewport; tree_viewport?:GraphViewport; selected_id?:string; selected_relation?:string
   expanded?:string[]; collapsed?:string[]; query?:string
   filters?: {types?:string[];statuses?:Verification[];include_background?:boolean;show_sources?:boolean;show_transactions?:boolean}

@@ -92,3 +92,24 @@ def test_media_completion_replaces_graph_without_mutating_previous_renderer_stat
     wait(lambda:bridge._media_job is None)
     assert before['entities'][0]['attributes']['media']==reference
     assert bridge._graph_data['entities'][0]['attributes']['media']['state']=='ready'
+
+
+def test_media_provider_failure_stays_in_node_without_global_error_toast(bridge,monkeypatch):
+    from grangerpet.agent_browser import PageReadError
+    from unittest.mock import Mock
+    original,row=prepare(bridge);node=bridge._graph_data['entities'][0]
+    node['attributes']['media']={'id':'media_'+'a'*64,'url':'https://example.org/image.png','evidence_id':row['evidence_id']}
+    async def unavailable(*args,**kwargs):raise PageReadError('unsupported_content_type')
+    report=Mock();monkeypatch.setattr('grangerpet.public_media.MediaStore.fetch',unavailable)
+    monkeypatch.setattr('grangerpet.errors.report_exception',report)
+    bridge._load_node_media(original['id'],node['id']);wait(lambda:bridge._media_job is None)
+    assert bridge._graph_data['entities'][0]['attributes']['media']['state']=='unavailable'
+    report.assert_not_called()
+
+
+def test_debounced_view_save_after_switch_does_not_modify_current_graph_or_raise(bridge):
+    original,row=prepare(bridge)
+    bridge._graph_data={'state':'loading','investigation_id':'f'*32}
+    bridge.dispatch('investigation_graph_view_save',{'id':original['id'],'view':{'version':1,'mode':'graph','positions':{}}})
+    assert bridge._graph_data['investigation_id']=='f'*32
+    assert bridge._workspace.views.load(original['id'])['mode']=='graph'

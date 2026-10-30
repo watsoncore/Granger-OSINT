@@ -15,3 +15,12 @@
 .graph-node-media { margin:12px 0; overflow-wrap:anywhere; }
 .graph-node-media img { display:block; max-width:100%; max-height:220px; border-radius:6px; }
 .graph-node-media figcaption { font-size:11px; color:var(--muted); margin:6px 0; }
+.search-workspace.page-content{max-width:none;padding:24px 28px 42px}
+.investigation-workspace.is-expanded{position:fixed;inset:54px 12px 12px;z-index:25;margin:0;display:flex;flex-direction:column;background:var(--panel);box-shadow:0 12px 55px var(--shadow-color);border:1px solid var(--border-strong);border-radius:10px;overflow:hidden}
+.is-expanded>.investigation-heading,.is-expanded>.investigation-counts,.is-expanded>.investigation-tabs,.is-expanded>.graph-toolbar,.is-expanded>.graph-legend{flex-shrink:0}
+.is-expanded>.investigation-heading{padding:12px 18px}.is-expanded .investigation-heading h2{max-height:48px;overflow:hidden;font-size:15px}.is-expanded .investigation-heading select{max-width:340px}
+.is-expanded>.investigation-counts{padding:5px 18px 10px}.is-expanded>.investigation-graph{flex:1;height:auto;min-height:260px}.is-expanded>.graph-warnings{max-height:100px;overflow:auto;flex-shrink:0}.is-expanded>.geoint-view{overflow:auto;min-height:0;flex:1}.is-expanded .geo-map{height:clamp(340px,60vh,900px)}
+.investigation-tabs>.button{margin-left:auto;border-bottom:0;min-height:30px;padding:6px 9px;font-size:11px}
+.graph-inspector{max-width:75%;flex-shrink:0;border-left:0}.graph-inspector-resizer{flex:0 0 6px;width:6px;background:var(--border);cursor:col-resize;touch-action:none;z-index:6}.graph-inspector-resizer:hover,.graph-inspector-resizer:focus-visible{background:var(--accent)}
+.graph-group-summary{font-size:12px;line-height:1.7;margin:14px 0}.graph-group-summary>.button{margin:6px 4px 0 0}.graph-provenance{margin-top:15px;border-top:1px solid var(--border);padding-top:12px;font-size:12px;line-height:1.7;overflow-wrap:anywhere}.graph-provenance p{margin:6px 0;color:var(--muted)}.graph-provenance summary{cursor:pointer;color:var(--text)}
+@media(max-width:760px){.investigation-workspace.is-expanded{inset:48px 4px 4px}.is-expanded .investigation-heading{gap:5px}.is-expanded .investigation-heading select{max-width:100%}.is-expanded .graph-legend{font-size:9px;padding:6px 9px}.graph-inspector-resizer{position:absolute;right:min(360px,75%);top:0;bottom:0}}

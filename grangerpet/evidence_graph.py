@@ -13,7 +13,7 @@ from .engine.models import canonical_url
 
 ENTITY_TYPES=('username','public_profile','organization','domain','email','public_post','phone','image',
     'geographic_candidate','coordinate','repository','infrastructure_asset','blockchain_address','transaction','service',
-    'root_entity','telegram_channel','social_profile','github_profile','github_repository','website','source','asset','web3_identity')
+    'root_entity','telegram_channel','social_profile','github_profile','github_repository','website','source','asset','web3_identity','entity_group')
 
 
 def verification(value):
@@ -36,7 +36,10 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
     if type(limit) is not int or not 1<=limit<=(5000 if full else 100) or type(offset) is not int or not 0<=offset<=10000:
         raise ValueError('Invalid graph page')
     if set(entity_types)-set(ENTITY_TYPES):raise ValueError('Unknown entity type')
-    nodes={};edges={};used=set();transfers={};bad_fields=0;truncated=False
+    nodes={};edges={};used=set();transfers={};bad_fields=0;truncated=False;technical_exclusions=[]
+    geo_candidates={};geo_references=[]
+    from .entity_router import route_goal
+    explicit_urls={canonical_url(target.canonical_url) for target in route_goal(goal) if target.canonical_url}
     def node(kind,key,label,record,**attributes):
         nonlocal truncated
         key=str(key);eid=record.get('evidence_id') if record else None;identifier=_id(kind,key)
@@ -50,6 +53,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         source=str(record.get('platform',''))[:160] if record else ''
         if source and source not in current['source']:current['source'].append(source)
         if eid:used.add(eid)
+        if current['attributes'].get('reference_only') and attributes.get('reference_only') is False:current['label']=str(label)[:300]
         if 'reference_only' in attributes:
             attributes['reference_only'] = current['attributes'].get('reference_only', True) and attributes['reference_only']
         if current['attributes'].get('display_type') == 'telegram_channel': attributes.pop('display_type', None)
@@ -82,6 +86,22 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         if eid and eid not in current['evidence_ids']:current['evidence_ids'].append(eid)
         if record and record.get('url') and record['url'] not in current['source_urls']:current['source_urls'].append(record['url'])
         if record and record.get('verification')=='contradictory':current['verification_status']='contradicted'
+        data=(record or {}).get('details') or {};origin=(record or {}).get('provenance') or {}
+        field=attributes.get('observed_field') or {
+            'sent_from':'from_address','sent_to':'to_address','source_labels_address':'label',
+            'uses_public_identifier':'login/username/screen_name','has_geographic_hypothesis':'predictions',
+            'metadata_reports_coordinate':'metadata.gps','transfers':'event_id,from_address,to_address,amount_decimal,asset',
+            'source_reports_asset':'target_address,asset_id/contract','reference_source_reports_coordinate':'latitude,longitude',
+            'repository_namespace':'url.path','source_attributes_authorship':'author','published_on_domain':'url.hostname',
+            'supported_by':'evidence_id','profile_mentions_organization':'company'}.get(kind,kind)
+        observation={'subject':a,'predicate':kind,'object':b,'source_url':(record or {}).get('url',''),
+            'source_record_id':eid,'observed_text_or_field':attributes.get('observed_text') or field,'observed_field':field,
+            'extraction_method':attributes.get('extraction_method') or data.get('reading_method') or data.get('acquisition') or origin.get('acquisition') or ('user_scope' if not record else 'structured_adapter_result'),
+            'verification_status':current['verification_status'],'observed_at':data.get('retrieved_at') or data.get('collected_at') or origin.get('obtained_at') or (record or {}).get('obtained_at')}
+        origins=current.setdefault('provenance',[])
+        if observation not in origins:
+            if len(origins)<100:origins.append(observation)
+            else:current['provenance_truncated']=True
         return current
     def url_node(url,record,*,reference=False,label=''):
         from .entity_router import route
@@ -110,6 +130,10 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         record=current_observation(record)
         details=record.get('details') or {};kind=record.get('type');url=record.get('url','');platform=str(record.get('platform',''))
         if not isinstance(details,dict) or not isinstance(url,str):bad_fields+=1;continue
+        from .link_relevance import technical_url
+        if url and technical_url(url) and canonical_url(url) not in explicit_urls:
+            technical_exclusions.append({'evidence_id':record.get('evidence_id'),'url':url,'reason':'site_navigation_or_media_metadata'})
+            continue
         resource=url or str(record.get('id',''));label=record.get('title') or resource
         try:host=urlsplit(url).hostname if url else None
         except ValueError:bad_fields+=1;continue
@@ -117,7 +141,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                     if key in details and details[key] is not None and not isinstance(details[key],str)),None)
         if wrong:bad_fields+=1;continue
         current=None
-        if (kind in ('profile','community') or host=='t.me') and url:
+        if (kind in ('profile','community') or host=='t.me' and kind not in ('post','publication')) and url:
             canonical=canonical_url(details.get('canonical_url','')) or canonical_url(url)
             if host=='t.me':
                 from .entity_router import route
@@ -134,14 +158,29 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                 org=node('organization',platform+'|'+company,company,record,statement='profile_field_not_independent_employment_verification')
                 edge(current,org,'profile_mentions_organization',record,'self_reported')
         elif kind in ('post','publication') and url:
-            current=node('public_post',url,label,record,url=url,published_at=details.get('created_at') or details.get('date_utc'))
+            current=node('public_post',url,label,record,url=url,published_at=details.get('created_at') or details.get('date_utc'),author=details.get('author'))
             author=details.get('author')
             if isinstance(author,str) and author and author not in ('[deleted]','[removed]'):
                 author_node=node('username',platform+'|'+author,author,record,platform=platform)
                 edge(current,author_node,'source_attributes_authorship',record)
         elif kind=='repository' and url:current=node('repository',canonical_url(url),label,record,url=canonical_url(url),reference_only=False,display_type='github_repository' if host=='github.com' else 'repository')
-        elif kind=='street_image' and url:
-            current=node('image',url,label,record,url=url,reference_photo=True,license=details.get('license'),attribution=details.get('attribution'))
+        elif kind=='geoint_candidate':
+            lat,lon=details.get('latitude'),details.get('longitude');attachment=details.get('attachment_id')
+            if isinstance(attachment,str) and type(lat) in (int,float) and type(lon) in (int,float) and math.isfinite(lat+lon) and abs(lat)<=90 and abs(lon)<=180:
+                current=node('geographic_candidate',attachment+f'|{lat:.5f}|{lon:.5f}',details.get('region') or f'Гипотеза: {lat:.3f}, {lon:.3f}',record,
+                    latitude=lat,longitude=lon,candidate_id=details.get('candidate_id'),attachment_id=attachment,
+                    geographic_status=details.get('verification_status','model_candidate'),calibrated_probability=False,
+                    raw_prediction_only=False,
+                    region=details.get('region'),source_model=details.get('source_model'))
+                geo_candidates[(attachment,details.get('candidate_id'))]=current
+                if current and details.get('region'):nodes[current]['label']=details['region'][:300]
+        elif kind in ('street_image','reference_image') and url:
+            current=node('image',details.get('image_url') or url,label,record,url=url,reference_photo=True,
+                license=details.get('license'),attribution=details.get('author') or details.get('attribution'),
+                captured_at=details.get('captured_at'),image_url=details.get('image_url'),
+                latitude=details.get('latitude'),longitude=details.get('longitude'),
+                comparison_status=(details.get('comparison') or {}).get('status'),geolocation_verified=False)
+            if kind=='reference_image':geo_references.append((current,details.get('attachment_id'),details.get('candidate_id'),record))
             lat,lon=details.get('latitude'),details.get('longitude')
             if type(lat) in (int,float) and type(lon) in (int,float) and math.isfinite(lat+lon) and abs(lat)<=90 and abs(lon)<=180:
                 coordinate=node('coordinate',str(lat)+'|'+str(lon),f'{lat}, {lon}',record,latitude=lat,longitude=lon)
@@ -155,6 +194,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             identity=details.get('asset_id') or details.get('contract') or record.get('id')
             current=node('asset',chain+'|'+_wallet(chain,identity),label,record,chain=chain,url=url,asset_type=kind,
                 asset_id=identity,
+                symbol=details.get('symbol') or details.get('name') or label,
                 contract=details.get('contract'),amount=details.get('amount_decimal'),image_url=details.get('image_url'),
                 ownership_status=details.get('ownership_status') or details.get('holding_status'),metadata_verified=False)
             wallet=details.get('target_address')
@@ -238,14 +278,19 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         attachment=details.get('attachment_id') or image_details.get('id')
         image=None
         if isinstance(attachment,str) and re.fullmatch(r'img_[a-f0-9]{64}',attachment):
-            image=node('image',attachment,attachment,record,attachment_id=attachment)
+            image=node('image',attachment,'Исходная фотография',record,attachment_id=attachment,original_image=True)
+            # A reference's URL/preview belongs to the reference, never the original.
+            if image:nodes[image]['attributes'].pop('media',None)
+            if image and details.get('tool')=='image_understand':nodes[image]['attributes']['scene_description']=details.get('description')
+            if current and kind=='geoint_candidate':edge(image,current,'has_geographic_hypothesis',record,'model_hypothesis',observed_field='latitude,longitude,verification_status')
         predictions=details.get('predictions') if isinstance(details.get('predictions'),list) else []
         for prediction in predictions[:20]:
             if not image or not isinstance(prediction,dict):continue
             lat,lon=prediction.get('latitude',prediction.get('lat')),prediction.get('longitude',prediction.get('lon'))
             if type(lat) not in (int,float) or type(lon) not in (int,float) or not math.isfinite(lat+lon) or not -90<=lat<=90 or not -180<=lon<=180:continue
-            candidate=node('geographic_candidate',attachment+'|'+str(details.get('model_version') or platform)+'|'+str(lat)+'|'+str(lon),
-                f'{lat}, {lon}',record,latitude=lat,longitude=lon,rank=prediction.get('rank'),raw_score=prediction.get('raw_score'),model=details.get('model_version'),calibrated_probability=False)
+            candidate=node('geographic_candidate',attachment+f'|{lat:.5f}|{lon:.5f}',
+                f'Гипотеза: {lat:.3f}, {lon:.3f}',record,attachment_id=attachment,latitude=lat,longitude=lon,rank=prediction.get('rank'),raw_score=prediction.get('raw_score'),model=details.get('model_version'),calibrated_probability=False)
+            if candidate and not nodes[candidate]['attributes'].get('candidate_id'):nodes[candidate]['attributes']['raw_prediction_only']=True
             edge(image,candidate,'has_geographic_hypothesis',record,'model_hypothesis')
         metadata=details.get('metadata') if isinstance(details.get('metadata'),dict) else {};gps=metadata.get('gps')
         if image and isinstance(gps,dict):
@@ -268,15 +313,25 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                 edge(domain_id,endpoint,'historically_published_contact',record,'historical_source_reported')
         if full and current:
             links=details.get('links') if isinstance(details.get('links'),list) else []
+            from .link_relevance import substantive_link,technical_url
+            navigation=deepcopy(details.get('navigation_links') or [])
+            unclassified=[]
             for link in links[:100]:
                 if not isinstance(link,dict) or not isinstance(link.get('url'),str):continue
+                if not substantive_link(link):
+                    (navigation if technical_url(link['url']) or link.get('content_region')=='navigation' else unclassified).append(deepcopy(link))
+                    continue
                 linked=canonical_url(link['url'])
                 link_host=urlsplit(linked).hostname
                 if not linked or link_host in ('telegram.org','desktop.telegram.org','apps.apple.com','play.google.com'):continue
                 target=url_node(linked,record,reference=True,label=str(link.get('text') or '')[:150])
                 if target==current:continue
                 observed=details.get('reading_method') in ('direct_http','browser_dom') and bool(details.get('body_sha256'))
-                edge(current,target,'publishes_link',record,'verified' if observed else 'source_reported',observed_url=linked,identity_inference=False)
+                edge(current,target,'publishes_link',record,'verified' if observed else 'source_reported',observed_url=linked,identity_inference=False,
+                    observed_field='links.url',observed_text=link.get('text') or linked,extraction_method=link['extraction_method'],
+                    content_region=link['content_region'],selector=link.get('selector'))
+            if navigation:nodes[current]['attributes']['navigation_metadata']=navigation[:100]
+            if unclassified:nodes[current]['attributes']['unclassified_links']=unclassified[:100]
             if host=='github.com' and kind=='repository':
                 parts=urlsplit(url).path.strip('/').split('/')
                 if len(parts)>=2:
@@ -286,6 +341,14 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             source=node('source',source_key,str(record.get('platform') or 'Локальное свидетельство'),record,url=url,
                 obtained_at=(record.get('provenance') or {}).get('obtained_at') if isinstance(record.get('provenance'),dict) else None)
             edge(current,source,'supported_by',record,'source_reported')
+    for reference,attachment,candidate_id,record in geo_references:
+        candidate=geo_candidates.get((attachment,candidate_id))
+        if candidate:edge(candidate,reference,'reference_for_candidate',record,'unverified',observed_field='candidate_id,image_url',geolocation_verified=False)
+        comparison=(record.get('details') or {}).get('comparison') or {}
+        if comparison.get('status')=='complete':
+            original=_id('image',attachment)
+            edge(original,reference,'locally_compared_with',record,'model_hypothesis',observed_field='comparison',
+                match_count=comparison.get('match_count'),geolocation_verified=False)
     wallet_events={};wallet_peers={};wallet_assets={}
     for (a,b,asset_key),group in transfers.items():
         if cancel_event and cancel_event.is_set():raise InterruptedError('Graph cancelled')
@@ -334,11 +397,53 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             elif target.canonical_url:identifier=url_node(target.canonical_url,None,reference=True)
             else:continue
             if identifier:scoped.append(identifier)
+        if not scoped:scoped=[identifier for identifier,value in nodes.items() if value['attributes'].get('original_image')]
         if len(scoped)==1:root_id=scoped[0]
         else:
             root_id=node('root_entity',goal[:12000],'Исследование',None,scope_only=True)
             for identifier in scoped:edge(root_id,identifier,'investigates',None,'unverified',scope_only=True)
         if root_id:nodes[root_id]['attributes']['is_root']=True
+    asset_labels={value['attributes'].get('chain','')+'|'+_wallet(value['attributes'].get('chain',''),value['attributes'].get('contract') or value['attributes'].get('asset_id')):
+        value['attributes'].get('symbol') or value['label'] for value in nodes.values() if value['type']=='asset'}
+    for relation in edges.values():
+        aggregate=relation.get('aggregate')
+        if not aggregate:continue
+        aggregate['asset_label']=asset_labels.get(aggregate['asset_key']) or aggregate['asset']
+        a,b=relation['from_id'],relation['to_id']
+        if root_id and a!=b and root_id in (a,b):
+            peer=b if a==root_id else a
+            nodes[peer]['attributes'].setdefault('flow_summaries',[]).append({
+                'direction':'from_target' if a==root_id else 'to_target','count':aggregate['count'],
+                'amount':aggregate['amount'],'asset':aggregate['asset_label'],'asset_key':aggregate['asset_key'],
+                'unknown_amount_count':aggregate['unknown_amount_count']})
+    for value in nodes.values():
+        if value['attributes'].get('flow_summaries'):value['attributes']['flow_summaries'].sort(key=lambda flow:-flow['count'])
+    if full and root_id:
+        buckets={}
+        for identifier,value in list(nodes.items()):
+            if identifier==root_id or value['attributes'].get('technical'):continue
+            kind=value['type'];attrs=value['attributes'];url=attrs.get('url') or ''
+            if kind not in ('public_post','website','repository','asset','blockchain_address'):continue
+            parts=urlsplit(url);host=parts.hostname or attrs.get('chain') or ''
+            if kind=='public_post':scope=(attrs.get('author') or parts.path.strip('/').split('/')[0]) if host=='t.me' else attrs.get('author') or host
+            elif kind=='repository':scope=parts.path.strip('/').split('/')[0]
+            elif kind=='asset':scope=attrs.get('collection') or attrs.get('asset_type') or 'assets'
+            elif kind=='blockchain_address':scope='Остальные контрагенты'
+            else:scope=host
+            if host:buckets.setdefault((kind,host,str(scope)),[]).append(identifier)
+        names={'public_post':'Публикации','website':'Страницы','repository':'Репозитории','asset':'Активы','blockchain_address':'Контрагенты'}
+        for (kind,host,scope),members in buckets.items():
+            if kind=='blockchain_address':
+                members=sorted(members,key=lambda identifier:-(nodes[identifier]['attributes'].get('transaction_count') or 0))[8:]
+            if len(members)<12:continue
+            group=node('entity_group',kind+'|'+host+'|'+scope,f'{names[kind]} · {scope or host}',None,
+                member_ids=members,member_count=len(members),grouped_type=kind,scope=scope,grouping_only=True)
+            if not group:continue
+            nodes[group]['evidence_ids']=list(dict.fromkeys(eid for member in members for eid in nodes[member]['evidence_ids']))[:150]
+            edge(root_id,group,'groups_observations',None,'unverified',grouping_only=True,observed_field='member_ids',extraction_method='local_presentation_grouping')
+            for member in members:
+                nodes[member]['attributes']['parent_group_id']=group
+                edge(group,member,'group_contains',None,'unverified',grouping_only=True,observed_field='member_ids',extraction_method='local_presentation_grouping')
     all_nodes=list(nodes.values());all_edges=list(edges.values())
     if center:
         adjacent={center}
@@ -354,6 +459,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
     return {'entities':selected,'relations':selected_edges,'total_entities':len(all_nodes),'total_relations':len(all_edges),
         'next_offset':offset+len(selected) if offset+len(selected)<len(all_nodes) else None,'evidence_ids':sorted(used),
         'root_id':root_id,'source_records_examined':min(len(records),cap),'truncated_input':len(records)>cap or truncated,
+        'technical_exclusions':technical_exclusions,
         'relations_truncated':len(page_edges)>edge_limit,'invalid_fields':bad_fields,
         'warnings':['Граф отражает основания источников. Одинаковый никнейм, метка сервиса и model score не устанавливают общую личность.']+
             (['Достигнут предел графа; показана ограниченная часть сохранённых данных.'] if truncated or len(records)>cap else [])+

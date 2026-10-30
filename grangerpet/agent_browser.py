@@ -204,6 +204,7 @@ class PageParser(HTMLParser):
     """Extract bounded inert content; never evaluates HTML, scripts or JSON-LD."""
     _EXCLUDE = {'script', 'style', 'nav', 'footer', 'header', 'aside', 'svg', 'template', 'form'}
     _BREAK = {'p','div','section','article','main','br','li','tr','h1','h2','h3','h4','h5','h6','blockquote'}
+    _VOID={'area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'}
 
     def __init__(self, base_url):
         super().__init__(convert_charrefs=True)
@@ -222,11 +223,50 @@ class PageParser(HTMLParser):
         self._nodes=0
         self._json_length=0
         self.login_form=False
+        self._semantic_stack=[]
+        self._anchor_context={}
+        self.navigation_links=[]
+
+    def _region(self,tag,values):
+        from .link_relevance import CONTENT_REGIONS
+        parent=self._semantic_stack[-1][1] if self._semantic_stack else 'unclassified'
+        labels=(values.get('class','')+' '+values.get('id','')+' '+values.get('role','')).lower()
+        tokens=set(re.findall(r'[a-z][a-z0-9_-]*',labels))
+        if parent=='navigation' or tag in ('nav','footer','header','aside','form') or tokens & {
+            'navigation','banner','contentinfo','complementary','menu','menubar','dialog','navbar','footer','sidebar',
+            'site-footer','site-header','cookie-banner','cookie-consent','breadcrumbs','breadcrumb','global-nav','header-menu'}:
+            return 'navigation'
+        if tag in ('main','article') or values.get('role')=='main':return 'main_content'
+        if tokens & {'markdown-body','readme','post-content','entry-content','article-body','js-profile-editable-area','user-profile-bio','vcard-details'}:
+            return 'authored_content'
+        if values.get('itemprop') in ('url','email','sameAs') and urlsplit(self.base_url).hostname=='github.com':return 'profile_field'
+        if parent in CONTENT_REGIONS:return parent
+        if tag in ('p','blockquote','pre','td'):return 'content_block'
+        return parent
+
+    def _finish_anchor(self):
+        if self._anchor is None:return
+        try:
+            from .link_relevance import technical_url
+            url=public_url(urljoin(self.base_url,self._anchor))
+            row={'url':url,'text':_clean(''.join(self._anchor_parts),180),**self._anchor_context,
+                'extraction_method':'inert_html_parser'}
+            if technical_url(url):row['content_region']='navigation'
+            bucket=self.navigation_links if row['content_region']=='navigation' else self.links
+            if len(bucket)<100 and not any(item['url']==url and item.get('content_region')==row['content_region'] for item in bucket):bucket.append(row)
+        except PageReadError:pass
+        self._anchor=None
 
     def handle_starttag(self, tag, attrs):
         self._nodes+=1
         if self._nodes>25_000:raise PageReadError('html_complexity_limit')
         tag = tag.lower(); values = {key:value or '' for key,value in attrs}
+        region=self._region(tag,values)
+        if tag not in self._VOID:self._semantic_stack.append((tag,region))
+        if tag=='a' and values.get('href') and not any(item in self._excluded for item in ('script','style','svg','template')):
+            self._finish_anchor()
+            self._anchor,self._anchor_parts=values['href'],[]
+            self._anchor_context={'content_region':region,'selector':'>'.join(item[0] for item in self._semantic_stack[-8:])+'[href]'}
         if tag=='input' and values.get('type','').casefold()=='password':self.login_form=True
         if tag == 'script':
             if values.get('type','').lower() in ('','module','text/javascript','application/javascript'):
@@ -259,8 +299,6 @@ class PageParser(HTMLParser):
             self._title = True
         if tag in ('h1','h2','h3','h4','h5','h6'):
             self._heading, self._heading_parts = tag, []
-        if tag == 'a' and values.get('href'):
-            self._anchor, self._anchor_parts = values['href'], []
         if tag == 'table' and len(self.tables) < 10:
             self._table = []
         if tag == 'tr' and self._table is not None:
@@ -279,7 +317,8 @@ class PageParser(HTMLParser):
         if self._json_capture and self._json_length < 100000:
             self._json_parts.append(data)
             self._json_length+=len(data)
-        if self._excluded:
+        if self._anchor is not None:self._anchor_parts.append(data)
+        if self._excluded or self._semantic_stack and self._semantic_stack[-1][1]=='navigation':
             return
         if self._title:
             self.title_parts.append(data)
@@ -287,11 +326,14 @@ class PageParser(HTMLParser):
         self.parts.append(data)
         if self._main:self.main_parts.append(data)
         if self._heading:self._heading_parts.append(data)
-        if self._anchor is not None:self._anchor_parts.append(data)
         if self._cell is not None:self._cell.append(data)
 
     def handle_endtag(self, tag):
         tag = tag.lower()
+        if tag=='a':self._finish_anchor()
+        for index in range(len(self._semantic_stack)-1,-1,-1):
+            if self._semantic_stack[index][0]==tag:
+                del self._semantic_stack[index:];break
         if tag == 'script' and self._json_capture:
             try:
                 item = json.loads(''.join(self._json_parts))
@@ -310,13 +352,6 @@ class PageParser(HTMLParser):
         if tag == self._heading:
             if len(self.headings)<30:self.headings.append({'level':int(tag[1]),'text':_clean(''.join(self._heading_parts),300)})
             self._heading=None
-        if tag == 'a' and self._anchor is not None:
-            try:
-                url = public_url(urljoin(self.base_url,self._anchor))
-                if len(self.links)<60 and not any(row['url']==url for row in self.links):
-                    self.links.append({'url':url,'text':_clean(''.join(self._anchor_parts),180)})
-            except PageReadError:pass
-            self._anchor=None
         if tag in ('td','th') and self._cell is not None:
             if len(self._row)<12:self._row.append(_clean(''.join(self._cell),300))
             self._cell=None
@@ -347,7 +382,8 @@ class PageParser(HTMLParser):
         if records:structured['records']=records
         return {'title':_clean(''.join(self.title_parts),300), 'text':text, 'headings':self.headings,
                 'metadata':self.metadata, 'tables':self.tables, 'json_ld':self.json_ld, 'links':self.links,
-                'structured_data':structured,'script_sources':self.script_sources,
+                'structured_data':structured,'script_sources':self.script_sources,'navigation_links':self.navigation_links,
+                'link_extraction_version':1,
                 'javascript_shell':len(text)<120 and self.script_count>0 and not records}
 
 
@@ -617,6 +653,7 @@ class PublicPageReader:
                      'content_length':len(data['text']), 'javascript_shell':bool(data['javascript_shell']),
                      'content_text':data['text'],'headings':data['headings'],'metadata':data['metadata'],'tables':data['tables'],
                      'json_ld':data['json_ld'],'links':links,'requested_url':original,'final_url':final,
+                     'navigation_links':data.get('navigation_links',[]),'link_extraction_version':data.get('link_extraction_version',1),
                      'structured_data':data.get('structured_data',{}),'extraction_status':parsed_status,'scrape_result':scrape.to_dict(),
                      'body_sha256':data['body_sha256'],'response_bytes':data['response_bytes'],'http_status':data['http_status'],
                      'crawl_depth':origin['depth'],'parent_url':origin['parent_url'],'redirects':redirects,

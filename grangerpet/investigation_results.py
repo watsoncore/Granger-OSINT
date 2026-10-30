@@ -62,8 +62,8 @@ def relevance(records, goal):
             for link in links[:100]:
                 if not isinstance(link, dict): continue
                 url = canonical_url(link.get('url', ''))
-                from .link_relevance import technical_url
-                if technical_url(url):continue
+                from .link_relevance import substantive_link
+                if not substantive_link(link):continue
                 if not url or urlsplit(url).hostname in ('telegram.org','desktop.telegram.org','apps.apple.com','play.google.com'): continue
                 linked_urls.setdefault(url, set()).add(identifier)
                 target = route(url)

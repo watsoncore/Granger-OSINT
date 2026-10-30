@@ -13,6 +13,7 @@ def test_gallery_is_asynchronous_scoped_and_reuses_revision_without_inference(br
     calls=[]
     class Store:
         def comparison_preview(self,value,cancel):calls.append(value);return 'data:image/jpeg;base64,YQ=='
+        def small_preview(self,value,cancel):return 'data:image/jpeg;base64,YQ=='
     monkeypatch.setattr('grangerpet.geoint_tools.attachment_store',lambda:Store())
     before=bridge.snapshot()['geo_views']
     assert bridge.dispatch('geoint_view_get',{'id':snapshot['id']})['state']=='loading'
