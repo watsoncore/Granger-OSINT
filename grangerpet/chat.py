@@ -770,7 +770,7 @@ class ChatWidget(QWidget):
                                      operation='saved_investigation_recovery')
                 return
 
-    def continue_investigation(self, identifier=None):
+    def continue_investigation(self, identifier=None, *, followup=None):
         if self.busy: raise ValueError('Сначала остановите текущую задачу.')
         identifier = identifier or self._last_investigation.get('id')
         resume = self._journal.load_checkpoint(identifier) if identifier else None
@@ -781,14 +781,15 @@ class ChatWidget(QWidget):
         model = self.ai_state.committed_snapshot()['model_id']
         generation = self._generation + 1
         conversation_id = self.conversation_id
-        self._append('user', 'Продолжи сохранённое расследование с прежней целью и уже собранными доказательствами.')
+        self._append('user', followup['text'] if followup else 'Продолжи сохранённое расследование с прежней целью и уже собранными доказательствами.')
+        self.messages[-1]['investigation_id']=identifier
         def request(cancelled):
             client = DeepSeekClient()
             if self._agent_registry is None:
                 self._agent_registry = ToolRegistry(settings, redactions=(getattr(client, '_key', ''),))
             runner = AgentRunner(client, self._agent_registry, limits=self._investigation_limits(settings))
             self._agent_runner = runner
-            return self._run_investigation(runner, model, [], resume_state=resume, cancel_event=cancelled,
+            return self._run_investigation(runner, model, [], resume_state=resume, followup=followup, cancel_event=cancelled,
                 conversation_id=conversation_id, usage_ledger=self._usage_ledger,
                 checkpoint_callback=lambda value:self._journal.save_checkpoint(value, secrets=(resolve_deepseek_key(),)),
                 on_event=lambda value:self._agent_progress.emit(generation,value),

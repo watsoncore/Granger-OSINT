@@ -18,7 +18,7 @@ def test_transactions_link_addresses_but_service_labels_never_verify_identity():
     graph=build([record('transaction','ton','https://example.org/tx',{'chain':'ton','tx_hash':'actual-hash','from_address':'address1','to_address':'address2'}),record('label','ton','https://example.org/label',{'chain':'ton','address':'address2','label':'Bybit'},2)])
     assert {e['relation_type'] for e in graph['relations']} >= {'sent_from','sent_to','source_labels_address'}
     assert all(n['attributes']['owner_verified'] is False for n in graph['entities'] if n['type']=='blockchain_address')
-    assert any(e['verification_status']=='unverified_label' for e in graph['relations'])
+    assert any(e['claim_kind']=='unverified_label' and e['verification_status']=='unverified' for e in graph['relations'])
 
 
 def test_visual_candidates_and_camera_gps_are_different_uncertain_relationships():

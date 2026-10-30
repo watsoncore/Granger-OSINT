@@ -3,8 +3,20 @@ from __future__ import annotations
 
 from copy import deepcopy
 import math
+import uuid
 
 from .agent_evidence import EvidenceStore, EvidenceContractError, validate_saved_evidence, redact
+
+
+def new_investigation(goal, conversation_id=None):
+    from .agent_evidence import utc_now
+    if not isinstance(goal,str) or not goal.strip():raise ValueError('Investigation goal is required')
+    record={'id':uuid.uuid4().hex,'goal':goal,'conversation_id':conversation_id,'started_at':utc_now(),
+        'status':'running','steps':0,'tool_calls':0,'calls':[],'resume_count':0,'context_compactions':0,'no_progress_rounds':0}
+    state={'messages':[],'protocol_archive':[],'context_memory':[],'pending_calls':[],'pending_outcomes':{},
+        'call_cache':{},'seen_call_ids':[],'failures':[],'completed_steps':[],'tried_queries':[],
+        'pending_work':[goal],'plan':'','registry_state':{},'usage_requests':{},'budget_reserved_tokens':0}
+    return record,state
 
 
 class InvestigationEvidence(EvidenceStore):
@@ -22,7 +34,7 @@ class InvestigationEvidence(EvidenceStore):
     def add(self, envelope):
         with self._lock:
             identifiers = super().add(envelope)
-            if isinstance(envelope, dict):
+            if isinstance(envelope, dict) and envelope.get('stream_event') is not True:
                 self._all_executions.append({key: deepcopy(envelope[key]) for key in
                     ('tool', 'status', 'query', 'obtained_at', 'limitations', 'error') if key in envelope})
             return identifiers

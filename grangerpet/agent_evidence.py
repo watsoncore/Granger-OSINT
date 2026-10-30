@@ -205,8 +205,9 @@ class EvidenceStore:
             self._diagnose(EvidenceContractError('envelope.results', values))
             return identifiers
         with self._lock:
-            self._executions.append({name: deepcopy(envelope.get(name)) for name in
-                                     ("tool", "status", "query", "obtained_at", "limitations", "error") if name in envelope})
+            if envelope.get('stream_event') is not True:
+                self._executions.append({name: deepcopy(envelope.get(name)) for name in
+                                         ("tool", "status", "query", "obtained_at", "limitations", "error") if name in envelope})
             self._executions = self._executions[-100:]
             for value in values[:50]:
                 if not isinstance(value, dict):

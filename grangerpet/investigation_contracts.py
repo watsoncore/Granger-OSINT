@@ -209,6 +209,14 @@ def validate_checkpoint(value, identifier=None):
                 if not isinstance(item, dict) and not (key == 'pending_work' and isinstance(item, str)):
                     raise InvestigationContractError(f'checkpoint.{key}[{index}]', 'object or work item', item)
     _fields(value, ('plan',), str, 'checkpoint')
+    for key in ('active_focus','followup_request'):
+        if key in value:
+            focus=_expect(value[key],dict,'checkpoint.'+key)
+            if (set(focus)-{'text','context','intent'} or not isinstance(focus.get('text'),str)
+                    or not 0<len(focus['text'])<=4000 or not isinstance(focus.get('context'),dict)
+                    or focus.get('intent') not in ('explain','investigate','compare')
+                    or len(json.dumps(focus,ensure_ascii=False))>20000):
+                raise InvestigationContractError('checkpoint.'+key,'bounded graph followup',focus)
     for key in ('budget_reserved_tokens',):
         if key in value:
             _integer(value[key], 'checkpoint.' + key)

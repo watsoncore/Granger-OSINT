@@ -117,7 +117,8 @@ class InvestigationJournal:
         allowed = ('version', 'id', 'record', 'messages', 'context_memory', 'pending_calls',
                    'pending_outcomes', 'call_cache', 'seen_call_ids', 'evidence', 'executions',
                    'failures', 'completed_steps', 'tried_queries', 'pending_work', 'plan',
-                   'registry_state', 'usage_requests', 'budget_reserved_tokens', 'protocol_archive', 'sent_content')
+                   'registry_state', 'usage_requests', 'budget_reserved_tokens', 'protocol_archive', 'sent_content',
+                   'active_focus','followup_request')
         value = {key: checkpoint[key] for key in allowed if key in checkpoint}
         validate_checkpoint(value, identifier)
         raw = json.dumps(value, ensure_ascii=False, separators=(',', ':'), allow_nan=False)

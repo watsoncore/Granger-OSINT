@@ -94,9 +94,12 @@ def semantic_facts(records):
 
 def stop_report(snapshot, reason, introduction=''):
     """Useful even when the provider is down; every finding cites saved data."""
-    records = [row for row in snapshot.get('evidence', []) if isinstance(row, dict)
+    all_records = [row for row in snapshot.get('evidence', []) if isinstance(row, dict)
                and (row.get('details') or {}).get('capability') != 'evidence_graph']
     goal = str(snapshot.get('goal') or 'Проверка публичных сведений')[:1400]
+    from .investigation_results import relevance
+    ranks = relevance(all_records, goal)
+    records = [row for row in all_records if ranks.get(row.get('evidence_id'),{}).get('level') != 'background']
     reasons = {'no_progress': 'Дальнейшие проверки не добавляют новых сведений.',
         'cancelled': 'Работа остановлена пользователем.', 'manual_pause': 'Автоматическое продолжение отключено.',
         'step_limit': 'Достигнут выбранный бюджет шагов.', 'tool_limit': 'Достигнут выбранный бюджет инструментов.',
@@ -113,7 +116,7 @@ def stop_report(snapshot, reason, introduction=''):
         for row in records[:12]:
             title = str(row.get('title') or row.get('platform') or 'Наблюдение')[:220]
             description = re.sub(r'\s+', ' ', str(row.get('description') or '')).strip()[:380]
-            label = 'Гипотеза; требует проверки. ' if row.get('status') in ('hypothesis', 'unconfirmed', 'unknown') else ''
+            label = 'Гипотеза/возможная связь; требует проверки. ' if row.get('status') in ('hypothesis', 'unconfirmed', 'unknown') or ranks.get(row.get('evidence_id'),{}).get('level')=='potential' else ''
             source = f"[источник]({row['url']})" if row.get('url') else str((row.get('provenance') or {}).get('tool') or row.get('platform') or '')
             lines.append(f'- {title}: {label}{description} ({source}; {row.get("evidence_id", "")}).')
         if len(records) > 12:
@@ -126,8 +129,10 @@ def stop_report(snapshot, reason, introduction=''):
         lines.append(f'- {tool}: {status}; проверок с таким исходом — {count}. Результат не выдан за подтверждённый факт.')
     if not failures:
         lines.append('- Полнота открытых источников и принадлежность найденных объектов одному владельцу не установлены.')
+    if len(all_records)>len(records):
+        lines.append(f'- Отдельно сохранены технические результаты без доказанной релевантности: {len(all_records)-len(records)}. Они не включены в основные находки.')
     lines.append('- Продолжение учитывает уже выполненные запросы. Новый вызов требует нового направления или изменившихся аргументов.')
-    documents = {canonical_url(row.get('url', '')) for row in records if row.get('url')}
+    documents = {canonical_url(row.get('url', '')) for row in all_records if row.get('url')}
     documents.discard('')
-    lines += ['', f"Выполнено вызовов: {snapshot.get('tool_calls', 0)}. Уникальных документов: {len(documents)}. Сохранено доказательств: {len(records)}."]
+    lines += ['', f"Выполнено вызовов: {snapshot.get('tool_calls', 0)}. Уникальных URL-источников: {len(documents)}. Сохранено доказательств: {len(all_records)}."]
     return '\n'.join(lines)

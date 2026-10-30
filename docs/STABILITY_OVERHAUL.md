@@ -160,3 +160,43 @@ tool registry was used. A separate real readiness response completed in10.2s
 with0 tool executions, correctly distinguishing local readiness from network or
 inference verification. Focused routing/controller suites passed277 tests and a
 final119-test subset after the canonicalization change.
+
+## Stage 5 — shared results, provenance, graph state and bridge
+
+`investigation_results.project` supplies one dataset for overview, tree, graph
+and evidence. It ranks exact targets and actually observed link chains, separates
+potential/context-only observations and unrelated background, groups duplicate
+resources while retaining every original evidence ID, and exposes separate
+call/document/raw-record/evidence/error counters. Source streaming events no
+longer become extra execution attempts. Background search hits do not reset the
+runner's semantic progress detector and are marked as background in model context.
+
+The existing `evidence_graph` is extended rather than replaced: stable relation
+IDs, five verification statuses, original claim kind, literal-link provenance,
+Telegram/GitHub display types, root scope, sources and typed geographic hypotheses.
+Same-name profiles remain platform-scoped. Blockchain aggregates are directed
+and asset-specific, deduplicate transaction events, use Decimal sums and retain
+the individual transaction IDs and evidence. Unknown amounts stay unknown.
+Full UI snapshots are bounded at5000 nodes/20000 relations and cancellable;
+the model-facing operation retains small pages/subgraphs.
+
+The bridge prepares graphs on its existing background job infrastructure and
+provides a compact evidence projection, source lookup, selection and encrypted
+view persistence. Manual search results use the **same** checkpoint/evidence/cache
+format as AgentRunner and can later continue in that runner. No second agent,
+chat, graph database or plaintext private-goal store was created. Position/zoom/
+filter/selection state is a new encrypted v1 sidecar. Unknown/corrupt view state
+is preserved as identical protected bytes before any replacement; rollback bytes
+were decrypted/verified in a test. Existing user files are not migrated.
+
+Structured graph followups retain investigation ID, original goal, evidence and
+cache. Only12 nodes/24 relations enter the relevant model context. Explain mode
+cannot start external network tools, even if the model proposes one; explicit
+investigate mode uses the existing registry and approvals. Vault lock clears graph
+projections and selection state; jobs follow the existing cancellation lifecycle.
+
+151 core projection/contract/runner tests,106 bridge/regression tests and13
+graph bridge/followup tests passed in the focused runs (overlapping suites, not a
+sum of unique tests). The live Telegram capture projects to40 entities/41
+relations with4 source URLs and5 actual tool calls. **This backend stage alone
+is not claimed as completion of the required interactive UI.**

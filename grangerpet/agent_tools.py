@@ -174,7 +174,7 @@ class ToolRegistry:
             if spec is None or spec.requires_approval:
                 continue
             value = target.identifier
-            if name in ('telegram_public', 'web_read', 'web_archive'):
+            if name == 'telegram_public' or spec.argument == 'url' and target.canonical_url:
                 value = target.canonical_url
             args = {spec.argument: value}
             if name == 'visual_geoint':
@@ -566,7 +566,7 @@ class ToolRegistry:
             records[key] = record
             self.web_reader.add_evidence([record])
             self.evidence.add({"tool": spec.name, "query": value, "obtained_at": when,
-                               "status": "partial", "results": [record]})
+                               "status": "partial", "results": [record], 'stream_event':True})
             if callable(on_event):
                 try:
                     on_event({"type": "evidence", "tool": spec.name, "records": [deepcopy(record)]})
