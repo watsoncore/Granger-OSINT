@@ -35,6 +35,7 @@ a = Analysis(
            (str(version), "resources"), (str(resources / "third-party"), "resources/third-party"),
            (str(root / "THIRD_PARTY_NOTICES.md"), "resources"),
            (str(root / "grangerpet/visual_models/manifest.json"), "grangerpet/visual_models"),
+           (str(root / "grangerpet/visual_models/scene_manifest.json"), "grangerpet/visual_models"),
            (str(root / "grangerpet/integrations19/classification_rules.json"), "grangerpet/integrations19"),
            (str(resources / "ocr"), "resources/ocr")] + [
         (str(path), "grangerpet/engine") for path in (root / "grangerpet" / "engine").glob("*.py")

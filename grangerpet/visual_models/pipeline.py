@@ -16,6 +16,7 @@ from .. import geoint_tools
 from ..integrations19 import local_tools
 from ..integrations19.solar import LocalToolError, check
 from . import tools as visual_tools
+from . import scene
 
 METHODS = ('geoclip_predict', 'waypoint_predict')
 INPUT_SCHEMA = {'type': 'object', 'properties': {
@@ -23,6 +24,7 @@ INPUT_SCHEMA = {'type': 'object', 'properties': {
     'methods': {'type': 'array', 'minItems': 1, 'maxItems': 2, 'uniqueItems': True,
                 'items': {'type': 'string', 'enum': list(METHODS)}},
     'include_ocr': {'type': 'boolean'},
+    'include_scene': {'type': 'boolean'},
     'shadow': deepcopy(local_tools.INPUT_SCHEMAS['shadow_regions']),
 }, 'required': ['attachment_id'], 'additionalProperties': False}
 LIMITATIONS = [
@@ -45,7 +47,8 @@ def _arguments(args):
     if (not isinstance(methods, list) or not 1 <= len(methods) <= 2
             or any(value not in METHODS for value in methods) or len(set(methods)) != len(methods)):
         raise LocalToolError('invalid_arguments', 'Выберите одну или обе поддерживаемые модели без повторов.')
-    if type(args.get('include_ocr', True)) is not bool or 'shadow' in args and not isinstance(args['shadow'], dict):
+    if (type(args.get('include_ocr', True)) is not bool or type(args.get('include_scene', True)) is not bool
+            or 'shadow' in args and not isinstance(args['shadow'], dict)):
         raise LocalToolError('invalid_arguments', 'Некорректные параметры OCR или солнечной геометрии.')
     return methods
 
@@ -152,6 +155,9 @@ def execute(args, settings, store, cancel_event=None, deadline=None, on_result=N
             else:
                 stages.append({'tool': 'image_ocr', 'status': 'unavailable', 'error_code': 'ocr_not_installed'})
                 limitations.append('Локальный OCR недоступен; текст изображения не распознан.')
+        if args.get('include_scene', True):
+            stage('image_understand', lambda: scene.execute({'attachment_id':args['attachment_id']}, store=store,
+                cancel_event=cancel_event, deadline=deadline))
         values = {key: args[key] for key in ('attachment_id', 'top_k', 'samples', 'seed') if key in args}
         for method in methods:
             stage(method, lambda name=method: visual_tools.execute(name, values, store=store,

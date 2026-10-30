@@ -44,7 +44,7 @@ def adapters(monkeypatch):
 
 
 def run(**args):
-    return pipeline.execute({'attachment_id': IDENTIFIER, **args}, SimpleNamespace(), object(),
+    return pipeline.execute({'attachment_id': IDENTIFIER, 'include_scene':False, **args}, SimpleNamespace(), object(),
                             deadline=time.monotonic()+5)
 
 
@@ -52,7 +52,7 @@ def test_order_shared_deadline_options_and_records_emitted_before_next_stage(ada
     called, _ = adapters
     received = []
     deadline = time.monotonic()+5
-    result = pipeline.execute({'attachment_id': IDENTIFIER, 'top_k': 3, 'seed': 7, 'samples': 16},
+    result = pipeline.execute({'attachment_id': IDENTIFIER, 'include_scene':False, 'top_k': 3, 'seed': 7, 'samples': 16},
         settings='settings', store='store', deadline=deadline, on_result=lambda row: received.append((row, len(called))))
     assert result['status'] == 'complete'
     assert [name for name, *_ in called] == ['image_metadata', 'image_ocr', 'geoclip_predict', 'waypoint_predict']
@@ -200,7 +200,7 @@ def test_real_attachment_metadata_without_gps_remains_separate_from_fixture_mode
     attachment = store.import_bytes(encoded.getvalue(), 'Локальный кадр.png')
     monkeypatch.setattr(pipeline.visual_tools, 'execute', lambda *args, **kwargs:
         envelope(record('geoclip_predict', predictions=[{'lat': 0, 'lon': 1}])))
-    result = pipeline.execute({'attachment_id': attachment['id'], 'include_ocr': False, 'methods': ['geoclip_predict']}, None, store)
+    result = pipeline.execute({'attachment_id': attachment['id'], 'include_scene':False, 'include_ocr': False, 'methods': ['geoclip_predict']}, None, store)
     assert result['status'] == 'complete'
     metadata, model = result['results']
     assert metadata['status'] == 'metadata' and metadata['details']['image']['width'] == 40

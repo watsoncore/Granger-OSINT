@@ -50,7 +50,7 @@ def normalized_arguments(name, arguments, default_limit=None):
     if name == 'github_repository' and isinstance(result.get('repository'), str):
         result['repository'] = result['repository'].lower()
     singletons = {'github_repository', 'github_profile', 'x_profile', 'x_post', 'image_metadata', 'image_ocr',
-        'image_compare', 'hash_virustotal', 'threat_feodo', 'map_overpass', 'map_wikimedia', 'map_geocode'}
+        'image_compare', 'image_understand', 'hash_virustotal', 'threat_feodo', 'map_overpass', 'map_wikimedia', 'map_geocode'}
     if name in singletons:
         result.pop('limit', None)
     elif default_limit is not None and name not in ('telegram_public', 'evidence_get'):
@@ -61,6 +61,7 @@ def normalized_arguments(name, arguments, default_limit=None):
             result.setdefault(key, value)
         if name == 'visual_geoint':
             result.setdefault('include_ocr', True)
+            result.setdefault('include_scene', True)
             result.setdefault('methods', ['geoclip_predict', 'waypoint_predict'])
     return result
 

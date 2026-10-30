@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "model": "florence-community/Florence-2-base-ft",
+  "revision": "0b03b6f15a4a211370fb204aee4e7dd48887ea37",
+  "license": "MIT",
+  "original_model": "microsoft/Florence-2-base-ft",
+  "artifacts": [
+    {
+      "relative_path": "added_tokens.json",
+      "url": "https://huggingface.co/florence-community/Florence-2-base-ft/resolve/0b03b6f15a4a211370fb204aee4e7dd48887ea37/added_tokens.json",
+      "bytes": 22430,
+      "sha256": "1d75deda84dfa81fb6c09301f3fed00f9695059568bbb1403a6bf299cd84fc37"
+    },
+    {
+      "relative_path": "config.json",
+      "url": "https://huggingface.co/florence-community/Florence-2-base-ft/resolve/0b03b6f15a4a211370fb204aee4e7dd48887ea37/config.json",
+      "bytes": 2387,
+      "sha256": "2a4dfe9885d183da121f239ada734bd700ee6908b650a7a25ab32eb104fe1d7a"
+    },
+    {
+      "relative_path": "generation_config.json",
+      "url": "https://huggingface.co/florence-community/Florence-2-base-ft/resolve/0b03b6f15a4a211370fb204aee4e7dd48887ea37/generation_config.json",
+      "bytes": 292,
+      "sha256": "0251459c49cc358ac033b5d4b8569e61ac22bde5d76be404b97a44cfb33fb12e"
+    },
+    {
+      "relative_path": "merges.txt",
+      "url": "https://huggingface.co/florence-community/Florence-2-base-ft/resolve/0b03b6f15a4a211370fb204aee4e7dd48887ea37/merges.txt",
+      "bytes": 456318,
+      "sha256": "1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5"
+    },
+    {
+      "relative_path": "model.safetensors",
+      "url": "https://huggingface.co/florence-community/Florence-2-base-ft/resolve/0b03b6f15a4a211370fb204aee4e7dd48887ea37/model.safetensors",
+      "bytes": 463178864,
+      "sha256": "ab06dea66b16d5e54513256d64854be2194443452fd0d84353b40a278bf87d42"
+    },
+    {
+      "relative_path": "preprocessor_config.json",
+      "url": "https://huggingface.co/florence-community/Florence-2-base-ft/resolve/0b03b6f15a4a211370fb204aee4e7dd48887ea37/preprocessor_config.json",
+      "bytes": 603,
+      "sha256": "1396ec5a0a7adfe1c04fb777b09e8ba753be6dbb5868212ab3c3ef39d91fe031"
+    },
+    {
+      "relative_path": "processor_config.json",
+      "url": "https://huggingface.co/florence-community/Florence-2-base-ft/resolve/0b03b6f15a4a211370fb204aee4e7dd48887ea37/processor_config.json",
+      "bytes": 2264,
+      "sha256": "cd0e3bf41a39b1276503fbd273bc03b9afc70d7a15ea681a92a1b4b77f858ee6"
+    },
+    {
+      "relative_path": "special_tokens_map.json",
+      "url": "https://huggingface.co/florence-community/Florence-2-base-ft/resolve/0b03b6f15a4a211370fb204aee4e7dd48887ea37/special_tokens_map.json",
+      "bytes": 146627,
+      "sha256": "72ff172dc769bc1551b1b4211628ce3271643bc60379e4da45d85a9be9332c39"
+    },
+    {
+      "relative_path": "tokenizer.json",
+      "url": "https://huggingface.co/florence-community/Florence-2-base-ft/resolve/0b03b6f15a4a211370fb204aee4e7dd48887ea37/tokenizer.json",
+      "bytes": 3748144,
+      "sha256": "3ad7001f773409abe6bba33eac92662611a73d72f459bda2f00d2a221dd31ce4"
+    },
+    {
+      "relative_path": "tokenizer_config.json",
+      "url": "https://huggingface.co/florence-community/Florence-2-base-ft/resolve/0b03b6f15a4a211370fb204aee4e7dd48887ea37/tokenizer_config.json",
+      "bytes": 197922,
+      "sha256": "cb5f80bd9afa767bb1bb798ee5f0a79eae45239b8e72506166b4218175a16723"
+    },
+    {
+      "relative_path": "vocab.json",
+      "url": "https://huggingface.co/florence-community/Florence-2-base-ft/resolve/0b03b6f15a4a211370fb204aee4e7dd48887ea37/vocab.json",
+      "bytes": 798293,
+      "sha256": "ed19656ea1707df69134c4af35c8ceda2cc9860bf2c3495026153a133670ab5e"
+    },
+    {
+      "relative_path": "LICENSE",
+      "url": "https://huggingface.co/microsoft/Florence-2-base-ft/resolve/f6c1a25888ffc1d945ee8a1a77ac833c7303d46e/LICENSE",
+      "bytes": 1141,
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+    }
+  ],
+  "download_bytes": 468555285,
+  "requires_existing_visual_cpu_runtime": true,
+  "remote_code": false,
+  "device": "cpu",
+  "ram_budget_bytes": 5000000000,
+  "threads": 2
+}

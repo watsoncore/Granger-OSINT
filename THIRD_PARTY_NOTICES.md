@@ -36,3 +36,10 @@ Hermione Granger / Harry Potter character references and the fan artwork are ind
 Pillow13.0.0 supplies local image decoding, EXIF and bounded pixel processing. Cryptography50.0.2 supplies Argon2id and AES-GCM; no custom cipher is used. Installed distribution license texts and hashes are preserved in `resources/third-party/Python-geoint-security/` and included in the EXE.
 
 The portable Tesseract5.5.3 runtime and its dynamically linked dependencies are reproduced from checksum-verified official MSYS2 packages. The Russian and English `tessdata_fast` models are pinned to the upstream commit recorded in `resources/ocr/provenance.json`. This runtime contains components with different licences, including copyleft alternatives; their full original notices are included under `resources/ocr/licenses/`. The manifest records original package/source URLs, versions, checksums and every delivered binary/model. `scripts/setup_geoint_ocr.py` reproduces the runtime without executing an installer or changing Windows. Tesseract is invoked as a separate local process; image pixels and TSV travel through anonymous pipes.
+
+## Optional scene understanding
+
+Florence-2-base-ft: Microsoft, MIT; compatible native checkpoint maintained by
+florence-community. Pinned model files are downloaded separately, not bundled in
+the executable. License: `resources/third-party/Florence-2-LICENSE.txt`.
+See `docs/SCENE_VISION_RUNTIME.md` for exact revision, hashes and runtime limits.

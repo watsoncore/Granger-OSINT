@@ -137,7 +137,7 @@ def _geoint_context(details, maximum):
     """
     if not isinstance(details, dict):
         return {}
-    names = {"image_metadata", "image_ocr", "image_compare", "map_geocode", "map_overpass", "map_wikimedia",'map_panoramax','geoclip','waypoint','waypoint_match','visual_geoint','visual_geoint_comparison','shadow_regions'}
+    names = {"image_metadata", "image_ocr", "image_understand", "image_compare", "map_geocode", "map_overpass", "map_wikimedia",'map_panoramax','geoclip','waypoint','waypoint_match','visual_geoint','visual_geoint_comparison','shadow_regions'}
     if details.get("tool") not in names:
         return {}
     value = {key: deepcopy(details[key]) for key in ("tool", "status", "attachment_id") if key in details}
@@ -161,7 +161,7 @@ def _geoint_context(details, maximum):
                     if len(_json({**value, "metadata": candidate})) <= maximum:
                         selected[str(key)[:80]] = deepcopy(item)
                         value["metadata"] = candidate
-    for key in ("visual_features", "languages", "coordinate_space", "width", "height", "radius_m", "attribution",'model_version','duration_ms','datetime_utc','observed_sun_altitude_deg','tolerance_fraction','ambiguity','score_semantics','score_calibrated','match_count','keypoints','geometry','metadata_gps','conflicts','screening_threshold_km','models_independent','limitations','warnings'):
+    for key in ("visual_features", "languages", "scene_type", "description", "observations", "readable_text", "possible_languages", "road_features", "vegetation", "terrain", "distinctive_landmarks", "coordinate_space", "width", "height", "radius_m", "attribution",'model_version','duration_ms','datetime_utc','observed_sun_altitude_deg','tolerance_fraction','ambiguity','score_semantics','score_calibrated','match_count','keypoints','geometry','metadata_gps','conflicts','screening_threshold_km','models_independent','limitations','warnings'):
         if key in details:
             add(key, deepcopy(details[key]))
     if isinstance(details.get("text"), str):

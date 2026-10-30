@@ -92,6 +92,7 @@ _GRAPH_INPUT={'type':'object','properties':{
     'offset':{'type':'integer','minimum':0,'maximum':10000},
     'limit':{'type':'integer','minimum':1,'maximum':100}},'required':[],'additionalProperties':False}
 _SPECS += (
+    ToolSpec('image_understand','scene_vision','visual_geoint','attachment_id','Florence-2-base-ft: локальное описание реальных пикселей, видимые объекты и области кадра. Оценка модели, не подтверждение места или личности; без передачи фото в сеть.',input_schema={'type':'object','properties':{'attachment_id':{'type':'string','minLength':68,'maxLength':68}},'required':['attachment_id'],'additionalProperties':False},execution_mode='LOCAL_MODEL',documentation_url='https://huggingface.co/microsoft/Florence-2-base-ft',category='geoint'),
     ToolSpec('map_panoramax','public19','coordinates','latitude','Panoramax: ограниченный поиск публичных street-level фотографий рядом с координатами через STAC API без ключа. Дата, координаты, лицензия, автор и ссылки на эталоны; пиксели не загружаются. Близость не подтверждает место исходного фото.',input_schema=_PUBLIC19_INPUTS['map_panoramax'],execution_mode='PUBLIC_API_NO_KEY',documentation_url='https://docs.panoramax.fr/backend/api/',category='geoint'),
     ToolSpec('visual_geoint','visual_model','visual_geoint','attachment_id','Единый Visual GEOINT: реальные EXIF/OCR, выбранные GeoCLIP/Waypoint, сравнение географических кандидатов и при известных параметрах ShadowFinder. Без GPS исследование продолжается. Результаты моделей — гипотезы, не установленное место. Локальный CPU, без передачи снимка в API.',input_schema=_VISUAL_PIPELINE_INPUT,execution_mode='LOCAL_MODEL',documentation_url='https://github.com/watsoncore/Granger-OSINT',category='geoint'),
     ToolSpec('geoclip_predict','visual_model','visual_geoint','attachment_id','GeoCLIP: локальные географические гипотезы по пикселям выбранного изображения даже без EXIF. Raw scores не вероятности. Нужен отдельно установленный CPU-runtime.',input_schema=_VISUAL_INPUTS['geoclip_predict'],execution_mode='LOCAL_MODEL',documentation_url='https://github.com/VicenteVivan/geo-clip',category='geoint'),
@@ -352,6 +353,9 @@ class ToolRegistry:
         elif spec.source=='visual_model':
             from .visual_models.tools import readiness
             base.update(readiness())
+        elif spec.source=='scene_vision':
+            from .visual_models.scene import readiness
+            base.update(readiness())
         elif spec.source=='public19':
             from .integrations19.public_tools import readiness
             base.update(readiness(spec.name,self.settings))
@@ -495,7 +499,7 @@ class ToolRegistry:
                 from .engine.router import _platform
                 from .engine.models import canonical_url
                 arguments['username'] = canonical_url(_platform(arguments['username'], 'telegram'))
-            if spec.source=='visual_model':
+            if spec.source in ('visual_model','scene_vision'):
                 for field in ('attachment_id','reference_id'):
                     if field in arguments and (not re.fullmatch(r'img_[a-f0-9]{64}',arguments[field]) or arguments[field] not in self._attachment_ids):
                         raise ValueError('Изображение не выбрано пользователем для этой задачи.')
@@ -827,6 +831,10 @@ class ToolRegistry:
                 return execute(args,settings=self.settings,store=self._image_store or attachment_store(),cancel_event=cancelled,deadline=deadline,on_result=on_result)
             from .visual_models.tools import execute
             return execute(spec.name,args,store=self._image_store or attachment_store(),cancel_event=cancelled,deadline=deadline)
+        elif spec.source=='scene_vision':
+            from .geoint_tools import attachment_store
+            from .visual_models.scene import execute
+            return execute(args,store=self._image_store or attachment_store(),cancel_event=cancelled,deadline=deadline)
         else:raise ValueError('Unsupported structured operation')
         data={**data,'execution_mode':spec.execution_mode,'capability':spec.name,'source_record':True}
         identifier=hashlib.sha256(json.dumps(args,ensure_ascii=False,sort_keys=True).encode('utf-8')).hexdigest()[:24]

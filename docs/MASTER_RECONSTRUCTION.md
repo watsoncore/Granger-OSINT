@@ -95,3 +95,11 @@ redaction в 16 000 символов больше не обрезает отчё
 
 Логи и реальные результаты находятся только в `output/reconstruction`, в Git не
 публикуются. На данном этапе не заявляется завершение GEOINT, карты или графа.
+
+## Stage 3: локальная visual-language модель
+
+Проверены лицензия и ресурсы; закреплённые веса Florence-2-base-ft установлены и
+прошли реальный CPU inference. Добавлены `image_understand` и stage в существующем
+visual_geoint. Полный контракт, условия и реальные результаты описаны в
+[SCENE_VISION_RUNTIME.md](SCENE_VISION_RUNTIME.md). 96 targeted tests passed.
+Передачи пользовательского снимка в облако и изменений прежнего CPU runtime нет.
