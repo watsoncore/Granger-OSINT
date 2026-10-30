@@ -121,6 +121,20 @@ def test_legacy_attachment_protocol_is_not_part_of_analysis_goal():
     assert value['goal'] == 'Найди место'
 
 
+def test_actual_absent_gps_and_empty_ocr_survive_final_analysis_context():
+    from grangerpet.investigation_analysis import model_context
+    rows=[]
+    for tool,details in [('image_metadata',{'metadata':{'status':'no_gps_metadata','gps':None,'exif':{'CameraSerialNumber':'PRIVATE-SERIAL'}}}),
+                         ('image_ocr',{'status':'low_confidence','text':'','confidence':0.0})]:
+        rows.append(normalize_evidence({'id':tool,'type':'image_analysis','title':tool,'platform':'Local',
+            'details':{'tool':tool,'attachment_id':'img_'+'a'*64,**details}},tool,'fixture'))
+    context=model_context(analyze({'goal':'Проанализируй фото','evidence':rows}))
+    metadata,ocr=context['image_observations']
+    assert metadata['metadata']['status']=='no_gps_metadata' and metadata['metadata']['gps'] is None
+    assert ocr['status']=='low_confidence' and ocr['text']=='' and ocr['confidence']==0
+    assert 'PRIVATE-SERIAL' not in json.dumps(context)
+
+
 def test_synthesis_uses_its_own_timeout_instead_of_short_research_request_timeout():
     import time
     class SlowReport(Client):

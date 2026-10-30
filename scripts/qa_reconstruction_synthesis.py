@@ -14,6 +14,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--result', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--goal',help='Explicit goal for other saved real observations; default is the public TON regression')
+    parser.add_argument('--chunk-tokens',type=int,choices=(256,384,512),help='QA-only actual gateway output cap to exercise real finish_reason=length continuation')
     args = parser.parse_args()
     if args.output.exists():
         raise SystemExit('Prior live evidence exists; choose another directory explicitly.')
@@ -34,20 +36,29 @@ def main():
         def schemas(self): return []
         def execute(self, *args, **kwargs): raise AssertionError('No external tool is allowed during synthesis')
         def begin_investigation(self):
-            runner._store.add(source)
+            runner._store.restore(source['results'],[])
     source = json.loads(args.result.read_text(encoding='utf-8'))
     goal = ('Разбери сохранённые данные TON-адреса UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd. '
         'Объясни направления и объёмы переводов по активам, крупнейшие операции, основных контрагентов, '
         'повторяющиеся взаимодействия, активность по датам, токены и NFT, метки сервисов и пределы достоверности. '
         'Ответ нужен по существу с источниками, а не перечень evidence. Новые внешние запросы не нужны.')
-    runner = AgentRunner(DeepSeekClient(key), SavedOnly(), limits=AgentLimits(max_tokens=1, synthesis_timeout=240))
+    finishes=[]
+    class TrackedClient(DeepSeekClient):
+        def stream_report(self,*values,**options):
+            if args.chunk_tokens:options['max_output_tokens']=min(options['max_output_tokens'],args.chunk_tokens)
+            value=super().stream_report(*values,**options)
+            finishes.append(value.get('metadata',{}).get('finish_reason'))
+            return value
+    goal=args.goal or goal
+    runner = AgentRunner(TrackedClient(key), SavedOnly(), limits=AgentLimits(max_tokens=1, synthesis_timeout=300))
     events, started = [], time.monotonic()
     result = runner.run(DEFAULT_DEEPSEEK_MODEL, [{'role':'user', 'text':goal}], on_event=events.append)
     (args.output/'answer.md').write_text(result['text'], encoding='utf-8')
     analysis = analyze(result['investigation'])
     (args.output/'local-analysis.json').write_text(json.dumps(analysis, ensure_ascii=False), encoding='utf-8')
     (args.output/'fallback.md').write_text(factual_report(analysis, language_unavailable=True), encoding='utf-8')
-    report = {'mock':False, 'mode':'actual_gateway_sse_saved_public_gansar_302_sample',
+    report = {'mock':False, 'mode':'actual_gateway_sse_saved_evidence' if args.goal else 'actual_gateway_sse_saved_public_gansar_302_sample',
+        'forced_per_request_output_tokens':args.chunk_tokens,'actual_finish_reasons':finishes,
         'elapsed_seconds':round(time.monotonic()-started, 3), 'state':result['investigation']['status'],
         'report_status':result['investigation'].get('report_status'), 'synthesis_error':result['investigation'].get('synthesis_error'),
         'report_parts':result['investigation'].get('report_parts'), 'characters':len(result['text']),

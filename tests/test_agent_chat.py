@@ -55,7 +55,9 @@ def widget(monkeypatch,tmp_path):
 
 
 def wait(app,predicate):
-    end=time.monotonic()+4
+    # This checks asynchronous Qt/persistence completion, not UI latency.
+    # Native cancellation responsiveness has its own real-EXE time check.
+    end=time.monotonic()+10
     while not predicate() and time.monotonic()<end:app.processEvents();QTest.qWait(10)
     assert predicate()
 

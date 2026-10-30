@@ -33,6 +33,9 @@ SYNTHESIS_SYSTEM = (
     'проверенные признаки и реальные сравнительные снимки. Не притворяйся, что видел пиксели без visual observations. '
     'Различай гипотезу модели, визуальное совпадение и подтверждённую локацию. '
     'Raw scores, доли сэмплов и разброс координат не являются вероятностями правильной локации. '
+    'Две модели не являются независимыми подтверждениями места. '
+    'Учитывай image_observations: no_gps_metadata означает отсутствие GPS в проверенном файле, '
+    'а не отсутствие выполненной проверки; пустой OCR с low_confidence означает, что читаемый текст не извлечён. '
     'В matching spatial_coverage[0] и [1] — доли площади двух разных изображений, '
     'покрытые bounding box согласованных точек, а не горизонтальная/вертикальная точность. '
     'Inlier ratio показывает геометрическую согласованность признаков и не подтверждает место. '
@@ -84,10 +87,24 @@ def analyze(snapshot):
                 and row.get('type') != 'evidence_graph']
     grouped, computed = defaultdict(list), {}
     assets, facts, candidates, scenes, contradictions, references = {}, [], {}, [], [], []
+    image_observations=[]
     for row in relevant:
         data = _details(row)
         chain = str(data.get('chain') or '')
         target = str(data.get('target_address') or '')
+        if data.get('tool') in ('image_metadata','image_ocr'):
+            observation={'tool':data['tool'],'attachment_id':data.get('attachment_id'),
+                'evidence_id':row.get('evidence_id'),'status':data.get('status')}
+            if data['tool']=='image_metadata':
+                metadata=data.get('metadata') if isinstance(data.get('metadata'),dict) else {}
+                exif=metadata.get('exif') if isinstance(metadata.get('exif'),dict) else {}
+                observation['metadata']={key:deepcopy(metadata[key]) for key in ('status','gps','limitations') if key in metadata}
+                observation['metadata']['exif']={key:deepcopy(exif[key]) for key in
+                    ('Make','Model','DateTime','DateTimeOriginal','DateTimeDigitized','OffsetTimeOriginal','Orientation','LensModel') if key in exif}
+            else:
+                observation.update(text=str(data.get('text') or '')[:6000],confidence=data.get('confidence'),
+                    languages=data.get('languages'),limitations=data.get('limitations'))
+            image_observations.append(observation)
         if row.get('type') == 'transaction':
             grouped[(chain, canonical_address(chain, target))].append({**data,
                 'evidence_id': row.get('evidence_id'), 'url': row.get('url')})
@@ -139,7 +156,7 @@ def analyze(snapshot):
         result = computed.get(key) if computed.get(key, {}).get('input_observations', 0) > local['input_observations'] else local
         chains['|'.join(key)] = result
     return {'version': 1, 'goal': goal, 'evidence_examined': len(rows), 'relevant_evidence': len(relevant),
-        'blockchain': chains, 'assets': list(assets.values()), 'scenes': scenes,
+        'blockchain': chains, 'assets': list(assets.values()), 'scenes': scenes,'image_observations':image_observations,
         'geographic_candidates': list(candidates.values()), 'reference_images':references, 'facts': facts,
         'contradictions': contradictions, 'coverage': 'saved_observations_only',
         'unresolved_questions': ['Полнота внешних источников и независимая проверка выводов ограничены полученными данными.'],
@@ -152,6 +169,7 @@ def model_context(analysis):
     """Aggregate first; do not feed hundreds of raw transactions to a text model."""
     value = {key: deepcopy(analysis[key]) for key in ('goal', 'evidence_examined', 'coverage', 'scenes',
         'geographic_candidates', 'contradictions', 'unresolved_questions', 'source_failures')}
+    value['image_observations']=deepcopy(analysis.get('image_observations',[]))
     value['reference_images']=[{**{key:item for key,item in row.items() if key!='comparison'},
         'comparison':{key:row.get('comparison',{}).get(key) for key in ('status','match_count','geometry','spatial_coverage','support_kind','geolocation_verified','score_calibrated','interpretation')}
         } for row in analysis.get('reference_images',[])[:12]]
