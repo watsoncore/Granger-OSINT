@@ -23,6 +23,7 @@ from .investigation import InvestigationEvidence
 from .usage import actual_usage, usage_totals
 from .context import relevant_excerpt, conversation_context, terms
 from .investigation_progress import normalized_arguments, semantic_facts, stop_report
+from .tool_contracts import sanitize_outcome, ToolContractError, log_contract
 
 
 AGENT_SYSTEM = (
@@ -389,7 +390,14 @@ class AgentRunner:
         return result
 
     def _accept(self, envelope, callback):
-        safe = self._safe(envelope)
+        try:
+            safe = sanitize_outcome(envelope, self._secrets)
+        except ToolContractError as error:
+            name = envelope.get('tool', 'unknown') if isinstance(envelope, dict) else 'unknown'
+            log_contract(error, name)
+            safe = {'tool': name, 'query': '', 'status': 'error', 'results': [],
+                    'obtained_at': utc_now(), 'error': error.code, 'error_info': error.diagnostic(),
+                    'limitations': ['Результат неверного формата отклонён; подтверждённых фактов из него нет.']}
         identifiers = self._store.add(safe)
         if identifiers:
             records = [self._store.get(value) for value in dict.fromkeys(identifiers)]
@@ -494,8 +502,10 @@ class AgentRunner:
                 identifier, outcome = None, None
             if identifier in active:
                 call, _ = active.pop(identifier)
-                done[identifier] = self._save_tool_outcome(call, outcome, callback)
-                self._event(callback, "tool_result", tool=outcome.get("tool"), status=outcome.get("status"), count=len(outcome.get("results", [])))
+                accepted = self._save_tool_outcome(call, outcome, callback)
+                done[identifier] = accepted
+                self._event(callback, "tool_result", tool=accepted.get("tool"), status=accepted.get("status"),
+                            count=len(accepted.get("results", [])), error_code=accepted.get('error_code') or accepted.get('error'))
             for identifier, (call, deadline) in list(active.items()):
                 if time.monotonic() >= deadline:
                     active.pop(identifier)
@@ -592,6 +602,8 @@ class AgentRunner:
         self._persist()
         if page_limit:
             raise _Stopped('page_limit')
+        if any(outcomes[call['id']].get('error') == 'download_limit' for call in calls):
+            raise _Stopped('download_limit')
         if self._record['no_progress_rounds'] >= self.limits.no_progress_rounds:
             if self._queue_public_fallback():
                 self._record['no_progress_rounds']=0

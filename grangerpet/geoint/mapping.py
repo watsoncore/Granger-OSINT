@@ -78,6 +78,8 @@ class MappingClient:
                 "execution_verified": False}
 
     def _request(self, endpoint, params, cancel_event=None):
+        from ..download_budget import check as check_bytes, consume
+        check_bytes()
         _cancelled(cancel_event)
         if not endpoint:
             raise GeointError("endpoint_required", "Для этого инструмента нужен настроенный разрешённый endpoint.")
@@ -136,6 +138,7 @@ class MappingClient:
                             raise GeointError("http_error", "Картографический сервис вернул ошибку HTTP.")
                         content = bytearray()
                         for chunk in response.iter_bytes(64 * 1024):
+                            consume(len(chunk))
                             _cancelled(cancel_event)
                             if time.monotonic()>request_deadline:
                                 raise GeointError("timeout", "Истекло общее время картографического запроса.")

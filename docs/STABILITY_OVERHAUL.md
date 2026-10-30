@@ -91,3 +91,34 @@ The first focused regression suite passed 86 tests. Tests cover distinct empty
 queries, identical observations through different acquisitions, new properties,
 contradictions, failure-cache resume, scoped fallback, budgets and API failure.
 Final integration/EXE checks are performed again after the graph work.
+
+## Stage 3 — tool execution boundary
+
+The real registry previously accepted `results='HTML ERROR'`, `null`, or a list
+of strings with `status=complete`, dropped the payload and marked execution
+verified. Adapter root/status/results/limitations and each finding are now
+validated before acceptance. Invalid data produces `invalid_tool_output` with a
+safe field/type diagnostic; valid neighboring records survive as an explicitly
+partial outcome. A real complete response with no findings becomes `empty`.
+The runner independently validates registry outcomes too, and publishes counts
+from the accepted records, not an invalid raw payload.
+
+The existing invocation contract is preserved and enriched with `execution_id`,
+`execution_status`, `contract_version` and measured `duration_ms`. Standard status
+categories coexist with existing UI-compatible statuses. Failed output cannot
+set `execution_verified=true`. No adapters have been removed.
+
+An investigation-scoped decoded-response budget covers repository-owned HTTP
+transports (public reader/APIs, passive DNS/network requests, public integrations
+and maps). It is shared across parallel public-search tasks, restored with the
+checkpoint and configurable in the existing technical settings (default20MiB;
+zero disables the chosen byte limit). Cancellation and per-response limits still
+apply. A final already-received chunk can cross the budget; further reads/requests
+stop. Third-party CLI network traffic is **not** falsely reported as metered;
+its existing request/concurrency/time limits remain in effect.
+
+285 focused tests passed, including all48 registered adapters' common status
+contract, malformed outputs, partial neighbors, real streamed-byte transport
+fixtures, cancellation and browser parsing. TypeScript checks passed. A fresh
+read-only local readiness audit found48 registered and44 available with this
+profile's settings; this is not48 live successes or a GUI verification claim.

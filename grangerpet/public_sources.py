@@ -241,8 +241,9 @@ def search(query,*,limit=5,cancel_event=None,deadline=None,client_factory=None,r
     except _FetchError as exc:return _envelope('web_search',query,status=exc.status,error_code=exc.code)
     providers=('github_users','hn_search','wikipedia_search') if re.fullmatch(r'@?[A-Za-z0-9_.-]{1,64}',query) else ('hn_search','wikipedia_search','openlibrary_search')
     outcomes=[]
+    from contextvars import copy_context
     with ThreadPoolExecutor(max_workers=2,thread_name_prefix='GrangerPublicSearch') as pool:
-        jobs={pool.submit(execute,p,query,limit=min(3,limit),cancel_event=cancel_event,deadline=end,client_factory=client_factory,resolver=resolver,agent_model=agent_model):p for p in providers}
+        jobs={pool.submit(copy_context().run,execute,p,query,limit=min(3,limit),cancel_event=cancel_event,deadline=end,client_factory=client_factory,resolver=resolver,agent_model=agent_model):p for p in providers}
         for future in as_completed(jobs):outcomes.append(future.result())
     rows=[];seen=set()
     for result in sorted(outcomes,key=lambda r:providers.index(r['tool'])):

@@ -34,7 +34,7 @@ from .ui_jobs import UiJob
 
 SETTINGS_FIELDS = frozenset(('ui_theme','geoint_nominatim_url','geoint_overpass_url','size','fps','cursor_reaction','agent_steps','agent_calls','agent_timeout',
     'agent_tokens','agent_page_limit','agent_page_depth','agent_parallel','agent_tool_timeout',
-    'agent_request_timeout','agent_no_progress_rounds','agent_auto_continue','agent_budget_behavior','notifications_enabled',
+    'agent_request_timeout','agent_no_progress_rounds','agent_download_mb','agent_auto_continue','agent_budget_behavior','notifications_enabled',
     'notifications_animate','notifications_reply','notifications_investigation','notifications_errors','reduced_motion',
     'ai_provider','deepseek_model','ollama_url','ollama_model','api_cx','source_root','runtime_python',
     'telegram_api_id','instagram_username','request_limit','search_timeout','enable_snoop','nuclei_enabled'))

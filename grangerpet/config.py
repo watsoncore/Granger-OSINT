@@ -58,6 +58,7 @@ class Settings:
     agent_tool_timeout: int = 25
     agent_request_timeout: int = 90
     agent_no_progress_rounds: int = 3
+    agent_download_mb: int = 20
     agent_auto_continue: bool = True
     agent_budget_behavior: str = "pause"
     research_settings_version: int = 2
@@ -114,6 +115,8 @@ class Settings:
                     pass
         if type(values.get('agent_no_progress_rounds')) is int:
             settings.agent_no_progress_rounds = max(2, min(10, values['agent_no_progress_rounds']))
+        if type(values.get('agent_download_mb')) is int:
+            settings.agent_download_mb = max(0, min(2048, values['agent_download_mb']))
         for key in ("cursor_reaction", "enable_snoop", "nuclei_enabled", "agent_auto_continue", "notifications_enabled",
                     "notifications_animate", "notifications_reply", "notifications_investigation", "notifications_errors", "reduced_motion"):
             if isinstance(values.get(key), bool):

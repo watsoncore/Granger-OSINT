@@ -20,6 +20,8 @@ async def fetch_public(url,*,method='GET',form=None,approved_post=False,cancel_e
     """
     from .agent_browser import (MAX_BYTES,PageReadError,PinnedTransport,resolve_public,public_address,
         public_url,_SENSITIVE_QUERY,_REQUEST_SLOTS,_DOMAIN_LOCK,_DOMAIN_SLOTS,_DOMAIN_NEXT,_DOMAIN_USERS)
+    from .download_budget import check as check_bytes
+    check_bytes()
     method=str(method).upper()
     agent=user_agent or 'Granger-OSINT/3.1 (+https://github.com/watsoncore/Granger-OSINT) public-reader'
     if not isinstance(agent,str) or not 1<=len(agent)<=240 or any(ord(c)<32 or ord(c)>126 for c in agent):
@@ -105,6 +107,8 @@ async def fetch_public(url,*,method='GET',form=None,approved_post=False,cancel_e
                         if length.isdigit() and int(length)>MAX_BYTES:raise PageReadError('response_too_large')
                         chunks=bytearray()
                         async for chunk in response.aiter_bytes():
+                            from .download_budget import consume
+                            consume(len(chunk))
                             await check();chunks.extend(chunk)
                             if len(chunks)>MAX_BYTES:raise PageReadError('response_too_large')
                         return {'final_url':url,'status':status,'headers':headers,'body':bytes(chunks),

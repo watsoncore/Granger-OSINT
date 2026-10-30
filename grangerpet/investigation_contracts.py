@@ -226,6 +226,8 @@ def validate_checkpoint(value, identifier=None):
         registry = _expect(value['registry_state'], dict, 'checkpoint.registry_state')
         if 'page_count' in registry:
             _integer(registry['page_count'], 'checkpoint.registry_state.page_count')
+        if 'downloaded_bytes' in registry:
+            _integer(registry['downloaded_bytes'], 'checkpoint.registry_state.downloaded_bytes')
         if 'attachment_ids' in registry:
             _string_list(registry['attachment_ids'], 'checkpoint.registry_state.attachment_ids')
         if 'known' in registry:

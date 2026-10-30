@@ -23,6 +23,8 @@ from .engine.adapters import SourceAdapter, SOURCE_META
 from .engine.controller import Context
 from .engine.models import SearchQuery
 from .engine.readiness import runtime_readiness
+from .tool_contracts import ToolContractError, validate_outcome, log_contract, execution_status
+from .download_budget import DownloadBudget, DownloadLimit, CURRENT as DOWNLOAD_BUDGET
 
 
 @dataclass(frozen=True)
@@ -145,6 +147,7 @@ class ToolRegistry:
         self._mapping_client=None
         self.evidence = InvestigationEvidence()
         self._lock = threading.RLock()
+        self._download_budget = DownloadBudget(getattr(settings, 'agent_download_mb', 20) * 1024 * 1024)
         self._redactions = {value for value in redactions if isinstance(value, str) and len(value) >= 4}
         from .agent_browser import PublicPageReader
         self.web_reader = PublicPageReader(max_pages=getattr(settings, 'agent_page_limit', 0),
@@ -156,14 +159,20 @@ class ToolRegistry:
 
     def begin_investigation(self):
         self.web_reader.begin_run()
+        self._download_budget = DownloadBudget(getattr(self.settings, 'agent_download_mb', 20) * 1024 * 1024)
 
     def checkpoint_state(self):
-        return {**self.web_reader.checkpoint_state(),'attachment_ids':sorted(self._attachment_ids)}
+        return {**self.web_reader.checkpoint_state(),'attachment_ids':sorted(self._attachment_ids),
+                'downloaded_bytes': self._download_budget.snapshot()['used_bytes']}
 
     def restore_investigation(self, records, state):
         self.evidence.restore(records, [])
         self.web_reader.restore_state(state, records)
         self.allow_attachments(state.get('attachment_ids',[]))
+        count = state.get('downloaded_bytes', 0)
+        if type(count) is not int or count < 0:
+            raise ValueError('Invalid saved download budget')
+        self._download_budget.used = count
 
     def allow_attachments(self, identifiers):
         for value in identifiers:
@@ -268,6 +277,8 @@ class ToolRegistry:
             options = self._source_options(spec.source)
             try:
                 row = self._readiness(spec.source, options, cancelled=cancelled)
+                if not isinstance(row, dict) or type(row.get('runtime_ready')) is not bool:
+                    raise ToolContractError('readiness', 'object with boolean runtime_ready', row)
             except Exception:
                 row = {"runtime_ready": False, 'state': 'configuration_error',
                        'message': 'Не удалось выполнить безопасную проверку окружения.',
@@ -438,7 +449,13 @@ class ToolRegistry:
 
     def execute(self, name, args, *, cancel_event=None, deadline=None, approved=False, on_event=None):
         started=utc_now()
-        result=self._execute(name,args,cancel_event=cancel_event,deadline=deadline,approved=approved,on_event=on_event)
+        monotonic_start = time.monotonic()
+        token = DOWNLOAD_BUDGET.set(self._download_budget)
+        try:
+            result=self._execute(name,args,cancel_event=cancel_event,deadline=deadline,approved=approved,on_event=on_event)
+        finally:
+            DOWNLOAD_BUDGET.reset(token)
+        result['download_budget'] = self._download_budget.snapshot()
         # Keep compatibility with the existing agent/evidence path while exposing
         # one versioned invocation contract for every success and failure.
         result.update(invocation_id=uuid.uuid4().hex,tool_id=result.get('tool',str(name)[:80]),
@@ -447,6 +464,8 @@ class ToolRegistry:
             evidence_ids=[r['evidence_id'] for r in result.get('results',[]) if r.get('evidence_id')],
             warnings=list(result.get('limitations',[])),errors=[result['error']] if result.get('error') else
             [] if result.get('status') in ('complete','completed','empty') else [result.get('status','error')])
+        result.update(contract_version=1, execution_id=result['invocation_id'], execution_status=execution_status(result['status']),
+                      duration_ms=round((time.monotonic() - monotonic_start) * 1000, 2))
         return result
 
     def _execute(self, name, args, *, cancel_event=None, deadline=None, approved=False, on_event=None):
@@ -491,12 +510,16 @@ class ToolRegistry:
             envelope["status"] = "cancelled" if cancel_event and cancel_event.is_set() else "timeout"
             return envelope
         records = {}
+        contract_errors = []
         def receive(raw):
             if cancelled.is_set():
                 return
             try:
                 record = normalize_evidence(raw, spec.name, value, utc_now(), tuple(self._redactions))
             except (TypeError, ValueError):
+                error = ToolContractError('outcome.results[]', 'finding object', raw)
+                contract_errors.append(error)
+                log_contract(error, spec.name)
                 return
             key = record["evidence_id"]
             if key in records or len(records) >= limit:
@@ -544,13 +567,16 @@ class ToolRegistry:
                 query.timeout = min(query.timeout, remaining)
                 adapter = self._adapters.get(spec.source) or SourceAdapter(spec.source, SOURCE_META[spec.source][0], SOURCE_META[spec.source][1])
                 outcome = adapter.run(query, Context(cancelled, options, event))
-            if not isinstance(outcome, dict):
-                raise ValueError()
-            for raw in outcome.get("results", [])[:limit] if isinstance(outcome.get("results"), list) else []:
+            validate_outcome(outcome)
+            for raw in outcome.get("results", [])[:limit]:
                 receive(raw)
             status = str(outcome.get("status", "error"))
             allowed = {"complete", "completed", "partial", "empty", "error", "timeout", "cancelled", "unavailable", "auth_required", "blocked", "limit_reached", "rate_limited", "invalid_arguments"}
             envelope["status"] = status if status in allowed else "error"
+            if contract_errors:
+                envelope.update(status='partial' if records else 'error', error_code='invalid_tool_output', error_info=contract_errors[0].diagnostic())
+            elif envelope['status'] in ('complete', 'completed') and not records:
+                envelope['status'] = 'empty'
             if spec.source == 'web_read' and outcome.get('error'):
                 envelope['error'] = str(outcome['error'])[:80]
             if spec.source == 'web_read' and isinstance(outcome.get('page_budget'), dict):
@@ -563,9 +589,16 @@ class ToolRegistry:
             if outcome.get("message"):
                 envelope["limitations"].append(redact(str(outcome["message"]), tuple(self._redactions))[:1000])
             code=outcome.get('error_code')
-            if isinstance(code,str) and re.fullmatch(r'[a-zA-Z0-9_.:-]{1,80}',code):envelope['error_code']=code
+            if not envelope.get('error_code') and isinstance(code,str) and re.fullmatch(r'[a-zA-Z0-9_.:-]{1,80}',code):envelope['error_code']=code
         except InterruptedError:
             envelope["status"] = "cancelled"
+        except DownloadLimit:
+            envelope.update(status='limit_reached', error='download_limit', error_code='download_limit',
+                limitations=['Достигнут бюджет декодированного текста встроенных HTTP-источников; новые запросы остановлены.'])
+        except ToolContractError as error:
+            log_contract(error, spec.name)
+            envelope.update(status='partial' if records else 'error', error_code=error.code,
+                error_info=error.diagnostic(), error='Источник вернул данные неверного формата; они не приняты за факты.')
         except Exception:
             envelope.update(status="error", error="Источник не выполнил запрос. Проверьте его доступность и настройки.")
         if cancelled.is_set():
@@ -577,7 +610,7 @@ class ToolRegistry:
         envelope["result_count"] = len(records)
         envelope["limitations"].append("Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность.")
         self.evidence.add(envelope)
-        error_code = redact(str(outcome.get('error_code') or (outcome.get('error') if spec.source=='web_read' else '') or ''), self._redactions) if isinstance(outcome,dict) else ''
+        error_code = envelope.get('error_code') or (redact(str(outcome.get('error_code') or (outcome.get('error') if spec.source=='web_read' else '') or ''), self._redactions) if isinstance(outcome,dict) else '')
         if not re.fullmatch(r'[a-zA-Z0-9_.:-]{1,80}',error_code):error_code=''
         with self._lock:
             self._last_executions[spec.name]={'status':envelope['status'],'obtained_at':envelope['obtained_at'],

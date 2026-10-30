@@ -93,11 +93,14 @@ def _client(factory=None):
 
 
 async def _fetch(client, url, *, params=None):
+    from .download_budget import check, consume
+    check()
     async with client.stream("GET", url, params=params) as response:
         if response.status_code != 200:
             raise _FetchError("http_" + str(response.status_code), http_status=response.status_code)
         raw = bytearray()
         async for part in response.aiter_bytes():
+            consume(len(part))
             raw.extend(part)
             if len(raw) > _MAX_BYTES:
                 raise _FetchError("response_too_large")
