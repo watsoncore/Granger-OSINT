@@ -225,6 +225,10 @@ class EvidenceStore:
                     self._diagnose(EvidenceContractError('envelope.results[]', value))
                     continue
                 try:
+                    saved = self._records.get(value.get('evidence_id'))
+                    if envelope.get('from_saved_data') is True and saved is not None and saved == value:
+                        identifiers.append(saved['evidence_id'])
+                        continue
                     origin = value.get("provenance", {})
                     if isinstance(origin, dict) and value.get("evidence_id") and (origin.get("tool") == envelope.get("tool") or envelope.get("tool") == "evidence_get"):
                         record = normalize_evidence(value, str(origin.get("tool", "unknown")),

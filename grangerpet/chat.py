@@ -704,6 +704,8 @@ class ChatWidget(QWidget):
             max_parallel=getattr(settings, 'agent_parallel', 2),
             per_tool_timeout=getattr(settings, 'agent_tool_timeout', 25),
             per_request_timeout=getattr(settings, 'agent_request_timeout', 90),
+            synthesis_max_tokens=getattr(settings, 'agent_synthesis_tokens', 65536),
+            synthesis_timeout=getattr(settings, 'agent_synthesis_timeout', 300),
             no_progress_rounds=getattr(settings, 'agent_no_progress_rounds', 3),
             auto_continue=getattr(settings, 'agent_auto_continue', True),
             budget_behavior=getattr(settings, 'agent_budget_behavior', 'pause'))

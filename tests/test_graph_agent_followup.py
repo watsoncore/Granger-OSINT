@@ -54,4 +54,5 @@ def test_explicit_local_explanation_after_research_budget_exhaustion_gets_bounde
     again=AgentRunner(Client([response(text='Should not run')]),registry,limits=AgentLimits(max_steps=1,max_tokens=8000,timeout=5))
     pending=runner.checkpoint();pending['record']['status']='paused'
     resumed=again.run('fixture',[],resume_state=pending)
-    assert resumed['investigation']['status']=='limit_reached' and not again.client.requests
+    assert resumed['investigation']['status']=='completed' and not again.client.requests
+    assert resumed['text']==result['text']  # Reuse the completed answer, without another paid request.

@@ -119,6 +119,20 @@ def test_legacy_attachment_protocol_is_not_part_of_analysis_goal():
     assert value['goal'] == 'Найди место'
 
 
+def test_synthesis_uses_its_own_timeout_instead_of_short_research_request_timeout():
+    import time
+    class SlowReport(Client):
+        def stream_report(self,model,messages,**kwargs):
+            time.sleep(.12)
+            assert not kwargs['cancel_event'].is_set()
+            return response(text='Завершённый анализ.')
+    client=SlowReport([])
+    result=AgentRunner(client,Registry(),limits=AgentLimits(max_tokens=1,
+        per_request_timeout=.03,synthesis_timeout=2)).run('fixture',HISTORY)
+    assert result['investigation']['report_status']=='completed'
+    assert result['text']=='Завершённый анализ.'
+
+
 def test_report_gateway_does_not_silently_cut_structured_facts_at_50000_characters():
     captured=[]
     def transport(request):

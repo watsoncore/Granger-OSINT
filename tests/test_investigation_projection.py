@@ -20,7 +20,8 @@ def test_telegram_actual_link_is_verified_but_unrelated_search_stays_background(
     url='https://t.me/s/fixture_project'
     page=evidence('community',url,{'username':'fixture_project','canonical_url':'https://t.me/fixture_project',
         'object_type_verified':True,'entity_type':'telegram_channel','reading_method':'direct_http','body_sha256':'a'*64,
-        'links':[{'url':'https://github.com/public-fixture/project'}]})
+        'links':[{'url':'https://github.com/public-fixture/project','content_region':'post_content',
+            'extraction_method':'public_post_parser','selector':'.tgme_widget_message_text a[href]'}]})
     repo=evidence('repository','https://github.com/public-fixture/project',{'full_name':'public-fixture/project','acquisition':'official_api'},number='repo')
     noise=evidence('publication','https://news.ycombinator.com/item?id=123',{},title='An unrelated real estate article',number='noise')
     snapshot={'id':'a'*32,'status':'completed','goal':'Исследуй https://t.me/fixture_project','tool_calls':3,'evidence':[page,repo,noise],'executions':[]}

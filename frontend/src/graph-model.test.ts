@@ -23,7 +23,8 @@ describe('investigation graph transformations',()=>{
     const nodes=[node('r','blockchain_address'),node('b','blockchain_address'),node('tx','transaction')]
     const e={...edge('r','b'),aggregate:{count:1,amount:'2',asset:'TON',known_amount_count:1,unknown_amount_count:0,transaction_ids:['tx'],owner_verified:false as const}}
     expect(visibleGraph(nodes,[e],'r',view).nodes).toHaveLength(2)
-    expect(visibleGraph(nodes,[e],'r',{...view,expanded:['r']}).nodes).toHaveLength(3)
+    expect(visibleGraph(nodes,[e],'r',{...view,expanded:['r']}).nodes).toHaveLength(2)
+    expect(visibleGraph(nodes,[e],'r',{...view,expanded_relations:[e.id]}).nodes).toHaveLength(3)
   })
   it('preserves pinned positions during relayout and computes independent tree positions',()=>{
     const nodes=['r','a','b'].map(id=>node(id)),edges=[edge('r','a'),edge('a','b')]

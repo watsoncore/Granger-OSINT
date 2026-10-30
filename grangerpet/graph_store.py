@@ -24,7 +24,7 @@ def _number(value, low=-10_000_000, high=10_000_000):
 def validate_view(value):
     if not isinstance(value,dict): raise ValueError('Graph view must be an object')
     allowed={'version','mode','positions','tree_positions','viewport','tree_viewport','selected_id',
-        'selected_relation','expanded','collapsed','filters','query','layout_algorithm','inspector_width','inspector_hidden'}
+        'selected_relation','expanded','expanded_relations','collapsed','filters','query','layout_algorithm','inspector_width','inspector_hidden'}
     if set(value)-allowed or value.get('version',1)!=1: raise ValueError('Unsupported graph view')
     result=deepcopy(value)
     result['version']=1
@@ -50,6 +50,8 @@ def validate_view(value):
     for key in ('expanded','collapsed'):
         rows=result.get(key,[])
         if not isinstance(rows,list) or len(rows)>5000 or any(not isinstance(row,str) or not ENTITY_ID.fullmatch(row) for row in rows):raise ValueError('Invalid graph branches')
+    rows=result.get('expanded_relations',[])
+    if not isinstance(rows,list) or len(rows)>5000 or any(not isinstance(row,str) or not RELATION_ID.fullmatch(row) for row in rows):raise ValueError('Invalid expanded relations')
     if 'query' in result and (not isinstance(result['query'],str) or len(result['query'])>200):raise ValueError('Invalid graph filter query')
     if 'filters' in result:
         filters=result['filters']

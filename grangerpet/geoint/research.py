@@ -196,7 +196,7 @@ class ResearchSources:
                 output.append({'provider':'Panoramax','title':row['title'],'image_url':image,
                     'original_image_url':image,'source_url':row['url'], 'latitude':details.get('latitude'),
                     'longitude':details.get('longitude'),'captured_at':details.get('captured_at'),
-                    'license':details.get('license'),'author':details.get('attribution'),
+                    'license':details.get('license'),'license_url':details.get('license_url'),'author':details.get('attribution'),
                     'match_kind':'nearby_reference_not_verified_match', 'distance_to_candidate_m':round(haversine_km(
                         [candidate['latitude'],candidate['longitude']],[details['latitude'],details['longitude']])*1000,1)})
         return sorted(output,key=lambda row:row['distance_to_candidate_m'])[:count]

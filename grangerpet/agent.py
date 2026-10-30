@@ -321,7 +321,8 @@ class AgentRunner:
     def _model_request(self, model, messages, offered, requested, reservation, *, synthesis=False, on_text=None):
         """Bound a single provider request even if an adapter ignores cancel."""
         request_id = uuid.uuid4().hex
-        deadline = min(self._deadline, time.monotonic() + self.limits.per_request_timeout)
+        timeout = self.limits.synthesis_timeout if synthesis else self.limits.per_request_timeout
+        deadline = min(self._deadline, time.monotonic() + timeout)
         cancelled = _Cancellation(self._parent_cancel, self._stop, deadline)
         replies = queue.Queue()
         context = self._usage_context
@@ -483,7 +484,8 @@ class AgentRunner:
                 return
             if value.get("type") == "evidence" and isinstance(value.get("records"), list):
                 self._accept({"tool": name, "query": next((args.get(key) for key in ("username", "email", "phone", "address", "url", "query", "domain") if key in args), ""),
-                              "status": "partial", "obtained_at": utc_now(), "results": value["records"], 'stream_event':True}, callback)
+                              "status": "partial", "obtained_at": utc_now(), "results": value["records"], 'stream_event':True,
+                              'from_saved_data': value.get('from_saved_data') is True}, callback)
         metadata = self._catalog.get(name, {})
         approved = False
         if metadata.get("requires_approval") or metadata.get("needs_confirmation"):
@@ -1216,6 +1218,9 @@ class AgentRunner:
                     self._state['pending_calls'] = calls
                     self._state['seen_call_ids'].extend(call['id'] for call in calls)
             self._persist()
+            if (resume_state is not None and not followup and not self._state.get('pending_calls')
+                    and self._record.get('report_status') == 'completed' and self._record.get('final_report')):
+                raise _Stopped('report_already_completed')
             if (resume_state is not None and not followup and (self._state.get('report_parts') or self._state.get('report_draft'))
                     and self._record.get('report_status') in ('partial', 'generating')):
                 raise _Stopped('report_resume')
@@ -1321,6 +1326,10 @@ class AgentRunner:
                 self._checkpoint()
         except _Stopped as stop:
             reason = stop.reason
+            if (resume_state is not None and not followup and not self._state.get('pending_calls')
+                    and self._record.get('report_status') == 'completed' and self._record.get('final_report')
+                    and reason in ('step_limit','tool_limit','token_limit','time_limit','report_already_completed')):
+                reason = 'report_already_completed'
             state = 'failed' if reason == 'data_contract_error' else 'cancelled' if reason == 'cancelled' else 'paused' if reason in ('manual_pause', 'no_progress', 'interrupted') else 'limit_reached'
             if self.limits.budget_behavior == 'stop' and state == 'limit_reached':
                 state = 'stopped'
@@ -1332,6 +1341,10 @@ class AgentRunner:
                 'no_progress': 'Проверки начали повторяться или возвращать одинаковые ошибки. Исследование приостановлено; полученные сведения сохранены.',
                 'checkpoint_error': 'Не удалось безопасно сохранить продолжение расследования. Работа остановлена; доступны полученные в этой сессии сведения.'
             }.get(reason, 'Достигнут заданный бюджет или техническое ограничение. Расследование можно продолжить после изменения этого ограничения.')
+            if reason == 'report_already_completed':
+                text = self._record['final_report']
+                self._record.update(phase='final', report_status='completed')
+                state, analytical_report = 'completed', True
             if reason in ('no_progress', 'step_limit', 'tool_limit', 'token_limit', 'time_limit',
                           'page_limit', 'download_limit', 'context_limit', 'report_resume'):
                 try:

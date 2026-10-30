@@ -113,9 +113,11 @@ def execute(args, *, store, cancel_event=None, deadline=None):
         return {'status':'cancelled' if error.code == 'cancelled' else 'error', 'error_code':error.code, 'results':[]}
     if result.get('status') != 'completed':
         return {**result, 'results':[], 'limitations':['Семантическое описание пикселей не получено; содержимое сцены не угадано.']}
-    details = {**result, 'tool':'image_understand', 'capability':'image_understand', 'attachment_id':args['attachment_id'],
+    from .observations import signature, parameters
+    details = {**result, 'local_inference_signature':signature('image_understand',args),
+        'inference_parameters':parameters('image_understand',args), 'tool':'image_understand', 'capability':'image_understand', 'attachment_id':args['attachment_id'],
         'source_record':True, 'acquisition':'local_model', 'execution_mode':'LOCAL_MODEL'}
-    return {'status':'complete', 'results':[{'id':'image_understand:'+args['attachment_id'], 'type':'image_analysis',
+    return {'status':'complete', 'results':[{'id':'image_understand:'+details['local_inference_signature'], 'type':'image_analysis',
         'platform':'Florence-2-base-ft', 'title':'Видимая сцена и области изображения', 'url':'',
         'description':result['description'], 'status':'hypothesis', 'details':details, 'sources':['image_understand']}],
         'limitations':result['limitations']}

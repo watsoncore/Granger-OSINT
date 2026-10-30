@@ -42,9 +42,11 @@ def execute(tool,args,*,store,cancel_event,deadline):
     limitations=list(result.get('warnings',[]))+['Предсказания модели и доли сэмплов не являются вероятностью правильного места. Нужна независимая проверка по признакам и источникам.']
     details={**result,'tool':'geoclip' if tool=='geoclip_predict' else 'waypoint' if tool=='waypoint_predict' else 'waypoint_match','attachment_id':args['attachment_id'],'execution_mode':'LOCAL_MODEL','acquisition':'local_tool',
         'capability':tool,'source_record':True,'limitations':limitations}
+    from .observations import signature, parameters
+    details.update(local_inference_signature=signature(tool,args), inference_parameters=parameters(tool,args))
     details['preview']=store.small_preview(args['attachment_id'],cancel_event)
     if 'reference_id' in args:details['reference_id']=args['reference_id']
-    return {'status':'complete','results':[{'id':tool+':'+args['attachment_id']+':'+str(args.get('seed',0)),
+    return {'status':'complete','results':[{'id':tool+':'+details['local_inference_signature'],
         'type':'image_analysis','platform':component,'title':component+' · '+('сопоставление изображений' if tool=='waypoint_match' else 'географические гипотезы'),
         'url':'','description':'Результат локального CPU-inference по выбранному изображению.','status':'hypothesis',
         'details':details,'sources':[tool]}],'limitations':limitations}

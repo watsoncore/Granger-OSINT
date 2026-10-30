@@ -110,7 +110,7 @@ def compare_coordinates(records):
         'conflicts': [item for item in distances if item['screening_distance_only']], 'warnings': list(LIMITATIONS)}
 
 
-def execute(args, settings, store, cancel_event=None, deadline=None, on_result=None):
+def execute(args, settings, store, cancel_event=None, deadline=None, on_result=None, reuse_records=()):
     """Run repository adapters in order, emitting records before checking cancel.
 
     The caller scopes attachment IDs and persists each callback in its existing
@@ -126,7 +126,8 @@ def execute(args, settings, store, cancel_event=None, deadline=None, on_result=N
     def stage(name, operation):
         check(cancel_event, deadline)
         try:
-            outcome = operation()
+            from .observations import cached
+            outcome = cached(name, args, reuse_records) or operation()
         except (LocalToolError, geoint_tools.GeointError) as error:
             outcome = {'status': error.code if error.code in ('cancelled', 'timeout') else 'error',
                        'error_code': error.code, 'results': [], 'limitations': [str(error)]}
@@ -135,7 +136,8 @@ def execute(args, settings, store, cancel_event=None, deadline=None, on_result=N
             outcome = {'status': 'error', 'error_code': 'local_stage_failed', 'results': []}
         if not isinstance(outcome, dict):
             outcome = {'status': 'error', 'error_code': 'invalid_stage_response', 'results': []}
-        stages.append({'tool': name, 'status': outcome.get('status', 'error'), 'error_code': outcome.get('error_code')})
+        stages.append({'tool': name, 'status': outcome.get('status', 'error'), 'error_code': outcome.get('error_code'),
+                       'from_saved_data': outcome.get('from_saved_data') is True})
         limitations.extend(str(item) for item in outcome.get('limitations', []) if isinstance(item, str))
         for row in outcome.get('results', []):
             if isinstance(row, dict):

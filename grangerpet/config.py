@@ -58,6 +58,8 @@ class Settings:
     agent_parallel: int = 2
     agent_tool_timeout: int = 25
     agent_request_timeout: int = 90
+    agent_synthesis_tokens: int = 65536
+    agent_synthesis_timeout: int = 300
     agent_no_progress_rounds: int = 3
     agent_download_mb: int = 20
     agent_auto_continue: bool = True
@@ -109,7 +111,8 @@ class Settings:
                                ("agent_timeout", 0, 31_536_000), ("agent_tokens", 0, 2_000_000_000),
                                ("agent_page_limit", 0, 2_000_000_000), ("agent_page_depth", 0, 8),
                                ("agent_parallel", 1, 4), ("agent_tool_timeout", 1, 300),
-                               ("agent_request_timeout", 1, 300)):
+                               ("agent_request_timeout", 1, 300), ("agent_synthesis_tokens", 1024, 2_000_000_000),
+                               ("agent_synthesis_timeout", 1, 3600)):
             value = values.get(key)
             if isinstance(value, (int, float)) and not isinstance(value, bool):
                 try:

@@ -59,9 +59,19 @@ async def search(args,call,json_fetch):
             except PageReadError:continue
             if urlsplit(href).scheme=='https':assets.append({'kind':kind,'url':href,'pixels_downloaded':False})
         exif=properties.get('exif') or {}
+        artist=exif.get('Exif.Image.Artist') if isinstance(exif,dict) else None
+        producer=properties.get('geovisio:producer')
+        attribution=artist if isinstance(artist,str) and artist else producer if isinstance(producer,str) else ''
+        license_url=''
+        for link in feature.get('links',[]) if isinstance(feature.get('links'),list) else []:
+            if isinstance(link,dict) and link.get('rel')=='license' and isinstance(link.get('href'),str):
+                try:license_url=public_url(link['href'])
+                except PageReadError:continue
+                break
         details={'tool':'map_panoramax','id':identifier,'latitude':coords[1],'longitude':coords[0],
             'captured_at':str(properties.get('datetime',''))[:100],'license':str(properties.get('license') or feature.get('license') or 'not_specified')[:100],
-            'attribution':str(exif.get('Exif.Image.Artist',''))[:500] if isinstance(exif,dict) else '',
+            'attribution':attribution[:500],'attribution_basis':'exif_artist' if artist else 'archive_producer' if attribution else 'not_supplied',
+            'license_url':license_url,
             'media':assets,'endpoint':ENDPOINT,'search_center':[args['latitude'],args['longitude']],
             'radius_m':args['radius_m'],'reference_location_verified':False,'pixels_downloaded':False,
             'verification':'Публичная запись Panoramax: координаты и дата предоставлены архивом. Близость к гипотезе модели не подтверждает место пользовательского фото.'}

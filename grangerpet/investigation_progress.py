@@ -84,6 +84,15 @@ def semantic_facts(records):
         details = row.get('details') or {}
         if not isinstance(details, dict) or details.get('capability') == 'evidence_graph' or row.get('type')=='blockchain_summary':
             continue
+        capability = details.get('capability')
+        if capability == 'visual_geoint_comparison':
+            continue  # Recomputed distances are not an independent source.
+        if capability in ('image_understand','geoclip_predict','waypoint_predict','waypoint_match'):
+            # All model trials remain in evidence. Changing seed/top_k on the
+            # same pixels does not constitute independent corroboration.
+            value = [capability, details.get('attachment_id'), details.get('reference_id')]
+            facts.add(hashlib.sha256(json.dumps(value).encode()).hexdigest())
+            continue
         observation = row
         if row.get('observations'):
             observation = {**row, **row['observations'][-1]}

@@ -35,7 +35,7 @@ function searchText(node:GraphEntity){
 export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:string,view:GraphView,limit=220) {
   const index=indexGraph(nodes,edges), filters=view.filters || {}, expanded=new Set(view.expanded || [])
   const expandedTransactions=new Set<string>()
-  for (const edge of edges) if (edge.aggregate && (expanded.has(edge.from_id)||expanded.has(edge.to_id))) edge.aggregate.transaction_ids.forEach(id=>expandedTransactions.add(id))
+  for (const edge of edges) if (edge.aggregate && view.expanded_relations?.includes(edge.id)) edge.aggregate.transaction_ids.forEach(id=>expandedTransactions.add(id))
   const query=(view.query || '').toLocaleLowerCase()
   const researchedImages=new Set(nodes.filter(node=>node.type==='geographic_candidate'&&node.attributes.candidate_id).map(node=>node.attributes.attachment_id))
   let allowed=nodes.filter(node=> {

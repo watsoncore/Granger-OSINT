@@ -4,7 +4,8 @@ import json
 
 def selection_context(nodes, edges, selected, relation_id=None, records=()):
     attrs={'url','address','username','repository','chain','latitude','longitude','attachment_id',
-        'owner_verified','identity_verified','reference_only','calibrated_probability','model','raw_score','display_type','asset_id','asset_type','collection','amount','ownership_status'}
+        'owner_verified','identity_verified','reference_only','calibrated_probability','model','raw_score','display_type','asset_id','asset_type','collection','amount','ownership_status',
+        'flow_summaries','transaction_count','first_seen','last_seen','member_count','grouping_basis','candidate_status','limitations'}
     def compact(value, depth=0):
         if isinstance(value,str):return value[:360]
         if value is None or type(value) in (int,float,bool):return value
@@ -29,10 +30,10 @@ def selection_context(nodes, edges, selected, relation_id=None, records=()):
     for row in related:
         if row['from_id'] not in included or row['to_id'] not in included:continue
         result={key:compact(value) for key,value in row.items()
-            if key in ('id','from_id','to_id','relation_type','direction','verification_status','evidence_ids','source_urls','claim_kind')}
+            if key in ('id','from_id','to_id','relation_type','direction','verification_status','evidence_ids','source_urls','claim_kind','provenance')}
         if isinstance(row.get('aggregate'),dict):
             result['aggregate']={key:compact(value) for key,value in row['aggregate'].items()
-                if key in ('count','amount','asset','known_amount_count','unknown_amount_count','owner_verified')}
+                if key in ('count','amount','asset','asset_label','contract','first_seen','last_seen','known_amount_count','unknown_amount_count','owner_verified','coverage')}
         context['relations'].append(result)
         if len(context['relations'])>=24:break
     evidence_ids={eid for row in context['entities']+context['relations'] for eid in row.get('evidence_ids',[])}

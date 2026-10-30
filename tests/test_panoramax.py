@@ -50,3 +50,16 @@ def test_empty_archive_is_an_empty_observation_not_an_absence_proof(monkeypatch)
     monkeypatch.setattr(public_tools,'_json',api);public_tools._CACHE.clear()
     result=public_tools.execute('map_panoramax',{'latitude':20,'longitude':20})
     assert result['status']=='empty' and result['limitations']
+
+
+def test_archive_producer_and_license_link_survive_when_exif_artist_is_absent(monkeypatch):
+    feature=deepcopy(FEATURE)
+    feature['properties']['exif']={}
+    feature['properties']['geovisio:producer']='Public archive contributor'
+    feature['links']=[{'rel':'license','href':'https://example.org/license'}]
+    async def api(*a,**k):return {'features':[feature]}
+    monkeypatch.setattr(public_tools,'_json',api);public_tools._CACHE.clear()
+    result=public_tools.execute('map_panoramax',{'latitude':48.8584,'longitude':2.2945})
+    details=result['results'][0]['details']
+    assert details['attribution']=='Public archive contributor'
+    assert details['attribution_basis']=='archive_producer' and details['license_url']=='https://example.org/license'

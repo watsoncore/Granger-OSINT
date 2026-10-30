@@ -653,6 +653,11 @@ class ToolRegistry:
             envelope["error"] = "Некорректные аргументы инструмента. Используйте его строго заданный тип и допустимый лимит."
             return envelope
         envelope["query"] = redact(value, self._redactions)
+        from .visual_models.observations import cached
+        saved = cached(name, args, self.evidence.records())
+        if saved:
+            saved.update(obtained_at=when, started_at=when, result_count=len(saved['results']))
+            return saved
         local_blockchain=False
         if spec.source=='blockchain' and isinstance(args,dict) and not args.get('refresh'):
             from .blockchain_store import target_key
@@ -683,7 +688,11 @@ class ToolRegistry:
             if cancelled.is_set():
                 return
             try:
-                record = normalize_evidence(raw, spec.name, value, utc_now(), tuple(self._redactions))
+                existing = self.evidence.get(raw.get('evidence_id')) if isinstance(raw,dict) else None
+                reused = existing is not None and raw == existing
+                record = deepcopy(existing) if reused else normalize_evidence(raw, spec.name, value, utc_now(), tuple(self._redactions))
+                if reused:
+                    envelope['from_saved_data'] = True
             except (TypeError, ValueError):
                 error = ToolContractError('outcome.results[]', 'finding object', raw)
                 contract_errors.append(error)
@@ -695,10 +704,11 @@ class ToolRegistry:
             records[key] = record
             self.web_reader.add_evidence([record])
             self.evidence.add({"tool": spec.name, "query": value, "obtained_at": when,
-                               "status": "partial", "results": [record], 'stream_event':True})
+                               "status": "partial", "results": [record], 'stream_event':True,
+                               'from_saved_data': reused})
             if callable(on_event):
                 try:
-                    on_event({"type": "evidence", "tool": spec.name, "records": [deepcopy(record)]})
+                    on_event({"type": "evidence", "tool": spec.name, "records": [deepcopy(record)], 'from_saved_data':reused})
                 except Exception:
                     pass
         def event(row):
@@ -868,7 +878,7 @@ class ToolRegistry:
             from .geoint_tools import attachment_store
             if spec.name=='visual_geoint':
                 from .visual_models.pipeline import execute
-                return execute(args,settings=self.settings,store=self._image_store or attachment_store(),cancel_event=cancelled,deadline=deadline,on_result=on_result)
+                return execute(args,settings=self.settings,store=self._image_store or attachment_store(),cancel_event=cancelled,deadline=deadline,on_result=on_result,reuse_records=self.evidence.records())
             from .visual_models.tools import execute
             return execute(spec.name,args,store=self._image_store or attachment_store(),cancel_event=cancelled,deadline=deadline)
         elif spec.source=='scene_vision':
