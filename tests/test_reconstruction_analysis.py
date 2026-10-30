@@ -135,6 +135,25 @@ def test_actual_absent_gps_and_empty_ocr_survive_final_analysis_context():
     assert 'PRIVATE-SERIAL' not in json.dumps(context)
 
 
+def test_real_client_accepts_calculated_context_after_a_backend_tool_result():
+    requests=[]
+    def transport(request):
+        body=json.loads(request.content);requests.append(body)
+        if body.get('stream'):
+            return httpx.Response(200,headers={'content-type':'text/event-stream'},stream=Bytes([
+                frame('Анализ сохранённых наблюдений завершён.'),frame('',finish='stop'),b'data: [DONE]\n\n']))
+        return httpx.Response(200,json={'choices':[{'message':{'role':'assistant','content':'Данные собраны.'},'finish_reason':'stop'}]})
+    client=DeepSeekClient('FIXTURE-NOT-REAL-KEY',client_factory=lambda **kw:httpx.AsyncClient(transport=httpx.MockTransport(transport),**kw))
+    class Routed(Registry):
+        def initial_calls(self,goal):return [{'name':'web_search','arguments':{'query':'fixture'}}]
+    result=AgentRunner(client,Routed()).run('deepseek-v4-flash',HISTORY)
+    assert result['investigation']['status']=='completed'
+    assert len(requests)==2 and not requests[0].get('stream') and requests[1]['stream']
+    messages=requests[0]['messages']
+    assert [m['role'] for m in messages].count('system')==1
+    assert messages[-1]['role']=='tool' and 'Локальные расчёты' in messages[0]['content']
+
+
 def test_synthesis_uses_its_own_timeout_instead_of_short_research_request_timeout():
     import time
     class SlowReport(Client):

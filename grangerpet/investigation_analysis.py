@@ -256,7 +256,7 @@ def factual_report(analysis, *, reason='', language_unavailable=False):
         if direction.get('unresolved'):
             lines += [f"Для {direction['unresolved']} событий направление относительно адреса не установлено.", '']
         lines += [f"Наблюдаемый период UTC: {data.get('first_seen') or 'неизвестно'} — {data.get('last_seen') or 'неизвестно'}.", '',
-            '| Актив / контракт | Получено (известные суммы) | Отправлено (известные суммы) | Неизвестные суммы |', '| --- | ---: | ---: | ---: | ---: |']
+            '| Актив / контракт | Получено (известные суммы) | Отправлено (известные суммы) | Неизвестные суммы |', '| --- | ---: | ---: | ---: |']
         for item in data.get('assets', []):
             lines.append('| '+ ' | '.join(_cell(v) for v in (item['asset']+' / '+str(item.get('contract') or item['chain']),
                 item['incoming'], item['outgoing'], item['unknown_amounts']))+' |')

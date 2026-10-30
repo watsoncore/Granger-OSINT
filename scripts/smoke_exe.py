@@ -12,6 +12,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import uuid
 from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,6 +39,9 @@ def _ensure_no_running_instance() -> None:
     kernel.WaitNamedPipeW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD]
     kernel.WaitNamedPipeW.restype = wintypes.BOOL
     identity = hashlib.sha256(str(Path.home()).casefold().encode("utf-8")).hexdigest()[:12]
+    namespace=os.environ.get('GRANGERPET_QA_NAMESPACE','')
+    if namespace and os.environ.get('GRANGERPET_INTERACTION_TRACE'):
+        identity=hashlib.sha256((str(Path.home()).casefold()+'|qa|'+namespace).encode('utf-8')).hexdigest()[:12]
     for role in ("launcher", "pet"):
         name = rf"\\.\pipe\GrangerPet-{identity}-{role}"
         ctypes.set_last_error(0)
@@ -116,7 +120,7 @@ def _run_surface(executable: Path, pet: bool, directory: Path) -> dict:
             environment.pop(key)
     environment.update(APPDATA=str(appdata), TEMP=str(temporary), TMP=str(temporary),
                        PATH=str(Path(environment.get("SystemRoot", r"C:\Windows")) / "System32"))
-    arguments = [str(executable)] + (["--pet"] if pet else []) + ["--smoke-test"]
+    arguments = [str(executable)] + (["--pet"] if pet else []) + ["--smoke-test", "--interaction-qa"]
     process = subprocess.Popen(arguments, env=environment, cwd=working,
                                stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
@@ -159,8 +163,11 @@ def main() -> int:
         report["sha256"] = hashlib.sha256(executable.read_bytes()).hexdigest()
         report["size_bytes"] = executable.stat().st_size
         report["pe"] = _pe_info(executable)
-        _ensure_no_running_instance()
         with tempfile.TemporaryDirectory(prefix="GrangerPet-binary-smoke-") as temporary:
+            namespace=uuid.uuid4().hex
+            os.environ.update(GRANGERPET_QA_NAMESPACE=namespace,GRANGERPET_QA_VAULT='GrangerPet/QA/smoke_'+namespace,
+                GRANGERPET_INTERACTION_TRACE=str(Path(temporary)/'interaction.jsonl'))
+            report['isolated_ipc']=True
             for pet in (False, True):
                 _ensure_no_running_instance()
                 check = _run_surface(executable, pet, Path(temporary))

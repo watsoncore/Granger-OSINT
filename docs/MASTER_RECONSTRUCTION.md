@@ -317,3 +317,12 @@ transaction cards с сохранёнными asset positions при раскр�
 5 частей, 15133 символа, 506 text events, 43,464 с, 60116 reported tokens,
 0 новых внешних tool calls, нет видимых raw IDs/секрета. Последний ответ просмотрен:
 no_gps_metadata и пустой low-confidence OCR объяснены корректно.
+
+Реальный frozen chat-final обнаружил дополнительную ошибку до HTTP: AgentRunner
+добавлял локальные вычисления вторым system message, а complete_turn допускает
+только ведущий system. Поэтому backend profile выполнялся, но LLM tool continuation
+отклонялось как invalid_request. Это ошибка приложения, не отказ gateway. Вычисления
+теперь включены в тот же ведущий envelope. Добавлен regression с реальным
+DeepSeekClient validator + MockTransport после backend-route/tool result и последующим
+SSE. 35 targeted tests passed (16,93 с); неуспешный native paid run сохранён,
+QA secret удалён, NFT/graph ветки в нём не объявлены выполненными.

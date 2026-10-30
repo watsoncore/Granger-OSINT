@@ -1,0 +1,745 @@
+{
+  "mock": false,
+  "mode": "actual_cpu_public_research_and_optional_gateway_sse",
+  "selection": "7 classes from 5 distinct licensed photographs selected before inference; documented pixel derivatives, not 7 independent originals; no synthetic images",
+  "original_sources": 5,
+  "image_uploads": 0,
+  "ground_truth_sent_to_models": false,
+  "limitations": [
+    "Seven classes from five original photos; two derivatives are not independent accuracy samples.",
+    "No exact location independently confirmed.",
+    "One source photo has conflicting archive geotags; annotation not ground truth.",
+    "Raw scores uncalibrated.",
+    "Low-resolution Florence hallucinated a pond.",
+    "Several reference sources blocked/unavailable; no bypass.",
+    "Initial captions/synthesis reviewed, subsequent prompt/context fixes separately retested."
+  ],
+  "cases": [
+    {
+      "id": "photo-01",
+      "class": "urban_street",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=d6f8bec6-4250-405c-a54f-a417f6349ef7",
+      "license": "CC-BY-SA-4.0",
+      "author": "nuxper_np",
+      "transform": "original pixels, re-encoded JPEG without metadata",
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "919a63209d4c6fcf0392f8f052dfe5956d9e0c42f584dba750f63dafd99a8181",
+      "status": "executed",
+      "visual_status": "partial",
+      "research_status": "partial",
+      "predictions": [
+        {
+          "tool": "geoclip_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 45.76334762573242,
+              "longitude": 4.83429479598999,
+              "raw_score": 17.307037353515625,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.363
+            },
+            {
+              "rank": 2,
+              "latitude": 45.76139450073242,
+              "longitude": 4.835608959197998,
+              "raw_score": 17.28169059753418,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.128
+            },
+            {
+              "rank": 3,
+              "latitude": 45.760353088378906,
+              "longitude": 4.835506916046143,
+              "raw_score": 17.26964569091797,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.02
+            },
+            {
+              "rank": 4,
+              "latitude": 45.76444625854492,
+              "longitude": 4.836236953735352,
+              "raw_score": 17.26583480834961,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.469
+            },
+            {
+              "rank": 5,
+              "latitude": 45.75798034667969,
+              "longitude": 4.836590766906738,
+              "raw_score": 17.249706268310547,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.26
+            }
+          ]
+        },
+        {
+          "tool": "waypoint_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 44.84934026479632,
+              "longitude": -0.5747724011468754,
+              "raw_score": 0.21875,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 434.999
+            },
+            {
+              "rank": 2,
+              "latitude": 47.50431606338204,
+              "longitude": -0.5000100304737446,
+              "raw_score": 0.1875,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 451.081
+            },
+            {
+              "rank": 3,
+              "latitude": 45.75411290533573,
+              "longitude": 4.8265350555712185,
+              "raw_score": 0.125,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.986
+            },
+            {
+              "rank": 4,
+              "latitude": 49.438768149639095,
+              "longitude": 1.0904023935926006,
+              "raw_score": 0.09375,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 496.014
+            }
+          ]
+        }
+      ],
+      "exact_repeat_reused": true,
+      "synthesis": {
+        "status": "completed",
+        "report_status": "completed",
+        "usage": {
+          "prompt_tokens": 11478,
+          "completion_tokens": 3046,
+          "total_tokens": 14524
+        },
+        "characters": 9516,
+        "text_events": 322,
+        "raw_evidence_ids": false
+      },
+      "elapsed_seconds": 257.464,
+      "manual_review_note": "Visible people, paved square and surrounding buildings match caption. Exact Lyon location not established by matching; GeoCLIP 0.363km vs Waypoint 434.999km. Initial answer misdescribed spatial coverage, prompt corrected afterwards.",
+      "references_found": 4,
+      "reference_pixels_fetched": 2
+    },
+    {
+      "id": "photo-02",
+      "class": "architectural_landmark",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=d45df449-551f-4cff-af60-9f91ff5cbbd8",
+      "license": "CC-BY-SA-4.0",
+      "author": "mapillarymatt",
+      "transform": "original pixels, re-encoded JPEG without metadata",
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "d3cceb76b9352ff1d0c3dc42876584f7bbf6712048006cca11caebda397723ba",
+      "status": "executed",
+      "visual_status": "partial",
+      "research_status": "partial",
+      "predictions": [
+        {
+          "tool": "geoclip_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 43.311187744140625,
+              "longitude": 5.373686790466309,
+              "raw_score": 16.026424407958984,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 2671.965
+            },
+            {
+              "rank": 2,
+              "latitude": 43.312686920166016,
+              "longitude": 5.368194103240967,
+              "raw_score": 15.929746627807617,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 2672.181
+            },
+            {
+              "rank": 3,
+              "latitude": 47.48986053466797,
+              "longitude": 19.0478458404541,
+              "raw_score": 15.608755111694336,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 1569.591
+            },
+            {
+              "rank": 4,
+              "latitude": 43.308189392089844,
+              "longitude": 5.366820812225342,
+              "raw_score": 15.590629577636719,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 2672.6
+            },
+            {
+              "rank": 5,
+              "latitude": 47.49094009399414,
+              "longitude": 19.049680709838867,
+              "raw_score": 15.548617362976074,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 1569.408
+            }
+          ]
+        },
+        {
+          "tool": "waypoint_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 55.72696580159724,
+              "longitude": 37.5865301963632,
+              "raw_score": 0.96875,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 3.649
+            }
+          ]
+        }
+      ],
+      "exact_repeat_reused": true,
+      "synthesis": {
+        "status": "completed",
+        "report_status": "completed",
+        "usage": {
+          "prompt_tokens": 9411,
+          "completion_tokens": 2708,
+          "total_tokens": 12119
+        },
+        "characters": 8271,
+        "text_events": 290,
+        "raw_evidence_ids": false
+      },
+      "elapsed_seconds": 266.14,
+      "manual_review_note": "Walkway, glass/metal railings, grass and background buildings match caption. Model did not identify the Baltschug landmark by name. GeoCLIP Marseille incorrect; Waypoint Moscow region only. Retrieved indoor Commons pictures contradict source scene; answer flags this.",
+      "references_found": 3,
+      "reference_pixels_fetched": 3
+    },
+    {
+      "id": "photo-03",
+      "class": "natural_landscape",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=79538352-8569-4b36-b315-29b9f96bf444",
+      "license": "CC-BY-SA-4.0",
+      "author": "ordinatous",
+      "transform": "crop upper mountain ridge: x=0.40..0.80, y=0.24..0.43; no generated pixels",
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "9a6279a3197820470cb6e85140e98b18ea7d55f76adde7a63446bde5b5e9c05c",
+      "status": "executed",
+      "visual_status": "partial",
+      "research_status": "partial",
+      "predictions": [
+        {
+          "tool": "geoclip_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 45.93828582763672,
+              "longitude": 6.884077072143555,
+              "raw_score": 19.46524429321289,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 2.019
+            },
+            {
+              "rank": 2,
+              "latitude": 45.92727279663086,
+              "longitude": 6.872978210449219,
+              "raw_score": 19.27967071533203,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.525
+            },
+            {
+              "rank": 3,
+              "latitude": 45.92512512207031,
+              "longitude": 6.871261119842529,
+              "raw_score": 19.145681381225586,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.262
+            },
+            {
+              "rank": 4,
+              "latitude": 45.92655563354492,
+              "longitude": 6.8836212158203125,
+              "raw_score": 19.118236541748047,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 1.204
+            },
+            {
+              "rank": 5,
+              "latitude": 45.92342758178711,
+              "longitude": 6.871490955352783,
+              "raw_score": 19.042694091796875,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.222
+            }
+          ]
+        },
+        {
+          "tool": "waypoint_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 46.69111657104161,
+              "longitude": 11.470465425341244,
+              "raw_score": 0.75,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 363.574
+            },
+            {
+              "rank": 2,
+              "latitude": 47.678991753567054,
+              "longitude": 13.237549653121164,
+              "raw_score": 0.125,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 522.397
+            }
+          ]
+        }
+      ],
+      "exact_repeat_reused": true,
+      "synthesis": {
+        "status": "completed",
+        "report_status": "completed",
+        "usage": {
+          "prompt_tokens": 6078,
+          "completion_tokens": 2616,
+          "total_tokens": 8694
+        },
+        "characters": 8241,
+        "text_events": 288,
+        "raw_evidence_ids": false
+      },
+      "elapsed_seconds": 189.715,
+      "manual_review_note": "Snowy mountain ridge and buildings match crop. Small light pole plausible. GeoCLIP 2.019km vs Waypoint 363.574km. Reference pixels unavailable; answer does not claim location verified.",
+      "references_found": 3,
+      "reference_pixels_fetched": 0
+    },
+    {
+      "id": "photo-04",
+      "class": "rural",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=91e2ff37-92c7-47d5-ac47-e0979e175a3e",
+      "license": "CC-BY-SA-4.0",
+      "author": "trouyer",
+      "transform": "original pixels, re-encoded JPEG without metadata",
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "e76b05625b35785cfe8d5630f1f2458b73381cb4b12ef4bc16d0c5af97678d24",
+      "status": "executed",
+      "visual_status": "partial",
+      "research_status": "partial",
+      "predictions": [
+        {
+          "tool": "geoclip_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 43.660282135009766,
+              "longitude": 2.361953020095825,
+              "raw_score": 19.425519943237305,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 156.345
+            },
+            {
+              "rank": 2,
+              "latitude": 45.3182487487793,
+              "longitude": 1.3205300569534302,
+              "raw_score": 19.3823299407959,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 57.963
+            },
+            {
+              "rank": 3,
+              "latitude": 45.699588775634766,
+              "longitude": 4.5325927734375,
+              "raw_score": 19.222755432128906,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 278.055
+            },
+            {
+              "rank": 4,
+              "latitude": 46.434722900390625,
+              "longitude": 4.276319980621338,
+              "raw_score": 19.143787384033203,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 299.248
+            },
+            {
+              "rank": 5,
+              "latitude": 44.56704330444336,
+              "longitude": 2.2455248832702637,
+              "raw_score": 18.994325637817383,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 85.421
+            }
+          ]
+        },
+        {
+          "tool": "waypoint_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 45.136765438412695,
+              "longitude": 0.632780577357977,
+              "raw_score": 0.625,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 59.125
+            },
+            {
+              "rank": 2,
+              "latitude": 43.2778358304845,
+              "longitude": 0.6433854170009032,
+              "raw_score": 0.09375,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 175.584
+            }
+          ]
+        }
+      ],
+      "exact_repeat_reused": true,
+      "synthesis": {
+        "status": "completed",
+        "report_status": "completed",
+        "usage": {
+          "prompt_tokens": 4764,
+          "completion_tokens": 2529,
+          "total_tokens": 7293
+        },
+        "characters": 7632,
+        "text_events": 273,
+        "raw_evidence_ids": false
+      },
+      "elapsed_seconds": 193.179,
+      "manual_review_note": "Road, two pedestrians, clipped hedge, trees and parked cars/white van match pixels. Both top1 predictions are tens/hundreds of kilometres away. No fetched reference; no exact claim.",
+      "references_found": 0,
+      "reference_pixels_fetched": 0
+    },
+    {
+      "id": "photo-05",
+      "class": "no_exif",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=d6f8bec6-4250-405c-a54f-a417f6349ef7",
+      "license": "CC-BY-SA-4.0",
+      "author": "nuxper_np",
+      "transform": "same urban photo, metadata-free PNG",
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "907d86f3770aa4475357d9e06e76d188232a9e8ca3d656086f47a114bf9bd935",
+      "status": "executed",
+      "visual_status": "partial",
+      "research_status": "partial",
+      "predictions": [
+        {
+          "tool": "geoclip_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 45.76334762573242,
+              "longitude": 4.83429479598999,
+              "raw_score": 17.244569778442383,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.363
+            },
+            {
+              "rank": 2,
+              "latitude": 45.76139450073242,
+              "longitude": 4.835608959197998,
+              "raw_score": 17.224393844604492,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.128
+            },
+            {
+              "rank": 3,
+              "latitude": 45.760353088378906,
+              "longitude": 4.835506916046143,
+              "raw_score": 17.211774826049805,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.02
+            },
+            {
+              "rank": 4,
+              "latitude": 45.76444625854492,
+              "longitude": 4.836236953735352,
+              "raw_score": 17.210535049438477,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.469
+            },
+            {
+              "rank": 5,
+              "latitude": 45.75798034667969,
+              "longitude": 4.836590766906738,
+              "raw_score": 17.196550369262695,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.26
+            }
+          ]
+        },
+        {
+          "tool": "waypoint_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 47.57846144056956,
+              "longitude": 0.25016010713471554,
+              "raw_score": 0.28125,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 404.005
+            },
+            {
+              "rank": 2,
+              "latitude": 44.843274956768866,
+              "longitude": -0.5803373835011333,
+              "raw_score": 0.15625,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 435.601
+            },
+            {
+              "rank": 3,
+              "latitude": 45.68517268365811,
+              "longitude": 4.717709224111098,
+              "raw_score": 0.15625,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 12.393
+            },
+            {
+              "rank": 4,
+              "latitude": 49.439317823879726,
+              "longitude": 1.0907073732589445,
+              "raw_score": 0.09375,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 496.051
+            }
+          ]
+        }
+      ],
+      "exact_repeat_reused": true,
+      "synthesis": {
+        "status": "completed",
+        "report_status": "completed",
+        "usage": {
+          "prompt_tokens": 6095,
+          "completion_tokens": 2276,
+          "total_tokens": 8371
+        },
+        "characters": 6928,
+        "text_events": 250,
+        "raw_evidence_ids": false
+      },
+      "elapsed_seconds": 178.091,
+      "manual_review_note": "Metadata-free repeat of urban input, not an independent scene. GPS absent. Initial answer lacked explicit metadata context; final synthesis corrected and tested separately.",
+      "references_found": 0,
+      "reference_pixels_fetched": 0
+    },
+    {
+      "id": "photo-06",
+      "class": "poor_ocr",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=91e2ff37-92c7-47d5-ac47-e0979e175a3e",
+      "license": "CC-BY-SA-4.0",
+      "author": "trouyer",
+      "transform": "real rural photo reduced to 320x240 and JPEG quality 35, then Gaussian blur radius 0.6",
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "118792f9cc50e8343628e60c9a062c619e4a765ec78edde6c0ba185745fa8ddd",
+      "status": "executed",
+      "visual_status": "partial",
+      "research_status": "timeout",
+      "predictions": [
+        {
+          "tool": "geoclip_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 48.24266815185547,
+              "longitude": 6.940000057220459,
+              "raw_score": 15.69198989868164,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 581.172
+            },
+            {
+              "rank": 2,
+              "latitude": 45.36366271972656,
+              "longitude": 4.457873821258545,
+              "raw_score": 15.08862018585205,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 261.988
+            },
+            {
+              "rank": 3,
+              "latitude": 48.42885971069336,
+              "longitude": 5.669373989105225,
+              "raw_score": 15.000893592834473,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 527.335
+            },
+            {
+              "rank": 4,
+              "latitude": 45.60520935058594,
+              "longitude": 4.734317779541016,
+              "raw_score": 14.798615455627441,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 289.657
+            },
+            {
+              "rank": 5,
+              "latitude": 45.93777847290039,
+              "longitude": 4.03472900390625,
+              "raw_score": 14.706154823303223,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 253.749
+            }
+          ]
+        },
+        {
+          "tool": "waypoint_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 46.12708995612785,
+              "longitude": 5.0312567155929475,
+              "raw_score": 0.15625,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 331.905
+            },
+            {
+              "rank": 2,
+              "latitude": 49.24182141492753,
+              "longitude": 6.274500361039657,
+              "raw_score": 0.125,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 624.753
+            },
+            {
+              "rank": 3,
+              "latitude": 49.126043855454554,
+              "longitude": 2.2564459872235245,
+              "raw_score": 0.09375,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 487.212
+            },
+            {
+              "rank": 4,
+              "latitude": 41.76299200832809,
+              "longitude": 2.294880521650618,
+              "raw_score": 0.09375,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 349.014
+            }
+          ]
+        }
+      ],
+      "exact_repeat_reused": true,
+      "synthesis": {
+        "status": "completed",
+        "report_status": "completed",
+        "usage": {
+          "prompt_tokens": 8383,
+          "completion_tokens": 2876,
+          "total_tokens": 11259
+        },
+        "characters": 8698,
+        "text_events": 284,
+        "raw_evidence_ids": false
+      },
+      "elapsed_seconds": 285.043,
+      "manual_review_note": "Degraded derivative contains pedestrians, road and hedge; Florence hallucinates a pond on the right. This is an actual model error, not accepted ground truth. Research timed out after two photos; final answer exposes uncertainty. Metadata/OCR corrected-context live test passed.",
+      "references_found": 2,
+      "reference_pixels_fetched": 2
+    },
+    {
+      "id": "photo-07",
+      "class": "ambiguous_regions",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=68bc5f7f-fc6e-488d-bc8d-ae030fb28c2f",
+      "license": "CC-BY-SA-4.0",
+      "author": "osm-operon",
+      "transform": "unaltered rural road pixels; archive claims Paris but visible scene contradicts an Eiffel Tower location; annotation explicitly untrusted",
+      "annotation_trust": "conflicting_not_ground_truth",
+      "sha256": "a09ebc4239263a42c1cf420c1d48ce9abd154a94c4533109304f7e2e317ebdb7",
+      "status": "executed",
+      "visual_status": "partial",
+      "research_status": "partial",
+      "predictions": [
+        {
+          "tool": "geoclip_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 49.11480712890625,
+              "longitude": -1.0972590446472168,
+              "raw_score": 17.200838088989258,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 249.082
+            },
+            {
+              "rank": 2,
+              "latitude": 47.02082824707031,
+              "longitude": 5.720560073852539,
+              "raw_score": 16.262025833129883,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 326.894
+            },
+            {
+              "rank": 3,
+              "latitude": 49.297645568847656,
+              "longitude": 3.1787381172180176,
+              "raw_score": 16.051044464111328,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 80.859
+            },
+            {
+              "rank": 4,
+              "latitude": 48.81703567504883,
+              "longitude": 1.9808000326156616,
+              "raw_score": 16.007150650024414,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 23.383
+            },
+            {
+              "rank": 5,
+              "latitude": 47.29844284057617,
+              "longitude": 4.964789867401123,
+              "raw_score": 15.75117015838623,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 263.509
+            }
+          ]
+        },
+        {
+          "tool": "waypoint_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 49.67178301066343,
+              "longitude": 2.856361304879918,
+              "raw_score": 0.53125,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 99.227
+            },
+            {
+              "rank": 2,
+              "latitude": 49.41260436434405,
+              "longitude": 6.389285342955133,
+              "raw_score": 0.125,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 304.202
+            }
+          ]
+        }
+      ],
+      "exact_repeat_reused": true,
+      "synthesis": {
+        "status": "completed",
+        "report_status": "completed",
+        "usage": {
+          "prompt_tokens": 7263,
+          "completion_tokens": 1983,
+          "total_tokens": 9246
+        },
+        "characters": 6214,
+        "text_events": 228,
+        "raw_evidence_ids": false
+      },
+      "elapsed_seconds": 224.988,
+      "manual_review_note": "Road, white markings, leafless trees and cloudy blue sky match general caption; empty-road caption misses tiny cars. Archive camera point conflicts with visible scene and cannot be used as ground truth; distances to it are diagnostic only. No exact location claimed.",
+      "references_found": 2,
+      "reference_pixels_fetched": 2
+    }
+  ]
+}
