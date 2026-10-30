@@ -67,6 +67,7 @@ def manifest(spec):
     if spec.source in SOURCES:url,mode=SOURCES[spec.source][2],'OFFICIAL_API'
     if spec.documentation_url:url=spec.documentation_url
     if spec.execution_mode=='PUBLIC_API_NO_KEY':mode='OFFICIAL_API'
+    elif spec.execution_mode=='PERMITTED_HTTP_PARSER':mode='PERMITTED_HTTP'
     elif spec.execution_mode in ('LOCAL_PYTHON','LOCAL_MODEL'):mode='LOCAL_CLI'
     auth={'telegram':('telegram_api_hash','telegram_session'),'vk':('vk_token',),
           'hash_virustotal':('virustotal_api_key',),'instagram':('instagram_session',)}.get(spec.source,())
@@ -102,11 +103,15 @@ def technical_state(row):
     return 'configuration_required'
 
 
-def relevant_names(specs, task):
+def relevant_names(specs, task, records=()):
     """A compact candidate set, without granting any additional execution rights."""
     if not task: return {s.name for s in specs}
     text=task.casefold()
     kinds={'dork','web','evidence'}
+    from .entity_router import route_goal, route
+    targets = route_goal(task)
+    if any(target.entity_type != 'username' for target in targets):
+        kinds.discard('dork')
     if re.search(r'img_[a-f0-9]{64}|фото|изображени|картинк|exif|ocr|geoint|геолокац',text): kinds.update(('image','coordinates'))
     if re.search(r'img_[a-f0-9]{64}|фото|изображени|geoclip|waypoint|geoint|геолокац',text):kinds.add('visual_geoint')
     if re.search(r'тень|тени|shadow|солнц|солнечн',text):kinds.add('geoint_geometry')
@@ -127,4 +132,23 @@ def relevant_names(specs, task):
     if re.search(r'\bip\b|asn|\d{1,3}(?:\.\d{1,3}){3}|инфраструкт',text): kinds.add('ip')
     if re.search(r'github|репозитор|repository',text): kinds.add('repository')
     if re.search(r'sha.?256|х[еэ]ш|hash|virustotal',text): kinds.add('hash')
-    return {s.name for s in specs if s.kind in kinds}
+    selected = {s.name for s in specs if s.kind in kinds}
+    selected.update(('web_search', 'web_read', 'web_archive', 'evidence_get', 'evidence_graph'))
+    for target in targets:
+        selected.update(target.tools)
+    if re.search(r'github|репозитор|repository', text):
+        selected.update(('github_profile', 'github_users', 'github_repositories', 'github_repository'))
+    if re.search(r'wikipedia|википеди', text): selected.add('wikipedia_search')
+    if re.search(r'hacker.?news|\bhn\b', text): selected.update(('hn_search', 'hn_profile'))
+    if re.search(r'openlibrary|книг', text): selected.add('openlibrary_search')
+    # Only observed URLs and actual extracted links can expand platform scope.
+    for record in list(records)[-150:]:
+        if not isinstance(record, dict): continue
+        details = record.get('details') or {}
+        urls = [record.get('url')]
+        if isinstance(details, dict) and isinstance(details.get('links'), list):
+            urls += [link.get('url') for link in details['links'][:40] if isinstance(link, dict)]
+        for url in urls:
+            target = route(url)
+            if target: selected.update(target.tools)
+    return selected & {s.name for s in specs}

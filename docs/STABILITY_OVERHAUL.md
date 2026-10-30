@@ -122,3 +122,41 @@ contract, malformed outputs, partial neighbors, real streamed-byte transport
 fixtures, cancellation and browser parsing. TypeScript checks passed. A fresh
 read-only local readiness audit found48 registered and44 available with this
 profile's settings; this is not48 live successes or a GUI verification claim.
+
+## Stage 4 — deterministic target routing and public Telegram
+
+`entity_router` recognizes literal Telegram/social/GitHub targets, validated TON,
+other blockchain candidates, email/phone/domain/IP, coordinates and scoped image
+IDs. It keeps platform identities separate and labels unknown Telegram object
+type honestly. Invalid TON/testnet/private targets do not fall through into an
+unrelated username search. The existing runner performs a bounded primary route
+through its normal tool protocol, then offers tools for actually observed linked
+objects. The original user URL is now seeded into the existing reader authority
+before execution: the missing seed previously blocked legitimate direct reads.
+
+`telegram_public` now defaults to restricted public page/preview HTTP without a
+session. A channel type requires an observed preview containing publication URLs.
+It uses the same pinned DNS/robots/size/cancel policy. The existing authorized
+adapter remains available through explicit `access_mode=authorized` and separate
+confirmation; no credentials enter public requests. No new registered adapter or
+new session requirement was added. Search routes Telegram/GitHub/IP/coordinates
+to the appropriate existing operation, and chat availability questions receive
+the actual backend readiness snapshot. Images retain internal capability IDs;
+location requests use the available model pipeline, not shell instructions.
+
+Live test of the requested Telegram URL retrieved two public pages and actually
+discovered links to `watsoncore/GrangerBrowser` and `watsoncore/Gansar`. Both
+repositories returned metadata through the GitHub API. These are **published-link
+relationships**, not evidence of a common real-world owner. Names were extracted
+from live content, not installed as a fixture or discovery shortcut.
+
+The first bounded real-agent run exposed semantically duplicate calls (name vs
+full Telegram URL and ignored singleton limits) and truncated navigation links.
+It reached its12-call test budget, so it is not claimed as a completed research
+success. Canonical effective arguments and prioritized actual external links
+fixed this. A second normal-registry/DeepSeek run **completed in23.4s with5 tool
+executions**, checking both discovered repositories. No fake transport or reduced
+tool registry was used. A separate real readiness response completed in10.2s
+with0 tool executions, correctly distinguishing local readiness from network or
+inference verification. Focused routing/controller suites passed277 tests and a
+final119-test subset after the canonicalization change.

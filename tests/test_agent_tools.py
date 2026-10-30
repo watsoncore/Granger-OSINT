@@ -56,7 +56,8 @@ def test_catalog_and_schemas_have_typed_separate_tools_and_no_private_options():
     catalog = {row["name"]: row for row in reg.catalog()}
     assert catalog["username_maigret"]["available"]
     assert catalog["username_snoop"]["state"] == "disabled"
-    assert catalog["telegram_public"]["state"] == "auth_required"
+    assert catalog["telegram_public"]["available"] and not catalog["telegram_public"]["requires_approval"]
+    assert catalog['telegram_public']['manifest']['auth_requirements'] == ()
     assert catalog["vk_public"]["available"] and catalog["vk_public"]["needs_confirmation"]
     schemas = {row["function"]["name"]: row["function"] for row in reg.schemas()}
     assert "email" in schemas["email_holehe"]["parameters"]["properties"]

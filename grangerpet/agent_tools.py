@@ -25,6 +25,7 @@ from .engine.models import SearchQuery
 from .engine.readiness import runtime_readiness
 from .tool_contracts import ToolContractError, validate_outcome, log_contract, execution_status
 from .download_budget import DownloadBudget, DownloadLimit, CURRENT as DOWNLOAD_BUDGET
+from .telegram_public import INPUT_SCHEMA as _TELEGRAM_INPUT
 
 
 @dataclass(frozen=True)
@@ -51,7 +52,7 @@ _SPECS = (
     ToolSpec("phone_metadata", "phoneinfoga", "phone", "phone", "PhoneInfoga bridge: формат, код страны и доступные метаданные номера. Не поиск владельца и не сканирование телефона.", max_length=32),
     ToolSpec("blockchain_gansar", "blockchain", "blockchain", "address", "Gansar: публичные наблюдения блокчейна — баланс, транзакции и доступные метки адреса. TON и другие поддержанные локальным валидатором сети; метки не устанавливают личность.", max_length=128),
     ToolSpec("web_archive", "wayback", "web", "url", "Wayback: публичные архивные снимки конкретной HTTP(S)-страницы. Только публичные сайты, без обхода доступа.", max_length=1000),
-    ToolSpec("telegram_public", "telegram", "telegram", "username", "Telegram через существующую разрешённую сессию: доступные публичные сведения по точному имени. Требуется авторизация и явное подтверждение пользователя.", True, 64),
+    ToolSpec("telegram_public", "telegram_preview", "telegram", "username", "Telegram: публичные метаданные и доступное превью публикаций точного имени/URL без сессии. Тип объекта проверяется по содержимому, владелец не угадывается. Дополнительный access_mode=authorized использует прежнюю собственную сессию только после явного подтверждения.", input_schema=_TELEGRAM_INPUT, execution_mode='PERMITTED_HTTP_PARSER', documentation_url='https://telegram.org/faq_channels'),
     ToolSpec("vk_public", "vk", "vk", "username", "VK через существующий разрешённый API-токен: публичный профиль по точному идентификатору. Требуется явное подтверждение пользователя.", True, 64),
     ToolSpec("instagram_public", "instagram", "instagram", "username", "Instagram: доступный публичный профиль по точному имени, без обхода авторизации. Доступ зависит от ограничений сервиса; требуется подтверждение.", True, 64),
     ToolSpec("web_search", "web_search", "dork", "query", "Поиск индексируемых публичных упоминаний: реальные URL, заголовки и фрагменты. Отдельный веб-поиск, не проверка регистрации и не выдуманная выдача.", max_length=300),
@@ -157,6 +158,38 @@ class ToolRegistry:
         """Only the human's actual text seeds initial URLs, never model output."""
         self.web_reader.seed_urls_from_user(text)
 
+    def initial_calls(self, goal):
+        """A bounded first route from literal targets, before broad discovery."""
+        from .entity_router import route_goal
+        if re.search(r'(?iu)(какие|доступн|готов|available|readiness).{0,50}(инструмент|модел|geoint|geoclip|waypoint)|(?:geoclip|waypoint).{0,25}готов', goal):
+            return []
+        calls = []
+        for target in route_goal(goal):
+            if not target.tools or target.entity_type == 'username':
+                continue
+            name = target.tools[0]
+            if target.entity_type == 'image' and not re.search(r'(?iu)(geoint|geoclip|waypoint|мест[оа].{0,25}с[ъь]ём|где.{0,30}снят|определи.{0,30}мест)', goal):
+                name = 'image_metadata'
+            spec = _BY_NAME.get(name)
+            if spec is None or spec.requires_approval:
+                continue
+            value = target.identifier
+            if name in ('telegram_public', 'web_read', 'web_archive'):
+                value = target.canonical_url
+            args = {spec.argument: value}
+            if name == 'visual_geoint':
+                args.update(methods=['geoclip_predict', 'waypoint_predict'], top_k=3, samples=32)
+            calls.append({'name': name, 'arguments': args})
+            if len(calls) >= 3:
+                break
+        return calls
+
+    def canonical_arguments(self, name, args):
+        from .investigation_progress import normalized_arguments
+        spec = _BY_NAME.get(name)
+        default = getattr(self.settings, 'request_limit', 20) if spec and spec.input_schema is None else None
+        return normalized_arguments(name, args, default)
+
     def begin_investigation(self):
         self.web_reader.begin_run()
         self._download_budget = DownloadBudget(getattr(self.settings, 'agent_download_mb', 20) * 1024 * 1024)
@@ -234,6 +267,8 @@ class ToolRegistry:
             return base
         if spec.source == "web_read":
             base.update(available=True, state="unverified", reason="Прямое чтение обнаруженных публичных URL; DNS и каждый переход проверяются при запросе.")
+        elif spec.source == 'telegram_preview':
+            base.update(available=True, state='ready', reason='Публичная страница/превью без ключа и сессии; доступ проверяется запросом. Авторизованный режим требует отдельного подтверждения.')
         elif spec.source=='local19':
             from .integrations19.local_tools import readiness
             base.update(readiness(spec.name,self.settings))
@@ -347,7 +382,7 @@ class ToolRegistry:
     def schemas(self, *, cancel_event=None, deadline=None, task=None):
         from .tool_manifest import relevant_names
         if task and self._attachment_ids:task=task+' · выбранное фото'
-        selected=relevant_names(_SPECS,task)
+        selected=relevant_names(_SPECS,task,self.evidence.records())
         rows = {row["name"]: row for row in self.catalog(cancel_event=cancel_event, deadline=deadline)}
         tools = []
         for spec in _SPECS:
@@ -375,6 +410,10 @@ class ToolRegistry:
         if spec.input_schema is not None:
             from .tool_inputs import validate_object
             arguments=validate_object(args,spec.input_schema)
+            if spec.source == 'telegram_preview':
+                from .engine.router import _platform
+                from .engine.models import canonical_url
+                arguments['username'] = canonical_url(_platform(arguments['username'], 'telegram'))
             if spec.source=='visual_model':
                 for field in ('attachment_id','reference_id'):
                     if field in arguments and (not re.fullmatch(r'img_[a-f0-9]{64}',arguments[field]) or arguments[field] not in self._attachment_ids):
@@ -571,7 +610,7 @@ class ToolRegistry:
             for raw in outcome.get("results", [])[:limit]:
                 receive(raw)
             status = str(outcome.get("status", "error"))
-            allowed = {"complete", "completed", "partial", "empty", "error", "timeout", "cancelled", "unavailable", "auth_required", "blocked", "limit_reached", "rate_limited", "invalid_arguments"}
+            allowed = {"complete", "completed", "partial", "empty", "error", "timeout", "cancelled", "unavailable", "auth_required", "blocked", "limit_reached", "rate_limited", "invalid_arguments", 'approval_required', 'approval_denied'}
             envelope["status"] = status if status in allowed else "error"
             if contract_errors:
                 envelope.update(status='partial' if records else 'error', error_code='invalid_tool_output', error_info=contract_errors[0].diagnostic())
@@ -619,7 +658,18 @@ class ToolRegistry:
 
     def _structured_operation(self,spec,args,cancelled,deadline,approved,on_result=None):
         """Repository-owned dispatch, without model-defined handlers or paths."""
-        if spec.source=='local19':
+        if spec.source == 'telegram_preview':
+            if args.get('access_mode', 'public') == 'authorized':
+                if not approved:
+                    return {'status': 'approval_required', 'results': [], 'limitations': ['Авторизованный режим требует явного подтверждения использования собственной сессии.']}
+                query = SearchQuery(args['username'], 'telegram', args.get('limit', 20), min(25, max(.1, deadline-time.monotonic()))).normalized()
+                adapter = self._adapters.get('telegram') or SourceAdapter('telegram', SOURCE_META['telegram'][0], SOURCE_META['telegram'][1])
+                def event(row):
+                    if isinstance(row, dict) and row.get('event') == 'result' and callable(on_result): on_result(row.get('result'))
+                return adapter.run(query, Context(cancelled, self._source_options('telegram'), event))
+            from .telegram_public import execute
+            return execute(args['username'], reader=self.web_reader, limit=args.get('limit', 20), cancel_event=cancelled, deadline=deadline)
+        elif spec.source=='local19':
             from .integrations19.local_tools import execute
             from .integrations19.solar import LocalToolError
             try:data=execute(spec.name,args,cancel_event=cancelled,deadline=deadline,settings=self.settings)

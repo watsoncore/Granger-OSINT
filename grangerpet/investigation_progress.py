@@ -16,7 +16,7 @@ _TELEMETRY = frozenset(('query', 'original_query', 'retrieved_at', 'obtained_at'
     'content_excerpt', 'content_length', 'content_total_chars', 'observations'))
 
 
-def normalized_arguments(name, arguments):
+def normalized_arguments(name, arguments, default_limit=None):
     """Conservative normalization: never case-fold a wallet or a URL path."""
     def normalize(value, key=''):
         if isinstance(value, dict):
@@ -36,7 +36,31 @@ def normalized_arguments(name, arguments):
         if key == 'username' and name in ('github_profile', 'x_profile', 'telegram_public', 'vk_public', 'instagram_public'):
             return value.lstrip('@').lower()
         return value
-    return normalize(arguments)
+    result = normalize(arguments)
+    if name == 'telegram_public' and isinstance(result.get('username'), str):
+        from .engine.router import _platform
+        try:
+            result['username'] = canonical_url(_platform(result['username'], 'telegram'))
+        except ValueError:
+            pass
+        result.setdefault('access_mode', 'public')
+        result['limit'] = min(2, result.get('limit', 20)) if type(result.get('limit', 20)) is int else result.get('limit')
+    if name == 'github_repository' and isinstance(result.get('repository'), str):
+        result['repository'] = result['repository'].lower()
+    singletons = {'github_repository', 'github_profile', 'x_profile', 'x_post', 'image_metadata', 'image_ocr',
+        'image_compare', 'hash_virustotal', 'threat_feodo', 'map_overpass', 'map_wikimedia', 'map_geocode'}
+    if name in singletons:
+        result.pop('limit', None)
+    elif default_limit is not None and name not in ('telegram_public', 'evidence_get'):
+        result.setdefault('limit', min(10 if name == 'web_search' else 20, default_limit))
+    if name in ('visual_geoint', 'geoclip_predict', 'waypoint_predict'):
+        result.pop('limit', None)
+        for key, value in (('top_k', 5), ('samples', 32), ('seed', 0)):
+            result.setdefault(key, value)
+        if name == 'visual_geoint':
+            result.setdefault('include_ocr', True)
+            result.setdefault('methods', ['geoclip_predict', 'waypoint_predict'])
+    return result
 
 
 def semantic_facts(records):

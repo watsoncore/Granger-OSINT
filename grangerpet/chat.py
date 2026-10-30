@@ -37,7 +37,11 @@ def no_tools_requested(text):
 
 def investigation_requested(text):
     """Route explicit research requests; ordinary conversation keeps its fast path."""
-    return not no_tools_requested(text) and bool(re.search(r'(?iu)(найд[иуё]|найти|поищ|поиск|провер[ьить]|исслед|упоминан|сопостав|пробей|whois|rdap|dns|lookup|investigat|search\b|профил|кошел[её]к|блокчейн|прочита|прочти|открой|изучи|страниц|https?://)', text))
+    if no_tools_requested(text):
+        return False
+    from .entity_router import route
+    target = route(text)
+    return bool(target and target.entity_type != 'username') or bool(re.search(r'(?iu)(найд[иуё]|найти|поищ|поиск|провер[ьить]|исслед|упоминан|сопостав|пробей|whois|rdap|dns|lookup|investigat|search\b|профил|кошел[её]к|блокчейн|прочита|прочти|открой|изучи|страниц|https?://|geoint|geoclip|waypoint|(?:какие|доступн|готов).{0,35}инструмент|инструмент.{0,35}(?:доступн|готов))', text))
 
 
 def label(text, name='Muted'):
@@ -399,7 +403,10 @@ class ChatWidget(QWidget):
         self._pending_images=[]
         if images:
             text+='\n\nВыбранные локальные изображения (это идентификаторы вложений, не содержимое пикселей):\n'+json.dumps(images,ensure_ascii=False)
-            text+='\nСначала используй локальные image_metadata и image_ocr по attachment_id, затем делай выводы только по реальным результатам. Если инструменты не выполнены, прямо сообщи, что содержимое изображения не установлено.'
+            if re.search(r'(?iu)(geoint|geoclip|waypoint|мест[оа].{0,25}с[ъь]ём|где.{0,30}снят|определи.{0,30}мест)', text):
+                text+='\nИспользуй visual_geoint по attachment_id с доступными GeoCLIP и Waypoint либо эти модели отдельно; EXIF/OCR доступны в том же pipeline. Отсутствие GPS не завершает анализ. Делай выводы только по реальным результатам; кандидаты моделей — гипотезы.'
+            else:
+                text+='\nИспользуй локальные image_metadata/image_ocr по attachment_id по цели запроса. Не утверждай содержимое пикселей без выполненного анализа.'
         self._append('user', text)
         if images: self.messages[-1]['attachments']=images
         history = conversation_context(self.messages, text)

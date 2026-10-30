@@ -608,7 +608,24 @@ class DesktopBridge(QObject):
             if not isinstance(text,str) or not 0<len(text)<=2000: raise ValueError('Некорректный запрос.')
             kind = payload.get('kind','auto')
             if kind not in ('auto','username','email','phone','telegram','vk','instagram','web','blockchain','dork'): raise ValueError('Неизвестное направление.')
-            self.host.text.setText(text); self.host.set_query_kind(kind); self.host.start_search(); self.route='search'
+            from .entity_router import route as route_entity
+            target = route_entity(text)
+            specialized = None
+            if kind in ('auto', 'telegram') and target and target.platform == 'telegram':
+                specialized = {'tool': 'telegram_public', 'arguments': {'username': target.canonical_url, 'access_mode': 'public'}}
+            elif kind == 'auto' and target and target.entity_type == 'github_repository':
+                specialized = {'tool': 'github_repository', 'query': target.identifier}
+            elif kind == 'auto' and target and target.entity_type == 'github_profile':
+                specialized = {'tool': 'github_profile', 'query': target.identifier}
+            elif kind == 'auto' and target and target.entity_type == 'infrastructure_asset' and target.properties.get('public'):
+                specialized = {'tool': 'ip_lookup', 'query': target.identifier}
+            elif kind == 'auto' and target and target.entity_type == 'geographic_coordinates':
+                specialized = {'tool': 'map_wikimedia', 'query': target.identifier}
+            self.route='search'
+            if specialized:
+                self._run_tool(specialized)
+            else:
+                self.host.text.setText(text); self.host.set_query_kind(kind); self.host.start_search()
         elif action=='search_dorks':
             text=payload.get('query','')
             if not isinstance(text,str) or len(text)>2000: raise ValueError('Некорректный запрос.')
@@ -937,7 +954,7 @@ class DesktopBridge(QObject):
         limit = payload.get('limit',min(maximum,self.host.settings.request_limit))
         if type(limit) is not int or not 1<=limit<=maximum: raise ValueError(f'Число результатов: 1–{maximum}.')
         if spec.input_schema is None:arguments={spec.argument:query,'limit':limit}
-        approved = not spec.requires_approval
+        approved = not (spec.requires_approval or spec.source == 'telegram_preview' and arguments.get('access_mode') == 'authorized')
         if not approved:
             approved = QMessageBox.question(self.host,PRODUCT_NAME,'Разрешить '+spec.name+'?\n\n'+spec.description+'\n\nПараметры: '+json.dumps(arguments,ensure_ascii=False),
                 QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No,QMessageBox.StandardButton.No)==QMessageBox.StandardButton.Yes
