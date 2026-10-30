@@ -290,6 +290,12 @@ class AttachmentStore:
         try:return _preview(image,max_size=128,quality=50)
         finally:image.close()
 
+    def comparison_preview(self, identifier, cancel_event=None):
+        """Display the actual selected pixels, without EXIF or inference."""
+        image=_decode(self.read_bytes(identifier,cancel_event),cancel_event)
+        try:return _preview(image,max_size=960,quality=85)
+        finally:image.close()
+
     def analyze(self, identifier, cancel_event=None):
         started = time.monotonic()
         _cancelled(cancel_event)

@@ -93,3 +93,12 @@ class MediaStore:
         if len(raw)>2_000_000 or hashlib.sha256(raw).hexdigest()!=value['sha256']:
             raise ValueError('Public media cache failed integrity check')
         return raw
+
+    def comparison_preview(self,reference):
+        """A larger local preview for GEOINT; it is never sent to a provider."""
+        from PIL import Image,ImageOps
+        with Image.open(io.BytesIO(self.read_original(reference))) as image:
+            image=ImageOps.exif_transpose(image)
+            image.thumbnail((960,960))
+            encoded=io.BytesIO();image.convert('RGB').save(encoded,format='JPEG',quality=85)
+        return 'data:image/jpeg;base64,'+base64.b64encode(encoded.getvalue()).decode('ascii')

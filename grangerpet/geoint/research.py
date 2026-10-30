@@ -44,7 +44,7 @@ def hypotheses(records, attachment_id, maximum=3):
                 continue
             lat, lon = item.get('lat',item.get('latitude')), item.get('lon',item.get('longitude'))
             if (type(lat) not in (int,float) or type(lon) not in (int,float) or not math.isfinite(lat+lon)
-                    or not -85 <= lat <= 85 or not -180 <= lon <= 180):
+                    or not -90 <= lat <= 90 or not -180 <= lon <= 180):
                 continue
             points.append({'latitude':lat, 'longitude':lon, 'rank':rank+1,
                 'source_model':details.get('model_version') or row.get('platform'), 'raw_score':item.get('raw_score'),
@@ -54,7 +54,7 @@ def hypotheses(records, attachment_id, maximum=3):
         gps = (details.get('metadata') or {}).get('gps') if isinstance(details.get('metadata'),dict) else None
         if isinstance(gps, dict):
             lat, lon = gps.get('latitude'), gps.get('longitude')
-            if type(lat) in (int,float) and type(lon) in (int,float) and -85 <= lat <= 85 and -180 <= lon <= 180:
+            if type(lat) in (int,float) and type(lon) in (int,float) and -90 <= lat <= 90 and -180 <= lon <= 180:
                 points.append({'latitude':lat,'longitude':lon,'rank':0,'source_model':'EXIF GPS (authenticity unverified)',
                     'evidence_id':row.get('evidence_id'),'source_kind':'metadata_candidate','raw_score':None})
     points.sort(key=lambda value:value['rank'])

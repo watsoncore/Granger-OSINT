@@ -28,7 +28,7 @@ def validate_view(value):
     if set(value)-allowed or value.get('version',1)!=1: raise ValueError('Unsupported graph view')
     result=deepcopy(value)
     result['version']=1
-    if result.get('mode','overview') not in ('overview','tree','graph','evidence'):raise ValueError('Invalid graph mode')
+    if result.get('mode','overview') not in ('overview','tree','graph','evidence','geo'):raise ValueError('Invalid graph mode')
     for key in ('positions','tree_positions'):
         positions=result.get(key,{})
         if not isinstance(positions,dict) or len(positions)>5000:raise ValueError('Invalid graph positions')

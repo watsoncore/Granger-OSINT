@@ -15,7 +15,7 @@ export interface Source {
   relevance?: { level: string; score: number; reason: string; via_evidence_ids?: string[] }
   duplicate_count?: number
 }
-export type GraphMode = 'overview' | 'tree' | 'graph' | 'evidence'
+export type GraphMode = 'overview' | 'tree' | 'graph' | 'evidence' | 'geo'
 export type Verification = 'verified' | 'source_reported' | 'inferred' | 'unverified' | 'contradicted'
 export interface GraphPoint { x:number; y:number; pinned?:boolean }
 export interface GraphViewport { x:number; y:number; scale:number }
@@ -41,6 +41,7 @@ export interface InvestigationGraph {
   warnings?:string[]; view?:GraphView; error?:string; synthetic?:boolean; total_entities?:number; total_relations?:number
   truncated_input?:boolean; relations_truncated?:boolean
   refreshing?:boolean;generation?:number
+  has_geoint?:boolean
   counts?:Record<string,number|null>
   summary?:{findings:GraphFinding[];hypotheses:GraphFinding[];background_count:number;limitations:string[];failed_sources:{tool:string;status:string;error?:string}[];report?:string;stop_reason?:string}
 }
@@ -51,6 +52,32 @@ export interface Message {
   streaming?: boolean
   sources?: Source[]
   attachments?: ImageAttachment[]
+  investigation_id?:string
+}
+export interface GeoRegion { description:string; region:number[]; confidence_kind?:string }
+export interface GeoComparison {
+  status?:string; match_count?:number; input_sizes?:number[][]; spatial_coverage?:(number|null)[]; support_kind?:string
+  matches?:{point0:number[];point1:number[];raw_score?:number}[]
+  geometry?:{inliers?:number;inlier_indices?:number[]}; geolocation_verified?:boolean; interpretation?:string
+}
+export interface GeoCandidate {
+  candidate_id:string; attachment_id?:string; latitude:number; longitude:number; region?:string; source_model?:string
+  verification_status:string; evidence_id?:string; raw_score?:number|null
+  model_observations?:{latitude:number;longitude:number;model_lat_std?:number|null;model_lon_std?:number|null;dateline_warning?:boolean}[]
+  nearby_landmarks?:{name:string;url?:string;latitude:number;longitude:number}[]
+}
+export interface GeoImage {
+  evidence_id:string; candidate_id?:string; attachment_id?:string; title:string; provider?:string; source_url:string; image_url?:string; original_image_url?:string
+  license?:string; license_url?:string; author?:string; captured_at?:string; latitude?:number; longitude?:number; match_kind?:string
+  comparison?:GeoComparison; reference_scene?:{description?:string;observations?:GeoRegion[]}
+  media?:{state:string;thumbnail?:string;width?:number;height?:number;mime?:string;bytes?:number;fetched_at?:string;sha256?:string}
+}
+export interface GeoView {
+  state:string; investigation_id?:string; revision?:number; has_geoint?:boolean; error?:string
+  originals?:{attachment_id:string;thumbnail?:string;state:string}[]
+  scenes?:{evidence_id:string;attachment_id:string;description:string;observations?:GeoRegion[]}[]
+  candidates?:GeoCandidate[];images?:GeoImage[];limitations?:string[]
+  diagnostics?:{stages?:{stage:string;status:string;error_code?:string}[];limitations?:string[]}[]
 }
 export interface ImageAttachment { id: string; name: string; mime: string; format: string; bytes: number; width: number; height: number; sha256: string; preview?: string }
 export interface Activity {
@@ -132,6 +159,8 @@ export interface HistoryItem {
   status?: string
 }
 export interface DesktopState {
+  geo_views?:Record<string,GeoView>
+  map_tiles?:Record<string,{key:string;state:string;image?:string;error_code?:string}>
   errors?: { id: string; message: string; code: string; count: number }[]
   investigation_graph?:InvestigationGraph
   investigation_choices?:{id:string;title:string;status:string;updated_at?:string}[]

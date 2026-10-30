@@ -137,6 +137,11 @@ class DesktopBridge(QObject):
         self._snapshot_fault = None
         self._graph_job = None
         self._media_job = None
+        self._geo_views = {}
+        self._geo_jobs = {}
+        self._geo_signatures = {}
+        self._map_tiles = {}
+        self._tile_jobs = {}
         self._graph_generation = 0
         self._graph_data = {'state':'idle'}
         self._graph_records = []
@@ -445,6 +450,8 @@ class DesktopBridge(QObject):
             canvas={'id':canvas.document_id,'text':canvas.editor.toPlainText(),'title':canvas.title.text(),'dirty':canvas._dirty} if canvas else None,
             hermione={'state':self.host._last_activity or 'idle','visible':True})
         base['investigation_graph']=self._graph_data
+        base['geo_views']=self._geo_views
+        base['map_tiles']=self._map_tiles
         base['investigation_choices']=self._investigation_choices
         base['search']['investigation_id']=self._workspace.active_id or current_id
         current=chat._last_investigation.get('evidence',[])
@@ -475,6 +482,8 @@ class DesktopBridge(QObject):
         if base['vault']['enabled'] and not base['vault']['unlocked']:
             base['connection'].update(canSend=False,status='vault_locked',statusText='Разблокируйте переносимое хранилище в настройках.')
             base['investigation_graph']={'state':'locked'}
+            base['geo_views']={}
+            base['map_tiles']={}
             base['investigation_choices']=[]
         return base
 
@@ -584,6 +593,9 @@ class DesktopBridge(QObject):
         if action.startswith('investigation_graph_'):
             if portable_enabled() and not portable_unlocked():raise ValueError('Сначала разблокируйте хранилище.')
             return self._graph_action(action,payload)
+        if action.startswith('geoint_'):
+            if portable_enabled() and not portable_unlocked():raise ValueError('Сначала разблокируйте хранилище.')
+            return self._geoint_action(action,payload)
         chat = self.host.chat_widget
         if action=='layout':
             dock = payload.get('dock')
@@ -776,6 +788,8 @@ class DesktopBridge(QObject):
         connections=getattr(getattr(self.host,'settings_dialog',None),'connections',None)
         if self._source_job is not None:
             self._source_job.cancel();self._source_job.deleteLater();self._source_job=None
+        for job in (*self._geo_jobs.values(),*self._tile_jobs.values()):job.cancel();job.deleteLater()
+        self._geo_jobs={};self._tile_jobs={};self._geo_views={};self._map_tiles={}
         jobs=(self._manual_job,self._balance_job,self._models_job,self._tools_job,self._visual_job,self._graph_job,self._media_job,
               getattr(self,'_attachment_job',None))
         if ((chat and chat.busy) or getattr(self.host,'_busy',False) or any(jobs)
@@ -1092,6 +1106,72 @@ class DesktopBridge(QObject):
             job.deleteLater(); self.mark_dirty()
         job.done.connect(done); job.start()
 
+    def _geoint_action(self,action,payload):
+        if self.surface!='main':raise ValueError('Откройте рабочее пространство.')
+        if action=='geoint_tiles_cancel':
+            for job in self._tile_jobs.values():job.cancel()
+            self._tile_jobs={};self._map_tiles={};self.mark_dirty()
+            return {'cancelled':True}
+        if action=='geoint_tile_get':
+            if set(payload)!={'z','x','y'}:raise ValueError('Некорректный запрос тайла.')
+            from .geoint.tiles import TileStore,coordinates
+            z,x,y=payload['z'],payload['x'],payload['y'];key=coordinates(z,x,y)
+            if key in self._map_tiles:return {'key':key,'state':self._map_tiles[key]['state']}
+            if key in self._tile_jobs:return {'key':key,'state':'loading'}
+            if len(self._tile_jobs)>=32:return {'key':key,'state':'busy'}
+            def prepare():
+                try:return TileStore().get(z,x,y,cancel_event=job.cancelled)
+                except Exception as error:
+                    return {'key':key,'state':'unavailable','error_code':getattr(error,'code','tile_unavailable')}
+            job=UiJob(prepare,self);self._tile_jobs[key]=job
+            def ready(value,error):
+                if self._tile_jobs.get(key) is job:self._tile_jobs.pop(key,None)
+                if not self._closed and not job.cancelled.is_set():
+                    state=dict(self._map_tiles)
+                    state[key]=value if isinstance(value,dict) and not error else {'key':key,'state':'unavailable'}
+                    while len(state)>64 or sum(len(str(item.get('image',''))) for item in state.values())>8_000_000:
+                        state.pop(next(iter(state)))
+                    self._map_tiles=state;self.mark_dirty()
+                job.deleteLater()
+            job.done.connect(ready);job.start()
+            return {'key':key,'state':'loading'}
+        if action!='geoint_view_get':raise ValueError('Неизвестная GEOINT-операция.')
+        if set(payload)-{'id','refresh'}:raise ValueError('Некорректный запрос GEOINT.')
+        identifier=payload.get('id') or self.host.chat_widget._last_investigation.get('id')
+        self.host.chat_widget._journal._identifier(identifier)
+        live=self.host.chat_widget._last_investigation
+        signature=(live.get('checkpoint_revision'),len(live.get('evidence',[]))) if live.get('id')==identifier else None
+        if identifier in self._geo_jobs:return {'state':'loading','id':identifier}
+        if identifier in self._geo_views and self._geo_signatures.get(identifier)==signature and not payload.get('refresh'):
+            return {'state':self._geo_views[identifier]['state'],'id':identifier}
+        if len(self._geo_jobs)>=2:return {'state':'busy','id':identifier}
+        live=deepcopy(live) if live.get('id')==identifier else None
+        def prepare():
+            from .geoint.presentation import present
+            from .geoint_tools import attachment_store
+            snapshot=self._workspace.load(identifier,live)
+            return present(snapshot,store=attachment_store(),cancel_event=job.cancelled),snapshot.get('evidence',[])
+        job=UiJob(prepare,self);self._geo_jobs[identifier]=job
+        self._geo_views={**self._geo_views,identifier:{**self._geo_views.get(identifier,{}),'state':'loading'}}
+        def ready(value,error):
+            if self._geo_jobs.get(identifier) is job:self._geo_jobs.pop(identifier,None)
+            if not self._closed and not job.cancelled.is_set():
+                if error or not isinstance(value,tuple):
+                    data={'state':'unavailable','investigation_id':identifier,'error':'Не удалось подготовить GEOINT. Первичные данные сохранены.'}
+                else:
+                    data,records=value
+                    for record in records:
+                        if isinstance(record,dict) and record.get('evidence_id'):self._raw_sources[record['evidence_id']]=record
+                views={key:value for key,value in self._geo_views.items() if key!=identifier};views[identifier]=data
+                def preview_bytes():
+                    return sum(len(str(image.get('media',{}).get('thumbnail',''))) for view in views.values() for image in view.get('images',[])) + sum(
+                        len(str(image.get('thumbnail',''))) for view in views.values() for image in view.get('originals',[]))
+                while len(views)>8 or len(views)>1 and preview_bytes()>8_000_000:views.pop(next(iter(views)))
+                self._geo_views=views;self._geo_signatures[identifier]=signature;self.mark_dirty()
+            job.deleteLater()
+        job.done.connect(ready);job.start();self.mark_dirty()
+        return {'state':'loading','id':identifier}
+
     def _graph_action(self,action,payload):
         if self.surface!='main' or self._workspace is None:raise ValueError('Откройте рабочее пространство.')
         identifier=payload.get('id') or self._workspace.active_id or self.host.chat_widget._last_investigation.get('id')
@@ -1112,6 +1192,8 @@ class DesktopBridge(QObject):
                 from .investigation_results import project
                 snapshot=self._workspace.load(identifier,live)
                 data=project(snapshot,cancel_event=job.cancelled)
+                data['has_geoint']=any(isinstance(row.get('details'),dict) and row['details'].get('attachment_id')
+                    for row in snapshot.get('evidence',[]))
                 from .public_media import MediaStore
                 media_store=MediaStore()
                 for node in data.get('entities',[]):
@@ -1125,6 +1207,8 @@ class DesktopBridge(QObject):
                 except (ValueError,OSError):
                     data['view']={'version':1,'mode':'overview','positions':{}}
                     data['warnings'].append('Сохранённое положение графа не прочитано; первичные данные сохранены.')
+                if payload.get('mode') in ('overview','graph','tree','evidence','geo'):
+                    data['view']['mode']=payload['mode']
                 raw=data.pop('evidence',[])
                 data['evidence']=[{key:value for key,value in source_view(row).items() if key!='details'} |
                     {'relevance':row.get('relevance'),'related_evidence_ids':row.get('related_evidence_ids',[]),
@@ -1293,6 +1377,8 @@ class DesktopBridge(QObject):
         if self._closed:return
         self._closed = True
         self._flush.stop()
+        for job in (*self._geo_jobs.values(),*self._tile_jobs.values()):job.cancel();job.deleteLater()
+        self._geo_jobs={};self._tile_jobs={};self._geo_views={};self._map_tiles={}
         self.host.removeEventFilter(self)
         from .visual_models.manager import get_manager
         get_manager().close()
