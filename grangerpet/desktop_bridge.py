@@ -1149,7 +1149,7 @@ class DesktopBridge(QObject):
         if relation_id:requested.update((edges[relation_id]['from_id'],edges[relation_id]['to_id']))
         if not requested:raise ValueError('Выберите узел или связь в графе.')
         from .graph_context import selection_context
-        context=selection_context(nodes,edges,requested,relation_id)
+        context=selection_context(nodes,edges,requested,relation_id,self._graph_records)
         snapshot=self._workspace.load(identifier,chat._last_investigation)
         conversation=snapshot.get('conversation_id')
         if conversation and conversation!=chat.conversation_id:

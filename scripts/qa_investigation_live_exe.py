@@ -62,6 +62,11 @@ def main():
         return value
     def command(name,payload=None):
         value=send_command('pet',name,payload,timeout=4000)
+        if value is None and name=='qa_desktop' and payload.get('action')=='save_state':
+            # This read is idempotent. Do not retry chat/tool mutations after an
+            # ambiguous transport response; record any snapshot retry honestly.
+            report['ipc_snapshot_retries']=report.get('ipc_snapshot_retries',0)+1;save()
+            time.sleep(.2);value=send_command('pet',name,payload,timeout=4000)
         if not value or not value.get('ok'):raise RuntimeError('Own GUI action failed: '+name)
         return value
     def action(name,payload=None):
@@ -103,11 +108,12 @@ def main():
         check('real_chat_telegram_and_discovered_repository_tools',{'telegram_public','github_repository'}<=tools and bool(value['evidence']))
         check('telegram_useful_final_report',any(m['role']=='model' and len(m['text'])>200 for m in value['messages']) and inv['status']!='running')
         g=graph(identifier);check('real_telegram_in_search_graph',bool(g['relations']) and any(e['relation_type']=='publishes_link' for e in g['relations']))
-        root=g['root_id'];calls_before=inv.get('tool_calls',0)
+        root=g['root_id'];calls_before=inv.get('tool_calls',0);requests_before=inv.get('usage',{}).get('successful_requests',0)
         action('investigation_graph_analyze',{'id':identifier,'intent':'explain','entity_id':root})
         value=finish('graph-explain-live');current=value['investigation']
         report['scenarios']['graph_explain']={'status':current['status'],'calls_before':calls_before,'calls_after':current.get('tool_calls')}
         check('graph_explain_same_id_goal_and_saved_context',current['id']==identifier and current['goal']==inv['goal'] and len(value['messages'])>2)
+        check('graph_explain_makes_real_new_model_request',current.get('usage',{}).get('successful_requests',0)>requests_before and current['status']=='completed')
         new_calls=current.get('calls',[])[len(inv.get('calls',[])):]
         check('explain_cannot_start_external_network_tools',all(row.get('tool') in ('evidence_get','evidence_graph') for row in new_calls))
         action('chat_new')
@@ -124,7 +130,8 @@ def main():
         if args.visual:
             action('chat_new')
             raw=(ROOT/'output/integrations19/visual-photos/moscow-no-gps.jpg').read_bytes()
-            action('attachment_import',{'name':'public-landmark-no-gps.jpg','base64':base64.b64encode(raw).decode('ascii')})
+            (out/'public-landmark-no-gps.jpg').write_bytes(raw)
+            action('attachment_file',{'name':'public-landmark-no-gps.jpg'})
             value=wait(lambda:s if (s:=snapshot())['attachments'] and not s['attachment_busy'] else None)
             image=value['attachments'][-1]['id'];started=time.monotonic()
             action('chat_send',{'text':'Определи вероятное место съёмки выбранного фото. GPS отсутствует. Используй установленные GeoCLIP и Waypoint через visual_geoint, затем evidence_graph. Выведи координаты кандидатов и ограничения: raw_score не вероятность. Не повторяй pipeline без новых оснований.','attachment_ids':[image]})
@@ -134,6 +141,15 @@ def main():
             check('real_cpu_models_accessible_from_actual_chat',any('geoclip' in name.lower() for name in models) and any('waypoint' in name.lower() for name in models))
             check('model_candidates_are_hypotheses_in_search',any(n['type']=='geographic_candidate' and n['verification_status']=='inferred' for n in g['entities']))
             command('qa_snapshot',{'name':'visual-search-graph'})
+        action('tool_run',{'tool':'blockchain_gansar','query':'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c','limit':10})
+        value=wait(lambda:s if not (s:=snapshot())['search']['busy'] else None,100)
+        snapshot('ton-manual')
+        transactions=[row for row in value['search']['results'] if row.get('type')=='transaction']
+        report['scenarios']['ton_manual']={'transactions':len(transactions),'status':value['search'].get('phase')}
+        check('actual_exe_ton_source_returns_observed_transactions',bool(transactions))
+        manual_id=value['search']['investigation_id'];g=graph(manual_id)
+        check('actual_ton_graph_preserves_direction_and_owner_uncertainty',any(e['relation_type']=='transfers' and e.get('aggregate',{}).get('owner_verified') is False for e in g['relations']))
+        command('qa_snapshot',{'name':'ton-search-graph'})
         report['process_metrics']=monitor.sample([owned]);save()
         command('stop');process.wait(timeout=35);owned=None;check('final_exit_zero',process.returncode==0)
         wait(lambda:monitor.sample()['process_count']==0,30);check('no_owned_orphan_processes',True)

@@ -10,10 +10,11 @@ ROOT=Path(__file__).resolve().parents[1]
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--exe',type=Path,default=ROOT/'dist/Granger-OSINT.exe')
     parser.add_argument('--output',type=Path,default=ROOT/'output/refinement-qa/frozen-assets.json')
     args=parser.parse_args()
     from PyInstaller.archive.readers import CArchiveReader
-    exe=ROOT/'dist/Granger-OSINT.exe'
+    exe=args.exe
     archive=CArchiveReader(str(exe))
     rows=[]
     for path in sorted((ROOT/'frontend/dist').rglob('*')):

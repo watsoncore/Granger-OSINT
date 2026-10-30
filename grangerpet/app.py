@@ -207,6 +207,16 @@ def main(argv: list[str] | None = None) -> int:
                 elif payload.get('action')=='input' and qa_vault_active:
                     from .qa_input import deliver
                     QTimer.singleShot(0,lambda:deliver(surface,payload.get('payload',{})))
+                elif payload.get('action')=='attachment_file' and qa_vault_active:
+                    # Large pixels do not belong in the tiny command pipe. Read
+                    # only a named QA input inside this isolated trace directory.
+                    import base64
+                    name=payload.get('payload',{}).get('name','')
+                    if not isinstance(name,str) or not re.fullmatch(r'[a-zA-Z0-9_-]{1,60}\.(jpg|png)',name):return {'ok':False}
+                    root=Path(pet._trace_path).parent.resolve();path=(root/name).resolve()
+                    if path.parent!=root or not path.is_file() or path.stat().st_size>10_000_000:return {'ok':False}
+                    content={'name':name,'base64':base64.b64encode(path.read_bytes()).decode('ascii')}
+                    QTimer.singleShot(0,lambda:surface.bridge.request('qa','attachment_import',json.dumps(content)))
                 elif payload.get('action')=='graph_scroll' and qa_vault_active:
                     surface.page().runJavaScript("document.querySelector('.investigation-tabs')?.scrollIntoView({block:'start'})")
                 elif payload.get('action')=='dom':

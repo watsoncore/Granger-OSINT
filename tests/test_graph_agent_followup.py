@@ -1,5 +1,5 @@
 import json
-from grangerpet.agent import AgentRunner
+from grangerpet.agent import AgentRunner,AgentLimits
 from test_agent_lifecycle import Client, Registry, HISTORY, response, tool
 
 
@@ -33,3 +33,25 @@ def test_explanation_cannot_launch_new_network_tool_even_if_model_proposes_it():
         followup={'text':'Объясни связь.','context':{'entities':[]},'intent':'explain'})
     assert not registry.calls
     assert json.loads(client.requests[-1][-1]['content'])['status']=='unavailable'
+
+
+def test_explicit_local_explanation_after_research_budget_exhaustion_gets_bounded_real_turn():
+    first=AgentRunner(Client([response(text='Сохранённый итог.')]),Registry())
+    first.run('fixture',HISTORY)
+    saved=first.checkpoint()
+    saved['record'].update(steps=100,tool_calls=100,elapsed_seconds=100,status='limit_reached')
+    saved['budget_reserved_tokens']=100000
+    client=Client([response(text='Новое объяснение сохранённых оснований.')]);registry=GraphRegistry()
+    runner=AgentRunner(client,registry,limits=AgentLimits(max_steps=1,max_tool_calls=1,max_tokens=8000,timeout=5))
+    result=runner.run('fixture',[],resume_state=saved,
+        followup={'text':'Объясни связь.','context':{'entities':[]},'intent':'explain'})
+    assert result['investigation']['status']=='completed' and len(client.requests)==1
+    assert result['investigation']['steps']==101 and result['investigation']['tool_calls']==100
+    assert runner.checkpoint()['budget_reserved_tokens']>=100000
+    assert runner.checkpoint()['protocol_archive'][:len(saved['protocol_archive'])]==saved['protocol_archive']
+    assert not registry.calls
+    # Ordinary resume never grants a fresh local-analysis phase.
+    again=AgentRunner(Client([response(text='Should not run')]),registry,limits=AgentLimits(max_steps=1,max_tokens=8000,timeout=5))
+    pending=runner.checkpoint();pending['record']['status']='paused'
+    resumed=again.run('fixture',[],resume_state=pending)
+    assert resumed['investigation']['status']=='limit_reached' and not again.client.requests

@@ -217,6 +217,16 @@ def validate_checkpoint(value, identifier=None):
                     or focus.get('intent') not in ('explain','investigate','compare')
                     or len(json.dumps(focus,ensure_ascii=False))>20000):
                 raise InvestigationContractError('checkpoint.'+key,'bounded graph followup',focus)
+    if 'focus_budget' in value:
+        budget=_expect(value['focus_budget'],dict,'checkpoint.focus_budget')
+        if set(budget)!={'steps','tool_calls','tokens','elapsed_seconds'}:
+            raise InvestigationContractError('checkpoint.focus_budget','bounded local analysis baseline',budget)
+        for key in ('steps','tool_calls','tokens'):_integer(budget[key],'checkpoint.focus_budget.'+key)
+        if type(budget['elapsed_seconds']) not in (int,float) or not math.isfinite(budget['elapsed_seconds']) or budget['elapsed_seconds']<0:
+            raise InvestigationContractError('checkpoint.focus_budget.elapsed_seconds','finite non-negative seconds',budget['elapsed_seconds'])
+        for key in ('steps','tool_calls','elapsed_seconds'):
+            if budget[key]>record.get(key,0):raise InvestigationContractError('checkpoint.focus_budget.'+key,'baseline within cumulative usage',budget[key])
+        if budget['tokens']>value.get('budget_reserved_tokens',0):raise InvestigationContractError('checkpoint.focus_budget.tokens','baseline within cumulative reservation',budget['tokens'])
     for key in ('budget_reserved_tokens',):
         if key in value:
             _integer(value[key], 'checkpoint.' + key)

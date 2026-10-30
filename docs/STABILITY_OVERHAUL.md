@@ -240,3 +240,49 @@ suite confirmation and new live EXE scenarios are recorded below when complete.
 
 Candidate: `output/stability/candidate/Granger-OSINT.exe`, SHA-256
 `692d9d36ed9de78606d8b737ce1e3ac1a1dbab99f340a81bafe79eff766a1de2`.
+
+## Stage 7 — actual selected-graph analysis, including exhausted research
+
+Live EXE checks exposed an important distinction: a graph action could append a
+new local stop report while an exhausted cumulative budget prevented any new
+model request. The original permissive check was strengthened to require an
+increased successful-provider-request count and a completed new answer. The
+earlier incomplete GUI runs are retained as failures, not counted as successes.
+
+An explicit Explain/Compare request now has a small local-analysis phase, at
+most3 model turns,6 local operations,24,000 reserved tokens and90 seconds, also
+respecting smaller nonzero configured limits. Baselines are validated and
+persisted; ordinary resume cannot reset them. Cumulative calls, time, provider
+usage and the full protected protocol archive remain intact. This does **not**
+renew the budget for external investigation. Investigate continues to use the
+original cumulative research budget and existing approvals.
+
+Explain receives selected entities/relations plus up to6 bounded excerpts from
+their actual saved evidence, with source URL, tool and acquisition time. The
+whole structured envelope remains under18,000 characters. Explain requests have
+no tool definitions, so the real provider produces an answer rather than using
+the short phase to reread the same records. Compare retains bounded local tools
+and a final response opportunity. The live gateway check now proves a **new
+model answer**, unchanged investigation ID/goal/cumulative tool count, and no new
+external source calls.42 focused runner/context/bridge tests passed after this
+last change; the complete suite then passed1315 tests, with1 skip and32 subtests.
+
+The release candidate's100 embedded Python modules and138 resources match the
+delivered source/assets. Its actual EXE passed24 native graph checks and16
+corrupt-state/restart checks. The24-check graph run adds source-detail opening,
+type filters, edge selection, switching saved investigations and orphan-process
+checks. Edge hit testing uses a separate small graph in the same renderer; the
+1000-node stress overview deliberately has overlapping targets. Its measured
+layout was14.9ms and paint65.8ms. A1.8-second warm static sample measured0.83%
+median machine CPU,625,242,112 bytes summed RSS and551,026,688 bytes private
+commit over2 observed owned processes. Shared RSS is double-counted; private
+commit is not private working set. These short samples are not a long benchmark.
+
+The temporary candidate is placed beside the existing dist build during live
+model QA so the existing adjacent `.toolenvs/visual-cpu` runtime is reused.
+Staging an EXE several directories deeper correctly reports no adjacent runtime;
+that is not a failed inference or a reason to reinstall the models.
+
+Release-candidate SHA-256:
+`8515cb4971176fe020a509fc25c482cbac0266c409e0ec359ce6ecc6fce33030`,
+276,822,249 bytes. Final live model/TON results and deployment are recorded next.

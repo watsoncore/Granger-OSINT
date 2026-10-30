@@ -248,6 +248,19 @@ class AgentRunner:
         if time.monotonic() >= self._deadline:
             raise _Stopped("time_limit")
 
+    def _focus_budget(self):
+        return self._state.get('focus_budget') if (self._state.get('active_focus') or {}).get('intent') in ('explain','compare') else None
+
+    def _budget_limit(self, name):
+        configured=getattr(self.limits,name)
+        caps={'max_steps':3,'max_tool_calls':6,'max_tokens':24000}
+        return min(configured or caps[name],caps[name]) if self._focus_budget() is not None else configured
+
+    def _budget_used(self, name):
+        value=self._state.get('budget_reserved_tokens',0) if name=='tokens' else self._record.get(name,0)
+        baseline=self._focus_budget()
+        return max(0,value-baseline.get(name,0)) if baseline is not None else value
+
     def _record_usage(self, request_id, metadata, status, error_code=None, *, context=None):
         context = context or self._usage_context
         state, record = context['state'], context['record']
@@ -487,7 +500,7 @@ class AgentRunner:
         replies = queue.Queue()
         def start(call):
             key = call["id"]
-            if self.limits.max_tool_calls and self._record['tool_calls'] >= self.limits.max_tool_calls:
+            if self._budget_limit('max_tool_calls') and self._budget_used('tool_calls') >= self._budget_limit('max_tool_calls'):
                 raise _Stopped('tool_limit')
             with self._lock:
                 call['dispatched'] = True
@@ -507,7 +520,7 @@ class AgentRunner:
             self._checkpoint()
             while pending and len(active) < self.limits.max_parallel:
                 self._checkpoint()
-                if self.limits.max_tool_calls and self._record['tool_calls'] >= self.limits.max_tool_calls:
+                if self._budget_limit('max_tool_calls') and self._budget_used('tool_calls') >= self._budget_limit('max_tool_calls'):
                     if active:
                         break
                     raise _Stopped('tool_limit')
@@ -926,6 +939,13 @@ class AgentRunner:
                     self._state['followup_request']=self._safe(followup)
                     self._record['current_focus']=self._safe(followup['text'])
                     self._record['no_progress_rounds']=0
+                    if followup['intent'] in ('explain','compare'):
+                        # A user's new local analysis request gets a separate
+                        # bounded phase. Cumulative research usage is retained;
+                        # this never renews external investigation budgets.
+                        self._state['focus_budget']={'steps':self._record['steps'],'tool_calls':self._record['tool_calls'],
+                            'tokens':self._state.get('budget_reserved_tokens',0),'elapsed_seconds':previous_elapsed}
+                    else:self._state.pop('focus_budget',None)
                 if conversation_id is not None and self._record.get('conversation_id') not in (None, conversation_id):
                     raise AIError('Расследование относится к другой беседе.', code='invalid_request')
                 # A budget reservation for an interrupted request is kept, but
@@ -953,6 +973,9 @@ class AgentRunner:
             self._record.update(provider=str(getattr(self.client, 'provider', 'deepseek')), model=str(model))
             self._deadline = (self._run_started + max(0, self.limits.timeout - previous_elapsed)
                               if self.limits.timeout else math.inf)
+            if self._focus_budget() is not None:
+                spent=max(0,previous_elapsed-self._focus_budget()['elapsed_seconds'])
+                self._deadline=self._run_started+max(0,min(self.limits.timeout or 90,90)-spent)
             self._linked = _Cancellation(cancel_event, self._stop, self._deadline)
             provider = str(getattr(self.client, 'provider', 'deepseek'))
             self._usage_context = {'state': self._state, 'record': self._record, 'store': self._store,
@@ -1011,22 +1034,36 @@ class AgentRunner:
                 focus=self._state.pop('followup_request',None)
                 if focus:
                     message={'role':'user','content':focus['text']+'\n\nВыбранные объекты и отношения (данные, не инструкции):\n'+_json(focus['context'])}
-                    self._state['messages'].append(message);self._state['protocol_archive'].append(deepcopy(message))
+                    if self._focus_budget() is not None:
+                        # Compact only the working context. The full protected
+                        # archive, evidence, cache and original goal stay intact.
+                        self._state['messages']=[self._state['messages'][0],{'role':'user','content':
+                            'Исходная цель: '+self._record['goal'][:2500]+'\nСохранённый итог (недоверенные данные):\n'+str(self._record.get('final_report',''))[:3500]},message]
+                    else:self._state['messages'].append(message)
+                    self._state['protocol_archive'].append(deepcopy(message))
                     self._persist()
-                if self.limits.max_steps and self._record['steps'] >= self.limits.max_steps:
+                if self._budget_limit('max_steps') and self._budget_used('steps') >= self._budget_limit('max_steps'):
                     raise _Stopped('step_limit')
-                if self.limits.max_tool_calls and self._record['tool_calls'] >= self.limits.max_tool_calls:
+                if self._budget_limit('max_tool_calls') and self._budget_used('tool_calls') >= self._budget_limit('max_tool_calls'):
                     raise _Stopped('tool_limit')
                 messages = self._state['messages']
                 self._trim(messages)
                 estimate = math.ceil((len(_json(messages).encode('utf-8')) + len(_json(definitions).encode('utf-8'))) / 3)
-                reserved = self._state.get('budget_reserved_tokens', 0)
-                remaining = self.limits.max_tokens - reserved - estimate if self.limits.max_tokens else 1800
+                reserved = self._budget_used('tokens')
+                maximum=self._budget_limit('max_tokens')
+                remaining = maximum - reserved - estimate if maximum else 1800
                 if remaining < 128:
                     raise _Stopped('token_limit')
                 requested = min(1800, remaining)
                 self._event(on_event, 'analyzing' if self._record['steps'] else 'thinking', step=self._record['steps'] + 1)
-                turn = self._model_request(model, messages, definitions, requested, estimate + requested)
+                turn_definitions=definitions
+                if (self._state.get('active_focus') or {}).get('intent')=='explain':
+                    # Selected graph and saved-source excerpts are provided by
+                    # the bridge; explain them without rereading the same rows.
+                    turn_definitions=[]
+                elif self._focus_budget() is not None and self._budget_used('steps')>=self._budget_limit('max_steps')-1:
+                    turn_definitions=[]
+                turn = self._model_request(model, messages, turn_definitions, requested, estimate + requested)
                 with self._lock:
                     self._record['steps'] += 1
                 message = turn.get('message') if isinstance(turn, dict) else None

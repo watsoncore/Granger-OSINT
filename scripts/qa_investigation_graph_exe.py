@@ -7,9 +7,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import subprocess
+import statistics
 import sys
 import time
 import uuid
@@ -38,6 +40,8 @@ def main():
     from grangerpet.investigation import new_investigation
     from grangerpet.agent_journal import InvestigationJournal
     from grangerpet.ipc import send_command
+    from perf_process_metrics import ProcessSampler
+    monitor=ProcessSampler(args.exe,gpu=False) if args.exe else None
     profile=out/'appdata/GrangerPet';profile.mkdir(parents=True)
     (profile/'settings.json').write_text(json.dumps(Settings(cursor_reaction=False,reduced_motion=True,source_root=str(ROOT)).to_dict()),encoding='utf-8')
     journal=InvestigationJournal(profile/'investigations')
@@ -55,6 +59,12 @@ def main():
     journal.save_checkpoint({**protocol,'version':1,'id':record['id'],'record':record,'evidence':rows,'executions':[]})
     journal.save({**record,'evidence':rows,'executions':[]})
     views=GraphViewStore(journal);views.select(record['id'])
+    small_record,small_protocol=new_investigation('СИНТЕТИЧЕСКАЯ проверка выбора связей https://graph-fixture.example/0')
+    small_record.update(status='completed',synthetic=True)
+    small_protocol['messages']=[{'role':'user','content':small_record['goal']}]
+    small_protocol['protocol_archive']=small_protocol['messages'][:]
+    journal.save_checkpoint({**small_protocol,'version':1,'id':small_record['id'],'record':small_record,'evidence':rows[:6],'executions':[]})
+    views.save(small_record['id'],{'version':1,'mode':'graph','positions':{},'expanded':[],'collapsed':[]})
     report={'mode':'actual_frozen_Qt_WebEngine' if args.exe else 'actual_source_Qt_WebEngine',
         'synthetic_stress_data':True,'gateway_calls':0,'user_data_read':False,'checks':[],'metrics':{}}
     if args.exe:report['exe_sha256']=hashlib.sha256(args.exe.read_bytes()).hexdigest()
@@ -109,6 +119,14 @@ def main():
         wait(lambda:int(graph().get('canvas',{}).get('drawnEdges',0))>=5000)
         g=graph();c=g['canvas'];report['metrics'].update(layout_ms=float(g['layoutMs']),paint_ms=float(c['paintMs']),displayed_nodes=int(c['drawnNodes']),displayed_edges=int(c['drawnEdges']))
         check('1000_nodes_5000_edges_in_actual_canvas',int(c['drawnNodes'])>=1000 and int(c['drawnEdges'])>=5000)
+        if monitor:
+            samples=[]
+            for _ in range(12):samples.append(monitor.sample([owned]));time.sleep(.15)
+            cpus=[s['cpu_percent_machine'] for s in samples if s['cpu_percent_machine'] is not None]
+            report['metrics'].update(idle_cpu_machine_median=statistics.median(cpus) if cpus else None,
+                rss_bytes_sum_peak=max(s['rss_bytes_sum'] or 0 for s in samples),
+                private_commit_bytes_sum_peak=max(s['private_commit_bytes_sum'] or 0 for s in samples),
+                process_count_peak=max(s['process_count'] for s in samples),idle_sample_seconds=1.8)
         nodes=json.loads(c['qaNodes']);n=next(n for n in nodes if c['y']+n['y']<dom_height[0]-45 and n['x']>30)
         at=[c['x']+n['x'],c['y']+n['y']]
         action('input',{'kind':'click','at':at});wait(lambda:graph().get('selectedId')==n['id'])
@@ -131,6 +149,33 @@ def main():
         check('native_node_search_limits_to_matching_neighborhood',True)
         action('input',{'kind':'key','key':'all','ctrl':True});action('input',{'kind':'key','key':'backspace'})
         wait(lambda:int(graph()['canvas']['drawnNodes'])>=1000)
+        click('Синтетический объект 0');wait(lambda:any(e.get('label')=='Закрыть источник' for e in dom()['elements']))
+        click('Доказательство');wait(lambda:'ev_' in dom()['text'])
+        check('native_source_opens_original_evidence_details',True)
+        # The technical section scrolls the dialog. Bring its existing close
+        # control back into view using native wheel events (no DOM mutation).
+        for _ in range(3):
+            d=dom();action('input',{'kind':'wheel','at':[d['width']/2,d['height']/2],'delta':1200})
+        click('Закрыть источник')
+        click('Фильтры')
+        checkbox=[e for e in dom()['elements'] if e.get('type')=='checkbox'][2]
+        action('input',{'kind':'click','at':[checkbox['x']+checkbox['width']/2,checkbox['y']+checkbox['height']/2]})
+        wait(lambda:int(graph()['canvas']['drawnNodes'])<1000);check('native_type_filter_changes_canvas',True)
+        checkbox=[e for e in dom()['elements'] if e.get('type')=='checkbox'][2]
+        action('input',{'kind':'click','at':[checkbox['x']+checkbox['width']/2,checkbox['y']+checkbox['height']/2]})
+        click('Фильтры');wait(lambda:int(graph()['canvas']['drawnNodes'])>=1000)
+        # Edge picking is verified on a separate small graph in the same real
+        # renderer; a dense overview has intentionally overlapping hit targets.
+        action('investigation_graph_get',{'id':small_record['id']})
+        wait(lambda:graph().get('investigationId')==small_record['id'] and graph().get('canvas') and graph().get('layoutPending')=='false')
+        action('graph_scroll');click('Вписать граф в окно');time.sleep(.4)
+        c=graph()['canvas'];nodes=json.loads(c['qaNodes'])
+        candidate=next(row for row in json.loads(c['qaEdges']) if all(math.hypot(row['x']-p['x'],row['y']-p['y'])>14 for p in nodes) and 10<row['x']<c['width']-10 and 10<row['y']<c['height']-50)
+        action('input',{'kind':'click','at':[c['x']+candidate['x'],c['y']+candidate['y']]})
+        wait(lambda:bool(graph().get('selectedRelation')));check('native_edge_click_opens_relation_inspector',True)
+        screenshot('selected-relation')
+        action('investigation_graph_get',{'id':record['id']})
+        wait(lambda:graph().get('investigationId')==record['id'] and graph().get('canvas') and graph().get('layoutPending')=='false')
         action('graph_scroll');click('Дерево');wait(lambda:graph().get('graphMode')=='tree' and graph().get('canvas'))
         check('tree_has_independent_layout',bool(views.load(record['id']).get('positions')))
         click('Доказательства');wait(lambda:'нормализованных записей' in dom()['text'])
@@ -149,6 +194,7 @@ def main():
         check('restart_never_auto_executes',not state().get('search',{}).get('busy') and not state().get('busy'))
         screenshot('restored-graph')
         command('stop');process.wait(timeout=30);owned=None;check('clean_second_exit',process.returncode==0)
+        if monitor:wait(lambda:monitor.sample()['process_count']==0,30);check('no_owned_graph_orphan_processes',True)
         report['passed']=True;save()
     except Exception as error:
         report.update(passed=False,error_type=type(error).__name__,error=str(error)[:250]);save();raise
