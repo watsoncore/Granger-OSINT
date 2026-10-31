@@ -1,0 +1,71 @@
+{
+  "exe_sha256": "da5c869384ce1ff51d310813f42b40d5e834143a4f8d52fc836fa0b7649f4cef",
+  "events": [
+    {
+      "at": 5.700043402612209e-06,
+      "event": "reading"
+    },
+    {
+      "at": 2.842579900054261,
+      "event": "click"
+    },
+    {
+      "at": 5.0393716000253335,
+      "event": "reading"
+    },
+    {
+      "at": 7.882681800052524,
+      "event": "drag_up"
+    },
+    {
+      "at": 10.54390789999161,
+      "event": "reading"
+    },
+    {
+      "at": 13.385637899977155,
+      "event": "drag_down"
+    },
+    {
+      "at": 16.023968699970283,
+      "event": "reading"
+    },
+    {
+      "at": 18.8630766000133,
+      "event": "hover"
+    },
+    {
+      "at": 19.38673699996434,
+      "event": "left"
+    },
+    {
+      "at": 19.808974700048566,
+      "event": "right"
+    },
+    {
+      "at": 20.33173820003867,
+      "event": "up"
+    },
+    {
+      "at": 20.859021999989636,
+      "event": "down"
+    },
+    {
+      "at": 21.489797799964435,
+      "event": "away"
+    }
+  ],
+  "api_requests": 0,
+  "passed": true,
+  "reactions": [
+    "angry",
+    "calm",
+    "embarrassed",
+    "held",
+    "jerk_down",
+    "jerk_up"
+  ],
+  "frames": 528,
+  "actual_duration_seconds": 55.443,
+  "actual_capture_fps": 9.523,
+  "method": "External IPC snapshots following the owned pet window; production physics clocks; actual variable capture rate, not a claim of 24fps. Events complete by 21.5s; remaining idle hold retained."
+}

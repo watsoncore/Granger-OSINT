@@ -1,0 +1,391 @@
+{
+  "exe_sha256": "da5c869384ce1ff51d310813f42b40d5e834143a4f8d52fc836fa0b7649f4cef",
+  "mode": "Live Qt widget grabs from real EXE; fixed union alpha crop; neutral review matte; original timestamps, no invented frames",
+  "api_requests": 0,
+  "sets": [
+    {
+      "logical_size": 195,
+      "clips": [
+        {
+          "name": "reading-v0",
+          "frames": 436,
+          "seconds": 18.270051000000002,
+          "mode": "widget",
+          "production_duration": 18,
+          "mean_capture_fps": 23.80945734634238,
+          "production_frame_signatures": 428
+        },
+        {
+          "name": "reading-v1",
+          "frames": 436,
+          "seconds": 18.271438,
+          "mode": "widget",
+          "production_duration": 18,
+          "mean_capture_fps": 23.807649950704484,
+          "production_frame_signatures": 426
+        },
+        {
+          "name": "reading-v2",
+          "frames": 436,
+          "seconds": 18.270751,
+          "mode": "widget",
+          "production_duration": 18,
+          "mean_capture_fps": 23.808545144093966,
+          "production_frame_signatures": 426
+        },
+        {
+          "name": "shy-v0",
+          "frames": 139,
+          "seconds": 5.79641,
+          "mode": "widget",
+          "production_duration": 5.5,
+          "mean_capture_fps": 23.80783968007784,
+          "production_frame_signatures": 131
+        },
+        {
+          "name": "shy-v1",
+          "frames": 139,
+          "seconds": 5.796375,
+          "mode": "widget",
+          "production_duration": 5.5,
+          "mean_capture_fps": 23.807983437924563,
+          "production_frame_signatures": 129
+        },
+        {
+          "name": "shy-v2",
+          "frames": 139,
+          "seconds": 5.795276,
+          "mode": "widget",
+          "production_duration": 5.5,
+          "mean_capture_fps": 23.812498317595225,
+          "production_frame_signatures": 131
+        },
+        {
+          "name": "annoyed-v0",
+          "frames": 115,
+          "seconds": 4.784562,
+          "mode": "widget",
+          "production_duration": 4.5,
+          "mean_capture_fps": 23.82663240647733,
+          "production_frame_signatures": 108
+        },
+        {
+          "name": "annoyed-v1",
+          "frames": 115,
+          "seconds": 4.788062,
+          "mode": "widget",
+          "production_duration": 4.5,
+          "mean_capture_fps": 23.809215503057395,
+          "production_frame_signatures": 107
+        },
+        {
+          "name": "annoyed-v2",
+          "frames": 115,
+          "seconds": 4.788742,
+          "mode": "widget",
+          "production_duration": 4.5,
+          "mean_capture_fps": 23.805834601237652,
+          "production_frame_signatures": 106
+        },
+        {
+          "name": "wand_play-v0",
+          "frames": 197,
+          "seconds": 8.274518,
+          "mode": "widget",
+          "production_duration": 8,
+          "mean_capture_fps": 23.687180328811902,
+          "production_frame_signatures": 187
+        },
+        {
+          "name": "wand_play-v1",
+          "frames": 198,
+          "seconds": 8.273419,
+          "mode": "widget",
+          "production_duration": 8,
+          "mean_capture_fps": 23.81119583088926,
+          "production_frame_signatures": 187
+        },
+        {
+          "name": "wand_play-v2",
+          "frames": 198,
+          "seconds": 8.273021,
+          "mode": "widget",
+          "production_duration": 8,
+          "mean_capture_fps": 23.812341344232053,
+          "production_frame_signatures": 190
+        },
+        {
+          "name": "wand_play-v3",
+          "frames": 195,
+          "seconds": 8.274022,
+          "mode": "widget",
+          "production_duration": 8,
+          "mean_capture_fps": 23.446879885018433,
+          "production_frame_signatures": 180
+        },
+        {
+          "name": "phone_solvnox-v0",
+          "frames": 316,
+          "seconds": 13.272293,
+          "mode": "widget",
+          "production_duration": 13,
+          "mean_capture_fps": 23.733653257956256,
+          "production_frame_signatures": 305
+        },
+        {
+          "name": "daydream-v0",
+          "frames": 222,
+          "seconds": 9.282595,
+          "mode": "widget",
+          "production_duration": 9,
+          "mean_capture_fps": 23.807997655827922,
+          "production_frame_signatures": 213
+        },
+        {
+          "name": "thinking-v0",
+          "frames": 150,
+          "seconds": 6.25906,
+          "mode": "widget",
+          "production_duration": 6.0,
+          "mean_capture_fps": 23.805491559435442,
+          "production_frame_signatures": 142
+        },
+        {
+          "name": "working-v0",
+          "frames": 150,
+          "seconds": 6.258203,
+          "mode": "widget",
+          "production_duration": 6.0,
+          "mean_capture_fps": 23.80875148984461,
+          "production_frame_signatures": 142
+        },
+        {
+          "name": "idle-v0",
+          "frames": 150,
+          "seconds": 6.269496,
+          "mode": "widget",
+          "production_duration": 6.0,
+          "mean_capture_fps": 23.765865709141533,
+          "production_frame_signatures": 144
+        },
+        {
+          "name": "hover-v0",
+          "frames": 150,
+          "seconds": 6.258213,
+          "mode": "widget",
+          "production_duration": 6.0,
+          "mean_capture_fps": 23.8087134458351,
+          "production_frame_signatures": 142
+        },
+        {
+          "name": "happy-v0",
+          "frames": 150,
+          "seconds": 6.257833000000001,
+          "mode": "widget",
+          "production_duration": 6.0,
+          "mean_capture_fps": 23.81015920367322,
+          "production_frame_signatures": 142
+        },
+        {
+          "name": "error-v0",
+          "frames": 150,
+          "seconds": 6.258835,
+          "mode": "widget",
+          "production_duration": 6.0,
+          "mean_capture_fps": 23.80634734738973,
+          "production_frame_signatures": 142
+        },
+        {
+          "name": "cast-v0",
+          "frames": 67,
+          "seconds": 2.7719210000000003,
+          "mode": "widget",
+          "production_duration": 2.5,
+          "mean_capture_fps": 23.810202383112646,
+          "production_frame_signatures": 58
+        },
+        {
+          "name": "avada-v0",
+          "frames": 84,
+          "seconds": 3.4854190000000003,
+          "mode": "widget",
+          "production_duration": 3.2,
+          "mean_capture_fps": 23.81349272497797,
+          "production_frame_signatures": 75
+        },
+        {
+          "name": "yawn-v0",
+          "frames": 58,
+          "seconds": 2.39352,
+          "mode": "widget",
+          "production_duration": 2.1,
+          "mean_capture_fps": 23.81429860623684,
+          "production_frame_signatures": 49
+        },
+        {
+          "name": "sleep-v0",
+          "frames": 735,
+          "seconds": 60.921886,
+          "mode": "widget",
+          "production_duration": 60.0,
+          "mean_capture_fps": 12.0482153162494,
+          "production_frame_signatures": 488
+        },
+        {
+          "name": "wake-v0",
+          "frames": 23,
+          "seconds": 0.922558,
+          "mode": "widget",
+          "production_duration": 0.65,
+          "mean_capture_fps": 23.846739175206327,
+          "production_frame_signatures": 14
+        },
+        {
+          "name": "leave-v0",
+          "frames": 358,
+          "seconds": 14.994334,
+          "mode": "widget",
+          "production_duration": 2.8,
+          "mean_capture_fps": 23.808993450459354,
+          "production_frame_signatures": 193
+        },
+        {
+          "name": "away-v0",
+          "frames": 150,
+          "seconds": 6.257478,
+          "mode": "widget",
+          "production_duration": 6.0,
+          "mean_capture_fps": 23.811510004509806,
+          "production_frame_signatures": 51
+        },
+        {
+          "name": "return-v0",
+          "frames": 46,
+          "seconds": 1.890076,
+          "mode": "widget",
+          "production_duration": 1.6,
+          "mean_capture_fps": 23.80856642801665,
+          "production_frame_signatures": 37
+        },
+        {
+          "name": "settle-v0",
+          "frames": 15,
+          "seconds": 0.587146,
+          "mode": "widget",
+          "production_duration": 0.3,
+          "mean_capture_fps": 23.844154605498463,
+          "production_frame_signatures": 6
+        },
+        {
+          "name": "walk-v0",
+          "frames": 151,
+          "seconds": 6.296184,
+          "mode": "widget",
+          "production_duration": 6.0,
+          "mean_capture_fps": 23.82395431899703,
+          "production_frame_signatures": 143
+        }
+      ]
+    },
+    {
+      "logical_size": 100,
+      "clips": [
+        {
+          "name": "reading-v0",
+          "frames": 436,
+          "seconds": 18.269493999999998,
+          "mode": "widget",
+          "production_duration": 18,
+          "mean_capture_fps": 23.810183248643888,
+          "production_frame_signatures": 428
+        },
+        {
+          "name": "phone_solvnox-v0",
+          "frames": 317,
+          "seconds": 13.27265,
+          "mode": "widget",
+          "production_duration": 13,
+          "mean_capture_fps": 23.808357788384384,
+          "production_frame_signatures": 309
+        },
+        {
+          "name": "wand_play-v0",
+          "frames": 198,
+          "seconds": 8.273253,
+          "mode": "widget",
+          "production_duration": 8,
+          "mean_capture_fps": 23.811673594413225,
+          "production_frame_signatures": 190
+        },
+        {
+          "name": "shy-v0",
+          "frames": 139,
+          "seconds": 5.795726,
+          "mode": "widget",
+          "production_duration": 5.5,
+          "mean_capture_fps": 23.810649433737897,
+          "production_frame_signatures": 131
+        },
+        {
+          "name": "annoyed-v0",
+          "frames": 115,
+          "seconds": 4.787425,
+          "mode": "widget",
+          "production_duration": 4.5,
+          "mean_capture_fps": 23.81238348381437,
+          "production_frame_signatures": 106
+        }
+      ]
+    },
+    {
+      "logical_size": 160,
+      "clips": [
+        {
+          "name": "reading-v0",
+          "frames": 436,
+          "seconds": 18.269596999999997,
+          "mode": "widget",
+          "production_duration": 18,
+          "mean_capture_fps": 23.81004901202802,
+          "production_frame_signatures": 427
+        },
+        {
+          "name": "phone_solvnox-v0",
+          "frames": 317,
+          "seconds": 13.270653,
+          "mode": "widget",
+          "production_duration": 13,
+          "mean_capture_fps": 23.811940527719322,
+          "production_frame_signatures": 309
+        },
+        {
+          "name": "wand_play-v0",
+          "frames": 198,
+          "seconds": 8.273539999999999,
+          "mode": "widget",
+          "production_duration": 8,
+          "mean_capture_fps": 23.81084759365399,
+          "production_frame_signatures": 188
+        },
+        {
+          "name": "shy-v0",
+          "frames": 139,
+          "seconds": 5.795191,
+          "mode": "widget",
+          "production_duration": 5.5,
+          "mean_capture_fps": 23.812847583453244,
+          "production_frame_signatures": 127
+        },
+        {
+          "name": "annoyed-v0",
+          "frames": 115,
+          "seconds": 4.785495,
+          "mode": "widget",
+          "production_duration": 4.5,
+          "mean_capture_fps": 23.8219870671686,
+          "production_frame_signatures": 106
+        }
+      ]
+    }
+  ]
+}

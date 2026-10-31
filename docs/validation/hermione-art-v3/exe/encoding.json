@@ -1,0 +1,377 @@
+{
+  "method": "Animated WebP quality 90; native dimensions, original order and timing. Identical adjacent frames may be coalesced by the codec. Original lossless WebP/PNG retained locally.",
+  "clips": [
+    {
+      "name": "annoyed-v0",
+      "native_dimensions": [
+        205,
+        256
+      ],
+      "duration_ms": 4825,
+      "source_sha256": "62cb7ecadece0bc7c27cdd9a189e7e31b7ebd5eb370ca70e405064335123f0b3",
+      "preview_sha256": "a54e8a465048abd3e05e5e0ea1f024d9b2a9fe41095cbf2898cf3c5811fca0d7",
+      "bytes": 690414,
+      "codec_frames": 94
+    },
+    {
+      "name": "annoyed-v1",
+      "native_dimensions": [
+        205,
+        256
+      ],
+      "duration_ms": 4834,
+      "source_sha256": "3bc14d1959801e4fa09d6f00ac643acd14ece06efc20c3ab20b8bc86c432721f",
+      "preview_sha256": "4d21d915553f404845f78635d2022f5436ad494c68ca94672ccfb63cea31eb64",
+      "bytes": 748332,
+      "codec_frames": 113
+    },
+    {
+      "name": "annoyed-v2",
+      "native_dimensions": [
+        205,
+        256
+      ],
+      "duration_ms": 4833,
+      "source_sha256": "5300ba1989b3ffd7ae9a16be25dfc36ee0456266f8193fa6819cadf0a6c65d1d",
+      "preview_sha256": "6675510da74a04c9891fb75d3c9bd76f438c7d2c5188a701e28fede5e466cb07",
+      "bytes": 782500,
+      "codec_frames": 82
+    },
+    {
+      "name": "avada-v0",
+      "native_dimensions": [
+        218,
+        257
+      ],
+      "duration_ms": 3526,
+      "source_sha256": "da9b4554945996aa83e3de9c3b46e025442b009c7bc6b53d3cfa8752469255ee",
+      "preview_sha256": "07f2e241ba5d81ebe0346a61a2edeca535a02d02c6b3b5af8a54f15dc48b4e20",
+      "bytes": 789884,
+      "codec_frames": 81
+    },
+    {
+      "name": "away-v0",
+      "native_dimensions": [
+        238,
+        256
+      ],
+      "duration_ms": 6299,
+      "source_sha256": "0a61bc97b9deaac835dc82556d5ce6f9bb0750210add191a72fab082b6128d9e",
+      "preview_sha256": "0f22df740d62ca981e9f9753e4ad347578cd920635bc8af7cc91f3059ccd59d1",
+      "bytes": 172974,
+      "codec_frames": 58
+    },
+    {
+      "name": "cast-v0",
+      "native_dimensions": [
+        218,
+        256
+      ],
+      "duration_ms": 2815,
+      "source_sha256": "c8f0232230ea4cb8f1d231604e8e09e59eed47e6d8e3d5723707fe29c3a1be52",
+      "preview_sha256": "0f4f58579f6f8c8051005bdc09f172c9f054623503d6c65ec725317b53bf3e8a",
+      "bytes": 649370,
+      "codec_frames": 65
+    },
+    {
+      "name": "daydream-v0",
+      "native_dimensions": [
+        205,
+        256
+      ],
+      "duration_ms": 9329,
+      "source_sha256": "f08232cfc0fc9d611c021374a7147b16b095ed3fe0eae0fc9f7340a584dd5538",
+      "preview_sha256": "5bc6f071bac8350477b722f93ab8c84d7bd6ad93c10832d2ecdd272d03824006",
+      "bytes": 2072958,
+      "codec_frames": 219
+    },
+    {
+      "name": "error-v0",
+      "native_dimensions": [
+        203,
+        256
+      ],
+      "duration_ms": 6307,
+      "source_sha256": "e2c9adcca1570f998bc511b2aadbd565ae9fd601e85a39bc70d31f3a70d49ff9",
+      "preview_sha256": "d4bd6059011ce2385bed7ff19e604f2a8c8cd52a04e657c33c18d3b151e345eb",
+      "bytes": 1326078,
+      "codec_frames": 148
+    },
+    {
+      "name": "happy-v0",
+      "native_dimensions": [
+        203,
+        256
+      ],
+      "duration_ms": 6301,
+      "source_sha256": "65162448be4162c0e731e182a163121c1f38a3d285ad7e16021337a69ada8374",
+      "preview_sha256": "0c9cc7fe67474de672d26314ebf67a6b0bfa9684995da3726498de3cbf7e2985",
+      "bytes": 1328956,
+      "codec_frames": 148
+    },
+    {
+      "name": "hover-v0",
+      "native_dimensions": [
+        207,
+        256
+      ],
+      "duration_ms": 6302,
+      "source_sha256": "46ebe12abb04eb38ab093dca2b30a11c22eec51a564ec05cea21c03aadf010da",
+      "preview_sha256": "5b6a258d0452e04dbf2e7edf3686da0568083ce8c10737704bbe1816b5ab38a3",
+      "bytes": 68090,
+      "codec_frames": 14
+    },
+    {
+      "name": "idle-v0",
+      "native_dimensions": [
+        203,
+        256
+      ],
+      "duration_ms": 6314,
+      "source_sha256": "49f14cbd1c33db12942fb79c3cd006339329af732745622951d9055fcdd22d61",
+      "preview_sha256": "d37a11d8d93c403ec4574d2d489780ba541a8d79f97471cadb69cd80cb364249",
+      "bytes": 247520,
+      "codec_frames": 149
+    },
+    {
+      "name": "leave-v0",
+      "native_dimensions": [
+        238,
+        258
+      ],
+      "duration_ms": 15040,
+      "source_sha256": "dddd7190104fe7c2872c704acee1904424610e2317892e2e57fd271f8b6054b7",
+      "preview_sha256": "0ba1ac9100375af19bac0fecb59c657c0342e7c362f0dc7bf12bf4aea4f21288",
+      "bytes": 365038,
+      "codec_frames": 71
+    },
+    {
+      "name": "phone_solvnox-v0",
+      "native_dimensions": [
+        206,
+        256
+      ],
+      "duration_ms": 13306,
+      "source_sha256": "58f12ad79426182bc4816411bd0e5ca3392613373c540508c4e5dc52d21acb41",
+      "preview_sha256": "ea3f64cd6b89474dbc223fc656427d9e16a5de44b866375b0686baca752e2634",
+      "bytes": 3053344,
+      "codec_frames": 311
+    },
+    {
+      "name": "reading-v0",
+      "native_dimensions": [
+        205,
+        257
+      ],
+      "duration_ms": 18321,
+      "source_sha256": "a8137738f9f1d852e678ea5090fe549a7b17159e2e3de16c474c1a6dd0e1eb2c",
+      "preview_sha256": "33c03180e354686f58beaf0ead124f6c21792357dc5329ac67982eddc4ce8530",
+      "bytes": 3190872,
+      "codec_frames": 434
+    },
+    {
+      "name": "reading-v1",
+      "native_dimensions": [
+        206,
+        257
+      ],
+      "duration_ms": 18317,
+      "source_sha256": "6212c63f48d9f81e4a1773a2baeca45b7618a39f483205714b34ce9001b9b957",
+      "preview_sha256": "d811a3351968f9fa14c94f461fdb5778f1a6403f9d01fc8bf11917e5445ff7ef",
+      "bytes": 3944548,
+      "codec_frames": 432
+    },
+    {
+      "name": "reading-v2",
+      "native_dimensions": [
+        205,
+        257
+      ],
+      "duration_ms": 18304,
+      "source_sha256": "b4c792ef9f23a0f0817ca26acf04c1626591677691c0974f4dfe080bcefc21ba",
+      "preview_sha256": "7fcfd6422fe54523ad9b0f3eb08b1d5e6ff4cf7ce2041b0b6c4551597b301110",
+      "bytes": 3702694,
+      "codec_frames": 432
+    },
+    {
+      "name": "return-v0",
+      "native_dimensions": [
+        238,
+        256
+      ],
+      "duration_ms": 1931,
+      "source_sha256": "b7c17e7af0bfef520d77568560ab898a5e0d60cba0f5366add154851fa63c160",
+      "preview_sha256": "ee7f48f6bf1cc3c6197ab0d81b815de72279ef72c06dc15713cac4c1b8b03943",
+      "bytes": 88564,
+      "codec_frames": 12
+    },
+    {
+      "name": "settle-v0",
+      "native_dimensions": [
+        202,
+        256
+      ],
+      "duration_ms": 629,
+      "source_sha256": "be8af4fedb1aa59bfbf276a40e1b843fd0b45c67f6542e530933f5c55f084f4e",
+      "preview_sha256": "f01a50ec0b4b34d47d30ee220f13aac47dd944599c081c98cbe1ed35ce3a0423",
+      "bytes": 23730,
+      "codec_frames": 12
+    },
+    {
+      "name": "shy-v0",
+      "native_dimensions": [
+        206,
+        256
+      ],
+      "duration_ms": 5836,
+      "source_sha256": "6ee1366d2f10ebf5d4c3dd1c67f2e66052fd455524823742b7b98b3e4262feed",
+      "preview_sha256": "04379c067cc204e8d9b7464fe1f6a8143671677f1342458d6e0a1fbf77444f6a",
+      "bytes": 1305006,
+      "codec_frames": 137
+    },
+    {
+      "name": "shy-v1",
+      "native_dimensions": [
+        206,
+        256
+      ],
+      "duration_ms": 5839,
+      "source_sha256": "c2a33aa66c2328abfdc4a6f722a27425891ca2d791e79fba8e829686dba45d47",
+      "preview_sha256": "734fac328561ad56ff11428504cb1ad1d9464d0b4ee5103299fe46d1b5de7203",
+      "bytes": 1284274,
+      "codec_frames": 135
+    },
+    {
+      "name": "shy-v2",
+      "native_dimensions": [
+        206,
+        256
+      ],
+      "duration_ms": 5837,
+      "source_sha256": "345ae879152d29c873ad6fdd3d3edb4c2686ea318b93ff76c1879caf97ea0eba",
+      "preview_sha256": "748df45dfe428b6d49aaa583d342e2b963e1bee839216cf698b01ced1e1f38e6",
+      "bytes": 1296638,
+      "codec_frames": 136
+    },
+    {
+      "name": "sleep-v0",
+      "native_dimensions": [
+        212,
+        256
+      ],
+      "duration_ms": 60965,
+      "source_sha256": "fb6cbe2309eb7659d96daa04f022d22e90d5d98f95a9e30c8407c7c29149efaf",
+      "preview_sha256": "a1a6488593dd82ac6dffec7c48eaa0e1d608fe73589918c87c43d6479da93a4d",
+      "bytes": 4350278,
+      "codec_frames": 493
+    },
+    {
+      "name": "thinking-v0",
+      "native_dimensions": [
+        205,
+        256
+      ],
+      "duration_ms": 6299,
+      "source_sha256": "7788e4c8028c45600529692485f596ff9d1a783640d26c957ee11cbe61045d24",
+      "preview_sha256": "f84d3ff7ec943f214d76a1a1cdb344ad49d5010ea1c67bac18263eccff94ce17",
+      "bytes": 1230922,
+      "codec_frames": 149
+    },
+    {
+      "name": "wake-v0",
+      "native_dimensions": [
+        204,
+        256
+      ],
+      "duration_ms": 965,
+      "source_sha256": "deaeac4c900b4973f9bacd5cef3d8e39db8ef45e239e5f64df3bccf263e3ab32",
+      "preview_sha256": "2175f4d33b1f01d9fbd4990055d8e58c3274fd2fdf7ea4c789183c4830ac70c9",
+      "bytes": 208932,
+      "codec_frames": 20
+    },
+    {
+      "name": "walk-v0",
+      "native_dimensions": [
+        205,
+        258
+      ],
+      "duration_ms": 6338,
+      "source_sha256": "de09f5f7fd634bfc959a837042207ff01d649c84af5e9771325b65c6c97312fb",
+      "preview_sha256": "9c171594cae77c3016846ccb6de00dcdfdc0e178fd8041157a4d42172aa818f2",
+      "bytes": 1579938,
+      "codec_frames": 149
+    },
+    {
+      "name": "wand_play-v0",
+      "native_dimensions": [
+        218,
+        256
+      ],
+      "duration_ms": 8324,
+      "source_sha256": "cfc4001d2996534df6aa6a5d2fba2dae1809985c453fc4ce7551c0ac3e3d8724",
+      "preview_sha256": "c22185ad124c7b4886d33f5530eda9aa81db6fd49fb226b3b9e77dea3efc4754",
+      "bytes": 1889798,
+      "codec_frames": 193
+    },
+    {
+      "name": "wand_play-v1",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 8319,
+      "source_sha256": "61d92cc41287adcafead913107e3ca4627818395380891cd210fc463c5eb27c2",
+      "preview_sha256": "95ed47643d41c70279a7c459677f95f2a0ceef8cec3a93a0d326cdbb717a0672",
+      "bytes": 1877930,
+      "codec_frames": 193
+    },
+    {
+      "name": "wand_play-v2",
+      "native_dimensions": [
+        218,
+        256
+      ],
+      "duration_ms": 8317,
+      "source_sha256": "2b93db9105054b3fcbf74b0448d93b385640303f5a9449437b6519015ccb31b5",
+      "preview_sha256": "07133f1476da5ecad14d0119d4ccc12ca58752acd54d84108bbcb5545a1ecb4e",
+      "bytes": 1926264,
+      "codec_frames": 196
+    },
+    {
+      "name": "wand_play-v3",
+      "native_dimensions": [
+        218,
+        256
+      ],
+      "duration_ms": 8319,
+      "source_sha256": "1d484357add45f7516815dc06dacba287f9d7ce57b9b3bc762dbdda908212fff",
+      "preview_sha256": "c432b6967240c48ddcb4a6bdb5fcf3f5a492725343258e3db945ad1078c92212",
+      "bytes": 1826116,
+      "codec_frames": 186
+    },
+    {
+      "name": "working-v0",
+      "native_dimensions": [
+        205,
+        256
+      ],
+      "duration_ms": 6304,
+      "source_sha256": "064b350fdc6b50c1516a7b115e3d54d64700c5b8e3ca1e3903dc79b9982b910c",
+      "preview_sha256": "9fa2012290078114d5f732a16383af67790d276c36be20b7c3aa93a2a76801d1",
+      "bytes": 1242886,
+      "codec_frames": 149
+    },
+    {
+      "name": "yawn-v0",
+      "native_dimensions": [
+        212,
+        256
+      ],
+      "duration_ms": 2439,
+      "source_sha256": "3b9b8d315d52164ed6d776bf18d5f4fe42fbd25a15960014241719558d01b9e6",
+      "preview_sha256": "dd5dc1d32adbb986e004d488179985e5aa45ce0a691797f0ed98757fcc542735",
+      "bytes": 313190,
+      "codec_frames": 36
+    }
+  ]
+}

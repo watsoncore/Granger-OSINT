@@ -1,0 +1,38 @@
+{
+  "exe_sha256": "da5c869384ce1ff51d310813f42b40d5e834143a4f8d52fc836fa0b7649f4cef",
+  "exe_size_bytes": 278519050,
+  "exe_path": "dist/Granger-OSINT.exe",
+  "source_code_commit": "0ea12fb648d65af5d7df8829b66d317873ce8f1a",
+  "tests": {
+    "passed": 1506,
+    "skipped": 1,
+    "subtests": 32,
+    "skip_reason": "Optional Ollama not running"
+  },
+  "native_checks": 38,
+  "full_native_clips": 41,
+  "public_evidence_files": [
+    "binary-smoke.json",
+    "frozen-assets.json",
+    "frozen-sources.json",
+    "native-autonomy.json",
+    "native-captures.json",
+    "native-interruption.json",
+    "performance-after.json",
+    "performance-before.json",
+    "preservation.json",
+    "profile-preservation.json",
+    "release-summary.json",
+    "secret-scan.json",
+    "tests-release-verified.log"
+  ],
+  "resolved_qa_failures": [
+    "First candidate native dock toggle used stale pre-maximize DOM coordinates; harness now waits for settled layout. Failed report retained locally.",
+    "DPR2 moving-curl seam found in candidate 65fb7b99 and corrected before final da5c8693 build."
+  ],
+  "limitations": [
+    "100px finger lines and phone text are small; 256px and alternate DPR checks are direct renderer tests; current app size setting remains 100-195px.",
+    "600s QA and 25 accelerated cycles do not prove multi-day leak freedom.",
+    "Earlier encrypted-dialog hash anomaly remains unexplained; current-stage 54/54 profile files unchanged."
+  ]
+}

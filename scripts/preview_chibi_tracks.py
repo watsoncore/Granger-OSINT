@@ -49,7 +49,7 @@ def main():
                 for i in range(math.ceil(duration*24)+1):
                     q=min(1.,i/(duration*24));life=LifePose(name,'',q,i/24,1,i,0,variant=variant)
                     if cameo:life=replace(life,cameo=cameo)
-                    qi=(preview_pair(lib,life,size) if cameo else render_action(lib,life,size)).convertToFormat(qimage_format());im=Image.frombytes('RGBA',(qi.width(),qi.height()),bytes(qi.constBits()))
+                    qi=(preview_pair(lib,life,size) if cameo else render_actor(lib,action_pose(name,q,i/24,variant),size,props=False) if args.no_props else render_action(lib,life,size)).convertToFormat(qimage_format());im=Image.frombytes('RGBA',(qi.width(),qi.height()),bytes(qi.constBits()))
                     bg=Image.new('RGBA',im.size,'#f4f2ed');bg.alpha_composite(im);frames.append(bg.convert('RGB'))
                 durations=[round((i+1)*1000/24)-round(i*1000/24) for i in range(len(frames))]
                 frames[0].save(args.output/f'{name}-v{variant}.webp',save_all=True,append_images=frames[1:],duration=durations,loop=0,quality=90)

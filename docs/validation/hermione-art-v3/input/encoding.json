@@ -1,0 +1,17 @@
+{
+  "method": "Animated WebP quality 90; native dimensions, original order and timing. Identical adjacent frames may be coalesced by the codec. Original lossless WebP/PNG retained locally.",
+  "clips": [
+    {
+      "name": "drag-interrupt",
+      "native_dimensions": [
+        205,
+        257
+      ],
+      "duration_ms": 55394,
+      "source_sha256": "2396f9a3b9ce1a5ef3e786446a12bc70cad80bb4215f46a9c0d37ab99ac64ebd",
+      "preview_sha256": "a5151b6e408776d309c59362fe6c79aa0e854abf2980e246a05720fcbe6a575a",
+      "bytes": 2325678,
+      "codec_frames": 526
+    }
+  ]
+}

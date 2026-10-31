@@ -1,0 +1,178 @@
+{
+  "exe_sha256": "da5c869384ce1ff51d310813f42b40d5e834143a4f8d52fc836fa0b7649f4cef",
+  "passed": true,
+  "checks": [
+    {
+      "name": "native_idle_pixels_advance",
+      "passed": true
+    },
+    {
+      "name": "scheduler_starts_while_workspace_active",
+      "passed": true
+    },
+    {
+      "name": "navigation_search_does_not_reset_figure_idle",
+      "passed": true
+    },
+    {
+      "name": "navigation_settings_does_not_reset_figure_idle",
+      "passed": true
+    },
+    {
+      "name": "navigation_history_does_not_reset_figure_idle",
+      "passed": true
+    },
+    {
+      "name": "navigation_chat_does_not_reset_figure_idle",
+      "passed": true
+    },
+    {
+      "name": "typing_draft_does_not_cancel_autonomy",
+      "passed": true
+    },
+    {
+      "name": "real_figure_hover_interrupts_scene",
+      "passed": true
+    },
+    {
+      "name": "actual_up_drag_reaction",
+      "passed": true
+    },
+    {
+      "name": "actual_down_drag_reaction",
+      "passed": true
+    },
+    {
+      "name": "release_recovers_without_drag_timer",
+      "passed": true
+    },
+    {
+      "name": "scale_100_visible",
+      "passed": true
+    },
+    {
+      "name": "scale_195_visible",
+      "passed": true
+    },
+    {
+      "name": "scale_160_visible",
+      "passed": true
+    },
+    {
+      "name": "scene_completes_and_clears",
+      "passed": true
+    },
+    {
+      "name": "reading_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "wand_play_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "shy_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "annoyed_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "phone_solvnox_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "daydream_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "default_195_scale_cameo_fits_existing_dock",
+      "passed": true
+    },
+    {
+      "name": "figure_interrupt_removes_actual_cameo",
+      "passed": true
+    },
+    {
+      "name": "window_minimize_retains_live_figure",
+      "passed": true
+    },
+    {
+      "name": "window_maximize_retains_live_figure",
+      "passed": true
+    },
+    {
+      "name": "window_maximize_retains_live_figure",
+      "passed": true
+    },
+    {
+      "name": "window_close_retains_live_figure",
+      "passed": true
+    },
+    {
+      "name": "open_close_workspace_during_cameo_restores_original_desktop_position",
+      "passed": true
+    },
+    {
+      "name": "cold_restart_before_unmodified_natural_schedule",
+      "passed": true
+    },
+    {
+      "name": "native_soak_keeps_rendering",
+      "passed": true
+    },
+    {
+      "name": "natural_figure_idle_starts_during_real_typing_without_shortened_deadline",
+      "passed": true
+    },
+    {
+      "name": "natural_guest_arrives_without_shortened_deadline",
+      "passed": true
+    },
+    {
+      "name": "native_soak_has_no_timer_accumulation",
+      "passed": true
+    },
+    {
+      "name": "native_soak_frame_timer_stays_active",
+      "passed": true
+    },
+    {
+      "name": "native_exit_zero",
+      "passed": true
+    },
+    {
+      "name": "no_owned_orphans_after_first_exit",
+      "passed": true
+    },
+    {
+      "name": "actual_restart_has_no_leftover_guest_or_scene",
+      "passed": true
+    },
+    {
+      "name": "restart_exit_zero_without_orphans",
+      "passed": true
+    }
+  ],
+  "seconds": 600.01,
+  "natural_typing_seconds": 300,
+  "natural_actions": [
+    "annoyed",
+    "reading",
+    "ron_note",
+    "wand_play"
+  ],
+  "first_natural_at": {
+    "annoyed": 50.55,
+    "reading": 234.8,
+    "ron_note": 146.26,
+    "wand_play": 107.17
+  },
+  "timer_counts": [
+    3
+  ],
+  "adjacent_visible_pairs": 351,
+  "adjacent_render_changes": 351,
+  "scope": "Isolated empty QA profile; 300s unmodified natural schedule during own-window typing, then repeated scenes; 600s total; not a multi-hour leak guarantee"
+}

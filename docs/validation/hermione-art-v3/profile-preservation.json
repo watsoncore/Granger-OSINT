@@ -1,0 +1,19 @@
+{
+  "method": "Read-only SHA-256 counts; no profile values, ciphertexts, names or hashes published",
+  "groups": {
+    "current_stage_profile": {
+      "files": 54,
+      "unchanged": 54
+    },
+    "existing_guest_assets": {
+      "files": 4,
+      "unchanged": 4
+    },
+    "original_character_assets": {
+      "files": 23,
+      "unchanged": 23
+    }
+  },
+  "earlier_dialog_anomaly": "One encrypted dialog differed before this stage. User denied editing it. Cause unresolved; preserved without rollback, decryption or publication.",
+  "passed": true
+}

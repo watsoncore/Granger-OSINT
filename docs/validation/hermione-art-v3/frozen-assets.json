@@ -1,0 +1,804 @@
+{
+  "tested_at_utc": "2026-10-31T18:21:38.935608+00:00",
+  "exe_sha256": "da5c869384ce1ff51d310813f42b40d5e834143a4f8d52fc836fa0b7649f4cef",
+  "method": "Read actual PyInstaller CArchive; compare all frontend and character asset bytes, verify runtime resources",
+  "passed": true,
+  "assets": [
+    {
+      "path": "frontend\\assets\\graph-layout.worker-i6psXjve.js",
+      "matches": true
+    },
+    {
+      "path": "frontend\\assets\\index-BpLqXG3X.js",
+      "matches": true
+    },
+    {
+      "path": "frontend\\assets\\index-C6zUePwB.css",
+      "matches": true
+    },
+    {
+      "path": "frontend\\assets\\layers-2x-Bpkbi35X.png",
+      "matches": true
+    },
+    {
+      "path": "frontend\\assets\\layers-BWBAp2CZ.png",
+      "matches": true
+    },
+    {
+      "path": "frontend\\assets\\marker-icon-hN30_KVU.png",
+      "matches": true
+    },
+    {
+      "path": "frontend\\brand-hermione.png",
+      "matches": true
+    },
+    {
+      "path": "frontend\\fonts\\Manrope-Variable.ttf",
+      "matches": true
+    },
+    {
+      "path": "frontend\\fonts\\OFL-Manrope.txt",
+      "matches": true
+    },
+    {
+      "path": "frontend\\fonts\\SOURCE.md",
+      "matches": true
+    },
+    {
+      "path": "frontend\\hermione.png",
+      "matches": true
+    },
+    {
+      "path": "frontend\\index.html",
+      "matches": true
+    },
+    {
+      "path": "frontend\\THIRD_PARTY_NOTICES.txt",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\animations.json",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\character.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\error.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\GrangerPet.ico",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\happy.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\cheek-left-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\cheek-left-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\cheek-right-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\cheek-right-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\chin-left-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\chin-left-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\chin-right-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\chin-right-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\folded-left-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\folded-left-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\folded-right-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\folded-right-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\hand-pinch.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\hand-point.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\hand-wand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\hands.json",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\hip-left-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\hip-left-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\hip-right-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\hip-right-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\page-left-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\page-left-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\page-right-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\page-right-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\provenance.json",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\reach-left-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\reach-left-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\reach-right-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\reach-right-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\reading-left-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\reading-left-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\reading-right-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\reading-right-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\rest-left-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\rest-left-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\rest-right-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\rest-right-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\rig.json",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\wand-left-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\wand-left-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\wand-right-hand.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hermione-poses-v3\\wand-right-sleeve.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\hover.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\idle.atlas.json",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\idle.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\provenance.json",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\articulated-provenance.json",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\draco.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\guest-provenance-v2.json",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\harry-v2.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\harry.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\hermione-base.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\hermione-body.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\hermione-free_arm.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\hermione-hair-fringe-v2.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\hermione-head.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\hermione-left-curl-v2.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\hermione-left_leg.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\hermione-right_leg.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\hermione-wand_arm.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\provenance.json",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\scenes\\ron.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\thinking.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\walk.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet\\assets\\working.png",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libarchive-13.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libb2-1.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libbrotlicommon.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libbrotlidec.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libbz2-1.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libcrypto-3-x64.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libcurl-4.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libdeflate.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libgcc_s_seh-1.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libgif-7.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libgomp-1.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libiconv-2.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libidn2-0.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libintl-8.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libjbig-0.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libjpeg-8.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libleptonica-6.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libLerc.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\liblz4.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\liblzma-5.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libnghttp2-14.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libnghttp3-9.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libngtcp2-16.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libngtcp2_crypto_ossl-0.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libopenjp2-7.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libpng16-16.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libpsl-5.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libsharpyuv-0.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libssh2-1.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libssl-3-x64.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libstdc++-6.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libtesseract-5.5.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libtiff-6.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libunistring-5.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libwebp-7.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libwebpmux-3.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libwinpthread-1.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\libzstd.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\brotli\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\bzip2\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\c-ares\\LICENSE.md",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\curl\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\expat\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\gettext-runtime\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\gettext-runtime\\intl\\COPYING.LIB",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\gettext-runtime\\libasprintf\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\gettext-runtime\\libasprintf\\COPYING.LIB",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\jbigkit\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\lcms2\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\lcms2\\LICENSE-fast_float",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\leptonica\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\lerc\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libarchive\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libb2\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libdeflate\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libffi\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libgcc\\COPYING.RUNTIME",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libgcc\\COPYING3",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libgomp\\COPYING.RUNTIME",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libgomp\\COPYING3",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libiconv\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libiconv\\COPYING.LIB",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libiconv\\libcharset\\COPYING.LIB",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libiconv\\README",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libjpeg-turbo\\LICENSE.md",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libjpeg-turbo\\README.ijg",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libjpeg-turbo\\README.md",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libjpeg-turbo\\simd\\jsimdext.inc",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libpng\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libpsl\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libssh2\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libstdc++\\COPYING.RUNTIME",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libstdc++\\COPYING3",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libtasn1\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libtasn1\\COPYING.LESSERv2",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libtiff\\LICENSE.md",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libunistring\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libunistring\\LICENSE.LIB",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libwebp\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\libwinpthread\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\nghttp2\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\nghttp3\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\ngtcp2\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\openjpeg\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\openssl\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\pcre2\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\pcre2\\LICENCE.md",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\tessdata_fast\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\tesseract-ocr\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\tzdata\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\wineditline\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\xz\\COPYING",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\xz\\COPYING.0BSD",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\xz\\COPYING.GPLv2",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\xz\\COPYING.GPLv3",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\xz\\COPYING.LGPLv2.1",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\zlib\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\licenses\\zstd\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\provenance.json",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\tessdata\\configs\\tsv",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\tessdata\\eng.traineddata",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\tessdata\\rus.traineddata",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\tesseract.exe",
+      "matches": true
+    },
+    {
+      "path": "resources\\ocr\\zlib1.dll",
+      "matches": true
+    },
+    {
+      "path": "resources\\third-party\\Python-geoint-security\\cryptography\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\third-party\\Python-geoint-security\\cryptography\\LICENSE.APACHE",
+      "matches": true
+    },
+    {
+      "path": "resources\\third-party\\Python-geoint-security\\cryptography\\LICENSE.BSD",
+      "matches": true
+    },
+    {
+      "path": "resources\\third-party\\Python-geoint-security\\Pillow\\LICENSE",
+      "matches": true
+    },
+    {
+      "path": "resources\\third-party\\Python-geoint-security\\provenance.json",
+      "matches": true
+    },
+    {
+      "path": "PySide6\\QtWebEngineProcess.exe",
+      "present": true
+    },
+    {
+      "path": "PySide6\\resources\\icudtl.dat",
+      "present": true
+    },
+    {
+      "path": "PySide6\\resources\\qtwebengine_resources.pak",
+      "present": true
+    },
+    {
+      "path": "PySide6\\translations\\qtwebengine_locales\\ru.pak",
+      "present": true
+    },
+    {
+      "path": "frontend\\THIRD_PARTY_NOTICES.txt",
+      "present": true
+    },
+    {
+      "path": "resources\\Granger-OSINT.ico",
+      "present": true
+    },
+    {
+      "path": "resources\\THIRD_PARTY_NOTICES.md",
+      "present": true
+    }
+  ]
+}

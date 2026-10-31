@@ -1,0 +1,98 @@
+{
+  "exe_sha256": "83c9d3058644c20745f8ed30336f40fa0c30e914082126660fbbe20c6ad2b2e9",
+  "scenarios": [
+    {
+      "name": "idle",
+      "seconds": 10.146263299975544,
+      "metrics": {
+        "samples": 20,
+        "medians": {
+          "process_count": 2.0,
+          "thread_count": 52.0,
+          "rss_bytes_sum": 406192128.0,
+          "private_commit_bytes_sum": 233189376.0,
+          "cpu_percent_one_core": 6.163341571503203,
+          "cpu_percent_machine": 0.5136117976252669,
+          "monitor_seconds": 0.0066659000585787
+        },
+        "gpu_medians": {
+          "gpu_engine_percent_sum": null,
+          "gpu_engine_percent_max": null,
+          "gpu_dedicated_bytes": null,
+          "gpu_shared_bytes": null
+        }
+      },
+      "production_render_fps": 12.024131090733084,
+      "tick_ms_p50": 2.243699971586466,
+      "tick_ms_p95": 5.355800036340952,
+      "owned_timer_count": 3,
+      "dpr": 1.25
+    },
+    {
+      "name": "reading",
+      "seconds": 10.143659999943338,
+      "metrics": {
+        "samples": 20,
+        "medians": {
+          "process_count": 2.0,
+          "thread_count": 52.0,
+          "rss_bytes_sum": 406319104.0,
+          "private_commit_bytes_sum": 234840064.0,
+          "cpu_percent_one_core": 21.573156497081428,
+          "cpu_percent_machine": 1.7977630414234522,
+          "monitor_seconds": 0.00663749995874241
+        },
+        "gpu_medians": {
+          "gpu_engine_percent_sum": null,
+          "gpu_engine_percent_max": null,
+          "gpu_dedicated_bytes": null,
+          "gpu_shared_bytes": null
+        }
+      },
+      "production_render_fps": 23.857266509460274,
+      "tick_ms_p50": 6.885999930091202,
+      "tick_ms_p95": 7.572200032882392,
+      "owned_timer_count": 3,
+      "dpr": 1.25
+    },
+    {
+      "name": "phone_solvnox",
+      "seconds": 10.147285699960776,
+      "metrics": {
+        "samples": 20,
+        "medians": {
+          "process_count": 2.0,
+          "thread_count": 52.0,
+          "rss_bytes_sum": 406761472.0,
+          "private_commit_bytes_sum": 235032576.0,
+          "cpu_percent_one_core": 24.66046790607168,
+          "cpu_percent_machine": 2.05503899217264,
+          "monitor_seconds": 0.006941900006495416
+        },
+        "gpu_medians": {
+          "gpu_engine_percent_sum": null,
+          "gpu_engine_percent_max": null,
+          "gpu_dedicated_bytes": null,
+          "gpu_shared_bytes": null
+        }
+      },
+      "production_render_fps": 23.651645089772895,
+      "tick_ms_p50": 7.440300076268613,
+      "tick_ms_p95": 8.359999977983534,
+      "owned_timer_count": 3,
+      "dpr": 1.25
+    }
+  ],
+  "method": "Own image-verified EXE tree only; 100% CPU = one logical core; private commit is not private working set",
+  "api_requests": 0,
+  "capture_during_measurement": false,
+  "cycles": {
+    "count": 25,
+    "timer_counts": [
+      3
+    ],
+    "private_commit_before": 235032576,
+    "private_commit_after": 234967040
+  },
+  "passed": true
+}

@@ -1,0 +1,65 @@
+{
+  "method": "Animated WebP quality 90; native dimensions, original order and timing. Identical adjacent frames may be coalesced by the codec. Original lossless WebP/PNG retained locally.",
+  "clips": [
+    {
+      "name": "annoyed-v0",
+      "native_dimensions": [
+        172,
+        214
+      ],
+      "duration_ms": 4829,
+      "source_sha256": "4dafa342d6848598e9d1d82d9305975d5497b6c0a253446235a7c31d09bf6e5b",
+      "preview_sha256": "674ce80dff6689049bc558978402f0929bafcf79cb092c92a33e6b20126b097f",
+      "bytes": 522416,
+      "codec_frames": 93
+    },
+    {
+      "name": "phone_solvnox-v0",
+      "native_dimensions": [
+        173,
+        214
+      ],
+      "duration_ms": 13318,
+      "source_sha256": "0e65b3dbb549f5be6d995542065491c02c9f6aa5f0b8435920fdbdf4abd465b4",
+      "preview_sha256": "ed35d27a38ba70bdd5a6369763e68b4e57500b18e85fb7de7f603e067492ce98",
+      "bytes": 2356874,
+      "codec_frames": 314
+    },
+    {
+      "name": "reading-v0",
+      "native_dimensions": [
+        172,
+        215
+      ],
+      "duration_ms": 18310,
+      "source_sha256": "e80565c607db2fc0da53d1fb594f637dc4d25050a704da21e62df0f5ff9b2376",
+      "preview_sha256": "83b21322f16b74f5af4643e3f0d9c98c4a180e785ba5bdd51396e98ddb4561f1",
+      "bytes": 2440172,
+      "codec_frames": 433
+    },
+    {
+      "name": "shy-v0",
+      "native_dimensions": [
+        173,
+        214
+      ],
+      "duration_ms": 5836,
+      "source_sha256": "9ff64f767a5b6dd5b2989ef2ab67ff64503e1ff27e65f35f53cba9f48078509e",
+      "preview_sha256": "d17b607480c5fb2bc9405bffd52852c53efce0280961045fbf4aa849656851d5",
+      "bytes": 970260,
+      "codec_frames": 133
+    },
+    {
+      "name": "wand_play-v0",
+      "native_dimensions": [
+        183,
+        214
+      ],
+      "duration_ms": 8319,
+      "source_sha256": "0b1b2297e96685259d412d9a96d711c426c25123380dabb7d3ebcd1ebc92c4da",
+      "preview_sha256": "5b93991429c0679a9ef2c41ab4b04db4f4ee05fc71f6a617e2498bf807f67bf8",
+      "bytes": 1443656,
+      "codec_frames": 194
+    }
+  ]
+}
