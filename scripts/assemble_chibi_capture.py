@@ -19,19 +19,19 @@ def assemble(directory):
     frames=[]
     for file in files:
         with Image.open(file) as raw:im=raw.convert('RGBA').crop(crop)
-        bg=Image.new('RGBA',im.size,'#17212b');bg.alpha_composite(im);frames.append(bg.convert('RGB'))
+        bg=Image.new('RGBA',im.size,'#f4f2ed');bg.alpha_composite(im);frames.append(bg.convert('RGB'))
     times=[r['at'] for r in data['frames']];durations=[max(1,round((b-a)*1000)) for a,b in zip(times,times[1:])]+[42]
     out=directory.parent;name=directory.name
     frames[0].save(out/f'{name}.webp',save_all=True,append_images=frames[1:],duration=durations,lossless=True,loop=0)
     frames[0].save(out/f'{name}.gif',save_all=True,append_images=frames[1:],duration=durations,loop=0)
     indices=[round((len(frames)-1)*q) for q in (.04,.12,.20,.29,.39,.475,.515,.565,.63,.81,.86,.94)]
-    w,h=frames[0].size;sheet=Image.new('RGB',((w+10)*4,(h+30)*3),'#17212b');draw=ImageDraw.Draw(sheet)
+    w,h=frames[0].size;sheet=Image.new('RGB',((w+10)*4,(h+30)*3),'#f4f2ed');draw=ImageDraw.Draw(sheet)
     for i,index in enumerate(indices):
         x=i%4*(w+10);y=i//4*(h+30);sheet.paste(frames[index],(x,y+25))
-        draw.text((x,y+4),f'{times[index]:.2f}s',fill='white')
+        draw.text((x,y+4),f'{times[index]:.2f}s',fill='#3f3b32')
     sheet.save(out/f'{name}-timeline.png')
     assembly={'method':'Fixed union-of-alpha crop across all native frames; original PNGs retained; no resizing or invented frames',
-        'physical_crop':crop,'frames':len(frames),'source':str(directory/'capture.json')}
+        'physical_crop':crop,'frames':len(frames),'source':str(directory/'capture.json'),'review_matte':'#f4f2ed'}
     (out/f'{name}-assembly.json').write_text(json.dumps(assembly,indent=2),encoding='utf-8')
     return assembly
 

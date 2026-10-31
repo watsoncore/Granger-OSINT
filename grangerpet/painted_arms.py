@@ -84,13 +84,15 @@ class ArmDrawing:
             p.setClipPath(clip);p.setWorldTransform(transform,True)
             p.drawImage(QPointF(self.rect[0],self.rect[1]),self.sleeve);p.restore()
 
-    def draw_hand(self,p,wrist,angle=0.,*,fingers_only=False,side=-1):
+    def draw_hand(self,p,wrist,angle=0.,*,fingers_only=False,side=-1,mirror=False):
         # Source palm centre is also the prop contact anchor. The source wrist
         # remains attached; only the grouped fingers cross in front of a prop.
-        source=self.bones[2];p.save();p.translate(*wrist);p.rotate(angle);p.translate(-source[0],-source[1])
+        source=self.bones[2];p.save();p.translate(*wrist);p.rotate(angle)
+        if mirror:p.scale(-1,1)
+        p.translate(-source[0],-source[1])
         if fingers_only:
-            x,y,w,h=self.hand_rect
-            p.setClipRect(QRectF(source[0]-5 if side<0 else source[0]-14,source[1]-20,19,23))
+            x,y,w,h=getattr(self,'front_rect',[-5 if side<0 else -26,-26,31,32])
+            p.setClipRect(QRectF(source[0]+x,source[1]+y,w,h))
         p.drawImage(QPointF(self.hand_rect[0],self.hand_rect[1]),self.hand);p.restore()
 
 
@@ -103,6 +105,7 @@ class PaintedArms:
         for name,spec in json.loads((directory/'hands.json').read_text(encoding='utf-8')).items():
             drawing=object.__new__(ArmDrawing);drawing.hand=QImage(str(directory/('hand-'+name+'.png')))
             drawing.hand_rect=spec['rect'];drawing.bones=(None,None,tuple(spec['anchor']))
+            drawing.front_rect=spec['front_rect']
             self.hands[name]=drawing
 
     def drawing(self,actor,side):
@@ -118,14 +121,15 @@ class PaintedArms:
         angle=actor.hand_angle_left if side<0 else actor.hand_angle_right
         mode=actor.left_hand if side<0 else actor.right_hand
         sleeve=self.drawing(actor,side);elbow=arm_points(actor,side)[1]
-        if mode in ('index','wand_grip'):
-            drawing=self.hands['point' if mode=='index' else 'wand']
+        override=mode in ('index','pinch','wand_grip','closed_grip') or (mode=='grip' and not actor.book.visible and not actor.phone)
+        if override:
+            drawing=self.hands['point' if mode=='index' else 'pinch' if mode=='pinch' else 'wand']
             angle+=math.degrees(math.atan2(elbow[1]-wrist[1],elbow[0]-wrist[0]))-90.
         else:
             drawing=sleeve;source_e,source_w=sleeve.bones[1:]
             angle+=math.degrees(math.atan2(wrist[1]-elbow[1],wrist[0]-elbow[0])-
                 math.atan2(source_w[1]-source_e[1],source_w[0]-source_e[0]))
-        drawing.draw_hand(p,wrist,angle,fingers_only=fingers_only,side=side)
+        drawing.draw_hand(p,wrist,angle,fingers_only=fingers_only,side=-1 if override else side,mirror=override and side>0)
 
     def order(self,actor):
         name=getattr(actor,'arm_art','rest')

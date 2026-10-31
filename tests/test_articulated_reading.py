@@ -3,7 +3,7 @@ import math
 import os
 os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 import pytest
-from grangerpet.scene_pose import ik,reading_pose
+from grangerpet.scene_pose import ik,reading_pose,hand_contact
 from grangerpet.pet_life import PetLifeController
 
 
@@ -16,7 +16,7 @@ def test_reading_is_closed_retrieval_open_scan_finger_turn_close_and_stow(varian
     turn=[reading_pose(i/1000,i*.018,variant) for i in range(450,670)]
     active=[p for p in turn if 0<=p.book.page<=1]
     assert len(active)>=99
-    assert all(p.right_hand=='pinch' and math.dist(p.right,p.book.page_corner())<1e-6 for p in active)
+    assert all(p.right_hand=='pinch' and math.dist(hand_contact(p,1),p.book.page_corner())<1e-6 for p in active)
     assert poses[-2].book.opening==0 and poses[-1].book.pocket
     assert not reading_pose(1,18,variant).book.visible
 
@@ -50,6 +50,14 @@ def test_downward_reading_eyes_stay_open_except_short_blinks():
     poses=[reading_pose(i/1800,i/100) for i in range(500,1300)]
     assert sum(a.blink>.1 for a in poses)/len(poses)<.04
     assert sum(a.gaze[1]>3 for a in poses)/len(poses)>.95
+
+
+def test_embedded_reading_returns_to_callers_neutral_joints():
+    from grangerpet.key_poses import hero
+    rest=hero()
+    for q in (0.,1.):
+        pose=reading_pose(q,q*18,rest_pose=rest)
+        assert (pose.left,pose.right,pose.elbow_left,pose.elbow_right)==(rest.left,rest.right,rest.elbow_left,rest.elbow_right)
 
 
 def test_direct_physical_resolution_premultiplied_alpha():

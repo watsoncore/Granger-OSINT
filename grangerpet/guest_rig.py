@@ -87,18 +87,20 @@ def draw_note(p,scene):
 
 def rigs(library,name):
     art=library.scenes
-    if not hasattr(art,'hermione_rig'):art.hermione_rig=HermioneRig(art.layers['base'],art.hair_repair,art.hair_fringe)
+    if not hasattr(art,'hermione_rig'):art.hermione_rig=HermioneRig(art.layers['base'],art.hair_repair,art.hair_fringe,getattr(art,'painted_arms',None))
     if not hasattr(art,'guest_rigs'):art.guest_rigs={}
     if name not in art.guest_rigs:art.guest_rigs[name]=GuestRig(art.cameos[name],name)
     return art.hermione_rig,art.guest_rigs[name]
 
 
-def front_hands(p,a,*,guest=False):
+def front_hands(p,a,*,guest=False,rig=None,held=False):
     p.save();p.translate(*a.shift);pivot=(246,412) if guest else a.pivot
     p.translate(*pivot);p.rotate(a.lean);p.translate(-pivot[0],-pivot[1])
     for side,mode in ((-1,a.left_hand),(1,a.right_hand)):
         _,_,wrist=arm_points(a,side,guest=guest)
-        HermioneRig.hand(p,wrist,mode,side,a.hand_angle_left if side<0 else a.hand_angle_right)
+        if not guest and rig is not None and rig.painted_arms:
+            if held:rig.painted_arms.hand(p,a,side,fingers_only=True)
+        else:HermioneRig.hand(p,wrist,mode,side,a.hand_angle_left if side<0 else a.hand_angle_right)
     p.restore()
 
 
@@ -106,12 +108,12 @@ def paint_pair(p,library,life,separation=-260.,mirror=True,hero_filter=None):
     from .conversation_pose import conversation_pose
     scene=conversation_pose(life,separation,mirror);hero,guest=rigs(library,life.cameo)
     if hero_filter is not None:scene.hero=hero_filter(scene.hero)
-    hero.draw(p,scene.hero,draw_hands=False)
+    hero.draw(p,scene.hero,draw_hands=False,hand_base=True)
     p.save();p.translate(separation,0)
     if mirror:p.translate(512,0);p.scale(-1,1)
     guest.draw(p,scene.guest,draw_hands=False);p.restore()
     draw_note(p,scene)
-    front_hands(p,scene.hero)
+    front_hands(p,scene.hero,rig=hero,held=scene.note is not None or scene.hero.book.visible or scene.hero.phone or scene.hero.wand)
     p.save();p.translate(separation,0)
     if mirror:p.translate(512,0);p.scale(-1,1)
     front_hands(p,scene.guest,guest=True);p.restore()

@@ -69,16 +69,18 @@ class BookPose:
     page:float=-1.
     visible:bool=False
     pocket:bool=False
+    scale:float=1.
+    pocket_lip:float=399.
 
     @property
     def left_width(self):return 7+81*self.opening
     @property
     def right_width(self):return 57+24*self.opening
     def point(self,x,y):
-        x,y=rotate((x,y),self.angle)
+        x,y=rotate((x*self.scale,y*self.scale),self.angle)
         return self.center[0]+x,self.center[1]+y
-    def left_grip(self):return self.point(-self.left_width+4,18)
-    def right_grip(self):return self.point(self.right_width-4,18)
+    def left_grip(self):return self.point(-self.left_width-9,-12+50*self.opening)
+    def right_grip(self):return self.point(self.right_width+9,-12+50*self.opening)
     def page_corner(self,progress=None):
         t=max(0.,self.page if progress is None else progress)
         return self.point(75*math.cos(t*math.pi),-33-29*math.sin(t*math.pi))
@@ -135,39 +137,60 @@ class ActorPose:
     pocket:bool=False
 
 
-def reading_pose(q:float,elapsed:float,variant:int=0,*,_draw_elbows=True)->ActorPose:
+def reading_pose(q:float,elapsed:float,variant:int=0,*,_draw_elbows=True,rest_pose=None)->ActorPose:
     """Closed-book retrieval → grip → open → scan → turn → close → pocket."""
-    a=ActorPose();b=a.book;v=variant%3
-    b.visible=.025<q<.985
-    b.center=track(q,(0.,(285.,444.)),(.06,(285.,406.)),(.145,(270.,344.)),
-        (.25,(233.,340.)),(.76,(233.,340.)),(.86,(259.,345.)),(.90,(282.,365.)),(1.,(285.,450.)))
-    b.angle=track(q,(0.,-14.),(.16,-10.),(.26,-3.),(.76,-3.),(.88,-14.),(1.,-14.))
-    b.opening=track(q,(0.,0.),(.16,0.),(.265,1.),(.77,1.),(.87,0.),(1.,0.))
+    a=ActorPose(left=rest_pose.left if rest_pose else (164.,379.),right=rest_pose.right if rest_pose else (317.,379.))
+    rest_left=rest_pose.elbow_left if rest_pose and rest_pose.elbow_left else (164.,342.)
+    rest_right=rest_pose.elbow_right if rest_pose and rest_pose.elbow_right else (308.,342.)
+    b=a.book;v=variant%3
+    b.scale=.72;b.pocket_lip=385.;b.visible=.055<q<.985
+    b.center=track(q,(0.,(268.,430.)),(.06,(268.,399.)),(.145,(270.,344.)),
+        (.27,(233.,315.)),(.76,(233.,315.)),(.86,(259.,334.)),(.90,(268.,365.)),(1.,(268.,430.)))
+    b.angle=track(q,(0.,-14.),(.16,-10.),(.285,-3.),(.76,-3.),(.88,-14.),(1.,-14.))
+    b.opening=track(q,(0.,0.),(.18,0.),(.285,1.),(.77,1.),(.87,0.),(1.,0.))
     b.pocket=q<.125 or q>.885
-    right_follow=track(q,(0.,0.),(.055,1.),(.92,1.),(.99,0.))
+    right_follow=track(q,(0.,0.),(.055,1.),(.965,1.),(.999,0.))
     a.right=mix(a.right,b.right_grip(),right_follow)
-    left_approach=track(q,(0.,0.),(.14,0.),(.23,1.),(.81,1.),(.91,0.))
+    left_approach=track(q,(0.,0.),(.08,0.),(.17,1.),(.875,1.),(.94,0.))
     a.left=mix(a.left,b.left_grip(),left_approach)
     a.left_hand='grip' if left_approach>.6 else 'relaxed'
     a.right_hand='grip' if right_follow>.6 else 'relaxed'
+    if b.opening<.25:
+        if left_approach>.6:a.left_hand='closed_grip'
+        if right_follow>.6:a.right_hand='closed_grip'
+    a.arm_art='rest' if q<.045 or q>.985 else 'reach' if q<.18 or q>.9 else 'reading'
+    if left_approach<.05:a.arm_art_left='rest'
     reading=track(q,(0.,0.),(.20,0.),(.29,1.),(.74,1.),(.88,0.))
-    a.head=5.5*reading;a.head_drop=3*reading
-    a.lean=track(q,(0.,0.),(.13,-2.5),(.28,1.3),(.75,1.3),(.87,-2.),(1.,0.))
+    prepare=track(q,(0.,0.),(.055,1.),(.145,1.),(.24,0.),(1.,0.))
+    a.head=5.5*reading+3*prepare;a.head_drop=3*reading
+    a.lean=track(q,(0.,0.),(.13,2.5),(.28,1.3),(.75,1.3),(.87,2.),(1.,0.))
     # Three deliberate line scans, with quick return saccades and a page glance.
     scan=track(q,(0.,0.),(.28,-1.),(.34,1.),(.355,-1.),(.415,1.),(.43,-1.),(.47,.8),
         (.49,1.),(.58,-1.),(.65,1.),(.665,-1.),(.73,.8),(.80,0.),(1.,0.))
-    a.gaze=(scan*2.5,reading*5.)
+    a.gaze=(scan*2.5,reading*5.+prepare*4)
     turn_start,turn_end=(.48,.58) if v!=1 else (.51,.61)
+    left_keys=((0.,rest_left),(.08,rest_left),(.17,(210.,361.)),(.285,(143.,366.)),
+        (.77,(143.,366.)),(.875,(205.,361.)),(.94,(164.,350.)),(1.,rest_left))
+    right_keys=((0.,rest_right),(.08,(351.,340.)),(.18,(340.,340.)),(.285,(330.,365.)),
+        (turn_start-.035,(330.,365.)),(turn_start,(350.,330.)),((turn_start+turn_end)/2,(319.,326.)),
+        (turn_end,(268.,330.)),(turn_end+.05,(330.,365.)),(.8,(330.,365.)),(.89,(351.,340.)),(.965,(351.,340.)),(1.,rest_right))
+    a.elbow_left=track(q,*left_keys);a.elbow_right=track(q,*right_keys)
     if turn_start-.035<q<turn_end+.05:
         turn=max(0.,min(1.,(q-turn_start)/(turn_end-turn_start)))
         if turn_start<=q<=turn_end:b.page=turn
         corner=b.page_corner(turn)
+        pinch=pointing_wrist(a.elbow_right,corner,'pinch',1)
         if q<turn_start:
-            reach=smooth((q-turn_start+.035)/.035);a.right=mix(b.right_grip(),corner,reach)
+            reach=smooth((q-turn_start+.035)/.035);a.right=mix(b.right_grip(),pinch,reach)
         elif q>turn_end:
-            a.right=mix(corner,b.right_grip(),smooth((q-turn_end)/.05))
-        else:a.right=corner
+            a.right=mix(pinch,b.right_grip(),smooth((q-turn_end)/.05))
+        else:
+            a.right=pinch
+            for _ in range(3):
+                a.elbow_right=arm_points(a,1)[1]
+                a.right=pointing_wrist(a.elbow_right,corner,'pinch',1)
         a.right_hand='pinch';a.gaze=(2.8*math.cos(turn*math.pi),4.)
+        if math.dist(a.right,a.elbow_right)>58:a.arm_art_right='page'
     if v==1:
         interest=track(q,(0.,0.),(.34,0.),(.39,1.),(.46,1.),(.51,0.),(.63,0.),(.68,1.),(.74,0.))
         a.head-=4*interest;a.brow=-interest;a.mouth='smile' if interest>.35 else 'neutral'
@@ -177,16 +200,8 @@ def reading_pose(q:float,elapsed:float,variant:int=0,*,_draw_elbows=True)->Actor
         a.head-=9*indignation;a.brow=indignation;a.mouth='pout' if indignation>.3 else 'neutral'
         a.gaze=(a.gaze[0],a.gaze[1]-5*indignation)
     a.hair=a.head*.13-a.lean*.4
-    if _draw_elbows:
-        wrist=lambda u,side:getattr(reading_pose(u,u*18,variant,_draw_elbows=False),side)
-        left_keys=((0.,(136.,340.)),(.16,(136.,340.)),(.265,(124.,326.)),(.77,(124.,326.)),(.84,(179.,348.)),(.91,(164.,350.)),(1.,(136.,340.)))
-        right_keys=((0.,(316.,340.)),(.08,(326.,358.)),(.18,(326.,340.)),(.27,(322.,326.)),
-            (turn_start-.035,(322.,326.)),(turn_start,(316.,351.)),((turn_start+turn_end)/2,(273.,339.)),
-            (turn_end,(220.,343.)),(turn_end+.05,(322.,326.)),(.8,(322.,326.)),(.91,(326.,358.)),(1.,(316.,340.)))
-        a.elbow_left=elbow_track(q,left_keys,lambda u:wrist(u,'left'))
-        a.elbow_right=elbow_track(q,right_keys,lambda u:wrist(u,'right'))
     a.blink=max(0.,1-abs(elapsed%5.9-4.4)/.075)  # short blink; no long closed reading
-    a.phase=('retrieve' if q<.16 else 'opening' if q<.27 else 'page_turn' if turn_start-.035<q<turn_end+.05
+    a.phase=('retrieve' if q<.18 else 'opening' if q<.30 else 'page_turn' if turn_start-.035<q<turn_end+.05
         else 'reading' if q<.77 else 'closing' if q<.885 else 'stowing')
     return a
 
@@ -212,6 +227,27 @@ def arm_points(a,side,*,guest=False):
                 if bounded!=length:x,y=center[0]+dx/length*bounded,center[1]+dy/length*bounded
         elbow=(x,y)
     return shoulder,elbow,target
+
+
+HAND_CONTACTS={'index':(1.,-33.),'pinch':(0.,-24.)}
+
+
+def pointing_wrist(elbow,contact,mode,side):
+    tip=HAND_CONTACTS[mode];tip=(-tip[0],tip[1]) if side>0 else tip
+    dx,dy=contact[0]-elbow[0],contact[1]-elbow[1];distance=math.hypot(dx,dy) or 1.
+    wrist=(contact[0]-dx/distance*abs(tip[1]),contact[1]-dy/distance*abs(tip[1]))
+    for _ in range(5):
+        angle=math.degrees(math.atan2(elbow[1]-wrist[1],elbow[0]-wrist[0]))-90.
+        offset=rotate(tip,angle);wrist=(contact[0]-offset[0],contact[1]-offset[1])
+    return wrist
+
+
+def hand_contact(actor,side):
+    wrist=actor.left if side<0 else actor.right;mode=actor.left_hand if side<0 else actor.right_hand
+    tip=HAND_CONTACTS.get(mode,(0.,0.));tip=(-tip[0],tip[1]) if side>0 else tip
+    elbow=arm_points(actor,side)[1];extra=actor.hand_angle_left if side<0 else actor.hand_angle_right
+    angle=math.degrees(math.atan2(elbow[1]-wrist[1],elbow[0]-wrist[0]))-90.+extra
+    offset=rotate(tip,angle);return wrist[0]+offset[0],wrist[1]+offset[1]
 
 
 def action_pose(action,q,t,variant=0,*,aim=(0.,0.),physics=None,_draw_elbows=True):

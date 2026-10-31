@@ -10,7 +10,13 @@
       37,
       65
     ],
-    "source": "resources/hermione-pose-masters-v3/point-hand.svg"
+    "source": "resources/hermione-pose-masters-v3/point-hand.svg",
+    "front_rect": [
+      -14,
+      -39,
+      40,
+      47
+    ]
   },
   "wand": {
     "anchor": [
@@ -23,6 +29,31 @@
       38,
       37
     ],
-    "source": "resources/hermione-pose-masters-v3/wand-hand.svg"
+    "source": "resources/hermione-pose-masters-v3/wand-hand.svg",
+    "front_rect": [
+      -14,
+      -20,
+      40,
+      28
+    ]
+  },
+  "pinch": {
+    "anchor": [
+      256,
+      256
+    ],
+    "rect": [
+      243,
+      229,
+      34,
+      49
+    ],
+    "source": "resources/hermione-pose-masters-v3/pinch-hand.svg",
+    "front_rect": [
+      -14,
+      -39,
+      40,
+      47
+    ]
   }
 }

@@ -21,26 +21,32 @@ def main():
     from PySide6.QtWidgets import QApplication
     from grangerpet.animation import SpriteLibrary
     from grangerpet.pet_life import LifePose
-    from grangerpet.articulated import render_reading
+    from grangerpet.articulated import render_reading,render_actor
     from grangerpet.scene_pose import reading_pose
     app=QApplication([]);lib=SpriteLibrary();metadata=[]
     moments=(.04,.12,.20,.29,.39,.475,.515,.565,.63,.81,.86,.94)
     for variant in range(3):
-        for size in (100,195,512):
-            sheet=Image.new('RGB',(4*(size+16),3*(size+42)),'#17212b');draw=ImageDraw.Draw(sheet)
+        for size in (100,160,195,256,512):
+            sheet=Image.new('RGB',(4*(size+16),3*(size+42)),'#f4f2ed');draw=ImageDraw.Draw(sheet)
+            bare=Image.new('RGB',sheet.size,'#f4f2ed');bare_draw=ImageDraw.Draw(bare)
             for index,q in enumerate(moments):
                 life=LifePose('reading','',q,q*18,1,int(q*18*24),0,variant=variant)
                 im=pil(render_reading(lib,life,size));x=(index%4)*(size+16);y=(index//4)*(size+42)
                 sheet.paste(im,(x+8,y+28),im);phase=reading_pose(q,q*18,variant).phase
-                draw.text((x+5,y+6),f'{q:.3f} {phase}',fill='white')
+                draw.text((x+5,y+6),f'{q:.3f} {phase}',fill='#3f3b32')
+                raw=pil(render_actor(lib,reading_pose(q,q*18,variant),size,props=False));bare.paste(raw,(x+8,y+28),raw)
+                bare_draw.text((x+5,y+6),f'{q:.3f} same arms, props hidden',fill='#3f3b32')
                 if size==512:im.save(args.output/f'reading-v{variant}-{index:02}.png')
             sheet.save(args.output/f'reading-v{variant}-{size}-timeline.png')
+            bare.save(args.output/f'reading-v{variant}-{size}-arms-only.png')
         frames=[]
         for i in range(18*24+1):
             q=i/(18*24);life=LifePose('reading','',q,i/24,1,i,0,variant=variant)
-            im=pil(render_reading(lib,life,195));bg=Image.new('RGBA',im.size,'#17212b');bg.alpha_composite(im);frames.append(bg.convert('RGB'))
-        frames[0].save(args.output/f'reading-v{variant}.webp',save_all=True,append_images=frames[1:],duration=42,loop=0,lossless=True)
-        frames[0].save(args.output/f'reading-v{variant}.gif',save_all=True,append_images=frames[1:],duration=40,loop=0)
+            im=pil(render_reading(lib,life,195));bg=Image.new('RGBA',im.size,'#f4f2ed');bg.alpha_composite(im);frames.append(bg.convert('RGB'))
+        durations=[round((i+1)*1000/24)-round(i*1000/24) for i in range(len(frames))]
+        gif_durations=[(round((i+1)*100/24)-round(i*100/24))*10 for i in range(len(frames))]
+        frames[0].save(args.output/f'reading-v{variant}.webp',save_all=True,append_images=frames[1:],duration=durations,loop=0,quality=90,method=4)
+        frames[0].save(args.output/f'reading-v{variant}.gif',save_all=True,append_images=frames[1:],duration=gif_durations,loop=0)
         metadata.append({'variant':variant,'frames':len(frames),'logical_size':195,'fps':24,'duration':18,
             'method':'Production articulated renderer, offline deterministic clock; not a native window capture'})
     (args.output/'report.json').write_text(json.dumps(metadata,indent=2),encoding='utf-8')

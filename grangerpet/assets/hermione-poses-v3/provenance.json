@@ -108,6 +108,18 @@
     "method": "Editable drawn SVG; rasterized by existing QtSvg at build time only",
     "runtime_face_consumed": false
   },
+  "page-right": {
+    "source": "resources/hermione-pose-masters-v3/page-right.svg",
+    "sha256": "b0328262d220b6f1a7776672a85da5a4e66099ab8e8180f003d83c3a48b1bf82",
+    "method": "Editable drawn SVG; rasterized by existing QtSvg at build time only",
+    "runtime_face_consumed": false
+  },
+  "pinch-hand": {
+    "source": "resources/hermione-pose-masters-v3/pinch-hand.svg",
+    "sha256": "2752e69e4f8759be87794fd8085d4c4ca141edc5a0497e89a536fa971e5e8b18",
+    "method": "Editable drawn SVG; rasterized by existing QtSvg at build time only",
+    "runtime_face_consumed": false
+  },
   "approved-wand-sleeve": {
     "source": "grangerpet/assets/character.png",
     "sha256": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b",

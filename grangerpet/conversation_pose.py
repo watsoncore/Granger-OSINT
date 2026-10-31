@@ -58,7 +58,7 @@ def conversation_pose(life,separation=-260.,mirror=True):
             # section from the identical two-hand open-book hold, rather than
             # compressing an entire page sweep into a fraction of a second.
             rq=track(q,(0.,0.),(.16,.30),(.31,.40)) if q<.31 else track(q,(.31,.77),(.56,1.))
-            hero=reading_pose(rq,t,1);hero.gaze=(-5.,0.) if q>.32 else hero.gaze
+            hero=reading_pose(rq,t,1,rest_pose=hero_rest());hero.gaze=(-5.,0.) if q>.32 else hero.gaze
             hero.head=track(q,(0.,0.),(.16,5.),(.30,3.),(.36,-5.),(.44,-5.),(.56,0.))
         else:
             hero=drawing_track(q,H,*(((0,'rest'),(.15,'turn'),(.25,'point'),(.36,'listen'),(.46,'explain'),(.56,'rest')) if v else ((.56,'rest'),)),

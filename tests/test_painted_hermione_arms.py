@@ -74,5 +74,5 @@ def test_scaled_triangle_clips_do_not_crack_opaque_fabric(art,dpr):
             else:p.drawImage(QPointF(drawing.rect[0],drawing.rect[1]),drawing.sleeve)
             p.end()
         aa=rgba(actual).getchannel('A');ea=rgba(expected).getchannel('A')
-        cracks=sum(a<240 and e>252 for a,e in zip(aa.getdata(),ea.getdata()))
+        cracks=sum(a<240 and e>252 for a,e in zip(aa.tobytes(),ea.tobytes()))
         assert cracks==0,(dpr,drawing.rect,cracks)

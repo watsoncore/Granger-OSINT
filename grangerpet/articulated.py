@@ -129,7 +129,7 @@ class HermioneRig:
             clip=QPainterPath();clip.addEllipse(QRectF(1,0,rect[2]-2,rect[3]))
             p.setClipPath(clip);p.drawImage(QPointF(-rect[0],-rect[1]),master);p.end();self.iris.append(layer)
 
-    def draw(self,p:QPainter,a:ActorPose,*,debug=False,draw_hands=True):
+    def draw(self,p:QPainter,a:ActorPose,*,debug=False,draw_hands=True,hand_base=False,draw_props=True):
         plant_feet(a,self.soles)
         p.save();p.translate(*a.shift);p.translate(*a.pivot);p.rotate(a.lean);p.translate(-a.pivot[0],-a.pivot[1])
         # Feet and lower legs attach to the same hip parent, behind the robe.
@@ -160,20 +160,27 @@ class HermioneRig:
         self.face(p,a);p.restore()
         held=a.book.visible or a.phone or a.wand
         if self.painted_arms:
-            if draw_hands or held:
+            if draw_hands or held or hand_base:
                 for side in order:self.painted_arms.hand(p,a,side)
             for side in order:
                 wrist=a.left if side<0 else a.right
                 elbow=arm_points(a,side)[1]
                 if wrist[1]<elbow[1]+5:self.painted_arms.sleeve(p,a,side,forearm=True)
-        if a.book.visible:self.book(p,a.book)
-        if a.phone:self.phone(p,a)
-        if a.wand:self.wand(p,a)
+        if draw_props:
+            if a.book.visible:self.book(p,a.book)
+            if a.phone:self.phone(p,a)
+            if a.wand:self.wand(p,a)
         if draw_hands:
             for wrist,mode,side,angle in hands:
                 if self.painted_arms:
-                    if held:self.painted_arms.hand(p,a,side,fingers_only=True)
+                    if held and draw_props:self.painted_arms.hand(p,a,side,fingers_only=True)
                 else:self.hand(p,wrist,mode,side,angle)
+        if a.book.visible and a.book.pocket:
+            # The actual robe front occludes book and hand entering its pocket.
+            # This is a garment depth layer, using the unchanged torso artwork.
+            p.save();p.translate(229+a.turn*5,267);p.scale(1-.025*abs(a.turn),1);p.translate(-229,-267)
+            p.setClipPath(path([(273,a.book.pocket_lip),(335,a.book.pocket_lip),(349,416),(306,437),(272,415)]))
+            p.drawImage(0,0,self.torso);p.restore()
         if a.hearts:
             p.save();p.setOpacity(a.hearts);p.translate(330,185);p.scale(12,12)
             pen(p,'#b27676',.11);p.setBrush(QColor('#e4a1a1'))
@@ -187,8 +194,8 @@ class HermioneRig:
             p.drawText(QRectF(6,469,175,34),Qt.AlignmentFlag.AlignCenter,a.spell_text)
         if debug:
             pen(p,'#00ccee',1)
-            for shoulder,(wrist,_,_,_) in zip(shoulders,hands):
-                elbow,_=ik(shoulder,wrist,-1 if shoulder==shoulders[0] else 1)
+            for side in order:
+                shoulder,elbow,wrist=arm_points(a,side)
                 p.drawLine(QPointF(*shoulder),QPointF(*elbow));p.drawLine(QPointF(*elbow),QPointF(*wrist))
         p.restore()
 
@@ -265,8 +272,8 @@ class HermioneRig:
     @staticmethod
     def book(p,b:BookPose):
         p.save()
-        if b.pocket:p.setClipRect(QRectF(0,0,512,399))
-        p.translate(*b.center);p.rotate(b.angle);lw,rw=b.left_width,b.right_width
+        if b.pocket:p.setClipRect(QRectF(0,0,512,b.pocket_lip))
+        p.translate(*b.center);p.rotate(b.angle);p.scale(b.scale,b.scale);lw,rw=b.left_width,b.right_width
         pen(p,'#3e2a19',3);p.setBrush(QColor('#794a32'))
         p.drawPath(path([(-lw-4,-43),(-4,-48),(rw+4,-43),(rw+4,48),(0,54),(-lw-4,48)]))
         if b.opening>.08:
@@ -324,12 +331,12 @@ class HermioneRig:
         p.restore()
 
 
-def render_actor(library,a,size=256,dpr=1.,*,debug=False):
+def render_actor(library,a,size=256,dpr=1.,*,debug=False,props=True):
     art=library.scenes
     if not hasattr(art,'hermione_rig'):art.hermione_rig=HermioneRig(art.layers['base'],art.hair_repair,art.hair_fringe,getattr(art,'painted_arms',None))
     canvas=image(max(1,round(size*dpr)));p=QPainter(canvas)
     p.setRenderHints(QPainter.RenderHint.Antialiasing|QPainter.RenderHint.SmoothPixmapTransform)
-    p.scale(canvas.width()/512,canvas.height()/512);art.hermione_rig.draw(p,a,debug=debug);p.end()
+    p.scale(canvas.width()/512,canvas.height()/512);art.hermione_rig.draw(p,a,debug=debug,draw_props=props);p.end()
     canvas.setDevicePixelRatio(dpr);return canvas
 
 

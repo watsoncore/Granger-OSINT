@@ -13,6 +13,9 @@ class SceneArtLibrary:
         self.hair_fringe=QImage(str(directory/'hermione-hair-fringe-v2.png'))
         if any(im.isNull() for im in (*self.layers.values(),*self.cameos.values(),self.hair_repair,self.hair_fringe)):
             raise ValueError('Не удалось прочитать локальные слои сцен персонажа')
+        from .painted_arms import PaintedArms
+        poses=directory.parent/'hermione-poses-v3'
+        self.painted_arms=PaintedArms(poses) if (poses/'rig.json').is_file() else None
 
 
 def scene_frame(library,pose,*,size=256,dpr=1.):

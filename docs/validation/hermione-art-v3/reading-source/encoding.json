@@ -1,0 +1,41 @@
+{
+  "method": "Animated WebP quality 90; native dimensions, original order and timing. Identical adjacent frames may be coalesced by the codec. Original lossless WebP/PNG retained locally.",
+  "clips": [
+    {
+      "name": "reading-v0",
+      "native_dimensions": [
+        205,
+        257
+      ],
+      "duration_ms": 18310,
+      "source_sha256": "966d5d3bd8a4245dd252869e3fdd8d58cc1cadd23a5af548f8d2445c5479a828",
+      "preview_sha256": "2650965c6d9e31e400b43d528013d03efb799fe7852978e766b1ae8ef997ef00",
+      "bytes": 3192302,
+      "codec_frames": 433
+    },
+    {
+      "name": "reading-v1",
+      "native_dimensions": [
+        206,
+        257
+      ],
+      "duration_ms": 18302,
+      "source_sha256": "1e834813a9e0d8b9772cee5042f3ab10f83d9b0b4b0410b6eda0c54ac89b52a8",
+      "preview_sha256": "8042a53fa2778b83e289e476fdb46070d6ff6d7b292f277c85efca72bbe049ed",
+      "bytes": 3948190,
+      "codec_frames": 434
+    },
+    {
+      "name": "reading-v2",
+      "native_dimensions": [
+        205,
+        257
+      ],
+      "duration_ms": 18312,
+      "source_sha256": "8d75ae5f97c0973bda413c190f070d9ec4168a93f59186c0db389939c62d09d0",
+      "preview_sha256": "ae888ccf3148a0fabb1f3cff71156cb346999c6e18e72e14f6ee5f4ade23fa68",
+      "bytes": 3745566,
+      "codec_frames": 433
+    }
+  ]
+}

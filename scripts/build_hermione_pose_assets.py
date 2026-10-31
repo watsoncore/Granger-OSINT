@@ -119,11 +119,12 @@ def main():
         spec['sleeve_rect']=save_crop(sleeve_layer(master,spec['mask'],[spec['hand_mask']]),args.output/'wand-left-sleeve.png')
         spec['hand_rect']=save_crop(extract(master,spec['hand_mask']),args.output/'wand-left-hand.png')
         hands={}
-        for name in ('point','wand'):
+        for name in ('point','wand','pinch'):
             drawing=blank();p=QPainter(drawing)
             QSvgRenderer(str(sources/(name+'-hand.svg'))).render(p,QRectF(224,214,64,80));p.end()
             hands[name]={'anchor':[256,256],'rect':save_crop(drawing,args.output/('hand-'+name+'.png')),
-                'source':(sources/(name+'-hand.svg')).relative_to(ROOT).as_posix()}
+                'source':(sources/(name+'-hand.svg')).relative_to(ROOT).as_posix(),
+                'front_rect':[-14,-39,40,47] if name in ('point','pinch') else [-14,-20,40,28]}
         (args.output/'hands.json').write_text(json.dumps(hands,indent=2),encoding='utf-8')
         reach=blank();p=QPainter(reach);QSvgRenderer(str(sources/'reach-arms.svg')).render(p);p.end()
         metadata['reach']={'order':['left','right']}
@@ -140,8 +141,19 @@ def main():
             metadata['reach'][side]={'bones':bones,'mask':cloth_box,'hand_mask':mask,
                 'sleeve_rect':save_crop(extract(reach,cloth_box),args.output/f'reach-{side}-sleeve.png'),
                 'hand_rect':save_crop(hand,args.output/f'reach-{side}-hand.png')}
+        page=blank();p=QPainter(page);QSvgRenderer(str(sources/'page-right.svg')).render(p);p.end()
+        metadata['page']={'order':['left','right'],'left':deepcopy(metadata['reading']['left']),
+            'right':{'bones':[[281,294],[330,347],[266,302]],
+                'mask':[[248,288],[293,278],[342,308],[356,352],[330,377],[294,352],[248,320]],
+                'hand_mask':[]}}
+        for kind in ('sleeve','hand'):
+            QImage(str(args.output/f'reading-left-{kind}.png')).save(str(args.output/f'page-left-{kind}.png'))
+        spec=metadata['page']['right'];spec['sleeve_rect']=save_crop(extract(page,spec['mask']),args.output/'page-right-sleeve.png')
+        image=blank();p=QPainter(image);p.translate(266-256,302-256)
+        rect=hands['pinch']['rect'];p.drawImage(QPointF(rect[0],rect[1]),QImage(str(args.output/'hand-pinch.png')));p.end()
+        spec['hand_rect']=save_crop(image,args.output/'page-right-hand.png')
         (args.output/'rig.json').write_text(json.dumps(metadata,indent=2),encoding='utf-8')
-        for name in ('hip-right','point-hand','wand-hand','reach-arms'):
+        for name in ('hip-right','point-hand','wand-hand','reach-arms','page-right','pinch-hand'):
             source=sources/(name+'.svg')
             provenance[name]={'source':source.relative_to(ROOT).as_posix(),
                 'sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'method':'Editable drawn SVG; rasterized by existing QtSvg at build time only',
