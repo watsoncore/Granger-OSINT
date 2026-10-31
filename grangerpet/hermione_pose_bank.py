@@ -1,12 +1,21 @@
 """Ten curated prop-free key poses, binding finished artwork to its real joints."""
 import math
+import json
 from copy import deepcopy
+from functools import lru_cache
+from pathlib import Path
 from .scene_pose import ActorPose,smooth
 
 
-def arm_pose_bank(painted):
+@lru_cache(maxsize=1)
+def pose_spec():
+    return json.loads((Path(__file__).parent/'assets/hermione-poses-v3/rig.json').read_text(encoding='utf-8'))
+
+
+def arm_pose_bank(painted=None):
+    specs=painted.spec if painted else pose_spec()
     def bind(name):
-        spec=painted.spec[name]
+        spec=specs[name]
         return ActorPose(arm_art=name,left=tuple(spec['left']['bones'][2]),right=tuple(spec['right']['bones'][2]),
             elbow_left=tuple(spec['left']['bones'][1]),elbow_right=tuple(spec['right']['bones'][1]))
     rest=bind('rest');chest=bind('cheek');chest.arm_art_right='rest'
@@ -20,7 +29,7 @@ def arm_pose_bank(painted):
         'folded':bind('folded'),'book_hold':bind('reading'),'phone_hold':phone,'wand_grip':wand,'explain':gesture}
 
 
-def pose_transition(rest,target,t,painted):
+def pose_transition(rest,target,t,painted=None):
     """Route large raises through an actual drawn preparation sleeve pose."""
     from .key_poses import interpolate
     if target is rest:return deepcopy(rest)
@@ -31,7 +40,7 @@ def pose_transition(rest,target,t,painted):
         return abs(math.atan2(math.sin(delta),math.cos(delta)))>math.radians(80)
     needs=[large_bend('left'),large_bend('right')]
     if not any(needs):return interpolate(rest,target,smooth(t))
-    spec=painted.spec['reach'];mid=deepcopy(rest);mid.arm_art='reach'
+    spec=(painted.spec if painted else pose_spec())['reach'];mid=deepcopy(rest);mid.arm_art='reach'
     for side,raised in zip(('left','right'),needs):
         if raised:
             setattr(mid,side,tuple(spec[side]['bones'][2]));setattr(mid,'elbow_'+side,tuple(spec[side]['bones'][1]))

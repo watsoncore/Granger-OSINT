@@ -175,11 +175,14 @@ class HermioneRig:
                 if self.painted_arms:
                     if held and draw_props:self.painted_arms.hand(p,a,side,fingers_only=True)
                 else:self.hand(p,wrist,mode,side,angle)
-        if a.book.visible and a.book.pocket:
+        if (a.book.visible and a.book.pocket) or ((a.phone or a.wand) and a.pocket):
             # The actual robe front occludes book and hand entering its pocket.
             # This is a garment depth layer, using the unchanged torso artwork.
             p.save();p.translate(229+a.turn*5,267);p.scale(1-.025*abs(a.turn),1);p.translate(-229,-267)
-            p.setClipPath(path([(273,a.book.pocket_lip),(335,a.book.pocket_lip),(349,416),(306,437),(272,415)]))
+            lip=a.book.pocket_lip if a.book.visible else a.pocket_lip
+            pocket_side=[(273,lip),(335,lip),(349,416),(306,437),(272,415)]
+            if a.wand:pocket_side=[(145,lip),(200,lip),(202,414),(192,438),(141,414)]
+            p.setClipPath(path(pocket_side))
             p.drawImage(0,0,self.torso);p.restore()
         if a.hearts:
             p.save();p.setOpacity(a.hearts);p.translate(330,185);p.scale(12,12)
@@ -248,10 +251,18 @@ class HermioneRig:
             p.drawImage(QPointF(x+a.gaze[0],y+a.gaze[1]),self.iris[i]);p.restore()
         if a.blink>.05:
             for i,pts in enumerate(eyes):
-                p.save();p.setOpacity(a.blink);p.setBrush(QColor(SKIN));p.setPen(Qt.PenStyle.NoPen)
-                p.drawPath(path(pts));pen(p,'#4c3222',3)
-                x,y=(158,191) if i==0 else (239,186)
-                lid=QPainterPath(QPointF(x,y));lid.quadTo(x+19,y+10,x+39,y-1);p.drawPath(lid);p.restore()
+                # Opaque lids close an aperture. Alpha-fading a skin patch made
+                # both open eyes and closed lashes visible at the same time.
+                amount=max(0.,min(1.,a.blink));x,top,bottom,closed=(158,173,207,191) if i==0 else (239,169,202,186)
+                upper=top+(closed-top)*amount;lower=bottom+(closed-bottom)*amount
+                p.save();p.setClipPath(path(pts));p.setBrush(QColor(SKIN));p.setPen(Qt.PenStyle.NoPen)
+                lid=QPainterPath(QPointF(x-3,top-6));lid.lineTo(x+44,top-6);lid.lineTo(x+44,upper-1)
+                lid.lineTo(x+39,upper-1);lid.quadTo(x+19,upper+10*amount,x,upper);lid.lineTo(x-3,upper);lid.closeSubpath();p.drawPath(lid)
+                lower_lid=QPainterPath(QPointF(x-3,bottom+6));lower_lid.lineTo(x+44,bottom+6)
+                lower_lid.lineTo(x+39,lower-1);lower_lid.quadTo(x+19,lower+10*amount,x,lower)
+                lower_lid.lineTo(x-3,lower);lower_lid.closeSubpath();p.drawPath(lower_lid);p.restore()
+                pen(p,'#4c3222',2.7);p.setBrush(Qt.BrushStyle.NoBrush)
+                lash=QPainterPath(QPointF(x,upper));lash.quadTo(x+19,upper+10*amount,x+39,upper-1);p.drawPath(lash)
         # A source-colored patch is local to the mouth, never the jaw/hair edge.
         p.setPen(Qt.PenStyle.NoPen);p.setBrush(QColor(SKIN));p.drawEllipse(QRectF(208,215,30,28))
         pen(p,'#68422b',2.2);p.setBrush(QColor('#c97d68'))
@@ -299,7 +310,7 @@ class HermioneRig:
     @staticmethod
     def phone(p,a):
         p.save()
-        if a.pocket:p.setClipRect(QRectF(0,0,512,399))
+        if a.pocket:p.setClipRect(QRectF(0,0,512,a.pocket_lip))
         p.translate(*a.phone_center);p.rotate(a.phone_angle)
         pen(p,'#493b35',3);p.setBrush(QColor('#676176'));p.drawRoundedRect(QRectF(-32,-60,64,104),8,8)
         p.setPen(Qt.PenStyle.NoPen);p.setBrush(QColor('#f7e7d8'));p.drawRoundedRect(QRectF(-26,-50,52,82),3,3)
@@ -316,7 +327,7 @@ class HermioneRig:
     @staticmethod
     def wand(p,a):
         p.save()
-        if a.pocket:p.setClipRect(QRectF(0,0,512,399))
+        if a.pocket:p.setClipRect(QRectF(0,0,512,a.pocket_lip))
         x,y=a.left;tip=rotate((0.,-106.),a.wand_angle+90)
         tip=(x+tip[0],y+tip[1]);pen(p,'#352512',6)
         p.drawLine(QPointF(x,y+9),QPointF(*tip));pen(p,'#b68d47',2)

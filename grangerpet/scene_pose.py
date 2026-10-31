@@ -135,6 +135,7 @@ class ActorPose:
     phone_lines:int=0
     hearts:float=0.
     pocket:bool=False
+    pocket_lip:float=399.
 
 
 def reading_pose(q:float,elapsed:float,variant:int=0,*,_draw_elbows=True,rest_pose=None)->ActorPose:
@@ -251,172 +252,48 @@ def hand_contact(actor,side):
 
 
 def action_pose(action,q,t,variant=0,*,aim=(0.,0.),physics=None,_draw_elbows=True):
-    if action=='reading':return reading_pose(q,t,variant,_draw_elbows=_draw_elbows)
-    a=ActorPose();a.blink=max(0.,1-abs(t%5.3-4.1)/.075)
+    if action=='reading':return reading_pose(q,t,variant)
+    from .hermione_actions import drawn_action
+    from .hermione_pose_bank import arm_pose_bank
+    a=drawn_action(action,q,t,variant) or arm_pose_bank()['relaxed']
+    a.blink=max(a.blink,max(0.,1-abs(t%5.3-4.1)/.075))
     envelope=track(q,(0.,0.),(.16,1.),(.80,1.),(1.,0.))
-    if action=='shy':
-        v=variant%3;a.blush=envelope;a.gaze=(3*envelope,4*envelope)
-        a.head=track(q,(0.,0.),(.18,6.),(.40,8.),(.70,4.),(1.,0.))
-        a.lean=-2*envelope;a.left_lift=a.right_lift=-4*envelope
-        if v==0:
-            a.left=track(q,(0.,a.left),(.27,(203.,306.)),(.7,(210.,311.)),(1.,a.left))
-            a.right=track(q,(0.,a.right),(.27,(249.,311.)),(.7,(244.,311.)),(1.,a.right))
-        elif v==1:
-            a.left=track(q,(0.,a.left),(.16,(150.,285.)),(.30,(185.,213.)),(.63,(189.,211.)),(.85,(150.,285.)),(1.,a.left))
-            a.right=track(q,(0.,a.right),(.18,(305.,282.)),(.34,(260.,208.)),(.59,(263.,210.)),(.85,(305.,282.)),(1.,a.right))
-            a.left_hand=a.right_hand='cover'
-            a.head_drop=5*envelope;a.gaze=(0.,4*envelope)
-        else:
-            a.brow=track(q,(0.,0.),(.20,.7),(.43,.7),(.56,-.7),(.8,-.7),(1.,0.))
-            a.right=track(q,(0.,a.right),(.23,(270.,286.)),(.45,(270.,286.)),(.65,(245.,237.)),(1.,a.right))
-            a.mouth='smile' if .48<q<.84 else 'pout'
-        if v!=2:a.mouth='smile' if q>.45 else 'neutral'
-    elif action=='annoyed':
-        a.brow=envelope;a.mouth='pout';v=variant%3
-        a.lean=track(q,(0.,0.),(.18,-3.),(.72,-3.),(1.,0.))
-        if v==0:
-            a.left=track(q,(0.,a.left),(.25,(264.,323.)),(.76,(264.,323.)),(1.,a.left))
-            a.right=track(q,(0.,a.right),(.29,(189.,333.)),(.76,(189.,333.)),(1.,a.right))
-            a.leg_right=track(q,(0.,0.),(.36,0.),(.42,-14.),(.48,0.),(.53,-7.),(.58,0.),(1.,0.))
-            a.shift=(0.,track(q,(0.,0.),(.43,0.),(.48,-3.),(.52,1.),(.56,0.),(1.,0.)))
-        elif v==1:
-            a.left=track(q,(0.,a.left),(.25,(159.,344.)),(.75,(159.,344.)),(1.,a.left))
-            a.right=track(q,(0.,a.right),(.24,(307.,245.)),(.4,(319.,237.)),(.52,(303.,247.)),(.65,(318.,240.)),(1.,a.right))
-            a.right_hand='index';a.mouth='open' if .3<q<.66 and int(t*5)%2 else 'pout'
-        else:
-            a.head=track(q,(0.,0.),(.27,-10.),(.48,-10.),(.57,-6.),(.70,-6.),(1.,0.))
-            a.gaze=track(q,(0.,(0.,0.)),(.28,(-4.,0.)),(.49,(-4.,0.)),(.60,(3.,0.)),(.75,(3.,0.)),(1.,(0.,0.)))
-            a.right=track(q,(0.,a.right),(.24,(275.,351.)),(.76,(275.,351.)),(1.,a.right))
-    elif action in ('wand_play','cast','avada'):
-        a.wand=.06<q<.95;a.left_hand='grip';v=1 if action in ('cast','avada') else variant%4
-        if action=='avada':a.magic_color='#77d56f';a.spell_text='«Авада Кедавра»' if .3<q<.78 else ''
-        a.left=track(q,(0.,a.left),(.08,(281.,372.)),(.22,(143.,316.)),(.35,(136.,284.)),
-            (.55,(161.,309.)),(.70,(136.,285.)),(.82,(162.,326.)),(.94,(280.,374.)),(1.,a.left))
-        a.right=track(q,(0.,a.right),(.25,(281.,346.)),(.78,(281.,346.)),(1.,a.right))
-        angles=[[(.22,-108.),(.36,-118.),(.56,242.),(.7,242.)],
-                [(.22,-100.),(.34,-137.),(.49,-58.),(.6,-63.),(.72,-110.)],
-                [(.22,-109.),(.36,-72.),(.48,-65.),(.55,-125.),(.66,-102.)],
-                [(.22,-110.),(.36,-135.),(.48,-80.),(.62,-110.),(.72,-118.)]][v]
-        a.wand_angle=track(q,(0.,-95.),*angles,(.91,-95.),(1.,-95.))
-        a.magic=track(q,(0.,0.),(.43,0.),(.49,1.),(.60,.7),(.67,0.),(1.,0.)) if v!=0 or action!='wand_play' else 0.
-        a.head=track(q,(0.,0.),(.30,-4.),(.50,2. if v==2 else -6.),(.72,-3.),(1.,0.))
-        a.gaze=(-3*envelope,-2*envelope);a.lean=-2.5*envelope
-        a.mouth='open' if v==2 and .49<q<.65 else 'smile' if .63<q<.82 else 'neutral'
-        if v==2 and .5<q<.62:a.leg_right=-7*envelope;a.brow=-envelope
-    elif action=='phone_solvnox':
-        a.phone=.055<q<.95
-        a.phone_center=track(q,(0.,(282.,436.)),(.08,(282.,399.)),(.22,(266.,338.)),
-            (.65,(266.,338.)),(.76,(230.,313.)),(.83,(230.,313.)),(.90,(282.,374.)),(1.,(282.,448.)))
-        a.phone_angle=track(q,(0.,-15.),(.25,-5.),(.65,-5.),(.76,5.),(.85,5.),(1.,-15.))
-        x,y=a.phone_center
-        def phone_point(px,py):
-            px,py=rotate((px,py),a.phone_angle);return x+px,y+py
-        follow=track(q,(0.,0.),(.07,1.),(.92,1.),(1.,0.));a.right=mix(a.right,phone_point(29,17),follow);a.right_hand='grip'
-        a.head=5*envelope;a.gaze=(2*envelope,5*envelope)
-        typing=.33<q<.47 or .55<q<.66
-        contact=phone_point(-2,11);contact=(contact[0]+5,contact[1]+24)
-        a.left=track(q,(0.,a.left),(.29,a.left),(.33,contact),(.47,contact),(.50,(x-34,y+19)),
-            (.55,contact),(.66,contact),(.76,(x-18,y+19)),(.84,(x-18,y+19)),(1.,a.left))
-        if typing:
-            a.left=(a.left[0]+2*math.sin(t*16),a.left[1]-2*max(0,math.sin(t*16)));a.left_hand='index'
-        elif .72<q<.86:a.left_hand='grip'
-        a.phone_lines=int(track(q,(0.,0.),(.32,0.),(.47,3.),(.51,3.),(.55,0.),(.66,3.),(1.,3.)))
-        a.blush=track(q,(0.,0.),(.21,0.),(.29,.4),(.7,.8),(.82,1.),(1.,0.))
-        a.mouth='smile' if .27<q<.86 else 'neutral';a.hearts=track(q,(0.,0.),(.68,0.),(.76,1.),(.87,0.),(1.,0.))
-        a.lean=-2*envelope
-        a.pocket=q<.16 or q>.88
-    elif action=='daydream':
-        a.head=track(q,(0.,0.),(.28,-7.),(.43,-7.),(.55,-3.),(.68,-5.),(.8,-5.),(1.,0.))
-        a.gaze=(3*envelope,-5*envelope);a.blush=.5*envelope
-        a.right=track(q,(0.,a.right),(.15,(309.,287.)),(.28,(260.,247.)),(.77,(260.,247.)),(.9,(309.,287.)),(1.,a.right))
-        a.left=track(q,(0.,a.left),(.25,(246.,335.)),(.78,(246.,335.)),(1.,a.left))
-        a.mouth='smile';a.lean=-3*envelope;a.hearts=.45*envelope
-    elif action in ('sleep','wake','yawn'):
-        asleep=1. if action=='sleep' else 1-smooth(q) if action=='wake' else envelope
+    if action in ('sleep','wake'):
+        asleep=1. if action=='sleep' else 1-smooth(q)
         a.head=11*asleep;a.head_drop=5*asleep;a.blink=asleep;a.lean=3*asleep
         if action=='sleep':
             a.head+=math.sin(t*.9)*.65;a.head_drop+=math.sin(t*.9)*.4
             a.left_lift=a.right_lift=math.sin(t*.9)*.9
             a.sleeping=True;a.sleep_lift=(t%2.5)/2.5
-        a.right=mix(a.right,(246.,239.),asleep if action=='yawn' else 0.)
-        a.mouth='open' if action=='yawn' and .25<q<.75 else 'neutral'
     elif action in ('leave','return','walk'):
         a.leg_left=math.sin(t*8)*11;a.leg_right=-a.leg_left
         a.knee_left=max(0,-math.sin(t*8))*28;a.knee_right=-max(0,math.sin(t*8))*28
         a.ankle_left=-a.knee_left*.35;a.ankle_right=-a.knee_right*.35
         a.shift=(0.,-abs(math.sin(t*8))*3);a.lean=-2 if action=='leave' else 2
-        a.left=(151+math.sin(t*8)*12,348);a.right=(335-math.sin(t*8)*12,348)
+        a.left=(164+math.sin(t*8)*8,379);a.right=(317-math.sin(t*8)*8,379)
         a.head=-2*math.sin(t*4)
     elif action=='hover':a.gaze=(aim[0]*4,aim[1]*3);a.head=aim[0]*1.5
-    elif action=='happy':
-        a.mouth='smile';a.head=track(q,(0.,0.),(.25,-5.),(.48,3.),(.72,-2.),(1.,0.))
-        a.right=track(q,(0.,a.right),(.22,(319.,245.)),(.4,(335.,253.)),(.57,(312.,247.)),(.73,(332.,253.)),(1.,a.right))
-    elif action=='error':
-        a.mouth='pout';a.brow=envelope;a.head=track(q,(0.,0.),(.2,-7.),(.4,6.),(.6,-5.),(.8,3.),(1.,0.))
-        a.right=mix(a.right,(286.,259.),envelope)
-    elif action in ('thinking','working'):
-        a.right=(263.,244.);a.head=-4.;a.gaze=(2.,-3.);a.left=(239.,337.)
-        if action=='working':a.gaze=(track(t%3,(0.,-3.),(1.1,3.),(1.3,-3.),(3.,3.)),3.)
-    else:
-        # Breath is a subpixel chest/shoulder motion, not whole-sprite wobble.
+    elif action in ('idle','settle','away',''):
         a.left_lift=a.right_lift=math.sin(t*1.7)*.7
     if physics is not None:
-        a.grounded=False
-        a.pivot=(229.,267.)
+        a.grounded=False;a.pivot=(229.,267.)
         a.lean+=physics.angle*.5;a.head-=physics.angle*.28
         a.head_drop+=physics.squash*6;a.shift=(0.,physics.sag*.5+physics.squash*3)
-        a.left=mix(a.left,(157.,264.),min(1.,physics.tuck+physics.squash*.5))
-        a.right=mix(a.right,(306.,265.),min(1.,physics.tuck+physics.squash*.5))
+        strength=min(1.,physics.tuck+physics.squash*.5)
+        # Keep cloth attached to its moving wrist during cursor suspension.
+        # A separate folded sleeve handles the raised forearm, never a raster
+        # crossfade or the old shoulder-only white-hand overlay.
+        for side,target_e,target_w in (('left',(129.,314.),(157.,264.)),('right',(326.,314.),(306.,265.))):
+            start=getattr(a,side);elbow=getattr(a,'elbow_'+side)
+            current=mix(start,target_w,strength)
+            vector=polar_between((elbow[0]-start[0],elbow[1]-start[1]),(target_e[0]-target_w[0],target_e[1]-target_w[1]),strength)
+            setattr(a,side,current);setattr(a,'elbow_'+side,(current[0]+vector[0],current[1]+vector[1]))
+        if strength>.45:a.arm_art='cheek';a.arm_art_left=a.arm_art_right=''
         a.leg_left+=physics.tuck*42+physics.leg_swing*4;a.leg_right-=physics.tuck*35+physics.leg_swing*4
         a.knee_left=physics.tuck*120+physics.squash*55;a.knee_right=-physics.tuck*120-physics.squash*55
         a.ankle_left=-a.knee_left*.45;a.ankle_right=-a.knee_right*.45
         a.blush=max(a.blush,physics.embarrassed);a.brow=max(a.brow,physics.upset)
         if physics.upset>.2:a.mouth='pout'
-    a.hair=a.head*.20-a.lean*.35;a.phase=action
-    if _draw_elbows:_drawn_elbows(a,action,q,variant,physics)
+    a.hair=a.head*.20-a.lean*.35
+    if a.phase=='rest':a.phase=action
     return a
-
-
-def _drawn_elbows(a,action,q,variant,physics):
-    """Authored elbow silhouettes for the existing actions, with local tweens."""
-    left,right=(136.,340.),(316.,340.)
-    left_keys=((0.,left),(1.,left));right_keys=((0.,right),(1.,right))
-    envelope=track(q,(0.,0.),(.22,1.),(.77,1.),(1.,0.))
-    if action=='shy':
-        if variant%3==1:
-            left_keys=((0.,left),(.16,(127.,325.)),(.30,(132.,268.)),(.63,(132.,268.)),(.85,(127.,325.)),(1.,left))
-            right_keys=((0.,right),(.18,(328.,321.)),(.34,(316.,265.)),(.59,(316.,265.)),(.85,(328.,321.)),(1.,right))
-        else:
-            left_keys=((0.,left),(.22,(154.,344.)),(.77,(154.,344.)),(1.,left))
-            target=(303.,344.) if variant%3==0 else (314.,288.);right_keys=((0.,right),(.22,target),(.77,target),(1.,right))
-    elif action=='annoyed':
-        if variant%3==0:
-            left_keys=((0.,left),(.22,(184.,348.)),(.77,(184.,348.)),(1.,left));target=(264.,365.)
-        elif variant%3==1:target=(325.,313.)
-        else:target=(315.,339.)
-        right_keys=((0.,right),(.22,target),(.77,target),(1.,right))
-    elif action in ('wand_play','cast','avada'):
-        left_keys=((0.,left),(.08,(226.,333.)),(.22,(127.,356.)),(.35,(124.,340.)),(.55,(127.,346.)),(.72,(124.,340.)),(.94,(226.,333.)),(1.,left))
-    elif action=='phone_solvnox':
-        left_keys=((0.,left),(.29,left),(.33,(210.,360.)),(.65,(210.,360.)),(.76,(174.,354.)),(.85,(174.,354.)),(1.,left))
-        right_keys=((0.,right),(.12,(326.,366.)),(.27,(318.,330.)),(.65,(318.,330.)),(.76,(290.,357.)),(.85,(290.,357.)),(.93,(326.,366.)),(1.,right))
-    elif action=='daydream':
-        left_keys=((0.,left),(.22,(183.,354.)),(.77,(183.,354.)),(1.,left));right_keys=((0.,right),(.22,(318.,296.)),(.77,(318.,296.)),(1.,right))
-    elif action in ('working','thinking'):a.elbow_left=(180.,354.);a.elbow_right=(319.,302.);return
-    elif action in ('leave','return','walk'):a.elbow_left=(124.,326.);a.elbow_right=(327.,326.);return
-    elif action in ('happy','error','yawn'):
-        target={'happy':(325.,306.),'error':(320.,315.),'yawn':(303.,297.)}[action]
-        right_keys=((0.,right),(.22,target),(.77,target),(1.,right))
-    duration={'shy':5.5,'annoyed':4.5,'wand_play':8.,'phone_solvnox':13.,'daydream':9.,'yawn':2.1}.get(action,6.)
-    wrist=lambda u,side:getattr(action_pose(action,u,u*duration,variant,_draw_elbows=False),side)
-    left=elbow_track(q,left_keys,lambda u:wrist(u,'left'))
-    right=elbow_track(q,right_keys,lambda u:wrist(u,'right'))
-    if physics is not None:
-        strength=min(1.,physics.tuck+physics.squash*.5)
-        base=action_pose(action,q,q*duration,variant,_draw_elbows=False)
-        for side,elbow,target_e,target_w in (('left',left,(129.,314.),(157.,264.)),('right',right,(326.,314.),(306.,265.))):
-            start=getattr(base,side);current=getattr(a,side)
-            vector=polar_between((elbow[0]-start[0],elbow[1]-start[1]),(target_e[0]-target_w[0],target_e[1]-target_w[1]),strength)
-            if side=='left':left=(current[0]+vector[0],current[1]+vector[1])
-            else:right=(current[0]+vector[0],current[1]+vector[1])
-    a.elbow_left,a.elbow_right=left,right
