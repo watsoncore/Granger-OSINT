@@ -28,13 +28,32 @@ the repair. Evidence is under `output/chibi-reconstruction/`.
 * The 720-second guest category gap and 1200–1800-second individual cooldowns
   make the current scenes too rare for their low category weight.
 
-## Acceptance gates
+## Reading gate
 
-Audit is complete; reconstruction is **not yet accepted**. Reading must first
-show retrieval of a closed book, two-hand opening/grip, open downward gaze,
-finger-led page turn, closing and physical stowing. Review at 100 and 195 pixels
-before expanding the same articulation to other scenes. Mathematical joint
-checks supplement visual review; changing hashes does not prove animation.
+`scene_pose.py` now describes retrieval, opening, line scans, a finger-led curled
+page, closing and pocket occlusion. `articulated.py` resolves two-bone arms and
+draws hands over the book. The costume/face/footwear remain source textures.
+Only the wand-occluded left curl uses a fitted ImageGen repair; its source and
+hashes are recorded in `assets/scenes/articulated-provenance.json`. The original
+master is unchanged. Independent head and overlapping side-curl roots replace
+the old clipped head layer. Reading renders at requested device resolution.
+
+Three 18-second live source-window recordings contain 436 native widget grabs
+each, averaging 23.81 captured frames/second. Their 12-moment timelines were
+inspected for closed retrieval, both grips, scanning, page contact and stowing.
+Evidence: `output/chibi-reconstruction/reading-native-source/`. These recordings
+predate the final secondary-curl split; final EXE evidence is still required.
+The offline 100/195/512-pixel timelines are explicitly labeled as deterministic
+renderer previews. Nine physical/narrative checks pass; the relevant pet suite
+passes 71 checks. One real defect caught by continuity checks—a wrist snapping
+back to the first page corner after turning—was repaired, not waived.
+
+## Remaining acceptance gates
+
+Audit and the source reading gate are complete; the overall reconstruction is
+**not yet accepted**. Other scenes, guest choreography, final executable, alpha
+backgrounds, scale and performance checks remain. Mathematical joint checks
+supplement visual review; changing hashes does not prove animation.
 
 Original master artwork, user profiles, AI/OSINT functionality and old release
 artifacts remain protected. No real API requests are needed for animation QA.

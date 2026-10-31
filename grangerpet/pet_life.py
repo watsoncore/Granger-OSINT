@@ -67,6 +67,7 @@ class LifePose:
     travel: float
     phase: str = 'active'
     cameo: str = ''
+    variant: int = 0
 
 
 class PetLifeController:
@@ -84,16 +85,21 @@ class PetLifeController:
         self.last_played = {}
         self.last_cameo = now
         self.born = now
+        self.variant = 0
 
     @property
     def active(self):
         return bool(self.action)
 
-    def start_action(self, name, now=None, *, duration=None, replace=False):
+    def start_action(self, name, now=None, *, duration=None, replace=False, variant=None):
         if name not in ACTIONS:
             raise ValueError('Unknown local pet action')
         now = self.clock() if now is None else float(now)
         if self.active and not replace:return self.action
+        variants={'reading':3,'shy':3,'annoyed':3,'wand_play':4,'malfoy':2,'harry':2,'ron_chat':2}
+        count=variants.get(name,1)
+        if variant is not None and (isinstance(variant,bool) or not isinstance(variant,int) or not 0<=variant<count):
+            raise ValueError('Invalid local scene variant')
         defaults = {'reading': self.rng.uniform(16, 34), 'cast': 2.5, 'avada': 3.2,
                     'yawn': 2.1, 'sleep': self.rng.uniform(45, 100), 'leave': 2.8,
                     'away': self.rng.uniform(4, 9), 'return': 1.6, 'wake': .65, 'settle': .3}
@@ -102,6 +108,7 @@ class PetLifeController:
             raise ValueError('Invalid local action duration')
         self.previous, self.action, self.started = self.action, name, now
         self.duration = float(defaults[name] if duration is None else duration)
+        self.variant=self.rng.randrange(count) if variant is None else variant
         self.last_played[name]=now
         if name in SCENES and SCENES[name].cameo:self.last_cameo=now
         if name == 'avada':
@@ -182,7 +189,7 @@ class PetLifeController:
             strength = 1 - smooth
         elif self.action == 'wake':
             strength = 1 - smooth
-        fps = 8 if self.action in ('sleep', 'away') else 12
+        fps = 24 if self.action=='reading' else 8 if self.action in ('sleep', 'away') else 12
         phase='enter' if elapsed<.65 else 'exit' if self.duration-elapsed<.6 else 'active'
         cameo=SCENES[self.action].cameo if self.action in SCENES else ''
-        return LifePose(self.action, self.previous, progress, elapsed, max(0.0, strength), int(elapsed*fps), travel,phase,cameo)
+        return LifePose(self.action, self.previous, progress, elapsed, max(0.0, strength), int(elapsed*fps), travel,phase,cameo,self.variant)

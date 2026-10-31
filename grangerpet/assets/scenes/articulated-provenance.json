@@ -1,0 +1,20 @@
+{
+  "generator": "built-in ImageGen; head-only removal of original wand/hand",
+  "source": "resources/cameo-masters/hermione-hair-repair-source.png",
+  "source_sha256": "cb6e078f9de421b6ad2d540b0bd424df82dd47318e6669cdcb14cf02a2b41d6e",
+  "source_alpha_bbox": [
+    70,
+    126,
+    1231,
+    1052
+  ],
+  "used_region": "Only left outer curl x60..151 y184..332; original face and all other hair retained",
+  "aligned_original_hair_bbox": [
+    70,
+    14,
+    442,
+    311
+  ],
+  "target": "grangerpet/assets/scenes/hermione-left-curl-v2.png",
+  "target_sha256": "8fc1fa45c6254bb6fefcdb826fd94958493d57fa49ae15252a92c42e04ccf7fb"
+}

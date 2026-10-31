@@ -11,6 +11,7 @@ class SceneArtLibrary:
         self.layers={name:QImage(str(directory/f'hermione-{name}.png'))
             for name in ('base','head','body','wand_arm','free_arm','left_leg','right_leg')}
         self.cameos={name:QImage(str(directory/f'{name}.png')) for name in ('draco','ron','harry')}
+        self.hair_repair=QImage(str(directory/'hermione-left-curl-v2.png'))
         if any(image.isNull() for image in (*self.layers.values(),*self.cameos.values())):
             raise ValueError('Не удалось прочитать локальные слои сцен персонажа')
         self.cameo_arms={};self.cameo_bodies={}

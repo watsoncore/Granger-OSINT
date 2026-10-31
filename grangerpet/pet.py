@@ -452,13 +452,14 @@ class PetWindow(QWidget):
         if not force and not self.isVisible() and not self._rendered.isNull():
             self._render_signature = None
             return
-        key = (self.animation.state, self.animation.frame, self._display_size)
+        dpr=self.devicePixelRatioF()
+        key = (self.animation.state, self.animation.frame, self._display_size, dpr)
         life_pose = self.life.pose()
         use_life = life_pose.action and not self.physics.active and not self._dragging and time.monotonic() >= self._terminal_until
         angle = round(self._aim.x() * (1.3 if self._over else 0.65), 2) if self.animation.state == "hover" else 0
         blend = min(1.0, max(0.0, (time.monotonic() - self._transition_started) / 0.16))
         pose = self.physics.pose
-        signature = ((life_pose.action, life_pose.frame, round(life_pose.strength, 2), self._display_size) if use_life else key,
+        signature = ((life_pose.action, life_pose.variant, life_pose.frame, round(life_pose.strength, 2), self._display_size,dpr) if use_life else key,
                      int((time.monotonic()-self.animation.started)*12) if self.animation.state=='hover' else 0,
                      angle, round(pose.angle, 2), round(pose.sag, 2), round(pose.tuck, 2), round(pose.squash, 2), round(pose.upset, 2), round(pose.embarrassed, 2), round(pose.leg_swing, 2))
         if signature == self._render_signature and blend >= 1:
@@ -469,15 +470,19 @@ class PetWindow(QWidget):
                 self._display_size, self._display_size, Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation)
         if use_life:
-            pixmap = QPixmap.fromImage(action_frame(self.library, life_pose)).scaled(
-                self._display_size, self._display_size, Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation)
+            if life_pose.action=='reading' and getattr(self.library,'scenes',None):
+                pixmap=QPixmap.fromImage(action_frame(self.library,life_pose,size=self._display_size,dpr=dpr))
+            else:
+                pixmap = QPixmap.fromImage(action_frame(self.library, life_pose)).scaled(
+                    self._display_size, self._display_size, Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation)
         else:
             base=self._cache[key]
             if self.animation.state=='hover':
                 base=QPixmap.fromImage(attention_frame(base.toImage(),self.geometry,time.monotonic()-self.animation.started))
             pixmap = facial_reaction(base, pose, self.geometry)
-        image = QImage(self.size(), QImage.Format.Format_ARGB32_Premultiplied)
+        image = QImage(round(self.width()*dpr),round(self.height()*dpr), QImage.Format.Format_ARGB32_Premultiplied)
+        image.setDevicePixelRatio(dpr)
         image.fill(Qt.GlobalColor.transparent)
         painter = QPainter(image)
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
@@ -520,12 +525,15 @@ class PetWindow(QWidget):
         else:
             painter.translate(self.width() / 2, self.height() - self._padding)
             painter.rotate(angle)
-            painter.drawPixmap(QPointF(-pixmap.width() / 2, -pixmap.height()), pixmap)
+            pixmap_size=pixmap.deviceIndependentSize()
+            painter.drawPixmap(QPointF(-pixmap_size.width() / 2, -pixmap_size.height()), pixmap)
         painter.end()
         self._rendered = image
         # A real native window region makes every transparent pixel click-through,
         # even over windows belonging to other processes. Recomputed with animation.
-        region = QRegion(QBitmap.fromImage(image.createAlphaMask()))
+        mask_image=image.scaled(self.size(),Qt.AspectRatioMode.IgnoreAspectRatio,Qt.TransformationMode.FastTransformation)
+        mask_image.setDevicePixelRatio(1.)
+        region = QRegion(QBitmap.fromImage(mask_image.createAlphaMask()))
         if region != self._region:
             self._region = region
             self.setMask(region)

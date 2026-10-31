@@ -352,9 +352,13 @@ def main(argv: list[str] | None = None) -> int:
                 else:
                     duration=payload.get('duration',4)
                     if type(duration) not in (int,float) or not .2<=duration<=30:return {'ok':False}
+                    variant=payload.get('variant')
+                    variants={'reading':3,'shy':3,'annoyed':3,'wand_play':4,'malfoy':2,'harry':2,'ron_chat':2}
+                    if variant is not None and (type(variant) is not int or not 0<=variant<variants.get(action,1)):
+                        return {'ok':False}
                     def start_local_scene():
                         pet.life.finish()
-                        pet.life.start_action(action,duration=duration)
+                        pet.life.start_action(action,duration=duration,variant=variant)
                     QTimer.singleShot(0,start_local_scene)
                 return {'ok': True}
             if command=='qa_figure' and pet is not None and args.interaction_qa and qa_vault_active:
@@ -390,6 +394,13 @@ def main(argv: list[str] | None = None) -> int:
                     pet.panel.settings_dialog.raise_()
                 QTimer.singleShot(0, open_qa_settings)
                 return {"ok": True}
+            if command=='qa_record' and pet is not None and args.interaction_qa and qa_vault_active and pet._trace_path:
+                name=payload.get('name');duration=payload.get('duration',20);fps=payload.get('fps',24)
+                if not isinstance(name,str) or not re.fullmatch(r'[a-zA-Z0-9_-]{1,60}',name):return {'ok':False}
+                if type(duration) not in (int,float) or not .2<=duration<=32:return {'ok':False}
+                if type(fps) is not int or not 1<=fps<=24:return {'ok':False}
+                from .pet_capture import start_capture
+                return {'ok':start_capture(pet,name,duration,fps)}
             if command == "qa_snapshot" and pet is not None and args.interaction_qa and pet._trace_path:
                 name = payload.get("name", "snapshot")
                 if not isinstance(name, str) or not re.fullmatch(r"[a-zA-Z0-9_-]{1,60}", name):
