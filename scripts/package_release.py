@@ -51,7 +51,7 @@ def main():
     for relative in summary.get('public_evidence_files',[]):
         path=(qa/relative).resolve()
         path.relative_to(qa)
-        if path.is_file() and path.suffix in ('.json','.png','.md','.log'):
+        if path.is_file() and path.suffix in ('.json','.png','.gif','.webp','.md','.log'):
             files.add(path)
     if summary.get("evidence_directories"):
         raise ValueError("Publish only individually reviewed public_evidence_files")

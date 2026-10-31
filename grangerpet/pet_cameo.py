@@ -7,6 +7,23 @@ from .guest_rig import paint_pair
 from .scene_pose import track
 
 
+def pair_placement(box, size, pad, home_x):
+    """Fit both opaque silhouettes to inclusive QRect bounds, at equal scale."""
+    ml=pad+round(size*.09);mr=pad+round(size*.91)
+    gl=pad+round(size*.21);gr=pad+round(size*.80)
+    overlap=max(0,mr-ml+gr-gl+16-(box.right()-box.left()))
+    candidates=[]
+    for mirror,relative in ((True,ml-gr-8+overlap),(False,mr-gl+8-overlap)):
+        lower=max(box.left()+4-ml,box.left()+4-relative-gl)
+        upper=min(box.right()-4-mr,box.right()-4-relative-gr)
+        if lower<=upper:
+            target=max(lower,min(home_x,upper))
+            candidates.append((abs(target-home_x),target,target+relative,mirror))
+    if not candidates:return None
+    _,target,guest,mirror=min(candidates,key=lambda row:row[0])
+    return target,guest,mirror
+
+
 class CameoWindow(QWidget):
     def __init__(self,pet):
         super().__init__(pet,Qt.WindowType.Tool|Qt.WindowType.FramelessWindowHint|
@@ -42,19 +59,11 @@ class CameoWindow(QWidget):
         box=self.room();size=pet._display_size;pad=pet._padding
         # Positions account for opaque pixels, not the transparent square around
         # each master. Both retain the same scale and baseline inside the dock.
-        main_left=pad+round(size*.09);main_right=pad+round(size*.91)
         guest_left=pad+round(size*.21);guest_right=pad+round(size*.80)
-        overlap=max(0,main_right-main_left+guest_right-guest_left+16-box.width())
-        right_main=box.right()-main_right-4
-        left_main=box.left()-main_left+4
-        target=max(left_main,min(self.home.x()+size*.28,right_main))
-        guest=target+main_left-guest_right-8+overlap
-        mirror=True
-        if guest+guest_left<box.left()+4:
-            target=max(left_main,min(self.home.x()-size*.28,right_main))
-            guest=target+main_right-guest_left+8-overlap;mirror=False
-        if guest+guest_left<box.left() or guest+guest_right>box.right():
+        placement=pair_placement(box,size,pad,self.home.x())
+        if placement is None:
             self.hide();return
+        target,guest,mirror=placement
         pet.move(round(self.home.x()+(target-self.home.x())*pose.strength),self.home.y())
         # One input-transparent stage owns BOTH drawings and the single note.
         # The pet keeps its independent native hit region underneath this stage.
