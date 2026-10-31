@@ -80,9 +80,9 @@ def _book(painter, elapsed, strength):
 def action_frame(library, pose, *, size=256, dpr=1.):
     """Return one transparent 256px articulated frame, retaining the face/hair."""
     action=pose.action
-    if action=='reading' and getattr(library,'scenes',None):
-        from .articulated import render_reading
-        return render_reading(library,pose,size,dpr)
+    if getattr(library,'scenes',None):
+        from .articulated import render_action
+        return render_action(library,pose,size,dpr)
     from .pet_life import SCENES
     if action in SCENES and getattr(library,'scenes',None):
         from .scene_art import scene_frame

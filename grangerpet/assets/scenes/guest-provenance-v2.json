@@ -1,0 +1,9 @@
+{
+  "method": "Independent built-in ImageGen drawing, Hermione style reference; not Ron-derived",
+  "source": "resources/cameo-masters/harry-independent-source.png",
+  "source_sha256": "5bb00e187b922eb048a7e1978fcbafe969d73278684c499b3f2727a335bfab1e",
+  "active_asset": "grangerpet/assets/scenes/harry-v2.png",
+  "active_sha256": "cfa32242a070439ec4a2b782ea5e40564a0445d82d89f6090ba138703e13b919",
+  "old_masters_preserved": true,
+  "normalization": "alpha >8, fit470x484, feet baseline500 on512 canvas"
+}

@@ -41,7 +41,7 @@ def test_rare_scene_cooldowns_and_no_repeats_over_simulated_three_days():
             assert now[0]-last.get(name,-1e9)>=SCENES[name].cooldown
             last[name]=now[0]
             if SCENES[name].cameo:
-                assert now[0]-last_guest>=720;last_guest=now[0]
+                assert now[0]-last_guest>=300;last_guest=now[0]
             observed.append(name)
     assert set(SCENES)<=set(observed)
 
@@ -69,6 +69,8 @@ def test_every_scene_has_distinct_enter_active_exit_pixels_and_transparency(name
         if pose.cameo:
             guest=cameo_frame(library,pose)
             assert not guest.isNull() and guest.pixelColor(0,0).alpha()==0
+            from grangerpet.guest_rig import preview_pair
+            frames[-1]=bytes(preview_pair(library,pose).constBits())
     assert phases==['enter','active','exit'] and len(set(frames))==3
 
 

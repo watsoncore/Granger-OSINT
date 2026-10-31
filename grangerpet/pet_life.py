@@ -31,12 +31,13 @@ SCENES = {
     'annoyed':SceneSpec(4.5,2,45,240,.5),
     'phone_solvnox':SceneSpec(13,.8,360,1200,.7),
     'daydream':SceneSpec(9,.6,480,1500,.3),
-    'malfoy':SceneSpec(10,.55,300,1800,.35,'draco'),
-    'ron_chat':SceneSpec(8,.8,240,1200,.6,'ron'),
-    'ron_note':SceneSpec(9,.8,240,1200,1.2,'ron'),
-    'harry':SceneSpec(8,.8,240,1200,1.2,'harry'),
+    'malfoy':SceneSpec(14,.55,120,900,.35,'draco'),
+    'ron_chat':SceneSpec(12,.8,120,600,.6,'ron'),
+    'ron_note':SceneSpec(16,.8,120,700,1.2,'ron'),
+    'harry':SceneSpec(12,.8,120,600,1.2,'harry'),
 }
-ACTIONS = tuple(SCENES)+('cast', 'avada', 'yawn', 'sleep', 'leave', 'away', 'return', 'wake', 'settle')
+ACTIONS = tuple(SCENES)+('cast', 'avada', 'yawn', 'sleep', 'leave', 'away', 'return', 'wake', 'settle',
+    'idle','hover','happy','thinking','working','walk','error')
 
 
 def windows_idle_seconds():
@@ -86,6 +87,9 @@ class PetLifeController:
         self.last_cameo = now
         self.born = now
         self.variant = 0
+        self.next_guest_due=now+self.rng.uniform(120,240)
+        self.last_guest_actor=''
+        self._last_variants={}
 
     @property
     def active(self):
@@ -104,13 +108,18 @@ class PetLifeController:
                     'yawn': 2.1, 'sleep': self.rng.uniform(45, 100), 'leave': 2.8,
                     'away': self.rng.uniform(4, 9), 'return': 1.6, 'wake': .65, 'settle': .3}
         defaults.update({name:spec.duration for name,spec in SCENES.items()})
+        defaults.update({name:4. for name in ('idle','hover','happy','thinking','working','walk','error')})
         if duration is not None and (isinstance(duration, bool) or not isinstance(duration, (int, float)) or not math.isfinite(duration) or not .1 <= duration <= 180):
             raise ValueError('Invalid local action duration')
         self.previous, self.action, self.started = self.action, name, now
         self.duration = float(defaults[name] if duration is None else duration)
-        self.variant=self.rng.randrange(count) if variant is None else variant
+        self.variant=self.rng.choice([i for i in range(count) if count==1 or i!=self._last_variants.get(name)]) if variant is None else variant
+        self._last_variants[name]=self.variant
+        if name=='malfoy' and duration is None and self.variant==0:self.duration=9.
         self.last_played[name]=now
-        if name in SCENES and SCENES[name].cameo:self.last_cameo=now
+        if name in SCENES and SCENES[name].cameo:
+            self.last_cameo=now;self.last_guest_actor=SCENES[name].cameo
+            self.next_guest_due=now+self.rng.uniform(300,600)
         if name == 'avada':
             self.last_avada = now
         if name not in ('away', 'return', 'wake', 'settle'):
@@ -162,15 +171,20 @@ class PetLifeController:
                     self._return_from = 1.0
             else:
                 self.finish(now)
-        if self.active or not available or now < self.next_due:
+        guest_due=allow_cameo and now>=self.next_guest_due and now-self.last_activity>=120
+        if self.active or not available or now < self.next_due and not guest_due:
             return self.pose(now)
         idle = now - self.last_activity
         choices=[];weights=[]
         for name,spec in SCENES.items():
             if name==self.last_action or idle<spec.idle or now-self.last_played.get(name,-float('inf'))<spec.cooldown:continue
-            if spec.cameo and (not allow_cameo or now-self.last_cameo<720):continue
+            if spec.cameo and (not allow_cameo or now<self.next_guest_due):continue
             choices.append(name);weights.append(spec.weight*(spec.work_weight if context=='working' else 1))
         if choices:
+            guests=[(n,w) for n,w in zip(choices,weights) if SCENES[n].cameo]
+            if guest_due and guests:
+                fresh=[(n,w) for n,w in guests if SCENES[n].cameo!=self.last_guest_actor]
+                choices,weights=map(list,zip(*(fresh or guests)))
             self.start_action(self.rng.choices(choices,weights=weights,k=1)[0], now)
         else:
             self.next_due = now + self.rng.uniform(15, 35)
@@ -189,7 +203,7 @@ class PetLifeController:
             strength = 1 - smooth
         elif self.action == 'wake':
             strength = 1 - smooth
-        fps = 24 if self.action=='reading' else 8 if self.action in ('sleep', 'away') else 12
+        fps = 8 if self.action in ('sleep', 'away') else 24
         phase='enter' if elapsed<.65 else 'exit' if self.duration-elapsed<.6 else 'active'
         cameo=SCENES[self.action].cameo if self.action in SCENES else ''
         return LifePose(self.action, self.previous, progress, elapsed, max(0.0, strength), int(elapsed*fps), travel,phase,cameo,self.variant)

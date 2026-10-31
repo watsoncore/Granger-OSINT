@@ -161,6 +161,10 @@ def main(argv: list[str] | None = None) -> int:
                                     'frame_timer':pet.frame_timer.isActive(),'cursor_timer':pet.cursor_timer.isActive(),
                                     'drag_timer':pet.drag_timer.isActive(),'width':pet.width(),'height':pet.height(),
                                     'owned_timer_count':len(pet.findChildren(QTimer))}
+                                tick_times=sorted(pet._tick_times)
+                                result['pet_render'].update({'render_count':pet._render_count,'dpr':pet.devicePixelRatioF(),
+                                    'tick_ms_p50':tick_times[len(tick_times)//2] if tick_times else 0,
+                                    'tick_ms_p95':tick_times[round((len(tick_times)-1)*.95)] if tick_times else 0})
                                 result['cameo']={'visible':bool(pet.cameo and pet.cameo.isVisible()),
                                     'actor':pet.life.pose().cameo,'room_available':bool(pet.cameo and pet.cameo.available()),
                                     'room':list(pet.cameo.room().getRect()) if pet.cameo else [],
@@ -351,7 +355,7 @@ def main(argv: list[str] | None = None) -> int:
                     QTimer.singleShot(0,due)
                 else:
                     duration=payload.get('duration',4)
-                    if type(duration) not in (int,float) or not .2<=duration<=30:return {'ok':False}
+                    if type(duration) not in (int,float) or not .2<=duration<=180:return {'ok':False}
                     variant=payload.get('variant')
                     variants={'reading':3,'shy':3,'annoyed':3,'wand_play':4,'malfoy':2,'harry':2,'ron_chat':2}
                     if variant is not None and (type(variant) is not int or not 0<=variant<variants.get(action,1)):
@@ -397,10 +401,12 @@ def main(argv: list[str] | None = None) -> int:
             if command=='qa_record' and pet is not None and args.interaction_qa and qa_vault_active and pet._trace_path:
                 name=payload.get('name');duration=payload.get('duration',20);fps=payload.get('fps',24)
                 if not isinstance(name,str) or not re.fullmatch(r'[a-zA-Z0-9_-]{1,60}',name):return {'ok':False}
-                if type(duration) not in (int,float) or not .2<=duration<=32:return {'ok':False}
+                if type(duration) not in (int,float) or not .2<=duration<=182:return {'ok':False}
                 if type(fps) is not int or not 1<=fps<=24:return {'ok':False}
+                mode=payload.get('mode','widget')
+                if mode not in ('widget','native_text'):return {'ok':False}
                 from .pet_capture import start_capture
-                return {'ok':start_capture(pet,name,duration,fps)}
+                return {'ok':start_capture(pet,name,duration,fps,mode)}
             if command == "qa_snapshot" and pet is not None and args.interaction_qa and pet._trace_path:
                 name = payload.get("name", "snapshot")
                 if not isinstance(name, str) or not re.fullmatch(r"[a-zA-Z0-9_-]{1,60}", name):
@@ -411,11 +417,7 @@ def main(argv: list[str] | None = None) -> int:
                     if pet.cameo and pet.cameo.isVisible():
                         from PySide6.QtGui import QImage,QPainter
                         pet.cameo.grab().save(str(directory/f'{name}-cameo.png'))
-                        bounds=pet.frameGeometry().united(pet.cameo.frameGeometry())
-                        image=QImage(bounds.size(),QImage.Format.Format_ARGB32_Premultiplied);image.fill(Qt.GlobalColor.transparent)
-                        painter=QPainter(image);painter.drawImage(pet.pos()-bounds.topLeft(),pet._rendered)
-                        painter.drawImage(pet.cameo.pos()-bounds.topLeft(),pet.cameo.image);painter.end()
-                        image.save(str(directory/f'{name}-pair.png'))
+                        pet.cameo.image.save(str(directory/f'{name}-pair.png'))
                     if pet.notification.isVisible(): pet.notification.grab().save(str(directory/f'{name}-notification.png'))
                     if pet.panel.isVisible():
                         pet.panel.grab().save(str(directory / f"{name}-search.png"))

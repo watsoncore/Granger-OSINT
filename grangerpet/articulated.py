@@ -6,8 +6,8 @@ physical resolution with premultiplied alpha; no pre-scaled scene raster.
 from __future__ import annotations
 import math
 from PySide6.QtCore import QPointF,QRectF,Qt
-from PySide6.QtGui import QColor,QImage,QPainter,QPainterPath,QPen,QTransform
-from .scene_pose import ActorPose,BookPose,ik,rotate
+from PySide6.QtGui import QColor,QFont,QImage,QPainter,QPainterPath,QPen,QPolygonF,QTransform
+from .scene_pose import ActorPose,BookPose,ik,rotate,arm_points
 
 INK='#302416';ROBE='#25272a';SKIN='#ffe5c9'
 
@@ -26,9 +26,38 @@ def image(size):
     im=QImage(size,size,QImage.Format.Format_ARGB32_Premultiplied);im.fill(Qt.GlobalColor.transparent);return im
 
 
+def sole_points(source,left,right,*,dy=0):
+    """True alpha boundaries of each shoe; never use transparent bbox corners."""
+    result=[]
+    for lo,hi in (left,right):
+        points=[]
+        for x in range(lo,hi):
+            ys=[y for y in range(470,source.height()) if source.pixelColor(x,y).alpha()>32]
+            if ys:points.extend((QPointF(x,min(ys)+dy),QPointF(x,max(ys)+dy)))
+        result.append(QPolygonF(points))
+    return result
+
+
+def plant_feet(a,soles,*,guest=False):
+    if not a.grounded:return
+    bounds=[];root=QTransform();root.translate(*a.shift)
+    pivot=(246,412) if guest else a.pivot;root.translate(*pivot);root.rotate(a.lean);root.translate(-pivot[0],-pivot[1])
+    for i,(sole,angle) in enumerate(zip(soles,(a.leg_left,a.leg_right))):
+        if sole.isEmpty():continue
+        transform=QTransform(root);hip=((218,410),(276,410))[i] if guest else ((216,412),(275,412))[i]
+        transform.translate(*hip);transform.rotate(angle);transform.translate(-hip[0],-hip[1])
+        if not guest:
+            knee=((220,445),(280,445))[i];ankle=((222,476),(290,476))[i]
+            transform.translate(*knee);transform.rotate((a.knee_left,a.knee_right)[i]);transform.translate(-knee[0],-knee[1])
+            transform.translate(*ankle);transform.rotate((a.ankle_left,a.ankle_right)[i]);transform.translate(-ankle[0],-ankle[1])
+        bounds.append(transform.map(sole).boundingRect().bottom())
+    if bounds:a.shift=(a.shift[0],a.shift[1]+497-max(bounds))
+
+
 class HermioneRig:
-    def __init__(self,master:QImage,hair_repair:QImage|None=None):
+    def __init__(self,master:QImage,hair_repair:QImage|None=None,hair_fringe:QImage|None=None):
         self.master=master
+        self.soles=sole_points(master,(178,244),(260,326))
         self.head=image(512)
         p=QPainter(self.head);p.setRenderHint(QPainter.RenderHint.Antialiasing)
         # Preserve the full external upper/right hair contour; exclude costume.
@@ -59,6 +88,13 @@ class HermioneRig:
             p.fillRect(QRectF(0,190,139,145),Qt.GlobalColor.white)
             p.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceOver)
             p.drawImage(0,0,hair_repair);p.end()
+        if hair_fringe is not None and not hair_fringe.isNull():
+            # Costume from the master can sit between the hanging curls. Use
+            # the clean lower fringe instead of retaining sleeve-colored holes.
+            p=QPainter(self.head);p.setCompositionMode(QPainter.CompositionMode.CompositionMode_DestinationOut)
+            p.fillRect(QRectF(0,258,512,80),Qt.GlobalColor.white)
+            p.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceOver)
+            p.setClipRect(QRectF(0,250,512,88));p.drawImage(0,0,hair_fringe);p.end()
         self.curls=[]
         for rect,root in ((QRectF(60,224,91,105),(133,236)),(QRectF(318,220,139,114),(338,236))):
             layer=image(512);p=QPainter(layer);p.setClipRect(rect);p.drawImage(0,0,self.head);p.end()
@@ -67,13 +103,23 @@ class HermioneRig:
         p.fillRect(QRectF(60,242,91,90),Qt.GlobalColor.white);p.fillRect(QRectF(318,242,139,92),Qt.GlobalColor.white);p.end()
         # Original costume and footwear are texture layers, not new silhouettes.
         self.torso=image(512);p=QPainter(self.torso);p.setRenderHint(QPainter.RenderHint.Antialiasing)
-        p.setClipPath(path([(178,270),(207,259),(258,249),(280,282),(287,320),(301,379),
-            (346,414),(305,433),(272,432),(269,416),(201,416),(193,434),(169,427),
-            (145,410),(158,369),(164,332),(171,300)]));p.drawImage(0,0,master);p.end()
+        pen(p,INK,4);p.setBrush(QColor(ROBE))
+        robe=QPainterPath(QPointF(177,273));robe.quadTo(160,314,158,365)
+        robe.lineTo(146,409);robe.quadTo(167,430,193,433);robe.lineTo(202,414)
+        robe.lineTo(272,415);robe.quadTo(306,446,345,413);robe.quadTo(293,369,280,277);robe.closeSubpath();p.drawPath(robe)
+        preserve=path([(201,264),(258,249),(277,277),(269,322),(278,415),(200,415),(198,353)])
+        preserve=preserve.united(path([(151,380),(300,380),(349,413),(306,437),(270,431),(268,414),(202,414),(192,438),(141,414)]))
+        p.setClipPath(preserve);p.drawImage(0,0,master);p.end()
         self.legs=[]
         for pts in ([(191,405),(234,405),(241,503),(176,503),(177,472),(205,458)],
                     [(249,406),(289,406),(305,461),(323,486),(319,506),(267,506),(264,468)]):
             layer=image(512);p=QPainter(layer);p.setClipPath(path(pts));p.drawImage(0,0,master);p.end();self.legs.append(layer)
+        self.leg_parts=[]
+        for leg in self.legs:
+            parts=[]
+            for rect in (QRectF(0,419,512,27),QRectF(0,442,512,37),QRectF(0,475,512,37)):
+                layer=image(512);p=QPainter(layer);p.setClipRect(rect);p.drawImage(0,0,leg);p.end();parts.append(layer)
+            self.leg_parts.append(parts)
         # Iris textures exclude skin/lashes, and stay clipped inside source eyes.
         self.iris=[]
         for rect in ((165,173,27,32),(244,168,29,34)):
@@ -82,54 +128,79 @@ class HermioneRig:
             clip=QPainterPath();clip.addEllipse(QRectF(1,0,rect[2]-2,rect[3]))
             p.setClipPath(clip);p.drawImage(QPointF(-rect[0],-rect[1]),master);p.end();self.iris.append(layer)
 
-    def draw(self,p:QPainter,a:ActorPose,*,debug=False):
-        p.save();p.translate(*a.shift);p.translate(236,412);p.rotate(a.lean);p.translate(-236,-412)
+    def draw(self,p:QPainter,a:ActorPose,*,debug=False,draw_hands=True):
+        plant_feet(a,self.soles)
+        p.save();p.translate(*a.shift);p.translate(*a.pivot);p.rotate(a.lean);p.translate(-a.pivot[0],-a.pivot[1])
         # Feet and lower legs attach to the same hip parent, behind the robe.
-        for leg,pivot,angle in zip(self.legs,((216,407),(275,407)),(a.leg_left,a.leg_right)):
+        for parts,pivot,knee,ankle,angle,bend,foot_angle in zip(self.leg_parts,((216,412),(275,412)),((220,445),(280,445)),
+                ((222,476),(290,476)),(a.leg_left,a.leg_right),(a.knee_left,a.knee_right),(a.ankle_left,a.ankle_right)):
             p.save();p.translate(*pivot);p.rotate(angle);p.translate(-pivot[0],-pivot[1])
-            p.drawImage(0,0,leg)
+            p.drawImage(0,0,parts[0]);p.translate(*knee);p.rotate(bend);p.translate(-knee[0],-knee[1]);p.drawImage(0,0,parts[1])
+            p.translate(*ankle);p.rotate(foot_angle);p.translate(-ankle[0],-ankle[1]);p.drawImage(0,0,parts[2])
             p.restore()
         # A continuous neck and torso underlap eliminate collar/head gaps.
         pen(p,INK,3);p.setBrush(QColor(SKIN));p.drawRoundedRect(QRectF(205,239,55,62),12,12)
-        p.drawImage(0,0,self.torso)
-        shoulders=((171.,293.+a.left_lift),(281.,294.+a.right_lift))
+        p.save();p.translate(229+a.turn*5,267);p.scale(1-.025*abs(a.turn),1);p.translate(-229,-267)
+        p.drawImage(0,0,self.torso);p.restore()
+        shoulders=[]
         hands=[]
-        for side,shoulder,target,mode in ((-1,shoulders[0],a.left,a.left_hand),(1,shoulders[1],a.right,a.right_hand)):
-            elbow,wrist=ik(shoulder,target,side);self.arm(p,shoulder,elbow,wrist);hands.append((wrist,mode,side))
+        for side,mode in ((-1,a.left_hand),(1,a.right_hand)):
+            shoulder,elbow,wrist=arm_points(a,side);shoulders.append(shoulder)
+            self.arm(p,shoulder,elbow,wrist);hands.append((wrist,mode,side,a.hand_angle_left if side<0 else a.hand_angle_right))
         # Head is independently articulated, but hair roots share its transform.
-        p.save();p.translate(229,252+a.head_drop);p.rotate(a.head);p.translate(-229,-252)
+        p.save();p.translate(229+a.turn*5,252+a.head_drop);p.rotate(a.head);p.translate(-229,-252)
         p.drawImage(0,0,self.head)
         for index,(curl,root) in enumerate(self.curls):
             p.save();p.translate(*root);p.rotate(a.hair*(1 if index==0 else -.8));p.translate(-root[0],-root[1]);p.drawImage(0,0,curl);p.restore()
         self.face(p,a);p.restore()
         if a.book.visible:self.book(p,a.book)
-        for wrist,mode,side in hands:self.hand(p,wrist,mode,side)
+        if a.phone:self.phone(p,a)
+        if a.wand:self.wand(p,a)
+        if draw_hands:
+            for wrist,mode,side,angle in hands:self.hand(p,wrist,mode,side,angle)
+        if a.hearts:
+            p.save();p.setOpacity(a.hearts);p.translate(330,185);p.scale(12,12)
+            pen(p,'#b27676',.11);p.setBrush(QColor('#e4a1a1'))
+            heart=QPainterPath(QPointF(0,.65));heart.cubicTo(-1,0,-.6,-.65,0,-.17)
+            heart.cubicTo(.6,-.65,1,0,0,.65);p.drawPath(heart);p.restore()
+        if a.sleeping:
+            p.save();p.setOpacity(1-a.sleep_lift*.7);p.setPen(QColor('#b6c5d5'))
+            font=QFont('Segoe UI');font.setPixelSize(22);p.setFont(font);p.drawText(QPointF(355+a.sleep_lift*6,113-a.sleep_lift*25),'z');p.restore()
+        if a.spell_text:
+            font=QFont('Segoe UI');font.setPixelSize(14);p.setFont(font);p.setPen(QColor('#b5eeb2'))
+            p.drawText(QRectF(6,469,175,34),Qt.AlignmentFlag.AlignCenter,a.spell_text)
         if debug:
             pen(p,'#00ccee',1)
-            for shoulder,(wrist,_,_) in zip(shoulders,hands):
+            for shoulder,(wrist,_,_,_) in zip(shoulders,hands):
                 elbow,_=ik(shoulder,wrist,-1 if shoulder==shoulders[0] else 1)
                 p.drawLine(QPointF(*shoulder),QPointF(*elbow));p.drawLine(QPointF(*elbow),QPointF(*wrist))
         p.restore()
 
     @staticmethod
     def arm(p,s,e,w):
-        # A single closed sleeve envelope, with a rounded elbow and real cuff.
+        # Authored tapered sleeve pieces are united BEFORE outlining. A folded
+        # single envelope produced hollow loops; a union cannot cancel itself.
         dx,dy=w[0]-e[0],w[1]-e[1];ln=math.hypot(dx,dy) or 1;nx,ny=-dy/ln,dx/ln
-        dx0,dy0=e[0]-s[0],e[1]-s[1];ln0=math.hypot(dx0,dy0) or 1;n0=(-dy0/ln0,dx0/ln0)
-        shape=QPainterPath(QPointF(s[0]+n0[0]*19,s[1]+n0[1]*19))
-        shape.quadTo(e[0]+n0[0]*24,e[1]+n0[1]*24,e[0]+nx*23,e[1]+ny*23)
-        shape.lineTo(w[0]+nx*18,w[1]+ny*18);shape.lineTo(w[0]-nx*18,w[1]-ny*18)
-        shape.quadTo(e[0]-nx*22,e[1]-ny*22,e[0]-n0[0]*18,e[1]-n0[1]*18)
-        shape.lineTo(s[0]-n0[0]*19,s[1]-n0[1]*19);shape.closeSubpath()
-        pen(p,INK,3.5);p.setBrush(QColor(ROBE));p.drawPath(shape)
-        pen(p,'#403b32',2);p.drawLine(QPointF(w[0]+nx*16,w[1]+ny*16),QPointF(w[0]-nx*16,w[1]-ny*16))
+        ux,uy=e[0]-s[0],e[1]-s[1];ul=math.hypot(ux,uy) or 1;un=(-uy/ul,ux/ul)
+        upper=path([(s[0]+un[0]*17,s[1]+un[1]*17),(e[0]+un[0]*16,e[1]+un[1]*16),
+            (e[0]-un[0]*16,e[1]-un[1]*16),(s[0]-un[0]*17,s[1]-un[1]*17)])
+        lower=path([(e[0]+nx*16,e[1]+ny*16),(w[0]+nx*22,w[1]+ny*22),
+            (w[0]-nx*22,w[1]-ny*22),(e[0]-nx*16,e[1]-ny*16)])
+        joint=QPainterPath();joint.addEllipse(QRectF(e[0]-16,e[1]-16,32,32))
+        contour=upper.united(lower).united(joint);pen(p,INK,3.5);p.setBrush(QColor(ROBE));p.drawPath(contour)
+        pen(p,'#403b32',1.8);p.drawLine(QPointF(w[0]+nx*20,w[1]+ny*20),QPointF(w[0]-nx*20,w[1]-ny*20))
 
     @staticmethod
-    def hand(p,w,mode,side):
-        p.save();p.translate(*w);p.scale(-side,1)
+    def hand(p,w,mode,side,angle=0.):
+        p.save();p.translate(*w);p.rotate(angle);p.scale(-side,1)
         pen(p,INK,2.6);p.setBrush(QColor(SKIN))
         hand=QPainterPath(QPointF(-10,8));hand.quadTo(-15,2,-10,-4)
-        if mode=='pinch':
+        if mode in ('cover','palm'):
+            hand.lineTo(-13,-20);hand.quadTo(-10,-27,-7,-20);hand.lineTo(-6,-8)
+            hand.lineTo(-5,-26);hand.quadTo(-1,-31,2,-25);hand.lineTo(3,-9)
+            hand.lineTo(5,-25);hand.quadTo(9,-29,11,-22);hand.lineTo(11,-4)
+            hand.quadTo(18,-14,20,-7);hand.quadTo(18,5,9,10)
+        elif mode=='pinch':
             hand.cubicTo(-14,-12,-8,-16,-4,-10);hand.lineTo(4,-4)
             hand.quadTo(12,-13,14,-8);hand.quadTo(16,-3,9,3)
         elif mode=='index':
@@ -202,13 +273,60 @@ class HermioneRig:
             p.drawLine(QPointF(20,-7),QPointF(rw-17,-7));p.drawLine(QPointF(20,1),QPointF(rw-17,1))
         pen(p,'#5b3626',2);p.drawLine(QPointF(0,-43),QPointF(0,50));p.restore()
 
+    @staticmethod
+    def phone(p,a):
+        p.save()
+        if a.pocket:p.setClipRect(QRectF(0,0,512,399))
+        p.translate(*a.phone_center);p.rotate(a.phone_angle)
+        pen(p,'#493b35',3);p.setBrush(QColor('#676176'));p.drawRoundedRect(QRectF(-32,-60,64,104),8,8)
+        p.setPen(Qt.PenStyle.NoPen);p.setBrush(QColor('#f7e7d8'));p.drawRoundedRect(QRectF(-26,-50,52,82),3,3)
+        p.setPen(QColor('#65505c'));font=QFont('Segoe UI');font.setPixelSize(13);p.setFont(font)
+        p.drawText(QRectF(-25,-48,50,18),Qt.AlignmentFlag.AlignCenter,'Solvnox')
+        for row in range(a.phone_lines):
+            p.setPen(Qt.PenStyle.NoPen);p.setBrush(QColor('#ceb9c1' if row%2 else '#dbcbb1'))
+            p.drawRoundedRect(QRectF(-20+(row%2)*5,-24+row*13,35,8),3,3)
+        pen(p,'#a694a1',1)
+        for row in range(2):
+            for col in range(5):p.drawPoint(QPointF(-17+col*8,19+row*6))
+        p.restore()
 
-def render_reading(library,life,size=256,dpr=1.,*,debug=False):
-    from .scene_pose import reading_pose
+    @staticmethod
+    def wand(p,a):
+        p.save()
+        if a.pocket:p.setClipRect(QRectF(0,0,512,399))
+        x,y=a.left;tip=rotate((0.,-106.),a.wand_angle+90)
+        tip=(x+tip[0],y+tip[1]);pen(p,'#352512',6)
+        p.drawLine(QPointF(x,y+9),QPointF(*tip));pen(p,'#b68d47',2)
+        p.drawLine(QPointF(x-1,y+7),QPointF(tip[0]-1,tip[1]+1))
+        if a.magic:
+            pen(p,a.magic_color,2);p.setBrush(Qt.BrushStyle.NoBrush)
+            p.drawEllipse(QPointF(*tip),a.magic*12,a.magic*12)
+            for i in range(7):
+                angle=i*math.tau/7;r=10+15*a.magic
+                p.drawLine(QPointF(tip[0]+math.cos(angle)*r,tip[1]+math.sin(angle)*r),
+                    QPointF(tip[0]+math.cos(angle)*(r+7),tip[1]+math.sin(angle)*(r+7)))
+        p.restore()
+
+
+def render_actor(library,a,size=256,dpr=1.,*,debug=False):
     art=library.scenes
-    if not hasattr(art,'hermione_rig'):art.hermione_rig=HermioneRig(art.layers['base'],art.hair_repair)
-    a=reading_pose(life.progress,life.elapsed,getattr(life,'variant',0))
+    if not hasattr(art,'hermione_rig'):art.hermione_rig=HermioneRig(art.layers['base'],art.hair_repair,art.hair_fringe)
     canvas=image(max(1,round(size*dpr)));p=QPainter(canvas)
     p.setRenderHints(QPainter.RenderHint.Antialiasing|QPainter.RenderHint.SmoothPixmapTransform)
     p.scale(canvas.width()/512,canvas.height()/512);art.hermione_rig.draw(p,a,debug=debug);p.end()
     canvas.setDevicePixelRatio(dpr);return canvas
+
+
+def render_reading(library,life,size=256,dpr=1.,*,debug=False):
+    from .scene_pose import reading_pose
+    a=reading_pose(life.progress,life.elapsed,getattr(life,'variant',0))
+    return render_actor(library,a,size,dpr,debug=debug)
+
+
+def render_action(library,life,size=256,dpr=1.):
+    from .scene_pose import action_pose
+    if life.cameo:
+        from .conversation_pose import conversation_pose
+        a=conversation_pose(life).hero
+    else:a=action_pose(life.action,life.progress,life.elapsed,getattr(life,'variant',0))
+    return render_actor(library,a,size,dpr)

@@ -6,8 +6,9 @@ No CLI fallback, external key or third-party generator was used.
 
 Reference/edit target: unchanged `grangerpet/assets/character.png`.
 Generated original: `hermione-hair-repair-source.png`. Only the occluded left
-curl is consumed after fitting to the original hair bounds. The face, bangs,
-other hair, costume and footwear are retained from the approved master.
+curl and lower fringe are consumed after fitting to the original hair bounds.
+The lower fringe replaces garment fragments between curls. The face, bangs,
+upper/middle hair, central costume and footwear retain the approved artwork.
 
 Prompt:
 
@@ -16,3 +17,13 @@ Prompt:
 The generator changed canvas framing and included low-alpha specks. The build
 script removes alpha <=8, fits significant hair bounds, consumes only the left
 curl, and records both hashes. It does not replace the approved whole head.
+
+## Independent Harry master
+
+Reference: approved Hermione, style and scale only. Output archived as
+`harry-independent-source.png`, normalized to `assets/scenes/harry-v2.png`.
+The old Ron-derived `harry.png` remains preserved and is no longer active.
+
+Prompt:
+
+> Create a matching full-body 2D chibi boy sprite for the attached hand-drawn desktop companion style. Character: Harry Potter as an ordinary schoolboy, messy uneven jet-black hair, round thin glasses, green eyes, a tiny lightning scar on forehead, white shirt, burgundy and gold striped tie, charcoal school robe with burgundy lining, dark trousers and brown school shoes. No wand, no props. Friendly slightly hesitant neutral closed-mouth expression, arms relaxed down close to sides, hands visible, facing front with slight three-quarter angle. Independent drawing and distinct hair/face/silhouette; do not recolor another boy. Match reference head-to-body ratio, warm thin dark-brown ink outlines, warm soft flat shading, small hand-drawn highlights, simple compact school costume. Same visual age, same flat 2D illustration, no 3D, no photorealism, no poster, no text. Complete feet, transparent background, square composition. This is a separate matching guest character; do not alter the reference girl.

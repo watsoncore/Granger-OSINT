@@ -8,7 +8,7 @@
     1231,
     1052
   ],
-  "used_region": "Only left outer curl x60..151 y184..332; original face and all other hair retained",
+  "used_region": "Left outer curl x60..151 y178..332 and clean lower fringe y250..335; original face/bangs/upper and middle hair retained",
   "aligned_original_hair_bbox": [
     70,
     14,
@@ -16,5 +16,6 @@
     311
   ],
   "target": "grangerpet/assets/scenes/hermione-left-curl-v2.png",
-  "target_sha256": "8fc1fa45c6254bb6fefcdb826fd94958493d57fa49ae15252a92c42e04ccf7fb"
+  "target_sha256": "8fc1fa45c6254bb6fefcdb826fd94958493d57fa49ae15252a92c42e04ccf7fb",
+  "fringe_sha256": "5512436682a15609a658a9104a06b460ede495f9f256c5796adb2699eac551cb"
 }

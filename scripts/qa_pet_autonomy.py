@@ -21,6 +21,7 @@ def main():
     parser.add_argument('--scenes',action='store_true')
     parser.add_argument('--only-scenes',nargs='+')
     parser.add_argument('--soak-seconds',type=int,choices=range(0,601),default=0)
+    parser.add_argument('--natural-seconds',type=int,choices=range(130,481),default=130)
     args=parser.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Choose a new output; previous evidence retained')
     out.mkdir(parents=True);namespace=uuid.uuid4().hex
@@ -181,16 +182,16 @@ def main():
             previous_visible=None;visible_pairs=0;render_changes=0
             while time.monotonic()-start<args.soak_seconds:
                 elapsed=time.monotonic()-start
-                if elapsed>=130 and turn%6==0:
+                if elapsed>=args.natural_seconds and turn%6==0:
                     command('qa_life',{'action':list(SCENES)[(turn//6)%len(SCENES)]})
                     action('route',{'route':['chat','search','settings','history'][(turn//6)%4]})
-                elif elapsed<130 and turn%6==0:
+                elif elapsed<args.natural_seconds and turn%6==0:
                     action('route',{'route':'chat'})
                     e=next((e for e in dom().get('elements',[]) if e.get('label')=='Сообщение Гермионе' and e['width']>0),None)
                     if e:
                         action('input',{'kind':'click','at':[e['x']+30,e['y']+15]})
                         action('input',{'kind':'text','text':' more draft'})
-                time.sleep(min(1 if elapsed<130 else 5,max(.1,args.soak_seconds-(time.monotonic()-start))))
+                time.sleep(min(1 if elapsed<args.natural_seconds else 5,max(.1,args.soak_seconds-(time.monotonic()-start))))
                 current=state()
                 if current['pet_render']['visible']:
                     signature=current['pet_render']['signature']
@@ -199,7 +200,7 @@ def main():
                         visible_pairs+=1;render_changes+=signature!=previous_visible
                     previous_visible=signature
                 else:previous_visible=None
-                if time.monotonic()-start<130:
+                if time.monotonic()-start<args.natural_seconds:
                     observations.append({'elapsed':round(time.monotonic()-start,2),'life':current['life'],
                         'near':current['near'],'hovered':current['hovered'],'visible':current['pet_render']['visible']})
                     if current['life']['action']:
@@ -221,6 +222,8 @@ def main():
             # observations; distinct-frame cardinality cannot grow with uptime.
             check('native_soak_keeps_rendering',visible_pairs>=2 and render_changes>=visible_pairs*.8)
             if args.soak_seconds>=130:check('natural_figure_idle_starts_during_real_typing_without_shortened_deadline',bool(natural))
+            if args.natural_seconds>=280 and args.soak_seconds>=args.natural_seconds:
+                check('natural_guest_arrives_without_shortened_deadline',any(SCENES[n].cameo for n in natural if n in SCENES))
             check('native_soak_has_no_timer_accumulation',max(timers)<=timers[0]+1)
             check('native_soak_frame_timer_stays_active',state()['pet_render']['frame_timer'])
         from perf_process_metrics import ProcessSampler

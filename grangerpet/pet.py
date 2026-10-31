@@ -7,6 +7,8 @@ import json
 import os
 from pathlib import Path
 import time
+from collections import deque
+from time import perf_counter
 
 from PySide6.QtCore import QPoint, QPointF, QRect, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QBitmap, QCursor, QGuiApplication, QImage, QPainter, QPixmap, QRegion, QTransform
@@ -78,6 +80,7 @@ class PetWindow(QWidget):
         self._previous = QImage()
         self._transition_started = 0.0
         self._render_signature = None
+        self._render_count=0;self._tick_times=deque(maxlen=256)
         self.life = PetLifeController(clock=lambda:time.monotonic())
         self._life_token=None
         self.cameo=None
@@ -407,6 +410,7 @@ class PetWindow(QWidget):
     def _tick(self):
         if self._ending:
             return
+        tick_started=perf_counter()
         now = time.monotonic()
         if now >= self._next_dock_poll:
             self._sync_overlay_placement()
@@ -437,15 +441,16 @@ class PetWindow(QWidget):
             self._terminal_until = 0.0
             self.panel.character.terminal_finished()
         self._sync_activity()
-        self._draw_frame()
         if self.cameo:self.cameo.update_pose(life_pose)
+        self._draw_frame(life_pose=life_pose)
+        self._tick_times.append((perf_counter()-tick_started)*1000)
 
     def _begin_transition(self, state):
         self._previous = self._rendered
         self._transition_started = time.monotonic()
         self._render_signature = None
 
-    def _draw_frame(self, *, force=False):
+    def _draw_frame(self, *, force=False, life_pose=None):
         # Keep the animation/life clocks running while an owned modal suppresses
         # this overlay, but do not build invisible images or native hit regions.
         # Initial construction still prepares its first alpha mask before show.
@@ -454,8 +459,9 @@ class PetWindow(QWidget):
             return
         dpr=self.devicePixelRatioF()
         key = (self.animation.state, self.animation.frame, self._display_size, dpr)
-        life_pose = self.life.pose()
+        life_pose = life_pose or self.life.pose()
         use_life = life_pose.action and not self.physics.active and not self._dragging and time.monotonic() >= self._terminal_until
+        articulated=bool(getattr(self.library,'scenes',None))
         angle = round(self._aim.x() * (1.3 if self._over else 0.65), 2) if self.animation.state == "hover" else 0
         blend = min(1.0, max(0.0, (time.monotonic() - self._transition_started) / 0.16))
         pose = self.physics.pose
@@ -465,17 +471,30 @@ class PetWindow(QWidget):
         if signature == self._render_signature and blend >= 1:
             return
         self._render_signature = signature if blend >= 1 else None
-        if key not in self._cache:
+        if not articulated and key not in self._cache:
             self._cache[key] = QPixmap.fromImage(self.animation.image).scaled(
                 self._display_size, self._display_size, Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation)
         if use_life:
-            if life_pose.action=='reading' and getattr(self.library,'scenes',None):
-                pixmap=QPixmap.fromImage(action_frame(self.library,life_pose,size=self._display_size,dpr=dpr))
+            if articulated:
+                if life_pose.cameo and self.cameo and self.cameo.hero_pose is not None:
+                    from .articulated import render_actor
+                    pixmap=QPixmap.fromImage(render_actor(self.library,self.cameo.hero_pose,self._display_size,dpr))
+                else:pixmap=QPixmap.fromImage(action_frame(self.library,life_pose,size=self._display_size,dpr=dpr))
             else:
                 pixmap = QPixmap.fromImage(action_frame(self.library, life_pose)).scaled(
                     self._display_size, self._display_size, Qt.AspectRatioMode.KeepAspectRatio,
                     Qt.TransformationMode.SmoothTransformation)
+        elif articulated:
+            from .articulated import render_actor
+            from .scene_pose import action_pose
+            elapsed=max(0.,time.monotonic()-self.animation.started)
+            spec=self.library.specs[self.animation.state]
+            duration=len(self.library.frames[self.animation.state])/spec.get('source_fps',12)
+            progress=min(1.,elapsed/duration) if self.animation.one_shot else (elapsed%duration)/duration
+            actor=action_pose(self.animation.state,progress,elapsed,aim=(self._aim.x(),self._aim.y()),
+                physics=pose if self.physics.active else None)
+            pixmap=QPixmap.fromImage(render_actor(self.library,actor,self._display_size,dpr))
         else:
             base=self._cache[key]
             if self.animation.state=='hover':
@@ -493,7 +512,7 @@ class PetWindow(QWidget):
         else:
             self._previous = QImage()
         # Small, eased inclination supplements the directional head/eye frames.
-        if self.physics.active:
+        if self.physics.active and not articulated:
             # Pivot at the anatomical collar. Body parts react independently;
             # head and chest retain their dimensions during a leg tuck/squat.
             px, py = self._grab_pivot.x(), self._grab_pivot.y()
@@ -524,11 +543,12 @@ class PetWindow(QWidget):
             painter.drawPixmap(QRectF(x, y + collar, torso.width(), torso_height), torso, QRectF(torso.rect()))
         else:
             painter.translate(self.width() / 2, self.height() - self._padding)
-            painter.rotate(angle)
+            painter.rotate(0 if articulated else angle)
             pixmap_size=pixmap.deviceIndependentSize()
             painter.drawPixmap(QPointF(-pixmap_size.width() / 2, -pixmap_size.height()), pixmap)
         painter.end()
         self._rendered = image
+        self._render_count+=1
         # A real native window region makes every transparent pixel click-through,
         # even over windows belonging to other processes. Recomputed with animation.
         mask_image=image.scaled(self.size(),Qt.AspectRatioMode.IgnoreAspectRatio,Qt.TransformationMode.FastTransformation)
@@ -549,7 +569,9 @@ class PetWindow(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.drawImage(0, 0, self._rendered)
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_Source)
+        painter.fillRect(self.rect(),Qt.GlobalColor.transparent)
+        if not self.cameo or not self.cameo.isVisible():painter.drawImage(0, 0, self._rendered)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:

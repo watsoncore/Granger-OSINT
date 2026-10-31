@@ -1,0 +1,84 @@
+{
+  "life": {
+    "action": "malfoy",
+    "previous": "",
+    "progress": 0.5166666666666667,
+    "elapsed": 5.166666666666667,
+    "strength": 1,
+    "frame": 0,
+    "travel": 0,
+    "phase": "active",
+    "cameo": "draco",
+    "variant": 1
+  },
+  "actor": {
+    "pivot": [
+      236.0,
+      412.0
+    ],
+    "shift": [
+      0.0,
+      0.0
+    ],
+    "lean": -0.4599200930561871,
+    "turn": 0.0,
+    "head": 1.19437037037037,
+    "head_drop": 0.0,
+    "gaze": [
+      -3.0,
+      0.0
+    ],
+    "mouth": "neutral",
+    "blush": 0.0,
+    "brow": -0.55,
+    "blink": 0.0,
+    "left": [
+      164.3282743484225,
+      299.10917969821674
+    ],
+    "right": [
+      300.0,
+      271.0
+    ],
+    "left_hand": "relaxed",
+    "right_hand": "relaxed",
+    "left_lift": 0.0,
+    "right_lift": 0.0,
+    "elbow_left": null,
+    "elbow_right": null,
+    "hand_angle_left": 0.0,
+    "hand_angle_right": 0.0,
+    "leg_left": 0.0,
+    "leg_right": 0.0,
+    "knee_left": 0.0,
+    "knee_right": 0.0,
+    "ankle_left": 0.0,
+    "ankle_right": 0.0,
+    "hair": 0.11943703703703701,
+    "book": {
+      "center": [
+        233.0,
+        340.0
+      ],
+      "angle": -3.0,
+      "opening": 1.0,
+      "page": -1.0,
+      "visible": false,
+      "pocket": false
+    },
+    "phase": "rest",
+    "wand": false,
+    "wand_angle": -115.0,
+    "magic": 0.0,
+    "phone": false,
+    "phone_center": [
+      270.0,
+      340.0
+    ],
+    "phone_angle": -5.0,
+    "phone_lines": 0,
+    "hearts": 0.0,
+    "pocket": false
+  },
+  "reference": "Before addendum sleeve/IK ablation; storyboard row 2 column 3"
+}

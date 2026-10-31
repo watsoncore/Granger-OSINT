@@ -31,6 +31,24 @@ def rotate(point:Point, angle:float, origin:Point=(0.,0.))->Point:
     return origin[0]+x*math.cos(a)-y*math.sin(a),origin[1]+x*math.sin(a)+y*math.cos(a)
 
 
+def polar_between(first,second,t):
+    start,end=math.atan2(first[1],first[0]),math.atan2(second[1],second[0])
+    delta=math.atan2(math.sin(end-start),math.cos(end-start))
+    radius=mix(math.hypot(*first),math.hypot(*second),t);angle=start+delta*t
+    return radius*math.cos(angle),radius*math.sin(angle)
+
+
+def elbow_track(q,keys,wrist_at):
+    if q<=keys[0][0]:return keys[0][1]
+    for (a,first),(b,second) in zip(keys,keys[1:]):
+        if q<=b:
+            if first==second:return first
+            t=smooth((q-a)/(b-a));wa,wb,w=wrist_at(a),wrist_at(b),wrist_at(q)
+            vector=polar_between((first[0]-wa[0],first[1]-wa[1]),(second[0]-wb[0],second[1]-wb[1]),t)
+            return w[0]+vector[0],w[1]+vector[1]
+    return keys[-1][1]
+
+
 def ik(shoulder:Point,wrist:Point,side:int,upper=72.,lower=74.):
     """Two-bone elbow with bounded reach; returned wrist is the actual grip."""
     dx,dy=wrist[0]-shoulder[0],wrist[1]-shoulder[1];distance=math.hypot(dx,dy)
@@ -39,7 +57,7 @@ def ik(shoulder:Point,wrist:Point,side:int,upper=72.,lower=74.):
     actual=(shoulder[0]+ux*length,shoulder[1]+uy*length)
     along=(upper*upper-lower*lower+length*length)/(2*length)
     away=math.sqrt(max(0.,upper*upper-along*along))
-    elbow=(shoulder[0]+ux*along-side*uy*away,shoulder[1]+uy*along+side*ux*away)
+    elbow=(shoulder[0]+ux*along+side*uy*away,shoulder[1]+uy*along-side*ux*away)
     return elbow,actual
 
 
@@ -68,8 +86,11 @@ class BookPose:
 
 @dataclass
 class ActorPose:
+    grounded:bool=True
+    pivot:Point=(236.,412.)
     shift:Point=(0.,0.)
     lean:float=0.
+    turn:float=0.
     head:float=0.
     head_drop:float=0.
     gaze:Point=(0.,0.)
@@ -77,28 +98,41 @@ class ActorPose:
     blush:float=0.
     brow:float=0.
     blink:float=0.
-    left:Point=(151.,352.)
-    right:Point=(335.,352.)
+    left:Point=(156.,385.)
+    right:Point=(319.,385.)
     left_hand:str='relaxed'
     right_hand:str='relaxed'
     left_lift:float=0.
     right_lift:float=0.
+    elbow_left:Point|None=None
+    elbow_right:Point|None=None
+    hand_angle_left:float=0.
+    hand_angle_right:float=0.
     leg_left:float=0.
     leg_right:float=0.
+    knee_left:float=0.
+    knee_right:float=0.
+    ankle_left:float=0.
+    ankle_right:float=0.
     hair:float=0.
     book:BookPose=field(default_factory=BookPose)
     phase:str='rest'
     wand:bool=False
     wand_angle:float=-115.
     magic:float=0.
+    magic_color:str='#c6c2e0'
+    spell_text:str=''
+    sleeping:bool=False
+    sleep_lift:float=0.
     phone:bool=False
     phone_center:Point=(270.,340.)
     phone_angle:float=-5.
     phone_lines:int=0
     hearts:float=0.
+    pocket:bool=False
 
 
-def reading_pose(q:float,elapsed:float,variant:int=0)->ActorPose:
+def reading_pose(q:float,elapsed:float,variant:int=0,*,_draw_elbows=True)->ActorPose:
     """Closed-book retrieval → grip → open → scan → turn → close → pocket."""
     a=ActorPose();b=a.book;v=variant%3
     b.visible=.025<q<.985
@@ -140,14 +174,45 @@ def reading_pose(q:float,elapsed:float,variant:int=0)->ActorPose:
         a.head-=9*indignation;a.brow=indignation;a.mouth='pout' if indignation>.3 else 'neutral'
         a.gaze=(a.gaze[0],a.gaze[1]-5*indignation)
     a.hair=a.head*.13-a.lean*.4
+    if _draw_elbows:
+        wrist=lambda u,side:getattr(reading_pose(u,u*18,variant,_draw_elbows=False),side)
+        left_keys=((0.,(136.,340.)),(.16,(136.,340.)),(.265,(124.,326.)),(.77,(124.,326.)),(.84,(179.,348.)),(.91,(164.,350.)),(1.,(136.,340.)))
+        right_keys=((0.,(316.,340.)),(.08,(326.,358.)),(.18,(326.,340.)),(.27,(322.,326.)),
+            (turn_start-.035,(322.,326.)),(turn_start,(316.,351.)),((turn_start+turn_end)/2,(273.,339.)),
+            (turn_end,(220.,343.)),(turn_end+.05,(322.,326.)),(.8,(322.,326.)),(.91,(326.,358.)),(1.,(316.,340.)))
+        a.elbow_left=elbow_track(q,left_keys,lambda u:wrist(u,'left'))
+        a.elbow_right=elbow_track(q,right_keys,lambda u:wrist(u,'right'))
     a.blink=max(0.,1-abs(elapsed%5.9-4.4)/.075)  # short blink; no long closed reading
     a.phase=('retrieve' if q<.16 else 'opening' if q<.27 else 'page_turn' if turn_start-.035<q<turn_end+.05
         else 'reading' if q<.77 else 'closing' if q<.885 else 'stowing')
     return a
 
 
-def action_pose(action,q,t,variant=0,*,aim=(0.,0.),physics=None):
-    if action=='reading':return reading_pose(q,t,variant)
+def arm_points(a,side,*,guest=False):
+    """Authored projected elbows take priority over the fallback 2-bone solve."""
+    if side<0:
+        shoulder=(193.+a.turn*5,281.+a.left_lift) if guest else (171.+a.turn*5,293.+a.left_lift)
+        target,elbow=a.left,a.elbow_left
+    else:
+        shoulder=(295.+a.turn*5,282.+a.right_lift) if guest else (281.+a.turn*5,294.+a.right_lift)
+        target,elbow=a.right,a.elbow_right
+    if elbow is None:elbow,target=ik(shoulder,target,side)
+    else:
+        # Keep projected segments anatomical during inbetweens. Wrist contacts
+        # never move; correct the elbow inside the two reachable annuli.
+        x,y=elbow
+        for _ in range(10):
+            for center in (shoulder,target):
+                dx,dy=x-center[0],y-center[1];length=math.hypot(dx,dy)
+                if length<1e-8:dx,dy=side*.6,.8;length=1.
+                bounded=max(22.,min(86.,length))
+                if bounded!=length:x,y=center[0]+dx/length*bounded,center[1]+dy/length*bounded
+        elbow=(x,y)
+    return shoulder,elbow,target
+
+
+def action_pose(action,q,t,variant=0,*,aim=(0.,0.),physics=None,_draw_elbows=True):
+    if action=='reading':return reading_pose(q,t,variant,_draw_elbows=_draw_elbows)
     a=ActorPose();a.blink=max(0.,1-abs(t%5.3-4.1)/.075)
     envelope=track(q,(0.,0.),(.16,1.),(.80,1.),(1.,0.))
     if action=='shy':
@@ -158,8 +223,9 @@ def action_pose(action,q,t,variant=0,*,aim=(0.,0.),physics=None):
             a.left=track(q,(0.,a.left),(.27,(203.,306.)),(.7,(210.,311.)),(1.,a.left))
             a.right=track(q,(0.,a.right),(.27,(249.,311.)),(.7,(244.,311.)),(1.,a.right))
         elif v==1:
-            a.left=track(q,(0.,a.left),(.30,(187.,219.)),(.63,(191.,218.)),(1.,a.left))
-            a.right=track(q,(0.,a.right),(.34,(256.,219.)),(.59,(260.,218.)),(1.,a.right))
+            a.left=track(q,(0.,a.left),(.16,(150.,285.)),(.30,(185.,213.)),(.63,(189.,211.)),(.85,(150.,285.)),(1.,a.left))
+            a.right=track(q,(0.,a.right),(.18,(305.,282.)),(.34,(260.,208.)),(.59,(263.,210.)),(.85,(305.,282.)),(1.,a.right))
+            a.left_hand=a.right_hand='cover'
             a.head_drop=5*envelope;a.gaze=(0.,4*envelope)
         else:
             a.brow=track(q,(0.,0.),(.20,.7),(.43,.7),(.56,-.7),(.8,-.7),(1.,0.))
@@ -183,7 +249,8 @@ def action_pose(action,q,t,variant=0,*,aim=(0.,0.),physics=None):
             a.gaze=track(q,(0.,(0.,0.)),(.28,(-4.,0.)),(.49,(-4.,0.)),(.60,(3.,0.)),(.75,(3.,0.)),(1.,(0.,0.)))
             a.right=track(q,(0.,a.right),(.24,(275.,351.)),(.76,(275.,351.)),(1.,a.right))
     elif action in ('wand_play','cast','avada'):
-        a.wand=.06<q<.95;a.left_hand='grip';v=variant%4
+        a.wand=.06<q<.95;a.left_hand='grip';v=1 if action in ('cast','avada') else variant%4
+        if action=='avada':a.magic_color='#77d56f';a.spell_text='«Авада Кедавра»' if .3<q<.78 else ''
         a.left=track(q,(0.,a.left),(.08,(281.,372.)),(.22,(143.,316.)),(.35,(136.,284.)),
             (.55,(161.,309.)),(.70,(136.,285.)),(.82,(162.,326.)),(.94,(280.,374.)),(1.,a.left))
         a.right=track(q,(0.,a.right),(.25,(281.,346.)),(.78,(281.,346.)),(1.,a.right))
@@ -203,10 +270,12 @@ def action_pose(action,q,t,variant=0,*,aim=(0.,0.),physics=None):
             (.65,(266.,338.)),(.76,(230.,313.)),(.83,(230.,313.)),(.90,(282.,374.)),(1.,(282.,448.)))
         a.phone_angle=track(q,(0.,-15.),(.25,-5.),(.65,-5.),(.76,5.),(.85,5.),(1.,-15.))
         x,y=a.phone_center
-        follow=track(q,(0.,0.),(.07,1.),(.92,1.),(1.,0.));a.right=mix(a.right,(x+19,y+17),follow);a.right_hand='grip'
+        def phone_point(px,py):
+            px,py=rotate((px,py),a.phone_angle);return x+px,y+py
+        follow=track(q,(0.,0.),(.07,1.),(.92,1.),(1.,0.));a.right=mix(a.right,phone_point(29,17),follow);a.right_hand='grip'
         a.head=5*envelope;a.gaze=(2*envelope,5*envelope)
         typing=.33<q<.47 or .55<q<.66
-        contact=(x-2,y+11)
+        contact=phone_point(-2,11);contact=(contact[0]+5,contact[1]+24)
         a.left=track(q,(0.,a.left),(.29,a.left),(.33,contact),(.47,contact),(.50,(x-34,y+19)),
             (.55,contact),(.66,contact),(.76,(x-18,y+19)),(.84,(x-18,y+19)),(1.,a.left))
         if typing:
@@ -216,18 +285,26 @@ def action_pose(action,q,t,variant=0,*,aim=(0.,0.),physics=None):
         a.blush=track(q,(0.,0.),(.21,0.),(.29,.4),(.7,.8),(.82,1.),(1.,0.))
         a.mouth='smile' if .27<q<.86 else 'neutral';a.hearts=track(q,(0.,0.),(.68,0.),(.76,1.),(.87,0.),(1.,0.))
         a.lean=-2*envelope
+        a.pocket=q<.16 or q>.88
     elif action=='daydream':
-        a.head=-7*envelope;a.gaze=(3*envelope,-5*envelope);a.blush=.5*envelope
-        a.right=track(q,(0.,a.right),(.28,(260.,247.)),(.77,(260.,247.)),(1.,a.right))
+        a.head=track(q,(0.,0.),(.28,-7.),(.43,-7.),(.55,-3.),(.68,-5.),(.8,-5.),(1.,0.))
+        a.gaze=(3*envelope,-5*envelope);a.blush=.5*envelope
+        a.right=track(q,(0.,a.right),(.15,(309.,287.)),(.28,(260.,247.)),(.77,(260.,247.)),(.9,(309.,287.)),(1.,a.right))
         a.left=track(q,(0.,a.left),(.25,(246.,335.)),(.78,(246.,335.)),(1.,a.left))
         a.mouth='smile';a.lean=-3*envelope;a.hearts=.45*envelope
     elif action in ('sleep','wake','yawn'):
         asleep=1. if action=='sleep' else 1-smooth(q) if action=='wake' else envelope
         a.head=11*asleep;a.head_drop=5*asleep;a.blink=asleep;a.lean=3*asleep
+        if action=='sleep':
+            a.head+=math.sin(t*.9)*.65;a.head_drop+=math.sin(t*.9)*.4
+            a.left_lift=a.right_lift=math.sin(t*.9)*.9
+            a.sleeping=True;a.sleep_lift=(t%2.5)/2.5
         a.right=mix(a.right,(246.,239.),asleep if action=='yawn' else 0.)
         a.mouth='open' if action=='yawn' and .25<q<.75 else 'neutral'
     elif action in ('leave','return','walk'):
         a.leg_left=math.sin(t*8)*11;a.leg_right=-a.leg_left
+        a.knee_left=max(0,-math.sin(t*8))*28;a.knee_right=-max(0,math.sin(t*8))*28
+        a.ankle_left=-a.knee_left*.35;a.ankle_right=-a.knee_right*.35
         a.shift=(0.,-abs(math.sin(t*8))*3);a.lean=-2 if action=='leave' else 2
         a.left=(151+math.sin(t*8)*12,348);a.right=(335-math.sin(t*8)*12,348)
         a.head=-2*math.sin(t*4)
@@ -245,12 +322,62 @@ def action_pose(action,q,t,variant=0,*,aim=(0.,0.),physics=None):
         # Breath is a subpixel chest/shoulder motion, not whole-sprite wobble.
         a.left_lift=a.right_lift=math.sin(t*1.7)*.7
     if physics is not None:
+        a.grounded=False
+        a.pivot=(229.,267.)
         a.lean+=physics.angle*.5;a.head-=physics.angle*.28
         a.head_drop+=physics.squash*6;a.shift=(0.,physics.sag*.5+physics.squash*3)
         a.left=mix(a.left,(157.,264.),min(1.,physics.tuck+physics.squash*.5))
         a.right=mix(a.right,(306.,265.),min(1.,physics.tuck+physics.squash*.5))
         a.leg_left+=physics.tuck*42+physics.leg_swing*4;a.leg_right-=physics.tuck*35+physics.leg_swing*4
+        a.knee_left=physics.tuck*120+physics.squash*55;a.knee_right=-physics.tuck*120-physics.squash*55
+        a.ankle_left=-a.knee_left*.45;a.ankle_right=-a.knee_right*.45
         a.blush=max(a.blush,physics.embarrassed);a.brow=max(a.brow,physics.upset)
         if physics.upset>.2:a.mouth='pout'
     a.hair=a.head*.20-a.lean*.35;a.phase=action
+    if _draw_elbows:_drawn_elbows(a,action,q,variant,physics)
     return a
+
+
+def _drawn_elbows(a,action,q,variant,physics):
+    """Authored elbow silhouettes for the existing actions, with local tweens."""
+    left,right=(136.,340.),(316.,340.)
+    left_keys=((0.,left),(1.,left));right_keys=((0.,right),(1.,right))
+    envelope=track(q,(0.,0.),(.22,1.),(.77,1.),(1.,0.))
+    if action=='shy':
+        if variant%3==1:
+            left_keys=((0.,left),(.16,(127.,325.)),(.30,(132.,268.)),(.63,(132.,268.)),(.85,(127.,325.)),(1.,left))
+            right_keys=((0.,right),(.18,(328.,321.)),(.34,(316.,265.)),(.59,(316.,265.)),(.85,(328.,321.)),(1.,right))
+        else:
+            left_keys=((0.,left),(.22,(154.,344.)),(.77,(154.,344.)),(1.,left))
+            target=(303.,344.) if variant%3==0 else (314.,288.);right_keys=((0.,right),(.22,target),(.77,target),(1.,right))
+    elif action=='annoyed':
+        if variant%3==0:
+            left_keys=((0.,left),(.22,(184.,348.)),(.77,(184.,348.)),(1.,left));target=(264.,365.)
+        elif variant%3==1:target=(325.,313.)
+        else:target=(315.,339.)
+        right_keys=((0.,right),(.22,target),(.77,target),(1.,right))
+    elif action in ('wand_play','cast','avada'):
+        left_keys=((0.,left),(.08,(226.,333.)),(.22,(127.,356.)),(.35,(124.,340.)),(.55,(127.,346.)),(.72,(124.,340.)),(.94,(226.,333.)),(1.,left))
+    elif action=='phone_solvnox':
+        left_keys=((0.,left),(.29,left),(.33,(210.,360.)),(.65,(210.,360.)),(.76,(174.,354.)),(.85,(174.,354.)),(1.,left))
+        right_keys=((0.,right),(.12,(326.,366.)),(.27,(318.,330.)),(.65,(318.,330.)),(.76,(290.,357.)),(.85,(290.,357.)),(.93,(326.,366.)),(1.,right))
+    elif action=='daydream':
+        left_keys=((0.,left),(.22,(183.,354.)),(.77,(183.,354.)),(1.,left));right_keys=((0.,right),(.22,(318.,296.)),(.77,(318.,296.)),(1.,right))
+    elif action in ('working','thinking'):a.elbow_left=(180.,354.);a.elbow_right=(319.,302.);return
+    elif action in ('leave','return','walk'):a.elbow_left=(124.,326.);a.elbow_right=(327.,326.);return
+    elif action in ('happy','error','yawn'):
+        target={'happy':(325.,306.),'error':(320.,315.),'yawn':(303.,297.)}[action]
+        right_keys=((0.,right),(.22,target),(.77,target),(1.,right))
+    duration={'shy':5.5,'annoyed':4.5,'wand_play':8.,'phone_solvnox':13.,'daydream':9.,'yawn':2.1}.get(action,6.)
+    wrist=lambda u,side:getattr(action_pose(action,u,u*duration,variant,_draw_elbows=False),side)
+    left=elbow_track(q,left_keys,lambda u:wrist(u,'left'))
+    right=elbow_track(q,right_keys,lambda u:wrist(u,'right'))
+    if physics is not None:
+        strength=min(1.,physics.tuck+physics.squash*.5)
+        base=action_pose(action,q,q*duration,variant,_draw_elbows=False)
+        for side,elbow,target_e,target_w in (('left',left,(129.,314.),(157.,264.)),('right',right,(326.,314.),(306.,265.))):
+            start=getattr(base,side);current=getattr(a,side)
+            vector=polar_between((elbow[0]-start[0],elbow[1]-start[1]),(target_e[0]-target_w[0],target_e[1]-target_w[1]),strength)
+            if side=='left':left=(current[0]+vector[0],current[1]+vector[1])
+            else:right=(current[0]+vector[0],current[1]+vector[1])
+    a.elbow_left,a.elbow_right=left,right
