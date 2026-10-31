@@ -149,13 +149,36 @@ def main():
             command('show_workspace',{'route':'chat'});time.sleep(.4)
             wait(lambda:state()['pet_render']['visible'])
             check('window_'+mode+'_retains_live_figure',state()['pet_render']['frame_timer'])
+        command('qa_life',{'action':'interrupt'});wait(lambda:not state()['life']['active'])
+        action('window',{'mode':'close'});time.sleep(.6)
+        home=state()['position']
+        command('qa_figure',{'action':'away'});command('qa_life',{'action':'malfoy','duration':8})
+        wait(lambda:state()['cameo']['visible']);time.sleep(.8);capture('desktop-cameo')
+        command('show_workspace',{'route':'chat'});time.sleep(.7)
+        command('qa_life',{'action':'interrupt'});wait(lambda:not state()['life']['active'])
+        action('window',{'mode':'close'});time.sleep(.7)
+        check('open_close_workspace_during_cameo_restores_original_desktop_position',state()['position']==home)
+        command('show_workspace',{'route':'chat'});time.sleep(.5)
         if args.soak_seconds:
             from perf_process_metrics import ProcessSampler
+            # Forced scene previews legitimately consume their cooldowns.
+            # A real restart establishes the ordinary cold-start schedule;
+            # no scene clocks, last-played values or deadlines are shortened.
+            command('stop');process.wait(timeout=30);owned=None
+            with (out/'soak-restart.log').open('wb') as log:
+                process=subprocess.Popen(argv,cwd=ROOT,env=os.environ.copy(),stdout=log,stderr=subprocess.STDOUT)
+            owned=wait(state,60)['pid'];wait(lambda:state().get('desktop',{}).get('ready'))
+            command('show_workspace',{'route':'chat'});time.sleep(.5)
+            restore=next((e for e in dom().get('elements',[]) if e.get('label')=='Показать Гермиону и источники' and e['width']>0),None)
+            if restore:action('input',{'kind':'click','at':[restore['x']+restore['width']/2,restore['y']+restore['height']/2]})
+            wait(lambda:state()['pet_render']['visible'])
+            check('cold_restart_before_unmodified_natural_schedule',not state()['life']['active'])
             monitor=ProcessSampler(args.exe,gpu=False)
             def metrics():return monitor.sample([owned]) if args.exe else monitor.sample(source_main_pids=[owned])
             command('qa_figure',{'action':'away'});time.sleep(1)
             action('route',{'route':'chat'})
-            metrics();samples=[];signatures=set();timers=[];natural=set();visible_samples=0;start=time.monotonic();turn=0
+            metrics();samples=[];signatures=set();timers=[];natural=set();observations=[];visible_samples=0;start=time.monotonic();turn=0
+            previous_visible=None;visible_pairs=0;render_changes=0
             while time.monotonic()-start<args.soak_seconds:
                 elapsed=time.monotonic()-start
                 if elapsed>=130 and turn%6==0:
@@ -167,19 +190,36 @@ def main():
                     if e:
                         action('input',{'kind':'click','at':[e['x']+30,e['y']+15]})
                         action('input',{'kind':'text','text':' more draft'})
-                time.sleep(min(5,max(.1,args.soak_seconds-(time.monotonic()-start))))
+                time.sleep(min(1 if elapsed<130 else 5,max(.1,args.soak_seconds-(time.monotonic()-start))))
                 current=state()
                 if current['pet_render']['visible']:
-                    visible_samples+=1;signatures.add(current['pet_render']['signature'])
-                if time.monotonic()-start<130 and current['life']['action']:natural.add(current['life']['action'])
+                    signature=current['pet_render']['signature']
+                    visible_samples+=1;signatures.add(signature)
+                    if previous_visible is not None:
+                        visible_pairs+=1;render_changes+=signature!=previous_visible
+                    previous_visible=signature
+                else:previous_visible=None
+                if time.monotonic()-start<130:
+                    observations.append({'elapsed':round(time.monotonic()-start,2),'life':current['life'],
+                        'near':current['near'],'hovered':current['hovered'],'visible':current['pet_render']['visible']})
+                    if current['life']['action']:
+                        if current['life']['action'] not in natural:capture('natural-'+current['life']['action'])
+                        natural.add(current['life']['action'])
                 timers.append(current['pet_render']['owned_timer_count'])
                 samples.append(metrics());turn+=1
+                if turn%10==0:
+                    report['soak_progress']={'elapsed_seconds':round(time.monotonic()-start,2),
+                        'natural_actions':sorted(natural),'recent_observations':observations[-3:]};save()
             monitor.close()
             report['soak']={'elapsed_seconds':round(time.monotonic()-start,2),'samples':samples,
                 'distinct_render_signatures':len(signatures),'owned_timer_counts':timers,
                 'natural_actions_during_130s_typing':sorted(natural),'visible_samples':visible_samples,
+                'natural_observations':observations,
+                'adjacent_visible_pairs':visible_pairs,'adjacent_render_changes':render_changes,
                 'private_commit_notes':'Sum across the owned process tree; not private working set'}
-            check('native_soak_keeps_rendering',len(signatures)>=max(2,visible_samples//2))
+            # A valid looping atlas repeats its frames. Compare adjacent visible
+            # observations; distinct-frame cardinality cannot grow with uptime.
+            check('native_soak_keeps_rendering',visible_pairs>=2 and render_changes>=visible_pairs*.8)
             if args.soak_seconds>=130:check('natural_figure_idle_starts_during_real_typing_without_shortened_deadline',bool(natural))
             check('native_soak_has_no_timer_accumulation',max(timers)<=timers[0]+1)
             check('native_soak_frame_timer_stays_active',state()['pet_render']['frame_timer'])

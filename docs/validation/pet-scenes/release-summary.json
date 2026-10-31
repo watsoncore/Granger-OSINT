@@ -1,0 +1,360 @@
+{
+  "mode": "actual frozen EXE and native Windows/Qt; no application API calls",
+  "exe": {
+    "bytes": 277961699,
+    "sha256": "4126f5ecdf9cadbe95765ca77c41b3950826a96b04027c5964f76b102f13f458"
+  },
+  "backend_full": {
+    "passed": 1435,
+    "skipped": 1,
+    "subtests": 32,
+    "skip": "Ollama not running"
+  },
+  "latest_pet_regressions": 72,
+  "additional_scale_regression": 1,
+  "native_checks": [
+    {
+      "name": "native_idle_pixels_advance",
+      "passed": true
+    },
+    {
+      "name": "scheduler_starts_while_workspace_active",
+      "passed": true
+    },
+    {
+      "name": "navigation_search_does_not_reset_figure_idle",
+      "passed": true
+    },
+    {
+      "name": "navigation_settings_does_not_reset_figure_idle",
+      "passed": true
+    },
+    {
+      "name": "navigation_history_does_not_reset_figure_idle",
+      "passed": true
+    },
+    {
+      "name": "navigation_chat_does_not_reset_figure_idle",
+      "passed": true
+    },
+    {
+      "name": "typing_draft_does_not_cancel_autonomy",
+      "passed": true
+    },
+    {
+      "name": "real_figure_hover_interrupts_scene",
+      "passed": true
+    },
+    {
+      "name": "actual_up_drag_reaction",
+      "passed": true
+    },
+    {
+      "name": "actual_down_drag_reaction",
+      "passed": true
+    },
+    {
+      "name": "release_recovers_without_drag_timer",
+      "passed": true
+    },
+    {
+      "name": "scale_100_visible",
+      "passed": true
+    },
+    {
+      "name": "scale_195_visible",
+      "passed": true
+    },
+    {
+      "name": "scale_160_visible",
+      "passed": true
+    },
+    {
+      "name": "scene_completes_and_clears",
+      "passed": true
+    },
+    {
+      "name": "reading_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "wand_play_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "shy_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "annoyed_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "phone_solvnox_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "daydream_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "malfoy_actual_guest_visible",
+      "passed": true
+    },
+    {
+      "name": "malfoy_native_input_transparency",
+      "passed": true
+    },
+    {
+      "name": "malfoy_actual_Windows_input_transparent_style",
+      "passed": true
+    },
+    {
+      "name": "malfoy_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "ron_chat_actual_guest_visible",
+      "passed": true
+    },
+    {
+      "name": "ron_chat_native_input_transparency",
+      "passed": true
+    },
+    {
+      "name": "ron_chat_actual_Windows_input_transparent_style",
+      "passed": true
+    },
+    {
+      "name": "ron_chat_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "ron_note_actual_guest_visible",
+      "passed": true
+    },
+    {
+      "name": "ron_note_native_input_transparency",
+      "passed": true
+    },
+    {
+      "name": "ron_note_actual_Windows_input_transparent_style",
+      "passed": true
+    },
+    {
+      "name": "ron_note_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "harry_actual_guest_visible",
+      "passed": true
+    },
+    {
+      "name": "harry_native_input_transparency",
+      "passed": true
+    },
+    {
+      "name": "harry_actual_Windows_input_transparent_style",
+      "passed": true
+    },
+    {
+      "name": "harry_finishes_and_removes_guest",
+      "passed": true
+    },
+    {
+      "name": "default_195_scale_cameo_fits_existing_dock",
+      "passed": true
+    },
+    {
+      "name": "figure_interrupt_removes_actual_cameo",
+      "passed": true
+    },
+    {
+      "name": "window_minimize_retains_live_figure",
+      "passed": true
+    },
+    {
+      "name": "window_maximize_retains_live_figure",
+      "passed": true
+    },
+    {
+      "name": "window_maximize_retains_live_figure",
+      "passed": true
+    },
+    {
+      "name": "window_close_retains_live_figure",
+      "passed": true
+    },
+    {
+      "name": "open_close_workspace_during_cameo_restores_original_desktop_position",
+      "passed": true
+    },
+    {
+      "name": "cold_restart_before_unmodified_natural_schedule",
+      "passed": true
+    },
+    {
+      "name": "native_soak_keeps_rendering",
+      "passed": true
+    },
+    {
+      "name": "natural_figure_idle_starts_during_real_typing_without_shortened_deadline",
+      "passed": true
+    },
+    {
+      "name": "native_soak_has_no_timer_accumulation",
+      "passed": true
+    },
+    {
+      "name": "native_soak_frame_timer_stays_active",
+      "passed": true
+    },
+    {
+      "name": "native_exit_zero",
+      "passed": true
+    },
+    {
+      "name": "no_owned_orphans_after_first_exit",
+      "passed": true
+    },
+    {
+      "name": "actual_restart_has_no_leftover_guest_or_scene",
+      "passed": true
+    },
+    {
+      "name": "restart_exit_zero_without_orphans",
+      "passed": true
+    }
+  ],
+  "source_modules": 116,
+  "resource_checks": 152,
+  "frontend": "Source unchanged from 9f3430c; existing production bundle verified byte-for-byte in EXE",
+  "idle_before": {
+    "samples": 3,
+    "medians": {
+      "process_count": 2,
+      "thread_count": 52,
+      "rss_bytes_sum": 385560576,
+      "private_commit_bytes_sum": 214421504,
+      "cpu_percent_one_core": 6.241933923290375,
+      "cpu_percent_machine": 0.5201611602741979,
+      "monitor_seconds": 0.006388899986632168
+    },
+    "gpu_medians": {
+      "gpu_engine_percent_sum": null,
+      "gpu_engine_percent_max": null,
+      "gpu_dedicated_bytes": null,
+      "gpu_shared_bytes": null
+    }
+  },
+  "idle_after": {
+    "samples": 3,
+    "medians": {
+      "process_count": 2,
+      "thread_count": 52,
+      "rss_bytes_sum": 404754432,
+      "private_commit_bytes_sum": 234184704,
+      "cpu_percent_one_core": 5.92936775353289,
+      "cpu_percent_machine": 0.4941139794610742,
+      "monitor_seconds": 0.006904900015797466
+    },
+    "gpu_medians": {
+      "gpu_engine_percent_sum": null,
+      "gpu_engine_percent_max": null,
+      "gpu_dedicated_bytes": null,
+      "gpu_shared_bytes": null
+    }
+  },
+  "idle_measurement_limits": "Three five-second samples, same size/FPS/cursor settings, hidden workspace. No broad performance guarantee.",
+  "soak": {
+    "elapsed_seconds": 300.01,
+    "samples": 161,
+    "natural_actions_during_typing": [
+      "reading"
+    ],
+    "distinct_render_signatures": 68,
+    "adjacent_visible_pairs": 160,
+    "adjacent_render_changes": 160,
+    "timer_count_min": 3,
+    "timer_count_max": 3,
+    "private_commit_first": 401612800,
+    "private_commit_last": 503218176,
+    "limit": "Five actual minutes plus deterministic three-day scheduler simulation; no multi-hour Windows run claimed"
+  },
+  "raster_allocation_profile": {
+    "frames": 10000,
+    "elapsed_seconds": 17.459,
+    "samples": [
+      {
+        "frames": 1000,
+        "private_commit_bytes": 110014464,
+        "rss_bytes": 129699840
+      },
+      {
+        "frames": 2000,
+        "private_commit_bytes": 110108672,
+        "rss_bytes": 129892352
+      },
+      {
+        "frames": 3000,
+        "private_commit_bytes": 110108672,
+        "rss_bytes": 129912832
+      },
+      {
+        "frames": 4000,
+        "private_commit_bytes": 110108672,
+        "rss_bytes": 129912832
+      },
+      {
+        "frames": 5000,
+        "private_commit_bytes": 110108672,
+        "rss_bytes": 129916928
+      },
+      {
+        "frames": 6000,
+        "private_commit_bytes": 110108672,
+        "rss_bytes": 129916928
+      },
+      {
+        "frames": 7000,
+        "private_commit_bytes": 110108672,
+        "rss_bytes": 129916928
+      },
+      {
+        "frames": 8000,
+        "private_commit_bytes": 110108672,
+        "rss_bytes": 129916928
+      },
+      {
+        "frames": 9000,
+        "private_commit_bytes": 110108672,
+        "rss_bytes": 129916928
+      },
+      {
+        "frames": 10000,
+        "private_commit_bytes": 110108672,
+        "rss_bytes": 129916928
+      }
+    ],
+    "private_commit_growth_after_first_1000": 94208,
+    "scope": "Actual production QPainter scene_frame/cameo_frame. No WebEngine/native mask/compositor; not a multi-hour application leak proof."
+  },
+  "profile_preservation": {
+    "compared": 27,
+    "unchanged": 27,
+    "method": "Hash-only comparison of existing protected profile files; no contents decoded"
+  },
+  "retained_failures": [
+    "Early QA ran with the existing dock collapsed and correctly suppressed the figure.",
+    "First cameo fitting used transparent square bounds and was too conservative for a 241px dock; fixed using opaque bounds.",
+    "Native drag trace exposed duplicate presses replacing collar identity; fixed and regression tested.",
+    "An intermediate natural-start QA followed a forced preview of every scene and encountered their valid cooldowns; final natural-start QA uses an actual restart with no shortened clocks.",
+    "A later five-minute run observed natural reading/wand scenes but its unique-frame-cardinality assertion was invalid for looping atlases; final QA compares adjacent visible render observations.",
+    "Harry ImageGen output was blocked twice; deterministic native derivation is documented instead of claiming generated success."
+  ],
+  "original_character_assets": "12 original protected files unchanged; only a new scenes subdirectory was added",
+  "public_evidence_files": [
+    "pet-regressions.log",
+    "scale-regression.log"
+  ]
+}
