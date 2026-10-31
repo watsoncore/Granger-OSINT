@@ -101,7 +101,10 @@ class HermioneRig:
             layer=image(512);p=QPainter(layer);p.setClipRect(rect);p.drawImage(0,0,self.head);p.end()
             self.curls.append((layer,root))
         p=QPainter(self.head);p.setCompositionMode(QPainter.CompositionMode.CompositionMode_DestinationOut)
-        p.fillRect(QRectF(60,242,91,90),Qt.GlobalColor.white);p.fillRect(QRectF(318,242,139,92),Qt.GlobalColor.white);p.end()
+        # Keep a hidden interior underlap at the cut edges. A rotating rectangular
+        # curl cutout otherwise exposes a hairline slot into the background at
+        # DPR2; the approved outer contour and face are untouched.
+        p.fillRect(QRectF(60,248,81,90),Qt.GlobalColor.white);p.fillRect(QRectF(328,248,139,92),Qt.GlobalColor.white);p.end()
         # Original costume and footwear are texture layers, not new silhouettes.
         self.torso=image(512);p=QPainter(self.torso);p.setRenderHint(QPainter.RenderHint.Antialiasing)
         pen(p,INK,4);p.setBrush(QColor(ROBE))

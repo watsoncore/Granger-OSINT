@@ -44,6 +44,18 @@ def main():
             x=i%4*220;y=i//4*230
             sheet.paste(im,(x+12,y+29),im);draw.text((x+8,y+8),label,fill='#666666' if name=='white' else '#d4bda1')
         sheet.save(args.output/f'alpha-{name}.png')
+    poses=[('rest',action_pose('idle',.4,1)),('book',action_pose('reading',.515,9.27)),
+        ('phone',action_pose('phone_solvnox',.4,5.2)),('cheek',action_pose('shy',.45,2.5,1)),
+        ('chin',action_pose('thinking',.5,2)),('folded',action_pose('annoyed',.5,2,0)),
+        ('hip',action_pose('annoyed',.5,2,2)),('wand',action_pose('wand_play',.49,3.9,1))]
+    for size in (100,160,195,256):
+        for dpr in (1.,1.25,1.5,2.):
+            physical=round(size*dpr);sheet=Image.new('RGB',(4*(physical+16),2*(physical+30)),'#f4f2ed');draw=ImageDraw.Draw(sheet)
+            for i,(label,pose) in enumerate(poses):
+                from copy import deepcopy
+                im=pil(render_actor(lib,deepcopy(pose),size,dpr));x=i%4*(physical+16);y=i//4*(physical+30)
+                sheet.paste(im,(x+8,y+27),im);draw.text((x+4,y+4),f'{label} {size}px DPR{dpr}',fill='#3f3b32')
+            sheet.save(args.output/f'all-poses-{size}-dpr{dpr}.png')
     for size in (100,160,195,256):
         images2=[]
         for dpr in (1.,1.25,1.5,2.):

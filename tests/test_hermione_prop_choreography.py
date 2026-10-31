@@ -57,3 +57,21 @@ def test_closed_lids_occlude_iris_instead_of_alpha_ghosting():
     for x,y in ((177,185),(177,202),(258,181),(258,196)):
         c=im.pixelColor(x,y)
         assert c.alpha()==255 and c.red()>240 and c.green()>200
+
+
+def test_secondary_curls_overlap_interior_cut_edges():
+    import os
+    os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
+    from PySide6.QtWidgets import QApplication
+    from PySide6.QtGui import QPainter
+    from grangerpet.animation import SpriteLibrary
+    from grangerpet.articulated import HermioneRig,image
+    app=QApplication.instance() or QApplication([]);lib=SpriteLibrary()
+    rig=HermioneRig(lib.scenes.layers['base'],lib.scenes.hair_repair,lib.scenes.hair_fringe)
+    for angle in (-2.,0.,2.):
+        im=image(512);p=QPainter(im);p.drawImage(0,0,rig.head)
+        for index,(layer,root) in enumerate(rig.curls):
+            p.save();p.translate(*root);p.rotate(angle*(1 if index==0 else -.8));p.translate(-root[0],-root[1]);p.drawImage(0,0,layer);p.restore()
+        p.end()
+        # These are interior hair pixels, not the moving outer silhouette.
+        assert all(im.pixelColor(319,y).alpha()>240 for y in range(252,280))

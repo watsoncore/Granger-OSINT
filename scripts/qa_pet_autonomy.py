@@ -60,6 +60,21 @@ def main():
     def dom():
         action('dom');time.sleep(.12)
         return (state().get('desktop') or {}).get('dom',{})
+    def reveal_figure():
+        # Maximize/React layout and DOM IPC complete asynchronously. Wait for
+        # settled coordinates before clicking; a stale pre-maximize button
+        # rectangle can miss the toggle under concurrent cold extraction.
+        time.sleep(.8)
+        end=time.monotonic()+20;clicked=0
+        while time.monotonic()<end:
+            current=state()
+            if current['pet_render']['visible']:return
+            snapshot=dom()
+            restore=next((e for e in snapshot.get('elements',[]) if e.get('label')=='Показать Гермиону и источники' and e.get('width',0)>0),None)
+            if restore and time.monotonic()-clicked>1.5:
+                action('input',{'kind':'click','at':[restore['x']+restore['width']/2,restore['y']+restore['height']/2]});clicked=time.monotonic()
+            time.sleep(.25)
+        raise TimeoutError('Own dock did not become visible after settled native toggle')
     def capture(name):command('qa_snapshot',{'name':name})
     def native_click_through_guest():
         import ctypes
@@ -86,9 +101,7 @@ def main():
         check('native_idle_pixels_advance',a['pet_render']['signature']!=b['pet_render']['signature'])
         command('show_workspace',{'route':'chat'});action('window',{'mode':'maximize'})
         wait(lambda:next((e for e in dom().get('elements',[]) if e.get('label')=='Сообщение Гермионе'),None))
-        restore=next((e for e in dom().get('elements',[]) if e.get('label')=='Показать Гермиону и источники' and e['width']>0),None)
-        if restore:action('input',{'kind':'click','at':[restore['x']+restore['width']/2,restore['y']+restore['height']/2]})
-        wait(lambda:state()['pet_render']['visible'])
+        reveal_figure()
         command('qa_figure',{'action':'away'});time.sleep(.3)
         command('qa_life',{'action':'schedule'})
         live=wait(lambda:s if (s:=state())['life']['active'] else None,10)
@@ -170,9 +183,7 @@ def main():
                 process=subprocess.Popen(argv,cwd=ROOT,env=os.environ.copy(),stdout=log,stderr=subprocess.STDOUT)
             owned=wait(state,60)['pid'];wait(lambda:state().get('desktop',{}).get('ready'))
             command('show_workspace',{'route':'chat'});time.sleep(.5)
-            restore=next((e for e in dom().get('elements',[]) if e.get('label')=='Показать Гермиону и источники' and e['width']>0),None)
-            if restore:action('input',{'kind':'click','at':[restore['x']+restore['width']/2,restore['y']+restore['height']/2]})
-            wait(lambda:state()['pet_render']['visible'])
+            reveal_figure()
             check('cold_restart_before_unmodified_natural_schedule',not state()['life']['active'])
             monitor=ProcessSampler(args.exe,gpu=False)
             def metrics():return monitor.sample([owned]) if args.exe else monitor.sample(source_main_pids=[owned])
@@ -247,6 +258,7 @@ def main():
             try:
                 last=state();report['last_pet']={k:last.get(k) for k in ('state','near','hovered','life','pet_render','cameo')}
                 report['last_dock']=last.get('desktop',{}).get('dock_geometry')
+                report['last_isolated_dom']=last.get('desktop',{}).get('dom',{})
             except Exception:pass
         report.update(passed=False,error_type=type(error).__name__,error=str(error));raise
     finally:
