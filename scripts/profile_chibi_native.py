@@ -14,7 +14,9 @@ ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--exe',type=Path,required=True)
-    p.add_argument('--output',type=Path,required=True);p.add_argument('--cycles',type=int,default=25);args=p.parse_args()
+    p.add_argument('--output',type=Path,required=True);p.add_argument('--cycles',type=int,default=25)
+    p.add_argument('--scenarios',nargs='+',default=['idle','reading','malfoy'])
+    p.add_argument('--cycle-scenes',nargs='+',default=['malfoy','harry','ron_note']);args=p.parse_args()
     out=args.output.resolve()
     if out.exists():raise SystemExit('Existing evidence preserved')
     out.mkdir(parents=True);ns=uuid.uuid4().hex
@@ -47,7 +49,7 @@ def main():
         with (out/'process.log').open('wb') as log:process=subprocess.Popen([str(args.exe.resolve()),'--pet','--interaction-qa'],cwd=ROOT,env=os.environ.copy(),stdout=log,stderr=subprocess.STDOUT)
         owned=wait(lambda:send_command('pet','status'))['pid'];wait(lambda:cmd('status').get('desktop',{}).get('ready'))
         cmd('qa_figure',{'action':'away'});time.sleep(3)
-        for name in ('idle','reading','malfoy'):
+        for name in args.scenarios:
             if name!='idle':cmd('qa_life',{'action':name,'duration':28})
             time.sleep(2);first=cmd('status');monitor.sample([owned]);start=time.monotonic();samples=[]
             for _ in range(20):time.sleep(.5);samples.append(monitor.sample([owned]))
@@ -60,7 +62,7 @@ def main():
             print(json.dumps(report['scenarios'][-1]),flush=True)
         before=monitor.sample([owned]);timers=[]
         for cycle in range(args.cycles):
-            cmd('qa_life',{'action':('malfoy','harry','ron_note')[cycle%3],'duration':.4});time.sleep(.55)
+            cmd('qa_life',{'action':args.cycle_scenes[cycle%len(args.cycle_scenes)],'duration':.4});time.sleep(.55)
             state=cmd('status');timers.append(state['pet_render']['owned_timer_count'])
         after=monitor.sample([owned]);report['cycles']={'count':args.cycles,'timer_counts':sorted(set(timers)),
             'private_commit_before':before['private_commit_bytes_sum'],'private_commit_after':after['private_commit_bytes_sum']}

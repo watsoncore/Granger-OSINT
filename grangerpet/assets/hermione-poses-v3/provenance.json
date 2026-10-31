@@ -1,0 +1,117 @@
+{
+  "cheek": {
+    "source": "resources/hermione-pose-masters-v3/cheek-source.png",
+    "sha256": "04d88ffe43a8e17f55f263e066c68eef8ab62e290b9657d354c25bd83c3849e6",
+    "source_bbox": [
+      167,
+      33,
+      1086,
+      1223
+    ],
+    "alignment": [
+      70,
+      14,
+      372,
+      486
+    ],
+    "runtime_face_consumed": false
+  },
+  "chin": {
+    "source": "resources/hermione-pose-masters-v3/chin-source.png",
+    "sha256": "f9206fc193a9a0f7e4e61064ffeb39fdc1336af9a5d88f4e83b4657bc09eaa84",
+    "source_bbox": [
+      169,
+      32,
+      1086,
+      1220
+    ],
+    "alignment": [
+      70,
+      14,
+      372,
+      486
+    ],
+    "runtime_face_consumed": false
+  },
+  "folded": {
+    "source": "resources/hermione-pose-masters-v3/folded-source.png",
+    "sha256": "d8a54d03db16521e56f6eb013889e42f2dc7f4b67dcacdf47b511c274c29f9f4",
+    "source_bbox": [
+      167,
+      32,
+      1085,
+      1223
+    ],
+    "alignment": [
+      70,
+      14,
+      372,
+      486
+    ],
+    "runtime_face_consumed": false
+  },
+  "reading": {
+    "source": "resources/hermione-pose-masters-v3/reading-source.png",
+    "sha256": "39e9a9148a3e00449b47add1c839e3ff2323812d94db946d69dfa899ba985d98",
+    "source_bbox": [
+      169,
+      32,
+      1084,
+      1221
+    ],
+    "alignment": [
+      70,
+      14,
+      372,
+      486
+    ],
+    "runtime_face_consumed": false
+  },
+  "rest": {
+    "source": "resources/hermione-pose-masters-v3/rest-source.png",
+    "sha256": "1e4ac668f61a391e55047587c9eafd940f2f5c9413a156d9118ce04850a51116",
+    "source_bbox": [
+      176,
+      30,
+      1087,
+      1223
+    ],
+    "alignment": [
+      70,
+      14,
+      372,
+      486
+    ],
+    "runtime_face_consumed": false
+  },
+  "hip-right": {
+    "source": "resources/hermione-pose-masters-v3/hip-right.svg",
+    "sha256": "79912386b13d43f58c4911092f160d29c0cb2bcb12817c1e0b68c75fc8e62b42",
+    "method": "Editable drawn SVG; rasterized by existing QtSvg at build time only",
+    "runtime_face_consumed": false
+  },
+  "point-hand": {
+    "source": "resources/hermione-pose-masters-v3/point-hand.svg",
+    "sha256": "e903b63d0aa470940ab92df250f5a40bd5a9e6048dc1045a6f2d2dfb71d8330d",
+    "method": "Editable drawn SVG; rasterized by existing QtSvg at build time only",
+    "runtime_face_consumed": false
+  },
+  "wand-hand": {
+    "source": "resources/hermione-pose-masters-v3/wand-hand.svg",
+    "sha256": "c34317ee5cd357d34148acfc73d60f7d6aea00d68acc5b766ede8cec6e023ad2",
+    "method": "Editable drawn SVG; rasterized by existing QtSvg at build time only",
+    "runtime_face_consumed": false
+  },
+  "reach-arms": {
+    "source": "resources/hermione-pose-masters-v3/reach-arms.svg",
+    "sha256": "450b73e138bd60ec87e2e0530e38b7bc2dba1c79cc023cfc7c3e28fa92d326a1",
+    "method": "Editable drawn SVG; rasterized by existing QtSvg at build time only",
+    "runtime_face_consumed": false
+  },
+  "approved-wand-sleeve": {
+    "source": "grangerpet/assets/character.png",
+    "sha256": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b",
+    "method": "Approved original bent garment; original hand separated",
+    "runtime_face_consumed": false
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "point": {
+    "anchor": [
+      256,
+      256
+    ],
+    "rect": [
+      242,
+      219,
+      37,
+      65
+    ],
+    "source": "resources/hermione-pose-masters-v3/point-hand.svg"
+  },
+  "wand": {
+    "anchor": [
+      256,
+      256
+    ],
+    "rect": [
+      241,
+      239,
+      38,
+      37
+    ],
+    "source": "resources/hermione-pose-masters-v3/wand-hand.svg"
+  }
+}

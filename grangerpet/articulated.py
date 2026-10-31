@@ -55,8 +55,9 @@ def plant_feet(a,soles,*,guest=False):
 
 
 class HermioneRig:
-    def __init__(self,master:QImage,hair_repair:QImage|None=None,hair_fringe:QImage|None=None):
+    def __init__(self,master:QImage,hair_repair:QImage|None=None,hair_fringe:QImage|None=None,painted_arms=None):
         self.master=master
+        self.painted_arms=painted_arms
         self.soles=sole_points(master,(178,244),(260,326))
         self.head=image(512)
         p=QPainter(self.head);p.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -144,20 +145,35 @@ class HermioneRig:
         p.drawImage(0,0,self.torso);p.restore()
         shoulders=[]
         hands=[]
-        for side,mode in ((-1,a.left_hand),(1,a.right_hand)):
+        order=self.painted_arms.order(a) if self.painted_arms else (-1,1)
+        for side in order:
+            mode=a.left_hand if side<0 else a.right_hand
             shoulder,elbow,wrist=arm_points(a,side);shoulders.append(shoulder)
-            self.arm(p,shoulder,elbow,wrist);hands.append((wrist,mode,side,a.hand_angle_left if side<0 else a.hand_angle_right))
+            if self.painted_arms:self.painted_arms.sleeve(p,a,side)
+            else:self.arm(p,shoulder,elbow,wrist)
+            hands.append((wrist,mode,side,a.hand_angle_left if side<0 else a.hand_angle_right))
         # Head is independently articulated, but hair roots share its transform.
         p.save();p.translate(229+a.turn*5,252+a.head_drop);p.rotate(a.head);p.translate(-229,-252)
         p.drawImage(0,0,self.head)
         for index,(curl,root) in enumerate(self.curls):
             p.save();p.translate(*root);p.rotate(a.hair*(1 if index==0 else -.8));p.translate(-root[0],-root[1]);p.drawImage(0,0,curl);p.restore()
         self.face(p,a);p.restore()
+        held=a.book.visible or a.phone or a.wand
+        if self.painted_arms:
+            if draw_hands or held:
+                for side in order:self.painted_arms.hand(p,a,side)
+            for side in order:
+                wrist=a.left if side<0 else a.right
+                elbow=arm_points(a,side)[1]
+                if wrist[1]<elbow[1]+5:self.painted_arms.sleeve(p,a,side,forearm=True)
         if a.book.visible:self.book(p,a.book)
         if a.phone:self.phone(p,a)
         if a.wand:self.wand(p,a)
         if draw_hands:
-            for wrist,mode,side,angle in hands:self.hand(p,wrist,mode,side,angle)
+            for wrist,mode,side,angle in hands:
+                if self.painted_arms:
+                    if held:self.painted_arms.hand(p,a,side,fingers_only=True)
+                else:self.hand(p,wrist,mode,side,angle)
         if a.hearts:
             p.save();p.setOpacity(a.hearts);p.translate(330,185);p.scale(12,12)
             pen(p,'#b27676',.11);p.setBrush(QColor('#e4a1a1'))
@@ -310,7 +326,7 @@ class HermioneRig:
 
 def render_actor(library,a,size=256,dpr=1.,*,debug=False):
     art=library.scenes
-    if not hasattr(art,'hermione_rig'):art.hermione_rig=HermioneRig(art.layers['base'],art.hair_repair,art.hair_fringe)
+    if not hasattr(art,'hermione_rig'):art.hermione_rig=HermioneRig(art.layers['base'],art.hair_repair,art.hair_fringe,getattr(art,'painted_arms',None))
     canvas=image(max(1,round(size*dpr)));p=QPainter(canvas)
     p.setRenderHints(QPainter.RenderHint.Antialiasing|QPainter.RenderHint.SmoothPixmapTransform)
     p.scale(canvas.width()/512,canvas.height()/512);art.hermione_rig.draw(p,a,debug=debug);p.end()

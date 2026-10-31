@@ -86,6 +86,9 @@ class BookPose:
 
 @dataclass
 class ActorPose:
+    arm_art:str='rest'
+    arm_art_left:str=''
+    arm_art_right:str=''
     grounded:bool=True
     pivot:Point=(236.,412.)
     shift:Point=(0.,0.)
