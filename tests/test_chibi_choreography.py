@@ -65,7 +65,7 @@ def test_guest_deadlines_observable_bounded_and_do_not_use_windows_input():
         assert 120<=c.next_guest_due<=240
         for second in range(1,7201):
             clock[0]=second;c.update(system_idle=0,context='working')
-            if c.action and c.action!=before and SCENES[c.action].cameo:events.append((second,c.action))
+            if c.action in SCENES and c.action!=before and SCENES[c.action].cameo:events.append((second,c.action))
             before=c.action
         assert events and 120<=events[0][0]<=280
         assert all(300<=b[0]-a[0]<=660 for a,b in zip(events,events[1:]))
@@ -79,6 +79,15 @@ def test_new_rig_drag_bends_knees_and_retains_face_dimensions():
     assert abs(up.knee_left)>abs(down.knee_left)>0
     assert up.knee_left==-up.knee_right and down.knee_left==-down.knee_right
     assert up.pivot==down.pivot==(229.,267.)
+
+
+def test_legacy_actions_remain_natural_without_travel_during_work():
+    clock=[0.];c=PetLifeController(clock=lambda:clock[0],rng=random.Random(12));seen=set()
+    for second in range(0,200000,5):
+        clock[0]=second;c.update(allow_travel=False)
+        assert c.action not in ('leave','away','return')
+        if c.action:seen.add(c.action)
+    assert {'cast','avada','yawn','sleep','wake'}<=seen
 
 
 def test_folded_sleeves_do_not_enclose_transparent_holes():

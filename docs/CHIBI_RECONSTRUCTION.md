@@ -125,3 +125,9 @@ polish; the current choreography regression file passes 21 checks, including
 physical grips, segment bounds, continuity, original-sleeve exclusion and the
 specific hollow-sleeve regression. These are supporting checks, not an artistic
 quality verdict. The final full suite and frozen-source verification are pending.
+
+The existing cast, rare avada, yawn/sleep and leave/away/return chains are again
+eligible in ordinary sessions. They were otherwise reachable only from QA.
+Travel requires an available desktop and is suppressed while working in the
+main window; long chains cannot start across a due guest deadline. Macro scene
+cooldowns are tested separately from sleep/wake/return continuations.

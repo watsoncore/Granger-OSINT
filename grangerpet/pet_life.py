@@ -22,6 +22,7 @@ class SceneSpec:
     cooldown: float
     work_weight: float = 1.0
     cameo: str = ''
+    travel: bool = False
 
 
 SCENES = {
@@ -35,9 +36,15 @@ SCENES = {
     'ron_chat':SceneSpec(12,.8,120,600,.6,'ron'),
     'ron_note':SceneSpec(16,.8,120,700,1.2,'ron'),
     'harry':SceneSpec(12,.8,120,600,1.2,'harry'),
+    # Existing legacy actions remain reachable in ordinary sessions, rather
+    # than surviving only behind the visual QA trigger.
+    'cast':SceneSpec(2.5,1.,90,240,1.2),
+    'avada':SceneSpec(3.2,.08,1800,3600,.1),
+    'yawn':SceneSpec(2.1,.35,900,1800,.15),
+    'leave':SceneSpec(2.8,.07,1800,5400,.05,travel=True),
 }
-ACTIONS = tuple(SCENES)+('cast', 'avada', 'yawn', 'sleep', 'leave', 'away', 'return', 'wake', 'settle',
-    'idle','hover','happy','thinking','working','walk','error')
+ACTIONS = tuple(dict.fromkeys(tuple(SCENES)+('cast', 'avada', 'yawn', 'sleep', 'leave', 'away', 'return', 'wake', 'settle',
+    'idle','hover','happy','thinking','working','walk','error')))
 
 
 def windows_idle_seconds():
@@ -154,6 +161,10 @@ class PetLifeController:
 
     def update(self, now=None, *, available=True, system_idle=None, context='chat', allow_travel=True, allow_cameo=True):
         now = self.clock() if now is None else float(now)
+        if not allow_travel and self.action in ('leave','away'):
+            last_touch=self.last_activity
+            self.notify_activity(now,immediate=True)
+            self.last_activity=last_touch
         # system_idle remains an ignored compatibility argument for old callers.
         # Windows input, typing and scrolling never reset figure-relative idle.
         if not available and self.active:
@@ -179,6 +190,8 @@ class PetLifeController:
         for name,spec in SCENES.items():
             if name==self.last_action or idle<spec.idle or now-self.last_played.get(name,-float('inf'))<spec.cooldown:continue
             if spec.cameo and (not allow_cameo or now<self.next_guest_due):continue
+            if spec.travel and not allow_travel:continue
+            if allow_cameo and name in ('yawn','leave') and now+(105 if name=='yawn' else 15)>=self.next_guest_due:continue
             choices.append(name);weights.append(spec.weight*(spec.work_weight if context=='working' else 1))
         if choices:
             guests=[(n,w) for n,w in zip(choices,weights) if SCENES[n].cameo]

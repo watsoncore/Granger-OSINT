@@ -37,13 +37,15 @@ def test_rare_scene_cooldowns_and_no_repeats_over_simulated_three_days():
         now[0]+=12;before=life.action
         life.update(context='working',allow_travel=False)
         if life.active and life.action!=before:
-            name=life.action;assert name!=previous;previous=name
+            name=life.action
+            if name not in SCENES:continue  # Sleep/away/wake/return are natural continuations.
+            assert name!=previous;previous=name
             assert now[0]-last.get(name,-1e9)>=SCENES[name].cooldown
             last[name]=now[0]
             if SCENES[name].cameo:
                 assert now[0]-last_guest>=300;last_guest=now[0]
             observed.append(name)
-    assert set(SCENES)<=set(observed)
+    assert {n for n,s in SCENES.items() if not s.travel}<=set(observed)
 
 
 def test_no_room_blocks_cameos_and_work_context_favors_reading():
@@ -51,7 +53,7 @@ def test_no_room_blocks_cameos_and_work_context_favors_reading():
     for _ in range(5000):
         now[0]+=20;before=life.action;life.update(context='working',allow_cameo=False)
         if life.action and before!=life.action:
-            assert not SCENES[life.action].cameo
+            assert not life.pose().cameo
             counts[life.action]=counts.get(life.action,0)+1
     assert counts['reading']>counts['shy']
 
