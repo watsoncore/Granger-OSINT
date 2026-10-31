@@ -127,19 +127,41 @@ def test_actual_pet_leave_does_not_hide_or_persist_offscreen_position(app,tmp_pa
         pet.shutdown();pet.panel.deleteLater();pet.deleteLater();app.processEvents()
 
 
-def test_busy_investigation_interrupts_local_life_and_returns_home(app,tmp_path,monkeypatch):
+def test_busy_investigation_allows_in_place_life_without_changing_task(app,tmp_path,monkeypatch):
     monkeypatch.setattr('grangerpet.credentials.get_secret',lambda _: '')
     pet=PetWindow(Settings(size=100),SettingsStore(tmp_path/'settings.json'))
     pet.frame_timer.stop();pet.cursor_timer.stop()
     try:
-        pet.move(230,200);home=pet.pos()
-        pet.life.start_action('leave',now=100,duration=2);pet._apply_life_travel(pet.life.pose(101))
+        pet._near=pet._over=False
+        pet.panel.character.activity('thinking')
         pet._search_state('thinking')
-        assert pet.life.action=='return' and pet.animation.state=='thinking' and pet._busy
-        pet.life.started-=1;pet._tick()
-        assert pet.pos()==home and not pet.life.active
         for action in ('reading','sleep','cast'):
             pet.life.start_action(action);pet._tick()
-            assert not pet.life.active and pet.animation.state=='thinking'
+            assert pet.life.action==action and pet._busy
+            assert pet.panel.character.busy
+    finally:
+        pet.shutdown();pet.panel.deleteLater();pet.deleteLater();app.processEvents()
+
+
+def test_windows_activity_does_not_reset_figure_clock():
+    now,life=controller();stamp=life.last_activity
+    for i in range(1,90):
+        now[0]=100+i
+        life.update(system_idle=0,allow_travel=False)
+    assert life.last_activity==stamp and life.last_action
+
+
+def test_panel_and_chat_navigation_do_not_interrupt_reading(app,tmp_path,monkeypatch):
+    monkeypatch.setattr('grangerpet.credentials.get_secret',lambda _: '')
+    pet=PetWindow(Settings(size=100,cursor_reaction=False),SettingsStore(tmp_path/'settings.json'))
+    pet.frame_timer.stop();pet.cursor_timer.stop()
+    try:
+        pet.panel.show();pet.life.start_action('reading');started=pet.life.started
+        pet.panel.chat_widget.input.setPlainText('Проверка без API')
+        pet.panel.user_activity.emit()
+        pet._sync_overlay_placement();pet._tick()
+        assert pet.life.action=='reading' and pet.life.started==started
+        pet.notify_user_activity();pet._tick()
+        assert pet.life.action in ('settle','')
     finally:
         pet.shutdown();pet.panel.deleteLater();pet.deleteLater();app.processEvents()

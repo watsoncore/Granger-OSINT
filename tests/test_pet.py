@@ -187,6 +187,22 @@ def test_activity_without_pose_change_does_not_rebuild_same_visible_frame(pet):
     assert pet._rendered.cacheKey() != rendered
 
 
+def test_repeated_terminal_event_restarts_completed_one_shot(pet):
+    pet._search_state('happy');pet._test_clock[0]+=2
+    pet.animation.advance();assert pet.animation.completed
+    pet._search_state('happy')
+    assert pet.animation.frame==0 and not pet.animation.completed
+    assert pet._terminal_until>pet._test_clock[0]
+
+
+def test_fixed_hover_gaze_still_has_time_based_breath_and_blink(pet,monkeypatch):
+    monkeypatch.setattr(pet_module,'time',SimpleNamespace(monotonic=lambda:pet._test_clock[0]))
+    pet.animation.set_state('hover');pet._transition_started=0
+    pet._draw_frame();first=bytes(pet._rendered.constBits())
+    pet._test_clock[0]+=3.8;pet._draw_frame()
+    assert bytes(pet._rendered.constBits())!=first
+
+
 def test_hidden_overlay_skips_raster_work_and_shows_current_advanced_frame(pet, app):
     pet._transition_started = 0
     pet._draw_frame()

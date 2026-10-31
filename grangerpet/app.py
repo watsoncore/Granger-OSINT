@@ -10,6 +10,7 @@ from pathlib import Path
 import os
 import re
 import sys
+import time
 
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QFont, QIcon
@@ -153,7 +154,12 @@ def main(argv: list[str] | None = None) -> int:
                                     'tables': len(list(view._tables())) if hasattr(view, '_tables') else 0,
                                     'source_chars': len(bubbles[-1].message_text)}
                             if hasattr(pet, 'life'):
-                                result['life'] = {'action': pet.life.action, 'active': pet.life.active}
+                                result['life'] = {'action': pet.life.action, 'active': pet.life.active,
+                                    'figure_idle_seconds':round(max(0,time.monotonic()-pet.life.last_activity),2),
+                                    'next_due_seconds':round(pet.life.next_due-time.monotonic(),2)}
+                                result['pet_render']={'signature':str(pet._render_signature),'visible':pet.isVisible(),
+                                    'frame_timer':pet.frame_timer.isActive(),'cursor_timer':pet.cursor_timer.isActive(),
+                                    'drag_timer':pet.drag_timer.isActive(),'width':pet.width(),'height':pet.height()}
                             if hasattr(pet,'notification'):
                                 note=pet.notification
                                 result['notification']={'visible':note.isVisible(),'kind':note.payload.kind if note.payload else None,
@@ -227,6 +233,7 @@ def main(argv: list[str] | None = None) -> int:
                     # Fixed read-only inspection, never arbitrary script from IPC.
                     script=script.replace('text:document.body', "elements:[...document.querySelectorAll('button,input,select,summary,[role=tab],[role=separator]')].map(b=>{let r=b.getBoundingClientRect();return {text:(b.innerText||'').slice(0,120),label:b.getAttribute('aria-label'),type:b.type,checked:b.checked,value:b.value,x:r.x,y:r.y,width:r.width,height:r.height}}),graph:(()=>{let g=document.querySelector('.investigation-workspace'),c=document.querySelector('.investigation-graph-canvas'),r=c?.getBoundingClientRect();return g?{...g.dataset,images:[...g.querySelectorAll('.graph-node-media img')].map(i=>({loaded:i.complete&&i.naturalWidth>0,source_is_local:i.src.startsWith('data:image/jpeg;base64,')})),canvas:c?{...c.dataset,x:r.x,y:r.y,width:r.width,height:r.height}:null}:null})(),text:document.body")
                     script=script.replace('text:document.body', "geo:(()=>{let g=document.querySelector('.geoint-view');return g?{images:[...g.querySelectorAll('img')].map(i=>({loaded:i.complete&&i.naturalWidth>0,source_is_local:i.src.startsWith('data:image/'),alt:i.alt})),map:!!g.querySelector('.leaflet-map-pane'),tiles:g.querySelectorAll('.leaflet-tile-loaded').length,attribution:g.querySelector('.leaflet-control-attribution')?.textContent,comparison:!!g.querySelector('.geo-comparison'),overlays:g.querySelectorAll('.geo-match-overlay').length}:null})(),text:document.body")
+                    script=script.replace('button,input,select,summary,','button,input,textarea,select,summary,')
                     def receive(value):
                         try: surface.qa_dom=json.loads(value)
                         except (ValueError,TypeError): surface.qa_dom={}
@@ -326,15 +333,44 @@ def main(argv: list[str] | None = None) -> int:
                 QTimer.singleShot(0, canvas_action)
                 return {'ok': True}
             if command == 'qa_life' and pet is not None and args.interaction_qa and pet._trace_path:
+                from .pet_life import ACTIONS
                 action = payload.get('action')
-                if action not in ('reading', 'cast', 'avada', 'yawn', 'sleep', 'leave', 'return', 'wake', 'interrupt'):
+                if not qa_vault_active or action not in (*ACTIONS,'interrupt','schedule'):
                     return {'ok': False}
                 if action == 'interrupt':
                     QTimer.singleShot(0, pet.notify_user_activity)
-                elif not pet.panel.isVisible() and not pet._busy:
+                elif action=='schedule':
+                    def due():
+                        pet.life.last_activity=time.monotonic()-90
+                        pet.life.next_due=time.monotonic()
+                    QTimer.singleShot(0,due)
+                else:
                     QTimer.singleShot(0, lambda: pet.life.start_action(action, duration=4))
-                else: return {'ok': False}
                 return {'ok': True}
+            if command=='qa_figure' and pet is not None and args.interaction_qa and qa_vault_active:
+                action=payload.get('action')
+                if action not in ('hover','away','click','drag_up','drag_down'):return {'ok':False}
+                def figure_input():
+                    from PySide6.QtCore import QPoint
+                    from PySide6.QtGui import QCursor
+                    from PySide6.QtTest import QTest
+                    collar=pet.geometry.get('collar_rect',[.39,.48,.14,.09])
+                    point=QPoint(round(pet._padding+pet._display_size*(collar[0]+collar[2]/2)),round(pet._padding+pet._display_size*(collar[1]+collar[3]/2)))
+                    if action=='away':
+                        QCursor.setPos(pet.mapToGlobal(QPoint(-150,-150)));return
+                    QCursor.setPos(pet.mapToGlobal(point))
+                    if action=='hover':return
+                    if action=='click':QTest.mouseClick(pet,Qt.MouseButton.LeftButton,pos=point);return
+                    QTest.mousePress(pet,Qt.MouseButton.LeftButton,pos=point)
+                    origin=pet.mapToGlobal(point);direction=-1 if action=='drag_up' else 1
+                    for i in range(1,13):
+                        target=origin+QPoint(0,direction*i*8)
+                        QCursor.setPos(target);QTest.qWait(9)
+                        pet._drag_to(target,'qa_native_cursor')
+                    QTest.mouseRelease(pet,Qt.MouseButton.LeftButton,pos=point)
+                    QCursor.setPos(pet.mapToGlobal(QPoint(-150,-150)))
+                QTimer.singleShot(0,figure_input)
+                return {'ok':True}
             if command == "qa_settings" and pet is not None and args.interaction_qa and pet._trace_path:
                 page = payload.get("page", 2)
                 if not isinstance(page, int) or isinstance(page, bool) or page not in range(4):

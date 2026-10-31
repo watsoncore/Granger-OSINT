@@ -1,7 +1,7 @@
 """Small local idle-action scheduler; never performs network or tool operations.
 
 The clock and random source are injectable for deterministic visual/regression
-tests. Application activity takes priority over every autonomous action.
+tests. Only interaction with the figure resets its idle clock.
 """
 from __future__ import annotations
 
@@ -57,7 +57,6 @@ class PetLifeController:
         self.last_action = ''
         self.last_avada = -float('inf')
         self._return_from = 1.0
-        self._last_system_idle = None
 
     @property
     def active(self):
@@ -106,12 +105,10 @@ class PetLifeController:
         self.duration = 0
         self.next_due = now + self.rng.uniform(45, 110)
 
-    def update(self, now=None, *, available=True, system_idle=None):
+    def update(self, now=None, *, available=True, system_idle=None, context='chat', allow_travel=True):
         now = self.clock() if now is None else float(now)
-        if system_idle is not None:
-            if self._last_system_idle is not None and system_idle + .25 < self._last_system_idle:
-                self.notify_activity(now)
-            self._last_system_idle = max(0.0, system_idle)
+        # system_idle remains an ignored compatibility argument for old callers.
+        # Windows input, typing and scrolling never reset figure-relative idle.
         if not available:
             self.notify_activity(now, immediate=True)
         if self.active and now - self.started >= self.duration:
@@ -126,12 +123,10 @@ class PetLifeController:
         if self.active or not available or now < self.next_due:
             return self.pose(now)
         idle = now - self.last_activity
-        if system_idle is not None:
-            idle = min(idle, system_idle)
         choices = ['reading'] if idle >= 35 else []
         if idle >= 45:
             choices += ['cast']
-        if idle >= 180:
+        if idle >= 180 and allow_travel:
             choices += ['leave']
         if idle >= 240:
             choices += ['yawn', 'yawn']

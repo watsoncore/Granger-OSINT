@@ -37,6 +37,19 @@ def _mouth(painter, geometry, *, yawn=0):
         painter.drawLine(QPointF(x-.014,y+.008),QPointF(x+.016,y+.008))
 
 
+def attention_frame(image, geometry, elapsed):
+    """Keep time-based breath/blink alive while the gaze frame follows a cursor."""
+    result=QImage(image.size(),QImage.Format.Format_ARGB32_Premultiplied)
+    result.fill(Qt.GlobalColor.transparent)
+    p=QPainter(result);p.setRenderHint(QPainter.RenderHint.Antialiasing)
+    p.translate(0,-math.sin(elapsed*1.7)*image.height()*.002)
+    p.drawImage(0,0,image);p.scale(image.width(),image.height())
+    phase=elapsed%4.6
+    closure=max(0.0,1-abs(phase-3.8)/.13)
+    if closure>0:_closed_eyes(p,geometry,closure)
+    p.end();return result
+
+
 def _book(painter, elapsed, strength):
     painter.save();painter.setOpacity(strength)
     painter.translate(.435,.635+(1-strength)*.08)

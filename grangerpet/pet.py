@@ -18,8 +18,8 @@ from .ipc import launch_process
 from .panel import OsintPanel
 from .physics import CollarPhysics
 from .reactions import facial_reaction
-from .pet_life import PetLifeController, windows_idle_seconds
-from .pet_actions import action_frame
+from .pet_life import PetLifeController
+from .pet_actions import action_frame, attention_frame
 from .pet_notifications import PetNotification, notification_position
 
 
@@ -78,11 +78,9 @@ class PetWindow(QWidget):
         self._previous = QImage()
         self._transition_started = 0.0
         self._render_signature = None
-        self.life = PetLifeController()
+        self.life = PetLifeController(clock=lambda:time.monotonic())
         self._life_home = None
         self._life_exit_x = None
-        self._system_idle = None
-        self._next_idle_poll = 0.0
         self._next_dock_poll = 0.0
         self._dock_home = None
         self._dock_bounds = None
@@ -118,11 +116,8 @@ class PetWindow(QWidget):
         app.screenRemoved.connect(self._screen_changed)
         chat = getattr(self.panel, 'chat_widget', None)
         if chat is not None:
-            chat.input.textChanged.connect(self.notify_user_activity)
             if hasattr(chat, 'turn_completed'):
                 chat.turn_completed.connect(self._turn_completed)
-        if hasattr(self.panel, 'user_activity'):
-            self.panel.user_activity.connect(self.notify_user_activity)
 
     def _trace(self, value):
         if not self._trace_path or self._trace_count >= 20000:
@@ -145,12 +140,12 @@ class PetWindow(QWidget):
         now = time.monotonic()
         if self._dragging:
             desired = "idle" if self._collar_grab else "walk"
-        elif self._busy:
-            desired = self.panel.character.snapshot()['animation'] if self.panel.character.busy else self._search_mode
         elif now < self._terminal_until:
             desired = self._base_state
         elif self.life.active:
             desired = 'walk' if self.life.action in ('leave', 'return') else 'working' if self.life.action in ('cast', 'avada') else 'thinking' if self.life.action == 'reading' else 'idle'
+        elif self._busy:
+            desired = self.panel.character.snapshot()['animation'] if self.panel.character.busy else self._search_mode
         else:
             attentive=self.panel.character.state in ('listening','notification')
             desired = "hover" if (attentive or self._near and self.settings.cursor_reaction) and not self.physics.active else "idle"
@@ -187,6 +182,7 @@ class PetWindow(QWidget):
             self.setFixedSize(settings.size + 24, settings.size + 24)
             self.move(self.x(), foot - self.height())
             self._cache.clear()
+            self._previous=QImage();self._render_signature=None
             self._clamp_position()
         self.frame_timer.start(round(1000 / settings.fps))
         self._sync_cursor_polling()
@@ -207,9 +203,7 @@ class PetWindow(QWidget):
                 self._sync_activity()
 
     def _panel_settings_saved(self, settings):
-        self.settings = settings
-        self.notification.apply_settings(settings)
-        self._sync_cursor_polling()
+        self.apply_settings(settings)
 
     def notify(self, kind, message_id=None, *, index=None, conversation_id=None):
         """Notify only an actual completed reply, investigation or error."""
@@ -304,8 +298,9 @@ class PetWindow(QWidget):
             dock = dock_getter() if callable(dock_getter) else None
         self._main_active = active
         if active and isinstance(main, QRect) and not main.isEmpty():
-            self.life.notify_activity(immediate=True)
-            self._restore_life_position()
+            if self.life.action in ('leave','away','return'):
+                self.life.finish()
+                self._restore_life_position()
             if self._dock_home is None:
                 self._dock_home = self.pos()
             screen = QGuiApplication.screenAt(main.center()) or QGuiApplication.primaryScreen()
@@ -357,12 +352,13 @@ class PetWindow(QWidget):
             self._update_notification_anchor()
 
     def notify_user_activity(self, *_):
-        """Typing, a new reply or a user gesture interrupts local idle actions."""
+        """Figure interaction only; application typing/navigation is unrelated."""
         previous_action = self.life.action
         self.life.notify_activity()
         # A stationary nearby cursor is activity too, but does not change a
         # pose. Preserve the render guard unless an idle action was interrupted.
         if self.life.action != previous_action:
+            self._begin_transition(self.animation.state)
             self._render_signature = None
 
     def _restore_life_position(self):
@@ -390,34 +386,27 @@ class PetWindow(QWidget):
                          self._padding + self._display_size * face[1])
         dx, dy = local.x() - center.x(), local.y() - center.y()
         distance = math.hypot(dx, dy)
-        near = distance < self._display_size * (1.15 if self._near else 0.95)
         over = self._region.contains(local)
+        near = over or self._region.boundingRect().adjusted(-8,-8,8,8).contains(local)
         self._near, self._over = near, over
         if near:
             self.notify_user_activity()
         self._aim_target = QPointF(max(-1.0, min(1.0, dx / 120)),
                                   max(-1.0, min(1.0, dy / 120))) if near else QPointF()
         now = time.monotonic()
-        if self._busy or self.physics.active or time.monotonic() < self._terminal_until:
-            return
-        desired = "hover" if near else "idle"
-        if self.animation.state != desired and now - self._last_attention > 0.65:
-            self.animation.set_state(desired)
-            self._last_attention = now
+        self._sync_activity()
 
     def _tick(self):
         if self._ending:
             return
         now = time.monotonic()
-        if now >= self._next_idle_poll:
-            self._system_idle = windows_idle_seconds()
-            self._next_idle_poll = now + .5
         if now >= self._next_dock_poll:
             self._sync_overlay_placement()
             self._next_dock_poll = now + .25
-        available = not (self._busy or self._dragging or self._pressed_at is not None or self.physics.active
-                         or self.panel.isVisible() or self._main_active or self._near or now < self._terminal_until)
-        life_pose = self.life.update(now, available=available, system_idle=self._system_idle)
+        available = not (self._dragging or self._pressed_at is not None or self.physics.active
+                         or self._near or self._over or self._dock_suppressed or now < self._terminal_until)
+        life_pose = self.life.update(now, available=available, context='working' if self._busy else 'chat',
+                                    allow_travel=not (self.panel.isVisible() or self._main_active))
         self.panel.character.life(life_pose.action)
         self._apply_life_travel(life_pose)
         self.physics.advance(now - self._physics_time, now)
@@ -450,11 +439,12 @@ class PetWindow(QWidget):
             return
         key = (self.animation.state, self.animation.frame, self._display_size)
         life_pose = self.life.pose()
-        use_life = life_pose.action and not self.physics.active and not self._dragging and (not self._busy or life_pose.action == 'return')
+        use_life = life_pose.action and not self.physics.active and not self._dragging and time.monotonic() >= self._terminal_until
         angle = round(self._aim.x() * (1.3 if self._over else 0.65), 2) if self.animation.state == "hover" else 0
         blend = min(1.0, max(0.0, (time.monotonic() - self._transition_started) / 0.16))
         pose = self.physics.pose
         signature = ((life_pose.action, life_pose.frame, round(life_pose.strength, 2), self._display_size) if use_life else key,
+                     int((time.monotonic()-self.animation.started)*12) if self.animation.state=='hover' else 0,
                      angle, round(pose.angle, 2), round(pose.sag, 2), round(pose.tuck, 2), round(pose.squash, 2), round(pose.upset, 2), round(pose.embarrassed, 2), round(pose.leg_swing, 2))
         if signature == self._render_signature and blend >= 1:
             return
@@ -468,7 +458,10 @@ class PetWindow(QWidget):
                 self._display_size, self._display_size, Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation)
         else:
-            pixmap = facial_reaction(self._cache[key], pose, self.geometry)
+            base=self._cache[key]
+            if self.animation.state=='hover':
+                base=QPixmap.fromImage(attention_frame(base.toImage(),self.geometry,time.monotonic()-self.animation.started))
+            pixmap = facial_reaction(base, pose, self.geometry)
         image = QImage(self.size(), QImage.Format.Format_ARGB32_Premultiplied)
         image.fill(Qt.GlobalColor.transparent)
         painter = QPainter(image)
@@ -556,6 +549,17 @@ class PetWindow(QWidget):
                          "local_x": self._press_position.x(), "local_y": self._press_position.y(),
                          "collar": self._collar_grab, "dpr": self.devicePixelRatioF()})
             event.accept()
+
+    def enterEvent(self, event):
+        super().enterEvent(event)
+        if hasattr(self,'life'):
+            self._over=True
+            self.notify_user_activity()
+
+    def leaveEvent(self, event):
+        super().leaveEvent(event)
+        self._over=False
+        if not self.settings.cursor_reaction:self._near=False
 
     def _is_collar(self, point):
         x = (point.x() - self._padding) / self._display_size
@@ -664,17 +668,15 @@ class PetWindow(QWidget):
         self._sync_activity()
 
     def _search_state(self, state):
-        self.life.notify_activity(immediate=True)
-        # An incoming task brings an away character back through a short real
-        # walk rather than teleporting it or hiding/showing the widget.
-        if self.life.action != 'return':
-            self._restore_life_position()
         self._busy = state in ("thinking", "working")
         self._search_mode = state if self._busy else "idle"
         self._base_state = state
         if state in ("happy", "error"):
+            self.life.finish()
+            self._restore_life_position()
             spec = self.library.specs[state]
             self._terminal_until = time.monotonic() + len(self.library.frames[state]) / spec.get("source_fps", 12)
+            self.animation.set_state(state,restart=True)
         elif state == "idle":
             self._terminal_until = 0.0
         self._sync_activity()
