@@ -6,7 +6,7 @@ in the existing AnimationController/PetLifeController and their cached assets.
 from PySide6.QtCore import QObject, Signal
 
 STATES=('idle','listening','thinking','searching','reading','working','happy','shy','annoyed','resting','sleeping','notification','error')
-ASSET_GAPS={'shy':'dedicated shy facial frames','annoyed':'dedicated annoyed facial frames','coding':'laptop typing frames'}
+ASSET_GAPS={'coding':'laptop typing frames'}
 _VISUAL={'idle':'idle','listening':'hover','thinking':'thinking','searching':'working','reading':'thinking',
          'working':'working','happy':'happy','shy':'idle','annoyed':'idle','resting':'idle','sleeping':'idle',
          'notification':'hover','error':'error'}
@@ -70,8 +70,9 @@ class CharacterController(QObject):
         if action==self.life_action: return
         self.life_action=action
         if self.busy: return
-        state='reading' if action=='reading' else 'sleeping' if action=='sleep' else 'resting' if action in ('yawn','settle','away') else 'listening' if action in ('return','wake') else 'idle'
-        self._set(state,'application.idle' if action else 'application.user_returned')
+        state='reading' if action in ('reading','ron_note') else 'shy' if action in ('shy','phone_solvnox','daydream') else 'annoyed' if action in ('annoyed','malfoy') else 'sleeping' if action=='sleep' else 'resting' if action in ('yawn','settle','away') else 'listening' if action in ('return','wake','ron_chat','harry') else 'idle'
+        if not action and self.unread:state='notification'
+        self._set(state,'application.idle' if action else 'animation.completed')
 
     def terminal_finished(self):
         if not self.busy and self.state in ('happy','error'):

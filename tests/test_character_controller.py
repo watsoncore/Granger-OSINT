@@ -78,3 +78,9 @@ def test_coding_seam_advertises_missing_art_without_claiming_laptop_animation():
     character.handle_event('coding.failed')
     assert character.snapshot()['state'] == 'error'
     assert not character.snapshot()['busy']
+
+
+def test_scene_completion_restores_existing_unread_notification():
+    character=CharacterController();character.handle_event('notification.created')
+    character.life('reading');character.life('')
+    assert character.state=='notification' and character.unread

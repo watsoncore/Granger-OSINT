@@ -79,6 +79,11 @@ class PetWindow(QWidget):
         self._transition_started = 0.0
         self._render_signature = None
         self.life = PetLifeController(clock=lambda:time.monotonic())
+        self._life_token=None
+        self.cameo=None
+        if getattr(self.library,'scenes',None):
+            from .pet_cameo import CameoWindow
+            self.cameo=CameoWindow(self)
         self._life_home = None
         self._life_exit_x = None
         self._next_dock_poll = 0.0
@@ -322,6 +327,7 @@ class PetWindow(QWidget):
                 self.hide()
                 self.notification.hide()
             else:
+                if self.cameo and self.cameo.home is not None:self.cameo.home=QPoint(position)
                 self.move(position)
                 if self._dock_suppressed:
                     self.show()
@@ -330,6 +336,7 @@ class PetWindow(QWidget):
             self._set_display_size(self.settings.size)
             self._dock_bounds = None
             if self._dock_home is not None:
+                if self.cameo and self.cameo.home is not None:self.cameo.home=QPoint(self._dock_home)
                 self.move(self._dock_home)
                 self._dock_home = None
                 if self._dock_suppressed:
@@ -403,10 +410,16 @@ class PetWindow(QWidget):
         if now >= self._next_dock_poll:
             self._sync_overlay_placement()
             self._next_dock_poll = now + .25
+        if self._near or self._over or self._dragging or self._pressed_at is not None:
+            self.life.notify_activity(now,immediate=True)
         available = not (self._dragging or self._pressed_at is not None or self.physics.active
                          or self._near or self._over or self._dock_suppressed or now < self._terminal_until)
         life_pose = self.life.update(now, available=available, context='working' if self._busy else 'chat',
-                                    allow_travel=not (self.panel.isVisible() or self._main_active))
+                                    allow_travel=not (self.panel.isVisible() or self._main_active),
+                                    allow_cameo=bool(self.cameo and self.cameo.available()))
+        token=(life_pose.action,self.life.started)
+        if token!=self._life_token:
+            self._life_token=token;self._begin_transition(self.animation.state)
         self.panel.character.life(life_pose.action)
         self._apply_life_travel(life_pose)
         self.physics.advance(now - self._physics_time, now)
@@ -424,6 +437,7 @@ class PetWindow(QWidget):
             self.panel.character.terminal_finished()
         self._sync_activity()
         self._draw_frame()
+        if self.cameo:self.cameo.update_pose(life_pose)
 
     def _begin_transition(self, state):
         self._previous = self._rendered
@@ -530,6 +544,10 @@ class PetWindow(QWidget):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
+            if self._pressed_at is not None:
+                # A duplicate/reentrant press must not replace the collar grab
+                # with a new non-collar origin during the same captured drag.
+                event.accept();return
             self.life.notify_activity(immediate=True)
             self._restore_life_position()
             self._pressed_at = event.globalPosition().toPoint()
@@ -591,6 +609,7 @@ class PetWindow(QWidget):
         if self._collar_grab:
             reaction = self.physics.sample(position.x(), position.y(), now, source=source)
         if not self._dragging and delta.manhattanLength() >= QApplication.startDragDistance():
+            if self.cameo:self.cameo.home=None;self.cameo.hide()
             self._dragging = True
             self.setCursor(Qt.CursorShape.ClosedHandCursor)
             self._sync_activity()
@@ -613,7 +632,7 @@ class PetWindow(QWidget):
             return
         now = time.monotonic()
         dragged = self._dragging
-        if self._collar_grab:
+        if self.physics.pose.held:
             self.physics.release(now, reason=reason)
         self.drag_timer.stop()
         if QWidget.mouseGrabber() is self:
@@ -713,7 +732,7 @@ class PetWindow(QWidget):
             # Other windows/processes may have saved connections since this
             # pet was opened. Position changes own x/y only, never AI options.
             current = self.store.load() if self.store.path.exists() else self.settings
-            position = self._dock_home if self._dock_home is not None else self._life_home if self._life_home is not None else self.pos()
+            position = self._dock_home if self._dock_home is not None else self.cameo.home if self.cameo and self.cameo.home is not None else self._life_home if self._life_home is not None else self.pos()
             current.x, current.y = position.x(), position.y()
             if 'cursor_reaction' in appearance_changes:
                 current.cursor_reaction = bool(appearance_changes['cursor_reaction'])
@@ -726,6 +745,7 @@ class PetWindow(QWidget):
         if self._ending:
             return
         self._ending = True
+        if self.cameo:self.cameo.reset();self.cameo.close()
         self.dismiss_notification()
         self._restore_life_position()
         if self._dock_home is not None:

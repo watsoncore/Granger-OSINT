@@ -159,7 +159,12 @@ def main(argv: list[str] | None = None) -> int:
                                     'next_due_seconds':round(pet.life.next_due-time.monotonic(),2)}
                                 result['pet_render']={'signature':str(pet._render_signature),'visible':pet.isVisible(),
                                     'frame_timer':pet.frame_timer.isActive(),'cursor_timer':pet.cursor_timer.isActive(),
-                                    'drag_timer':pet.drag_timer.isActive(),'width':pet.width(),'height':pet.height()}
+                                    'drag_timer':pet.drag_timer.isActive(),'width':pet.width(),'height':pet.height(),
+                                    'owned_timer_count':len(pet.findChildren(QTimer))}
+                                result['cameo']={'visible':bool(pet.cameo and pet.cameo.isVisible()),
+                                    'actor':pet.life.pose().cameo,'room_available':bool(pet.cameo and pet.cameo.available()),
+                                    'room':list(pet.cameo.room().getRect()) if pet.cameo else [],
+                                    'input_transparent':bool(pet.cameo and pet.cameo.windowFlags()&Qt.WindowType.WindowTransparentForInput)}
                             if hasattr(pet,'notification'):
                                 note=pet.notification
                                 result['notification']={'visible':note.isVisible(),'kind':note.payload.kind if note.payload else None,
@@ -345,7 +350,12 @@ def main(argv: list[str] | None = None) -> int:
                         pet.life.next_due=time.monotonic()
                     QTimer.singleShot(0,due)
                 else:
-                    QTimer.singleShot(0, lambda: pet.life.start_action(action, duration=4))
+                    duration=payload.get('duration',4)
+                    if type(duration) not in (int,float) or not .2<=duration<=30:return {'ok':False}
+                    def start_local_scene():
+                        pet.life.finish()
+                        pet.life.start_action(action,duration=duration)
+                    QTimer.singleShot(0,start_local_scene)
                 return {'ok': True}
             if command=='qa_figure' and pet is not None and args.interaction_qa and qa_vault_active:
                 action=payload.get('action')
@@ -364,9 +374,8 @@ def main(argv: list[str] | None = None) -> int:
                     QTest.mousePress(pet,Qt.MouseButton.LeftButton,pos=point)
                     origin=pet.mapToGlobal(point);direction=-1 if action=='drag_up' else 1
                     for i in range(1,13):
-                        target=origin+QPoint(0,direction*i*8)
+                        target=origin+QPoint(0,direction*i*12)
                         QCursor.setPos(target);QTest.qWait(9)
-                        pet._drag_to(target,'qa_native_cursor')
                     QTest.mouseRelease(pet,Qt.MouseButton.LeftButton,pos=point)
                     QCursor.setPos(pet.mapToGlobal(QPoint(-150,-150)))
                 QTimer.singleShot(0,figure_input)
@@ -388,6 +397,14 @@ def main(argv: list[str] | None = None) -> int:
                 def snapshot():
                     directory = Path(pet._trace_path).parent
                     pet._rendered.save(str(directory / f"{name}-pet.png"))
+                    if pet.cameo and pet.cameo.isVisible():
+                        from PySide6.QtGui import QImage,QPainter
+                        pet.cameo.grab().save(str(directory/f'{name}-cameo.png'))
+                        bounds=pet.frameGeometry().united(pet.cameo.frameGeometry())
+                        image=QImage(bounds.size(),QImage.Format.Format_ARGB32_Premultiplied);image.fill(Qt.GlobalColor.transparent)
+                        painter=QPainter(image);painter.drawImage(pet.pos()-bounds.topLeft(),pet._rendered)
+                        painter.drawImage(pet.cameo.pos()-bounds.topLeft(),pet.cameo.image);painter.end()
+                        image.save(str(directory/f'{name}-pair.png'))
                     if pet.notification.isVisible(): pet.notification.grab().save(str(directory/f'{name}-notification.png'))
                     if pet.panel.isVisible():
                         pet.panel.grab().save(str(directory / f"{name}-search.png"))

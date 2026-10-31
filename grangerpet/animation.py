@@ -33,6 +33,10 @@ class SpriteLibrary:
             count = spec["frames"]
             self.frames[state] = [sheet.copy(i % columns * width, i // columns * height, width, height)
                                   for i in range(count)]
+        self.scenes=None
+        if (self.directory/'scenes/provenance.json').is_file():
+            from .scene_art import SceneArtLibrary
+            self.scenes=SceneArtLibrary(self.directory/'scenes')
 
 
 class AnimationController(QObject):

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "canvas": 512,
+  "hermione_master_unchanged": true,
+  "prompts": "resources/cameo-masters/PROMPTS.md",
+  "generator": "scripts/build_pet_scene_assets.py",
+  "runtime": "existing Qt QPainter layered raster pipeline",
+  "cameos": {
+    "draco": {
+      "method": "built-in ImageGen; Hermione style reference"
+    },
+    "ron": {
+      "method": "built-in ImageGen; Hermione style reference"
+    },
+    "harry": {
+      "method": "deterministic Ron-derived palette and QPainter glasses/scar; same body contours",
+      "reason": "Two built-in ImageGen output moderation failures; no CLI fallback or external API used"
+    }
+  },
+  "boy_geometry": {
+    "eyes": [
+      [
+        0.318,
+        0.317,
+        0.104,
+        0.104
+      ],
+      [
+        0.463,
+        0.333,
+        0.115,
+        0.11
+      ]
+    ],
+    "mouth": [
+      0.417,
+      0.446
+    ]
+  },
+  "files": {
+    "draco.png": "f1c2219026ef74f54ea3cefd0f13df06d7c3208d33118fa87aae9534f0e1ad14",
+    "harry.png": "b384100031701f94cb012825c3d1a54c53ca9b2056ef847780ac5822a7a25be7",
+    "hermione-base.png": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b",
+    "hermione-body.png": "97b7b23dafa6703d231ce2b1383ec7bccb1869db82c3cc75bf027c038d3e5993",
+    "hermione-free_arm.png": "ba138d8303f050a27e4a3a894c701ea011f66afce8f6307a836c94deb5273b73",
+    "hermione-head.png": "aefca77b6dad974687280d6e49969e6a1fd19380c63140ef3d85381945d2ed4b",
+    "hermione-left_leg.png": "c14b28202f6cc398a4b9e944bc98c4fff1c84aef302fdc497053a5c16aec8b84",
+    "hermione-right_leg.png": "29d7726eaace4c7707c2297a4a2064dbf568c92a586b018217d79f402f671a9c",
+    "hermione-wand_arm.png": "e4d5e80bbc93c8c5c5a6d15f1c2ecd173aff5d3f8a65febfa28444cc197319a2",
+    "ron.png": "ab2bd1df93117aa93e9aa95d52a881c36ea3163400dc88a6aed6a5da403e7ca3"
+  }
+}

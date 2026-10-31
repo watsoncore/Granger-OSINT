@@ -9,7 +9,7 @@ from PySide6.QtCore import QPoint
 from PySide6.QtWidgets import QApplication
 
 from grangerpet.animation import SpriteLibrary
-from grangerpet.pet_life import ACTIONS, PetLifeController
+from grangerpet.pet_life import ACTIONS,SCENES,PetLifeController
 from grangerpet.pet_actions import action_frame
 from grangerpet.pet import PetWindow
 from grangerpet.config import Settings, SettingsStore
@@ -40,7 +40,7 @@ def test_local_idle_can_schedule_without_accessing_any_external_service():
     now,life=controller();now[0]=300
     life.next_due=101
     life.update(system_idle=200)
-    assert life.action in ('reading','cast','leave','avada')
+    assert life.action in SCENES
 
 
 def test_no_fixed_repeating_interval_or_same_action_choice():
@@ -136,6 +136,7 @@ def test_busy_investigation_allows_in_place_life_without_changing_task(app,tmp_p
         pet.panel.character.activity('thinking')
         pet._search_state('thinking')
         for action in ('reading','sleep','cast'):
+            pet.life.finish()
             pet.life.start_action(action);pet._tick()
             assert pet.life.action==action and pet._busy
             assert pet.panel.character.busy

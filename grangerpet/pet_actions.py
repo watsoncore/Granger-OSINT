@@ -80,6 +80,10 @@ def _book(painter, elapsed, strength):
 def action_frame(library, pose):
     """Return one transparent 256px articulated frame, retaining the face/hair."""
     action=pose.action
+    from .pet_life import SCENES
+    if action in SCENES and getattr(library,'scenes',None):
+        from .scene_art import scene_frame
+        return scene_frame(library,pose)
     source='walk' if action in ('leave','return') else 'working' if action in ('cast','avada') else 'thinking' if action=='reading' else 'idle'
     frames=library.frames.get(source,library.frames['idle'])
     index=pose.frame%len(frames)
