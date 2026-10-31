@@ -111,3 +111,42 @@ def test_duplicate_press_cannot_lose_collar_identity(tmp_path,monkeypatch):
         assert not pet.physics.pose.held and pet._pressed_at is None and not pet.drag_timer.isActive()
     finally:
         pet.shutdown();pet.panel.deleteLater();pet.deleteLater();app.processEvents()
+
+
+def test_opening_workspace_during_cameo_keeps_original_desktop_home(tmp_path,monkeypatch):
+    from PySide6.QtCore import QRect
+    from grangerpet.pet import PetWindow
+    from grangerpet.config import Settings,SettingsStore
+    app=QApplication.instance() or QApplication([])
+    monkeypatch.setattr('grangerpet.credentials.get_secret',lambda _: '')
+    pet=PetWindow(Settings(size=100,cursor_reaction=False),SettingsStore(tmp_path/'settings.json'))
+    pet.frame_timer.stop();pet.cursor_timer.stop();pet.show();app.processEvents()
+    try:
+        pet.move(400,250);home=pet.pos()
+        pet.life.start_action('malfoy');pet.life.started-=2;pet._tick()
+        assert pet.pos()!=home and pet.cameo.home==home
+        monkeypatch.setattr(pet.panel,'desktop_window_state',lambda:{'active':True,
+            'geometry':QRect(0,0,1000,700),'dock':QRect(700,150,260,250)})
+        pet._sync_overlay_placement()
+        assert pet._dock_home==home
+    finally:
+        pet.shutdown();pet.panel.deleteLater();pet.deleteLater();app.processEvents()
+
+
+def test_scale_during_cameo_keeps_the_feet_baseline(tmp_path,monkeypatch):
+    from dataclasses import replace
+    from grangerpet.pet import PetWindow
+    from grangerpet.config import Settings,SettingsStore
+    app=QApplication.instance() or QApplication([])
+    monkeypatch.setattr('grangerpet.credentials.get_secret',lambda _: '')
+    pet=PetWindow(Settings(size=100,cursor_reaction=False),SettingsStore(tmp_path/'settings.json'))
+    pet.frame_timer.stop();pet.cursor_timer.stop();pet.show();app.processEvents()
+    try:
+        pet.move(400,250);foot=pet.y()+pet.height()
+        pet.life.start_action('malfoy');pet.life.started-=2;pet._tick()
+        pet.apply_settings(replace(pet.settings,size=195));pet._tick()
+        assert pet.y()+pet.height()==foot
+        pet.life.finish();pet._tick()
+        assert pet.y()+pet.height()==foot and not pet.cameo.isVisible()
+    finally:
+        pet.shutdown();pet.panel.deleteLater();pet.deleteLater();app.processEvents()

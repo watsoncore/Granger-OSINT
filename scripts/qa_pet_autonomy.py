@@ -60,6 +60,21 @@ def main():
         action('dom');time.sleep(.12)
         return (state().get('desktop') or {}).get('dom',{})
     def capture(name):command('qa_snapshot',{'name':name})
+    def native_click_through_guest():
+        import ctypes
+        from ctypes import wintypes as W
+        user=ctypes.WinDLL('user32');found=[]
+        user.GetWindowLongW.argtypes=[W.HWND,ctypes.c_int];user.GetWindowLongW.restype=ctypes.c_long
+        user.GetWindowThreadProcessId.argtypes=[W.HWND,ctypes.POINTER(W.DWORD)]
+        user.IsWindowVisible.argtypes=[W.HWND]
+        callback_type=ctypes.WINFUNCTYPE(W.BOOL,W.HWND,W.LPARAM)
+        @callback_type
+        def visit(hwnd,param):
+            pid=W.DWORD();user.GetWindowThreadProcessId(hwnd,ctypes.byref(pid))
+            if pid.value==owned and user.IsWindowVisible(hwnd) and user.GetWindowLongW(hwnd,-20)&0x20:found.append(True)
+            return True
+        user.EnumWindows(visit,0)
+        return bool(found)
     try:
         argv=([str(args.exe.resolve())] if args.exe else [sys.executable,str(ROOT/'main.py')])+['--pet','--interaction-qa']
         with (out/'process.log').open('wb') as log:
@@ -118,6 +133,7 @@ def main():
                     wait(lambda:state()['cameo']['visible'],2)
                     check(name+'_actual_guest_visible',state()['cameo']['actor']==spec.cameo)
                     check(name+'_native_input_transparency',state()['cameo']['input_transparent'])
+                    check(name+'_actual_Windows_input_transparent_style',native_click_through_guest())
                 wait(lambda:not state()['life']['active'],6)
                 check(name+'_finishes_and_removes_guest',not state()['cameo']['visible'])
             command('settings',{'size':195});time.sleep(.4)
@@ -127,6 +143,12 @@ def main():
             command('qa_figure',{'action':'hover'})
             wait(lambda:not state()['cameo']['visible'],3)
             check('figure_interrupt_removes_actual_cameo',True)
+        command('qa_figure',{'action':'away'});command('qa_life',{'action':'reading','duration':15})
+        for mode in ('minimize','maximize','maximize','close'):
+            action('window',{'mode':mode});time.sleep(.4)
+            command('show_workspace',{'route':'chat'});time.sleep(.4)
+            wait(lambda:state()['pet_render']['visible'])
+            check('window_'+mode+'_retains_live_figure',state()['pet_render']['frame_timer'])
         if args.soak_seconds:
             from perf_process_metrics import ProcessSampler
             monitor=ProcessSampler(args.exe,gpu=False)
@@ -161,8 +183,21 @@ def main():
             if args.soak_seconds>=130:check('natural_figure_idle_starts_during_real_typing_without_shortened_deadline',bool(natural))
             check('native_soak_has_no_timer_accumulation',max(timers)<=timers[0]+1)
             check('native_soak_frame_timer_stays_active',state()['pet_render']['frame_timer'])
+        from perf_process_metrics import ProcessSampler
+        final_monitor=ProcessSampler(args.exe,gpu=False)
+        def final_metrics():return final_monitor.sample([owned]) if args.exe else final_monitor.sample(source_main_pids=[owned])
+        final_metrics()
         command('stop');process.wait(timeout=30);owned=None
-        check('native_exit_zero',process.returncode==0);report['passed']=True
+        check('native_exit_zero',process.returncode==0)
+        wait(lambda:final_monitor.sample()['process_count']==0,30)
+        check('no_owned_orphans_after_first_exit',True)
+        with (out/'restart.log').open('wb') as log:
+            process=subprocess.Popen(argv,cwd=ROOT,env=os.environ.copy(),stdout=log,stderr=subprocess.STDOUT)
+        owned=wait(state,60)['pid'];wait(lambda:state().get('desktop',{}).get('ready'))
+        check('actual_restart_has_no_leftover_guest_or_scene',not state()['cameo']['visible'] and not state()['life']['active'])
+        final_metrics();command('stop');process.wait(timeout=30);owned=None
+        wait(lambda:final_monitor.sample()['process_count']==0,30);final_monitor.close()
+        check('restart_exit_zero_without_orphans',process.returncode==0);report['passed']=True
     except Exception as error:
         if owned:
             try:

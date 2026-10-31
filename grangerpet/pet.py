@@ -185,6 +185,7 @@ class PetWindow(QWidget):
         self.notification.apply_settings(settings)
         if self.width() != settings.size + 24:
             self.setFixedSize(settings.size + 24, settings.size + 24)
+            if self.cameo and self.cameo.home is not None:self.cameo.home.setY(foot-self.height())
             self.move(self.x(), foot - self.height())
             self._cache.clear()
             self._previous=QImage();self._render_signature=None
@@ -307,7 +308,7 @@ class PetWindow(QWidget):
                 self.life.finish()
                 self._restore_life_position()
             if self._dock_home is None:
-                self._dock_home = self.pos()
+                self._dock_home = QPoint(self.cameo.home) if self.cameo and self.cameo.home is not None else self.pos()
             screen = QGuiApplication.screenAt(main.center()) or QGuiApplication.primaryScreen()
             dock = dock if isinstance(dock, QRect) and not dock.isEmpty() else None
             # CSS zoom changes the reserved dock, never the user's desktop size.
