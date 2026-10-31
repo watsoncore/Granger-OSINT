@@ -214,7 +214,8 @@ def main():
             monitor.close()
             report['soak']={'elapsed_seconds':round(time.monotonic()-start,2),'samples':samples,
                 'distinct_render_signatures':len(signatures),'owned_timer_counts':timers,
-                'natural_actions_during_130s_typing':sorted(natural),'visible_samples':visible_samples,
+                'natural_typing_seconds':args.natural_seconds,
+                'natural_actions_during_typing':sorted(natural),'visible_samples':visible_samples,
                 'natural_observations':observations,
                 'adjacent_visible_pairs':visible_pairs,'adjacent_render_changes':render_changes,
                 'private_commit_notes':'Sum across the owned process tree; not private working set'}

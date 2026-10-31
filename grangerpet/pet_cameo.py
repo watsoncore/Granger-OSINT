@@ -80,7 +80,7 @@ class CameoWindow(QWidget):
             p=QPainter(self.image);p.setRenderHints(QPainter.RenderHint.Antialiasing|QPainter.RenderHint.SmoothPixmapTransform)
             p.setClipRect(box.translated(-self.x(),-self.y()))
             p.translate(pet.x()-self.x()+pad,pad);p.scale(size/512,size/512)
-            scene=paint_pair(p,pet.library,pose,(guest_x-pet.x())*512/size,mirror)
+            scene=paint_pair(p,pet.library,pose,(guest_x-pet.x())*512/size,mirror,pet._transition_actor)
             self.hero_pose=scene.hero;p.end();self.signature=signature;self.update()
         if not self.isVisible():self.show()
 

@@ -102,9 +102,10 @@ def front_hands(p,a,*,guest=False):
     p.restore()
 
 
-def paint_pair(p,library,life,separation=-260.,mirror=True):
+def paint_pair(p,library,life,separation=-260.,mirror=True,hero_filter=None):
     from .conversation_pose import conversation_pose
     scene=conversation_pose(life,separation,mirror);hero,guest=rigs(library,life.cameo)
+    if hero_filter is not None:scene.hero=hero_filter(scene.hero)
     hero.draw(p,scene.hero,draw_hands=False)
     p.save();p.translate(separation,0)
     if mirror:p.translate(512,0);p.scale(-1,1)

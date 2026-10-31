@@ -46,3 +46,28 @@ def test_actual_guest_drag_detaches_stage_home_and_keeps_user_position(tmp_path)
         assert QPoint(pet.settings.x,pet.settings.y)==placed
     finally:
         pet.shutdown();pet.panel.deleteLater();pet.deleteLater();app.processEvents()
+
+
+def test_articulated_transition_moves_one_pose_without_old_bitmap_ghosts(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    from PySide6.QtGui import QColor
+    from grangerpet.scene_pose import action_pose
+    app=QApplication.instance() or QApplication([])
+    pet=PetWindow(Settings(size=160,ai_provider='none'),SettingsStore(tmp_path/'settings.json'))
+    try:
+        pet.frame_timer.stop();pet.cursor_timer.stop();pet.show()
+        pet._actor_pose=action_pose('working',.4,2)
+        old=pet._actor_pose.right
+        pet._rendered.fill(QColor('magenta'))
+        clock=[100.];monkeypatch.setattr('grangerpet.pet.time',SimpleNamespace(monotonic=lambda:clock[0]))
+        pet._begin_transition('idle');clock[0]+=.08
+        target=action_pose('idle',.3,2)
+        halfway=pet._transition_actor(target)
+        assert min(old[1],target.right[1])<halfway.right[1]<max(old[1],target.right[1])
+        assert pet._previous.isNull()
+        pet._draw_frame(force=True,life_pose=LifePose('','',0,0,0,0,0))
+        assert pet._rendered.pixelColor(0,0).alpha()==0
+        assert any(pet._rendered.pixelColor(x,y).alpha()>250 for y in range(0,pet._rendered.height(),8)
+                   for x in range(0,pet._rendered.width(),8))
+    finally:
+        pet.shutdown();pet.panel.deleteLater();pet.deleteLater();app.processEvents()

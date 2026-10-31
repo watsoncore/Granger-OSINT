@@ -127,6 +127,9 @@ def test_opening_workspace_during_cameo_keeps_original_desktop_home(tmp_path,mon
     pet.frame_timer.stop();pet.cursor_timer.stop();pet.show();app.processEvents()
     try:
         pet.move(400,250);home=pet.pos()
+        # Constrain the pair so staging really must relocate Hermione. On a
+        # roomy desktop the new minimum-motion layout correctly keeps her home.
+        monkeypatch.setattr(pet.cameo,'room',lambda:QRect(400,230,141,140))
         pet.life.start_action('malfoy');pet.life.started-=2;pet._tick()
         assert pet.pos()!=home and pet.cameo.home==home
         monkeypatch.setattr(pet.panel,'desktop_window_state',lambda:{'active':True,

@@ -5,6 +5,7 @@ import logging
 import math
 import json
 import os
+from copy import deepcopy
 from pathlib import Path
 import time
 from collections import deque
@@ -78,6 +79,7 @@ class PetWindow(QWidget):
         self._cache = {}
         self._rendered = QImage()
         self._previous = QImage()
+        self._actor_pose=None;self._actor_from=None
         self._transition_started = 0.0
         self._render_signature = None
         self._render_count=0;self._tick_times=deque(maxlen=256)
@@ -446,9 +448,23 @@ class PetWindow(QWidget):
         self._tick_times.append((perf_counter()-tick_started)*1000)
 
     def _begin_transition(self, state):
-        self._previous = self._rendered
+        self._actor_from=deepcopy(self._actor_pose)
+        self._previous = QImage() if getattr(self.library,'scenes',None) else self._rendered
         self._transition_started = time.monotonic()
         self._render_signature = None
+
+    def _transition_actor(self,actor):
+        # Interpolate joints, never alpha-blend two complete people. Authored
+        # held props and a grabbed collar retain their exact contact geometry.
+        blend=min(1.,max(0.,(time.monotonic()-self._transition_started)/.16))
+        if self._actor_from is not None and blend<1 and not self.physics.active and not (actor.book.visible or actor.phone or actor.wand):
+            from .key_poses import interpolate
+            from .scene_pose import smooth
+            target=actor;actor=interpolate(self._actor_from,target,smooth(blend))
+            for field in ('book','wand','phone','magic','hearts','sleeping','spell_text','phase','pocket'):
+                setattr(actor,field,deepcopy(getattr(target,field)))
+        self._actor_pose=deepcopy(actor)
+        return actor
 
     def _draw_frame(self, *, force=False, life_pose=None):
         # Keep the animation/life clocks running while an owned modal suppresses
@@ -480,7 +496,11 @@ class PetWindow(QWidget):
                 if life_pose.cameo and self.cameo and self.cameo.hero_pose is not None:
                     from .articulated import render_actor
                     pixmap=QPixmap.fromImage(render_actor(self.library,self.cameo.hero_pose,self._display_size,dpr))
-                else:pixmap=QPixmap.fromImage(action_frame(self.library,life_pose,size=self._display_size,dpr=dpr))
+                else:
+                    from .scene_pose import action_pose
+                    from .articulated import render_actor
+                    actor=action_pose(life_pose.action,life_pose.progress,life_pose.elapsed,life_pose.variant)
+                    pixmap=QPixmap.fromImage(render_actor(self.library,self._transition_actor(actor),self._display_size,dpr))
             else:
                 pixmap = QPixmap.fromImage(action_frame(self.library, life_pose)).scaled(
                     self._display_size, self._display_size, Qt.AspectRatioMode.KeepAspectRatio,
@@ -494,7 +514,7 @@ class PetWindow(QWidget):
             progress=min(1.,elapsed/duration) if self.animation.one_shot else (elapsed%duration)/duration
             actor=action_pose(self.animation.state,progress,elapsed,aim=(self._aim.x(),self._aim.y()),
                 physics=pose if self.physics.active else None)
-            pixmap=QPixmap.fromImage(render_actor(self.library,actor,self._display_size,dpr))
+            pixmap=QPixmap.fromImage(render_actor(self.library,self._transition_actor(actor),self._display_size,dpr))
         else:
             base=self._cache[key]
             if self.animation.state=='hover':
