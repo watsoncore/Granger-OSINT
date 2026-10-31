@@ -350,3 +350,29 @@ build/typecheck passed. Сборка, выполнявшаяся во время
 QA timeouts/IPC read failure при низкой свободной памяти; повтор выполняется
 последовательно. Большое фото в visual QA передаётся через имеющийся attachment_file,
 не через16KiB командный pipe. Прежний неуспешный тест сохранён и key удалён.
+## Финальная поставка, 31 октября 2026
+
+Последний EXE: 277070521 байт, SHA-256
+`6d22ae13c01689f9012d4bc71f22e072d46bc002978b9393488a257aa27f6627`.
+Application source — be0ef24; после сборки изменялись только QA/документация.
+Полный backend: 1416 passed, 1 skipped (Ollama), 32 subtests passed, 267.12 с.
+Frontend: 125/17, TypeScript/build passed. Native graph 26/26, gallery 6/6,
+live blockchain/chat 14/14, cancel/restart 7/7 (0.695 с до idle), visual restart
+и локальное уточнение 9/9. Frozen 114 модулей и 141 asset checks прошли.
+Изолированный холодный launcher/pet с минимальным PATH: 14.932/11.195 с.
+
+Native visual cold driver не дождался исследования за 800 с; оба геолокатора
+реально завершились и были сохранены. После восстановления того же checkpoint
+получен аналитический ответ 6933 символа; следующий restart открыл его без
+генерации. Последние сбои были в QA: старый клик по graph tab, попытка resume
+completed record, ожидание устаревшего reference-image entity type. Исправленный
+драйвер проверяет настоящий chat text против protected record, source pixels,
+reference_photo attributes и локальный follow-up в том же investigation ID.
+Неуспешные отчёты оставлены на диске, не переименованы в passed.
+
+Публичные benchmark metadata/results записаны в docs/validation: семь классов,
+пять реальных originals, ноль независимо подтверждённых точных мест. Ошибки
+captioning, расхождения моделей и недоступные источники перечислены явно.
+Сводный итог A–F: [RECONSTRUCTION_RELEASE.md](RECONSTRUCTION_RELEASE.md).
+Профиль не объявляется полностью неизменным: 25/27 hashes совпали, два файла
+изменились при работающем обычном приложении. Пользовательские данные не откатывались.

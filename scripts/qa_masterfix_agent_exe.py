@@ -9,6 +9,7 @@ import base64
 import hashlib
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -28,6 +29,7 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--visual',action='store_true')
     parser.add_argument('--image',type=Path,help='Explicit authorized photo for the real visual chat scenario')
+    parser.add_argument('--resume-visual',type=Path,help='Resume one explicitly named prior isolated visual QA profile; no credentials are copied')
     parser.add_argument('--source',action='store_true',help='Run current source with a QA-only stack watchdog')
     parser.add_argument('--identity-only',action='store_true',help='Targeted real EXE check of the final identity-routing fix')
     parser.add_argument('--cancel-only',action='store_true',help='Actual cancel after observed blockchain evidence, then restart')
@@ -44,8 +46,23 @@ def main():
     from grangerpet.ipc import send_command
     from perf_process_metrics import ProcessSampler
     credentials._STORE=credentials.CredentialsStore(prefix=os.environ['GRANGERPET_QA_VAULT'])
-    credentials.set_secret('deepseek_api_key',key)
     profile=out/'appdata/GrangerPet';profile.mkdir(parents=True,exist_ok=True)
+    if args.resume_visual:
+        previous=args.resume_visual.resolve()
+        if not previous.is_relative_to((ROOT/'output/reconstruction').resolve()):raise ValueError('Only an isolated QA profile may be resumed')
+        prior=json.loads((previous/'report.json').read_text(encoding='utf-8'))
+        if not prior.get('qa_gateway_secret_removed') or prior.get('exe_sha256')!=hashlib.sha256(args.exe.read_bytes()).hexdigest():
+            raise ValueError('Previous QA must be closed and belong to this binary')
+        source=previous/'appdata/GrangerPet'
+        for name in ('attachments','public-media','map-tiles','investigations','conversations'):
+            if (source/name).is_dir():shutil.copytree(source/name,profile/name)
+        if (source/'chat-history.dpapi').is_file():shutil.copy2(source/'chat-history.dpapi',profile/'chat-history.dpapi')
+        from grangerpet.agent_journal import InvestigationJournal
+        from grangerpet.graph_store import GraphViewStore
+        journal=InvestigationJournal(profile/'investigations');views=GraphViewStore(journal)
+        for path in journal.directory.glob('*.checkpoint.dpapi'):
+            identifier=path.name.split('.')[0]
+            views.save(identifier,{**views.load(identifier),'mode':'graph'})
     (profile/'settings.json').write_text(json.dumps(Settings(ai_provider='deepseek',source_root=str(ROOT),
         cursor_reaction=False,reduced_motion=True,agent_steps=30,agent_calls=60,agent_timeout=900,
         agent_tokens=180000,research_mode='quick',search_timeout=45,agent_tool_timeout=45).to_dict()),encoding='utf-8')
@@ -103,18 +120,65 @@ def main():
         owned=wait(state)['pid'];wait(lambda:state()['desktop']['ready']);monitor.sample([owned])
         command('show_workspace',{'route':'chat'})
     def graph(identifier):
-        action('route',{'route':'search'});action('investigation_graph_get',{'id':identifier})
+        command('show_workspace',{'route':'search'});action('window',{'mode':'maximize'})
+        action('investigation_graph_get',{'id':identifier,'mode':'graph'})
         value=wait(lambda:s['investigation_graph'] if (s:=snapshot()).get('investigation_graph',{}).get('state')=='ready' and s['investigation_graph'].get('investigation_id')==identifier else None)
-        action('graph_scroll')
-        element=wait(lambda:next((e for e in dom().get('elements',[]) if e.get('text')=='Граф' and e['width']>0 and e['y']>0),None))
-        action('input',{'kind':'click','at':[element['x']+element['width']/2,element['y']+element['height']/2]})
-        wait(lambda:(g if g.get('graphMode')=='graph' and g.get('canvas') and g.get('layoutPending')=='false' else None) if (g:=dom().get('graph') or {}) else None)
+        if (dom().get('graph') or {}).get('graphMode')!='graph':
+            # A mounted workspace owns its view after its first load; opening
+            # another backend projection does not replace that React state.
+            action('graph_scroll')
+            element=wait(lambda:next((e for e in dom().get('elements',[]) if e.get('text')=='Граф' and e['width']>0 and 0<e['y']<dom().get('height',0)-35),None))
+            action('input',{'kind':'click','at':[element['x']+element['width']/2,element['y']+min(18,element['height']/2)]})
+        wait(lambda:(g if g.get('investigationId')==identifier and g.get('graphMode')=='graph' and g.get('canvas') and g.get('layoutPending')=='false' else None) if (g:=dom().get('graph') or {}) else None)
         return value
     try:
+        credentials.set_secret('deepseek_api_key',key)
         start(0)
         action('connection_test');wait(lambda:snapshot()['connection'].get('status') in ('connected','ready','verified'),90)
         check('actual_gateway_connection_proof',snapshot()['connection']['canSend'])
-        if args.visual:
+        if args.resume_visual:
+            from grangerpet.agent_journal import InvestigationJournal
+            value=snapshot();identifier=value.get('investigation',{}).get('id')
+            if not identifier:raise ValueError('The prior visual investigation was not restored')
+            journal=InvestigationJournal(profile/'investigations');saved=journal.load_checkpoint(identifier)
+            before=len(saved['record'].get('calls',[]))
+            check('actual_cpu_observations_survive_visual_restart',all(any(r.get('details',{}).get('capability')==name and
+                r['details'].get('status')=='completed' and (name=='image_understand' or r['details'].get('predictions'))
+                for r in saved.get('evidence',[])) for name in ('image_understand','geoclip_predict','waypoint_predict')))
+            already_complete=saved['record'].get('status')=='completed' and saved['record'].get('report_status')=='completed'
+            if not already_complete:
+                action('investigation_continue',{'id':identifier})
+                value=finish('visual-restored-answer',650);inv=value['investigation']
+            else:
+                # Restored public summaries deliberately exclude report text.
+                # Verify the protected record against the actual chat message;
+                # do not send a resume command to a completed investigation.
+                value=snapshot('visual-restored-answer');inv=saved['record']
+                check('completed_visual_report_visible_in_restored_chat',any(
+                    m.get('role')=='model' and m.get('text')==inv.get('final_report') for m in value.get('messages',[])))
+            check('visual_restore_keeps_same_investigation',inv['id']==identifier)
+            check('visual_restored_analytical_answer_completed',inv['status']=='completed' and inv.get('report_status')=='completed' and len(inv.get('final_report',''))>500)
+            saved=journal.load_checkpoint(identifier)
+            models=[{'tool':r['details'].get('capability'),'status':r['details'].get('status'),
+                'predictions':len(r['details'].get('predictions') or [])} for r in saved.get('evidence',[])
+                if r.get('details',{}).get('execution_mode')=='LOCAL_MODEL']
+            (out/'actual-model-check.json').write_text(json.dumps({'exe_sha256':report['exe_sha256'],'models':models,
+                'both_geolocators_completed':all(any(r['tool']==name and r['status']=='completed' and r['predictions']>0 for r in models)
+                    for name in ('geoclip_predict','waypoint_predict'))},indent=2),encoding='utf-8')
+            report['scenarios']['visual_restore']={'id':identifier,'status':inv['status'],'report_status':inv.get('report_status'),
+                'new_calls':inv.get('calls',[])[before:],'prior_qa_timeout_preserved':True,
+                'completed_report_restored_without_regeneration':already_complete}
+            g=graph(identifier);command('qa_snapshot',{'name':'visual-restored-graph'})
+            check('restored_visual_graph_has_original_and_reference_pixels',any(n['type']=='image' and n.get('attributes',{}).get('original_image') and n['attributes'].get('media',{}).get('thumbnail') for n in g['entities']) and any(n['type']=='image' and n.get('attributes',{}).get('reference_photo') and n['attributes'].get('media',{}).get('thumbnail') for n in g['entities']))
+            action('route',{'route':'chat'})
+            wait(lambda:'Диалог с Гермионой' in dom().get('headings',[]))
+            command('qa_snapshot',{'name':'visual-restored-chat'})
+            previous_calls=len(inv.get('calls',[]))
+            action('investigation_graph_analyze',{'id':identifier,'intent':'explain','entity_id':g['root_id']})
+            value=finish('visual-restored-local-followup',180)
+            fresh=value['investigation'].get('calls',[])[previous_calls:]
+            check('restored_visual_followup_keeps_identity_and_stays_local',value['investigation']['id']==identifier and value['investigation'].get('report_status')=='completed' and len(value['investigation'].get('final_report',''))>500 and all(c.get('tool') in ('evidence_get','evidence_graph') for c in fresh))
+        elif args.visual:
             if not args.image or not args.image.is_file():raise ValueError('--visual requires an explicit --image')
             # The local command pipe is intentionally limited to 16 KiB.
             # Existing QA attachment_file reads only this named isolated input.
@@ -135,6 +199,9 @@ def main():
             journal=InvestigationJournal(profile/'investigations');saved=journal.load_checkpoint(identifier)
             rows=saved.get('evidence',[])
             check('actual_pixel_description_in_evidence',any(r.get('details',{}).get('capability')=='image_understand' and r['details'].get('description') for r in rows))
+            check('actual_geoclip_and_waypoint_predictions_in_exe',all(any(
+                r.get('details',{}).get('capability')==name and r['details'].get('status')=='completed' and r['details'].get('predictions')
+                for r in rows) for name in ('geoclip_predict','waypoint_predict')))
             refs=[r for r in rows if r.get('type')=='reference_image']
             report['scenarios']['visual']['references_found']=len(refs)
             report['scenarios']['visual']['references_fetched']=sum(r['details'].get('image_fetched') is True for r in refs)
@@ -169,7 +236,7 @@ def main():
         else:
             if not args.identity_only:
                 target='UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd'
-                prompt='Гермиона, исследуй этот TON-адрес '+target+'. В режиме quick найди активы, транзакции, NFT и контрагентов. Используй реальные blockchain_gansar operation profile и nft scope wallet, затем evidence_graph. Дай краткий итог с ограничениями источников. Не исследуй соседние адреса сейчас.'
+                prompt='Гермиона, исследуй этот TON-адрес '+target+'. В режиме quick найди активы, транзакции, NFT и контрагентов. Используй реальные blockchain_gansar operation profile и nft scope wallet, затем evidence_graph. Дай итог с ограничениями источников. Данных полного DTO и рассчитанных агрегатов достаточно: не читай отдельные события через evidence_get. После profile, nft и evidence_graph переходи к анализу. Не исследуй соседние адреса сейчас.'
                 action('chat_send',{'text':prompt});value=finish('ton-agent',360)
                 inv=value['investigation'];identifier=inv['id']
                 calls=inv.get('calls',[])

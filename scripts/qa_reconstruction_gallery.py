@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--research',type=Path,required=True)
     parser.add_argument('--observations',type=Path,required=True)
     parser.add_argument('--exe',type=Path)
+    parser.add_argument('--tile-cache',type=Path,help='Reuse previously fetched local QA OSM cache; normal TTL checks still apply')
     args=parser.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Choose a fresh QA directory')
     out.mkdir(parents=True);namespace=uuid.uuid4().hex
@@ -41,6 +42,11 @@ def main():
     source=args.research.resolve()/'appdata/GrangerPet'
     for name in ('attachments','public-media'):
         if (source/name).exists():shutil.copytree(source/name,profile/name)
+    if args.tile_cache:
+        cached=args.tile_cache.resolve()
+        if not cached.is_relative_to((ROOT/'output/reconstruction').resolve()) or cached.name!='map-tiles':
+            raise ValueError('Only an explicit prior isolated QA tile cache is allowed')
+        shutil.copytree(cached,profile/'map-tiles')
     profile.mkdir(parents=True,exist_ok=True)
     (profile/'settings.json').write_text(json.dumps(Settings(source_root=str(ROOT),cursor_reaction=False,reduced_motion=True).to_dict()),encoding='utf-8')
     rows=json.loads(args.observations.read_text(encoding='utf-8'))['results']+json.loads((args.research/'result.json').read_text(encoding='utf-8'))['results']
@@ -52,6 +58,7 @@ def main():
     report={'mode':'actual_frozen_Qt_WebEngine' if args.exe else 'actual_source_Qt_WebEngine','mock':False,
         'inference_calls':0,'gateway_calls':0,'image_uploads':0,'checks':[]}
     if args.exe:report['exe_sha256']=hashlib.sha256(args.exe.read_bytes()).hexdigest()
+    report['basemap_cache_reused']=bool(args.tile_cache)
     owned=None;process=None
     def check(name,ok):
         report['checks'].append({'name':name,'passed':bool(ok)})

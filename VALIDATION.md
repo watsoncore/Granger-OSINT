@@ -1,6 +1,30 @@
 # Granger-OSINT — проверка текущей сборки
 
-## Master Fix — текущая поставка
+## Master Reconstruction — текущая поставка, 31 октября 2026
+
+Windows x64: **277070521 байт**, SHA-256
+`6d22ae13c01689f9012d4bc71f22e072d46bc002978b9393488a257aa27f6627`.
+
+- Backend: **1416 passed, 1 skipped, 32 subtests passed**, 267.12 с. Skip — Ollama не запущена.
+- Frontend: **125 passed / 17 файлов**, TypeScript и production build прошли.
+- Последний EXE: graph **26/26**, gallery **6/6**, live DeepSeek/blockchain chat **14/14**,
+  visual restart/follow-up **9/9**, cancel/restart **7/7**. Все относятся к hash выше.
+- Реальные Florence, GeoCLIP и Waypoint завершили CPU inference; сохранённый отчёт
+  восстановлен без повторной генерации. Семь benchmark-классов на пяти реальных
+  исходных фото; точное место ни в одном независимо не подтверждено.
+- Реальный SSE: четыре length, затем stop; пять частей / 15133 символа.
+- Frozen coverage: **114 модулей / 141 проверка ресурсов**. Холодный launcher/pet:
+  14.932/11.195 с до готовности и выхода, минимальный PATH, изолированный профиль.
+- 12 character assets, 121 модуль оригинального Gansar и прежний runtime receipt
+  сохранены. Профиль: 25/27 hashes совпали; два файла изменились при работе обычного
+  пользовательского процесса, полная неизменность не заявляется.
+
+Ошибки ранних прогонов, настоящие HTTP-ограничения, список сценариев и локальных
+screenshots: [полный отчёт A–F](docs/RECONSTRUCTION_RELEASE.md).
+Веса вне EXE/ZIP; optional Google/Yandex/Mapillary keys отсутствуют. Частичные
+данные и гипотезы не обозначаются как подтверждённые факты.
+
+## Предыдущий Master Fix — историческая поставка
 
 Windows x64: **276882699 байт**; SHA-256
 `f6849c5b1e4a8d3e4d93e616680223cd171e9b3ef3b50fb563521baa68be5be9`.

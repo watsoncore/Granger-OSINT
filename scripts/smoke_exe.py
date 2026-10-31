@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 import uuid
+import time
 from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -106,7 +107,7 @@ def _terminate_spawned_binary_tree(executable: Path, root_pid: int) -> list[int]
     return killed
 
 
-def _run_surface(executable: Path, pet: bool, directory: Path) -> dict:
+def _run_surface(executable: Path, pet: bool, directory: Path, timeout_seconds=60) -> dict:
     role = "pet" if pet else "launcher"
     marker = "Desktop pet started" if pet else "Launcher started"
     appdata = directory / role / "appdata"
@@ -121,21 +122,24 @@ def _run_surface(executable: Path, pet: bool, directory: Path) -> dict:
     environment.update(APPDATA=str(appdata), TEMP=str(temporary), TMP=str(temporary),
                        PATH=str(Path(environment.get("SystemRoot", r"C:\Windows")) / "System32"))
     arguments = [str(executable)] + (["--pet"] if pet else []) + ["--smoke-test", "--interaction-qa"]
+    started=time.monotonic()
     process = subprocess.Popen(arguments, env=environment, cwd=working,
                                stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-    check = {"name": role, "spawned_pid": process.pid, "timeout_seconds": 30,
+    check = {"name": role, "spawned_pid": process.pid, "timeout_seconds": timeout_seconds,
              "restricted_path": environment["PATH"], "fresh_profile": True, "passed": False}
     try:
-        stdout, stderr = process.communicate(timeout=30)
+        stdout, stderr = process.communicate(timeout=timeout_seconds)
     except subprocess.TimeoutExpired:
         check["terminated_own_binary_pids"] = _terminate_spawned_binary_tree(executable, process.pid)
         try:
             process.communicate(timeout=5)
         except subprocess.TimeoutExpired:
             pass
-        check["error"] = "The EXE did not exit within 30 seconds; only this test's matching binary processes were terminated."
+        check['elapsed_seconds']=round(time.monotonic()-started,3)
+        check["error"] = f"The EXE did not exit within {timeout_seconds} seconds; only this test's matching binary processes were terminated."
         return check
+    check['elapsed_seconds']=round(time.monotonic()-started,3)
     check["exit_code"] = process.returncode
     log = appdata / "GrangerPet" / "logs" / f"{role}.log"
     text = log.read_text(encoding="utf-8", errors="replace") if log.is_file() else ""
@@ -153,6 +157,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--exe", type=Path, default=ROOT / "dist" / "Granger-OSINT.exe")
     parser.add_argument("--output", type=Path, default=ROOT / "dist" / "binarysmoke.json")
+    parser.add_argument('--timeout',type=int,choices=(30,60),default=60,help='Explicit cold extraction + ready + shutdown allowance per surface')
     args = parser.parse_args()
     executable = args.exe.resolve()
     report = {"schema_version": 1, "tested_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -170,7 +175,7 @@ def main() -> int:
             report['isolated_ipc']=True
             for pet in (False, True):
                 _ensure_no_running_instance()
-                check = _run_surface(executable, pet, Path(temporary))
+                check = _run_surface(executable, pet, Path(temporary), args.timeout)
                 report["checks"].append(check)
                 if not check["passed"]:
                     break
