@@ -1,0 +1,101 @@
+{
+  "exe_sha256": "ba6de760a9fffc412cc51913c6e2ed258adb29c737aea9e1d6216392d402deaa",
+  "method": "Every original native PNG inspected in overview; full-frame overview thumbnails only; unscaled fixed-region face crops retained separately. Not a new renderer.",
+  "sequences": [
+    {
+      "scene": "annoyed-v0",
+      "frames": 115,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "annoyed-v1",
+      "frames": 115,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "annoyed-v2",
+      "frames": 115,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "daydream-v0",
+      "frames": 222,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "hover-v0",
+      "frames": 150,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "idle-v0",
+      "frames": 150,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "phone_solvnox-v0",
+      "frames": 317,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "reading-v0",
+      "frames": 436,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "reading-v1",
+      "frames": 436,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "reading-v2",
+      "frames": 436,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "shy-v0",
+      "frames": 139,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "shy-v1",
+      "frames": 139,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "shy-v2",
+      "frames": 139,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "thinking-v0",
+      "frames": 150,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "wand_play-v0",
+      "frames": 198,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "wand_play-v1",
+      "frames": 198,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "wand_play-v2",
+      "frames": 198,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "wand_play-v3",
+      "frames": 198,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    },
+    {
+      "scene": "working-v0",
+      "frames": 150,
+      "facial_crop": "Fixed native widget ROI; no warp or painted replacement"
+    }
+  ]
+}

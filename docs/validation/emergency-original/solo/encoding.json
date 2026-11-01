@@ -1,0 +1,233 @@
+{
+  "method": "Animated WebP quality 90; native dimensions, original order and timing. Identical adjacent frames may be coalesced by the codec. Original lossless WebP/PNG retained locally.",
+  "clips": [
+    {
+      "name": "annoyed-v0",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 4837,
+      "source_sha256": "9d506143f7b39107a23ea25a56609bc306853e6d52c48ac3a6d2b4a194480aab",
+      "preview_sha256": "7c80f2758537732d0c3f32bcf2383347725d92a3135f39024ded05302f453867",
+      "bytes": 771606,
+      "codec_frames": 100
+    },
+    {
+      "name": "annoyed-v1",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 4832,
+      "source_sha256": "6a96ca6afe8af56b98b8160a7f99f272c4b4d62d1b6515341b431ecde3e82cee",
+      "preview_sha256": "a3d66dc4d7a7a12047c90b873116fc405ec308dd0d3a1cc8a68e33d9b221f427",
+      "bytes": 811664,
+      "codec_frames": 114
+    },
+    {
+      "name": "annoyed-v2",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 4830,
+      "source_sha256": "a008e959162205ed6fd855980c6062df16d302f267a8e4351adb20478a77c58e",
+      "preview_sha256": "55446f676087c73d4cd0a9569335a7775a17d3ad05a410686833535189de2029",
+      "bytes": 829916,
+      "codec_frames": 89
+    },
+    {
+      "name": "daydream-v0",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 9329,
+      "source_sha256": "e2885571ce103e173b70016e61ca5d31f48fe5136e280f11f2f9275666b97dfc",
+      "preview_sha256": "0cc171ee14f759554a9e71e6b7962edc85ea88e7c277d48e07535cf03ea2dc22",
+      "bytes": 1818264,
+      "codec_frames": 221
+    },
+    {
+      "name": "hover-v0",
+      "native_dimensions": [
+        202,
+        256
+      ],
+      "duration_ms": 6298,
+      "source_sha256": "1f7d9f17eab9d83be98ec9bd2e0debdfa06af3f27474c5ade967ca311873aa9e",
+      "preview_sha256": "8a1b967314ccc0f7a8299083b39e44b1d8e87018ad1b5098b184228f9400e521",
+      "bytes": 1258344,
+      "codec_frames": 149
+    },
+    {
+      "name": "idle-v0",
+      "native_dimensions": [
+        202,
+        256
+      ],
+      "duration_ms": 6300,
+      "source_sha256": "720f071b2f7060866449cce65cb536333f2b6c514e25290913f2610cc4f839e4",
+      "preview_sha256": "f635fd2a1b4d1a7010341a6e3176821733e3b75e324a14f2dff6adb06a1cfe0f",
+      "bytes": 1253456,
+      "codec_frames": 149
+    },
+    {
+      "name": "phone_solvnox-v0",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 13317,
+      "source_sha256": "490c97fe3a35a82d1925026dfdd263a6672bb0dd50edc8d112812de046038324",
+      "preview_sha256": "8835549ca2e8a75cf6c15390cefdb427c6ab0fbfdef62e2f6a06104b053e0036",
+      "bytes": 2937912,
+      "codec_frames": 316
+    },
+    {
+      "name": "reading-v0",
+      "native_dimensions": [
+        222,
+        257
+      ],
+      "duration_ms": 18321,
+      "source_sha256": "811db7b097010b43c9fa434665e5fd5cb66254f39f1949c47c505fbdf44f811f",
+      "preview_sha256": "4d429e921c9308b511a0c02297ce3ca73fff9d24d3469743617c46e3ded806bc",
+      "bytes": 3026560,
+      "codec_frames": 352
+    },
+    {
+      "name": "reading-v1",
+      "native_dimensions": [
+        223,
+        257
+      ],
+      "duration_ms": 18326,
+      "source_sha256": "bf910f191eec28d94f186f2664d4367726131fd5ed4236cdbe05f25eab3145b8",
+      "preview_sha256": "ceb7d27528b87bfd96efe87112c7c01a31303bdfe72477624ecc97e24fe29e15",
+      "bytes": 3709882,
+      "codec_frames": 399
+    },
+    {
+      "name": "reading-v2",
+      "native_dimensions": [
+        222,
+        257
+      ],
+      "duration_ms": 18314,
+      "source_sha256": "28ffefebab3c5a37a9715e5558180bf9d65e381a5d3fde82810f77f5939c4dd4",
+      "preview_sha256": "6f4ed168a0543c51d0c9e43c83c79563132721b837d50c58bd4f16dcccd8eefd",
+      "bytes": 3582328,
+      "codec_frames": 404
+    },
+    {
+      "name": "shy-v0",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 5837,
+      "source_sha256": "662fb256c86ba34781b100b72927dc5005ef5643afc68ff20fcd9ce86d653315",
+      "preview_sha256": "1a2a06cf9f4bd95d35204feab1f92b53ae8f0af6c45ed39d50ebd22f1a58e7e9",
+      "bytes": 1216798,
+      "codec_frames": 138
+    },
+    {
+      "name": "shy-v1",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 5839,
+      "source_sha256": "634127a49692831f4ba9711c0597ab6ee5aeeef27248501539737e763f3c229c",
+      "preview_sha256": "db9c8bd69982c12a997f7665b38ab74c8b350910806da7b4b8066e783077a8ee",
+      "bytes": 1219082,
+      "codec_frames": 137
+    },
+    {
+      "name": "shy-v2",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 5844,
+      "source_sha256": "c739b28cc8938f5da9d50170c9a38e0d60d9fbe0cad06807fc21e5e272fe880e",
+      "preview_sha256": "6344a0d194f257b0f97a289bbcdf63ed539e3f309730d882b7513360edda0d53",
+      "bytes": 1211614,
+      "codec_frames": 137
+    },
+    {
+      "name": "thinking-v0",
+      "native_dimensions": [
+        203,
+        256
+      ],
+      "duration_ms": 6301,
+      "source_sha256": "1ac045efb84fe00dbd9b7e60777d036b3c8da14a37bb5e4e16a48b15a3ab789e",
+      "preview_sha256": "915f0a332fc801a0bcc381bf54be2e9ef611999a515b11f209cffb694247b893",
+      "bytes": 792050,
+      "codec_frames": 148
+    },
+    {
+      "name": "wand_play-v0",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 8311,
+      "source_sha256": "1a3ba2d597d14b946869210ceae5db7aff470fa11a8d7b6789715c7c1ec0c592",
+      "preview_sha256": "4c4ab2b37831b6023e9258f86cc25ef5bcfc1b722dc3d9e816db223aaf159aeb",
+      "bytes": 1845482,
+      "codec_frames": 197
+    },
+    {
+      "name": "wand_play-v1",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 8320,
+      "source_sha256": "e2d0b4dc8f1576850e7a6149e8dc80110cc35152561b2bf42a463b1deb64a36f",
+      "preview_sha256": "4e174e7019af5d141fa84e490514195e1d6b6c0ef151cc65e251f55e8ebe5f8a",
+      "bytes": 1831534,
+      "codec_frames": 197
+    },
+    {
+      "name": "wand_play-v2",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 8320,
+      "source_sha256": "d6056f7376821570ddcf89116a68eaf6b510a6bbca63bb3c5d19ac8d7036d064",
+      "preview_sha256": "e20a63a0ea4205b291bc998632dd602a40955d992b523933a7a2d69b0350c192",
+      "bytes": 1835892,
+      "codec_frames": 194
+    },
+    {
+      "name": "wand_play-v3",
+      "native_dimensions": [
+        219,
+        256
+      ],
+      "duration_ms": 8317,
+      "source_sha256": "8173f96155b8b26d1af2ac3398fcfe1bc8c5b54d5f0b556bcc95d4405e3f32a8",
+      "preview_sha256": "6c73289f0d8cfe33952d22f262ab516193b30d9dd6874c167be4186e1a7fece2",
+      "bytes": 1828094,
+      "codec_frames": 197
+    },
+    {
+      "name": "working-v0",
+      "native_dimensions": [
+        203,
+        256
+      ],
+      "duration_ms": 6299,
+      "source_sha256": "bb426c66b6ca0a884ca0d3e5fa55305699b2d7062201d30540e59f0f8d5c0476",
+      "preview_sha256": "e08628a1c646b167ee87e86a9b31fa992302b6070164acecdb3bbaeb1f28d64b",
+      "bytes": 802300,
+      "codec_frames": 148
+    }
+  ]
+}

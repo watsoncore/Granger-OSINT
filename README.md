@@ -1,13 +1,29 @@
 # Granger-OSINT 3.1
 
-## Гермиона: нарисованные руки и предметные циклы
+## Исходная Гермиона — текущая поставка
+
+Восстановлен точный original neutral из проверенной истории `1b75ee9`.
+Master/семь atlas защищены checksums; глаза не заменяются новым рисунком.
+Исправлены предметные сцены, хват, blink, возврат к исходной позе и menu guard.
+Интерфейс, поиск, DeepSeek, Gansar, profile/vault и гостевые рисунки сохранены.
+
+**1533 tests +32 subtests**, **58 native checks**, 600 s soak; **21 полный
+native-клип** окончательного EXE. SHA-256:
+`ba6de760a9fffc412cc51913c6e2ed258adb29c737aea9e1d6216392d402deaa`.
+
+[Итог A–F и ограничения](docs/EMERGENCY_ORIGINAL_RELEASE.md) ·
+[Сравнение исходника/восстановления](docs/validation/emergency-original/identity-comparison.png) ·
+[Анимации и все facial/frame sheets](docs/validation/emergency-original/EXE_PREVIEWS.md).
+
+## Предыдущие pose assets — историческая запись
 
 Новые pose masters заменяют универсальные рукава: видны локоть, предплечье,
 манжета, запястье и разные хваты. Переработаны чтение с захватом листа, телефон
-с отдельными касаниями, палочка, смущение и недовольство. Утверждённые лицо,
-волосы, одежда, размеры приложения и остальные компоненты сохранены.
+с отдельными касаниями, палочка, смущение и недовольство. Изменённые лицо/волосы
+того active renderer не считаются сохранённым оригиналом. Их исправление и
+точный identity gate описаны в [аварийном восстановлении](docs/EMERGENCY_ORIGINAL_RELEASE.md).
 
-[Итог A–G, замеры и SHA-256](docs/HERMIONE_ART_RELEASE.md) ·
+[Исторический итог A–G, замеры и SHA-256](docs/HERMIONE_ART_RELEASE.md) ·
 [41 реальный native-клип](docs/validation/hermione-art-v3/EXE_PREVIEWS.md) ·
 [Рисунки и этапы проверки](docs/HERMIONE_ART_RECONSTRUCTION.md).
 

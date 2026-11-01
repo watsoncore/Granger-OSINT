@@ -1,6 +1,37 @@
 # Granger-OSINT — проверка текущей сборки
 
-## Художественная реконструкция Гермионы — текущая поставка, 31 октября 2026
+## Восстановление исходной Гермионы — текущая поставка, 1 ноября 2026
+
+Windows x64: **278980266 bytes**, SHA-256
+`ba6de760a9fffc412cc51913c6e2ed258adb29c737aea9e1d6216392d402deaa`.
+
+- Backend: **1533 passed, 1 skipped (optional Ollama), 32 subtests**, 289.58 s.
+- Exact identity: **13 SHA**, 0 pixel/alpha changes относительно исторического
+  neutral, исходный 256px atlas exact; master/семь atlas не перегенерированы.
+- **3833 source facial cels**, 512 pose diagnostics с предметами/без.
+- Frozen: **130 modules /209 resources**, прежний frontend bytes сохранены.
+- **21 native-клип /4754 PNG**, actual **23.805–23.817 fps**, все из одного
+  окончательного SHA; 19 widget +2 guarded compositor recordings поверх текста.
+- Native **58/58**, **600.01 s** soak, 300 s unmodified natural typing schedule:
+  reading/annoyed/shy/Ron note; **351/351** adjacent observations advancing,
+  **3 timers**, max status IPC **0.1917 s**, **0 retries**, restart/exit0 без orphan.
+- Cold launcher/pet: **11.054/12.155 s**, restricted PATH, isolated profiles.
+- Standalone195/DPR1.25 idle/reading/phone: **12.014/23.831/23.842 fps**,
+  CPU машины **1.027/2.182/2.311%**, private commit **240.37/241.43/243.28 MB**.
+  Исторический idle был дешевле; универсальное ускорение не заявляется.
+- 25 cycles: **3 timers**, memory **243281920→244342784 bytes**. GPU не измерялся.
+- **54/54** profile, **4/4** guest, **23/23** original character и дополнительный
+  snapshot **70/70** art files unchanged. Старый encrypted-dialog mismatch не
+  откатывался и не расшифровывался; в текущем снимке изменений нет.
+
+[Отчёт A–F, ошибки ранних кандидатов и ограничения](docs/EMERGENCY_ORIGINAL_RELEASE.md) ·
+[Все native previews и facial/frame sheets](docs/validation/emergency-original/EXE_PREVIEWS.md).
+
+## Художественная реконструкция Гермионы — историческая поставка, 31 октября 2026
+
+Показатели ниже относятся к прежнему EXE. Они не доказывают сохранение исходной
+внешности; активные face/hair overlays той версии отклонены. Текущая проверка —
+[аварийное восстановление исходной Гермионы](docs/EMERGENCY_ORIGINAL_RELEASE.md).
 
 Windows x64: **278519050 байт**, SHA-256
 `da5c869384ce1ff51d310813f42b40d5e834143a4f8d52fc836fa0b7649f4cef`.

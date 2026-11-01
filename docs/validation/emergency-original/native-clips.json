@@ -1,0 +1,197 @@
+{
+  "exe_sha256": "ba6de760a9fffc412cc51913c6e2ed258adb29c737aea9e1d6216392d402deaa",
+  "widget_clips": [
+    {
+      "name": "reading-v0",
+      "frames": 436,
+      "seconds": 18.270922000000002,
+      "mode": "widget",
+      "production_duration": 18,
+      "mean_capture_fps": 23.80832231673913,
+      "production_frame_signatures": 427
+    },
+    {
+      "name": "reading-v1",
+      "frames": 436,
+      "seconds": 18.270105,
+      "mode": "widget",
+      "production_duration": 18,
+      "mean_capture_fps": 23.809386973966486,
+      "production_frame_signatures": 428
+    },
+    {
+      "name": "reading-v2",
+      "frames": 436,
+      "seconds": 18.269699,
+      "mode": "widget",
+      "production_duration": 18,
+      "mean_capture_fps": 23.809916080171874,
+      "production_frame_signatures": 427
+    },
+    {
+      "name": "phone_solvnox-v0",
+      "frames": 317,
+      "seconds": 13.27098,
+      "mode": "widget",
+      "production_duration": 13,
+      "mean_capture_fps": 23.81135379602712,
+      "production_frame_signatures": 309
+    },
+    {
+      "name": "wand_play-v0",
+      "frames": 198,
+      "seconds": 8.271466,
+      "mode": "widget",
+      "production_duration": 8,
+      "mean_capture_fps": 23.816817961894543,
+      "production_frame_signatures": 191
+    },
+    {
+      "name": "wand_play-v1",
+      "frames": 198,
+      "seconds": 8.274155,
+      "mode": "widget",
+      "production_duration": 8,
+      "mean_capture_fps": 23.80907778498227,
+      "production_frame_signatures": 190
+    },
+    {
+      "name": "wand_play-v2",
+      "frames": 198,
+      "seconds": 8.274632,
+      "mode": "widget",
+      "production_duration": 8,
+      "mean_capture_fps": 23.80770528526223,
+      "production_frame_signatures": 187
+    },
+    {
+      "name": "wand_play-v3",
+      "frames": 198,
+      "seconds": 8.273904,
+      "mode": "widget",
+      "production_duration": 8,
+      "mean_capture_fps": 23.809800065362133,
+      "production_frame_signatures": 190
+    },
+    {
+      "name": "shy-v0",
+      "frames": 139,
+      "seconds": 5.79688,
+      "mode": "widget",
+      "production_duration": 5.5,
+      "mean_capture_fps": 23.805909385738538,
+      "production_frame_signatures": 131
+    },
+    {
+      "name": "shy-v1",
+      "frames": 139,
+      "seconds": 5.796044,
+      "mode": "widget",
+      "production_duration": 5.5,
+      "mean_capture_fps": 23.80934306226799,
+      "production_frame_signatures": 130
+    },
+    {
+      "name": "shy-v2",
+      "frames": 139,
+      "seconds": 5.796660999999999,
+      "mode": "widget",
+      "production_duration": 5.5,
+      "mean_capture_fps": 23.806808781814222,
+      "production_frame_signatures": 130
+    },
+    {
+      "name": "annoyed-v0",
+      "frames": 115,
+      "seconds": 4.788902,
+      "mode": "widget",
+      "production_duration": 4.5,
+      "mean_capture_fps": 23.805039234463347,
+      "production_frame_signatures": 107
+    },
+    {
+      "name": "annoyed-v1",
+      "frames": 115,
+      "seconds": 4.787561,
+      "mode": "widget",
+      "production_duration": 4.5,
+      "mean_capture_fps": 23.81170704665695,
+      "production_frame_signatures": 107
+    },
+    {
+      "name": "annoyed-v2",
+      "frames": 115,
+      "seconds": 4.78785,
+      "mode": "widget",
+      "production_duration": 4.5,
+      "mean_capture_fps": 23.810269745292775,
+      "production_frame_signatures": 106
+    },
+    {
+      "name": "daydream-v0",
+      "frames": 222,
+      "seconds": 9.282760000000001,
+      "mode": "widget",
+      "production_duration": 9,
+      "mean_capture_fps": 23.80757447138566,
+      "production_frame_signatures": 214
+    },
+    {
+      "name": "idle-v0",
+      "frames": 150,
+      "seconds": 6.257435,
+      "mode": "widget",
+      "production_duration": 6.0,
+      "mean_capture_fps": 23.811673633046126,
+      "production_frame_signatures": 142
+    },
+    {
+      "name": "hover-v0",
+      "frames": 150,
+      "seconds": 6.2582070000000005,
+      "mode": "widget",
+      "production_duration": 6.0,
+      "mean_capture_fps": 23.808736272226213,
+      "production_frame_signatures": 142
+    },
+    {
+      "name": "thinking-v0",
+      "frames": 150,
+      "seconds": 6.258514,
+      "mode": "widget",
+      "production_duration": 6.0,
+      "mean_capture_fps": 23.807568378052682,
+      "production_frame_signatures": 141
+    },
+    {
+      "name": "working-v0",
+      "frames": 150,
+      "seconds": 6.25801,
+      "mode": "widget",
+      "production_duration": 6.0,
+      "mean_capture_fps": 23.80948576304608,
+      "production_frame_signatures": 141
+    }
+  ],
+  "compositor_clips": [
+    {
+      "name": "reading-v0",
+      "frames": 436,
+      "seconds": 18.270432,
+      "mode": "native_text",
+      "production_duration": 18,
+      "mean_capture_fps": 23.808960839021214,
+      "production_frame_signatures": 427
+    },
+    {
+      "name": "phone_solvnox-v0",
+      "frames": 317,
+      "seconds": 13.272670999999999,
+      "mode": "native_text",
+      "production_duration": 13,
+      "mean_capture_fps": 23.80832011883667,
+      "production_frame_signatures": 305
+    }
+  ],
+  "completed": true
+}
