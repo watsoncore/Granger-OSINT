@@ -31,5 +31,10 @@
     "path": "grangerpet/assets/original-hermione/neutral-512.png",
     "sha256": "4d181f85eeb6c11484c264a38103a56f86ee744ae2fdc82b216355f7954ca47b",
     "method": "Exact historical Rig.posed(idle,0) at512px; source generator identical to1b75ee9; no redraw or upscaling"
+  },
+  "derived_closed_head": {
+    "path": "grangerpet/assets/original-hermione/blink-closed-head.png",
+    "sha256": "46b02d2c1e950117ac0d5e5299e85fca1a0e7af3c4273ccb6c116d559a59602c",
+    "method": "Original head plus unchanged historical paint_eyes closure=1. No new eye design."
   }
 }

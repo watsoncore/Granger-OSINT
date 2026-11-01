@@ -56,7 +56,7 @@ def test_closed_lids_occlude_iris_instead_of_alpha_ghosting():
     # Above and below the moving lash, the original dark iris is fully hidden.
     for x,y in ((177,185),(177,202),(258,181),(258,196)):
         c=im.pixelColor(x,y)
-        assert c.alpha()==255 and c.red()>240 and c.green()>200
+        assert c.alpha()==rig.head.pixelColor(x,y).alpha() and c.red()>240 and c.green()>200
 
 
 def test_secondary_curls_overlap_interior_cut_edges():

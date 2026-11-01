@@ -89,6 +89,7 @@ class BookPose:
 @dataclass
 class ActorPose:
     source_idle:bool=False
+    source_time:float=0.
     arm_art:str='rest'
     arm_art_left:str=''
     arm_art_right:str=''
@@ -257,7 +258,8 @@ def action_pose(action,q,t,variant=0,*,aim=(0.,0.),physics=None,_draw_elbows=Tru
     from .hermione_actions import drawn_action
     from .hermione_pose_bank import arm_pose_bank
     a=drawn_action(action,q,t,variant) or arm_pose_bank()['relaxed']
-    a.source_idle=action in ('idle','') and physics is None
+    a.source_idle=action in ('idle','hover','') and physics is None
+    a.source_time=t
     a.blink=max(a.blink,max(0.,1-abs(t%5.3-4.1)/.075))
     envelope=track(q,(0.,0.),(.16,1.),(.80,1.),(1.,0.))
     if action in ('sleep','wake'):

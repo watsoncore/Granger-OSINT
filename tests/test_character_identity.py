@@ -13,6 +13,11 @@ from PySide6.QtWidgets import QApplication
 from grangerpet.animation import SpriteLibrary
 from grangerpet.articulated import render_actor,HermioneRig
 from grangerpet.scene_pose import action_pose
+from grangerpet.scene_pose import ActorPose
+from grangerpet.original_face import OriginalFace
+from grangerpet.original_idle import OriginalIdle
+from PySide6.QtCore import QPointF,Qt
+from PySide6.QtGui import QPainter
 from grangerpet.original_identity import verify_original_assets
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -64,3 +69,39 @@ def test_generators_refuse_to_overwrite_protected_originals(script,target):
     result=subprocess.run([sys.executable,str(ROOT/'scripts'/script),'--output',str(target)],capture_output=True,text=True)
     assert result.returncode!=0 and 'Refusing to overwrite' in result.stdout+result.stderr
     verify_original_assets(ASSETS)
+
+
+def test_original_idle_layers_recompose_the_historical_neutral(app):
+    lib=SpriteLibrary();frame=QImage(512,512,QImage.Format.Format_ARGB32_Premultiplied);frame.fill(Qt.GlobalColor.transparent)
+    p=QPainter(frame);p.setRenderHints(QPainter.RenderHint.Antialiasing|QPainter.RenderHint.SmoothPixmapTransform)
+    OriginalIdle(lib.scenes.layers).draw(p,ActorPose());p.end()
+    assert rgba(frame)==rgba(lib.scenes.original_neutral)
+
+
+def test_blink_restores_the_exact_source_without_mutating_it(app):
+    lib=SpriteLibrary();head=lib.scenes.layers['head'];original=rgba(head);face=OriginalFace(lib.scenes.layers['base'])
+    for blink in (0.,.25,.5,1.,.5,.25,0.):
+        frame=face.image(ActorPose(blink=blink))
+        assert rgba(frame)[3::4]==original[3::4]  # No alpha halo or head-edge flicker.
+        if blink==0:assert rgba(frame)==original
+        if blink>.35:assert rgba(frame)!=original  # A real closed cel is present.
+    assert rgba(head)==original
+
+
+@pytest.mark.parametrize('gaze',[(-5.,0.),(5.,0.),(0.,6.),(0.,-4.)])
+def test_gaze_cannot_translate_eye_contours_or_change_the_iris_rim(app,gaze):
+    lib=SpriteLibrary();head=lib.scenes.layers['head'];face=OriginalFace(lib.scenes.layers['base'])
+    frame=face.image(ActorPose(gaze=gaze))
+    before,after=rgba(head),rgba(frame)
+    assert before!=after
+    for y in range(160,212):
+        for x in range(150,290):
+            if not any(area.contains(QPointF(x+.5,y+.5)) for area in face.interiors):
+                i=(y*512+x)*4;assert before[i:i+4]==after[i:i+4]
+
+
+def test_original_idle_breathes_without_moving_its_feet(app):
+    lib=SpriteLibrary();first=render_actor(lib,action_pose('idle',0,0),512)
+    breathing=render_actor(lib,action_pose('idle',.1,.35),512)
+    assert rgba(first)!=rgba(breathing)
+    assert rgba(first.copy(0,420,512,92))==rgba(breathing.copy(0,420,512,92))

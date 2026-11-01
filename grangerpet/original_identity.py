@@ -14,4 +14,8 @@ def verify_original_assets(directory):
     neutral=directory/'original-hermione/neutral-512.png'
     if hashlib.sha256(neutral.read_bytes()).hexdigest()!=manifest['derived_neutral']['sha256']:
         raise ValueError('Изменён проверенный neutral reference Гермионы')
+    if 'derived_closed_head' in manifest:
+        closed=directory/'original-hermione/blink-closed-head.png'
+        if hashlib.sha256(closed.read_bytes()).hexdigest()!=manifest['derived_closed_head']['sha256']:
+            raise ValueError('Изменён исходный вариант моргания Гермионы')
     return manifest

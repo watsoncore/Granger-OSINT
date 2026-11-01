@@ -65,6 +65,8 @@ class HermioneRig:
         self.head=QImage(str(Path(__file__).parent/'assets/scenes/hermione-head.png'))
         if self.head.isNull():raise ValueError('Missing original Hermione head')
         self.curls=[]
+        from .original_face import OriginalFace
+        self.original_face=OriginalFace(master,self.head)
         # Original costume and footwear are texture layers, not new silhouettes.
         self.torso=image(512);p=QPainter(self.torso);p.setRenderHint(QPainter.RenderHint.Antialiasing)
         pen(p,INK,4);p.setBrush(QColor(ROBE))
@@ -110,10 +112,10 @@ class HermioneRig:
             hands.append((wrist,mode,side,a.hand_angle_left if side<0 else a.hand_angle_right))
         # Head is independently articulated, but hair roots share its transform.
         p.save();p.translate(229+a.turn*5,252+a.head_drop);p.rotate(a.head);p.translate(-229,-252)
-        p.drawImage(0,0,self.head)
+        p.drawImage(0,0,self.original_face.image(a))
         for index,(curl,root) in enumerate(self.curls):
             p.save();p.translate(*root);p.rotate(a.hair*(1 if index==0 else -.8));p.translate(-root[0],-root[1]);p.drawImage(0,0,curl);p.restore()
-        self.face(p,a);p.restore()
+        p.restore()
         held=a.book.visible or a.phone or a.wand
         if self.painted_arms:
             if draw_hands or held or hand_base:
@@ -198,8 +200,7 @@ class HermioneRig:
         pen(p,'#bb8d6b',1.2);p.drawLine(QPointF(2,0),QPointF(9,0));p.restore()
 
     def face(self,p,a):
-        # Neutral identity is the historical source pixels, never a new face.
-        return
+        p.drawImage(0,0,self.original_face.image(a))
 
     @staticmethod
     def book(p,b:BookPose):
@@ -265,7 +266,7 @@ class HermioneRig:
 
 def render_actor(library,a,size=256,dpr=1.,*,debug=False,props=True):
     art=library.scenes
-    if a.source_idle:
+    if a.source_idle and a.source_time==0 and a.blink==0 and a.gaze==(0.,0.):
         # At the historical atlas resolution use its exact decoded pixels.
         # Higher DPI uses the original 512px generator output, never an upscale.
         physical=max(1,round(size*dpr));source=library.frames['idle'][0] if physical<=256 else art.original_neutral
@@ -275,7 +276,12 @@ def render_actor(library,a,size=256,dpr=1.,*,debug=False,props=True):
     canvas=image(max(1,round(size*dpr)));p=QPainter(canvas)
     p.setRenderHints(QPainter.RenderHint.Antialiasing|QPainter.RenderHint.SmoothPixmapTransform)
     p.scale(canvas.width()/512,canvas.height()/512)
-    art.hermione_rig.draw(p,a,debug=debug,draw_props=props)
+    if a.source_idle:
+        if not hasattr(art,'original_idle'):
+            from .original_idle import OriginalIdle
+            art.original_idle=OriginalIdle(art.layers)
+        art.original_idle.draw(p,a)
+    else:art.hermione_rig.draw(p,a,debug=debug,draw_props=props)
     p.end()
     canvas.setDevicePixelRatio(dpr);return canvas
 
