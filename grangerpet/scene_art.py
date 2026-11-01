@@ -5,8 +5,12 @@ from PySide6.QtGui import QImage
 
 class SceneArtLibrary:
     def __init__(self,directory:Path):
+        from .original_identity import verify_original_assets
+        self.original_identity=verify_original_assets(directory.parent)
         self.layers={name:QImage(str(directory/f'hermione-{name}.png'))
             for name in ('base','head','body','wand_arm','free_arm','left_leg','right_leg')}
+        self.original_neutral=QImage(str(directory.parent/'original-hermione/neutral-512.png'))
+        if self.original_neutral.isNull():raise ValueError('Не найден исходный neutral master Гермионы')
         self.cameos={name:QImage(str(directory/('harry-v2.png' if name=='harry' else f'{name}.png')))
             for name in ('draco','ron','harry')}
         self.hair_repair=QImage(str(directory/'hermione-left-curl-v2.png'))

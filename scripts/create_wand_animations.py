@@ -282,7 +282,14 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def main():
+def main(argv=None):
+    import argparse
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output',type=Path,default=ROOT/'output/derived-character/legacy-atlas')
+    args=parser.parse_args(argv);ASSETS=args.output.resolve()
+    if ASSETS in ((ROOT/'grangerpet/assets').resolve(),(ROOT/'resources/wand-reference').resolve()):
+        raise SystemExit('Refusing to overwrite immutable original Hermione assets; use a separate derived output directory')
+    QA=ASSETS/'qa'
     QA.mkdir(parents=True, exist_ok=True)
     base_path = SOURCE / "base-512.png"
     base = QImage(str(base_path))

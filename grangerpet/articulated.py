@@ -59,52 +59,12 @@ class HermioneRig:
         self.master=master
         self.painted_arms=painted_arms
         self.soles=sole_points(master,(178,244),(260,326))
-        self.head=image(512)
-        p=QPainter(self.head);p.setRenderHint(QPainter.RenderHint.Antialiasing)
-        # Preserve the full external upper/right hair contour; exclude costume.
-        mask=path([(0,0),(512,0),(512,335),(290,335),(275,263),(231,252),(192,244),(155,277),(155,335),(0,335)])
-        p.setClipPath(mask);p.drawImage(0,0,master);p.setClipping(False)
-        # The original wand crosses this curl. Replace that small editable curl
-        # with matched native paths; never erase the wand with a skin/hair smear.
-        p.setCompositionMode(QPainter.CompositionMode.CompositionMode_DestinationOut)
-        p.fillRect(QRectF(0,187,136,153),Qt.GlobalColor.white)
-        p.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceOver)
-        pen(p,INK,4);p.setBrush(QColor('#846f49'))
-        curl=QPainterPath(QPointF(127,181));curl.cubicTo(116,192,87,200,92,219)
-        curl.cubicTo(99,235,76,243,81,260);curl.cubicTo(90,275,67,288,78,300)
-        curl.cubicTo(91,318,113,299,134,303);curl.cubicTo(127,286,148,276,137,260)
-        curl.cubicTo(128,247,148,237,136,222);curl.cubicTo(130,210,142,194,127,181);p.drawPath(curl)
-        pen(p,'#d3bd8e',3);p.setBrush(Qt.BrushStyle.NoBrush)
-        strand=QPainterPath(QPointF(116,195));strand.cubicTo(88,215,118,218,103,237)
-        strand.cubicTo(88,255,114,259,98,279);strand.cubicTo(87,292,95,301,104,302);p.drawPath(strand)
-        pen(p,'#4d3a24',2)
-        strand=QPainterPath(QPointF(130,227));strand.cubicTo(114,249,139,254,121,274)
-        strand.cubicTo(111,286,125,293,128,297);p.drawPath(strand);p.end()
-        if hair_repair is not None and not hair_repair.isNull():
-            # Restore the source first; clear only the occluded left curl, then
-            # overlap the fitted repair inside intact hair. Face stays original.
-            self.head=image(512);p=QPainter(self.head);p.setRenderHint(QPainter.RenderHint.Antialiasing)
-            p.setClipPath(mask);p.drawImage(0,0,master);p.setClipping(False)
-            p.setCompositionMode(QPainter.CompositionMode.CompositionMode_DestinationOut)
-            p.fillRect(QRectF(0,190,139,145),Qt.GlobalColor.white)
-            p.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceOver)
-            p.drawImage(0,0,hair_repair);p.end()
-        if hair_fringe is not None and not hair_fringe.isNull():
-            # Costume from the master can sit between the hanging curls. Use
-            # the clean lower fringe instead of retaining sleeve-colored holes.
-            p=QPainter(self.head);p.setCompositionMode(QPainter.CompositionMode.CompositionMode_DestinationOut)
-            p.fillRect(QRectF(0,258,512,80),Qt.GlobalColor.white)
-            p.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceOver)
-            p.setClipRect(QRectF(0,250,512,88));p.drawImage(0,0,hair_fringe);p.end()
+        # Immutable historical head, including its original face, bangs and hair.
+        # Do not rebuild its curls or replace its eyes with generated geometry.
+        from pathlib import Path
+        self.head=QImage(str(Path(__file__).parent/'assets/scenes/hermione-head.png'))
+        if self.head.isNull():raise ValueError('Missing original Hermione head')
         self.curls=[]
-        for rect,root in ((QRectF(60,224,91,105),(133,236)),(QRectF(318,220,139,114),(338,236))):
-            layer=image(512);p=QPainter(layer);p.setClipRect(rect);p.drawImage(0,0,self.head);p.end()
-            self.curls.append((layer,root))
-        p=QPainter(self.head);p.setCompositionMode(QPainter.CompositionMode.CompositionMode_DestinationOut)
-        # Keep a hidden interior underlap at the cut edges. A rotating rectangular
-        # curl cutout otherwise exposes a hairline slot into the background at
-        # DPR2; the approved outer contour and face are untouched.
-        p.fillRect(QRectF(60,248,81,90),Qt.GlobalColor.white);p.fillRect(QRectF(328,248,139,92),Qt.GlobalColor.white);p.end()
         # Original costume and footwear are texture layers, not new silhouettes.
         self.torso=image(512);p=QPainter(self.torso);p.setRenderHint(QPainter.RenderHint.Antialiasing)
         pen(p,INK,4);p.setBrush(QColor(ROBE))
@@ -124,13 +84,6 @@ class HermioneRig:
             for rect in (QRectF(0,419,512,27),QRectF(0,442,512,37),QRectF(0,475,512,37)):
                 layer=image(512);p=QPainter(layer);p.setClipRect(rect);p.drawImage(0,0,leg);p.end();parts.append(layer)
             self.leg_parts.append(parts)
-        # Iris textures exclude skin/lashes, and stay clipped inside source eyes.
-        self.iris=[]
-        for rect in ((165,173,27,32),(244,168,29,34)):
-            layer=QImage(rect[2],rect[3],QImage.Format.Format_ARGB32_Premultiplied);layer.fill(Qt.GlobalColor.transparent)
-            p=QPainter(layer);p.setRenderHint(QPainter.RenderHint.Antialiasing)
-            clip=QPainterPath();clip.addEllipse(QRectF(1,0,rect[2]-2,rect[3]))
-            p.setClipPath(clip);p.drawImage(QPointF(-rect[0],-rect[1]),master);p.end();self.iris.append(layer)
 
     def draw(self,p:QPainter,a:ActorPose,*,debug=False,draw_hands=True,hand_base=False,draw_props=True):
         plant_feet(a,self.soles)
@@ -245,43 +198,8 @@ class HermioneRig:
         pen(p,'#bb8d6b',1.2);p.drawLine(QPointF(2,0),QPointF(9,0));p.restore()
 
     def face(self,p,a):
-        # Exact source eye outlines remain; iris movement stays inside white.
-        eyes=[[(158,180),(171,173),(188,175),(198,185),(193,202),(174,207),(163,200)],
-              [(239,176),(251,170),(269,170),(281,180),(276,199),(254,202),(243,195)]]
-        for i,pts in enumerate(eyes):
-            clip=path(pts);p.save();p.setClipPath(clip)
-            p.fillPath(clip,QColor('#fffaf0'));x,y=(165,173) if i==0 else (244,168)
-            p.drawImage(QPointF(x+a.gaze[0],y+a.gaze[1]),self.iris[i]);p.restore()
-        if a.blink>.05:
-            for i,pts in enumerate(eyes):
-                # Opaque lids close an aperture. Alpha-fading a skin patch made
-                # both open eyes and closed lashes visible at the same time.
-                amount=max(0.,min(1.,a.blink));x,top,bottom,closed=(158,173,207,191) if i==0 else (239,169,202,186)
-                upper=top+(closed-top)*amount;lower=bottom+(closed-bottom)*amount
-                p.save();p.setClipPath(path(pts));p.setBrush(QColor(SKIN));p.setPen(Qt.PenStyle.NoPen)
-                lid=QPainterPath(QPointF(x-3,top-6));lid.lineTo(x+44,top-6);lid.lineTo(x+44,upper-1)
-                lid.lineTo(x+39,upper-1);lid.quadTo(x+19,upper+10*amount,x,upper);lid.lineTo(x-3,upper);lid.closeSubpath();p.drawPath(lid)
-                lower_lid=QPainterPath(QPointF(x-3,bottom+6));lower_lid.lineTo(x+44,bottom+6)
-                lower_lid.lineTo(x+39,lower-1);lower_lid.quadTo(x+19,lower+10*amount,x,lower)
-                lower_lid.lineTo(x-3,lower);lower_lid.closeSubpath();p.drawPath(lower_lid);p.restore()
-                pen(p,'#4c3222',2.7);p.setBrush(Qt.BrushStyle.NoBrush)
-                lash=QPainterPath(QPointF(x,upper));lash.quadTo(x+19,upper+10*amount,x+39,upper-1);p.drawPath(lash)
-        # A source-colored patch is local to the mouth, never the jaw/hair edge.
-        p.setPen(Qt.PenStyle.NoPen);p.setBrush(QColor(SKIN));p.drawEllipse(QRectF(208,215,30,28))
-        pen(p,'#68422b',2.2);p.setBrush(QColor('#c97d68'))
-        if a.mouth=='open':p.drawEllipse(QRectF(217,221,12,16))
-        elif a.mouth=='smile':
-            line=QPainterPath(QPointF(214,225));line.quadTo(223,236,232,224);p.setBrush(Qt.BrushStyle.NoBrush);p.drawPath(line)
-        elif a.mouth=='pout':
-            p.drawLine(QPointF(214,229),QPointF(229,227))
-        else:p.drawLine(QPointF(217,228),QPointF(230,227))
-        if a.blush:
-            p.setPen(Qt.PenStyle.NoPen);p.setBrush(QColor(223,128,115,round(105*a.blush)))
-            p.drawEllipse(QRectF(156,208,27,9));p.drawEllipse(QRectF(258,202,27,9))
-        if a.brow:
-            pen(p,'#4f3925',2.7)
-            p.drawLine(QPointF(160,167-4*a.brow),QPointF(186,168+5*a.brow))
-            p.drawLine(QPointF(241,164+5*a.brow),QPointF(269,158-3*a.brow))
+        # Neutral identity is the historical source pixels, never a new face.
+        return
 
     @staticmethod
     def book(p,b:BookPose):
@@ -347,10 +265,18 @@ class HermioneRig:
 
 def render_actor(library,a,size=256,dpr=1.,*,debug=False,props=True):
     art=library.scenes
+    if a.source_idle:
+        # At the historical atlas resolution use its exact decoded pixels.
+        # Higher DPI uses the original 512px generator output, never an upscale.
+        physical=max(1,round(size*dpr));source=library.frames['idle'][0] if physical<=256 else art.original_neutral
+        canvas=source.scaled(physical,physical,Qt.AspectRatioMode.IgnoreAspectRatio,Qt.TransformationMode.SmoothTransformation)
+        canvas=canvas.convertToFormat(QImage.Format.Format_ARGB32_Premultiplied);canvas.setDevicePixelRatio(dpr);return canvas
     if not hasattr(art,'hermione_rig'):art.hermione_rig=HermioneRig(art.layers['base'],art.hair_repair,art.hair_fringe,getattr(art,'painted_arms',None))
     canvas=image(max(1,round(size*dpr)));p=QPainter(canvas)
     p.setRenderHints(QPainter.RenderHint.Antialiasing|QPainter.RenderHint.SmoothPixmapTransform)
-    p.scale(canvas.width()/512,canvas.height()/512);art.hermione_rig.draw(p,a,debug=debug,draw_props=props);p.end()
+    p.scale(canvas.width()/512,canvas.height()/512)
+    art.hermione_rig.draw(p,a,debug=debug,draw_props=props)
+    p.end()
     canvas.setDevicePixelRatio(dpr);return canvas
 
 

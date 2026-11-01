@@ -1,0 +1,63 @@
+{
+  "source_commit": "1b75ee99ef5329880048287f962e7b00684346b2",
+  "protected_files": [
+    {
+      "path": "grangerpet/assets/character.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet/assets/idle.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet/assets/hover.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet/assets/happy.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet/assets/thinking.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet/assets/working.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet/assets/walk.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet/assets/error.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet/assets/animations.json",
+      "matches": true
+    },
+    {
+      "path": "grangerpet/assets/provenance.json",
+      "matches": true
+    },
+    {
+      "path": "resources/wand-reference/base-512.png",
+      "matches": true
+    },
+    {
+      "path": "resources/wand-reference/reference.png",
+      "matches": true
+    },
+    {
+      "path": "grangerpet/assets/scenes/hermione-head.png",
+      "matches": true
+    }
+  ],
+  "neutral_face_exact": true,
+  "opaque_pixel_changes": 0,
+  "alpha_pixel_changes": 0,
+  "historical_atlas_256_exact": true,
+  "method": "Historical generator and immutable user master versus actual render_actor; no AI generation; original seven atlases retained",
+  "passed": true
+}

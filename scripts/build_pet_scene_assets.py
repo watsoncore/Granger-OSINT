@@ -52,8 +52,14 @@ def harry_from_ron(source,target):
     p.end();base.save(str(target))
 
 
-def main():
-    out=ROOT/'grangerpet/assets/scenes';out.mkdir(parents=True,exist_ok=True)
+def main(argv=None):
+    import argparse
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output',type=Path,default=ROOT/'output/derived-character/scenes')
+    args=parser.parse_args(argv);out=args.output.resolve()
+    if out==(ROOT/'grangerpet/assets/scenes').resolve():
+        raise SystemExit('Refusing to overwrite original scene layers; use a separate derived output directory')
+    out.mkdir(parents=True,exist_ok=True)
     rig=Rig(QImage(str(ROOT/'resources/wand-reference/base-512.png')))
     for name in ('base','head','body','wand_arm','free_arm','left_leg','right_leg'):
         getattr(rig,name).save(str(out/f'hermione-{name}.png'))

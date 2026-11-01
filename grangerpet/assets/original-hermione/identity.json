@@ -1,0 +1,35 @@
+{
+  "source_commit": "1b75ee99ef5329880048287f962e7b00684346b2",
+  "source_description": "Original supplied wand-reference Chibi and seven atlases; verified against supplied reference and immutable master, not selected by date",
+  "immutable_files": {
+    "grangerpet/assets/character.png": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b",
+    "grangerpet/assets/idle.png": "9ad7e050f8988271ce694050e39c2dd0e5f70c800a4988866536a6baaee44692",
+    "grangerpet/assets/hover.png": "f0c48343b71d43ca48e207558dc493fd582035680c1150f9281e2c48cb7895a8",
+    "grangerpet/assets/happy.png": "f9672e979de38a4df7d6dadd22af727155ab7e2ca7e9b3e640f029f4125ac379",
+    "grangerpet/assets/thinking.png": "82dae7bd6d4a24779e392c6fdcd1d11dc4a3bdbd3077ca72de80fe01078133ad",
+    "grangerpet/assets/working.png": "0ccdf4c917d3fdccc38a4fc86cbafd64749b79dbb01d0a339d7245e211506e28",
+    "grangerpet/assets/walk.png": "ca07e51aff5886a4381f225d31cb01fd8adbb8bfd4532d36a1ddba3682300470",
+    "grangerpet/assets/error.png": "fe3f7ec13c559b3cbc4a1feecf3ed55eaf18a55cdc38c73f417a2e60dec1c0ef",
+    "grangerpet/assets/animations.json": "61df6fb08c41f5ba25199e37415043d929f387a6b50db377170cbb7999f0a1df",
+    "grangerpet/assets/provenance.json": "a4e1c3cb0662ae0ca8093ed36137bec642364b78965f3ca77b72813e203c8a2b",
+    "resources/wand-reference/base-512.png": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b",
+    "resources/wand-reference/reference.png": "6cdebad01e0e85c0381efcbf931b1908eb054fcd9eed9dbd5a6303a9a8d19520",
+    "grangerpet/assets/scenes/hermione-head.png": "aefca77b6dad974687280d6e49969e6a1fd19380c63140ef3d85381945d2ed4b"
+  },
+  "runtime_head_source_commit": "a3d0ccb",
+  "neutral_source": "grangerpet/assets/idle.png frame 0",
+  "immutable_features": [
+    "face drawing",
+    "eye shapes and spacing",
+    "neutral mouth",
+    "bangs",
+    "hair outline and palette",
+    "head proportions",
+    "base costume and body proportions"
+  ],
+  "derived_neutral": {
+    "path": "grangerpet/assets/original-hermione/neutral-512.png",
+    "sha256": "4d181f85eeb6c11484c264a38103a56f86ee744ae2fdc82b216355f7954ca47b",
+    "method": "Exact historical Rig.posed(idle,0) at512px; source generator identical to1b75ee9; no redraw or upscaling"
+  }
+}
