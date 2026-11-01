@@ -15,8 +15,11 @@ def test_raised_phone_is_supported_and_finger_lifts_between_taps():
     assert min(gaps)<.2 and max(gaps)>9
     pause=phone_pose(.5,6.5)
     assert math.dist(hand_contact(pause,-1),phone_point(pause,-15.,6.))>9
-    assert phone_pose(.55,7.15).phone_lines==0
+    assert phone_pose(.55,7.15).phone_lines==1  # Delete part, then continue typing.
     assert phone_pose(.67,8.71).phone_lines==3
+    erase=phone_pose(.535,.535*13)
+    assert math.dist(hand_contact(erase,-1),phone_point(erase,-12.,16.))<1e-6
+    assert 0<erase.phone_lines<3
 
 
 @pytest.mark.parametrize('variant',range(4))

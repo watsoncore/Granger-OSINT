@@ -35,11 +35,13 @@ def phone_pose(q,t):
     if q<.035 or q>.985:a.arm_art='rest'
     a.elbow_left=track(q,(0.,a.elbow_left),(.25,a.elbow_left),(.315,(160.,366.)),
         (.675,(160.,366.)),(.76,(161.,357.)),(.835,(161.,357.)),(.94,a.elbow_left),(1.,a.elbow_left))
-    target=phone_point(a,-15.,6.)
+    erase=track(q,(0.,0.),(.505,0.),(.525,1.),(.54,1.),(.555,0.),(1.,0.))
+    target=phone_point(a,-15.+3*erase,6.+10*erase)
     # A full lift-off between distinct taps is visible even at desktop size.
     # During the pause the finger remains away; it never taps continuously.
     tapping=track(q,(0.,0.),(.33,0.),(.34,1.),(.46,1.),(.47,0.),(.55,0.),(.56,1.),(.655,1.),(.665,0.),(1.,0.))
     lift=10.-tapping*(1-math.cos((t-4.29)*math.tau/.65))*5
+    lift=min(lift,10*(1-erase))  # Deliberate backspace press after the pause.
     target=(target[0]-.85*lift,target[1]+.52*lift)
     wrist=pointing_wrist(a.elbow_left,target,'index',-1)
     approach=track(q,(0.,0.),(.25,0.),(.315,1.),(.675,1.),(.715,0.),(1.,0.))
@@ -49,7 +51,7 @@ def phone_pose(q,t):
     a.left=mix(a.left,phone_point(a,-15.,30.),hug)
     if hug>.4:a.left_hand='grip'
     if q<.25 or q>.94:a.arm_art_left='rest'
-    a.phone_lines=int(track(q,(0.,0.),(.33,0.),(.47,3.),(.51,3.),(.55,0.),(.665,3.),(1.,3.)))
+    a.phone_lines=int(track(q,(0.,0.),(.33,0.),(.47,3.),(.51,3.),(.55,1.),(.665,3.),(1.,3.)))
     a.head=track(q,(0.,0.),(.12,4.),(.28,6.),(.49,3.),(.55,7.),(.72,5.),(.8,9.),(1.,0.))
     a.gaze=(track(q,(0.,0.),(.23,2.),(.48,2.),(.515,-2.),(.55,2.),(.84,2.),(1.,0.)),
         track(q,(0.,0.),(.13,4.),(.3,5.),(.8,5.),(1.,0.)))
