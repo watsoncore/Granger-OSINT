@@ -40,6 +40,8 @@ def main():
                 command=json.loads(line)
                 if not isinstance(command,dict) or set(command)-{'id','action','url','element_id','snapshot_id','text','delta'}:raise ValueError('invalid_browser_command')
                 action=command.get('action')
+                before_state=json.dumps({'url':last.get('url'),'text':last.get('text'),
+                    'scroll':(last.get('viewport') or {}).get('scrollY'),'fields':[(e.get('name'),e.get('value')) for e in last.get('elements',[]) if e.get('search_field')]},sort_keys=True)
                 if action=='close':
                     print(json.dumps({'id':command['id'],'ok':True,'closed':True}),flush=True);break
                 if action not in ('navigate','snapshot','screenshot','click','type','scroll','back'):raise ValueError('unknown_browser_action')
@@ -113,10 +115,14 @@ def main():
                 for index,handle in enumerate(handles):
                     item=handle.evaluate("e=>({tag:e.tagName.toLowerCase(),type:e.getAttribute('type')||'',name:e.getAttribute('name')||'',label:(e.getAttribute('aria-label')||e.innerText||e.getAttribute('placeholder')||e.getAttribute('title')||((e.type==='submit'||e.type==='button')?e.value:'')||'').trim().slice(0,180),href:e.tagName==='A'?e.href:'',form_method:e.form?(e.form.method||'get').toLowerCase():'',search_field:e.matches('input[type=search],input[name=q],input[name=query],input[name=search],input[role=searchbox]')})")
                     item['id']=str(index);last['elements'].append(item)
+                    if item['search_field']:item['value']=str(handle.input_value())[:300]
                 epoch=uuid.uuid4().hex
+                workflow_state=json.dumps({'url':last.get('url'),'text':last.get('text'),
+                    'scroll':(last.get('viewport') or {}).get('scrollY'),'fields':[(e.get('name'),e.get('value')) for e in last.get('elements',[]) if e.get('search_field')]},sort_keys=True)
                 picture=page.screenshot(type='jpeg',quality=65,timeout=8000)
                 if len(picture)>700_000:raise ValueError('screenshot_budget')
                 result={'id':command['id'],'ok':True,'snapshot_id':epoch,'action':action,'untrusted_page_data':last,
+                    'workflow_state':hashlib.sha256(workflow_state.encode()).hexdigest(),'action_effect':workflow_state!=before_state,
                     'screenshot':base64.b64encode(picture).decode(),'screenshot_mime':'image/jpeg','screenshot_sha256':hashlib.sha256(picture).hexdigest(),
                     'network':{'wire_bytes':proxy.bytes,'requests':proxy.requests,'blocked':proxy.blocked},
                     'robots_checks':robots.checks,
@@ -124,6 +130,7 @@ def main():
             except Exception as error:
                 code=str(error) if isinstance(error,ValueError) else 'browser_timeout' if 'Timeout' in type(error).__name__ else 'browser_operation_failed'
                 result={'id':command.get('id'),'ok':False,'error_code':code[:100] if re.fullmatch(r'[a-z_]+',code) else 'browser_operation_failed'}
+                if robots:result['robots_checks']=robots.checks
             raw=json.dumps(result,ensure_ascii=True)
             if len(raw)>1_800_000:raw=json.dumps({'id':command.get('id'),'ok':False,'error_code':'browser_output_budget'})
             print(raw,flush=True)

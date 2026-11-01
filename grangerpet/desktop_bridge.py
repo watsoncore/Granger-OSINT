@@ -395,6 +395,9 @@ class DesktopBridge(QObject):
         registry=getattr(chat,'_agent_registry',None)
         browser_state=getattr(registry,'browser_state',None)
         base['browser']=browser_state() if callable(browser_state) else {}
+        if not base['browser'].get('url'):
+            manual_state=getattr(self._manual_registry,'browser_state',None)
+            base['browser']=manual_state() if callable(manual_state) else {}
         current_id=chat._last_investigation.get('id','')
         if current_id and current_id!=self._seen_chat_investigation:
             self._seen_chat_investigation=current_id
@@ -638,9 +641,12 @@ class DesktopBridge(QObject):
             self.route='chat'
         elif action=='chat_stop': chat.cancel()
         elif action=='browser_stop':
-            registry=getattr(chat,'_agent_registry',None)
-            if registry is not None:registry.close()
+            for registry in (getattr(chat,'_agent_registry',None),self._manual_registry):
+                close=getattr(registry,'close',None)
+                if callable(close):close()
             if chat.busy:chat.cancel()
+            if self._manual_job:
+                self._manual_job.cancel()
         elif action in ('attachment_choose','attachment_import','attachment_remove','attachment_cancel'):
             return self._attachment_action(action,payload)
         elif action=='chat_new': chat.new_conversation(); self._history_time=0
@@ -1397,6 +1403,8 @@ class DesktopBridge(QObject):
     def shutdown(self):
         if self._closed:return
         self._closed = True
+        close=getattr(self._manual_registry,'close',None)
+        if callable(close):close()
         self._flush.stop()
         for job in (*self._geo_jobs.values(),*self._tile_jobs.values()):job.cancel();job.deleteLater()
         self._geo_jobs={};self._tile_jobs={};self._geo_views={};self._map_tiles={}

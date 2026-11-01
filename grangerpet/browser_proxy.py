@@ -4,11 +4,12 @@ import socket
 import socketserver
 import threading
 import time
-from urllib.request import ProxyHandler,Request,build_opener
-from urllib.error import HTTPError,URLError
+import http.client
+import ssl
 from urllib.robotparser import RobotFileParser
 from urllib.parse import urlsplit
-from browser_policy import public_endpoint,public_url
+try:from .browser_policy import public_endpoint,public_url
+except ImportError:from browser_policy import public_endpoint,public_url
 
 
 class PublicProxy(socketserver.ThreadingTCPServer):
@@ -31,17 +32,31 @@ class RobotsPolicy:
         url=public_url(url);parts=urlsplit(url);origin=parts.scheme+'://'+parts.netloc
         if origin not in self.cache:
             endpoint=origin+'/robots.txt';reader=RobotFileParser(endpoint);status='unavailable'
+            connection=None
             try:
-                proxy='http://127.0.0.1:'+str(self.proxy.server_address[1])
-                opener=build_opener(ProxyHandler({'http':proxy,'https':proxy}))
-                with opener.open(Request(endpoint,headers={'User-Agent':'Granger-OSINT/3.1 public research'}),timeout=5) as response:
+                # urllib's ProxyHandler still consults Windows proxy-bypass
+                # settings. Connect to our literal proxy directly instead;
+                # HTTPS CONNECT retains normal certificate/hostname validation.
+                if parts.scheme=='https':
+                    connection=http.client.HTTPSConnection('127.0.0.1',self.proxy.server_address[1],timeout=8)
+                    connection.set_tunnel(parts.hostname,443)
+                    target='/robots.txt'
+                else:
+                    connection=http.client.HTTPConnection('127.0.0.1',self.proxy.server_address[1],timeout=8)
+                    target=endpoint
+                connection.request('GET',target,headers={'User-Agent':'Granger-OSINT/3.1 public research','Host':parts.netloc})
+                response=connection.getresponse()
+                if response.status==200:
                     body=response.read(500_001)
                     if len(body)>500_000:raise ValueError('robots_size_limit')
                     reader.parse(body.decode('utf-8','replace').splitlines());status='parsed'
-            except HTTPError as error:
-                if error.code in (404,410):reader.parse([]);status='absent'
-                else:reader.disallow_all=True;status='http_'+str(error.code)
-            except (OSError,ValueError,URLError):reader.disallow_all=True
+                elif response.status in (404,410):reader.parse([]);status='absent'
+                else:reader.disallow_all=True;status='http_'+str(response.status)
+            except ssl.SSLError:reader.disallow_all=True;status='tls_error'
+            except TimeoutError:reader.disallow_all=True;status='timeout'
+            except (OSError,ValueError,http.client.HTTPException):reader.disallow_all=True
+            finally:
+                if connection:connection.close()
             self.cache[origin]=reader;self.checks.append({'origin':origin,'status':status})
         return self.cache[origin].can_fetch('Granger-OSINT',url)
 

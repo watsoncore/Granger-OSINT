@@ -19,6 +19,7 @@ from .images import GeointError
 from ..agent_evidence import current_observation, normalize_evidence
 from ..public_media import MediaStore, media_reference
 from ..visual_models.pipeline import haversine_km
+from .reference_ranking import rank_references,rank_reference,scene_text
 
 INPUT_SCHEMA = {'type':'object','properties':{
     'attachment_id':{'type':'string','minLength':68,'maxLength':68},
@@ -94,6 +95,11 @@ class ResearchSources:
         from .optional_apis import yandex_text
         return yandex_text(query,getter=self.secret_getter,cancel_event=cancel,deadline=deadline)
 
+    def wikidata(self,candidate,query,cancel):
+        from .wikidata import lookup
+        return lookup({'query':query,'latitude':candidate['latitude'],'longitude':candidate['longitude'],
+            'radius_km':10,'limit':3},self.maps,cancel)
+
     def reverse(self, candidate, cancel):
         value, cached = self.maps._request(self.maps.nominatim_endpoint+'/reverse', {
             'lat':candidate['latitude'], 'lon':candidate['longitude'], 'format':'jsonv2',
@@ -136,13 +142,23 @@ class ResearchSources:
     def commons(self, candidate, queries, count, cancel):
         geo = self.maps.execute('map_wikimedia', f"{candidate['latitude']},{candidate['longitude']}", cancel)
         nearby = geo.get('media', [])
-        selected = [row['page_id'] for row in nearby[:count]]
+        # Nearby camera coordinates are a discovery channel, not the ranking.
+        # Merge a small scene/place search even when nearby files exist.
+        selected = [row['page_id'] for row in nearby[:min(4,count)]]
+        if queries:
+            try:
+                searched,_=self.maps._request(self.maps.commons_endpoint,{'action':'query','format':'json',
+                    'list':'search','srsearch':queries[0]['query'],'srnamespace':6,'srlimit':min(4,count)},cancel)
+                if not isinstance(searched,dict) or searched.get('error'):raise GeointError('invalid_commons_response','Некорректный поиск Commons.')
+                selected+= [item['pageid'] for item in searched.get('query',{}).get('search',[]) if type(item.get('pageid')) is int]
+            except GeointError as error:
+                self.diagnostics.append({'source':'Commons scene search','status':error.code})
+                if error.code=='cancelled' or not selected:raise
+        selected=list(dict.fromkeys(selected))[:8]
         params = {'action':'query','format':'json','prop':'imageinfo','iiprop':'url|size|mime|extmetadata',
             'iiurlwidth':640, 'iiextmetadatafilter':'ImageDescription|Artist|LicenseShortName|LicenseUrl|DateTimeOriginal|ObjectName'}
         if selected:
             params['pageids'] = '|'.join(map(str,selected))
-        elif queries:
-            params.update(generator='search', gsrsearch=queries[0]['query'], gsrnamespace=6, gsrlimit=count)
         else:
             return []
         data, _ = self.maps._request(self.maps.commons_endpoint, params, cancel)
@@ -170,7 +186,7 @@ class ResearchSources:
                 'distance_m':position.get('distance_m'), 'match_kind':'nearby_reference_not_verified_match'}
             if item['image_url'] and item['source_url']:
                 output.append(item)
-        return output[:count]
+        return rank_references(output,candidate.get('observed_scene',''),candidate)
 
     def wikipedia(self, query, language, cancel):
         endpoint = f'https://{language}.wikipedia.org/w/api.php'
@@ -199,7 +215,7 @@ class ResearchSources:
                     'license':details.get('license'),'license_url':details.get('license_url'),'author':details.get('attribution'),
                     'match_kind':'nearby_reference_not_verified_match', 'distance_to_candidate_m':round(haversine_km(
                         [candidate['latitude'],candidate['longitude']],[details['latitude'],details['longitude']])*1000,1)})
-        return sorted(output,key=lambda row:row['distance_to_candidate_m'])[:count]
+        return rank_references(output,candidate.get('observed_scene',''),candidate)
 
 
 def queries_for(candidate, records):
@@ -207,11 +223,12 @@ def queries_for(candidate, records):
     words = 'clock tower' if re.search(r'\bclock\b',text,re.I) else 'architecture street' if re.search(r'building|city|street',text,re.I) else 'landscape'
     region = candidate.get('region','')
     landmarks=candidate.get('nearby_landmarks',[])
-    named=next((row for row in landmarks if row.get('name')), {})
+    ranked=rank_references([{**row,'title':row.get('name'),'source_url':row.get('url') or str(i)} for i,row in enumerate(landmarks)],text,candidate)
+    named=next((row for row in ranked if row.get('name')), {})
     name = named.get('name') or region[:150]
     english=(named.get('names') or {}).get('name:en') or name
     russian=(named.get('names') or {}).get('name:ru') or name
-    return [{'language':'en','query':(english+' '+words).strip(), 'basis':'observed_scene_and_candidate_place'},
+    return [{'language':'en','query':(english+' '+words).strip(), 'place_name':english,'basis':'observed_scene_and_candidate_place'},
         {'language':'ru','query':(russian+' '+('башня часы' if words=='clock tower' else 'архитектура' if words=='architecture street' else 'пейзаж')).strip(),
          'basis':'translated_observed_features_not_country_identification'}]
 
@@ -250,6 +267,7 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
     selected = [current_observation(row) for row in records if isinstance(row,dict)
         and (row.get('details') or {}).get('attachment_id')==attachment_id]
     candidates = hypotheses(selected, attachment_id, args.get('max_candidates',2))
+    observed_scene=scene_text(selected)
     rows, stages, limitations = [], [], []
     def emit(kind, key, title, details, url='', description=''):
         row = {'id':kind+':'+key,'type':kind,'platform':'GEOINT Research','title':title,'url':url,
@@ -287,8 +305,16 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
                 candidate['geocoding'] = position
             landmarks = stage('osm_landmarks',lambda:sources.landmarks(candidate,cancel_event)) or []
             candidate['nearby_landmarks'] = landmarks
+            candidate['observed_scene']=observed_scene
             queries = queries_for(candidate, selected)
             candidate['research_queries'] = queries
+            if hasattr(sources,'wikidata'):
+                query=queries[0].get('place_name','')[:160]
+                if len(query)>=2:
+                    places=stage('wikidata_place_research',lambda:sources.wikidata(candidate,query,cancel_event)) or []
+                    for place in places:
+                        emit('map',candidate['candidate_id']+'|'+place['entity_id'],place['title'],
+                            {**place,'candidate_id':candidate['candidate_id']},place['source_url'],place['description'])
             emit('geoint_candidate',candidate['candidate_id'], candidate['region'] or 'Географическая гипотеза', deepcopy(candidate),
                 (position or {}).get('source_url',''), 'Координатная гипотеза; найденная поблизости инфраструктура не доказывает место исходного фото.')
             references = stage('commons_image_research',lambda:sources.commons(candidate,queries,args.get('references_per_candidate',3),cancel_event)) or []
@@ -304,6 +330,9 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
                 for article in articles:
                     emit('web',candidate['candidate_id']+'|'+article['source_url'],article['title'],
                         {**article,'candidate_id':candidate['candidate_id'],'source_family':'Wikimedia'},article['source_url'],article['description'])
+            references=rank_references(references,observed_scene,candidate)
+            candidate['reference_selection']=[{'source_url':ref.get('source_url'),'title':ref.get('title'),
+                'selection':ref['selection']} for ref in references[:12]]
             for index, reference in enumerate(references):
                 check(cancel_event,end)
                 if len(candidate['reference_images'])>=args.get('references_per_candidate',3):break
@@ -337,10 +366,14 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
                         comparison = stage('local_visual_comparison',compare)
                         if comparison:
                             raw['details']['comparison'] = comparison_summary(comparison)
+                        refined=rank_reference({**reference,'comparison':raw['details'].get('comparison')},observed_scene,candidate)
+                        raw['details']['selection']=refined['selection']
+                    candidate['reference_images'][-1]['selection']=raw['details'].get('selection',reference['selection'])
                     if on_result:
                         on_result(raw)
             if candidate['reference_images']:
-                candidate['verification_status'] = 'geographically_plausible'
+                candidate['reference_images'].sort(key=lambda row:-row['selection']['score'])
+                candidate['verification_status'] = 'references_available_unverified'
             else:
                 limitations.append('Сравнительные фотографии для '+(candidate['region'] or candidate['candidate_id'])+' не найдены или не загрузились.')
             emit('geoint_candidate',candidate['candidate_id'],candidate['region'] or 'Географическая гипотеза',deepcopy(candidate),

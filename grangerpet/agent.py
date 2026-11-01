@@ -401,8 +401,10 @@ class AgentRunner:
         from .entity_router import route_goal
         targets = [target.to_dict() for target in route_goal(self._record.get('goal', ''))]
         self._record['target_entities'] = targets
+        readiness_question=bool(re.search(r'(?iu)какие|доступн|готов|readiness|available',self._record.get('goal','')) and
+            re.search(r'(?iu)инструмент|модел|tool|geoclip|waypoint',self._record.get('goal','')))
         readiness = [{'name': row.get('name'), 'locally_available': row.get('available') is True, 'state': row.get('state')}
-                     for row in catalog if isinstance(row, dict)]
+                     for row in catalog if isinstance(row, dict) and (readiness_question or row.get('name') in self._names)]
         messages[0]['content'] += '\nФактический снимок локальной готовности (не гарантия внешнего доступа):\n' + _json(readiness)
         messages[0]['content'] += '\nДетерминированно распознанные цели и первичные маршруты:\n' + _json(targets)
         messages[0]['content'] += '\nНачинай с профильного маршрута цели. Не делай неподтверждённые переходы к одноимённым аккаунтам. На вопрос о доступности используй этот снимок; не отвечай, что установленные инструменты отсутствуют.'
@@ -645,8 +647,17 @@ class AgentRunner:
             raise _Stopped('interrupted')
         after = self._progress_facts()
         added = len(after - before)
-        meaningful = added > 0
-        self._record['progress'] = {'new_facts': added, 'semantic_facts': len(after)}
+        browser_progress=False
+        seen=self._state.setdefault('browser_states',[])
+        for call in calls:
+            outcome=outcomes.get(call['id'],{})
+            if not call['name'].startswith('browser_') or outcome.get('status')!='complete':continue
+            for row in outcome.get('results',[]):
+                details=row.get('details') or {};signature=details.get('workflow_state')
+                if details.get('action_effect') and signature and signature not in seen:
+                    browser_progress=True;seen.append(signature)
+        meaningful = added > 0 or browser_progress
+        self._record['progress'] = {'new_facts': added, 'semantic_facts': len(after),'browser_state_advanced':browser_progress}
         if meaningful:
             self._record['no_progress_rounds'] = 0
         else:
@@ -813,7 +824,7 @@ class AgentRunner:
                         'visual_access':details.get('visual_access'),'local_ocr':details.get('local_ocr')}
                     row['browser_controls']=controls
                     for item in elements[:20]:
-                        selected={key:item.get(key) for key in ('id','tag','type','label','name','form_method','search_field')}
+                        selected={key:item.get(key) for key in ('id','tag','type','label','name','form_method','search_field','value')}
                         selected['label']=str(selected.get('label') or '')[:90]
                         if item.get('href'):selected['href']=str(item['href'])[:200]
                         controls['elements'].append(selected)
@@ -899,6 +910,8 @@ class AgentRunner:
                       'evidence_count': len(self._store.records()),
                       'failed_checks': self._state.get('failures', [])[-5:],
                       'pending_work': self._state.get('pending_work', [])}
+            browser=getattr(self.registry,'browser_model_state',lambda:{})()
+            if browser:memory['current_browser']=browser
             maximum = min(9000, self.limits.max_context_chars // 3)
             encoded = _json(self._safe(memory))
             # Trim structured summaries, never a partial JSON blob.
@@ -1256,7 +1269,7 @@ class AgentRunner:
                     self._finish_pending(on_event, approval_callback)
                     if self._state['pending_calls']:
                         continue  # A public fallback was queued before a stalled pause.
-                    if self._record.get('progress', {}).get('new_facts'):
+                    if self._record.get('progress', {}).get('new_facts') or getattr(self.registry,'browser_model_state',lambda:{})():
                         definitions = self._description('schemas')
                         self._names = {item['function']['name'] for item in definitions}
                 focus=self._state.pop('followup_request',None)
@@ -1296,6 +1309,12 @@ class AgentRunner:
                     from .investigation_analysis import model_context
                     analysis = self._analyze(on_event)
                     local = model_context(analysis)
+                    if local.get('browser_observations'):
+                        # Full tables remain in evidence and final synthesis.
+                        local['browser_observations']=local['browser_observations'][-2:]
+                        for page in local['browser_observations']:
+                            page['content_excerpt']=page['content_excerpt'][:1200]
+                            page['tables']=[{**table,'rows':table.get('rows',[])[:3]} for table in page['tables'][:1] if isinstance(table,dict)]
                     # Local aggregates precede the next decision, not just the
                     # first few raw rows from a large tool response.
                     while len(_json(local)) > 22000 and (local.get('facts') or local.get('assets')):

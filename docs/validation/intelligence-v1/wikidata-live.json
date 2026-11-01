@@ -1,0 +1,254 @@
+{
+  "tool": "wikidata_places",
+  "status": "complete",
+  "query": "Moscow Kremlin",
+  "obtained_at": "2026-11-01T16:55:35.032489+00:00",
+  "started_at": "2026-11-01T16:55:32.222793+00:00",
+  "results": [
+    {
+      "id": "92212e38bca07cf314ea0f00",
+      "title": "Kremlin",
+      "type": "map",
+      "platform": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q133274",
+      "description": "fortified complex in Moscow, Russia",
+      "date": "2026-11-01T16:55:35.030863+00:00",
+      "details": {
+        "query": "Q133274",
+        "obtained_at": "2026-11-01T16:55:35.030863+00:00",
+        "verification": "Сведения получены от указанного публичного источника; принадлежность человеку не установлена.",
+        "entity_id": "Q133274",
+        "title": "Kremlin",
+        "description": "fortified complex in Moscow, Russia",
+        "latitude": 55.751666666666665,
+        "longitude": 37.617777777777775,
+        "coordinate_precision": 1e-06,
+        "distance_m": 11.7,
+        "source_url": "https://www.wikidata.org/wiki/Q133274",
+        "provider": "Wikidata",
+        "data_license": "CC0-1.0",
+        "reference_file_pages": [
+          "https://commons.wikimedia.org/wiki/File:Moscow_05-2012_Kremlin_22.jpg"
+        ],
+        "reference_location_verified": false,
+        "limitations": [
+          "Wikidata statements may be incomplete or wrong. File licenses must be read on each Commons file page."
+        ],
+        "capability": "wikidata_places",
+        "source_record": true,
+        "acquisition": "official_wikibase_api"
+      },
+      "status": "metadata",
+      "sources": [
+        "Wikidata",
+        "wikidata_places"
+      ],
+      "evidence_id": "ev_f45f0c08e6936a92329d",
+      "resource_id": "res_45c650bd7932c6e8d492",
+      "verification": "source_reported",
+      "provenance": {
+        "tool": "wikidata_places",
+        "query": "Moscow Kremlin",
+        "obtained_at": "2026-11-01T16:55:35.030922+00:00",
+        "source_url": "https://www.wikidata.org/wiki/Q133274",
+        "source_status": "metadata",
+        "basis": "Сведения получены от указанного публичного источника; принадлежность человеку не установлена.",
+        "identity_verified": false,
+        "acquisition": "source_adapter"
+      }
+    },
+    {
+      "id": "f642c36e4985dcc403671977",
+      "title": "Moscow Kremlin Museums",
+      "type": "map",
+      "platform": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q4304009",
+      "description": "major museum in Moscow",
+      "date": "2026-11-01T16:55:35.030893+00:00",
+      "details": {
+        "query": "Q4304009",
+        "obtained_at": "2026-11-01T16:55:35.030893+00:00",
+        "verification": "Сведения получены от указанного публичного источника; принадлежность человеку не установлена.",
+        "entity_id": "Q4304009",
+        "title": "Moscow Kremlin Museums",
+        "description": "major museum in Moscow",
+        "latitude": 55.75188889,
+        "longitude": 37.61697222,
+        "coordinate_precision": 1e-05,
+        "distance_m": 44.5,
+        "source_url": "https://www.wikidata.org/wiki/Q4304009",
+        "provider": "Wikidata",
+        "data_license": "CC0-1.0",
+        "reference_file_pages": [
+          "https://commons.wikimedia.org/wiki/File:MoskauKremlVonMoskwa3.JPG"
+        ],
+        "reference_location_verified": false,
+        "limitations": [
+          "Wikidata statements may be incomplete or wrong. File licenses must be read on each Commons file page."
+        ],
+        "capability": "wikidata_places",
+        "source_record": true,
+        "acquisition": "official_wikibase_api"
+      },
+      "status": "metadata",
+      "sources": [
+        "Wikidata",
+        "wikidata_places"
+      ],
+      "evidence_id": "ev_fb914df759234159deb8",
+      "resource_id": "res_93018521e42d57d86929",
+      "verification": "source_reported",
+      "provenance": {
+        "tool": "wikidata_places",
+        "query": "Moscow Kremlin",
+        "obtained_at": "2026-11-01T16:55:35.031918+00:00",
+        "source_url": "https://www.wikidata.org/wiki/Q4304009",
+        "source_status": "metadata",
+        "basis": "Сведения получены от указанного публичного источника; принадлежность человеку не установлена.",
+        "identity_verified": false,
+        "acquisition": "source_adapter"
+      }
+    }
+  ],
+  "sources": [
+    "Wikidata",
+    "wikidata_places"
+  ],
+  "limitations": [
+    "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+  ],
+  "elapsed_seconds": 2.81,
+  "result_count": 2,
+  "download_budget": {
+    "used_bytes": 94111,
+    "limit_bytes": 20971520,
+    "coverage": "repository_owned_HTTP_decoded_bodies",
+    "legacy_CLI_metered": false
+  },
+  "invocation_id": "fdd5cd32e4014150bab19298e6b87b8b",
+  "tool_id": "wikidata_places",
+  "finished_at": "2026-11-01T16:55:35.033186+00:00",
+  "input_summary": {
+    "query": "Moscow Kremlin"
+  },
+  "data": {
+    "results": [
+      {
+        "id": "92212e38bca07cf314ea0f00",
+        "title": "Kremlin",
+        "type": "map",
+        "platform": "Wikidata",
+        "url": "https://www.wikidata.org/wiki/Q133274",
+        "description": "fortified complex in Moscow, Russia",
+        "date": "2026-11-01T16:55:35.030863+00:00",
+        "details": {
+          "query": "Q133274",
+          "obtained_at": "2026-11-01T16:55:35.030863+00:00",
+          "verification": "Сведения получены от указанного публичного источника; принадлежность человеку не установлена.",
+          "entity_id": "Q133274",
+          "title": "Kremlin",
+          "description": "fortified complex in Moscow, Russia",
+          "latitude": 55.751666666666665,
+          "longitude": 37.617777777777775,
+          "coordinate_precision": 1e-06,
+          "distance_m": 11.7,
+          "source_url": "https://www.wikidata.org/wiki/Q133274",
+          "provider": "Wikidata",
+          "data_license": "CC0-1.0",
+          "reference_file_pages": [
+            "https://commons.wikimedia.org/wiki/File:Moscow_05-2012_Kremlin_22.jpg"
+          ],
+          "reference_location_verified": false,
+          "limitations": [
+            "Wikidata statements may be incomplete or wrong. File licenses must be read on each Commons file page."
+          ],
+          "capability": "wikidata_places",
+          "source_record": true,
+          "acquisition": "official_wikibase_api"
+        },
+        "status": "metadata",
+        "sources": [
+          "Wikidata",
+          "wikidata_places"
+        ],
+        "evidence_id": "ev_f45f0c08e6936a92329d",
+        "resource_id": "res_45c650bd7932c6e8d492",
+        "verification": "source_reported",
+        "provenance": {
+          "tool": "wikidata_places",
+          "query": "Moscow Kremlin",
+          "obtained_at": "2026-11-01T16:55:35.030922+00:00",
+          "source_url": "https://www.wikidata.org/wiki/Q133274",
+          "source_status": "metadata",
+          "basis": "Сведения получены от указанного публичного источника; принадлежность человеку не установлена.",
+          "identity_verified": false,
+          "acquisition": "source_adapter"
+        }
+      },
+      {
+        "id": "f642c36e4985dcc403671977",
+        "title": "Moscow Kremlin Museums",
+        "type": "map",
+        "platform": "Wikidata",
+        "url": "https://www.wikidata.org/wiki/Q4304009",
+        "description": "major museum in Moscow",
+        "date": "2026-11-01T16:55:35.030893+00:00",
+        "details": {
+          "query": "Q4304009",
+          "obtained_at": "2026-11-01T16:55:35.030893+00:00",
+          "verification": "Сведения получены от указанного публичного источника; принадлежность человеку не установлена.",
+          "entity_id": "Q4304009",
+          "title": "Moscow Kremlin Museums",
+          "description": "major museum in Moscow",
+          "latitude": 55.75188889,
+          "longitude": 37.61697222,
+          "coordinate_precision": 1e-05,
+          "distance_m": 44.5,
+          "source_url": "https://www.wikidata.org/wiki/Q4304009",
+          "provider": "Wikidata",
+          "data_license": "CC0-1.0",
+          "reference_file_pages": [
+            "https://commons.wikimedia.org/wiki/File:MoskauKremlVonMoskwa3.JPG"
+          ],
+          "reference_location_verified": false,
+          "limitations": [
+            "Wikidata statements may be incomplete or wrong. File licenses must be read on each Commons file page."
+          ],
+          "capability": "wikidata_places",
+          "source_record": true,
+          "acquisition": "official_wikibase_api"
+        },
+        "status": "metadata",
+        "sources": [
+          "Wikidata",
+          "wikidata_places"
+        ],
+        "evidence_id": "ev_fb914df759234159deb8",
+        "resource_id": "res_93018521e42d57d86929",
+        "verification": "source_reported",
+        "provenance": {
+          "tool": "wikidata_places",
+          "query": "Moscow Kremlin",
+          "obtained_at": "2026-11-01T16:55:35.031918+00:00",
+          "source_url": "https://www.wikidata.org/wiki/Q4304009",
+          "source_status": "metadata",
+          "basis": "Сведения получены от указанного публичного источника; принадлежность человеку не установлена.",
+          "identity_verified": false,
+          "acquisition": "source_adapter"
+        }
+      }
+    ]
+  },
+  "evidence_ids": [
+    "ev_f45f0c08e6936a92329d",
+    "ev_fb914df759234159deb8"
+  ],
+  "warnings": [
+    "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+  ],
+  "errors": [],
+  "contract_version": 1,
+  "execution_id": "fdd5cd32e4014150bab19298e6b87b8b",
+  "execution_status": "success",
+  "duration_ms": 2810.44
+}

@@ -1,0 +1,4674 @@
+{
+  "mock": false,
+  "mode": "actual_cpu_public_research_and_optional_gateway_sse",
+  "selection": "3 classes from prior licensed control set; re-run of current CPU pipeline and public research, not an accuracy benchmark",
+  "original_sources": 3,
+  "image_uploads": 0,
+  "ground_truth_sent_to_models": false,
+  "cases": [
+    {
+      "id": "photo-01",
+      "file": "01.jpg",
+      "class": "urban_street",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=d6f8bec6-4250-405c-a54f-a417f6349ef7",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "author": "nuxper_np",
+      "captured_at": "2025-05-03T11:08:01+00:00",
+      "transform": "original pixels, re-encoded JPEG without metadata",
+      "annotated_coordinate": [
+        45.760241279,
+        4.835712817
+      ],
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "919a63209d4c6fcf0392f8f052dfe5956d9e0c42f584dba750f63dafd99a8181",
+      "started_at": 1793552219.176503,
+      "visual_status": "partial",
+      "stages": [
+        {
+          "tool": "image_metadata",
+          "status": "completed",
+          "description": null
+        },
+        {
+          "tool": "image_ocr",
+          "status": "low_confidence",
+          "description": null
+        },
+        {
+          "tool": "image_understand",
+          "status": "completed",
+          "description": "A bunch of people are walking around a square. There are a bunch of buildings around the square. The sky is very clear and blue."
+        },
+        {
+          "tool": "geoclip_predict",
+          "status": "completed",
+          "description": null
+        },
+        {
+          "tool": "waypoint_predict",
+          "status": "completed",
+          "description": null
+        },
+        {
+          "tool": "visual_geoint_comparison",
+          "status": null,
+          "description": null
+        }
+      ],
+      "predictions": [
+        {
+          "tool": "geoclip_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 45.76334762573242,
+              "longitude": 4.83429479598999,
+              "raw_score": 17.307037353515625,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.363
+            },
+            {
+              "rank": 2,
+              "latitude": 45.76139450073242,
+              "longitude": 4.835608959197998,
+              "raw_score": 17.28169059753418,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.128
+            },
+            {
+              "rank": 3,
+              "latitude": 45.760353088378906,
+              "longitude": 4.835506916046143,
+              "raw_score": 17.26964569091797,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.02
+            },
+            {
+              "rank": 4,
+              "latitude": 45.76444625854492,
+              "longitude": 4.836236953735352,
+              "raw_score": 17.26583480834961,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.469
+            },
+            {
+              "rank": 5,
+              "latitude": 45.75798034667969,
+              "longitude": 4.836590766906738,
+              "raw_score": 17.249706268310547,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.26
+            }
+          ]
+        },
+        {
+          "tool": "waypoint_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 44.84934026479632,
+              "longitude": -0.5747724011468754,
+              "raw_score": 0.21875,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 434.999
+            },
+            {
+              "rank": 2,
+              "latitude": 47.50431606338204,
+              "longitude": -0.5000100304737446,
+              "raw_score": 0.1875,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 451.081
+            },
+            {
+              "rank": 3,
+              "latitude": 45.75411290533573,
+              "longitude": 4.8265350555712185,
+              "raw_score": 0.125,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.986
+            },
+            {
+              "rank": 4,
+              "latitude": 49.438768149639095,
+              "longitude": 1.0904023935926006,
+              "raw_score": 0.09375,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 496.014
+            }
+          ]
+        }
+      ],
+      "exact_repeat_reused": true,
+      "research_status": "partial",
+      "references": [
+        {
+          "source_url": "https://commons.wikimedia.org/wiki/File:Lyon_2e_-_Horloge_de_rue,_angle_rue_Grenette-place_Regaud_(mars_2019).jpg",
+          "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Lyon_2e_-_Horloge_de_rue%2C_angle_rue_Grenette-place_Regaud_%28mars_2019%29.jpg/960px-Lyon_2e_-_Horloge_de_rue%2C_angle_rue_Grenette-place_Regaud_%28mars_2019%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "author": "Sebleouf",
+          "license": "CC BY-SA 4.0",
+          "captured_at": "2019-03-26 12:33:37",
+          "image_fetched": null,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=dedd40d5-556b-4da4-9d84-bae177359b31",
+          "image_url": "https://panoramax.ign.fr/api/pictures/dedd40d5-556b-4da4-9d84-bae177359b31/sd.jpg",
+          "author": "ign_ddc_dtce_np",
+          "license": "etalab-2.0",
+          "captured_at": "2025-11-14T13:53:34+00:00",
+          "image_fetched": null,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=93c54a98-d021-4354-b745-39a3f368d624",
+          "image_url": "https://panoramax-storage-public-fast.s3.gra.perf.cloud.ovh.net/derivates/93/c5/4a/98/d021-4354-b745-39a3f368d624/sd.jpg",
+          "author": "ecartip",
+          "license": "etalab-2.0",
+          "captured_at": "2026-03-03T09:23:04+00:00",
+          "image_fetched": null,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=fa964d2f-3013-4689-93ac-e2e2d6c59ad9",
+          "image_url": "https://panoramax-storage-public-fast.s3.gra.perf.cloud.ovh.net/derivates/fa/96/4d/2f/3013-4689-93ac-e2e2d6c59ad9/sd.jpg",
+          "author": "ecartip",
+          "license": "etalab-2.0",
+          "captured_at": "2026-03-03T09:59:36+00:00",
+          "image_fetched": null,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=f8d8aae5-db91-4223-a6ba-acc55b7ccbc0",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/f8/d8/aa/e5/db91-4223-a6ba-acc55b7ccbc0/sd.jpg",
+          "author": "nuxper_np",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2025-06-01T15:49:32+00:00",
+          "image_fetched": true,
+          "comparison": {
+            "status": "completed",
+            "match_count": 86,
+            "geometry": {
+              "method": "normalized_eight_point_ransac",
+              "state": "estimated",
+              "inliers": 46,
+              "inlier_ratio": 0.5348837209302325,
+              "inlier_indices": [
+                2,
+                3,
+                4,
+                5,
+                8,
+                10,
+                11,
+                12,
+                18,
+                21,
+                23,
+                24,
+                27,
+                29,
+                30,
+                31,
+                35,
+                36,
+                37,
+                40,
+                41,
+                46,
+                48,
+                50,
+                51,
+                53,
+                54,
+                58,
+                60,
+                61,
+                62,
+                63,
+                66,
+                67,
+                68,
+                69,
+                70,
+                71,
+                72,
+                73,
+                76,
+                77,
+                78,
+                82,
+                83,
+                84
+              ],
+              "threshold_px": 3.0
+            },
+            "matches": [
+              {
+                "point0": [
+                  122.0,
+                  107.0
+                ],
+                "point1": [
+                  117.0,
+                  110.0
+                ],
+                "raw_score": 0.18395888805389404,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  147.0,
+                  107.0
+                ],
+                "point1": [
+                  150.0,
+                  111.0
+                ],
+                "raw_score": 0.2068658024072647,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  108.0,
+                  108.0
+                ],
+                "point1": [
+                  110.0,
+                  107.0
+                ],
+                "raw_score": 0.10269063711166382,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  104.0,
+                  120.0
+                ],
+                "point1": [
+                  106.0,
+                  116.0
+                ],
+                "raw_score": 0.13919119536876678,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  127.0,
+                  121.0
+                ],
+                "point1": [
+                  124.0,
+                  115.0
+                ],
+                "raw_score": 0.12137729674577713,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  111.0,
+                  125.0
+                ],
+                "point1": [
+                  101.0,
+                  126.0
+                ],
+                "raw_score": 0.14473414421081543,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  159.0,
+                  125.0
+                ],
+                "point1": [
+                  160.0,
+                  128.0
+                ],
+                "raw_score": 0.19962631165981293,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  177.0,
+                  127.0
+                ],
+                "point1": [
+                  167.0,
+                  136.0
+                ],
+                "raw_score": 0.10294820368289948,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  123.0,
+                  133.0
+                ],
+                "point1": [
+                  118.0,
+                  128.0
+                ],
+                "raw_score": 0.3031070828437805,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  160.0,
+                  135.0
+                ],
+                "point1": [
+                  150.0,
+                  141.0
+                ],
+                "raw_score": 0.14519014954566956,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  95.0,
+                  139.0
+                ],
+                "point1": [
+                  89.0,
+                  145.0
+                ],
+                "raw_score": 0.14896723628044128,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  143.0,
+                  141.0
+                ],
+                "point1": [
+                  141.0,
+                  137.0
+                ],
+                "raw_score": 0.10340109467506409,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  123.0,
+                  142.0
+                ],
+                "point1": [
+                  117.0,
+                  140.0
+                ],
+                "raw_score": 0.2911572754383087,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  155.0,
+                  147.0
+                ],
+                "point1": [
+                  147.0,
+                  153.0
+                ],
+                "raw_score": 0.12120523303747177,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  169.0,
+                  147.0
+                ],
+                "point1": [
+                  167.0,
+                  158.0
+                ],
+                "raw_score": 0.13422489166259766,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  190.0,
+                  149.0
+                ],
+                "point1": [
+                  185.0,
+                  164.0
+                ],
+                "raw_score": 0.1259072721004486,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  178.0,
+                  154.0
+                ],
+                "point1": [
+                  173.0,
+                  164.0
+                ],
+                "raw_score": 0.12746445834636688,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  168.0,
+                  155.0
+                ],
+                "point1": [
+                  158.0,
+                  162.0
+                ],
+                "raw_score": 0.15295106172561646,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  95.0,
+                  161.0
+                ],
+                "point1": [
+                  89.0,
+                  169.0
+                ],
+                "raw_score": 0.10979573428630829,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  177.0,
+                  161.0
+                ],
+                "point1": [
+                  166.0,
+                  170.0
+                ],
+                "raw_score": 0.14625714719295502,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  142.0,
+                  164.0
+                ],
+                "point1": [
+                  140.0,
+                  169.0
+                ],
+                "raw_score": 0.14272662997245789,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  464.0,
+                  164.0
+                ],
+                "point1": [
+                  306.0,
+                  100.0
+                ],
+                "raw_score": 0.8860074281692505,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  452.0,
+                  166.0
+                ],
+                "point1": [
+                  294.0,
+                  111.0
+                ],
+                "raw_score": 0.4093908369541168,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  473.0,
+                  166.0
+                ],
+                "point1": [
+                  322.0,
+                  102.0
+                ],
+                "raw_score": 0.5688527226448059,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  481.0,
+                  166.0
+                ],
+                "point1": [
+                  344.0,
+                  97.0
+                ],
+                "raw_score": 0.8954110145568848,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  155.0,
+                  169.0
+                ],
+                "point1": [
+                  144.0,
+                  178.0
+                ],
+                "raw_score": 0.1367565393447876,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  169.0,
+                  169.0
+                ],
+                "point1": [
+                  159.0,
+                  179.0
+                ],
+                "raw_score": 0.10011149942874908,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  115.0,
+                  170.0
+                ],
+                "point1": [
+                  105.0,
+                  176.0
+                ],
+                "raw_score": 0.14306390285491943,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  460.0,
+                  170.0
+                ],
+                "point1": [
+                  117.0,
+                  118.0
+                ],
+                "raw_score": 0.14840596914291382,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  463.0,
+                  170.0
+                ],
+                "point1": [
+                  308.0,
+                  109.0
+                ],
+                "raw_score": 0.18361961841583252,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  482.0,
+                  172.0
+                ],
+                "point1": [
+                  345.0,
+                  105.0
+                ],
+                "raw_score": 0.7911510467529297,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  442.0,
+                  174.0
+                ],
+                "point1": [
+                  286.0,
+                  125.0
+                ],
+                "raw_score": 0.38502705097198486,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  104.0,
+                  175.0
+                ],
+                "point1": [
+                  91.0,
+                  191.0
+                ],
+                "raw_score": 0.1618804931640625,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  123.0,
+                  175.0
+                ],
+                "point1": [
+                  117.0,
+                  187.0
+                ],
+                "raw_score": 0.19923053681850433,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  147.0,
+                  175.0
+                ],
+                "point1": [
+                  147.0,
+                  186.0
+                ],
+                "raw_score": 0.14768502116203308,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  463.0,
+                  177.0
+                ],
+                "point1": [
+                  304.0,
+                  119.0
+                ],
+                "raw_score": 0.8211289644241333,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  451.0,
+                  179.0
+                ],
+                "point1": [
+                  292.0,
+                  131.0
+                ],
+                "raw_score": 0.12821611762046814,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  481.0,
+                  179.0
+                ],
+                "point1": [
+                  342.0,
+                  116.0
+                ],
+                "raw_score": 0.9538693428039551,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  158.0,
+                  181.0
+                ],
+                "point1": [
+                  158.0,
+                  194.0
+                ],
+                "raw_score": 0.1369410902261734,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  594.0,
+                  183.0
+                ],
+                "point1": [
+                  841.0,
+                  154.0
+                ],
+                "raw_score": 0.16758914291858673,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  472.0,
+                  186.0
+                ],
+                "point1": [
+                  322.0,
+                  133.0
+                ],
+                "raw_score": 0.22274015843868256,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  482.0,
+                  186.0
+                ],
+                "point1": [
+                  342.0,
+                  129.0
+                ],
+                "raw_score": 0.9630839824676514,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  605.0,
+                  186.0
+                ],
+                "point1": [
+                  854.0,
+                  158.0
+                ],
+                "raw_score": 0.1408275067806244,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  553.0,
+                  187.0
+                ],
+                "point1": [
+                  789.0,
+                  152.0
+                ],
+                "raw_score": 0.1842692494392395,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  574.0,
+                  187.0
+                ],
+                "point1": [
+                  824.0,
+                  155.0
+                ],
+                "raw_score": 0.23066936433315277,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  159.0,
+                  188.0
+                ],
+                "point1": [
+                  148.0,
+                  196.0
+                ],
+                "raw_score": 0.1943795531988144,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  454.0,
+                  189.0
+                ],
+                "point1": [
+                  292.0,
+                  141.0
+                ],
+                "raw_score": 0.6962891221046448,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  586.0,
+                  189.0
+                ],
+                "point1": [
+                  839.0,
+                  159.0
+                ],
+                "raw_score": 0.1005224660038948,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  462.0,
+                  192.0
+                ],
+                "point1": [
+                  301.0,
+                  146.0
+                ],
+                "raw_score": 0.4444018602371216,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  467.0,
+                  192.0
+                ],
+                "point1": [
+                  305.0,
+                  136.0
+                ],
+                "raw_score": 0.37342503666877747,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  451.0,
+                  193.0
+                ],
+                "point1": [
+                  289.0,
+                  152.0
+                ],
+                "raw_score": 0.5567353963851929,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  481.0,
+                  194.0
+                ],
+                "point1": [
+                  340.0,
+                  143.0
+                ],
+                "raw_score": 0.9123852252960205,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  554.0,
+                  194.0
+                ],
+                "point1": [
+                  796.0,
+                  160.0
+                ],
+                "raw_score": 0.14924685657024384,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  148.0,
+                  195.0
+                ],
+                "point1": [
+                  137.0,
+                  204.0
+                ],
+                "raw_score": 0.11049652844667435,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  490.0,
+                  199.0
+                ],
+                "point1": [
+                  354.0,
+                  148.0
+                ],
+                "raw_score": 0.41792017221450806,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  594.0,
+                  199.0
+                ],
+                "point1": [
+                  842.0,
+                  176.0
+                ],
+                "raw_score": 0.23132121562957764,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  604.0,
+                  199.0
+                ],
+                "point1": [
+                  854.0,
+                  174.0
+                ],
+                "raw_score": 0.1304718554019928,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  632.0,
+                  199.0
+                ],
+                "point1": [
+                  890.0,
+                  180.0
+                ],
+                "raw_score": 0.12179464101791382,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  462.0,
+                  201.0
+                ],
+                "point1": [
+                  299.0,
+                  162.0
+                ],
+                "raw_score": 0.8371663689613342,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  640.0,
+                  201.0
+                ],
+                "point1": [
+                  897.0,
+                  184.0
+                ],
+                "raw_score": 0.11909203976392746,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  147.0,
+                  202.0
+                ],
+                "point1": [
+                  148.0,
+                  209.0
+                ],
+                "raw_score": 0.11427091062068939,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  451.0,
+                  202.0
+                ],
+                "point1": [
+                  282.0,
+                  167.0
+                ],
+                "raw_score": 0.3346365988254547,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  472.0,
+                  203.0
+                ],
+                "point1": [
+                  320.0,
+                  162.0
+                ],
+                "raw_score": 0.14970910549163818,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  481.0,
+                  203.0
+                ],
+                "point1": [
+                  339.0,
+                  162.0
+                ],
+                "raw_score": 0.9332433342933655,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  624.0,
+                  203.0
+                ],
+                "point1": [
+                  875.0,
+                  181.0
+                ],
+                "raw_score": 0.18304088711738586,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  603.0,
+                  205.0
+                ],
+                "point1": [
+                  840.0,
+                  183.0
+                ],
+                "raw_score": 0.19978293776512146,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  149.0,
+                  206.0
+                ],
+                "point1": [
+                  151.0,
+                  214.0
+                ],
+                "raw_score": 0.21597205102443695,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  472.0,
+                  209.0
+                ],
+                "point1": [
+                  319.0,
+                  170.0
+                ],
+                "raw_score": 0.8728110194206238,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  467.0,
+                  210.0
+                ],
+                "point1": [
+                  302.0,
+                  172.0
+                ],
+                "raw_score": 0.45916181802749634,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  462.0,
+                  211.0
+                ],
+                "point1": [
+                  301.0,
+                  181.0
+                ],
+                "raw_score": 0.4427073895931244,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  485.0,
+                  211.0
+                ],
+                "point1": [
+                  343.0,
+                  175.0
+                ],
+                "raw_score": 0.24812167882919312,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  451.0,
+                  212.0
+                ],
+                "point1": [
+                  281.0,
+                  181.0
+                ],
+                "raw_score": 0.14514072239398956,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  480.0,
+                  212.0
+                ],
+                "point1": [
+                  336.0,
+                  180.0
+                ],
+                "raw_score": 0.6756345629692078,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  440.0,
+                  213.0
+                ],
+                "point1": [
+                  260.0,
+                  189.0
+                ],
+                "raw_score": 0.1641385704278946,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  603.0,
+                  213.0
+                ],
+                "point1": [
+                  843.0,
+                  195.0
+                ],
+                "raw_score": 0.10582468658685684,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  673.0,
+                  214.0
+                ],
+                "point1": [
+                  939.0,
+                  199.0
+                ],
+                "raw_score": 0.12990811467170715,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  159.0,
+                  218.0
+                ],
+                "point1": [
+                  152.0,
+                  231.0
+                ],
+                "raw_score": 0.19177499413490295,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  452.0,
+                  219.0
+                ],
+                "point1": [
+                  280.0,
+                  199.0
+                ],
+                "raw_score": 0.4643509089946747,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  466.0,
+                  221.0
+                ],
+                "point1": [
+                  311.0,
+                  192.0
+                ],
+                "raw_score": 0.17448444664478302,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  176.0,
+                  223.0
+                ],
+                "point1": [
+                  178.0,
+                  237.0
+                ],
+                "raw_score": 0.17519758641719818,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  650.0,
+                  223.0
+                ],
+                "point1": [
+                  906.0,
+                  213.0
+                ],
+                "raw_score": 0.10071582347154617,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  658.0,
+                  224.0
+                ],
+                "point1": [
+                  914.0,
+                  216.0
+                ],
+                "raw_score": 0.1039154902100563,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  117.0,
+                  225.0
+                ],
+                "point1": [
+                  105.0,
+                  237.0
+                ],
+                "raw_score": 0.15867120027542114,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  464.0,
+                  226.0
+                ],
+                "point1": [
+                  297.0,
+                  206.0
+                ],
+                "raw_score": 0.15338140726089478,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  471.0,
+                  230.0
+                ],
+                "point1": [
+                  318.0,
+                  211.0
+                ],
+                "raw_score": 0.2151721566915512,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  28.0,
+                  274.0
+                ],
+                "point1": [
+                  21.0,
+                  273.0
+                ],
+                "raw_score": 0.20803725719451904,
+                "score_type": "lightglue_assignment_uncalibrated"
+              }
+            ],
+            "input_sizes": [
+              [
+                1024,
+                512
+              ],
+              [
+                1024,
+                512
+              ]
+            ],
+            "keypoints": [
+              1024,
+              1024
+            ],
+            "score_calibrated": false,
+            "spatial_coverage": [
+              0.0919,
+              0.0708
+            ],
+            "geolocation_verified": false,
+            "interpretation": "Совпавшие признаки могут отражать повторяющиеся окна и фасады, а не уникальный ориентир. Одно место съёмки не подтверждено.",
+            "support_kind": "localized_or_insufficient_features"
+          }
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=59f22008-6039-4fc0-b6a6-3039678ac2b4",
+          "image_url": "https://panoramax.ign.fr/api/pictures/59f22008-6039-4fc0-b6a6-3039678ac2b4/sd.jpg",
+          "author": "grand lyon",
+          "license": "etalab-2.0",
+          "captured_at": "2022-11-29T12:23:52.351000+00:00",
+          "image_fetched": null,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=c9c438c9-a05c-4125-8832-8011eed04364",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/c9/c4/38/c9/a05c-4125-8832-8011eed04364/sd.jpg",
+          "author": "nuxper_np",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2025-06-01T16:39:54+00:00",
+          "image_fetched": true,
+          "comparison": {
+            "status": "completed",
+            "match_count": 174,
+            "geometry": {
+              "method": "normalized_eight_point_ransac",
+              "state": "estimated",
+              "inliers": 102,
+              "inlier_ratio": 0.5862068965517241,
+              "inlier_indices": [
+                1,
+                2,
+                3,
+                5,
+                9,
+                11,
+                12,
+                14,
+                18,
+                20,
+                21,
+                22,
+                24,
+                26,
+                27,
+                28,
+                31,
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
+                39,
+                40,
+                41,
+                42,
+                44,
+                45,
+                47,
+                50,
+                51,
+                52,
+                54,
+                55,
+                56,
+                57,
+                58,
+                60,
+                61,
+                62,
+                63,
+                64,
+                65,
+                67,
+                68,
+                69,
+                70,
+                71,
+                72,
+                74,
+                75,
+                76,
+                77,
+                78,
+                80,
+                81,
+                82,
+                83,
+                85,
+                86,
+                87,
+                88,
+                90,
+                91,
+                92,
+                94,
+                95,
+                99,
+                100,
+                101,
+                104,
+                105,
+                109,
+                110,
+                111,
+                112,
+                113,
+                116,
+                118,
+                119,
+                120,
+                121,
+                124,
+                126,
+                128,
+                129,
+                131,
+                133,
+                135,
+                136,
+                137,
+                138,
+                139,
+                141,
+                143,
+                146,
+                148,
+                155,
+                156,
+                164,
+                166
+              ],
+              "threshold_px": 3.0
+            },
+            "matches": [
+              {
+                "point0": [
+                  135.0,
+                  97.0
+                ],
+                "point1": [
+                  93.0,
+                  83.0
+                ],
+                "raw_score": 0.13329511880874634,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  119.0,
+                  101.0
+                ],
+                "point1": [
+                  66.0,
+                  90.0
+                ],
+                "raw_score": 0.1297932267189026,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  127.0,
+                  105.0
+                ],
+                "point1": [
+                  67.0,
+                  99.0
+                ],
+                "raw_score": 0.12049379199743271,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  122.0,
+                  107.0
+                ],
+                "point1": [
+                  61.0,
+                  101.0
+                ],
+                "raw_score": 0.2775164842605591,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  147.0,
+                  107.0
+                ],
+                "point1": [
+                  104.0,
+                  105.0
+                ],
+                "raw_score": 0.4343816339969635,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  108.0,
+                  108.0
+                ],
+                "point1": [
+                  51.0,
+                  96.0
+                ],
+                "raw_score": 0.5337417721748352,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  128.0,
+                  114.0
+                ],
+                "point1": [
+                  75.0,
+                  104.0
+                ],
+                "raw_score": 0.1855378895998001,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  142.0,
+                  114.0
+                ],
+                "point1": [
+                  96.0,
+                  110.0
+                ],
+                "raw_score": 0.16581834852695465,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  159.0,
+                  114.0
+                ],
+                "point1": [
+                  114.0,
+                  116.0
+                ],
+                "raw_score": 0.1440662145614624,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  104.0,
+                  120.0
+                ],
+                "point1": [
+                  47.0,
+                  107.0
+                ],
+                "raw_score": 0.21242709457874298,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  142.0,
+                  121.0
+                ],
+                "point1": [
+                  99.0,
+                  113.0
+                ],
+                "raw_score": 0.17226505279541016,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  115.0,
+                  123.0
+                ],
+                "point1": [
+                  62.0,
+                  116.0
+                ],
+                "raw_score": 0.7456100583076477,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  111.0,
+                  125.0
+                ],
+                "point1": [
+                  56.0,
+                  118.0
+                ],
+                "raw_score": 0.8847287893295288,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  159.0,
+                  125.0
+                ],
+                "point1": [
+                  105.0,
+                  119.0
+                ],
+                "raw_score": 0.30227476358413696,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  94.0,
+                  126.0
+                ],
+                "point1": [
+                  32.0,
+                  116.0
+                ],
+                "raw_score": 0.2951500415802002,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  177.0,
+                  127.0
+                ],
+                "point1": [
+                  122.0,
+                  126.0
+                ],
+                "raw_score": 0.23296904563903809,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  104.0,
+                  129.0
+                ],
+                "point1": [
+                  43.0,
+                  124.0
+                ],
+                "raw_score": 0.23421363532543182,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  148.0,
+                  129.0
+                ],
+                "point1": [
+                  98.0,
+                  125.0
+                ],
+                "raw_score": 0.3407762050628662,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  128.0,
+                  131.0
+                ],
+                "point1": [
+                  75.0,
+                  126.0
+                ],
+                "raw_score": 0.4159112274646759,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  169.0,
+                  131.0
+                ],
+                "point1": [
+                  114.0,
+                  129.0
+                ],
+                "raw_score": 0.20947250723838806,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  115.0,
+                  133.0
+                ],
+                "point1": [
+                  55.0,
+                  129.0
+                ],
+                "raw_score": 0.5513609051704407,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  123.0,
+                  133.0
+                ],
+                "point1": [
+                  69.0,
+                  127.0
+                ],
+                "raw_score": 0.5142531394958496,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  184.0,
+                  133.0
+                ],
+                "point1": [
+                  128.0,
+                  135.0
+                ],
+                "raw_score": 0.11168552935123444,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  143.0,
+                  134.0
+                ],
+                "point1": [
+                  95.0,
+                  132.0
+                ],
+                "raw_score": 0.2748904824256897,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  87.0,
+                  136.0
+                ],
+                "point1": [
+                  19.0,
+                  124.0
+                ],
+                "raw_score": 0.38395974040031433,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  95.0,
+                  139.0
+                ],
+                "point1": [
+                  28.0,
+                  133.0
+                ],
+                "raw_score": 0.562376081943512,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  190.0,
+                  139.0
+                ],
+                "point1": [
+                  133.0,
+                  144.0
+                ],
+                "raw_score": 0.11535321176052094,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  115.0,
+                  140.0
+                ],
+                "point1": [
+                  61.0,
+                  136.0
+                ],
+                "raw_score": 0.17947982251644135,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  143.0,
+                  141.0
+                ],
+                "point1": [
+                  86.0,
+                  138.0
+                ],
+                "raw_score": 0.13356922566890717,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  147.0,
+                  143.0
+                ],
+                "point1": [
+                  99.0,
+                  142.0
+                ],
+                "raw_score": 0.2288743108510971,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  87.0,
+                  144.0
+                ],
+                "point1": [
+                  16.0,
+                  141.0
+                ],
+                "raw_score": 0.22663816809654236,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  104.0,
+                  147.0
+                ],
+                "point1": [
+                  38.0,
+                  137.0
+                ],
+                "raw_score": 0.3937711715698242,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  115.0,
+                  148.0
+                ],
+                "point1": [
+                  55.0,
+                  143.0
+                ],
+                "raw_score": 0.619265615940094,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  201.0,
+                  150.0
+                ],
+                "point1": [
+                  141.0,
+                  158.0
+                ],
+                "raw_score": 0.1108635887503624,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  87.0,
+                  154.0
+                ],
+                "point1": [
+                  26.0,
+                  144.0
+                ],
+                "raw_score": 0.22707684338092804,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  104.0,
+                  155.0
+                ],
+                "point1": [
+                  38.0,
+                  151.0
+                ],
+                "raw_score": 0.7091978192329407,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  128.0,
+                  155.0
+                ],
+                "point1": [
+                  69.0,
+                  152.0
+                ],
+                "raw_score": 0.12424083799123764,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  205.0,
+                  155.0
+                ],
+                "point1": [
+                  144.0,
+                  165.0
+                ],
+                "raw_score": 0.2807581424713135,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  143.0,
+                  156.0
+                ],
+                "point1": [
+                  88.0,
+                  152.0
+                ],
+                "raw_score": 0.21744775772094727,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  148.0,
+                  157.0
+                ],
+                "point1": [
+                  91.0,
+                  154.0
+                ],
+                "raw_score": 0.17924268543720245,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  87.0,
+                  160.0
+                ],
+                "point1": [
+                  15.0,
+                  151.0
+                ],
+                "raw_score": 0.25947558879852295,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  128.0,
+                  160.0
+                ],
+                "point1": [
+                  68.0,
+                  162.0
+                ],
+                "raw_score": 0.16094645857810974,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  190.0,
+                  160.0
+                ],
+                "point1": [
+                  141.0,
+                  170.0
+                ],
+                "raw_score": 0.12990260124206543,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  95.0,
+                  161.0
+                ],
+                "point1": [
+                  24.0,
+                  158.0
+                ],
+                "raw_score": 0.42735472321510315,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  115.0,
+                  161.0
+                ],
+                "point1": [
+                  54.0,
+                  157.0
+                ],
+                "raw_score": 0.6088106036186218,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  177.0,
+                  161.0
+                ],
+                "point1": [
+                  112.0,
+                  166.0
+                ],
+                "raw_score": 0.2215329259634018,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  124.0,
+                  162.0
+                ],
+                "point1": [
+                  61.0,
+                  165.0
+                ],
+                "raw_score": 0.5503700375556946,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  464.0,
+                  164.0
+                ],
+                "point1": [
+                  363.0,
+                  170.0
+                ],
+                "raw_score": 0.6974813342094421,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  284.0,
+                  165.0
+                ],
+                "point1": [
+                  268.0,
+                  197.0
+                ],
+                "raw_score": 0.29203319549560547,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  426.0,
+                  165.0
+                ],
+                "point1": [
+                  335.0,
+                  174.0
+                ],
+                "raw_score": 0.42219892144203186,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  196.0,
+                  166.0
+                ],
+                "point1": [
+                  146.0,
+                  181.0
+                ],
+                "raw_score": 0.14099755883216858,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  452.0,
+                  166.0
+                ],
+                "point1": [
+                  351.0,
+                  175.0
+                ],
+                "raw_score": 0.7002134919166565,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  481.0,
+                  166.0
+                ],
+                "point1": [
+                  377.0,
+                  173.0
+                ],
+                "raw_score": 0.11835964024066925,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  88.0,
+                  167.0
+                ],
+                "point1": [
+                  13.0,
+                  165.0
+                ],
+                "raw_score": 0.6223035454750061,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  184.0,
+                  167.0
+                ],
+                "point1": [
+                  124.0,
+                  170.0
+                ],
+                "raw_score": 0.11515377461910248,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  105.0,
+                  168.0
+                ],
+                "point1": [
+                  37.0,
+                  162.0
+                ],
+                "raw_score": 0.3867587447166443,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  441.0,
+                  168.0
+                ],
+                "point1": [
+                  338.0,
+                  180.0
+                ],
+                "raw_score": 0.5414907336235046,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  155.0,
+                  169.0
+                ],
+                "point1": [
+                  93.0,
+                  169.0
+                ],
+                "raw_score": 0.22421987354755402,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  115.0,
+                  170.0
+                ],
+                "point1": [
+                  54.0,
+                  167.0
+                ],
+                "raw_score": 0.23969051241874695,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  159.0,
+                  170.0
+                ],
+                "point1": [
+                  111.0,
+                  172.0
+                ],
+                "raw_score": 0.1678224354982376,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  431.0,
+                  170.0
+                ],
+                "point1": [
+                  328.0,
+                  184.0
+                ],
+                "raw_score": 0.3570622205734253,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  460.0,
+                  170.0
+                ],
+                "point1": [
+                  358.0,
+                  179.0
+                ],
+                "raw_score": 0.8511360287666321,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  463.0,
+                  170.0
+                ],
+                "point1": [
+                  364.0,
+                  178.0
+                ],
+                "raw_score": 0.4997541010379791,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  190.0,
+                  172.0
+                ],
+                "point1": [
+                  129.0,
+                  177.0
+                ],
+                "raw_score": 0.15263302624225616,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  453.0,
+                  172.0
+                ],
+                "point1": [
+                  351.0,
+                  182.0
+                ],
+                "raw_score": 0.7474502325057983,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  467.0,
+                  172.0
+                ],
+                "point1": [
+                  370.0,
+                  178.0
+                ],
+                "raw_score": 0.2475561946630478,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  128.0,
+                  173.0
+                ],
+                "point1": [
+                  50.0,
+                  175.0
+                ],
+                "raw_score": 0.18880262970924377,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  442.0,
+                  174.0
+                ],
+                "point1": [
+                  338.0,
+                  187.0
+                ],
+                "raw_score": 0.7318422794342041,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  413.0,
+                  175.0
+                ],
+                "point1": [
+                  313.0,
+                  192.0
+                ],
+                "raw_score": 0.2471383661031723,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  195.0,
+                  176.0
+                ],
+                "point1": [
+                  133.0,
+                  182.0
+                ],
+                "raw_score": 0.11368589848279953,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  467.0,
+                  176.0
+                ],
+                "point1": [
+                  364.0,
+                  185.0
+                ],
+                "raw_score": 0.14411239326000214,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  169.0,
+                  177.0
+                ],
+                "point1": [
+                  104.0,
+                  178.0
+                ],
+                "raw_score": 0.10345660150051117,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  463.0,
+                  177.0
+                ],
+                "point1": [
+                  362.0,
+                  188.0
+                ],
+                "raw_score": 0.5167683362960815,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  592.0,
+                  178.0
+                ],
+                "point1": [
+                  512.0,
+                  140.0
+                ],
+                "raw_score": 0.10735567659139633,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  422.0,
+                  179.0
+                ],
+                "point1": [
+                  320.0,
+                  195.0
+                ],
+                "raw_score": 0.3831605017185211,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  451.0,
+                  179.0
+                ],
+                "point1": [
+                  349.0,
+                  192.0
+                ],
+                "raw_score": 0.594065248966217,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  481.0,
+                  179.0
+                ],
+                "point1": [
+                  382.0,
+                  187.0
+                ],
+                "raw_score": 0.20870549976825714,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  87.0,
+                  180.0
+                ],
+                "point1": [
+                  12.0,
+                  175.0
+                ],
+                "raw_score": 0.4521590769290924,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  404.0,
+                  180.0
+                ],
+                "point1": [
+                  306.0,
+                  195.0
+                ],
+                "raw_score": 0.26889628171920776,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  603.0,
+                  180.0
+                ],
+                "point1": [
+                  516.0,
+                  153.0
+                ],
+                "raw_score": 0.11835230141878128,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  158.0,
+                  181.0
+                ],
+                "point1": [
+                  102.0,
+                  183.0
+                ],
+                "raw_score": 0.29205775260925293,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  200.0,
+                  181.0
+                ],
+                "point1": [
+                  137.0,
+                  188.0
+                ],
+                "raw_score": 0.2444576770067215,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  413.0,
+                  181.0
+                ],
+                "point1": [
+                  312.0,
+                  199.0
+                ],
+                "raw_score": 0.22813449800014496,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  440.0,
+                  181.0
+                ],
+                "point1": [
+                  336.0,
+                  196.0
+                ],
+                "raw_score": 0.6264998316764832,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  612.0,
+                  182.0
+                ],
+                "point1": [
+                  533.0,
+                  156.0
+                ],
+                "raw_score": 0.13765203952789307,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  128.0,
+                  183.0
+                ],
+                "point1": [
+                  65.0,
+                  180.0
+                ],
+                "raw_score": 0.12271521240472794,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  430.0,
+                  183.0
+                ],
+                "point1": [
+                  326.0,
+                  200.0
+                ],
+                "raw_score": 0.49766093492507935,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  148.0,
+                  184.0
+                ],
+                "point1": [
+                  86.0,
+                  189.0
+                ],
+                "raw_score": 0.2897147536277771,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  398.0,
+                  184.0
+                ],
+                "point1": [
+                  299.0,
+                  206.0
+                ],
+                "raw_score": 0.37885725498199463,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  558.0,
+                  184.0
+                ],
+                "point1": [
+                  469.0,
+                  144.0
+                ],
+                "raw_score": 0.1795583814382553,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  104.0,
+                  185.0
+                ],
+                "point1": [
+                  33.0,
+                  181.0
+                ],
+                "raw_score": 0.23449993133544922,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  168.0,
+                  185.0
+                ],
+                "point1": [
+                  111.0,
+                  190.0
+                ],
+                "raw_score": 0.29857581853866577,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  190.0,
+                  185.0
+                ],
+                "point1": [
+                  135.0,
+                  194.0
+                ],
+                "raw_score": 0.14814792573451996,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  623.0,
+                  185.0
+                ],
+                "point1": [
+                  548.0,
+                  159.0
+                ],
+                "raw_score": 0.2385396659374237,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  421.0,
+                  186.0
+                ],
+                "point1": [
+                  319.0,
+                  204.0
+                ],
+                "raw_score": 0.46877214312553406,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  472.0,
+                  186.0
+                ],
+                "point1": [
+                  369.0,
+                  199.0
+                ],
+                "raw_score": 0.6084883213043213,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  482.0,
+                  186.0
+                ],
+                "point1": [
+                  362.0,
+                  198.0
+                ],
+                "raw_score": 0.16611796617507935,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  605.0,
+                  186.0
+                ],
+                "point1": [
+                  518.0,
+                  162.0
+                ],
+                "raw_score": 0.10894300788640976,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  574.0,
+                  187.0
+                ],
+                "point1": [
+                  482.0,
+                  150.0
+                ],
+                "raw_score": 0.26929038763046265,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  115.0,
+                  188.0
+                ],
+                "point1": [
+                  50.0,
+                  183.0
+                ],
+                "raw_score": 0.16536076366901398,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  159.0,
+                  188.0
+                ],
+                "point1": [
+                  98.0,
+                  195.0
+                ],
+                "raw_score": 0.13179050385951996,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  412.0,
+                  188.0
+                ],
+                "point1": [
+                  311.0,
+                  207.0
+                ],
+                "raw_score": 0.575933575630188,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  614.0,
+                  188.0
+                ],
+                "point1": [
+                  535.0,
+                  164.0
+                ],
+                "raw_score": 0.23233063519001007,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  632.0,
+                  188.0
+                ],
+                "point1": [
+                  561.0,
+                  162.0
+                ],
+                "raw_score": 0.13222652673721313,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  454.0,
+                  189.0
+                ],
+                "point1": [
+                  350.0,
+                  202.0
+                ],
+                "raw_score": 0.7146439552307129,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  431.0,
+                  190.0
+                ],
+                "point1": [
+                  326.0,
+                  210.0
+                ],
+                "raw_score": 0.4289900064468384,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  389.0,
+                  191.0
+                ],
+                "point1": [
+                  289.0,
+                  211.0
+                ],
+                "raw_score": 0.21593259274959564,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  625.0,
+                  191.0
+                ],
+                "point1": [
+                  551.0,
+                  168.0
+                ],
+                "raw_score": 0.22049744427204132,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  640.0,
+                  191.0
+                ],
+                "point1": [
+                  572.0,
+                  165.0
+                ],
+                "raw_score": 0.10461718589067459,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  403.0,
+                  192.0
+                ],
+                "point1": [
+                  304.0,
+                  210.0
+                ],
+                "raw_score": 0.4713525176048279,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  462.0,
+                  192.0
+                ],
+                "point1": [
+                  361.0,
+                  210.0
+                ],
+                "raw_score": 0.38425517082214355,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  467.0,
+                  192.0
+                ],
+                "point1": [
+                  364.0,
+                  205.0
+                ],
+                "raw_score": 0.40898987650871277,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  451.0,
+                  193.0
+                ],
+                "point1": [
+                  350.0,
+                  208.0
+                ],
+                "raw_score": 0.3749610185623169,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  128.0,
+                  194.0
+                ],
+                "point1": [
+                  63.0,
+                  195.0
+                ],
+                "raw_score": 0.30302631855010986,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  612.0,
+                  194.0
+                ],
+                "point1": [
+                  536.0,
+                  175.0
+                ],
+                "raw_score": 0.23050226271152496,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  634.0,
+                  194.0
+                ],
+                "point1": [
+                  563.0,
+                  171.0
+                ],
+                "raw_score": 0.12438105046749115,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  88.0,
+                  195.0
+                ],
+                "point1": [
+                  10.0,
+                  190.0
+                ],
+                "raw_score": 0.32570943236351013,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  576.0,
+                  195.0
+                ],
+                "point1": [
+                  484.0,
+                  159.0
+                ],
+                "raw_score": 0.17133697867393494,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  440.0,
+                  196.0
+                ],
+                "point1": [
+                  334.0,
+                  217.0
+                ],
+                "raw_score": 0.5467502474784851,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  177.0,
+                  197.0
+                ],
+                "point1": [
+                  115.0,
+                  207.0
+                ],
+                "raw_score": 0.12880288064479828,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  430.0,
+                  197.0
+                ],
+                "point1": [
+                  325.0,
+                  220.0
+                ],
+                "raw_score": 0.29208898544311523,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  190.0,
+                  198.0
+                ],
+                "point1": [
+                  124.0,
+                  204.0
+                ],
+                "raw_score": 0.1322827935218811,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  421.0,
+                  199.0
+                ],
+                "point1": [
+                  317.0,
+                  222.0
+                ],
+                "raw_score": 0.4337359368801117,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  490.0,
+                  199.0
+                ],
+                "point1": [
+                  386.0,
+                  211.0
+                ],
+                "raw_score": 0.16997720301151276,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  128.0,
+                  201.0
+                ],
+                "point1": [
+                  63.0,
+                  203.0
+                ],
+                "raw_score": 0.5033888816833496,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  412.0,
+                  201.0
+                ],
+                "point1": [
+                  310.0,
+                  225.0
+                ],
+                "raw_score": 0.3405216932296753,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  462.0,
+                  201.0
+                ],
+                "point1": [
+                  360.0,
+                  223.0
+                ],
+                "raw_score": 0.2717946171760559,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  147.0,
+                  202.0
+                ],
+                "point1": [
+                  97.0,
+                  205.0
+                ],
+                "raw_score": 0.346630334854126,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  451.0,
+                  202.0
+                ],
+                "point1": [
+                  348.0,
+                  226.0
+                ],
+                "raw_score": 0.6102652549743652,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  472.0,
+                  203.0
+                ],
+                "point1": [
+                  368.0,
+                  225.0
+                ],
+                "raw_score": 0.4690227508544922,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  403.0,
+                  204.0
+                ],
+                "point1": [
+                  303.0,
+                  227.0
+                ],
+                "raw_score": 0.35880523920059204,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  139.0,
+                  205.0
+                ],
+                "point1": [
+                  72.0,
+                  206.0
+                ],
+                "raw_score": 0.25239118933677673,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  381.0,
+                  206.0
+                ],
+                "point1": [
+                  275.0,
+                  230.0
+                ],
+                "raw_score": 0.13981986045837402,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  176.0,
+                  207.0
+                ],
+                "point1": [
+                  109.0,
+                  213.0
+                ],
+                "raw_score": 0.20292791724205017,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  422.0,
+                  209.0
+                ],
+                "point1": [
+                  316.0,
+                  233.0
+                ],
+                "raw_score": 0.16999877989292145,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  467.0,
+                  210.0
+                ],
+                "point1": [
+                  363.0,
+                  230.0
+                ],
+                "raw_score": 0.18240892887115479,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  133.0,
+                  212.0
+                ],
+                "point1": [
+                  60.0,
+                  215.0
+                ],
+                "raw_score": 0.14820946753025055,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  190.0,
+                  213.0
+                ],
+                "point1": [
+                  126.0,
+                  224.0
+                ],
+                "raw_score": 0.20849861204624176,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  398.0,
+                  213.0
+                ],
+                "point1": [
+                  303.0,
+                  236.0
+                ],
+                "raw_score": 0.18431417644023895,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  440.0,
+                  213.0
+                ],
+                "point1": [
+                  333.0,
+                  240.0
+                ],
+                "raw_score": 0.16845488548278809,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  420.0,
+                  216.0
+                ],
+                "point1": [
+                  315.0,
+                  243.0
+                ],
+                "raw_score": 0.16528533399105072,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  378.0,
+                  218.0
+                ],
+                "point1": [
+                  285.0,
+                  241.0
+                ],
+                "raw_score": 0.18797512352466583,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  398.0,
+                  220.0
+                ],
+                "point1": [
+                  295.0,
+                  238.0
+                ],
+                "raw_score": 0.2909967601299286,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  466.0,
+                  221.0
+                ],
+                "point1": [
+                  362.0,
+                  251.0
+                ],
+                "raw_score": 0.34759512543678284,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  612.0,
+                  222.0
+                ],
+                "point1": [
+                  555.0,
+                  199.0
+                ],
+                "raw_score": 0.16094864904880524,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  639.0,
+                  222.0
+                ],
+                "point1": [
+                  579.0,
+                  203.0
+                ],
+                "raw_score": 0.1984921395778656,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  393.0,
+                  223.0
+                ],
+                "point1": [
+                  301.0,
+                  246.0
+                ],
+                "raw_score": 0.24509462714195251,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  501.0,
+                  225.0
+                ],
+                "point1": [
+                  394.0,
+                  239.0
+                ],
+                "raw_score": 0.3020789623260498,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  189.0,
+                  227.0
+                ],
+                "point1": [
+                  124.0,
+                  235.0
+                ],
+                "raw_score": 0.3004101514816284,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  430.0,
+                  238.0
+                ],
+                "point1": [
+                  322.0,
+                  254.0
+                ],
+                "raw_score": 0.12426909804344177,
+                "score_type": "lightglue_assignment_uncalibrated"
+              }
+            ],
+            "input_sizes": [
+              [
+                1024,
+                512
+              ],
+              [
+                1024,
+                512
+              ]
+            ],
+            "keypoints": [
+              1024,
+              1024
+            ],
+            "score_calibrated": false,
+            "spatial_coverage": [
+              0.13,
+              0.154
+            ],
+            "geolocation_verified": false,
+            "interpretation": "Совпавшие признаки могут отражать повторяющиеся окна и фасады, а не уникальный ориентир. Одно место съёмки не подтверждено.",
+            "support_kind": "localized_or_insufficient_features"
+          }
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=bdaf4599-7b04-4844-b106-b5335770d132",
+          "image_url": "https://panoramax-storage-public-fast.s3.gra.perf.cloud.ovh.net/derivates/bd/af/45/99/7b04-4844-b106-b5335770d132/sd.jpg",
+          "author": "ecartip",
+          "license": "etalab-2.0",
+          "captured_at": "2026-03-03T09:56:12+00:00",
+          "image_fetched": null,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=8ec265e1-e008-40ed-a322-0fe312b3f763",
+          "image_url": "https://panoramax.ign.fr/api/pictures/8ec265e1-e008-40ed-a322-0fe312b3f763/sd.jpg",
+          "author": "grand lyon",
+          "license": "etalab-2.0",
+          "captured_at": "2022-11-29T12:23:53.351000+00:00",
+          "image_fetched": null,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=1dc4ea9b-dcc4-4eea-bd9b-ef59bd6a9852",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/1d/c4/ea/9b/dcc4-4eea-bd9b-ef59bd6a9852/sd.jpg",
+          "author": "nuxper_np",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2025-06-01T16:39:56+00:00",
+          "image_fetched": true,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=c1ecc8ae-dce9-4ccf-8c0c-0243ff4534a0",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/c1/ec/c8/ae/dce9-4ccf-8c0c-0243ff4534a0/sd.jpg",
+          "author": "gitouche",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2018-10-05T14:18:38.069516+00:00",
+          "image_fetched": true,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=62af1b27-b2ec-4d41-8a02-6dc975b48232",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/62/af/1b/27/b2ec-4d41-8a02-6dc975b48232/sd.jpg",
+          "author": "gitouche",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2018-10-05T14:18:47.114574+00:00",
+          "image_fetched": true,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=61ab0587-16c0-4313-bc6a-31817fb04a93",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/61/ab/05/87/16c0-4313-bc6a-31817fb04a93/sd.jpg",
+          "author": "gitouche",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2018-10-05T14:18:40.086052+00:00",
+          "image_fetched": true,
+          "comparison": null
+        }
+      ],
+      "evidence_count": 22,
+      "status": "executed",
+      "elapsed_seconds": 298.315
+    },
+    {
+      "id": "photo-03",
+      "file": "03.jpg",
+      "class": "natural_landscape",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=79538352-8569-4b36-b315-29b9f96bf444",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "author": "ordinatous",
+      "captured_at": "2020-04-11T16:05:35+00:00",
+      "transform": "crop upper mountain ridge: x=0.40..0.80, y=0.24..0.43; no generated pixels",
+      "annotated_coordinate": [
+        45.923641944,
+        6.868633889
+      ],
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "9a6279a3197820470cb6e85140e98b18ea7d55f76adde7a63446bde5b5e9c05c",
+      "started_at": 1793552517.4934976,
+      "visual_status": "partial",
+      "stages": [
+        {
+          "tool": "image_metadata",
+          "status": "completed",
+          "description": null
+        },
+        {
+          "tool": "image_ocr",
+          "status": "low_confidence",
+          "description": null
+        },
+        {
+          "tool": "image_understand",
+          "status": "completed",
+          "description": "A mountain is covered in snow. There are buildings next to the mountain. There is a light pole in front of the building."
+        },
+        {
+          "tool": "geoclip_predict",
+          "status": "completed",
+          "description": null
+        },
+        {
+          "tool": "waypoint_predict",
+          "status": "completed",
+          "description": null
+        },
+        {
+          "tool": "visual_geoint_comparison",
+          "status": null,
+          "description": null
+        }
+      ],
+      "predictions": [
+        {
+          "tool": "geoclip_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 45.93828582763672,
+              "longitude": 6.884077072143555,
+              "raw_score": 19.46524429321289,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 2.019
+            },
+            {
+              "rank": 2,
+              "latitude": 45.92727279663086,
+              "longitude": 6.872978210449219,
+              "raw_score": 19.27967071533203,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.525
+            },
+            {
+              "rank": 3,
+              "latitude": 45.92512512207031,
+              "longitude": 6.871261119842529,
+              "raw_score": 19.145681381225586,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.262
+            },
+            {
+              "rank": 4,
+              "latitude": 45.92655563354492,
+              "longitude": 6.8836212158203125,
+              "raw_score": 19.118236541748047,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 1.204
+            },
+            {
+              "rank": 5,
+              "latitude": 45.92342758178711,
+              "longitude": 6.871490955352783,
+              "raw_score": 19.042694091796875,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 0.222
+            }
+          ]
+        },
+        {
+          "tool": "waypoint_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 46.69111657104161,
+              "longitude": 11.470465425341244,
+              "raw_score": 0.75,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 363.574
+            },
+            {
+              "rank": 2,
+              "latitude": 47.678991753567054,
+              "longitude": 13.237549653121164,
+              "raw_score": 0.125,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 522.397
+            }
+          ]
+        }
+      ],
+      "exact_repeat_reused": true,
+      "research_status": "timeout",
+      "references": [
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=b2058e9d-d6a3-4cb4-920e-4f0cd7a9981d",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/b2/05/8e/9d/d6a3-4cb4-920e-4f0cd7a9981d/sd.jpg",
+          "author": "ordinatous",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2025-04-19T09:17:51.835000+00:00",
+          "image_fetched": true,
+          "comparison": {
+            "status": "completed",
+            "match_count": 16,
+            "geometry": {
+              "method": "normalized_eight_point_ransac",
+              "state": "estimated",
+              "inliers": 11,
+              "inlier_ratio": 0.6875,
+              "inlier_indices": [
+                0,
+                1,
+                3,
+                4,
+                6,
+                8,
+                9,
+                10,
+                11,
+                12,
+                15
+              ],
+              "threshold_px": 3.0
+            },
+            "matches": [
+              {
+                "point0": [
+                  493.0,
+                  97.0
+                ],
+                "point1": [
+                  35.0,
+                  136.0
+                ],
+                "raw_score": 0.8227342367172241,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  505.0,
+                  97.0
+                ],
+                "point1": [
+                  46.0,
+                  135.0
+                ],
+                "raw_score": 0.593291699886322,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  647.0,
+                  110.0
+                ],
+                "point1": [
+                  597.0,
+                  113.0
+                ],
+                "raw_score": 0.5926739573478699,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  575.0,
+                  116.0
+                ],
+                "point1": [
+                  562.0,
+                  117.0
+                ],
+                "raw_score": 0.22393955290317535,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  683.0,
+                  120.0
+                ],
+                "point1": [
+                  623.0,
+                  131.0
+                ],
+                "raw_score": 0.11579980701208115,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  636.0,
+                  125.0
+                ],
+                "point1": [
+                  587.0,
+                  121.0
+                ],
+                "raw_score": 0.30507975816726685,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  712.0,
+                  132.0
+                ],
+                "point1": [
+                  18.0,
+                  160.0
+                ],
+                "raw_score": 0.4550674557685852,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  718.0,
+                  138.0
+                ],
+                "point1": [
+                  33.0,
+                  179.0
+                ],
+                "raw_score": 0.13554401695728302,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  725.0,
+                  140.0
+                ],
+                "point1": [
+                  26.0,
+                  168.0
+                ],
+                "raw_score": 0.15141621232032776,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  490.0,
+                  144.0
+                ],
+                "point1": [
+                  980.0,
+                  81.0
+                ],
+                "raw_score": 0.10339934378862381,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  751.0,
+                  144.0
+                ],
+                "point1": [
+                  628.0,
+                  153.0
+                ],
+                "raw_score": 0.26988303661346436,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  711.0,
+                  146.0
+                ],
+                "point1": [
+                  37.0,
+                  184.0
+                ],
+                "raw_score": 0.11828451603651047,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  769.0,
+                  157.0
+                ],
+                "point1": [
+                  625.0,
+                  160.0
+                ],
+                "raw_score": 0.13420754671096802,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  451.0,
+                  162.0
+                ],
+                "point1": [
+                  954.0,
+                  100.0
+                ],
+                "raw_score": 0.11341676861047745,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  392.0,
+                  181.0
+                ],
+                "point1": [
+                  666.0,
+                  382.0
+                ],
+                "raw_score": 0.1785959005355835,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  279.0,
+                  182.0
+                ],
+                "point1": [
+                  679.0,
+                  395.0
+                ],
+                "raw_score": 0.12305513024330139,
+                "score_type": "lightglue_assignment_uncalibrated"
+              }
+            ],
+            "input_sizes": [
+              [
+                816,
+                192
+              ],
+              [
+                1024,
+                576
+              ]
+            ],
+            "keypoints": [
+              1024,
+              1024
+            ],
+            "score_calibrated": false,
+            "spatial_coverage": [
+              0.2658,
+              0.5121
+            ],
+            "geolocation_verified": false,
+            "interpretation": "Совпавшие признаки могут отражать повторяющиеся окна и фасады, а не уникальный ориентир. Одно место съёмки не подтверждено.",
+            "support_kind": "distributed_feature_matches_not_location_proof"
+          }
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=9e6bb2aa-e98a-46d7-872d-34244e363925",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/9e/6b/b2/aa/e98a-46d7-872d-34244e363925/sd.jpg",
+          "author": "ordinatous",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2025-04-19T09:17:51.501000+00:00",
+          "image_fetched": true,
+          "comparison": {
+            "status": "completed",
+            "match_count": 18,
+            "geometry": {
+              "method": "normalized_eight_point_ransac",
+              "state": "estimated",
+              "inliers": 11,
+              "inlier_ratio": 0.6111111111111112,
+              "inlier_indices": [
+                2,
+                3,
+                4,
+                5,
+                7,
+                8,
+                9,
+                10,
+                11,
+                13,
+                14
+              ],
+              "threshold_px": 3.0
+            },
+            "matches": [
+              {
+                "point0": [
+                  509.0,
+                  83.0
+                ],
+                "point1": [
+                  58.0,
+                  145.0
+                ],
+                "raw_score": 0.40225932002067566,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  487.0,
+                  92.0
+                ],
+                "point1": [
+                  715.0,
+                  407.0
+                ],
+                "raw_score": 0.32446345686912537,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  493.0,
+                  97.0
+                ],
+                "point1": [
+                  31.0,
+                  136.0
+                ],
+                "raw_score": 0.692346453666687,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  505.0,
+                  97.0
+                ],
+                "point1": [
+                  43.0,
+                  135.0
+                ],
+                "raw_score": 0.38595056533813477,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  390.0,
+                  105.0
+                ],
+                "point1": [
+                  22.0,
+                  154.0
+                ],
+                "raw_score": 0.30846095085144043,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  636.0,
+                  125.0
+                ],
+                "point1": [
+                  777.0,
+                  96.0
+                ],
+                "raw_score": 0.42314159870147705,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  567.0,
+                  131.0
+                ],
+                "point1": [
+                  957.0,
+                  74.0
+                ],
+                "raw_score": 0.11974089592695236,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  712.0,
+                  132.0
+                ],
+                "point1": [
+                  15.0,
+                  160.0
+                ],
+                "raw_score": 0.2459002286195755,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  767.0,
+                  136.0
+                ],
+                "point1": [
+                  958.0,
+                  7.0
+                ],
+                "raw_score": 0.2878682613372803,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  131.0,
+                  139.0
+                ],
+                "point1": [
+                  612.0,
+                  349.0
+                ],
+                "raw_score": 0.4915778338909149,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  118.0,
+                  141.0
+                ],
+                "point1": [
+                  604.0,
+                  353.0
+                ],
+                "raw_score": 0.521085262298584,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  194.0,
+                  142.0
+                ],
+                "point1": [
+                  647.0,
+                  385.0
+                ],
+                "raw_score": 0.10138658434152603,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  597.0,
+                  149.0
+                ],
+                "point1": [
+                  831.0,
+                  165.0
+                ],
+                "raw_score": 0.15017549693584442,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  565.0,
+                  157.0
+                ],
+                "point1": [
+                  800.0,
+                  110.0
+                ],
+                "raw_score": 0.16983623802661896,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  332.0,
+                  158.0
+                ],
+                "point1": [
+                  811.0,
+                  119.0
+                ],
+                "raw_score": 0.41241657733917236,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  55.0,
+                  164.0
+                ],
+                "point1": [
+                  644.0,
+                  371.0
+                ],
+                "raw_score": 0.12228766083717346,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  392.0,
+                  181.0
+                ],
+                "point1": [
+                  736.0,
+                  429.0
+                ],
+                "raw_score": 0.8697248697280884,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  454.0,
+                  181.0
+                ],
+                "point1": [
+                  726.0,
+                  408.0
+                ],
+                "raw_score": 0.12147540599107742,
+                "score_type": "lightglue_assignment_uncalibrated"
+              }
+            ],
+            "input_sizes": [
+              [
+                816,
+                192
+              ],
+              [
+                1024,
+                576
+              ]
+            ],
+            "keypoints": [
+              1024,
+              1024
+            ],
+            "score_calibrated": false,
+            "spatial_coverage": [
+              0.2527,
+              0.6043
+            ],
+            "geolocation_verified": false,
+            "interpretation": "Совпавшие признаки могут отражать повторяющиеся окна и фасады, а не уникальный ориентир. Одно место съёмки не подтверждено.",
+            "support_kind": "distributed_feature_matches_not_location_proof"
+          }
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=4d34c380-ab10-4f73-9f72-dff3b9cdbb61",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/4d/34/c3/80/ab10-4f73-9f72-dff3b9cdbb61/sd.jpg",
+          "author": "ordinatous",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2025-04-19T09:17:51.168000+00:00",
+          "image_fetched": true,
+          "comparison": null
+        }
+      ],
+      "evidence_count": 11,
+      "status": "executed",
+      "elapsed_seconds": 256.793
+    },
+    {
+      "id": "photo-06",
+      "file": "06.jpg",
+      "class": "poor_ocr",
+      "source_url": "https://api.panoramax.xyz/#focus=pic&pic=91e2ff37-92c7-47d5-ac47-e0979e175a3e",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "author": "trouyer",
+      "captured_at": "2023-08-18T08:50:44+00:00",
+      "transform": "real rural photo reduced to 320x240 and JPEG quality 35, then Gaussian blur radius 0.6",
+      "annotated_coordinate": [
+        44.8021465,
+        1.2168783
+      ],
+      "annotation_trust": "archive_camera_metadata_not_independently_surveyed",
+      "sha256": "118792f9cc50e8343628e60c9a062c619e4a765ec78edde6c0ba185745fa8ddd",
+      "started_at": 1793552774.2899616,
+      "visual_status": "partial",
+      "stages": [
+        {
+          "tool": "image_metadata",
+          "status": "completed",
+          "description": null
+        },
+        {
+          "tool": "image_ocr",
+          "status": "low_confidence",
+          "description": null
+        },
+        {
+          "tool": "image_understand",
+          "status": "completed",
+          "description": "A paved road is in the middle of a field. There are people walking on the left side of the road. There is a small pond on the right side of this road. The sky above the road is blue with white clouds. There trees on the other side of a small field."
+        },
+        {
+          "tool": "geoclip_predict",
+          "status": "completed",
+          "description": null
+        },
+        {
+          "tool": "waypoint_predict",
+          "status": "completed",
+          "description": null
+        },
+        {
+          "tool": "visual_geoint_comparison",
+          "status": null,
+          "description": null
+        }
+      ],
+      "predictions": [
+        {
+          "tool": "geoclip_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 48.24266815185547,
+              "longitude": 6.940000057220459,
+              "raw_score": 15.69198989868164,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 581.172
+            },
+            {
+              "rank": 2,
+              "latitude": 45.36366271972656,
+              "longitude": 4.457873821258545,
+              "raw_score": 15.08862018585205,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 261.988
+            },
+            {
+              "rank": 3,
+              "latitude": 48.42885971069336,
+              "longitude": 5.669373989105225,
+              "raw_score": 15.000893592834473,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 527.335
+            },
+            {
+              "rank": 4,
+              "latitude": 45.60520935058594,
+              "longitude": 4.734317779541016,
+              "raw_score": 14.798615455627441,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 289.657
+            },
+            {
+              "rank": 5,
+              "latitude": 45.93777847290039,
+              "longitude": 4.03472900390625,
+              "raw_score": 14.706154823303223,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 253.749
+            }
+          ]
+        },
+        {
+          "tool": "waypoint_predict",
+          "candidates": [
+            {
+              "rank": 1,
+              "latitude": 46.12708995612785,
+              "longitude": 5.0312567155929475,
+              "raw_score": 0.15625,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 331.905
+            },
+            {
+              "rank": 2,
+              "latitude": 49.24182141492753,
+              "longitude": 6.274500361039657,
+              "raw_score": 0.125,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 624.753
+            },
+            {
+              "rank": 3,
+              "latitude": 49.126043855454554,
+              "longitude": 2.2564459872235245,
+              "raw_score": 0.09375,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 487.212
+            },
+            {
+              "rank": 4,
+              "latitude": 41.76299200832809,
+              "longitude": 2.294880521650618,
+              "raw_score": 0.09375,
+              "sample_fraction": null,
+              "distance_to_annotation_km": 349.014
+            }
+          ]
+        }
+      ],
+      "exact_repeat_reused": true,
+      "research_status": "partial",
+      "references": [
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=986bb7ad-55d6-4a5b-9a7d-e89a8afbd5a0",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/98/6b/b7/ad/55d6-4a5b-9a7d-e89a8afbd5a0/sd.jpg",
+          "author": "HugoC01",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2025-08-10T13:13:34.100000+00:00",
+          "image_fetched": true,
+          "comparison": {
+            "status": "completed",
+            "match_count": 22,
+            "geometry": {
+              "method": "normalized_eight_point_ransac",
+              "state": "estimated",
+              "inliers": 12,
+              "inlier_ratio": 0.5454545454545454,
+              "inlier_indices": [
+                1,
+                3,
+                4,
+                6,
+                7,
+                11,
+                12,
+                13,
+                17,
+                18,
+                19,
+                21
+              ],
+              "threshold_px": 3.0
+            },
+            "matches": [
+              {
+                "point0": [
+                  231.0,
+                  46.0
+                ],
+                "point1": [
+                  968.0,
+                  51.0
+                ],
+                "raw_score": 0.2771313190460205,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  39.0,
+                  71.0
+                ],
+                "point1": [
+                  873.0,
+                  141.0
+                ],
+                "raw_score": 0.15259863436222076,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  21.0,
+                  83.0
+                ],
+                "point1": [
+                  875.0,
+                  157.0
+                ],
+                "raw_score": 0.6210185885429382,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  155.0,
+                  87.0
+                ],
+                "point1": [
+                  932.0,
+                  21.0
+                ],
+                "raw_score": 0.13384614884853363,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  36.0,
+                  88.0
+                ],
+                "point1": [
+                  874.0,
+                  173.0
+                ],
+                "raw_score": 0.21349237859249115,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  223.0,
+                  104.0
+                ],
+                "point1": [
+                  395.0,
+                  251.0
+                ],
+                "raw_score": 0.1098298728466034,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  195.0,
+                  106.0
+                ],
+                "point1": [
+                  951.0,
+                  147.0
+                ],
+                "raw_score": 0.2725176215171814,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  254.0,
+                  109.0
+                ],
+                "point1": [
+                  977.0,
+                  37.0
+                ],
+                "raw_score": 0.5263087153434753,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  121.0,
+                  110.0
+                ],
+                "point1": [
+                  895.0,
+                  160.0
+                ],
+                "raw_score": 0.14579153060913086,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  140.0,
+                  110.0
+                ],
+                "point1": [
+                  901.0,
+                  185.0
+                ],
+                "raw_score": 0.4582376182079315,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  197.0,
+                  111.0
+                ],
+                "point1": [
+                  942.0,
+                  141.0
+                ],
+                "raw_score": 0.12628507614135742,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  117.0,
+                  113.0
+                ],
+                "point1": [
+                  892.0,
+                  172.0
+                ],
+                "raw_score": 0.36957231163978577,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  120.0,
+                  124.0
+                ],
+                "point1": [
+                  913.0,
+                  170.0
+                ],
+                "raw_score": 0.16346168518066406,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  277.0,
+                  126.0
+                ],
+                "point1": [
+                  923.0,
+                  158.0
+                ],
+                "raw_score": 0.170583114027977,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  284.0,
+                  127.0
+                ],
+                "point1": [
+                  1014.0,
+                  117.0
+                ],
+                "raw_score": 0.8643805980682373,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  222.0,
+                  148.0
+                ],
+                "point1": [
+                  964.0,
+                  222.0
+                ],
+                "raw_score": 0.150095134973526,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  40.0,
+                  157.0
+                ],
+                "point1": [
+                  939.0,
+                  240.0
+                ],
+                "raw_score": 0.17317000031471252,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  279.0,
+                  163.0
+                ],
+                "point1": [
+                  389.0,
+                  276.0
+                ],
+                "raw_score": 0.1485934555530548,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  12.0,
+                  165.0
+                ],
+                "point1": [
+                  866.0,
+                  185.0
+                ],
+                "raw_score": 0.41289934515953064,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  268.0,
+                  186.0
+                ],
+                "point1": [
+                  382.0,
+                  281.0
+                ],
+                "raw_score": 0.45469367504119873,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  298.0,
+                  189.0
+                ],
+                "point1": [
+                  452.0,
+                  280.0
+                ],
+                "raw_score": 0.12265834957361221,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  291.0,
+                  191.0
+                ],
+                "point1": [
+                  399.0,
+                  278.0
+                ],
+                "raw_score": 0.12917406857013702,
+                "score_type": "lightglue_assignment_uncalibrated"
+              }
+            ],
+            "input_sizes": [
+              [
+                320,
+                240
+              ],
+              [
+                1024,
+                768
+              ]
+            ],
+            "keypoints": [
+              792,
+              1024
+            ],
+            "score_calibrated": false,
+            "spatial_coverage": [
+              0.4359,
+              0.1967
+            ],
+            "geolocation_verified": false,
+            "interpretation": "Совпавшие признаки могут отражать повторяющиеся окна и фасады, а не уникальный ориентир. Одно место съёмки не подтверждено.",
+            "support_kind": "distributed_feature_matches_not_location_proof"
+          }
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=3d0fbec5-e3ca-4489-b39b-180e4da7ef31",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/3d/0f/be/c5/e3ca-4489-b39b-180e4da7ef31/sd.jpg",
+          "author": "HugoC01",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2025-08-10T13:13:35.100000+00:00",
+          "image_fetched": true,
+          "comparison": {
+            "status": "completed",
+            "match_count": 11,
+            "geometry": {
+              "method": "normalized_eight_point_ransac",
+              "state": "estimated",
+              "inliers": 10,
+              "inlier_ratio": 0.9090909090909091,
+              "inlier_indices": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "threshold_px": 3.0
+            },
+            "matches": [
+              {
+                "point0": [
+                  257.0,
+                  82.0
+                ],
+                "point1": [
+                  189.0,
+                  678.0
+                ],
+                "raw_score": 0.6519954800605774,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  265.0,
+                  104.0
+                ],
+                "point1": [
+                  943.0,
+                  51.0
+                ],
+                "raw_score": 0.2734021246433258,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  140.0,
+                  110.0
+                ],
+                "point1": [
+                  468.0,
+                  259.0
+                ],
+                "raw_score": 0.10125451534986496,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  117.0,
+                  113.0
+                ],
+                "point1": [
+                  442.0,
+                  262.0
+                ],
+                "raw_score": 0.1227387934923172,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  173.0,
+                  120.0
+                ],
+                "point1": [
+                  484.0,
+                  265.0
+                ],
+                "raw_score": 0.14758296310901642,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  181.0,
+                  121.0
+                ],
+                "point1": [
+                  489.0,
+                  262.0
+                ],
+                "raw_score": 0.21389620006084442,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  216.0,
+                  138.0
+                ],
+                "point1": [
+                  135.0,
+                  686.0
+                ],
+                "raw_score": 0.6299892067909241,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  229.0,
+                  157.0
+                ],
+                "point1": [
+                  544.0,
+                  303.0
+                ],
+                "raw_score": 0.1788119673728943,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  237.0,
+                  159.0
+                ],
+                "point1": [
+                  551.0,
+                  303.0
+                ],
+                "raw_score": 0.11512119323015213,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  250.0,
+                  188.0
+                ],
+                "point1": [
+                  586.0,
+                  301.0
+                ],
+                "raw_score": 0.2915939390659332,
+                "score_type": "lightglue_assignment_uncalibrated"
+              },
+              {
+                "point0": [
+                  115.0,
+                  193.0
+                ],
+                "point1": [
+                  441.0,
+                  350.0
+                ],
+                "raw_score": 0.12103211879730225,
+                "score_type": "lightglue_assignment_uncalibrated"
+              }
+            ],
+            "input_sizes": [
+              [
+                320,
+                240
+              ],
+              [
+                1024,
+                768
+              ]
+            ],
+            "keypoints": [
+              792,
+              1024
+            ],
+            "score_calibrated": false,
+            "spatial_coverage": [
+              0.1738,
+              0.6524
+            ],
+            "geolocation_verified": false,
+            "interpretation": "Совпавшие признаки могут отражать повторяющиеся окна и фасады, а не уникальный ориентир. Одно место съёмки не подтверждено.",
+            "support_kind": "distributed_feature_matches_not_location_proof"
+          }
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=ff2ab95f-0f95-430e-95e5-7a7f79c245ca",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/ff/2a/b9/5f/0f95-430e-95e5-7a7f79c245ca/sd.jpg",
+          "author": "HugoC01",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2025-08-10T13:13:33.100000+00:00",
+          "image_fetched": true,
+          "comparison": null
+        },
+        {
+          "source_url": "https://commons.wikimedia.org/wiki/File:Chemin_Sangoire_-_Romans_(FR01)_-_2025-07-06_-_1.jpg",
+          "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1c/Chemin_Sangoire_-_Romans_%28FR01%29_-_2025-07-06_-_1.jpg/960px-Chemin_Sangoire_-_Romans_%28FR01%29_-_2025-07-06_-_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "author": "Chabe01",
+          "license": "CC BY-SA 4.0",
+          "captured_at": "2025-07-06 17:06:38",
+          "image_fetched": null,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=3d656201-1429-4b17-b70a-0ef0b3eca82c",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/3d/65/62/01/1429-4b17-b70a-0ef0b3eca82c/sd.jpg",
+          "author": "bicente01",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2026-02-01T10:23:24.646000+00:00",
+          "image_fetched": true,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=de749b9f-d175-4f90-bbc4-ae26dec95a95",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/de/74/9b/9f/d175-4f90-bbc4-ae26dec95a95/sd.jpg",
+          "author": "bicente01",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2026-02-01T10:23:24.145000+00:00",
+          "image_fetched": true,
+          "comparison": null
+        },
+        {
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=1b736322-1a63-4703-8026-4bf6a23baa6c",
+          "image_url": "https://panoramax.openstreetmap.fr/derivates/1b/73/63/22/1a63-4703-8026-4bf6a23baa6c/sd.jpg",
+          "author": "bicente01",
+          "license": "CC-BY-SA-4.0",
+          "captured_at": "2026-02-01T10:23:23.645000+00:00",
+          "image_fetched": true,
+          "comparison": null
+        }
+      ],
+      "evidence_count": 16,
+      "status": "executed",
+      "elapsed_seconds": 241.962
+    }
+  ],
+  "synthesis_requested": false,
+  "gateway_key_available": false,
+  "finished": true
+}

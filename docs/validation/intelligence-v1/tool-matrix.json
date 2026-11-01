@@ -1,0 +1,712 @@
+{
+  "schema_version": 1,
+  "scope": "13 user-supplied projects; only SteamRecon subset integrated as upstream code; equivalents are explicitly not project integrations",
+  "projects": [
+    {
+      "tool_id": "Butcher-Tools-main",
+      "name": "Butcher-Tools-main.zip",
+      "repository": [
+        "https://github.com/stegman-ux/Butcher-Tools",
+        "https://github.com/stegman-ux/Butcher-Tools.git"
+      ],
+      "local_path": "Butcher-Tools-main.zip",
+      "category": "Mixed / Active / Messaging",
+      "license": "GPL-3.0",
+      "language": "Python",
+      "entry_point": "Butcher.py",
+      "upstream_operations_reviewed": [
+        "mixed command menu",
+        "Discord token/webhook and mass messaging paths"
+      ],
+      "input_types": [
+        "upstream-specific; no active Granger adapter"
+      ],
+      "output_types": [],
+      "authentication_requirements": "Credentials/tokens vary by operation",
+      "api_key_requirements": "Credentials/tokens vary by operation",
+      "external_dependencies": "shell commands / requests",
+      "network_access": "upstream network code not executed",
+      "security_risks": {
+        "network": 63,
+        "shell_or_process": 3,
+        "credentials_or_session": 5
+      },
+      "integration_method": "excluded_untrusted_entrypoint",
+      "runtime_isolation": "not_executed",
+      "live_verification_status": "not_live_tested",
+      "evidence_support": false,
+      "agent_availability": false,
+      "registered_operations": [],
+      "known_limitations": "Shell activity on import and unrelated token/webhook/mass-DM paths. No execution, installation, external messaging or OS changes.",
+      "archive_sha256": "cc9ac5fa45bb77c5ed213ad4ef2370e5d6dd95349e6f1cd4fe96a8e3d08cdac4",
+      "license_files": [
+        {
+          "path": "Butcher-Tools-main/LICENSE",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        }
+      ]
+    },
+    {
+      "tool_id": "discordlookup-main",
+      "name": "discordlookup-main.zip",
+      "repository": [
+        "https://github.com/discordlookup/discordlookup"
+      ],
+      "local_path": "discordlookup-main.zip",
+      "category": "Discord / SOCMINT",
+      "license": "AGPL-3.0",
+      "language": "PHP / JavaScript",
+      "entry_point": "public/index.php; webpack.mix.js",
+      "upstream_operations_reviewed": [
+        "web lookup service",
+        "snowflake/public metadata UI"
+      ],
+      "input_types": [
+        "upstream-specific; no active Granger adapter"
+      ],
+      "output_types": [],
+      "authentication_requirements": "Upstream backend/auth-dependent sections not configured",
+      "api_key_requirements": "Upstream backend/auth-dependent sections not configured",
+      "external_dependencies": "Separate PHP/web backend and frontend build",
+      "network_access": "upstream network code not executed",
+      "security_risks": {
+        "network": 3
+      },
+      "integration_method": "not_integrated; not a new ready catalogue entry",
+      "runtime_isolation": "not_executed",
+      "live_verification_status": "not_live_tested",
+      "evidence_support": false,
+      "agent_availability": false,
+      "registered_operations": [],
+      "known_limitations": "Supplied web service is not an installed CLI adapter. No bot token, private member lookup or claimed public user API. No upstream code redistributed.",
+      "archive_sha256": "430a6dc7f2038d137e5779ed6a07307b7108b07f689dbd9ccaf4c8e3ac130cad",
+      "license_files": [
+        {
+          "path": "discordlookup-main/LICENSE",
+          "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+        }
+      ]
+    },
+    {
+      "tool_id": "instagram-email-scraper-main",
+      "name": "instagram-email-scraper-main.zip",
+      "repository": [
+        "https://github.com/data-scrape/amazon-asin-scraper",
+        "https://github.com/data-scrape/amazon-price-scraper",
+        "https://github.com/data-scrape/amazon-product-api",
+        "https://github.com/data-scrape/amazon-product-scraper",
+        "https://github.com/data-scrape/amazon-review-scraper",
+        "https://github.com/data-scrape/amazon-scraper-api",
+        "https://github.com/data-scrape/apify-google-maps-scraper",
+        "https://github.com/data-scrape/apify-indeed-scraper",
+        "https://github.com/data-scrape/apify-instagram-scraper",
+        "https://github.com/data-scrape/apify-reddit-scraper",
+        "https://github.com/data-scrape/apify-tiktok-scraper",
+        "https://github.com/data-scrape/apify-zillow-scraper",
+        "https://github.com/data-scrape/awesome-apify-alternatives",
+        "https://github.com/data-scrape/awesome-lead-generation",
+        "https://github.com/data-scrape/best-amazon-scraper",
+        "https://github.com/data-scrape/best-apify-alternative",
+        "https://github.com/data-scrape/best-apollo-scraper-reddit",
+        "https://github.com/data-scrape/best-ebay-scraper",
+        "https://github.com/data-scrape/best-facebook-scraper",
+        "https://github.com/data-scrape/best-google-maps-scraper",
+        "https://github.com/data-scrape/best-google-search-scraper",
+        "https://github.com/data-scrape/best-indeed-scraper",
+        "https://github.com/data-scrape/best-instagram-scraper",
+        "https://github.com/data-scrape/best-linkedin-scraper",
+        "https://github.com/data-scrape/best-reddit-scraper",
+        "https://github.com/data-scrape/best-tiktok-scraper",
+        "https://github.com/data-scrape/best-walmart-scraper",
+        "https://github.com/data-scrape/best-web-scraping-api",
+        "https://github.com/data-scrape/best-youtube-scraper",
+        "https://github.com/data-scrape/best-zillow-scraper",
+        "https://github.com/data-scrape/blog",
+        "https://github.com/data-scrape/bright-data-alternative",
+        "https://github.com/data-scrape/brightdata-alternative",
+        "https://github.com/data-scrape/business-data-api",
+        "https://github.com/data-scrape/coreclaw-review",
+        "https://github.com/data-scrape/data-extraction-api",
+        "https://github.com/data-scrape/discord-scraper",
+        "https://github.com/data-scrape/easy-scrape-zillow-agents-free",
+        "https://github.com/data-scrape/ebay-price-scraper",
+        "https://github.com/data-scrape/ebay-web-scraper",
+        "https://github.com/data-scrape/facebook-group-scraper",
+        "https://github.com/data-scrape/facebook-marketplace-scraper",
+        "https://github.com/data-scrape/facebook-page-scraper",
+        "https://github.com/data-scrape/facebook-post-scraper",
+        "https://github.com/data-scrape/facebook-profile-scraper",
+        "https://github.com/data-scrape/facebook-scrape-website",
+        "https://github.com/data-scrape/glassdoor-scraper",
+        "https://github.com/data-scrape/google-business-scraper",
+        "https://github.com/data-scrape/google-map-scraper-api-",
+        "https://github.com/data-scrape/google-maps-data-api",
+        "https://github.com/data-scrape/google-maps-data-scraper",
+        "https://github.com/data-scrape/google-maps-scraper-api",
+        "https://github.com/data-scrape/google-place-id-api",
+        "https://github.com/data-scrape/google-reviews-scraper",
+        "https://github.com/data-scrape/google-search-api",
+        "https://github.com/data-scrape/google-shopping-scraper",
+        "https://github.com/data-scrape/indeed-job-scraper",
+        "https://github.com/data-scrape/instagram-account-scraper",
+        "https://github.com/data-scrape/instagram-comment-scraper",
+        "https://github.com/data-scrape/instagram-data-api",
+        "https://github.com/data-scrape/instagram-email-scraper",
+        "https://github.com/data-scrape/instagram-email-scraper.git",
+        "https://github.com/data-scrape/instagram-follower-scraper",
+        "https://github.com/data-scrape/instagram-profile-scraper",
+        "https://github.com/data-scrape/instagram-scraper",
+        "https://github.com/data-scrape/lead-generation-api",
+        "https://github.com/data-scrape/linkedin-data-api",
+        "https://github.com/data-scrape/linkedin-email-scraper",
+        "https://github.com/data-scrape/linkedin-job-scraper",
+        "https://github.com/data-scrape/linkedin-post-scraper",
+        "https://github.com/data-scrape/linkedin-profile-data-scraper",
+        "https://github.com/data-scrape/linkedin-sales-navigator-scraper",
+        "https://github.com/data-scrape/linkedin-scraper-api",
+        "https://github.com/data-scrape/medium-scraper",
+        "https://github.com/data-scrape/outscraper-alternative",
+        "https://github.com/data-scrape/outscraper-google-maps-scraper",
+        "https://github.com/data-scrape/oxylabs-alternative",
+        "https://github.com/data-scrape/phantombuster-alternative",
+        "https://github.com/data-scrape/pinterest-scraper",
+        "https://github.com/data-scrape/quora-scraper",
+        "https://github.com/data-scrape/reddit-comment-scraper",
+        "https://github.com/data-scrape/reddit-post-scraper",
+        "https://github.com/data-scrape/scrap-gold-ebay",
+        "https://github.com/data-scrape/scrape-google-maps",
+        "https://github.com/data-scrape/scrape-indeed-job-postings",
+        "https://github.com/data-scrape/scrape-instagram-followers",
+        "https://github.com/data-scrape/scrape-instagram-photos",
+        "https://github.com/data-scrape/scrape-yelp-reviews",
+        "https://github.com/data-scrape/scrape-youtube-comments",
+        "https://github.com/data-scrape/scrape-youtube-search-results",
+        "https://github.com/data-scrape/scraperapi-alternative",
+        "https://github.com/data-scrape/scrapingbee-alternative",
+        "https://github.com/data-scrape/serpapi-alternative",
+        "https://github.com/data-scrape/slack-scraper",
+        "https://github.com/data-scrape/snapchat-scraper",
+        "https://github.com/data-scrape/spotify-scraper",
+        "https://github.com/data-scrape/substack-scraper",
+        "https://github.com/data-scrape/telegram-scraper",
+        "https://github.com/data-scrape/threads-scraper",
+        "https://github.com/data-scrape/tiktok-comment-scraper",
+        "https://github.com/data-scrape/tiktok-comments-scraper",
+        "https://github.com/data-scrape/tiktok-data-scraper-api",
+        "https://github.com/data-scrape/tiktok-profile-scraper",
+        "https://github.com/data-scrape/tiktok-video-scraper",
+        "https://github.com/data-scrape/twitch-scraper",
+        "https://github.com/data-scrape/web-data-api",
+        "https://github.com/data-scrape/whatsapp-scraper",
+        "https://github.com/data-scrape/x-scraper",
+        "https://github.com/data-scrape/x-tweet-scraper",
+        "https://github.com/data-scrape/yellow-pages-scraper",
+        "https://github.com/data-scrape/youtube-channel-scraper",
+        "https://github.com/data-scrape/youtube-video-scraper-api",
+        "https://github.com/data-scrape/zenrows-alternative",
+        "https://github.com/data-scrape/zillow-data-scraper",
+        "https://github.com/data-scrape/zillow-scraper-api"
+      ],
+      "local_path": "instagram-email-scraper-main.zip",
+      "category": "Instagram / Email",
+      "license": "MIT",
+      "language": "Python",
+      "entry_point": "instagram_email_scraper.py",
+      "upstream_operations_reviewed": [
+        "generic example HTML scraping"
+      ],
+      "input_types": [
+        "upstream-specific; no active Granger adapter"
+      ],
+      "output_types": [],
+      "authentication_requirements": "No working Instagram API supplied by example",
+      "api_key_requirements": "No working Instagram API supplied by example",
+      "external_dependencies": "requests / BeautifulSoup",
+      "network_access": "upstream network code not executed",
+      "security_risks": {
+        "proxy_or_challenge": 8,
+        "network": 4
+      },
+      "integration_method": "excluded_placeholder; existing public profile and historical contact tools retained",
+      "runtime_isolation": "not_executed",
+      "live_verification_status": "not_live_tested",
+      "evidence_support": false,
+      "agent_availability": false,
+      "registered_operations": [],
+      "known_limitations": "Placeholder URL/generic scraper is not a complete independent Instagram email source. No invented scraped emails.",
+      "archive_sha256": "ca5fbc3c692b2c203d1c3bd6ff7150cc3cdd83915b91354c12592f6a829a47f3",
+      "license_files": [
+        {
+          "path": "instagram-email-scraper-main/LICENSE",
+          "sha256": "18c366fadb896b1e0027cad8be85857ff38caa0776de6f3c54f7d3a90ab9d508"
+        }
+      ]
+    },
+    {
+      "tool_id": "pytok-master",
+      "name": "pytok-master.zip",
+      "repository": [
+        "https://github.com/MEOMcGill/pytok",
+        "https://github.com/MEOMcGill/pytok.git",
+        "https://github.com/daijro/camoufox"
+      ],
+      "local_path": "pytok-master.zip",
+      "category": "TikTok / SOCMINT",
+      "license": "PolyForm-Noncommercial-1.0.0",
+      "language": "Python",
+      "entry_point": "pytok package; examples/login_example.py",
+      "upstream_operations_reviewed": [
+        "session browser scraping",
+        "videos/comments/hashtags"
+      ],
+      "input_types": [
+        "upstream-specific; no active Granger adapter"
+      ],
+      "output_types": [],
+      "authentication_requirements": "Session/cookies and restricted browser paths",
+      "api_key_requirements": "Session/cookies and restricted browser paths",
+      "external_dependencies": "Browser automation; upstream proxy/challenge paths",
+      "network_access": "upstream network code not executed",
+      "security_risks": {
+        "credentials_or_session": 179,
+        "proxy_or_challenge": 62,
+        "network": 142,
+        "shell_or_process": 1
+      },
+      "integration_method": "excluded_full_project",
+      "runtime_isolation": "not_executed",
+      "live_verification_status": "not_live_tested",
+      "evidence_support": false,
+      "agent_availability": false,
+      "registered_operations": [],
+      "known_limitations": "No use of user cookies, login/CAPTCHA bypass, proxies or bulk collector; noncommercial license restrictions. Existing local TikTok timestamp tool retained.",
+      "archive_sha256": "cf5cc17fbc9bac7d3f8669fc5a61029eca6ebbd8d184e9def3618128baa74836",
+      "license_files": [
+        {
+          "path": "pytok-master/LICENSE",
+          "sha256": "8f7e803ba1a78826a1b4ada53722c5844c02fcfd1cb76734876dd8db9b94386c"
+        }
+      ]
+    },
+    {
+      "tool_id": "Reconnaissance-main",
+      "name": "Reconnaissance-main.zip",
+      "repository": [
+        "https://github.com/c0d3ninja/Reconnaissance.git",
+        "https://github.com/gotr00t0day/Reconnaissance"
+      ],
+      "local_path": "Reconnaissance-main.zip",
+      "category": "Network / Recon",
+      "license": "license_not_found",
+      "language": "Python",
+      "entry_point": "reconx/main.py",
+      "upstream_operations_reviewed": [
+        "GUI reconnaissance",
+        "Shodan and port scanning"
+      ],
+      "input_types": [
+        "upstream-specific; no active Granger adapter"
+      ],
+      "output_types": [],
+      "authentication_requirements": "Shodan key for corresponding features",
+      "api_key_requirements": "Shodan key for corresponding features",
+      "external_dependencies": "GUI / external network scanning",
+      "network_access": "upstream network code not executed",
+      "security_risks": {
+        "network": 64,
+        "shell_or_process": 8,
+        "proxy_or_challenge": 29,
+        "credentials_or_session": 13,
+        "insecure_tls": 12
+      },
+      "integration_method": "excluded_full_project",
+      "runtime_isolation": "not_executed",
+      "live_verification_status": "not_live_tested",
+      "evidence_support": false,
+      "agent_availability": false,
+      "registered_operations": [],
+      "known_limitations": "No distribution license found; duplicates passive lookup while introducing active scanning/key dependency. No port scans executed.",
+      "archive_sha256": "a5a397118ba72eab368f18059572da12a8b04957e5d068fbbac07e5a0fc2230d",
+      "license_files": []
+    },
+    {
+      "tool_id": "spiderfoot-master",
+      "name": "spiderfoot-master.zip",
+      "repository": [
+        "https://github.com/EnableSecurity/wafw00f",
+        "https://github.com/StevenBlack/hosts",
+        "https://github.com/Tuhinshubhra/CMSeeK",
+        "https://github.com/elceef/dnstwist",
+        "https://github.com/hannob/snallygaster",
+        "https://github.com/smicallef/spiderfoot",
+        "https://github.com/smicallef/spiderfoot.git",
+        "https://github.com/trailofbits/onesixtyone",
+        "https://github.com/trufflesecurity/truffleHog",
+        "https://github.com/urbanadventurer/whatweb"
+      ],
+      "local_path": "spiderfoot-master.zip",
+      "category": "IP / Domain / Mixed",
+      "license": "MIT",
+      "language": "Python",
+      "entry_point": "sf.py; sfcli.py; modules/",
+      "upstream_operations_reviewed": [
+        "many independent plugins; passive and active sources"
+      ],
+      "input_types": [
+        "upstream-specific; no active Granger adapter"
+      ],
+      "output_types": [],
+      "authentication_requirements": "Module-dependent keys; not required for all modules",
+      "api_key_requirements": "Module-dependent keys; not required for all modules",
+      "external_dependencies": "Large web/plugin runtime and per-module dependencies",
+      "network_access": "upstream network code not executed",
+      "security_risks": {
+        "network": 1550,
+        "credentials_or_session": 440,
+        "insecure_tls": 19,
+        "proxy_or_challenge": 87,
+        "shell_or_process": 22
+      },
+      "integration_method": "no full plugin runtime imported; independent DNS/RDAP/CT/routing adapters cover selected passive functionality",
+      "runtime_isolation": "not_executed",
+      "live_verification_status": "not_live_tested_as_spiderfoot",
+      "evidence_support": false,
+      "agent_availability": false,
+      "registered_operations": [],
+      "known_limitations": "No claim that its full plugin catalogue is installed. Active/keyed modules excluded; existing/new passive source calls have their own explicit receipts.",
+      "archive_sha256": "c6ee64895c9f52da25fb8ebbbd208baf1762a870b22678d09354045a9dadfbbf",
+      "license_files": [
+        {
+          "path": "spiderfoot-master/LICENSE",
+          "sha256": "41eb86ec55a9a98167a76dccb73f093000a96947e9f5d986fe79c741f4369684"
+        },
+        {
+          "path": "spiderfoot-master/spiderfoot/dicts/ispell/LICENSE",
+          "sha256": "6b101f692b6066f10bfa5d86e787b5d22e61a40f8eadabaee1eeb646936b8f66"
+        }
+      ]
+    },
+    {
+      "tool_id": "steam-osint-main",
+      "name": "steam-osint-main.zip",
+      "repository": [
+        "https://github.com/matiash26/Steam-OSINT-TOOL.git"
+      ],
+      "local_path": "steam-osint-main.zip",
+      "category": "Steam / SOCMINT",
+      "license": "license_not_found",
+      "language": "Python",
+      "entry_point": "steamOsint/main.py",
+      "upstream_operations_reviewed": [
+        "Steam Web API",
+        "browser-assisted profile scraping"
+      ],
+      "input_types": [
+        "upstream-specific; no active Granger adapter"
+      ],
+      "output_types": [],
+      "authentication_requirements": "Steam API key; browser cookies in upstream paths",
+      "api_key_requirements": "Steam API key; browser cookies in upstream paths",
+      "external_dependencies": "Chrome / remote debugging / requests",
+      "network_access": "upstream network code not executed",
+      "security_risks": {
+        "network": 15,
+        "shell_or_process": 2,
+        "credentials_or_session": 6
+      },
+      "integration_method": "excluded_full_project",
+      "runtime_isolation": "not_executed",
+      "live_verification_status": "not_live_tested",
+      "evidence_support": false,
+      "agent_availability": false,
+      "registered_operations": [],
+      "known_limitations": "Missing distribution license, browser profile/cookie dependencies. Equivalent public subset supplied by reviewed SteamRecon; no duplicate scraper.",
+      "archive_sha256": "fbb9427e9eb577ff852a404b09b9443579ca5a822f79960f0d9e360350e07be4",
+      "license_files": []
+    },
+    {
+      "tool_id": "theHarvester-4.11.1",
+      "name": "theHarvester-4.11.1.zip",
+      "repository": [
+        "https://github.com/laramies/theHarvester"
+      ],
+      "local_path": "theHarvester-4.11.1.zip",
+      "category": "Domain / Email / Network",
+      "license": "GPL-2.0",
+      "language": "Python",
+      "entry_point": "theHarvester/__main__.py",
+      "upstream_operations_reviewed": [
+        "passive domain/email discovery",
+        "many provider modules"
+      ],
+      "input_types": [
+        "upstream-specific; no active Granger adapter"
+      ],
+      "output_types": [],
+      "authentication_requirements": "Provider-dependent keys and access policies",
+      "api_key_requirements": "Provider-dependent keys and access policies",
+      "external_dependencies": "Large Python dependency/plugin set",
+      "network_access": "upstream network code not executed",
+      "security_risks": {
+        "network": 327,
+        "proxy_or_challenge": 364,
+        "credentials_or_session": 64,
+        "insecure_tls": 3
+      },
+      "integration_method": "no full runtime installed; standalone domain DNS/RDAP/CT plus existing historical contacts retained",
+      "runtime_isolation": "not_executed",
+      "live_verification_status": "not_live_tested_as_theHarvester",
+      "evidence_support": false,
+      "agent_availability": false,
+      "registered_operations": [],
+      "known_limitations": "Two versions are duplicates, not two integrations. No vendor setup/install scripts executed. Provider-by-provider availability is not implied by an import.",
+      "archive_sha256": "11ab4de05b8b15bef5f66429010471a1adf80adb140cffbe859cc60b333b3de0",
+      "license_files": [
+        {
+          "path": "theHarvester-4.11.1/README/COPYING",
+          "sha256": "b5f3d69a50064f00221d72a8a77b30804a581a409762d254778cbd46b30bbe8b"
+        },
+        {
+          "path": "theHarvester-4.11.1/README/LICENSES",
+          "sha256": "3e1af6f15a8ed290c637f3b2aa4f2d7834be7b4497e1e1fdfb675c3470f1dcff"
+        }
+      ]
+    },
+    {
+      "tool_id": "theHarvester-master",
+      "name": "theHarvester-master.zip",
+      "repository": [
+        "https://github.com/laramies/theHarvester",
+        "https://github.com/laramies/theHarvester.git"
+      ],
+      "local_path": "theHarvester-master.zip",
+      "category": "Domain / Email / Network",
+      "license": "GPL-2.0",
+      "language": "Python",
+      "entry_point": "theHarvester/__main__.py",
+      "upstream_operations_reviewed": [
+        "passive domain/email discovery",
+        "many provider modules"
+      ],
+      "input_types": [
+        "upstream-specific; no active Granger adapter"
+      ],
+      "output_types": [],
+      "authentication_requirements": "Provider-dependent keys and access policies",
+      "api_key_requirements": "Provider-dependent keys and access policies",
+      "external_dependencies": "Large Python dependency/plugin set",
+      "network_access": "upstream network code not executed",
+      "security_risks": {
+        "network": 1378,
+        "shell_or_process": 48,
+        "proxy_or_challenge": 683,
+        "insecure_tls": 1,
+        "credentials_or_session": 158,
+        "dynamic_execution": 1
+      },
+      "integration_method": "no full runtime installed; standalone domain DNS/RDAP/CT plus existing historical contacts retained",
+      "runtime_isolation": "not_executed",
+      "live_verification_status": "not_live_tested_as_theHarvester",
+      "evidence_support": false,
+      "agent_availability": false,
+      "registered_operations": [],
+      "known_limitations": "Two versions are duplicates, not two integrations. No vendor setup/install scripts executed. Provider-by-provider availability is not implied by an import.",
+      "archive_sha256": "d53e54ae8ae8593d08265cdf32d8e8ccae2b38e3ef4531546f4ae5839a9e1a7f",
+      "license_files": [
+        {
+          "path": "theHarvester-master/LICENSE",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "path": "theHarvester-master/README/LICENSES",
+          "sha256": "3e1af6f15a8ed290c637f3b2aa4f2d7834be7b4497e1e1fdfb675c3470f1dcff"
+        }
+      ]
+    },
+    {
+      "tool_id": "TikTok-Content-Scraper-main",
+      "name": "TikTok-Content-Scraper-main.zip",
+      "repository": [
+        "https://github.com/Q-Bukold/TikTok-Content-Scraper",
+        "https://github.com/Q-Bukold/TikTok-Content-Scraper.git"
+      ],
+      "local_path": "TikTok-Content-Scraper-main.zip",
+      "category": "TikTok / SOCMINT",
+      "license": "PolyForm-Noncommercial-1.0.0",
+      "language": "Python",
+      "entry_point": "TT_Content_Scraper/__main__.py",
+      "upstream_operations_reviewed": [
+        "browser content collection"
+      ],
+      "input_types": [
+        "upstream-specific; no active Granger adapter"
+      ],
+      "output_types": [],
+      "authentication_requirements": "Cookies/browser session for upstream modes",
+      "api_key_requirements": "Cookies/browser session for upstream modes",
+      "external_dependencies": "pytok/browser dependencies",
+      "network_access": "upstream network code not executed",
+      "security_risks": {
+        "network": 11,
+        "proxy_or_challenge": 8,
+        "credentials_or_session": 5,
+        "shell_or_process": 1
+      },
+      "integration_method": "excluded_full_project",
+      "runtime_isolation": "not_executed",
+      "live_verification_status": "not_live_tested",
+      "evidence_support": false,
+      "agent_availability": false,
+      "registered_operations": [],
+      "known_limitations": "Same restricted collector family as pytok; no duplicate runtime or bypass. No full TikTok integration claimed.",
+      "archive_sha256": "27dcdbe0655e4e5f284cfc8e8ff718284dd12e9f5844f7859adc564c6b69d7f6",
+      "license_files": [
+        {
+          "path": "TikTok-Content-Scraper-main/LICENSE",
+          "sha256": "ffcca38841adb694b6f380647e15f17c446a4d1656fed51a1e2041d064c94cc8"
+        }
+      ]
+    },
+    {
+      "tool_id": "TokIntel-main",
+      "name": "TokIntel-main.zip",
+      "repository": [
+        "https://github.com/HackUnderway/TokIntel",
+        "https://github.com/HackUnderway/TokIntel.git"
+      ],
+      "local_path": "TokIntel-main.zip",
+      "category": "TikTok / SOCMINT",
+      "license": "MIT",
+      "language": "Python",
+      "entry_point": "TokIntel.py",
+      "upstream_operations_reviewed": [
+        "Apify-backed TikTok collection"
+      ],
+      "input_types": [
+        "upstream-specific; no active Granger adapter"
+      ],
+      "output_types": [],
+      "authentication_requirements": "Apify token, service access/balance",
+      "api_key_requirements": "Apify token, service access/balance",
+      "external_dependencies": "Apify client / dotenv",
+      "network_access": "upstream network code not executed",
+      "security_risks": {
+        "network": 2,
+        "credentials_or_session": 11
+      },
+      "integration_method": "optional_external_service_not_configured",
+      "runtime_isolation": "not_executed",
+      "live_verification_status": "not_live_tested",
+      "evidence_support": false,
+      "agent_availability": false,
+      "registered_operations": [],
+      "known_limitations": "Mandatory external token; no independent key-free operation established. Upstream plaintext .env mechanism not used.",
+      "archive_sha256": "2e039ff9419ff1b57e3d31da33e984ab805143643e150b9f53d64ba33a08d26f",
+      "license_files": [
+        {
+          "path": "TokIntel-main/LICENSE",
+          "sha256": "6d56c39775aa3c315e0f566b543a7e07c47819c8597655b3b90bc24ecda795f7"
+        }
+      ]
+    },
+    {
+      "tool_id": "X-IG-OSINT-Hacker-x-Phantom",
+      "name": "X-IG-OSINT-Hacker-x-Phantom.zip",
+      "repository": [
+        "https://github.com/hackerxphantom/X-IG-OSINT"
+      ],
+      "local_path": "X-IG-OSINT-Hacker-x-Phantom.zip",
+      "category": "X / Instagram / Username",
+      "license": "MIT",
+      "language": "Python",
+      "entry_point": "X-IG-OSINT.py",
+      "upstream_operations_reviewed": [
+        "profile/menu lookups",
+        "heuristic risk/identity scoring"
+      ],
+      "input_types": [
+        "upstream-specific; no active Granger adapter"
+      ],
+      "output_types": [],
+      "authentication_requirements": "Depends on selected upstream endpoint",
+      "api_key_requirements": "Depends on selected upstream endpoint",
+      "external_dependencies": "requests / HTML parsing",
+      "network_access": "upstream network code not executed",
+      "security_risks": {
+        "network": 37,
+        "shell_or_process": 1
+      },
+      "integration_method": "excluded_duplicate_and_unfounded_scoring",
+      "runtime_isolation": "not_executed",
+      "live_verification_status": "not_live_tested",
+      "evidence_support": false,
+      "agent_availability": false,
+      "registered_operations": [],
+      "known_limitations": "Existing X/Instagram adapters retained. Upstream heuristic risk/identity scores are not imported or presented as facts.",
+      "archive_sha256": "3f80150531db52ce84999f35b3549ad01c807b35f328c11069546560a8aab8f5",
+      "license_files": [
+        {
+          "path": "X-IG-OSINT-Hacker-x-Phantom/LICENSE",
+          "sha256": "ccf3dff059b1ec38c5bf2cfce3c1fb0d9cc96dfd90465f2eb96fe35e65d3632e"
+        }
+      ]
+    },
+    {
+      "tool_id": "SteamRecon",
+      "name": "SteamRecon",
+      "repository": [
+        "https://github.com/YOUR_USERNAME/SteamRecon.git",
+        "https://github.com/zakhar-git/SteamRecon",
+        "https://github.com/zakhar-git/SteamRecon.git"
+      ],
+      "local_path": "SteamRecon",
+      "category": "Steam / SOCMINT",
+      "license": "MIT",
+      "language": "Python",
+      "entry_point": "steamrecon/cli.py",
+      "upstream_operations_reviewed": [
+        "SteamID normalization",
+        "public XML profile",
+        "published aliases",
+        "public friend links"
+      ],
+      "input_types": [
+        "SteamID64",
+        "SteamID2",
+        "SteamID3",
+        "vanity URL"
+      ],
+      "output_types": [
+        "normalized evidence envelope",
+        "structured profile/alias/friend records"
+      ],
+      "authentication_requirements": "No key or session for selected subset",
+      "api_key_requirements": "No key or session for selected subset",
+      "external_dependencies": "stdlib reviewed parser; existing pinned HTTPS transport",
+      "network_access": "public HTTPS only",
+      "security_risks": {
+        "network": 102,
+        "credentials_or_session": 2,
+        "proxy_or_challenge": 2
+      },
+      "integration_method": "Reviewed MIT subset in own parser process; no upstream CLI/HTTP executed",
+      "runtime_isolation": "Windows Job 384 MiB, 35s, bounded pipe; process isolation is not a separate user security boundary",
+      "live_verification_status": "live_complete_subset",
+      "evidence_support": true,
+      "agent_availability": true,
+      "registered_operations": [
+        "steam_profile",
+        "steam_aliases",
+        "steam_friends"
+      ],
+      "known_limitations": "Only these three public operations. Closed fields stay unavailable; no private profile access or identity inference.",
+      "archive_sha256": null,
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "2345a9a0583f7fb6e90df83c184ecedda218048615da3896c616c9d25a1c4e0d"
+        }
+      ]
+    }
+  ]
+}

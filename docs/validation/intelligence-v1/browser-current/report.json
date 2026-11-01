@@ -1,0 +1,68 @@
+{
+  "test_kind": "live_public_site_real_edge",
+  "site": "https://www.scrapethissite.com/pages/forms/",
+  "events": [
+    {
+      "action": "browser_navigate",
+      "status": "complete",
+      "url": "https://www.scrapethissite.com/pages/forms",
+      "seconds": 4.476,
+      "tables": 1
+    },
+    {
+      "action": "browser_type",
+      "status": "complete",
+      "url": "https://www.scrapethissite.com/pages/forms",
+      "seconds": 0.547,
+      "tables": 1
+    },
+    {
+      "action": "browser_click",
+      "status": "complete",
+      "url": "https://www.scrapethissite.com/pages/forms?q=New",
+      "seconds": 0.971,
+      "tables": 1
+    },
+    {
+      "action": "browser_scroll",
+      "status": "complete",
+      "url": "https://www.scrapethissite.com/pages/forms?q=New",
+      "seconds": 0.46,
+      "tables": 1
+    },
+    {
+      "action": "browser_click",
+      "status": "complete",
+      "url": "https://www.scrapethissite.com/pages/forms?page_num=2&q=New",
+      "seconds": 0.829,
+      "tables": 1
+    },
+    {
+      "action": "browser_screenshot",
+      "status": "complete",
+      "url": "https://www.scrapethissite.com/pages/forms?page_num=2&q=New",
+      "seconds": 1.607,
+      "tables": 1
+    }
+  ],
+  "structured_rows": 25,
+  "screenshot": {
+    "real": true,
+    "sha256": "9a0302c8535ddd91499f3f6bfb938646faae8697451b6fc3d41e1dd8a6e91f0e",
+    "local_ocr": "complete"
+  },
+  "model_current_controls": true,
+  "performance": {
+    "process_count": 13,
+    "rss_bytes": 736444416,
+    "cpu_seconds": 7.296875
+  },
+  "cancellation": {
+    "result": "browser_cancelled",
+    "seconds": 1.142,
+    "owned_processes_left": 0
+  },
+  "limitations": [
+    "Public scraping practice site; no authentication, CAPTCHA, user cookies or vision model used."
+  ]
+}

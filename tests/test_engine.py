@@ -21,7 +21,7 @@ from grangerpet.engine import runtime
 
 class ClassificationTests(unittest.TestCase):
     def test_routes_actual_identifier_types(self):
-        cases = {"octocat": "auto", "@octocat": "auto", "example.org": "web", "user@example.org": "email", "+44 20 8366 1177": "phone",
+        cases = {"octocat": "auto", "@octocat": "auto", "example.org": "domain", "user@example.org": "email", "+44 20 8366 1177": "phone",
                  "https://t.me/telegram": "telegram", "https://vk.com/id1": "vk", "https://instagram.com/instagram/": "instagram",
                  "https://example.org/": "web", 'site:example.org "annual report"': "dork",
                  "0x0000000000000000000000000000000000000000": "blockchain", "several words": "dork"}

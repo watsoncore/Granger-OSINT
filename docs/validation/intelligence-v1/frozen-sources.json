@@ -1,0 +1,570 @@
+{
+  "method": "Compare actual PyInstaller embedded Python code objects with optimize=1 compiled delivered source; normalize filenames only",
+  "passed": true,
+  "modules": [
+    {
+      "module": "grangerpet",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.agent",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.agent_browser",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.agent_evidence",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.agent_journal",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.agent_tools",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.agent_web",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.ai",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.ai_keys",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.ai_state",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.animation",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.app",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.articulated",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.blockchain_store",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.browser_policy",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.browser_session",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.canvas",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.character",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.chat",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.chat_archive",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.config",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.connections",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.context",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.conversation_pose",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.conversations",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.credential_dialog",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.credentials",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.desktop_bridge",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.desktop_surface",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.dork_dialog",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.dorks",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.download_budget",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.engine",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.engine.adapters",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.engine.blockchain_analytics",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.engine.blockchain_contracts",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.engine.blockchain_rows",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.engine.controller",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.engine.models",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.engine.readiness",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.engine.router",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.engine.runtime",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.entity_router",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.errors",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.evidence_graph",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.gateway_balance",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.geoint",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.geoint.images",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.geoint.mapping",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.geoint.optional_apis",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.geoint.presentation",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.geoint.reference_ranking",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.geoint.research",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.geoint.tiles",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.geoint.wikidata",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.geoint_tools",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.graph_context",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.graph_store",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.guest_rig",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.gui_lifecycle",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.hermione_actions",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.hermione_pose_bank",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.integrations19",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.integrations19._role_classifier",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.integrations19.local_tools",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.integrations19.nuclei",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.integrations19.panoramax",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.integrations19.public_tools",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.integrations19.solar",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.investigation",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.investigation_analysis",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.investigation_contracts",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.investigation_progress",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.investigation_results",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.investigation_workspace",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.ipc",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.key_poses",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.launcher",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.link_relevance",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.markdown_view",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.message_view",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.motion",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.native_capture",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.network_report",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.network_sources",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.original_face",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.original_identity",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.original_idle",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.painted_arms",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.panel",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.pet",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.pet_actions",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.pet_cameo",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.pet_capture",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.pet_life",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.pet_notifications",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.phone_scene",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.physics",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.portable_vault",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.product",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.public_integrations",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.public_media",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.public_sources",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.qa_input",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.reactions",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.research_vendor",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.research_vendor.steam_community",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.research_vendor.steamid",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.result_details",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.result_view",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.scene_art",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.scene_pose",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.search",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.settings_dialog",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.solo_sequence",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.steam_public",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.telegram_public",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.theme",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.tool_contracts",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.tool_inputs",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.tool_manifest",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.typography",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.ui_jobs",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.usage",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.validators",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.validators.ton_address",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.vault_dialog",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.visual_models",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.visual_models.installation",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.visual_models.manager",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.visual_models.observations",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.visual_models.pipeline",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.visual_models.scene",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.visual_models.scene_worker",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.visual_models.tools",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.visual_models.worker",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.web_http",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.web_render",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.web_render_worker",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.web_scraping",
+      "source_matches": true
+    },
+    {
+      "module": "grangerpet.window_chrome",
+      "source_matches": true
+    }
+  ]
+}

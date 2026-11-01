@@ -1,6 +1,23 @@
 # Granger-OSINT — проверка текущей сборки
 
-## Phone Solvnox — текущая поставка, 1 ноября 2026
+## Intelligence/research — текущая поставка, 1 ноября 2026
+
+Windows x64:279123275 bytes, SHA-256
+`1b935f0f0f82f2fe829ea20be22a064a6c45042713ab9ed368380ce0a49cee37`.
+
+- 1652 passed,1 skipped,32 subtests passed; frontend127 passed; production build passed.
+- 141 frozen modules и221 frontend/resource checks совпали с исходниками.
+- Native:10 checks,8 настоящих ручных операций; browser→GET search→page2→screenshot/OCR,
+  сохранённый ключ/статус подключения, новый дружеский диалог, выход своих процессов.
+- 66 существовавших файлов профиля,92 assets и200 resources неизменны.
+- Fixtures ошибок не объявляются live. TON-контроль частичный; точные GEOINT-локации
+  не подтверждены. Полные сторонние репозитории не объявляются подключёнными.
+
+[Подробный A–J отчёт](docs/INTELLIGENCE_RELEASE.md),
+[native receipts](docs/validation/intelligence-v1/native-exe.json),
+[контрольные live API](docs/validation/intelligence-v1/agent-live.json).
+
+## Phone Solvnox — предыдущая поставка, 1 ноября 2026
 
 Windows x64: **279015421 bytes**, SHA-256
 `2f39ef873aae31c5040ec220e47bd4cca11f993dd98afbeeda3c545fc1a33d4b`.

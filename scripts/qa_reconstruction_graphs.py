@@ -65,6 +65,10 @@ def main():
     visual=json.loads((ROOT/'output/reconstruction/vision-pipeline-01/result.json').read_text(encoding='utf-8'))
     geo=json.loads((ROOT/'output/reconstruction/geoint-research-05/result.json').read_text(encoding='utf-8'))
     case('actual-geoint','Где снята выбранная фотография? Сохранённые локальные наблюдения и реальные эталоны.',visual['results']+geo['results'])
+    for name,goal,filename in (('actual-ip-new','Исследуй IP 66.249.67.41','agent-ip-02'),
+            ('actual-steam-new','Публичный профиль Steam https://steamcommunity.com/id/robinwalker','agent-steam-01')):
+        receipt=ROOT/'output/intelligence-v1'/filename/'result.json'
+        if receipt.is_file():case(name,goal,json.loads(receipt.read_text(encoding='utf-8'))['evidence'])
     rows=[normalize_evidence({'id':str(i),'type':'post','platform':'Synthetic QA','title':f'Синтетическая публикация {i}',
         'url':f'https://t.me/qa_public_fixture/{i+1}','description':'Synthetic publication fixture, no public source requested.',
         'details':{'author':'qa_public_fixture'}},'synthetic_fixture','qa_public_fixture') for i in range(100)]

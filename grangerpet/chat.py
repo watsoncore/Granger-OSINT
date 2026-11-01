@@ -624,6 +624,8 @@ class ChatWidget(QWidget):
             return
         self._generation += 1
         self._job.cancel()
+        close=getattr(self._agent_registry,'close',None)
+        if callable(close):close()
         self._job.deleteLater()
         self._close_approval()
         if self._agent_runner is not None:

@@ -1,0 +1,428 @@
+{
+  "test_kind": "live_api_place_controls_not_blind_geolocation",
+  "cases": [
+    {
+      "place": "Moscow Kremlin",
+      "status": "complete",
+      "references": [
+        {
+          "provider": "Wikimedia Commons",
+          "title": "File:Kremlin Tower-top (05-2004).jpg",
+          "page_id": 23949627,
+          "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Kremlin_Tower-top_%2805-2004%29.jpg/960px-Kremlin_Tower-top_%2805-2004%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbnail_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Kremlin_Tower-top_%2805-2004%29.jpg/960px-Kremlin_Tower-top_%2805-2004%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Kremlin_Tower-top_%2805-2004%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "original_bytes": 4646430,
+          "source_url": "https://commons.wikimedia.org/wiki/File:Kremlin_Tower-top_(05-2004).jpg",
+          "description": "Top of a Kremlin tower (Moscow).",
+          "author": "Godot13",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "captured_at": "2004-05-17",
+          "latitude": 55.751667,
+          "longitude": 37.617778,
+          "distance_m": 11.7,
+          "match_kind": "nearby_reference_not_verified_match",
+          "selection": {
+            "score": 6.3988,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Общий тип сцены: architecture, tower",
+              "Совпало название области гипотезы; это не подтверждение",
+              "Расстояние используется только как слабый дополнительный признак"
+            ],
+            "observed_scene_types": [
+              "architecture",
+              "tower"
+            ],
+            "reference_scene_types": [
+              "architecture",
+              "tower"
+            ],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        },
+        {
+          "provider": "Wikimedia Commons",
+          "title": "File:Terrace of the Kremlin, Moscow, c. 1913.jpg",
+          "page_id": 43939661,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Terrace_of_the_Kremlin%2C_Moscow%2C_c._1913.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "thumbnail_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Terrace_of_the_Kremlin%2C_Moscow%2C_c._1913.jpg/960px-Terrace_of_the_Kremlin%2C_Moscow%2C_c._1913.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Terrace_of_the_Kremlin%2C_Moscow%2C_c._1913.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "original_bytes": 886023,
+          "source_url": "https://commons.wikimedia.org/wiki/File:Terrace_of_the_Kremlin,_Moscow,_c._1913.jpg",
+          "description": "Terrace of the Kremlin, Moscow, c. 1913. Painted by Frédéric de Haenen Identifier : russia00dobsrich ( find matches ) Title : Russia; Year : 1913 ( 1910s ) Authors : Dobson, George Grove, Henry M Stewart, Hugh, 1884-1934 Haenen, F. de Subjects : Soviet Union -- Description and travel Publisher : London, A. and C. Black Contributing Library : University of California Libraries Digitizing Sponsor : MSN View Book Page : Book Viewer About This Book : Catalog Entry View All Images : All Images From Book Click here to view book online to see this illustration in context in a browseable online version of this book. Text Appearing Before Image: as so struck with the beauty, sym-metry, and original design of the Church of theAssumption of the Holy Virgin on the Maro-seika Street that he placed a guard near and hadsentries posted all round it, to protect it from beinglooted or injured in any way. The church wasbuilt either m the reign of Ivan the Terrible orof Boris Godunoff, but the absolute date is notknown. Another church connected with Napoleon andthe French invasion is the beautiful cathedral ofOur Saviour on the banks of the river a little abovethe Kremlin. This magnificent structure w",
+          "author": "Internet Archive Book Images",
+          "license": "No restrictions",
+          "license_url": "https://www.flickr.com/commons/usage/",
+          "captured_at": "1913",
+          "latitude": null,
+          "longitude": null,
+          "distance_m": null,
+          "match_kind": "nearby_reference_not_verified_match",
+          "selection": {
+            "score": 3.3,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Общий тип сцены: architecture",
+              "Совпало название области гипотезы; это не подтверждение"
+            ],
+            "observed_scene_types": [
+              "architecture",
+              "tower"
+            ],
+            "reference_scene_types": [
+              "architecture",
+              "street",
+              "water"
+            ],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        },
+        {
+          "provider": "Wikimedia Commons",
+          "title": "File:Cañón del Kremlin.jpg",
+          "page_id": 11979799,
+          "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Ca%C3%B1%C3%B3n_del_Kremlin.jpg/960px-Ca%C3%B1%C3%B3n_del_Kremlin.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbnail_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Ca%C3%B1%C3%B3n_del_Kremlin.jpg/960px-Ca%C3%B1%C3%B3n_del_Kremlin.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Ca%C3%B1%C3%B3n_del_Kremlin.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "original_bytes": 4213965,
+          "source_url": "https://commons.wikimedia.org/wiki/File:Ca%C3%B1%C3%B3n_del_Kremlin.jpg",
+          "description": "",
+          "author": "Mario Modesto Mata",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "captured_at": "2010-08-01",
+          "latitude": 55.7516803167,
+          "longitude": 37.6176810167,
+          "distance_m": 5.5,
+          "match_kind": "nearby_reference_not_verified_match",
+          "selection": {
+            "score": 3.2495,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Общий тип сцены: architecture",
+              "Совпало название области гипотезы; это не подтверждение",
+              "Расстояние используется только как слабый дополнительный признак"
+            ],
+            "observed_scene_types": [
+              "architecture",
+              "tower"
+            ],
+            "reference_scene_types": [
+              "architecture"
+            ],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        },
+        {
+          "provider": "Wikimedia Commons",
+          "title": "File:Putin with Gorkov at Kremlin August 2016.jpg",
+          "page_id": 59719918,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/54/Putin_with_Gorkov_at_Kremlin_August_2016.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "thumbnail_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Putin_with_Gorkov_at_Kremlin_August_2016.jpg/960px-Putin_with_Gorkov_at_Kremlin_August_2016.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/5/54/Putin_with_Gorkov_at_Kremlin_August_2016.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "original_bytes": 352544,
+          "source_url": "https://commons.wikimedia.org/wiki/File:Putin_with_Gorkov_at_Kremlin_August_2016.jpg",
+          "description": "Russian President Vladimir Putin meets with VEB chairman Sergey Gorkov at the Kremlin.",
+          "author": "Kremlin",
+          "license": "CC BY 4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0",
+          "captured_at": "2016-08-03",
+          "latitude": 55.751667,
+          "longitude": 37.617778,
+          "distance_m": 11.7,
+          "match_kind": "nearby_reference_not_verified_match",
+          "selection": {
+            "score": 3.2488,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Общий тип сцены: architecture",
+              "Совпало название области гипотезы; это не подтверждение",
+              "Расстояние используется только как слабый дополнительный признак"
+            ],
+            "observed_scene_types": [
+              "architecture",
+              "tower"
+            ],
+            "reference_scene_types": [
+              "architecture"
+            ],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        },
+        {
+          "provider": "Wikimedia Commons",
+          "title": "File:The Kremlin gate, with its Tartar architecture and religious chapel adjoining, Russia-Moscow LCCN99406421.jpg",
+          "page_id": 68235953,
+          "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/The_Kremlin_gate%2C_with_its_Tartar_architecture_and_religious_chapel_adjoining%2C_Russia-Moscow_LCCN99406421.jpg/960px-The_Kremlin_gate%2C_with_its_Tartar_architecture_and_religious_chapel_adjoining%2C_Russia-Moscow_LCCN99406421.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbnail_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/The_Kremlin_gate%2C_with_its_Tartar_architecture_and_religious_chapel_adjoining%2C_Russia-Moscow_LCCN99406421.jpg/960px-The_Kremlin_gate%2C_with_its_Tartar_architecture_and_religious_chapel_adjoining%2C_Russia-Moscow_LCCN99406421.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/6/65/The_Kremlin_gate%2C_with_its_Tartar_architecture_and_religious_chapel_adjoining%2C_Russia-Moscow_LCCN99406421.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "original_bytes": 2401074,
+          "source_url": "https://commons.wikimedia.org/wiki/File:The_Kremlin_gate,_with_its_Tartar_architecture_and_religious_chapel_adjoining,_Russia-Moscow_LCCN99406421.jpg",
+          "description": "Title: The Kremlin gate, with its Tartar architecture and religious chapel adjoining, Russia--Moscow Comment: A bizarre collection of incompetent statements in one phrase. This isn't Kremlin, but the Ilyinka Gate of the Kitai-gorod fortress wall. The architecture is certainly not Tartar. The basic fortress structure was built by an Italian architect along earlier Italian motives. The tented roof is a generic mid-17th century Russian design, completely unrelated to Islamic Tartar canon. Abstract/medium: 1 photographic print.",
+          "author": "Miscellaneous Items in High Demand, PPOC, Library of Congress",
+          "license": "Public domain",
+          "license_url": "",
+          "captured_at": "1918",
+          "latitude": null,
+          "longitude": null,
+          "distance_m": null,
+          "match_kind": "nearby_reference_not_verified_match",
+          "selection": {
+            "score": 3.15,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Общий тип сцены: architecture",
+              "Совпало название области гипотезы; это не подтверждение"
+            ],
+            "observed_scene_types": [
+              "architecture",
+              "tower"
+            ],
+            "reference_scene_types": [
+              "architecture"
+            ],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        }
+      ],
+      "seconds": 6.193138499977067
+    },
+    {
+      "place": "Eiffel Tower",
+      "status": "complete",
+      "references": [
+        {
+          "provider": "Wikimedia Commons",
+          "title": "File:Eiffel Tower by night, Paris, FRANCE.jpg",
+          "page_id": 56382763,
+          "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Eiffel_Tower_by_night%2C_Paris%2C_FRANCE.jpg/960px-Eiffel_Tower_by_night%2C_Paris%2C_FRANCE.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbnail_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Eiffel_Tower_by_night%2C_Paris%2C_FRANCE.jpg/960px-Eiffel_Tower_by_night%2C_Paris%2C_FRANCE.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/0/07/Eiffel_Tower_by_night%2C_Paris%2C_FRANCE.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "original_bytes": 6565407,
+          "source_url": "https://commons.wikimedia.org/wiki/File:Eiffel_Tower_by_night,_Paris,_FRANCE.jpg",
+          "description": "Picture of the Eiffel Tower in Paris, France by night.",
+          "author": "Corentin villemeur",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "captured_at": "2016-12-23 14:24:20",
+          "latitude": 48.8584,
+          "longitude": 2.2945,
+          "distance_m": 0.0,
+          "match_kind": "nearby_reference_not_verified_match",
+          "selection": {
+            "score": 3.4,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Общий тип сцены: tower",
+              "Совпало название области гипотезы; это не подтверждение",
+              "Расстояние используется только как слабый дополнительный признак"
+            ],
+            "observed_scene_types": [
+              "street",
+              "tower"
+            ],
+            "reference_scene_types": [
+              "tower"
+            ],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        },
+        {
+          "provider": "Wikimedia Commons",
+          "title": "File:The-eiffel-tower.jpg",
+          "page_id": 95650588,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/64/The-eiffel-tower.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "thumbnail_url": "https://upload.wikimedia.org/wikipedia/commons/6/64/The-eiffel-tower.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/6/64/The-eiffel-tower.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "original_bytes": 42643,
+          "source_url": "https://commons.wikimedia.org/wiki/File:The-eiffel-tower.jpg",
+          "description": "The Eiffel Tower is in Paris, France and it is believed to have a secret office or something on top of it.",
+          "author": "Dhruva Vemuri",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "captured_at": "2020-10-30",
+          "latitude": 48.8584,
+          "longitude": 2.2945,
+          "distance_m": 0.0,
+          "match_kind": "nearby_reference_not_verified_match",
+          "selection": {
+            "score": 3.4,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Общий тип сцены: tower",
+              "Совпало название области гипотезы; это не подтверждение",
+              "Расстояние используется только как слабый дополнительный признак"
+            ],
+            "observed_scene_types": [
+              "street",
+              "tower"
+            ],
+            "reference_scene_types": [
+              "tower"
+            ],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        },
+        {
+          "provider": "Wikimedia Commons",
+          "title": "File:Eiffel Tower 5 (bird eye view) - panoramio.jpg",
+          "page_id": 49835306,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/31/Eiffel_Tower_5_%28bird_eye_view%29_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "thumbnail_url": "https://upload.wikimedia.org/wikipedia/commons/3/31/Eiffel_Tower_5_%28bird_eye_view%29_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/3/31/Eiffel_Tower_5_%28bird_eye_view%29_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "original_bytes": 362000,
+          "source_url": "https://commons.wikimedia.org/wiki/File:Eiffel_Tower_5_(bird_eye_view)_-_panoramio.jpg",
+          "description": "Eiffel Tower 5 (bird eye view) my website: milosevicmilos.com",
+          "author": "milos milosevic",
+          "license": "CC BY 3.0",
+          "license_url": "https://creativecommons.org/licenses/by/3.0",
+          "captured_at": "Taken on 2 February 2009",
+          "latitude": 48.858391,
+          "longitude": 2.294512,
+          "distance_m": 1.3,
+          "match_kind": "nearby_reference_not_verified_match",
+          "selection": {
+            "score": 3.3999,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Общий тип сцены: tower",
+              "Совпало название области гипотезы; это не подтверждение",
+              "Расстояние используется только как слабый дополнительный признак"
+            ],
+            "observed_scene_types": [
+              "street",
+              "tower"
+            ],
+            "reference_scene_types": [
+              "tower"
+            ],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        },
+        {
+          "provider": "Wikimedia Commons",
+          "title": "File:Tour Eiffel Wikimedia Commons.jpg",
+          "page_id": 6926930,
+          "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Tour_Eiffel_Wikimedia_Commons.jpg/960px-Tour_Eiffel_Wikimedia_Commons.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbnail_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Tour_Eiffel_Wikimedia_Commons.jpg/960px-Tour_Eiffel_Wikimedia_Commons.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Tour_Eiffel_Wikimedia_Commons.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "original_bytes": 5279797,
+          "source_url": "https://commons.wikimedia.org/wiki/File:Tour_Eiffel_Wikimedia_Commons.jpg",
+          "description": "Eiffel Tower , seen from the Champ de Mars , Paris, France",
+          "author": "Benh LIEU SONG",
+          "license": "Public domain",
+          "license_url": "",
+          "captured_at": "2009-06-01",
+          "latitude": null,
+          "longitude": null,
+          "distance_m": null,
+          "match_kind": "nearby_reference_not_verified_match",
+          "selection": {
+            "score": 3.3,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Общий тип сцены: tower",
+              "Совпало название области гипотезы; это не подтверждение"
+            ],
+            "observed_scene_types": [
+              "street",
+              "tower"
+            ],
+            "reference_scene_types": [
+              "tower"
+            ],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        },
+        {
+          "provider": "Wikimedia Commons",
+          "title": "File:Reflet-tour-Eiffel-Paris-Luc-Viatour.jpg",
+          "page_id": 18143546,
+          "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Reflet-tour-Eiffel-Paris-Luc-Viatour.jpg/960px-Reflet-tour-Eiffel-Paris-Luc-Viatour.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbnail_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Reflet-tour-Eiffel-Paris-Luc-Viatour.jpg/960px-Reflet-tour-Eiffel-Paris-Luc-Viatour.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Reflet-tour-Eiffel-Paris-Luc-Viatour.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "original_bytes": 8657096,
+          "source_url": "https://commons.wikimedia.org/wiki/File:Reflet-tour-Eiffel-Paris-Luc-Viatour.jpg",
+          "description": "Reflection of the Eiffel tower in a water puddle. Paris, France.",
+          "author": "Lviatour",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "captured_at": "2007-07-09",
+          "latitude": null,
+          "longitude": null,
+          "distance_m": null,
+          "match_kind": "nearby_reference_not_verified_match",
+          "selection": {
+            "score": 3.3,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Общий тип сцены: tower",
+              "Совпало название области гипотезы; это не подтверждение"
+            ],
+            "observed_scene_types": [
+              "street",
+              "tower"
+            ],
+            "reference_scene_types": [
+              "tower"
+            ],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        },
+        {
+          "provider": "Wikimedia Commons",
+          "title": "File:Louis-Emile Durandelle, The Eiffel Tower - State of the Construction, 1888.jpg",
+          "page_id": 30184966,
+          "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Louis-Emile_Durandelle%2C_The_Eiffel_Tower_-_State_of_the_Construction%2C_1888.jpg/960px-Louis-Emile_Durandelle%2C_The_Eiffel_Tower_-_State_of_the_Construction%2C_1888.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbnail_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Louis-Emile_Durandelle%2C_The_Eiffel_Tower_-_State_of_the_Construction%2C_1888.jpg/960px-Louis-Emile_Durandelle%2C_The_Eiffel_Tower_-_State_of_the_Construction%2C_1888.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/1/14/Louis-Emile_Durandelle%2C_The_Eiffel_Tower_-_State_of_the_Construction%2C_1888.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "original_bytes": 16333353,
+          "source_url": "https://commons.wikimedia.org/wiki/File:Louis-Emile_Durandelle,_The_Eiffel_Tower_-_State_of_the_Construction,_1888.jpg",
+          "description": "The Centennial Exposition of 1889 was organized by the French government to commemorate the French Revolution. Bridge engineer Gustave Eiffel's 984-foot (300-meter) tower of open-lattice wrought iron was selected in a competition to erect a memorial at the exposition. Twice as high as the dome of St. Peter's in Rome or the Great Pyramid of Giza, nothing like it had ever been built before. This view was made about four months short of the tower's completion. Louis-Émile Durandelle photographed the tower from a low vantage point to emphasize its monumentality. The massive building barely visible in the far distance is dwarfed under the tower's arches. Incidentally, the tower's innovative glass-cage elevators, engineered to ascend on a curve, were designed by the Otis Elevator Company of New York, the same company that designed the Getty Center's diagonally ascending tram.",
+          "author": "Louis-Emile Durandelle",
+          "license": "Public domain",
+          "license_url": "",
+          "captured_at": "23 November 1888 date QS:P571,+1888-11-23T00:00:00Z/11",
+          "latitude": null,
+          "longitude": null,
+          "distance_m": null,
+          "match_kind": "nearby_reference_not_verified_match",
+          "selection": {
+            "score": -1.7,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Общий тип сцены: tower",
+              "Крупная табличка/надпись вместо исходного вида: штраф за другой объект",
+              "Совпало название области гипотезы; это не подтверждение"
+            ],
+            "observed_scene_types": [
+              "street",
+              "tower"
+            ],
+            "reference_scene_types": [
+              "architecture",
+              "detail",
+              "tower"
+            ],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        }
+      ],
+      "seconds": 5.803157499991357
+    }
+  ],
+  "diagnostics": []
+}

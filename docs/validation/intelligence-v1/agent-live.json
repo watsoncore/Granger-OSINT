@@ -1,0 +1,327 @@
+{
+  "agent-ip-02": {
+    "scenario": "ip",
+    "test_kind": "real_gateway_and_actual_tools",
+    "model": "deepseek-v4-flash",
+    "at": "2026-11-01T17:06:41.869786+00:00",
+    "user_history_read": false,
+    "source_api_keys_used": false,
+    "status": "completed",
+    "tool_calls": 12,
+    "checkpoint_count": 39,
+    "tools": [
+      {
+        "tool": "ip_lookup",
+        "status": "complete"
+      },
+      {
+        "tool": "network_reverse_dns",
+        "status": "complete"
+      },
+      {
+        "tool": "network_rdap",
+        "status": "complete"
+      },
+      {
+        "tool": "network_reputation",
+        "status": "complete"
+      },
+      {
+        "tool": "threat_feodo",
+        "status": "complete"
+      },
+      {
+        "tool": "network_routing",
+        "status": "complete"
+      },
+      {
+        "tool": "ip_lookup",
+        "status": "duplicate_skipped"
+      },
+      {
+        "tool": "network_rdap",
+        "status": "duplicate_skipped"
+      },
+      {
+        "tool": "network_reverse_dns",
+        "status": "duplicate_skipped"
+      },
+      {
+        "tool": "network_reputation",
+        "status": "duplicate_skipped"
+      },
+      {
+        "tool": "threat_feodo",
+        "status": "duplicate_skipped"
+      },
+      {
+        "tool": "network_routing",
+        "status": "duplicate_skipped"
+      }
+    ],
+    "evidence_count": 8,
+    "answer_characters": 9679,
+    "usage": {
+      "prompt_tokens": 36707,
+      "completion_tokens": 3542,
+      "total_tokens": 40249
+    },
+    "passed": true,
+    "elapsed_seconds": 38.791
+  },
+  "agent-domain-01": {
+    "scenario": "domain",
+    "test_kind": "real_gateway_and_actual_tools",
+    "model": "deepseek-v4-flash",
+    "at": "2026-11-01T17:09:25.966477+00:00",
+    "user_history_read": false,
+    "source_api_keys_used": false,
+    "status": "completed",
+    "tool_calls": 10,
+    "checkpoint_count": 50,
+    "tools": [
+      {
+        "tool": "domain_rdap",
+        "status": "complete"
+      },
+      {
+        "tool": "domain_dns",
+        "status": "complete"
+      },
+      {
+        "tool": "domain_certificates",
+        "status": "complete"
+      },
+      {
+        "tool": "domain_lookup",
+        "status": "complete"
+      },
+      {
+        "tool": "web_archive",
+        "status": "complete"
+      },
+      {
+        "tool": "historical_contacts",
+        "status": "timeout"
+      },
+      {
+        "tool": "historical_contacts",
+        "status": "duplicate_skipped"
+      },
+      {
+        "tool": "domain_lookup",
+        "status": "duplicate_skipped"
+      },
+      {
+        "tool": "web_read",
+        "status": "blocked"
+      },
+      {
+        "tool": "web_read",
+        "status": "duplicate_skipped"
+      }
+    ],
+    "evidence_count": 23,
+    "answer_characters": 7651,
+    "usage": {
+      "prompt_tokens": 50671,
+      "completion_tokens": 2411,
+      "total_tokens": 53082
+    },
+    "passed": true,
+    "elapsed_seconds": 53.095
+  },
+  "agent-steam-01": {
+    "scenario": "steam",
+    "test_kind": "real_gateway_and_actual_tools",
+    "model": "deepseek-v4-flash",
+    "at": "2026-11-01T17:09:25.966709+00:00",
+    "user_history_read": false,
+    "source_api_keys_used": false,
+    "status": "completed",
+    "tool_calls": 5,
+    "checkpoint_count": 40,
+    "tools": [
+      {
+        "tool": "steam_profile",
+        "status": "complete"
+      },
+      {
+        "tool": "steam_aliases",
+        "status": "complete"
+      },
+      {
+        "tool": "steam_friends",
+        "status": "complete"
+      },
+      {
+        "tool": "steam_aliases",
+        "status": "complete"
+      },
+      {
+        "tool": "steam_friends",
+        "status": "complete"
+      }
+    ],
+    "evidence_count": 5,
+    "answer_characters": 5475,
+    "usage": {
+      "prompt_tokens": 35067,
+      "completion_tokens": 3512,
+      "total_tokens": 38579
+    },
+    "passed": true,
+    "elapsed_seconds": 45.833
+  },
+  "agent-browser-03": {
+    "scenario": "browser",
+    "test_kind": "real_gateway_and_actual_tools",
+    "model": "deepseek-v4-flash",
+    "at": "2026-11-01T17:05:30.925850+00:00",
+    "user_history_read": false,
+    "source_api_keys_used": false,
+    "status": "completed",
+    "tool_calls": 7,
+    "checkpoint_count": 62,
+    "tools": [
+      {
+        "tool": "browser_navigate",
+        "status": "complete"
+      },
+      {
+        "tool": "browser_type",
+        "status": "complete"
+      },
+      {
+        "tool": "browser_click",
+        "status": "complete"
+      },
+      {
+        "tool": "browser_snapshot",
+        "status": "complete"
+      },
+      {
+        "tool": "browser_scroll",
+        "status": "complete"
+      },
+      {
+        "tool": "browser_click",
+        "status": "complete"
+      },
+      {
+        "tool": "browser_screenshot",
+        "status": "complete"
+      }
+    ],
+    "evidence_count": 7,
+    "answer_characters": 3928,
+    "usage": {
+      "prompt_tokens": 123697,
+      "completion_tokens": 2397,
+      "total_tokens": 126094
+    },
+    "passed": true,
+    "browser_final_url": "https://www.scrapethissite.com/pages/forms/?page_num=2&q=New",
+    "elapsed_seconds": 52.38
+  },
+  "agent-telegram-01": {
+    "scenario": "telegram",
+    "test_kind": "real_gateway_and_actual_tools",
+    "model": "deepseek-v4-flash",
+    "at": "2026-11-01T17:11:14.048356+00:00",
+    "user_history_read": false,
+    "source_api_keys_used": false,
+    "status": "completed",
+    "tool_calls": 1,
+    "checkpoint_count": 18,
+    "tools": [
+      {
+        "tool": "telegram_public",
+        "status": "complete"
+      }
+    ],
+    "evidence_count": 2,
+    "answer_characters": 5558,
+    "usage": {
+      "prompt_tokens": 10676,
+      "completion_tokens": 2467,
+      "total_tokens": 13143
+    },
+    "passed": true,
+    "elapsed_seconds": 26.296
+  },
+  "agent-ton-01": {
+    "scenario": "ton",
+    "test_kind": "real_gateway_and_actual_tools",
+    "model": "deepseek-v4-flash",
+    "at": "2026-11-01T17:11:14.047853+00:00",
+    "user_history_read": false,
+    "source_api_keys_used": false,
+    "status": "partial",
+    "tool_calls": 10,
+    "checkpoint_count": 104,
+    "tools": [
+      {
+        "tool": "blockchain_gansar",
+        "status": "partial"
+      },
+      {
+        "tool": "blockchain_gansar",
+        "status": "duplicate_skipped"
+      },
+      {
+        "tool": "blockchain_gansar",
+        "status": "partial"
+      },
+      {
+        "tool": "blockchain_gansar",
+        "status": "complete"
+      },
+      {
+        "tool": "blockchain_gansar",
+        "status": "partial"
+      },
+      {
+        "tool": "evidence_get",
+        "status": "complete"
+      },
+      {
+        "tool": "evidence_get",
+        "status": "complete"
+      },
+      {
+        "tool": "blockchain_gansar",
+        "status": "duplicate_skipped"
+      },
+      {
+        "tool": "blockchain_gansar",
+        "status": "complete"
+      },
+      {
+        "tool": "blockchain_gansar",
+        "status": "duplicate_skipped"
+      }
+    ],
+    "evidence_count": 949,
+    "answer_characters": 797,
+    "usage": {
+      "prompt_tokens": 143903,
+      "completion_tokens": 1068,
+      "total_tokens": 144971
+    },
+    "passed": false,
+    "elapsed_seconds": 497.923
+  },
+  "agent-casual-01": {
+    "scenario": "casual",
+    "test_kind": "real_gateway_and_actual_tools",
+    "model": "deepseek-v4-flash",
+    "at": "2026-11-01T17:06:11.767828+00:00",
+    "user_history_read": false,
+    "source_api_keys_used": false,
+    "passed": true,
+    "gateway_responses": 3,
+    "tool_calls": 0,
+    "elapsed_seconds": 11.059
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "groups": {
+    "profile": {
+      "files": 66,
+      "changed": 0
+    },
+    "assets": {
+      "files": 92,
+      "changed": 0
+    },
+    "resources": {
+      "files": 200,
+      "changed": 0
+    }
+  }
+}

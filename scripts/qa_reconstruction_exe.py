@@ -30,21 +30,25 @@ def main():
     from perf_process_metrics import ProcessSampler,summarize
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--exe',type=Path,default=ROOT/'dist/Granger-OSINT.exe')
     p.add_argument('--keep-open',action='store_true')
     p.add_argument('--public-tools',action='store_true',help='Also execute one real key-free API and permitted JS sandbox in the frozen EXE')
     p.add_argument('--integrations19',action='store_true',help='Verify typed local tools, graph and the installed optional CPU pipeline')
     args=p.parse_args();out=args.output.resolve()
     if out.exists(): raise SystemExit('Previous evidence retained; choose a new directory')
+    qa_namespace=uuid.uuid4().hex
+    os.environ.update(GRANGERPET_QA_NAMESPACE=qa_namespace,GRANGERPET_QA_VAULT='GrangerPet/QA/reconstruction_'+qa_namespace,
+        GRANGERPET_INTERACTION_TRACE=str(out/'interaction.jsonl'))
     app=QCoreApplication.instance() or QCoreApplication([])
     if send_command('pet','status') or send_command('launcher','status'): raise SystemExit('Existing Granger instance left untouched')
     out.mkdir(parents=True);profile=out/'appdata/GrangerPet';profile.mkdir(parents=True)
     (profile/'settings.json').write_text(json.dumps(Settings(cursor_reaction=False,reduced_motion=True,source_root=str(ROOT)).to_dict()),encoding='utf-8')
-    exe=ROOT/'dist/Granger-OSINT.exe'
+    exe=args.exe.resolve()
     env=os.environ.copy()
     for name in ('QT_QPA_PLATFORM','QT_SCALE_FACTOR','QTWEBENGINE_CHROMIUM_FLAGS','DEEPSEEK_API_KEY','GEMINI_API_KEY'):
         env.pop(name,None)
     env.update(APPDATA=str(out/'appdata'),GRANGERPET_INTERACTION_TRACE=str(out/'interaction.jsonl'),
-        GRANGERPET_QA_VAULT='GrangerPet/QA/reconstruction_'+uuid.uuid4().hex,PATH=str(Path(env.get('SystemRoot','C:/Windows'))/'System32'))
+        GRANGERPET_QA_VAULT='GrangerPet/QA/reconstruction_'+qa_namespace,PATH=str(Path(env.get('SystemRoot','C:/Windows'))/'System32'))
     report={'mode':'actual_frozen_GUI_local_pixel_tools','mock':False,'user_data_read':False,'gateway_calls':0,
         'exe_sha256':hashlib.sha256(exe.read_bytes()).hexdigest(),'checks':[],'metrics':{}}
     def save(): (out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
@@ -79,14 +83,47 @@ def main():
         row=wait(lambda:s if (s:=snapshot('attachment-'+uuid.uuid4().hex[:12])) and not s.get('attachment_busy') else None)
         check('image_import_'+name,bool(row.get('attachments')) and not row.get('attachment_error'))
         return row['attachments'][-1]['id']
-    def tool(name,identifier):
+    def tool(name,identifier,*,required=True):
         action('route',{'route':'search'})
         started=time.perf_counter();action('tool_run',{'tool':name,**({'arguments':identifier} if isinstance(identifier,dict) else {'query':identifier,'limit':1})})
-        result=wait(lambda:s if (s:=snapshot('tool-'+uuid.uuid4().hex[:12])) and not s['search']['busy'] else None,seconds=270 if name=='visual_geoint' else 35)
+        def finished_tool():
+            current=snapshot('tool-'+uuid.uuid4().hex[:12])
+            if current['search']['busy']:return None
+            activity=next((row for row in current['activity'] if row.get('id')==name),None)
+            if not activity or activity['status']=='running':return None
+            if activity.get('resultCount',0):
+                rows=current['search']['results']
+                if not rows:return None
+                if name=='visual_geoint':
+                    if not any(row.get('details',{}).get('attachment_id')==identifier.get('attachment_id') for row in rows):return None
+                elif not any(row.get('provenance',{}).get('tool')==name for row in rows):return None
+            return current
+        result=wait(finished_tool,seconds=270 if name=='visual_geoint' else 35)
         report['metrics'][name+'_ms']=round((time.perf_counter()-started)*1000,2)
+        if not required and (not result['search']['results'] or result['activity'][-1]['status'] not in ('complete','partial')):
+            report.setdefault('unavailable_external_sources',[]).append({'tool':name,'status':result['activity'][-1]['status'],
+                'error':result['activity'][-1].get('error','')})
+            check(name+'_failure_keeps_GUI_responsive',not result['search']['busy'])
+            return None
         check(name+'_actual_results',bool(result['search']['results']) and result['activity'][-1]['status'] in ('complete','partial'))
-        time.sleep(.5)  # Allow the queued WebChannel update and paint to settle.
-        return result['search']['results'][0]['details']
+        # Tool completion precedes the asynchronous source-view refresh.
+        # Poll the new view rather than returning the snapshot taken before it.
+        time.sleep(.5)
+        def current_result():
+            current=snapshot('result-'+uuid.uuid4().hex[:12])
+            rows=current['search']['results']
+            if not rows:return None
+            details=rows[0].get('details') or {}
+            capability=details.get('capability') or details.get('tool')
+            if name in ('tiktok_timestamp','role_classify','mail_dns','shadow_regions','evidence_graph') and capability!=name:return None
+            return current
+        result=wait(current_result,20)
+        # Search cards deliberately carry compact details. Inspect the full
+        # evidence saved by this actual EXE in its own isolated journal.
+        from grangerpet.agent_journal import InvestigationJournal
+        saved=InvestigationJournal(profile/'investigations').load(result['search']['investigation_id'])
+        identifier=result['search']['results'][0]['evidence_id']
+        return next(row['details'] for row in saved['evidence'] if row['evidence_id']==identifier)
     process=None;monitor=ProcessSampler(exe)
     try:
         start=time.perf_counter()
@@ -132,8 +169,8 @@ def main():
             check('packaged_classification_rules_loaded',len(roles['results'])==2)
             dns=tool('mail_dns',{'email':'contact@example.org'})
             check('packaged_real_DNS',dns['domain']=='example.org')
-            reference=tool('map_panoramax',{'latitude':48.8584,'longitude':2.2945,'limit':1})
-            check('packaged_Panoramax_license',bool(reference['license']) and reference['pixels_downloaded'] is False)
+            reference=tool('map_panoramax',{'latitude':48.8584,'longitude':2.2945,'limit':1},required=False)
+            if reference:check('packaged_Panoramax_license',bool(reference['license']) and reference['pixels_downloaded'] is False)
             shadow=tool('shadow_regions',{'datetime_utc':'2024-02-29T13:59:59Z','object_height':10,'shadow_length':5,'max_cells':30})
             check('typed_shadow_real_geometry',shadow['cells_evaluated']>0 and bool(shadow['regions']['features']))
             tool('visual_geoint',{'attachment_id':image_id,'include_ocr':False,'methods':['geoclip_predict','waypoint_predict'],'top_k':3,'samples':8})

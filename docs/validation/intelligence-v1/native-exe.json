@@ -1,0 +1,138 @@
+{
+  "test_kind": "actual_frozen_EXE_real_public_sources_and_gateway",
+  "exe_sha256": "1b935f0f0f82f2fe829ea20be22a064a6c45042713ab9ed368380ce0a49cee37",
+  "isolated_profile_and_ipc": true,
+  "user_history_read": false,
+  "checks": [
+    {
+      "name": "actual_expected_executable",
+      "passed": true
+    },
+    {
+      "name": "native_desktop_ready",
+      "passed": true
+    },
+    {
+      "name": "native_public_tools_returned_data",
+      "passed": true
+    },
+    {
+      "name": "native_saved_key_connection_consistent",
+      "passed": true
+    },
+    {
+      "name": "native_browser_panel_state",
+      "passed": true
+    },
+    {
+      "name": "native_agent_reached_second_page",
+      "passed": true
+    },
+    {
+      "name": "native_second_page_screenshot",
+      "passed": true
+    },
+    {
+      "name": "native_browser_actual_OCR_call",
+      "passed": true
+    },
+    {
+      "name": "native_new_dialog_casual_without_investigation",
+      "passed": true
+    },
+    {
+      "name": "own_process_tree_exited",
+      "passed": true
+    }
+  ],
+  "operations": [
+    {
+      "tool": "network_rdap",
+      "status": "complete",
+      "records": 1,
+      "seconds": 3.146
+    },
+    {
+      "tool": "network_routing",
+      "status": "complete",
+      "records": 3,
+      "seconds": 3.634
+    },
+    {
+      "tool": "domain_dns",
+      "status": "complete",
+      "records": 5,
+      "seconds": 3.809
+    },
+    {
+      "tool": "steam_profile",
+      "status": "complete",
+      "records": 1,
+      "seconds": 1.434
+    },
+    {
+      "tool": "steam_friends",
+      "status": "complete",
+      "records": 1,
+      "seconds": 3.602
+    },
+    {
+      "tool": "wikidata_places",
+      "status": "complete",
+      "records": 2,
+      "seconds": 2.747
+    },
+    {
+      "tool": "telegram_public",
+      "status": "complete",
+      "records": 1,
+      "seconds": 1.643
+    },
+    {
+      "tool": "blockchain_gansar",
+      "status": "partial",
+      "records": 102,
+      "seconds": 41.206
+    }
+  ],
+  "gateway_available": true,
+  "startup_seconds": 11.858,
+  "browser_chat": {
+    "status": "completed",
+    "tools": [
+      "browser_click",
+      "browser_navigate",
+      "browser_screenshot",
+      "browser_scroll",
+      "browser_snapshot",
+      "browser_type"
+    ],
+    "final_url": "https://www.scrapethissite.com/pages/forms/?page_num=2&q=New",
+    "evidence_count": 109,
+    "page_two_actions": [
+      {
+        "action": "click",
+        "target": "https://www.scrapethissite.com/pages/forms/?page_num=2&q=New",
+        "status": "complete"
+      },
+      {
+        "action": "screenshot",
+        "target": "https://www.scrapethissite.com/pages/forms/?page_num=2&q=New",
+        "status": "complete"
+      }
+    ]
+  },
+  "casual": {
+    "model_messages": 1,
+    "investigation_id": false
+  },
+  "idle_resources": {
+    "process_count": 3,
+    "thread_count": 66,
+    "rss_bytes_sum": 1086353408,
+    "private_commit_bytes_sum": 956895232,
+    "cpu_percent_one_core": 35.642243222064295,
+    "cpu_percent_machine": 2.9701869351720247
+  },
+  "passed": true
+}

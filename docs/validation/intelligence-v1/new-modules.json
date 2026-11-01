@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "module": "grangerpet.network_sources",
+      "included": true
+    },
+    {
+      "module": "grangerpet.network_report",
+      "included": true
+    },
+    {
+      "module": "grangerpet.steam_public",
+      "included": true
+    },
+    {
+      "module": "grangerpet.research_vendor.steamid",
+      "included": true
+    },
+    {
+      "module": "grangerpet.research_vendor.steam_community",
+      "included": true
+    },
+    {
+      "module": "grangerpet.browser_session",
+      "included": true
+    },
+    {
+      "module": "grangerpet.geoint.reference_ranking",
+      "included": true
+    },
+    {
+      "module": "grangerpet.geoint.wikidata",
+      "included": true
+    },
+    {
+      "data": "browser_policy.py",
+      "included": true,
+      "source_matches": true
+    },
+    {
+      "data": "browser_proxy.py",
+      "included": true,
+      "source_matches": true
+    },
+    {
+      "data": "browser_worker.py",
+      "included": true,
+      "source_matches": true
+    }
+  ],
+  "exe_sha256": "1b935f0f0f82f2fe829ea20be22a064a6c45042713ab9ed368380ce0a49cee37",
+  "bytes": 279123275
+}

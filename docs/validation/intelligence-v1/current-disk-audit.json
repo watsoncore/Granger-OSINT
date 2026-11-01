@@ -1,0 +1,226 @@
+{
+  "logical_bytes": 38120325032,
+  "entries": {
+    ".env.example": {
+      "bytes": 143,
+      "files": 1
+    },
+    ".git": {
+      "bytes": 290405807,
+      "files": 644
+    },
+    ".gitattributes": {
+      "bytes": 322,
+      "files": 1
+    },
+    ".github": {
+      "bytes": 1782,
+      "files": 1
+    },
+    ".gitignore": {
+      "bytes": 787,
+      "files": 1
+    },
+    ".pytest_cache": {
+      "bytes": 4232627,
+      "files": 5
+    },
+    ".toolenvs": {
+      "bytes": 6241031851,
+      "files": 66959
+    },
+    ".venv": {
+      "bytes": 771150389,
+      "files": 11635
+    },
+    "blackbird-main": {
+      "bytes": 2415924,
+      "files": 81
+    },
+    "build": {
+      "bytes": 3884853204,
+      "files": 209
+    },
+    "build.ps1": {
+      "bytes": 2070,
+      "files": 1
+    },
+    "Butcher-Tools-main.zip": {
+      "bytes": 576717,
+      "files": 1
+    },
+    "discordlookup-main.zip": {
+      "bytes": 2385483,
+      "files": 1
+    },
+    "dist": {
+      "bytes": 12225115223,
+      "files": 434
+    },
+    "docs": {
+      "bytes": 230803391,
+      "files": 325
+    },
+    "frontend": {
+      "bytes": 160594494,
+      "files": 10647
+    },
+    "Gansar-main": {
+      "bytes": 29142240,
+      "files": 509
+    },
+    "Granger-OSINT.spec": {
+      "bytes": 3962,
+      "files": 1
+    },
+    "grangerpet": {
+      "bytes": 17449186,
+      "files": 401
+    },
+    "GrangerPet.spec": {
+      "bytes": 3860,
+      "files": 1
+    },
+    "holehe-master": {
+      "bytes": 522584,
+      "files": 182
+    },
+    "instagram-email-scraper-main.zip": {
+      "bytes": 10684,
+      "files": 1
+    },
+    "instaloader-master": {
+      "bytes": 1740006,
+      "files": 103
+    },
+    "maigret-main": {
+      "bytes": 11099023,
+      "files": 207
+    },
+    "main.py": {
+      "bytes": 505,
+      "files": 1
+    },
+    "output": {
+      "bytes": 14104407314,
+      "files": 110923
+    },
+    "phoneinfoga-master": {
+      "bytes": 3508464,
+      "files": 155
+    },
+    "pytest.ini": {
+      "bytes": 27,
+      "files": 1
+    },
+    "pytok-master.zip": {
+      "bytes": 163277,
+      "files": 1
+    },
+    "README.md": {
+      "bytes": 62123,
+      "files": 1
+    },
+    "Reconnaissance-main.zip": {
+      "bytes": 1260222,
+      "files": 1
+    },
+    "requirements-dev.txt": {
+      "bytes": 54,
+      "files": 1
+    },
+    "requirements.txt": {
+      "bytes": 96,
+      "files": 1
+    },
+    "resources": {
+      "bytes": 58313915,
+      "files": 202
+    },
+    "scripts": {
+      "bytes": 1896080,
+      "files": 197
+    },
+    "secret.env": {
+      "bytes": 99,
+      "files": 1
+    },
+    "snoop-master": {
+      "bytes": 38753719,
+      "files": 72
+    },
+    "social-analyzer-main": {
+      "bytes": 15676617,
+      "files": 64
+    },
+    "spiderfoot-master.zip": {
+      "bytes": 3982089,
+      "files": 1
+    },
+    "steam-osint-main.zip": {
+      "bytes": 649529,
+      "files": 1
+    },
+    "SteamRecon": {
+      "bytes": 4080840,
+      "files": 209
+    },
+    "Telethon-1": {
+      "bytes": 2127237,
+      "files": 258
+    },
+    "test-output": {
+      "bytes": 333629,
+      "files": 3
+    },
+    "tests": {
+      "bytes": 5038702,
+      "files": 237
+    },
+    "theHarvester-4.11.1.zip": {
+      "bytes": 1116905,
+      "files": 1
+    },
+    "theHarvester-master.zip": {
+      "bytes": 948389,
+      "files": 1
+    },
+    "THIRD_PARTY_NOTICES.md": {
+      "bytes": 7471,
+      "files": 1
+    },
+    "TikTok-Content-Scraper-main.zip": {
+      "bytes": 25041,
+      "files": 1
+    },
+    "TokIntel-main.zip": {
+      "bytes": 2109820,
+      "files": 1
+    },
+    "VALIDATION.md": {
+      "bytes": 73385,
+      "files": 1
+    },
+    "vkbottle-master": {
+      "bytes": 1033618,
+      "files": 310
+    },
+    "vk_api-master": {
+      "bytes": 904814,
+      "files": 131
+    },
+    "waybackpy-master": {
+      "bytes": 294487,
+      "files": 77
+    },
+    "X-IG-OSINT-Hacker-x-Phantom.zip": {
+      "bytes": 14035,
+      "files": 1
+    },
+    "__pycache__": {
+      "bytes": 770,
+      "files": 1
+    }
+  },
+  "method": "Logical file sizes; no file content read or deleted; symlinks excluded. Not allocated disk space."
+}

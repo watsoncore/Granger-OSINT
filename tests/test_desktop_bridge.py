@@ -249,6 +249,17 @@ def wait_until(predicate,timeout=3000):
     assert predicate()
 
 
+def test_manual_browser_appears_in_chat_state_and_stop_closes_it(bridge):
+    class BrowserRegistry:
+        closed=False
+        def browser_state(self):return {} if self.closed else {'url':'https://example.org/','status':'ready'}
+        def close(self):self.closed=True
+    manual=BrowserRegistry();bridge._manual_registry=manual
+    assert bridge.snapshot()['browser']['url']=='https://example.org/'
+    bridge.dispatch('browser_stop',{})
+    assert manual.closed and not bridge.snapshot()['browser']
+
+
 def test_readiness_starts_automatically_and_keeps_progress_diagnostics(bridge,monkeypatch):
     calls=[]
     def catalog(**kwargs):
