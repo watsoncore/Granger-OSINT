@@ -458,12 +458,16 @@ class PetWindow(QWidget):
         # Interpolate joints, never alpha-blend two complete people. Authored
         # held props and a grabbed collar retain their exact contact geometry.
         blend=min(1.,max(0.,(time.monotonic()-self._transition_started)/.16))
-        if self._actor_from is not None and blend<1 and not self.physics.active and not (actor.book.visible or actor.phone or actor.wand):
+        held_target=(actor.book.visible or actor.phone or actor.wand) and not actor.source_idle
+        if self._actor_from is not None and blend<1 and not self.physics.active and not held_target:
             from .key_poses import interpolate
             from .scene_pose import smooth
             target=actor;actor=interpolate(self._actor_from,target,smooth(blend))
             for field in ('book','wand','phone','magic','hearts','sleeping','spell_text','phase','pocket'):
                 setattr(actor,field,deepcopy(getattr(target,field)))
+            # A source-idle raster cannot show interpolated joints. Render one
+            # articulated pose until it reaches the exact historical neutral.
+            if not self._actor_from.source_idle or not target.source_idle:actor.source_idle=False
         self._actor_pose=deepcopy(actor)
         return actor
 

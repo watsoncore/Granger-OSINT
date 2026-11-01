@@ -63,6 +63,7 @@ def test_articulated_transition_moves_one_pose_without_old_bitmap_ghosts(tmp_pat
         pet._begin_transition('idle');clock[0]+=.08
         target=action_pose('idle',.3,2)
         halfway=pet._transition_actor(target)
+        assert not halfway.source_idle  # Actual renderer must use the moving joints.
         assert min(old[1],target.right[1])<halfway.right[1]<max(old[1],target.right[1])
         assert pet._previous.isNull()
         pet._draw_frame(force=True,life_pose=LifePose('','',0,0,0,0,0))

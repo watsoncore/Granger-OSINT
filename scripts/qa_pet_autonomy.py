@@ -42,7 +42,13 @@ def main():
         if not ok:raise AssertionError(name)
     owned=None;process=None
     def state():
-        value=send_command('pet','status',timeout=1500)
+        started=time.monotonic();value=send_command('pet','status',timeout=3000)
+        if not value and owned and process and process.poll() is None:
+            report['status_ipc_retries']=report.get('status_ipc_retries',0)+1
+            time.sleep(.12);value=send_command('pet','status',timeout=3000)
+        if owned:
+            report['max_status_ipc_seconds']=max(report.get('max_status_ipc_seconds',0),round(time.monotonic()-started,4))
+            if not value:raise RuntimeError('Owned pet status unavailable; process exit='+str(process.poll() if process else None))
         if value and owned and value['pid']!=owned:raise RuntimeError('Own isolated PID mismatch')
         return value
     def command(name,payload=None):
@@ -148,7 +154,10 @@ def main():
                     check(name+'_actual_guest_visible',state()['cameo']['actor']==spec.cameo)
                     check(name+'_native_input_transparency',state()['cameo']['input_transparent'])
                     check(name+'_actual_Windows_input_transparent_style',native_click_through_guest())
-                wait(lambda:not state()['life']['active'],6)
+                # Yawn deliberately chains into sleep, leave into away/return.
+                # Completion means leaving this scene, not requiring an idle
+                # gap that the production state machine intentionally omits.
+                wait(lambda:state()['life']['action']!=name,6)
                 check(name+'_finishes_and_removes_guest',not state()['cameo']['visible'])
             command('settings',{'size':195});time.sleep(.4)
             command('qa_life',{'action':'malfoy','duration':8});wait(lambda:state()['cameo']['visible'])
@@ -265,6 +274,7 @@ def main():
         if owned and process and process.poll() is None:
             try:command('stop');process.wait(timeout=30)
             except Exception:process.terminate()
+        report['owned_process_returncode']=process.poll() if process else None
         save()
 
 

@@ -21,6 +21,7 @@ def main():
     args.output.mkdir(parents=True,exist_ok=True);app=QApplication([])
     QFontDatabase.addApplicationFont(str(Path(os.environ.get('SystemRoot','C:/Windows'))/'Fonts/segoeui.ttf'))
     lib=SpriteLibrary();face=OriginalFace(lib.scenes.layers['base'],lib.scenes.layers['head'])
+    motion=OriginalFace(lib.scenes.layers['base'],QImage(str(ROOT/'grangerpet/assets/original-motion-v1/head.png')))
     font=QFont('Segoe UI');font.setPixelSize(10);reports=[]
     names=[('idle',1),('hover',1),('reading',3),('phone_solvnox',1),('shy',3),('annoyed',3),('thinking',1),('wand_play',4)]
     for name,count in names:
@@ -31,7 +32,8 @@ def main():
             p=QPainter(sheet);p.setFont(font);p.setPen(QColor('#3f3b32'))
             for i in range(frames):
                 t=min(duration,i/24);pose=action_pose(name,t/duration,t,variant,aim=(math.sin(t),.5) if name=='hover' else (0.,0.))
-                im=face.image(pose).copy(150,154,138,95);im.save(str(directory/f'{i:04}.png'))
+                component=face if pose.source_idle else motion
+                im=component.image(pose).copy(150,154,138,95);im.save(str(directory/f'{i:04}.png'))
                 x=i%16*146;y=i//16*115;p.drawText(x+3,y+12,f'{i:04} {t:.2f}s');p.drawImage(x+3,y+17,im)
             p.end();sheet.save(str(args.output/f'{name}-v{variant}-all-faces.png'))
             reports.append({'name':name,'variant':variant,'frames':frames,'seconds':duration})
@@ -40,7 +42,8 @@ def main():
     sheet=QImage(1320,690,QImage.Format.Format_RGB32);sheet.fill(QColor('#f4f2ed'));p=QPainter(sheet);font.setPixelSize(16);p.setFont(font);p.setPen(QColor('#3f3b32'))
     for i,(label,pose) in enumerate(cases):
         x=i%4*330;y=i//4*230;p.drawText(x+8,y+22,label)
-        p.drawImage(QRectF(x+8,y+32,276,190),face.image(pose),QRectF(150,154,138,95))
+        component=face if i<4 or pose.source_idle else motion
+        p.drawImage(QRectF(x+8,y+32,276,190),component.image(pose),QRectF(150,154,138,95))
     p.end();sheet.save(str(args.output/'face-comparison.png'))
     (args.output/'report.json').write_text(json.dumps({'method':'Actual production OriginalFace.image before the head-parent transform; every cel; not an EXE capture or new character art',
         'source_commit':'1b75ee99ef5329880048287f962e7b00684346b2','sequences':reports},indent=2)+'\n',encoding='utf-8')
