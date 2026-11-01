@@ -1,0 +1,2054 @@
+{
+  "at": "2026-11-01T15:00:39.621253+00:00",
+  "projects": [
+    {
+      "name": "Butcher-Tools-main.zip",
+      "files": 6,
+      "bytes": 114041,
+      "archive_sha256": "cc9ac5fa45bb77c5ed213ad4ef2370e5d6dd95349e6f1cd4fe96a8e3d08cdac4",
+      "origins": [
+        "https://github.com/stegman-ux/Butcher-Tools",
+        "https://github.com/stegman-ux/Butcher-Tools.git"
+      ],
+      "license_files": [
+        {
+          "path": "Butcher-Tools-main/LICENSE",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        }
+      ],
+      "manifests": [
+        "Butcher-Tools-main/requirements.txt",
+        "Butcher-Tools-main/setup.py"
+      ],
+      "security_indicators": {
+        "network": [
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 6
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 18
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 23
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 182
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 187
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 258
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 267
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 336
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 357
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 390
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 483
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 515
+          }
+        ],
+        "shell_or_process": [
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 19
+          },
+          {
+            "path": "Butcher-Tools-main/setup.py",
+            "line": 3
+          },
+          {
+            "path": "Butcher-Tools-main/setup.py",
+            "line": 13
+          }
+        ],
+        "credentials_or_session": [
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 180
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 334
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 356
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 572
+          },
+          {
+            "path": "Butcher-Tools-main/Butcher.py",
+            "line": 996
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "expanded_bytes": 745580,
+      "security_indicator_counts": {
+        "network": 63,
+        "shell_or_process": 3,
+        "credentials_or_session": 5
+      }
+    },
+    {
+      "name": "discordlookup-main.zip",
+      "files": 15,
+      "bytes": 627949,
+      "archive_sha256": "430a6dc7f2038d137e5779ed6a07307b7108b07f689dbd9ccaf4c8e3ac130cad",
+      "origins": [
+        "https://github.com/discordlookup/discordlookup"
+      ],
+      "license_files": [
+        {
+          "path": "discordlookup-main/LICENSE",
+          "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+        }
+      ],
+      "manifests": [
+        "discordlookup-main/package.json"
+      ],
+      "security_indicators": {
+        "network": [
+          {
+            "path": "discordlookup-main/resources/js/app.js",
+            "line": 19
+          },
+          {
+            "path": "discordlookup-main/tailwind.config.js",
+            "line": 72
+          },
+          {
+            "path": "discordlookup-main/tailwind.config.js",
+            "line": 80
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "expanded_bytes": 7205883,
+      "security_indicator_counts": {
+        "network": 3
+      }
+    },
+    {
+      "name": "instagram-email-scraper-main.zip",
+      "files": 4,
+      "bytes": 33551,
+      "archive_sha256": "ca5fbc3c692b2c203d1c3bd6ff7150cc3cdd83915b91354c12592f6a829a47f3",
+      "origins": [
+        "https://github.com/data-scrape/amazon-asin-scraper",
+        "https://github.com/data-scrape/amazon-price-scraper",
+        "https://github.com/data-scrape/amazon-product-api",
+        "https://github.com/data-scrape/amazon-product-scraper",
+        "https://github.com/data-scrape/amazon-review-scraper",
+        "https://github.com/data-scrape/amazon-scraper-api",
+        "https://github.com/data-scrape/apify-google-maps-scraper",
+        "https://github.com/data-scrape/apify-indeed-scraper",
+        "https://github.com/data-scrape/apify-instagram-scraper",
+        "https://github.com/data-scrape/apify-reddit-scraper",
+        "https://github.com/data-scrape/apify-tiktok-scraper",
+        "https://github.com/data-scrape/apify-zillow-scraper",
+        "https://github.com/data-scrape/awesome-apify-alternatives",
+        "https://github.com/data-scrape/awesome-lead-generation",
+        "https://github.com/data-scrape/best-amazon-scraper",
+        "https://github.com/data-scrape/best-apify-alternative",
+        "https://github.com/data-scrape/best-apollo-scraper-reddit",
+        "https://github.com/data-scrape/best-ebay-scraper",
+        "https://github.com/data-scrape/best-facebook-scraper",
+        "https://github.com/data-scrape/best-google-maps-scraper",
+        "https://github.com/data-scrape/best-google-search-scraper",
+        "https://github.com/data-scrape/best-indeed-scraper",
+        "https://github.com/data-scrape/best-instagram-scraper",
+        "https://github.com/data-scrape/best-linkedin-scraper",
+        "https://github.com/data-scrape/best-reddit-scraper",
+        "https://github.com/data-scrape/best-tiktok-scraper",
+        "https://github.com/data-scrape/best-walmart-scraper",
+        "https://github.com/data-scrape/best-web-scraping-api",
+        "https://github.com/data-scrape/best-youtube-scraper",
+        "https://github.com/data-scrape/best-zillow-scraper",
+        "https://github.com/data-scrape/blog",
+        "https://github.com/data-scrape/bright-data-alternative",
+        "https://github.com/data-scrape/brightdata-alternative",
+        "https://github.com/data-scrape/business-data-api",
+        "https://github.com/data-scrape/coreclaw-review",
+        "https://github.com/data-scrape/data-extraction-api",
+        "https://github.com/data-scrape/discord-scraper",
+        "https://github.com/data-scrape/easy-scrape-zillow-agents-free",
+        "https://github.com/data-scrape/ebay-price-scraper",
+        "https://github.com/data-scrape/ebay-web-scraper",
+        "https://github.com/data-scrape/facebook-group-scraper",
+        "https://github.com/data-scrape/facebook-marketplace-scraper",
+        "https://github.com/data-scrape/facebook-page-scraper",
+        "https://github.com/data-scrape/facebook-post-scraper",
+        "https://github.com/data-scrape/facebook-profile-scraper",
+        "https://github.com/data-scrape/facebook-scrape-website",
+        "https://github.com/data-scrape/glassdoor-scraper",
+        "https://github.com/data-scrape/google-business-scraper",
+        "https://github.com/data-scrape/google-map-scraper-api-",
+        "https://github.com/data-scrape/google-maps-data-api",
+        "https://github.com/data-scrape/google-maps-data-scraper",
+        "https://github.com/data-scrape/google-maps-scraper-api",
+        "https://github.com/data-scrape/google-place-id-api",
+        "https://github.com/data-scrape/google-reviews-scraper",
+        "https://github.com/data-scrape/google-search-api",
+        "https://github.com/data-scrape/google-shopping-scraper",
+        "https://github.com/data-scrape/indeed-job-scraper",
+        "https://github.com/data-scrape/instagram-account-scraper",
+        "https://github.com/data-scrape/instagram-comment-scraper",
+        "https://github.com/data-scrape/instagram-data-api",
+        "https://github.com/data-scrape/instagram-email-scraper",
+        "https://github.com/data-scrape/instagram-email-scraper.git",
+        "https://github.com/data-scrape/instagram-follower-scraper",
+        "https://github.com/data-scrape/instagram-profile-scraper",
+        "https://github.com/data-scrape/instagram-scraper",
+        "https://github.com/data-scrape/lead-generation-api",
+        "https://github.com/data-scrape/linkedin-data-api",
+        "https://github.com/data-scrape/linkedin-email-scraper",
+        "https://github.com/data-scrape/linkedin-job-scraper",
+        "https://github.com/data-scrape/linkedin-post-scraper",
+        "https://github.com/data-scrape/linkedin-profile-data-scraper",
+        "https://github.com/data-scrape/linkedin-sales-navigator-scraper",
+        "https://github.com/data-scrape/linkedin-scraper-api",
+        "https://github.com/data-scrape/medium-scraper",
+        "https://github.com/data-scrape/outscraper-alternative",
+        "https://github.com/data-scrape/outscraper-google-maps-scraper",
+        "https://github.com/data-scrape/oxylabs-alternative",
+        "https://github.com/data-scrape/phantombuster-alternative",
+        "https://github.com/data-scrape/pinterest-scraper",
+        "https://github.com/data-scrape/quora-scraper",
+        "https://github.com/data-scrape/reddit-comment-scraper",
+        "https://github.com/data-scrape/reddit-post-scraper",
+        "https://github.com/data-scrape/scrap-gold-ebay",
+        "https://github.com/data-scrape/scrape-google-maps",
+        "https://github.com/data-scrape/scrape-indeed-job-postings",
+        "https://github.com/data-scrape/scrape-instagram-followers",
+        "https://github.com/data-scrape/scrape-instagram-photos",
+        "https://github.com/data-scrape/scrape-yelp-reviews",
+        "https://github.com/data-scrape/scrape-youtube-comments",
+        "https://github.com/data-scrape/scrape-youtube-search-results",
+        "https://github.com/data-scrape/scraperapi-alternative",
+        "https://github.com/data-scrape/scrapingbee-alternative",
+        "https://github.com/data-scrape/serpapi-alternative",
+        "https://github.com/data-scrape/slack-scraper",
+        "https://github.com/data-scrape/snapchat-scraper",
+        "https://github.com/data-scrape/spotify-scraper",
+        "https://github.com/data-scrape/substack-scraper",
+        "https://github.com/data-scrape/telegram-scraper",
+        "https://github.com/data-scrape/threads-scraper",
+        "https://github.com/data-scrape/tiktok-comment-scraper",
+        "https://github.com/data-scrape/tiktok-comments-scraper",
+        "https://github.com/data-scrape/tiktok-data-scraper-api",
+        "https://github.com/data-scrape/tiktok-profile-scraper",
+        "https://github.com/data-scrape/tiktok-video-scraper",
+        "https://github.com/data-scrape/twitch-scraper",
+        "https://github.com/data-scrape/web-data-api",
+        "https://github.com/data-scrape/whatsapp-scraper",
+        "https://github.com/data-scrape/x-scraper",
+        "https://github.com/data-scrape/x-tweet-scraper",
+        "https://github.com/data-scrape/yellow-pages-scraper",
+        "https://github.com/data-scrape/youtube-channel-scraper",
+        "https://github.com/data-scrape/youtube-video-scraper-api",
+        "https://github.com/data-scrape/zenrows-alternative",
+        "https://github.com/data-scrape/zillow-data-scraper",
+        "https://github.com/data-scrape/zillow-scraper-api"
+      ],
+      "license_files": [
+        {
+          "path": "instagram-email-scraper-main/LICENSE",
+          "sha256": "18c366fadb896b1e0027cad8be85857ff38caa0776de6f3c54f7d3a90ab9d508"
+        }
+      ],
+      "manifests": [
+        "instagram-email-scraper-main/requirements.txt"
+      ],
+      "security_indicators": {
+        "proxy_or_challenge": [
+          {
+            "path": "instagram-email-scraper-main/instagram_email_scraper.py",
+            "line": 5
+          },
+          {
+            "path": "instagram-email-scraper-main/instagram_email_scraper.py",
+            "line": 51
+          },
+          {
+            "path": "instagram-email-scraper-main/instagram_email_scraper.py",
+            "line": 60
+          },
+          {
+            "path": "instagram-email-scraper-main/instagram_email_scraper.py",
+            "line": 70
+          },
+          {
+            "path": "instagram-email-scraper-main/instagram_email_scraper.py",
+            "line": 72
+          },
+          {
+            "path": "instagram-email-scraper-main/instagram_email_scraper.py",
+            "line": 74
+          },
+          {
+            "path": "instagram-email-scraper-main/instagram_email_scraper.py",
+            "line": 85
+          },
+          {
+            "path": "instagram-email-scraper-main/instagram_email_scraper.py",
+            "line": 86
+          }
+        ],
+        "network": [
+          {
+            "path": "instagram-email-scraper-main/instagram_email_scraper.py",
+            "line": 21
+          },
+          {
+            "path": "instagram-email-scraper-main/instagram_email_scraper.py",
+            "line": 62
+          },
+          {
+            "path": "instagram-email-scraper-main/instagram_email_scraper.py",
+            "line": 89
+          },
+          {
+            "path": "instagram-email-scraper-main/instagram_email_scraper.py",
+            "line": 119
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "expanded_bytes": 33551,
+      "security_indicator_counts": {
+        "proxy_or_challenge": 8,
+        "network": 4
+      }
+    },
+    {
+      "name": "pytok-master.zip",
+      "files": 54,
+      "bytes": 477199,
+      "archive_sha256": "cf5cc17fbc9bac7d3f8669fc5a61029eca6ebbd8d184e9def3618128baa74836",
+      "origins": [
+        "https://github.com/MEOMcGill/pytok",
+        "https://github.com/MEOMcGill/pytok.git",
+        "https://github.com/daijro/camoufox"
+      ],
+      "license_files": [
+        {
+          "path": "pytok-master/LICENSE",
+          "sha256": "8f7e803ba1a78826a1b4ada53722c5844c02fcfd1cb76734876dd8db9b94386c"
+        }
+      ],
+      "manifests": [
+        "pytok-master/pyproject.toml"
+      ],
+      "security_indicators": {
+        "credentials_or_session": [
+          {
+            "path": "pytok-master/examples/login_example.py",
+            "line": 6
+          },
+          {
+            "path": "pytok-master/examples/login_example.py",
+            "line": 10
+          },
+          {
+            "path": "pytok-master/examples/login_example.py",
+            "line": 36
+          },
+          {
+            "path": "pytok-master/examples/login_example.py",
+            "line": 48
+          },
+          {
+            "path": "pytok-master/examples/login_example.py",
+            "line": 54
+          },
+          {
+            "path": "pytok-master/pytok/accounts/__init__.py",
+            "line": 4
+          },
+          {
+            "path": "pytok-master/pytok/accounts/_utils.py",
+            "line": 53
+          },
+          {
+            "path": "pytok-master/pytok/accounts/_utils.py",
+            "line": 55
+          },
+          {
+            "path": "pytok-master/pytok/accounts/_utils.py",
+            "line": 56
+          },
+          {
+            "path": "pytok-master/pytok/accounts/_utils.py",
+            "line": 58
+          },
+          {
+            "path": "pytok-master/pytok/accounts/_utils.py",
+            "line": 65
+          },
+          {
+            "path": "pytok-master/pytok/accounts/_utils.py",
+            "line": 66
+          }
+        ],
+        "proxy_or_challenge": [
+          {
+            "path": "pytok-master/examples/login_example.py",
+            "line": 52
+          },
+          {
+            "path": "pytok-master/pytok/accounts/cli.py",
+            "line": 295
+          },
+          {
+            "path": "pytok-master/pytok/accounts/cli.py",
+            "line": 300
+          },
+          {
+            "path": "pytok-master/pytok/accounts/cli.py",
+            "line": 317
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 171
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 412
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 439
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 620
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 622
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 626
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 627
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 635
+          }
+        ],
+        "network": [
+          {
+            "path": "pytok-master/examples/network_info_example.py",
+            "line": 1
+          },
+          {
+            "path": "pytok-master/examples/sound_example.py",
+            "line": 9
+          },
+          {
+            "path": "pytok-master/pytok/api/__init__.py",
+            "line": 14
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 481
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 671
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 742
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 838
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 839
+          },
+          {
+            "path": "pytok-master/pytok/api/base.py",
+            "line": 840
+          },
+          {
+            "path": "pytok-master/pytok/api/hashtag.py",
+            "line": 123
+          },
+          {
+            "path": "pytok-master/pytok/api/hashtag.py",
+            "line": 345
+          },
+          {
+            "path": "pytok-master/pytok/api/hashtag.py",
+            "line": 346
+          }
+        ],
+        "shell_or_process": [
+          {
+            "path": "pytok-master/tests/test_video_bytes.py",
+            "line": 175
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "expanded_bytes": 480103,
+      "security_indicator_counts": {
+        "credentials_or_session": 179,
+        "proxy_or_challenge": 62,
+        "network": 142,
+        "shell_or_process": 1
+      }
+    },
+    {
+      "name": "Reconnaissance-main.zip",
+      "files": 15,
+      "bytes": 90483,
+      "archive_sha256": "a5a397118ba72eab368f18059572da12a8b04957e5d068fbbac07e5a0fc2230d",
+      "origins": [
+        "https://github.com/c0d3ninja/Reconnaissance.git",
+        "https://github.com/gotr00t0day/Reconnaissance"
+      ],
+      "license_files": [],
+      "manifests": [
+        "Reconnaissance-main/requirements.txt"
+      ],
+      "security_indicators": {
+        "network": [
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 14
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 18
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 27
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 548
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 559
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 561
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 614
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 615
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 616
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 617
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 618
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 701
+          }
+        ],
+        "shell_or_process": [
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 17
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 74
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 82
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 94
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 108
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 1236
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 1241
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 1246
+          }
+        ],
+        "proxy_or_challenge": [
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 158
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 258
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 259
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 438
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 469
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 471
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 472
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 796
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 800
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 801
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 802
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 805
+          }
+        ],
+        "credentials_or_session": [
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 567
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 573
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 585
+          },
+          {
+            "path": "Reconnaissance-main/reconx/scripts/shodan_api.py",
+            "line": 8
+          },
+          {
+            "path": "Reconnaissance-main/reconx/scripts/shodan_api.py",
+            "line": 10
+          },
+          {
+            "path": "Reconnaissance-main/reconx/scripts/shodan_api.py",
+            "line": 12
+          },
+          {
+            "path": "Reconnaissance-main/reconx/scripts/shodan_api.py",
+            "line": 24
+          },
+          {
+            "path": "Reconnaissance-main/reconx/scripts/shodan_api.py",
+            "line": 28
+          },
+          {
+            "path": "Reconnaissance-main/reconx/scripts/shodan_api.py",
+            "line": 31
+          },
+          {
+            "path": "Reconnaissance-main/reconx/scripts/shodan_api.py",
+            "line": 103
+          },
+          {
+            "path": "Reconnaissance-main/reconx/scripts/shodan_api.py",
+            "line": 107
+          },
+          {
+            "path": "Reconnaissance-main/reconx/scripts/shodan_api.py",
+            "line": 131
+          }
+        ],
+        "insecure_tls": [
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 802
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 804
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 806
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 808
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 896
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 898
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 969
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 971
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 1164
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 1166
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 1187
+          },
+          {
+            "path": "Reconnaissance-main/reconx/main.py",
+            "line": 1189
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "expanded_bytes": 1422587,
+      "security_indicator_counts": {
+        "network": 64,
+        "shell_or_process": 8,
+        "proxy_or_challenge": 29,
+        "credentials_or_session": 13,
+        "insecure_tls": 12
+      }
+    },
+    {
+      "name": "spiderfoot-master.zip",
+      "files": 722,
+      "bytes": 3021819,
+      "archive_sha256": "c6ee64895c9f52da25fb8ebbbd208baf1762a870b22678d09354045a9dadfbbf",
+      "origins": [
+        "https://github.com/EnableSecurity/wafw00f",
+        "https://github.com/StevenBlack/hosts",
+        "https://github.com/Tuhinshubhra/CMSeeK",
+        "https://github.com/elceef/dnstwist",
+        "https://github.com/hannob/snallygaster",
+        "https://github.com/smicallef/spiderfoot",
+        "https://github.com/smicallef/spiderfoot.git",
+        "https://github.com/trailofbits/onesixtyone",
+        "https://github.com/trufflesecurity/truffleHog",
+        "https://github.com/urbanadventurer/whatweb"
+      ],
+      "license_files": [
+        {
+          "path": "spiderfoot-master/LICENSE",
+          "sha256": "41eb86ec55a9a98167a76dccb73f093000a96947e9f5d986fe79c741f4369684"
+        },
+        {
+          "path": "spiderfoot-master/spiderfoot/dicts/ispell/LICENSE",
+          "sha256": "6b101f692b6066f10bfa5d86e787b5d22e61a40f8eadabaee1eeb646936b8f66"
+        }
+      ],
+      "manifests": [
+        "spiderfoot-master/requirements.txt",
+        "spiderfoot-master/spiderfoot/static/package.json",
+        "spiderfoot-master/test/acceptance/requirements.txt",
+        "spiderfoot-master/test/requirements.txt"
+      ],
+      "security_indicators": {
+        "network": [
+          {
+            "path": "spiderfoot-master/docs/conf.py",
+            "line": 5
+          },
+          {
+            "path": "spiderfoot-master/docs/make.bat",
+            "line": 24
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 29
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 32
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 35
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 37
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 41
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 42
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 139
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 171
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 203
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 266
+          }
+        ],
+        "credentials_or_session": [
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 129
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 130
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 134
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 161
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 162
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 166
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 193
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 194
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abstractapi.py",
+            "line": 198
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abusech.py",
+            "line": 36
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abuseipdb.py",
+            "line": 59
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_abuseipdb.py",
+            "line": 66
+          }
+        ],
+        "insecure_tls": [
+          {
+            "path": "spiderfoot-master/modules/sfp_accounts.py",
+            "line": 127
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_ahmia.py",
+            "line": 149
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_binstring.py",
+            "line": 135
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_crossref.py",
+            "line": 102
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_crossref.py",
+            "line": 138
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_filemeta.py",
+            "line": 93
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_junkfiles.py",
+            "line": 78
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_junkfiles.py",
+            "line": 129
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_junkfiles.py",
+            "line": 166
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_junkfiles.py",
+            "line": 206
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_onioncity.py",
+            "line": 161
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_onionsearchengine.py",
+            "line": 160
+          }
+        ],
+        "proxy_or_challenge": [
+          {
+            "path": "spiderfoot-master/modules/sfp_c99.py",
+            "line": 21
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_c99.py",
+            "line": 41
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_c99.py",
+            "line": 244
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_c99.py",
+            "line": 249
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_cleantalk.py",
+            "line": 43
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_dronebl.py",
+            "line": 6
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_dronebl.py",
+            "line": 24
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_dronebl.py",
+            "line": 67
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_dronebl.py",
+            "line": 68
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_dronebl.py",
+            "line": 70
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_dronebl.py",
+            "line": 73
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_focsec.py",
+            "line": 40
+          }
+        ],
+        "shell_or_process": [
+          {
+            "path": "spiderfoot-master/modules/sfp_tool_cmseek.py",
+            "line": 17
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_tool_dnstwist.py",
+            "line": 17
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_tool_nbtscan.py",
+            "line": 17
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_tool_nmap.py",
+            "line": 14
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_tool_nuclei.py",
+            "line": 19
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_tool_onesixtyone.py",
+            "line": 18
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_tool_retirejs.py",
+            "line": 18
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_tool_snallygaster.py",
+            "line": 17
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_tool_testsslsh.py",
+            "line": 19
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_tool_trufflehog.py",
+            "line": 17
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_tool_wafw00f.py",
+            "line": 16
+          },
+          {
+            "path": "spiderfoot-master/modules/sfp_tool_wappalyzer.py",
+            "line": 17
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "expanded_bytes": 15008361,
+      "security_indicator_counts": {
+        "network": 1550,
+        "credentials_or_session": 440,
+        "insecure_tls": 19,
+        "proxy_or_challenge": 87,
+        "shell_or_process": 22
+      }
+    },
+    {
+      "name": "steam-osint-main.zip",
+      "files": 10,
+      "bytes": 21263,
+      "archive_sha256": "fbb9427e9eb577ff852a404b09b9443579ca5a822f79960f0d9e360350e07be4",
+      "origins": [
+        "https://github.com/matiash26/Steam-OSINT-TOOL.git"
+      ],
+      "license_files": [],
+      "manifests": [
+        "steam-osint-main/requirements.txt",
+        "steam-osint-main/setup.py"
+      ],
+      "security_indicators": {
+        "network": [
+          {
+            "path": "steam-osint-main/steamOsint/main.py",
+            "line": 12
+          },
+          {
+            "path": "steam-osint-main/steamOsint/osint.py",
+            "line": 7
+          },
+          {
+            "path": "steam-osint-main/steamOsint/osint.py",
+            "line": 19
+          },
+          {
+            "path": "steam-osint-main/steamOsint/osint.py",
+            "line": 20
+          },
+          {
+            "path": "steam-osint-main/steamOsint/osint.py",
+            "line": 21
+          },
+          {
+            "path": "steam-osint-main/steamOsint/osint.py",
+            "line": 22
+          },
+          {
+            "path": "steam-osint-main/steamOsint/osint.py",
+            "line": 42
+          },
+          {
+            "path": "steam-osint-main/steamOsint/osint.py",
+            "line": 56
+          },
+          {
+            "path": "steam-osint-main/steamOsint/osint.py",
+            "line": 104
+          },
+          {
+            "path": "steam-osint-main/steamOsint/steamInfo.py",
+            "line": 7
+          },
+          {
+            "path": "steam-osint-main/steamOsint/steamInfo.py",
+            "line": 25
+          },
+          {
+            "path": "steam-osint-main/steamOsint/steamInfo.py",
+            "line": 64
+          }
+        ],
+        "shell_or_process": [
+          {
+            "path": "steam-osint-main/steamOsint/steamInfo.py",
+            "line": 1
+          },
+          {
+            "path": "steam-osint-main/steamOsint/steamInfo.py",
+            "line": 105
+          }
+        ],
+        "credentials_or_session": [
+          {
+            "path": "steam-osint-main/steamOsint/steamInfo.py",
+            "line": 30
+          },
+          {
+            "path": "steam-osint-main/steamOsint/steamInfo.py",
+            "line": 168
+          },
+          {
+            "path": "steam-osint-main/steamOsint/steamInfo.py",
+            "line": 172
+          },
+          {
+            "path": "steam-osint-main/steamOsint/steamInfo.py",
+            "line": 173
+          },
+          {
+            "path": "steam-osint-main/steamOsint/steamInfo.py",
+            "line": 176
+          },
+          {
+            "path": "steam-osint-main/steamOsint/steamInfo.py",
+            "line": 213
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "expanded_bytes": 749679,
+      "security_indicator_counts": {
+        "network": 15,
+        "shell_or_process": 2,
+        "credentials_or_session": 6
+      }
+    },
+    {
+      "name": "theHarvester-4.11.1.zip",
+      "files": 119,
+      "bytes": 2403440,
+      "archive_sha256": "11ab4de05b8b15bef5f66429010471a1adf80adb140cffbe859cc60b333b3de0",
+      "origins": [
+        "https://github.com/laramies/theHarvester"
+      ],
+      "license_files": [
+        {
+          "path": "theHarvester-4.11.1/README/COPYING",
+          "sha256": "b5f3d69a50064f00221d72a8a77b30804a581a409762d254778cbd46b30bbe8b"
+        },
+        {
+          "path": "theHarvester-4.11.1/README/LICENSES",
+          "sha256": "3e1af6f15a8ed290c637f3b2aa4f2d7834be7b4497e1e1fdfb675c3470f1dcff"
+        }
+      ],
+      "manifests": [
+        "theHarvester-4.11.1/pyproject.toml"
+      ],
+      "security_indicators": {
+        "network": [
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_api_endpoints.py",
+            "line": 16
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_baidusearch.py",
+            "line": 32
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_baidusearch.py",
+            "line": 33
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_baidusearch.py",
+            "line": 34
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_baidusearch.py",
+            "line": 67
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_baidusearch.py",
+            "line": 68
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_builtwith.py",
+            "line": 32
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_builtwith.py",
+            "line": 37
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_builtwith.py",
+            "line": 51
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_builtwith.py",
+            "line": 76
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_builtwith.py",
+            "line": 82
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_builtwith.py",
+            "line": 116
+          }
+        ],
+        "proxy_or_challenge": [
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_baidusearch.py",
+            "line": 11
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_baidusearch.py",
+            "line": 14
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_baidusearch.py",
+            "line": 29
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_baidusearch.py",
+            "line": 37
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_baidusearch.py",
+            "line": 53
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_dymosearch.py",
+            "line": 25
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_dymosearch.py",
+            "line": 42
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_dymosearch.py",
+            "line": 46
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_dymosearch.py",
+            "line": 67
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_dymosearch.py",
+            "line": 70
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_dymosearch.py",
+            "line": 85
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_dymosearch.py",
+            "line": 101
+          }
+        ],
+        "credentials_or_session": [
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_criminalip.py",
+            "line": 25
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_criminalip.py",
+            "line": 76
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_dymosearch.py",
+            "line": 33
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/discovery/test_dymosearch.py",
+            "line": 72
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/test_security.py",
+            "line": 380
+          },
+          {
+            "path": "theHarvester-4.11.1/tests/test_security.py",
+            "line": 381
+          },
+          {
+            "path": "theHarvester-4.11.1/theHarvester/discovery/api_endpoints.py",
+            "line": 176
+          },
+          {
+            "path": "theHarvester-4.11.1/theHarvester/discovery/api_endpoints.py",
+            "line": 376
+          },
+          {
+            "path": "theHarvester-4.11.1/theHarvester/discovery/api_endpoints.py",
+            "line": 377
+          },
+          {
+            "path": "theHarvester-4.11.1/theHarvester/discovery/bitbucket.py",
+            "line": 45
+          },
+          {
+            "path": "theHarvester-4.11.1/theHarvester/discovery/bravesearch.py",
+            "line": 14
+          },
+          {
+            "path": "theHarvester-4.11.1/theHarvester/discovery/bravesearch.py",
+            "line": 15
+          }
+        ],
+        "insecure_tls": [
+          {
+            "path": "theHarvester-4.11.1/theHarvester/lib/core.py",
+            "line": 657
+          },
+          {
+            "path": "theHarvester-4.11.1/theHarvester/lib/core.py",
+            "line": 666
+          },
+          {
+            "path": "theHarvester-4.11.1/theHarvester/screenshot/screenshot.py",
+            "line": 84
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "expanded_bytes": 2848251,
+      "security_indicator_counts": {
+        "network": 327,
+        "proxy_or_challenge": 364,
+        "credentials_or_session": 64,
+        "insecure_tls": 3
+      }
+    },
+    {
+      "name": "theHarvester-master.zip",
+      "files": 274,
+      "bytes": 3318217,
+      "archive_sha256": "d53e54ae8ae8593d08265cdf32d8e8ccae2b38e3ef4531546f4ae5839a9e1a7f",
+      "origins": [
+        "https://github.com/laramies/theHarvester",
+        "https://github.com/laramies/theHarvester.git"
+      ],
+      "license_files": [
+        {
+          "path": "theHarvester-master/LICENSE",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "path": "theHarvester-master/README/LICENSES",
+          "sha256": "3e1af6f15a8ed290c637f3b2aa4f2d7834be7b4497e1e1fdfb675c3470f1dcff"
+        }
+      ],
+      "manifests": [
+        "theHarvester-master/pyproject.toml"
+      ],
+      "security_indicators": {
+        "network": [
+          {
+            "path": "theHarvester-master/tests/conftest.py",
+            "line": 5
+          },
+          {
+            "path": "theHarvester-master/tests/conftest.py",
+            "line": 13
+          },
+          {
+            "path": "theHarvester-master/tests/conftest.py",
+            "line": 14
+          },
+          {
+            "path": "theHarvester-master/tests/conftest.py",
+            "line": 15
+          },
+          {
+            "path": "theHarvester-master/tests/conftest.py",
+            "line": 16
+          },
+          {
+            "path": "theHarvester-master/tests/conftest.py",
+            "line": 17
+          },
+          {
+            "path": "theHarvester-master/tests/conftest.py",
+            "line": 18
+          },
+          {
+            "path": "theHarvester-master/tests/conftest.py",
+            "line": 19
+          },
+          {
+            "path": "theHarvester-master/tests/conftest.py",
+            "line": 20
+          },
+          {
+            "path": "theHarvester-master/tests/conftest.py",
+            "line": 23
+          },
+          {
+            "path": "theHarvester-master/tests/conftest.py",
+            "line": 50
+          },
+          {
+            "path": "theHarvester-master/tests/conftest.py",
+            "line": 51
+          }
+        ],
+        "shell_or_process": [
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 4
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 46
+          },
+          {
+            "path": "theHarvester-master/tests/e2e/conftest.py",
+            "line": 4
+          },
+          {
+            "path": "theHarvester-master/tests/e2e/conftest.py",
+            "line": 33
+          },
+          {
+            "path": "theHarvester-master/tests/e2e/conftest.py",
+            "line": 38
+          },
+          {
+            "path": "theHarvester-master/tests/e2e/conftest.py",
+            "line": 54
+          },
+          {
+            "path": "theHarvester-master/tests/e2e/conftest.py",
+            "line": 75
+          },
+          {
+            "path": "theHarvester-master/tests/lib/test_configuration_contract.py",
+            "line": 4
+          },
+          {
+            "path": "theHarvester-master/tests/lib/test_configuration_contract.py",
+            "line": 59
+          },
+          {
+            "path": "theHarvester-master/tests/lib/test_run_backend.py",
+            "line": 1215
+          },
+          {
+            "path": "theHarvester-master/tests/lib/test_run_backend.py",
+            "line": 1216
+          },
+          {
+            "path": "theHarvester-master/tests/lib/test_run_backend.py",
+            "line": 1271
+          }
+        ],
+        "proxy_or_challenge": [
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 132
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 1091
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 1092
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 1102
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 1115
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 1116
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 1145
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 1156
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 1166
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_apisguru.py",
+            "line": 71
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_apisguru.py",
+            "line": 90
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_apisguru.py",
+            "line": 92
+          }
+        ],
+        "insecure_tls": [
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 360
+          }
+        ],
+        "credentials_or_session": [
+          {
+            "path": "theHarvester-master/tests/discovery/test_api_endpoints.py",
+            "line": 618
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_brave.py",
+            "line": 101
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_builtwith.py",
+            "line": 81
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_censys.py",
+            "line": 106
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_censys.py",
+            "line": 123
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_criminalip.py",
+            "line": 49
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_hibpverified.py",
+            "line": 15
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_hibpverified.py",
+            "line": 18
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_hibpverified.py",
+            "line": 20
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_huntersearch.py",
+            "line": 108
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_huntersearch.py",
+            "line": 111
+          },
+          {
+            "path": "theHarvester-master/tests/discovery/test_huntersearch.py",
+            "line": 115
+          }
+        ],
+        "dynamic_execution": [
+          {
+            "path": "theHarvester-master/theHarvester/lib/api/static/harvestview/schedules.js",
+            "line": 148
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "expanded_bytes": 3758805,
+      "security_indicator_counts": {
+        "network": 1378,
+        "shell_or_process": 48,
+        "proxy_or_challenge": 683,
+        "insecure_tls": 1,
+        "credentials_or_session": 158,
+        "dynamic_execution": 1
+      }
+    },
+    {
+      "name": "TikTok-Content-Scraper-main.zip",
+      "files": 11,
+      "bytes": 79253,
+      "archive_sha256": "27dcdbe0655e4e5f284cfc8e8ff718284dd12e9f5844f7859adc564c6b69d7f6",
+      "origins": [
+        "https://github.com/Q-Bukold/TikTok-Content-Scraper",
+        "https://github.com/Q-Bukold/TikTok-Content-Scraper.git"
+      ],
+      "license_files": [
+        {
+          "path": "TikTok-Content-Scraper-main/LICENSE",
+          "sha256": "ffcca38841adb694b6f380647e15f17c446a4d1656fed51a1e2041d064c94cc8"
+        }
+      ],
+      "manifests": [
+        "TikTok-Content-Scraper-main/requirements.txt"
+      ],
+      "security_indicators": {
+        "network": [
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/__main__.py",
+            "line": 44
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 5
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 28
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 33
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 44
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 46
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 66
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 121
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 168
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 178
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/tt_content_scraper.py",
+            "line": 8
+          }
+        ],
+        "proxy_or_challenge": [
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 23
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 24
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 40
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 41
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 52
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/tt_content_scraper.py",
+            "line": 25
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/tt_content_scraper.py",
+            "line": 33
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/tt_content_scraper.py",
+            "line": 34
+          }
+        ],
+        "credentials_or_session": [
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 35
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 38
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 49
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 55
+          },
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/src/scraper_functions/base_scraper.py",
+            "line": 57
+          }
+        ],
+        "shell_or_process": [
+          {
+            "path": "TikTok-Content-Scraper-main/TT_Content_Scraper/tt_content_scraper.py",
+            "line": 197
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "expanded_bytes": 79717,
+      "security_indicator_counts": {
+        "network": 11,
+        "proxy_or_challenge": 8,
+        "credentials_or_session": 5,
+        "shell_or_process": 1
+      }
+    },
+    {
+      "name": "TokIntel-main.zip",
+      "files": 4,
+      "bytes": 23071,
+      "archive_sha256": "2e039ff9419ff1b57e3d31da33e984ab805143643e150b9f53d64ba33a08d26f",
+      "origins": [
+        "https://github.com/HackUnderway/TokIntel",
+        "https://github.com/HackUnderway/TokIntel.git"
+      ],
+      "license_files": [
+        {
+          "path": "TokIntel-main/LICENSE",
+          "sha256": "6d56c39775aa3c315e0f566b543a7e07c47819c8597655b3b90bc24ecda795f7"
+        }
+      ],
+      "manifests": [
+        "TokIntel-main/requirements.txt"
+      ],
+      "security_indicators": {
+        "network": [
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 23
+          },
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 299
+          }
+        ],
+        "credentials_or_session": [
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 91
+          },
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 93
+          },
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 95
+          },
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 103
+          },
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 126
+          },
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 127
+          },
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 284
+          },
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 304
+          },
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 307
+          },
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 308
+          },
+          {
+            "path": "TokIntel-main/TokIntel.py",
+            "line": 322
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "expanded_bytes": 2152758,
+      "security_indicator_counts": {
+        "network": 2,
+        "credentials_or_session": 11
+      }
+    },
+    {
+      "name": "X-IG-OSINT-Hacker-x-Phantom.zip",
+      "files": 4,
+      "bytes": 45106,
+      "archive_sha256": "3f80150531db52ce84999f35b3549ad01c807b35f328c11069546560a8aab8f5",
+      "origins": [
+        "https://github.com/hackerxphantom/X-IG-OSINT"
+      ],
+      "license_files": [
+        {
+          "path": "X-IG-OSINT-Hacker-x-Phantom/LICENSE",
+          "sha256": "ccf3dff059b1ec38c5bf2cfce3c1fb0d9cc96dfd90465f2eb96fe35e65d3632e"
+        }
+      ],
+      "manifests": [],
+      "security_indicators": {
+        "network": [
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 10
+          },
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 19
+          },
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 21
+          },
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 119
+          },
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 148
+          },
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 187
+          },
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 188
+          },
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 189
+          },
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 190
+          },
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 191
+          },
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 192
+          },
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 193
+          }
+        ],
+        "shell_or_process": [
+          {
+            "path": "X-IG-OSINT-Hacker-x-Phantom/X-IG-OSINT.py",
+            "line": 91
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "expanded_bytes": 45106,
+      "security_indicator_counts": {
+        "network": 37,
+        "shell_or_process": 1
+      }
+    },
+    {
+      "name": "SteamRecon",
+      "files": 60,
+      "bytes": 323241,
+      "archive_sha256": null,
+      "origins": [
+        "https://github.com/YOUR_USERNAME/SteamRecon.git",
+        "https://github.com/zakhar-git/SteamRecon",
+        "https://github.com/zakhar-git/SteamRecon.git"
+      ],
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "2345a9a0583f7fb6e90df83c184ecedda218048615da3896c616c9d25a1c4e0d"
+        }
+      ],
+      "manifests": [
+        "requirements.txt"
+      ],
+      "security_indicators": {
+        "network": [
+          {
+            "path": "steamrecon/analyzer.py",
+            "line": 377
+          },
+          {
+            "path": "steamrecon/analyzer.py",
+            "line": 386
+          },
+          {
+            "path": "steamrecon/app.py",
+            "line": 150
+          },
+          {
+            "path": "steamrecon/http.py",
+            "line": 8
+          },
+          {
+            "path": "steamrecon/http.py",
+            "line": 9
+          },
+          {
+            "path": "steamrecon/http.py",
+            "line": 39
+          },
+          {
+            "path": "steamrecon/http.py",
+            "line": 50
+          },
+          {
+            "path": "steamrecon/http.py",
+            "line": 51
+          },
+          {
+            "path": "steamrecon/report.py",
+            "line": 601
+          },
+          {
+            "path": "steamrecon/report.py",
+            "line": 612
+          },
+          {
+            "path": "steamrecon/report.py",
+            "line": 614
+          },
+          {
+            "path": "steamrecon/report.py",
+            "line": 616
+          }
+        ],
+        "credentials_or_session": [
+          {
+            "path": "steamrecon/http.py",
+            "line": 61
+          },
+          {
+            "path": "steamrecon/sources/game_profiles.py",
+            "line": 76
+          }
+        ],
+        "proxy_or_challenge": [
+          {
+            "path": "steamrecon/sources/base.py",
+            "line": 13
+          },
+          {
+            "path": "steamrecon/sources/game_data.py",
+            "line": 38
+          }
+        ]
+      },
+      "executed": false,
+      "assessment": "Static inventory only; indicators require source review, not a safety certification.",
+      "security_indicator_counts": {
+        "network": 102,
+        "credentials_or_session": 2,
+        "proxy_or_challenge": 2
+      }
+    }
+  ]
+}

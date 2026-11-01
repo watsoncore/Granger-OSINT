@@ -47,3 +47,7 @@ portable-data/
 .granger-cipher-*
 *.gpi
 *.gpx
+
+# User-supplied research sources are audited locally; never publish raw bundles.
+/SteamRecon/
+/*.zip
