@@ -9,6 +9,8 @@ Windows x64:279123275 bytes, SHA-256
 - 141 frozen modules и221 frontend/resource checks совпали с исходниками.
 - Native:10 checks,8 настоящих ручных операций; browser→GET search→page2→screenshot/OCR,
   сохранённый ключ/статус подключения, новый дружеский диалог, выход своих процессов.
+- Ещё53 native local/model checks: обе CPU-модели, OCR/EXIF/GPS,4 темы, encrypted
+  image restart;8 native graph checks:1000 synthetic rows, real IP и восстановление.
 - 66 существовавших файлов профиля,92 assets и200 resources неизменны.
 - Fixtures ошибок не объявляются live. TON-контроль частичный; точные GEOINT-локации
   не подтверждены. Полные сторонние репозитории не объявляются подключёнными.

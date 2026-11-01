@@ -88,6 +88,8 @@ def main():
             value=fn()
             if value:return value
             time.sleep(.15)
+        latest=state()
+        if latest:(out/'timeout-state.json').write_text(json.dumps(latest,ensure_ascii=False,indent=2),encoding='utf-8')
         raise TimeoutError('Own graph UI wait expired')
     def state():
         value=send_command('pet','status',timeout=2500)
@@ -117,10 +119,14 @@ def main():
         action('window',{'mode':'maximize'})
     try:
         start(0)
+        # Let the mounted workspace finish its initial selection before a QA
+        # backend action changes it; otherwise its pending initial fetch can
+        # legitimately win over this out-of-band test request.
+        wait(lambda:opened(cases[0]['id']))
         for case in cases:
             case['executed']=not args.only or case['name'] in args.only
             if not case['executed']:continue
-            action('investigation_graph_get',{'id':case['id']})
+            action('investigation_graph_get',{'id':case['id'],'mode':'graph'})
             value=wait(lambda:opened(case['id']))
             click('Вписать граф в окно');time.sleep(.3)
             value=graph();case['canvas']={key:value['canvas'].get(key) for key in ('drawnNodes','drawnEdges','drawnLabels','drawnImages','paintMs','zoom','width','height')};save()

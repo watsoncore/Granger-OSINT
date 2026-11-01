@@ -1,0 +1,289 @@
+{
+  "mode": "actual_frozen_GUI_local_pixel_tools",
+  "mock": false,
+  "user_data_read": false,
+  "gateway_calls": 0,
+  "exe_sha256": "1b935f0f0f82f2fe829ea20be22a064a6c45042713ab9ed368380ce0a49cee37",
+  "checks": [
+    {
+      "name": "owned_executable",
+      "passed": true
+    },
+    {
+      "name": "theme_dark",
+      "passed": true
+    },
+    {
+      "name": "font_dark",
+      "passed": true
+    },
+    {
+      "name": "overflow_dark",
+      "passed": true
+    },
+    {
+      "name": "theme_black",
+      "passed": true
+    },
+    {
+      "name": "font_black",
+      "passed": true
+    },
+    {
+      "name": "overflow_black",
+      "passed": true
+    },
+    {
+      "name": "theme_light",
+      "passed": true
+    },
+    {
+      "name": "font_light",
+      "passed": true
+    },
+    {
+      "name": "overflow_light",
+      "passed": true
+    },
+    {
+      "name": "theme_mono",
+      "passed": true
+    },
+    {
+      "name": "font_mono",
+      "passed": true
+    },
+    {
+      "name": "overflow_mono",
+      "passed": true
+    },
+    {
+      "name": "fixture_within_tiny_QA_IPC",
+      "passed": true
+    },
+    {
+      "name": "image_import_Синтетическая надпись.png",
+      "passed": true
+    },
+    {
+      "name": "installed_model_readiness_persisted",
+      "passed": true
+    },
+    {
+      "name": "tiktok_timestamp_actual_results",
+      "passed": true
+    },
+    {
+      "name": "typed_timestamp_real_UTC",
+      "passed": true
+    },
+    {
+      "name": "role_classify_actual_results",
+      "passed": true
+    },
+    {
+      "name": "packaged_classification_rules_loaded",
+      "passed": true
+    },
+    {
+      "name": "mail_dns_actual_results",
+      "passed": true
+    },
+    {
+      "name": "packaged_real_DNS",
+      "passed": true
+    },
+    {
+      "name": "map_panoramax_actual_results",
+      "passed": true
+    },
+    {
+      "name": "packaged_Panoramax_license",
+      "passed": true
+    },
+    {
+      "name": "shadow_regions_actual_results",
+      "passed": true
+    },
+    {
+      "name": "typed_shadow_real_geometry",
+      "passed": true
+    },
+    {
+      "name": "visual_geoint_actual_results",
+      "passed": true
+    },
+    {
+      "name": "frozen_pipeline_real_candidates",
+      "passed": true
+    },
+    {
+      "name": "frozen_model_uncalibrated_label",
+      "passed": true
+    },
+    {
+      "name": "evidence_graph_actual_results",
+      "passed": true
+    },
+    {
+      "name": "graph_local_evidence_relations",
+      "passed": true
+    },
+    {
+      "name": "image_metadata_actual_results",
+      "passed": true
+    },
+    {
+      "name": "no_GPS_not_invented",
+      "passed": true
+    },
+    {
+      "name": "image_ocr_actual_results",
+      "passed": true
+    },
+    {
+      "name": "real_russian_pixel_OCR",
+      "passed": true
+    },
+    {
+      "name": "image_import_synthetic-gps.jpg",
+      "passed": true
+    },
+    {
+      "name": "image_metadata_actual_results",
+      "passed": true
+    },
+    {
+      "name": "real_GPS_from_EXIF",
+      "passed": true
+    },
+    {
+      "name": "metadata_not_authenticated",
+      "passed": true
+    },
+    {
+      "name": "encrypted_originals",
+      "passed": true
+    },
+    {
+      "name": "background_visibility",
+      "passed": true
+    },
+    {
+      "name": "restore_active",
+      "passed": true
+    },
+    {
+      "name": "first_run_exit_zero",
+      "passed": true
+    },
+    {
+      "name": "restart_owned_executable",
+      "passed": true
+    },
+    {
+      "name": "saved_theme_restored_after_restart",
+      "passed": true
+    },
+    {
+      "name": "verified_models_ready_after_EXE_restart",
+      "passed": true
+    },
+    {
+      "name": "encrypted_images_preserved_after_restart",
+      "passed": true
+    },
+    {
+      "name": "image_import_synthetic-gps.jpg",
+      "passed": true
+    },
+    {
+      "name": "same_encrypted_image_reopens_after_restart",
+      "passed": true
+    },
+    {
+      "name": "image_metadata_actual_results",
+      "passed": true
+    },
+    {
+      "name": "GPS_survives_restart",
+      "passed": true
+    },
+    {
+      "name": "actual_EXE_exit_zero",
+      "passed": true
+    },
+    {
+      "name": "owned_processes_gone",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "startup_ms": 10752.09,
+    "tiktok_timestamp_ms": 328.02,
+    "role_classify_ms": 317.75,
+    "mail_dns_ms": 3157.37,
+    "map_panoramax_ms": 1506.33,
+    "shadow_regions_ms": 317.84,
+    "visual_geoint_ms": 133785.29,
+    "evidence_graph_ms": 319.27,
+    "image_metadata_ms": 342.05,
+    "image_ocr_ms": 1046.52,
+    "post_tools_idle": {
+      "samples": 6,
+      "medians": {
+        "process_count": 5.0,
+        "thread_count": 83.0,
+        "rss_bytes_sum": 2704486400.0,
+        "private_commit_bytes_sum": 2660249600.0,
+        "cpu_percent_one_core": 8.504275405540971,
+        "cpu_percent_machine": 0.7086896171284143,
+        "monitor_seconds": 0.009216599981300533
+      }
+    }
+  },
+  "ocr_observation": {
+    "text": "МОСКВА УЛИЦА МИРА",
+    "languages": [
+      "rus",
+      "eng"
+    ],
+    "segments": [
+      {
+        "text": "МОСКВА",
+        "bbox": [
+          28,
+          56,
+          215,
+          93
+        ],
+        "confidence": 0.9667
+      },
+      {
+        "text": "УЛИЦА",
+        "bbox": [
+          227,
+          57,
+          382,
+          96
+        ],
+        "confidence": 0.9604
+      },
+      {
+        "text": "МИРА",
+        "bbox": [
+          396,
+          57,
+          521,
+          92
+        ],
+        "confidence": 0.9614
+      }
+    ]
+  },
+  "passed": true,
+  "measurement_limitations": [
+    "Raw GPU PDH aggregate was not validated and is omitted. Full raw receipt stays in private QA output.",
+    "Post-tool warm runtime sample, not long-idle memory."
+  ]
+}

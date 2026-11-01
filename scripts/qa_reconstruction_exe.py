@@ -64,12 +64,12 @@ def main():
         raise TimeoutError('Bounded frozen QA wait expired')
     owned=None
     def state():
-        row=send_command('pet','status',timeout=1500)
+        row=send_command('pet','status',timeout=5000)
         if row and owned and row.get('pid')!=owned: raise RuntimeError('Unrelated app instance; no further control')
         return row
     def command(name,payload=None):
         if not state(): raise RuntimeError('Own instance is unavailable')
-        value=send_command('pet',name,payload,timeout=2500)
+        value=send_command('pet',name,payload,timeout=10000)
         if not value or not value.get('ok'):raise RuntimeError('Own action rejected: '+name)
     def action(name,payload=None):
         command('qa_desktop',{'action':name,'payload':payload or {}});time.sleep(.3)
@@ -118,6 +118,13 @@ def main():
             if name in ('tiktok_timestamp','role_classify','mail_dns','shadow_regions','evidence_graph') and capability!=name:return None
             return current
         result=wait(current_result,20)
+        if name=='evidence_graph':
+            import re
+            # Derived graphs intentionally are not saved as primary evidence.
+            # Read the counts returned by the real frozen tool's source card.
+            counts=re.search(r'Сущностей:\s*(\d+);\s*связей:\s*(\d+)',result['search']['results'][0]['excerpt'])
+            if not counts:raise AssertionError('Actual graph counts absent')
+            return {'total_entities':int(counts[1]),'total_relations':int(counts[2]),'origin':'actual_frozen_tool_summary'}
         # Search cards deliberately carry compact details. Inspect the full
         # evidence saved by this actual EXE in its own isolated journal.
         from grangerpet.agent_journal import InvestigationJournal

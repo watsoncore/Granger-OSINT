@@ -1,0 +1,88 @@
+{
+  "mode": "actual_frozen_Qt_WebEngine",
+  "gateway_calls": 0,
+  "inference_calls": 0,
+  "cases": [
+    {
+      "name": "synthetic-1000",
+      "id": "4f4ebd598f2f4c69bbc7477b5132c1a1",
+      "synthetic": true,
+      "input_rows": 1000,
+      "raw_entities": 2010,
+      "raw_relations": 8004,
+      "groups": 5,
+      "publication_links": 5000,
+      "aggregate_relation_ids": [],
+      "executed": true,
+      "canvas": {
+        "drawnNodes": "6",
+        "drawnEdges": "5",
+        "drawnLabels": "6",
+        "drawnImages": "0",
+        "paintMs": "0.7000000476837158",
+        "zoom": "1.3059172453703705",
+        "width": 1510.4000244140625,
+        "height": 453
+      }
+    },
+    {
+      "name": "actual-ip-new",
+      "id": "fce40092337b4705bfa714cc5da4ab08",
+      "synthetic": false,
+      "input_rows": 8,
+      "raw_entities": 19,
+      "raw_relations": 18,
+      "groups": 0,
+      "publication_links": 0,
+      "aggregate_relation_ids": [],
+      "executed": true,
+      "canvas": {
+        "drawnNodes": "5",
+        "drawnEdges": "4",
+        "drawnLabels": "5",
+        "drawnImages": "0",
+        "paintMs": "0.8000000715255737",
+        "zoom": "1.3059172453703705",
+        "width": 1510.4000244140625,
+        "height": 453
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "synthetic-1000_native_canvas",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_no_window_overflow",
+      "passed": true
+    },
+    {
+      "name": "native_group_expansion_preserves_large_collection",
+      "passed": true
+    },
+    {
+      "name": "native_search_finds_entity_without_matching_internal_member_hashes",
+      "passed": true
+    },
+    {
+      "name": "actual-ip-new_native_canvas",
+      "passed": true
+    },
+    {
+      "name": "actual-ip-new_no_window_overflow",
+      "passed": true
+    },
+    {
+      "name": "restart_retains_graph_layout_and_group_state",
+      "passed": true
+    },
+    {
+      "name": "no_unexpected_global_error_banner",
+      "passed": true
+    }
+  ],
+  "manual_visual_review": "reviewed actual IP and synthetic1000 screenshots; readable typed nodes/groups, no visible overflow",
+  "exe_sha256": "1b935f0f0f82f2fe829ea20be22a064a6c45042713ab9ed368380ce0a49cee37",
+  "passed": true
+}

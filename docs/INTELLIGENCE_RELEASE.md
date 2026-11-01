@@ -48,7 +48,7 @@ TON-отчёт. Исходный Gansar не изменялся.
 Сохранены Florence, GeoCLIP, Waypoint, OSM/Overpass/Nominatim, Commons,
 Panoramax, локальное сопоставление и существующие optional API.
 Добавлен read-only Wikidata: поиск мест, земные координаты P625, ссылки P18,
-фильтр расстояния; лицензия структурированных данных CC0. Лицензия изображения
+фильтр расстояния; [лицензия структурированных данных CC0](https://www.wikidata.org/wiki/Wikidata:Licensing). Лицензия изображения
 проверяется отдельно на его Commons file page.
 
 Commons теперь объединяет геотеги с семантическим поиском даже при наличии
@@ -128,6 +128,14 @@ live API. Длинная реальная TON-проверка частична�
 registered range→organization, опубликованные Steam-связи и source evidence;
 технический API URL не заменяет смысловой узел.
 
+В текущем основном EXE native Canvas проверен на1000 явно синтетических записях
+и сохранённых реальных IP-наблюдениях: Web Worker layout, раскрытие групп, поиск,
+отсутствие overflow, восстановление layout/group state после перезапуска.
+8 native checks прошли; synthetic stress не выдаётся за live OSINT.
+[Receipt](validation/intelligence-v1/native-graphs.json),
+[реальный IP-граф](validation/intelligence-v1/native-ip-graph.png),
+[браузер в текущем EXE](validation/intelligence-v1/native-browser.png).
+
 Все92 существовавших asset-файла,200 resource-файлов и66 файлов профиля совпадают
 с baseline. Код персонажа, спрайты, анимации, phone scene и cursor behavior не
 редактировались. Новые resources — requirements внешнего browser runtime и
@@ -148,6 +156,19 @@ API/инструменты выполняются асинхронно. Част
 тайм-аутах и ошибках. 401/402/403/429/5xx, timeout и malformed responses проверены
 fixtures; намеренные плохие ключи в реальный шлюз не отправлялись.
 
+Холодный native запуск полного локального pipeline занял около113с. При
+одновременном крупном backup-копировании один QA IPC-запрос превысил2.5с;
+завершение тестового процесса также задержалось. Тестовый тайм-аут расширен;
+отсутствие микролагов при любой нагрузке ОС не заявляется.
+
+Повторный полный native-прогон завершился:53 checks, обе CPU-модели, русский OCR,
+реальные EXIF/GPS,4 темы и restart/preservation шифрованных изображений.
+Pipeline133.785с; запуск EXE10.752с. Через несколько секунд после инструментов
+warm runtime занимал2.70GB RSS суммарно, CPU медиана0.71% всей машины за6 samples.
+Это не длительный idle-замер. Сомнительный raw GPU PDH aggregate исключён из
+публичного отчёта, а не выдан за расход памяти CPU-моделями.
+[Native model/local receipt](validation/intelligence-v1/native-local-models.json).
+
 ## I. Дисковый аудит
 
 Повторный аудит:38,120,325,032 logical bytes (~38.12GB), не allocated space.
@@ -167,6 +188,10 @@ fixtures; намеренные плохие ключи в реальный шл�
 новых modules/standalone browser worker. Полный текущий pytest:1652 passed,
 1 skipped,32 subtests passed; frontend127 passed; production build прошёл.
 Vite сообщил о крупном chunk; это не скрытая ошибка сборки.
+
+Launcher и pet прошли финальный native binary smoke; старый EXE/source ZIP и
+метаданные сохранены в `dist/archive/before-intelligence-v1` до атомарной замены.
+[Smoke receipt](validation/intelligence-v1/binarysmoke.json).
 
 Native receipts, source commit/push, smoke, SHA ZIP и окончательные проверки
 сохранности перечислены в приложенных release JSON и публичном наборе QA
