@@ -1,0 +1,17 @@
+{
+  "method": "Animated WebP quality 90; native dimensions, original order and timing. Identical adjacent frames may be coalesced by the codec. Original lossless WebP/PNG retained locally.",
+  "clips": [
+    {
+      "name": "phone_solvnox-v0",
+      "native_dimensions": [
+        186,
+        214
+      ],
+      "duration_ms": 13317,
+      "source_sha256": "6aa30f04c5567852415cd878a607f50c3836030c8eb2374f8a8751fdc748d0c1",
+      "preview_sha256": "dad03d7bfc81435cf1f4683a98de52287882635992e7bc74a934de501e009af8",
+      "bytes": 1577642,
+      "codec_frames": 308
+    }
+  ]
+}

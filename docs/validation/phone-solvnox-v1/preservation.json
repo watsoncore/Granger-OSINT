@@ -1,0 +1,14 @@
+{
+  "profile": {
+    "files": 54,
+    "unchanged": 54,
+    "passed": true
+  },
+  "existing_art": {
+    "files": 80,
+    "unchanged": 80,
+    "passed": true
+  },
+  "method": "Read-only SHA-256 comparison to private pre-task baseline; no private filenames, hashes or content published",
+  "passed": true
+}

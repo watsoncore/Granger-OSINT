@@ -1,6 +1,24 @@
 # Granger-OSINT — проверка текущей сборки
 
-## Восстановление исходной Гермионы — текущая поставка, 1 ноября 2026
+## Phone Solvnox — текущая поставка, 1 ноября 2026
+
+Windows x64: **279015421 bytes**, SHA-256
+`2f39ef873aae31c5040ec220e47bd4cca11f993dd98afbeeda3c545fc1a33d4b`.
+
+- **1539 passed, 1 skipped (optional Ollama), 32 subtests**, 294.12 s.
+- **131 frozen modules /221 resources** соответствуют источникам.
+- Исходные 80 art files неизменны, identity 13/13, neutral 0 pixel/alpha changes.
+- 217/217 контрольных кадров остальных сцен совпадают с прежними.
+- Четыре native-клипа, 1268 PNG, ~23.81 fps: 100/160/195 и compositor195.
+- 11/11 видимых контактов в native PNG, контрольный hover без контакта.
+- Native 15/15: прерывание набора hover/drag, три таймера, exit0, cold restart.
+- 256 px проверен direct production renderer; существующий native UI clamp195
+  сохранён. Это не нативная запись 256 px.
+
+[Полный отчёт и ограничения](docs/PHONE_SOLVNOX_FIX.md) ·
+[Клипы, хват, лицо и раскадровка](docs/validation/phone-solvnox-v1/PREVIEWS.md).
+
+## Восстановление исходной Гермионы — предыдущая поставка, 1 ноября 2026
 
 Windows x64: **278980266 bytes**, SHA-256
 `ba6de760a9fffc412cc51913c6e2ed258adb29c737aea9e1d6216392d402deaa`.

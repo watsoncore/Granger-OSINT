@@ -1,0 +1,44 @@
+{
+  "exe_sha256": "2f39ef873aae31c5040ec220e47bd4cca11f993dd98afbeeda3c545fc1a33d4b",
+  "scenarios": [
+    {
+      "name": "phone_solvnox",
+      "seconds": 10.15061540005263,
+      "metrics": {
+        "samples": 20,
+        "medians": {
+          "process_count": 2.0,
+          "thread_count": 52.0,
+          "rss_bytes_sum": 415608832.0,
+          "private_commit_bytes_sum": 242368512.0,
+          "cpu_percent_one_core": 23.11746028348834,
+          "cpu_percent_machine": 1.9264550236240283,
+          "monitor_seconds": 0.006821050017606467
+        },
+        "gpu_medians": {
+          "gpu_engine_percent_sum": null,
+          "gpu_engine_percent_max": null,
+          "gpu_dedicated_bytes": null,
+          "gpu_shared_bytes": null
+        }
+      },
+      "production_render_fps": 23.742402849658795,
+      "tick_ms_p50": 7.776400074362755,
+      "tick_ms_p95": 8.76980007160455,
+      "owned_timer_count": 3,
+      "dpr": 1.25
+    }
+  ],
+  "method": "Own image-verified EXE tree only; 100% CPU = one logical core; private commit is not private working set",
+  "api_requests": 0,
+  "capture_during_measurement": false,
+  "cycles": {
+    "count": 25,
+    "timer_counts": [
+      3
+    ],
+    "private_commit_before": 242376704,
+    "private_commit_after": 245530624
+  },
+  "passed": true
+}

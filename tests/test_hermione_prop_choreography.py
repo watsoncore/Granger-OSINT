@@ -5,21 +5,21 @@ from grangerpet.scene_pose import action_pose,hand_contact,rotate
 from grangerpet.hermione_actions import phone_point,phone_pose
 
 
-def test_raised_phone_is_supported_and_finger_lifts_between_taps():
+def test_phone_uses_bent_finger_art_with_real_lift_and_rigid_cradle():
+    from grangerpet.phone_scene import contact_model,TAPS
     gaps=[]
-    for i in range(330,470):
-        q=i/1000;a=phone_pose(q,q*13)
-        assert a.phone and a.phone_back and a.left_hand=='index'
-        assert math.dist(a.right,phone_point(a,16.,35.))<1e-6
-        gaps.append(math.dist(hand_contact(a,-1),phone_point(a,-15.,6.)))
-    assert min(gaps)<.2 and max(gaps)>9
-    pause=phone_pose(.5,6.5)
-    assert math.dist(hand_contact(pause,-1),phone_point(pause,-15.,6.))>9
-    assert phone_pose(.55,7.15).phone_lines==1  # Delete part, then continue typing.
-    assert phone_pose(.67,8.71).phone_lines==3
-    erase=phone_pose(.535,.535*13)
-    assert math.dist(hand_contact(erase,-1),phone_point(erase,-12.,16.))<1e-6
-    assert 0<erase.phone_lines<3
+    for i in range(300,840):
+        q=i/1000;a=phone_pose(q,q*13);c=contact_model(a)
+        assert a.phone and a.left_hand in ('phone_hover','phone_press')
+        assert math.dist(c.holding_hand_anchor,phone_point(a,0.,38.))<1e-6
+        gaps.append(math.dist(c.typing_fingertip,c.tap_target))
+    assert min(gaps)<1e-6 and max(gaps)>22
+    for q,_,_ in TAPS:
+        a=phone_pose(q,q*13);c=contact_model(a)
+        assert c.press==1 and a.left_hand=='phone_press'
+        assert math.dist(c.typing_fingertip,c.tap_target)<1e-6
+    assert phone_pose(.60,7.8).phone_lines==1
+    assert phone_pose(.76,9.88).phone_lines==3
 
 
 @pytest.mark.parametrize('variant',range(4))

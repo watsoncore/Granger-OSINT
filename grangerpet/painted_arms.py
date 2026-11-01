@@ -106,6 +106,13 @@ class PaintedArms:
             for name,spec in json.loads((original/'rig.json').read_text(encoding='utf-8')).items():
                 self.spec[name]=spec
                 for side in ('left','right'):self.drawings[name,side]=ArmDrawing(original,name,side,spec[side])
+        phone=directory.parent/'phone-solvnox-v1'
+        if (phone/'rig.json').is_file():
+            for name,spec in json.loads((phone/'rig.json').read_text(encoding='utf-8')).items():
+                self.spec[name]=spec
+                for side in ('left','right'):self.drawings[name,side]=ArmDrawing(phone,name,side,spec[side])
+            from .phone_scene import PhoneArt
+            self.phone_art=PhoneArt()
         self.hands={}
         for name,spec in json.loads((directory/'hands.json').read_text(encoding='utf-8')).items():
             drawing=object.__new__(ArmDrawing);drawing.hand=QImage(str(directory/('hand-'+name+'.png')))
@@ -122,6 +129,9 @@ class PaintedArms:
         self.drawing(actor,side).draw_sleeve(p,arm_points(actor,side),forearm=forearm)
 
     def hand(self,p,actor,side,*,fingers_only=False):
+        mode=actor.left_hand if side<0 else actor.right_hand
+        if mode.startswith('phone_'):
+            self.phone_art.hand(p,actor,side,front=fingers_only);return
         wrist=actor.left if side<0 else actor.right
         angle=actor.hand_angle_left if side<0 else actor.hand_angle_right
         mode=actor.left_hand if side<0 else actor.right_hand

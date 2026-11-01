@@ -1,0 +1,24 @@
+{
+  "source_files": {
+    "holding-hand.svg": "3424ac675a5b4a538868fb973763f807750f1a1ae282cf9047ba99281dc34d6a",
+    "holding-sleeve.svg": "046d28d77b1104ea42bf7868e6a727e23f9e24236924a9b3fa07f4fbd8f9db2b",
+    "phone.svg": "7e4405cc26445c8dbf8526912983006f5dae7037d94d088ea3c7cb1482199e76",
+    "rest-hand.svg": "08e2880e8223523af13d58c1c6cd2faa9d706cc9b3567704f0bd9b46939cb9d7",
+    "typing-hover.svg": "6a719d1c4d54fb1a2412b3d251af4b6a822fe83e462546d07a912df281ba49cb",
+    "typing-press.svg": "dd27df929514f371d4df3512be747481361fe9d501b684fe2a3e5326644585f6",
+    "typing-sleeve.svg": "5e31dbeeb7619b9f79d6f2078d4a246acdc856616c0032702f7089d6530bbb7d"
+  },
+  "outputs": {
+    "holding-hand.png": "2bcd634a6be70fa625f9d415d35eff5092e66cedb44ad0db9a92bfad4c03fc8e",
+    "phone-left-hand.png": "fbec19477bc80bf0e24c911232414f36bf545062c4f57257aa817e10acdd09be",
+    "phone-left-sleeve.png": "afe80ac32804ce4ceb212d1439a8bb839bf5b02c7dbf0369a78d4a31fbc26296",
+    "phone-right-hand.png": "fbec19477bc80bf0e24c911232414f36bf545062c4f57257aa817e10acdd09be",
+    "phone-right-sleeve.png": "48e1f156ff144430977c11420780ce1205e4d7913cded52014bd5a1ade0e55e4",
+    "phone.png": "5c9446f11d3cff9c582f5c0f74a086cbda3cd265992c23b4e88f2c5401c16df0",
+    "rest-hand.png": "b8ee3316021a1f65ff3a5b8a44f6984213663e094d02f9a17baa4c912f4b19e0",
+    "typing-hover.png": "59bf3876f89412430c6a4f4716c91d283fca1e145ec87c289435d35979849a94",
+    "typing-press.png": "c2dcc27256083f463fb6a6e504ed96d52193bc4a47d9041a5cdd0d9e79cd18ab"
+  },
+  "identity_assets_modified": false,
+  "method": "Authored phone-only SVG artwork; original character master/head/face/hair never read or overwritten"
+}

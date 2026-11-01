@@ -1,0 +1,71 @@
+{
+  "clips": [
+    {
+      "source": "native-100",
+      "logical_size": 100,
+      "exe_sha256": "2f39ef873aae31c5040ec220e47bd4cca11f993dd98afbeeda3c545fc1a33d4b",
+      "captures": [
+        {
+          "name": "phone_solvnox-v0",
+          "frames": 317,
+          "seconds": 13.272545,
+          "mode": "widget",
+          "production_duration": 13,
+          "mean_capture_fps": 23.808546137911005,
+          "production_frame_signatures": 308
+        }
+      ]
+    },
+    {
+      "source": "native-160",
+      "logical_size": 160,
+      "exe_sha256": "2f39ef873aae31c5040ec220e47bd4cca11f993dd98afbeeda3c545fc1a33d4b",
+      "captures": [
+        {
+          "name": "phone_solvnox-v0",
+          "frames": 317,
+          "seconds": 13.272656,
+          "mode": "widget",
+          "production_duration": 13,
+          "mean_capture_fps": 23.808347025644302,
+          "production_frame_signatures": 308
+        }
+      ]
+    },
+    {
+      "source": "native-195",
+      "logical_size": 195,
+      "exe_sha256": "2f39ef873aae31c5040ec220e47bd4cca11f993dd98afbeeda3c545fc1a33d4b",
+      "captures": [
+        {
+          "name": "phone_solvnox-v0",
+          "frames": 317,
+          "seconds": 13.271426,
+          "mode": "widget",
+          "production_duration": 13,
+          "mean_capture_fps": 23.810553590849995,
+          "production_frame_signatures": 308
+        }
+      ]
+    },
+    {
+      "source": "native-text-195",
+      "logical_size": 195,
+      "exe_sha256": "2f39ef873aae31c5040ec220e47bd4cca11f993dd98afbeeda3c545fc1a33d4b",
+      "captures": [
+        {
+          "name": "phone_solvnox-v0",
+          "frames": 317,
+          "seconds": 13.271584,
+          "mode": "native_text",
+          "production_duration": 13,
+          "mean_capture_fps": 23.810270122993607,
+          "production_frame_signatures": 307
+        }
+      ]
+    }
+  ],
+  "total_png": 1268,
+  "dpr": 1.25,
+  "native_256": false
+}

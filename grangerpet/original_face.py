@@ -18,13 +18,14 @@ class OriginalFace:
         # Pupil interiors only: original iris rims, whites and lashes stay fixed.
         for rect in (QRectF(172,184,15,17),QRectF(251,179,15,17)):
             area=QPainterPath();area.addRect(rect);self.interiors.append(area)
-            source=rect.adjusted(-2,-2,2,2).toAlignedRect()
+            source=rect.adjusted(-4,-4,4,4).toAlignedRect()
             self.pupils.append((master.copy(source),QPointF(source.topLeft())))
         self.cache=OrderedDict();self.last_key=None;self.last_image=None
 
     def key(self,a):
+        phone=getattr(a,'phone_style','')=='solvnox'
         return (a.blink>.35,round(max(-1.,min(1.,a.gaze[0]*.25))*4)/4,
-            round(max(-.8,min(1.2,a.gaze[1]*.25))*4)/4,a.mouth,
+            round(max(-.8,min(2.5 if phone else 1.2,a.gaze[1]*(.45 if phone else .25)))*4)/4,a.mouth,
             1 if a.brow>.2 else -1 if a.brow<-.2 else 0,round(max(0.,min(1.,a.blush))*16)/16)
 
     def image(self,a):

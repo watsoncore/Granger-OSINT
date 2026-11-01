@@ -137,6 +137,9 @@ class ActorPose:
     sleep_lift:float=0.
     phone:bool=False
     phone_back:bool=False
+    phone_style:str=''
+    phone_press:float=0.
+    phone_target:Point=(0.,0.)
     phone_center:Point=(270.,340.)
     phone_angle:float=-5.
     phone_lines:int=0
@@ -314,5 +317,8 @@ def action_pose(action,q,t,variant=0,*,aim=(0.,0.),physics=None,_draw_elbows=Tru
         a.blush=max(a.blush,physics.embarrassed);a.brow=max(a.brow,physics.upset)
         if physics.upset>.2:a.mouth='pout'
     a.hair=a.head*.20-a.lean*.35
+    if action=='phone_solvnox' and q in (0.,1.) and physics is None:
+        # Match the immutable neutral atlas, including its historical sampling.
+        a.source_idle=True;a.source_time=0.;a.blink=0.
     if a.phase=='rest':a.phase=action
     return a

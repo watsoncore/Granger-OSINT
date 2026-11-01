@@ -4,6 +4,7 @@
 *.spec text eol=lf
 *.yml text eol=lf
 *.json text eol=lf
+resources/hermione-phone-v1/*.svg text eol=lf
 *.txt text eol=lf
 *.ps1 text eol=crlf
 .gitignore text eol=lf

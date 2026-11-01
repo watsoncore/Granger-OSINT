@@ -1,0 +1,144 @@
+{
+  "exe_sha256": "2f39ef873aae31c5040ec220e47bd4cca11f993dd98afbeeda3c545fc1a33d4b",
+  "method": "Original native PNGs only. Source geometry locates glass; actual warm skin pixels at the contact are counted. Phase labels use capture clock; nearest raw frames selected, not reconstructed.",
+  "contacts": [
+    {
+      "event": 1,
+      "phase": "type",
+      "native_frame": 111,
+      "at": 4.704206,
+      "skin_pixels_near_projected_glass_target": 3,
+      "native_target_px": [
+        151.69678636863966,
+        179.7377605598479
+      ],
+      "passed": true
+    },
+    {
+      "event": 2,
+      "phase": "type",
+      "native_frame": 121,
+      "at": 5.12428,
+      "skin_pixels_near_projected_glass_target": 9,
+      "native_target_px": [
+        153.9125143606098,
+        182.1822195213548
+      ],
+      "passed": true
+    },
+    {
+      "event": 3,
+      "phase": "type",
+      "native_frame": 133,
+      "at": 5.628186,
+      "skin_pixels_near_projected_glass_target": 5,
+      "native_target_px": [
+        152.93087443874754,
+        185.17045239336875
+      ],
+      "passed": true
+    },
+    {
+      "event": 4,
+      "phase": "type",
+      "native_frame": 144,
+      "at": 6.090469,
+      "skin_pixels_near_projected_glass_target": 5,
+      "native_target_px": [
+        153.7533578796957,
+        177.87396719244157
+      ],
+      "passed": true
+    },
+    {
+      "event": 5,
+      "phase": "erase",
+      "native_frame": 163,
+      "at": 6.889137,
+      "skin_pixels_near_projected_glass_target": 11,
+      "native_target_px": [
+        154.80992185981452,
+        184.943133309112
+      ],
+      "passed": true
+    },
+    {
+      "event": 6,
+      "phase": "erase",
+      "native_frame": 173,
+      "at": 7.308221,
+      "skin_pixels_near_projected_glass_target": 11,
+      "native_target_px": [
+        154.78780313861608,
+        184.90937346548367
+      ],
+      "passed": true
+    },
+    {
+      "event": 7,
+      "phase": "retype",
+      "native_frame": 182,
+      "at": 7.686419,
+      "skin_pixels_near_projected_glass_target": 5,
+      "native_target_px": [
+        151.68155389162484,
+        180.11591044790234
+      ],
+      "passed": true
+    },
+    {
+      "event": 8,
+      "phase": "retype",
+      "native_frame": 195,
+      "at": 8.232358,
+      "skin_pixels_near_projected_glass_target": 8,
+      "native_target_px": [
+        154.01545717653494,
+        183.18476031434858
+      ],
+      "passed": true
+    },
+    {
+      "event": 9,
+      "phase": "retype",
+      "native_frame": 204,
+      "at": 8.610806,
+      "skin_pixels_near_projected_glass_target": 5,
+      "native_target_px": [
+        152.8907308973751,
+        184.37760076631446
+      ],
+      "passed": true
+    },
+    {
+      "event": 10,
+      "phase": "retype",
+      "native_frame": 212,
+      "at": 8.946538,
+      "skin_pixels_near_projected_glass_target": 5,
+      "native_target_px": [
+        153.4204730584161,
+        178.91225757522764
+      ],
+      "passed": true
+    },
+    {
+      "event": 11,
+      "phase": "send",
+      "native_frame": 232,
+      "at": 9.786283,
+      "skin_pixels_near_projected_glass_target": 5,
+      "native_target_px": [
+        152.10671671098157,
+        173.30295118035954
+      ],
+      "passed": true
+    }
+  ],
+  "hover": {
+    "native_frame": 104,
+    "skin_pixels_at_glass_target": 0
+  },
+  "passed": true,
+  "limitations": "Pixel neighbourhood is a raster sanity check, not an artistic score. Full native movie must also be reviewed without labels."
+}

@@ -1,0 +1,86 @@
+{
+  "device_origin": [
+    -32,
+    -56
+  ],
+  "screen_polygon": [
+    [
+      -5,
+      -34
+    ],
+    [
+      7,
+      -31
+    ],
+    [
+      13,
+      29
+    ],
+    [
+      1,
+      33
+    ]
+  ],
+  "hands": {
+    "phone_hover": {
+      "file": "typing-hover.png",
+      "origin": [
+        -32,
+        -48
+      ],
+      "tip": [
+        36,
+        -2
+      ],
+      "front": [
+        8,
+        -44,
+        42,
+        46
+      ]
+    },
+    "phone_press": {
+      "file": "typing-press.png",
+      "origin": [
+        -32,
+        -48
+      ],
+      "tip": [
+        36,
+        -2
+      ],
+      "front": [
+        8,
+        -44,
+        42,
+        46
+      ]
+    },
+    "phone_hold": {
+      "file": "holding-hand.png",
+      "origin": [
+        -48,
+        -48
+      ],
+      "anchor": [
+        -24,
+        -4
+      ],
+      "front": [
+        -17,
+        -33,
+        14,
+        27
+      ]
+    },
+    "phone_rest": {
+      "file": "rest-hand.png",
+      "origin": [
+        -32,
+        -32
+      ],
+      "front": null
+    }
+  },
+  "method": "Authored phone-only SVG artwork; original character master/head/face/hair never read or overwritten"
+}

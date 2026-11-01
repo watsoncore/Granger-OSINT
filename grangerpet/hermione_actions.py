@@ -19,49 +19,8 @@ def phone_point(a,x,y):
 
 
 def phone_pose(q,t):
-    a=arm_pose_bank()['relaxed'];a.phone_back=True;a.phone=.005<q<.995;a.pocket=q<.14 or q>.89;a.pocket_lip=385.
-    a.phone_center=track(q,(0.,(268.,448.)),(.07,(268.,405.)),(.23,(244.,333.)),
-        (.67,(244.,333.)),(.76,(230.,327.)),(.835,(230.,327.)),(.9,(268.,367.)),(1.,(268.,448.)))
-    a.phone_angle=track(q,(0.,-15.),(.23,-9.),(.67,-9.),(.76,5.),(.85,5.),(1.,-15.))
-    follow=track(q,(0.,0.),(.055,1.),(.965,1.),(1.,0.))
-    # Begin at the side grip; move to a supporting lower corner only once clear
-    # of the pocket. The screen never floats in front of a distant palm.
-    grip=track(q,(0.,(19.,-39.)),(.055,(19.,-39.)),(.13,(19.,6.)),(.23,(16.,35.)),
-        (.85,(16.,35.)),(.92,(19.,6.)),(.965,(19.,-39.)),(1.,(19.,-39.)))
-    a.right=mix(a.right,phone_point(a,*grip),follow);a.right_hand='grip'
-    a.elbow_right=track(q,(0.,a.elbow_right),(.08,(347.,354.)),(.23,(310.,355.)),
-        (.67,(310.,355.)),(.76,(292.,360.)),(.84,(292.,360.)),(.93,(347.,354.)),(1.,a.elbow_right))
-    a.arm_art='reading' if .17<q<.89 else 'reach'
-    if q<.035 or q>.985:a.arm_art='rest'
-    a.elbow_left=track(q,(0.,a.elbow_left),(.25,a.elbow_left),(.315,(160.,366.)),
-        (.675,(160.,366.)),(.76,(161.,357.)),(.835,(161.,357.)),(.94,a.elbow_left),(1.,a.elbow_left))
-    erase=track(q,(0.,0.),(.505,0.),(.525,1.),(.54,1.),(.555,0.),(1.,0.))
-    target=phone_point(a,-15.+3*erase,6.+10*erase)
-    # A full lift-off between distinct taps is visible even at desktop size.
-    # During the pause the finger remains away; it never taps continuously.
-    tapping=track(q,(0.,0.),(.33,0.),(.34,1.),(.46,1.),(.47,0.),(.55,0.),(.56,1.),(.655,1.),(.665,0.),(1.,0.))
-    lift=10.-tapping*(1-math.cos((t-4.29)*math.tau/.65))*5
-    lift=min(lift,10*(1-erase))  # Deliberate backspace press after the pause.
-    target=(target[0]-.85*lift,target[1]+.52*lift)
-    wrist=pointing_wrist(a.elbow_left,target,'index',-1)
-    approach=track(q,(0.,0.),(.25,0.),(.315,1.),(.675,1.),(.715,0.),(1.,0.))
-    a.left=mix(a.left,wrist,approach)
-    if approach>.01:a.left_hand='index'
-    hug=track(q,(0.,0.),(.715,0.),(.76,1.),(.835,1.),(.94,0.),(1.,0.))
-    a.left=mix(a.left,phone_point(a,-15.,30.),hug)
-    if hug>.4:a.left_hand='grip'
-    if q<.25 or q>.94:a.arm_art_left='rest'
-    a.phone_lines=int(track(q,(0.,0.),(.33,0.),(.47,3.),(.51,3.),(.55,1.),(.665,3.),(1.,3.)))
-    a.head=track(q,(0.,0.),(.12,4.),(.28,6.),(.49,3.),(.55,7.),(.72,5.),(.8,9.),(1.,0.))
-    a.gaze=(track(q,(0.,0.),(.23,2.),(.48,2.),(.515,-2.),(.55,2.),(.84,2.),(1.,0.)),
-        track(q,(0.,0.),(.13,4.),(.3,5.),(.8,5.),(1.,0.)))
-    a.blush=track(q,(0.,0.),(.2,0.),(.3,.35),(.5,.65),(.6,.5),(.8,1.),(1.,0.))
-    a.mouth='smile' if .29<q<.49 or .62<q<.87 else 'neutral'
-    a.brow=-.4 if .49<q<.55 else 0.
-    a.hearts=track(q,(0.,0.),(.69,0.),(.77,.7),(.86,0.),(1.,0.))
-    a.lean=-1.5*track(q,(0.,0.),(.2,1.),(.84,1.),(1.,0.))
-    a.phase='retrieve' if q<.23 else 'read' if q<.33 else 'type' if q<.47 else 'pause_erase' if q<.55 else 'retype' if q<.68 else 'hug' if q<.86 else 'stow'
-    return a
+    from .phone_scene import phone_pose as stage_phone
+    return stage_phone(q,t)
 
 
 def wand_pose(action,q,t,variant):

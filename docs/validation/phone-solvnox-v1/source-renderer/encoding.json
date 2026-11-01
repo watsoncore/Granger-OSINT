@@ -1,0 +1,53 @@
+{
+  "method": "Animated WebP quality 90; native dimensions, original order and timing. Identical adjacent frames may be coalesced by the codec. Original lossless WebP/PNG retained locally.",
+  "clips": [
+    {
+      "name": "phone-100",
+      "native_dimensions": [
+        100,
+        100
+      ],
+      "duration_ms": 13042,
+      "source_sha256": "40c79feb4e9d0163e2b88726a969eda9111105c0bf043c7cf10436795fd7f3eb",
+      "preview_sha256": "edf38942e807246795528d40dbd0199ea6926f71db8fac7fb4177fc13eb89e6a",
+      "bytes": 619100,
+      "codec_frames": 305
+    },
+    {
+      "name": "phone-160",
+      "native_dimensions": [
+        160,
+        160
+      ],
+      "duration_ms": 13042,
+      "source_sha256": "e9891ec72ed9490eb2c19dd4fd82bb39813472f0e2eba207ad0c706f948eca08",
+      "preview_sha256": "e524c58abe1666f12ab0786c7d9a252d5f51734af9e039616ea1cdefedaa3072",
+      "bytes": 1156732,
+      "codec_frames": 305
+    },
+    {
+      "name": "phone-195",
+      "native_dimensions": [
+        195,
+        195
+      ],
+      "duration_ms": 13042,
+      "source_sha256": "720cbc860c87871552d799da6e5d7da5b98af8a75a3474d78c25ad66b679abed",
+      "preview_sha256": "a4f315727fff30e4a193261cdc256cb8d46074489bb999678db3c3b18503798d",
+      "bytes": 1514394,
+      "codec_frames": 305
+    },
+    {
+      "name": "phone-256",
+      "native_dimensions": [
+        256,
+        256
+      ],
+      "duration_ms": 13042,
+      "source_sha256": "901b4460fad749298edb794eca6ef12909241b7a6d2845789b0cd6aae598990e",
+      "preview_sha256": "69f7c1d1fd3850d6742a15f26e7293c8a1b3de6e753c3b3e6974355d12338b60",
+      "bytes": 2153978,
+      "codec_frames": 305
+    }
+  ]
+}

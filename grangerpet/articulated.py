@@ -128,12 +128,14 @@ class HermioneRig:
                 if wrist[1]<elbow[1]+5:self.painted_arms.sleeve(p,a,side,forearm=True)
         if draw_props:
             if a.book.visible:self.book(p,a.book)
-            if a.phone:self.phone(p,a)
+            if a.phone:
+                if a.phone_style=='solvnox' and self.painted_arms:self.painted_arms.phone_art.device(p,a)
+                else:self.phone(p,a)
             if a.wand:self.wand(p,a)
         if draw_hands:
             for wrist,mode,side,angle in hands:
                 if self.painted_arms:
-                    if held and draw_props and not (a.phone_back and side<0 and a.left_hand=='index'):
+                    if (mode.startswith('phone_') or held and draw_props) and not (a.phone_back and side<0 and a.left_hand=='index'):
                         self.painted_arms.hand(p,a,side,fingers_only=True)
                 else:self.hand(p,wrist,mode,side,angle)
         if (a.book.visible and a.book.pocket) or ((a.phone or a.wand) and a.pocket):
