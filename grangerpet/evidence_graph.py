@@ -5,6 +5,7 @@ An equal nickname on two platforms is deliberately two scoped identifiers.
 """
 from copy import deepcopy
 import hashlib
+import ipaddress
 import math
 import re
 from decimal import Decimal, InvalidOperation, localcontext
@@ -66,7 +67,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             from .public_media import media_reference
             media=media_reference(record)
             if media and kind not in ('source','domain','username'):current['attributes']['media']=media
-        if record and record.get('url'):
+        if record and record.get('url') and kind in ('source','service','website'):
             from .link_relevance import technical_url
             if technical_url(record['url']):current['attributes']['technical']=True
         current['verification_status'] = ('unverified' if current['attributes'].get('reference_only') or not current['evidence_ids'] else
@@ -191,7 +192,66 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         elif kind=='domain':
             domain=details.get('domain') or details.get('query')
             if isinstance(domain,str) and domain and ' ' not in domain:current=node('domain',domain.lower(),domain,record)
-        elif kind=='ip':current=node('infrastructure_asset',details.get('address') or label,label,record,asset_type='ip')
+            answers=details.get('answers',[])
+            if not isinstance(answers,list):answers=[]
+            if details.get('value'):answers=answers+[{'type':{'A':1,'AAAA':28,'CNAME':5,'NS':2,'MX':15}.get(details.get('record_type')),'data':details['value']}]
+            for answer in answers[:30]:
+                if not isinstance(answer,dict) or answer.get('type') not in (1,2,5,15,28):continue
+                value=answer.get('data')
+                if not isinstance(value,str):continue
+                if answer['type'] in (1,28):
+                    try:address=str(ipaddress.ip_address(value))
+                    except ValueError:continue
+                    linked=node('infrastructure_asset',address,address,record,asset_type='ip',address=address)
+                    edge(current,linked,'resolves_to',record,'source_reported',observed_field='answers[].data')
+                else:
+                    name=value.split()[-1].rstrip('.').lower() if value.split() else ''
+                    if not name or not re.fullmatch(r'[a-z0-9.-]+',name):continue
+                    linked=node('domain',name,name,record)
+                    edge(current,linked,{2:'uses_nameserver',5:'dns_alias_of',15:'uses_mail_exchange'}[answer['type']],record,'source_reported',observed_field='answers[].data')
+        elif kind in ('ip','threat_indicator'):
+            address=details.get('address') or details.get('query')
+            if not isinstance(address,str):continue
+            try:
+                address=str(ipaddress.ip_network(address,strict=False) if '/' in address else ipaddress.ip_address(address))
+            except ValueError:
+                if not re.fullmatch(r'AS[1-9][0-9]{0,9}',address,re.I):continue
+                address=address.upper()
+            current=node('infrastructure_asset',address,address,record,address=address,
+                asset_type='asn' if address.startswith('AS') else 'cidr' if '/' in address else 'ip')
+            network_data=details.get('data') if isinstance(details.get('data'),dict) else {}
+            prefix=details.get('prefix') or network_data.get('prefix')
+            routed=current
+            if isinstance(prefix,str):
+                try:prefix=str(ipaddress.ip_network(prefix,strict=False))
+                except ValueError:prefix=''
+                if prefix and prefix!=address:
+                    routed=node('infrastructure_asset',prefix,prefix,record,address=prefix,asset_type='cidr')
+                    edge(current,routed,'within_announced_prefix',record,'source_reported',observed_field='prefix')
+            asns=details.get('asns') or network_data.get('asns') or []
+            for asn in asns[:20] if isinstance(asns,list) else []:
+                holder=asn.get('holder') if isinstance(asn,dict) else None
+                number=asn.get('asn') if isinstance(asn,dict) else asn
+                if not re.fullmatch(r'[1-9][0-9]{0,9}',str(number)) or int(number)>4294967295:continue
+                identifier='AS'+str(number)
+                linked=node('infrastructure_asset',identifier,identifier,record,address=identifier,asset_type='asn',holder=holder)
+                if linked!=routed:edge(routed,linked,'announced_by',record,'source_reported',observed_field='asns')
+            registered=current
+            if details.get('startAddress') and details.get('endAddress'):
+                interval=str(details['startAddress'])+' — '+str(details['endAddress'])
+                registered=node('infrastructure_asset',interval,interval,record,asset_type='registered_range',start=details['startAddress'],end=details['endAddress'])
+                edge(current,registered,'within_registered_range',record,'source_reported',observed_field='startAddress,endAddress')
+            for entity in details.get('registry_entities',[]) if isinstance(details.get('registry_entities'),list) else []:
+                if not isinstance(entity,dict) or not isinstance(entity.get('name'),str) or 'registrant' not in entity.get('roles',[]):continue
+                identity=str(url).split('/ip/')[0]+'|'+entity['name']
+                org=node('organization',identity,entity['name'],record,registry_only=True,identity_verified=False)
+                edge(registered,org,'registered_to',record,'source_reported',observed_field='registry_entities')
+            if details.get('record_type')=='PTR':
+                for answer in details.get('answers',[]) if isinstance(details.get('answers'),list) else []:
+                    name=answer.get('value') if isinstance(answer,dict) else None
+                    if isinstance(name,str) and re.fullmatch(r'[a-zA-Z0-9.-]+',name):
+                        host=node('domain',name.rstrip('.').lower(),name.rstrip('.'),record)
+                        edge(current,host,'reverse_dns_reports',record,'source_reported',observed_field='answers[].value')
         elif kind in ('token_asset','nft_asset'):
             chain=details.get('chain') or 'ton'
             identity=details.get('asset_id') or details.get('contract') or record.get('id')
@@ -395,7 +455,9 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             elif target.entity_type=='image':identifier=node('image',target.identifier,target.identifier,None,attachment_id=target.identifier)
             elif target.entity_type=='domain':identifier=node('domain',target.identifier,target.identifier,None,domain=target.identifier)
             elif target.entity_type=='email':identifier=node('email',target.identifier,target.identifier,None,address=target.identifier)
-            elif target.entity_type=='infrastructure_asset':identifier=node('infrastructure_asset',target.identifier,target.identifier,None,asset_type='ip',address=target.identifier)
+            elif target.entity_type in ('infrastructure_asset','network_range','autonomous_system'):
+                identifier=node('infrastructure_asset',target.identifier,target.identifier,None,
+                    asset_type='asn' if target.entity_type=='autonomous_system' else 'cidr' if target.entity_type=='network_range' else 'ip',address=target.identifier)
             elif target.entity_type=='geographic_coordinates':identifier=node('coordinate',str(target.properties['latitude'])+'|'+str(target.properties['longitude']),target.identifier,None,**target.properties)
             elif target.canonical_url:identifier=url_node(target.canonical_url,None,reference=True)
             else:continue

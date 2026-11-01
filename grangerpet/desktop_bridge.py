@@ -675,7 +675,8 @@ class DesktopBridge(QObject):
             text = payload.get('query')
             if not isinstance(text,str) or not 0<len(text)<=2000: raise ValueError('Некорректный запрос.')
             kind = payload.get('kind','auto')
-            if kind not in ('auto','username','email','phone','telegram','vk','instagram','web','blockchain','dork'): raise ValueError('Неизвестное направление.')
+            from .engine.models import KINDS
+            if kind not in KINDS: raise ValueError('Неизвестное направление.')
             from .entity_router import route as route_entity
             target = route_entity(text)
             specialized = None

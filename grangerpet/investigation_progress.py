@@ -15,7 +15,7 @@ _TELEMETRY = frozenset(('query', 'original_query', 'retrieved_at', 'obtained_at'
     'acquisition', 'agent_tool', 'source_confirmations', 'preview', 'base64',
     'content_excerpt', 'content_length', 'content_total_chars', 'observations'))
 
-_TELEMETRY=_TELEMETRY|frozenset(('collected_at','observed_at','source_diagnostics'))
+_TELEMETRY=_TELEMETRY|frozenset(('collected_at','observed_at','source_observed_at','cache_hit','source_diagnostics'))
 
 
 def normalized_arguments(name, arguments, default_limit=None):
@@ -133,7 +133,7 @@ def stop_report(snapshot, reason, introduction=''):
             description = re.sub(r'\s+', ' ', str(row.get('description') or '')).strip()[:380]
             label = 'Гипотеза/возможная связь; требует проверки. ' if row.get('status') in ('hypothesis', 'unconfirmed', 'unknown') or ranks.get(row.get('evidence_id'),{}).get('level')=='potential' else ''
             source = f"[источник]({row['url']})" if row.get('url') else str((row.get('provenance') or {}).get('tool') or row.get('platform') or '')
-            lines.append(f'- {title}: {label}{description} ({source}; {row.get("evidence_id", "")}).')
+            lines.append(f'- {title}: {label}{description} ({source}).')
         if len(records) > 12:
             lines.append(f'Ещё {len(records) - 12} записей сохранены в доказательствах расследования.')
     lines += ['', '**Ограничения и непроверенные направления**']

@@ -12,7 +12,7 @@ from urllib.parse import unquote, urlsplit, urlunsplit
 
 from ..validators.ton_address import parse_ton_address
 
-KINDS = ("auto", "username", "email", "phone", "telegram", "vk", "instagram", "web", "blockchain", "dork")
+KINDS = ("auto", "username", "email", "phone", "telegram", "vk", "instagram", "web", "blockchain", "dork", "ip", "network", "domain")
 PROFILE_CHOICES = (("Публичные профили", "username"), ("Упоминания", "dork"))
 DOMAIN_TLDS = frozenset("com org net edu gov mil int io ai dev app me info biz pro online site cloud tech ru su kz by ua uk us de fr es it nl pl cz ca au jp cn in ch at eu co tv xyz name museum travel mobi xn--p1ai".split())
 
@@ -157,6 +157,26 @@ def detect_query(text, chosen_kind=None, options=None):
             if not re.fullmatch(r"[\w.-]{1,64}", name, re.UNICODE):
                 raise ValueError("Введите один никнейм без пробелов.")
             return _resolution(name, "username", "Никнейм", "Поиск публичных профилей", ("public_web", "maigret", "blackbird", "social_analyzer", "snoop"))
+        if chosen in (None, 'ip', 'network'):
+            network = None
+            try:
+                network = (ipaddress.ip_network(value, strict=False) if '/' in value else ipaddress.ip_address(value))
+            except ValueError: pass
+            if network is not None:
+                if '%' in value or not network.is_global or network.is_multicast or network.is_reserved:
+                    return _error(value, 'Адрес распознан как локальный, служебный или зарезервированный; внешние запросы не выполняются.')
+                kind='network' if '/' in value else 'ip'
+                return _resolution(str(network),kind,'IP-диапазон' if kind=='network' else 'IPv'+str(network.version),
+                    'Пассивный сетевой профиль',('network_routing','network_rdap','network_reverse_dns','network_reputation','threat_feodo'))
+            if re.fullmatch(r'AS[1-9][0-9]{0,9}',value,re.I) and int(value[2:])<=4294967295:
+                return _resolution(value.upper(),'network','Автономная система','RIPE RIS / RDAP',('network_routing','network_rdap'))
+            if chosen in ('ip','network') or re.fullmatch(r'\d+(?:\.\d+){3}(?:/\d+)?',value):
+                return _error(value,'Некорректный IPv4/IPv6, CIDR или ASN.')
+        if chosen=='domain':
+            domain=_domain(value)
+            if domain.endswith(('.local','.internal','.invalid','.test','.localhost','.onion')):
+                return _error(value,'Нужен публичный домен.')
+            return _resolution(domain,'domain','Домен','DNS / RDAP / CT',('domain_lookup','domain_dns','domain_rdap','domain_certificates'))
         if chosen == "email" or not chosen and "@" in value and not value.startswith("@"):
             return _resolution(normalize_email(value), "email", "Email", "Проверка публичных регистраций", ("holehe",))
         if chosen == "phone" or not chosen and re.fullmatch(r"(?:\+|00)[\d ()-]{6,24}", value):
@@ -203,7 +223,7 @@ def detect_query(text, chosen_kind=None, options=None):
             except ValueError:
                 domain = ""
             if domain and domain.rsplit(".", 1)[1] in DOMAIN_TLDS:
-                return _resolution("https://" + domain + "/", "web", "Домен", "Чтение публичной страницы и архив", ("public_web", "wayback"))
+                return _resolution(domain, "domain", "Домен", "DNS / RDAP / CT", ("domain_lookup", "domain_dns", "domain_rdap", "domain_certificates"))
             if domain:
                 return QueryResolution(value, choices=(("Веб-архив", "web"),) + PROFILE_CHOICES, label="Неоднозначный текст", requires_clarification=True)
         if re.fullmatch(r"@?[\w.-]{1,64}", value, re.UNICODE):

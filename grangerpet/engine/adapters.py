@@ -53,7 +53,35 @@ def google_outcome(query, options):
 
 def default_adapters(options=None):
     return [PublicSearchAdapter('public_web','Публичные источники без ключа',('username','web','dork')),
+            *[NetworkPublicAdapter(name,label,kinds) for name,label,kinds in (
+                ('network_routing','RIPE RIS · маршрутизация',('ip','network')),
+                ('network_rdap','Авторитетный RDAP',('ip','network')),
+                ('network_reverse_dns','Reverse DNS / PTR',('ip',)),
+                ('network_reputation','Spamhaus DROP',('ip',)),
+                ('threat_feodo','Feodo Tracker',('ip',)),
+                ('domain_lookup','Базовый DNS / RDAP',('domain',)),
+                ('domain_dns','DNS / SPF / DMARC / CAA',('domain',)),
+                ('domain_rdap','Авторитетный RDAP домена',('domain',)),
+                ('domain_certificates','Certificate Transparency',('domain',)))],
             *[SourceAdapter(source, label, kinds) for source, (label, kinds) in SOURCE_META.items() if source!='google']]
+
+
+class NetworkPublicAdapter(SourceAdapter):
+    def run(self,query,context):
+        import time
+        kwargs={'cancel_event':context.cancelled,'deadline':time.monotonic()+query.timeout}
+        if self.id=='domain_lookup':
+            from ..agent_web import lookup_domain
+            result=lookup_domain(query.text,**kwargs)
+        elif self.id=='threat_feodo':
+            from ..public_integrations import execute
+            result=execute(self.id,query.text,**kwargs)
+        else:
+            from ..network_sources import execute
+            result=execute(self.id,query.text,**kwargs)
+        result['source']=self.id
+        result['message']=' · '.join(result.get('limitations',[]))[:1000]
+        return result
 
 
 class PublicSearchAdapter(SourceAdapter):
@@ -86,6 +114,8 @@ def select_adapters(query, options, adapters=None, *, verify_runtime=True, cance
     candidates = [item for item in adapters if query.kind in item.kinds and item.id not in disabled
                   and (not selected or item.id in selected)
                   and (item.id != "snoop" or options.get("enable_snoop") or selected and "snoop" in selected)]
+    if query.kind=='network' and (query.text.upper().startswith('AS') or '/' in query.text):
+        candidates=[item for item in candidates if item.id in ('network_routing','network_rdap')]
     if query.kind != "username" or selected or not verify_runtime:
         return candidates
     from .readiness import runtime_readiness

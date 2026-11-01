@@ -96,7 +96,7 @@ def test_solvnox_requires_per_query_explicit_direction():
     ("club123", "vk", "vk", "https://vk.com/club123"),
     ("instagram.com/instagram", "instagram", "instagram", "https://www.instagram.com/instagram"),
     ("https://example.org/Path", "web", "wayback", "https://example.org/Path"),
-    ("example.org", "web", "wayback", "https://example.org/"),
+    ("example.org", "domain", "domain_lookup", "example.org"),
     ("Test@пример.рф", "email", "holehe", "Test@xn--e1afmkfd.xn--p1ai"),
     ("+7 (999) 123-45-67", "phone", "phoneinfoga", "+79991234567"),
 ])
@@ -105,7 +105,8 @@ def test_deterministic_public_inputs_and_single_relevant_adapter(text, kind, ada
     assert resolution.valid, resolution.error
     assert resolution.kind == kind and resolution.text == normalized
     selected = select_adapters(SearchQuery(resolution.text, kind), {}, default_adapters(), verify_runtime=False)
-    assert [item.id for item in selected] == (["public_web",adapter] if kind=="web" else [adapter])
+    expected = ['domain_lookup','domain_dns','domain_rdap','domain_certificates'] if kind=='domain' else ["public_web",adapter] if kind=="web" else [adapter]
+    assert [item.id for item in selected] == expected
 
 
 @pytest.mark.parametrize("text", ["person..name@example.org", "bad@host", "+70000000000", "t.me/+private", "https://t.me/c/123/1", "file:///secret"])

@@ -42,9 +42,20 @@ def route(value):
     try:
         ip = ipaddress.ip_address(value)
         return Target('infrastructure_asset', str(ip), 'ip', properties={'public': ip.is_global},
-                      tools=('ip_lookup', 'threat_feodo') if ip.is_global else ())
+                      tools=('ip_lookup', 'network_rdap', 'network_reverse_dns', 'network_routing', 'network_reputation', 'threat_feodo')
+                      if ip.is_global and not ip.is_multicast and not ip.is_reserved else ())
     except ValueError:
-        pass
+        if re.fullmatch(r'\d+(?:\.\d+){3}', value): return None
+    if '/' in value and '://' not in value:
+        try:
+            network = ipaddress.ip_network(value, strict=False)
+            public = network.is_global and not network.is_multicast and not network.is_reserved
+            return Target('network_range', str(network), 'ip', properties={'public': public, 'ip_version': network.version},
+                tools=('network_routing', 'network_rdap') if public else ())
+        except ValueError: pass
+    if re.fullmatch(r'AS[1-9][0-9]{0,9}', value, re.I):
+        if int(value[2:]) > 4294967295: return None
+        return Target('autonomous_system', value.upper(), 'asn', tools=('network_routing', 'network_rdap'))
     ton = parse_ton_address(value)
     if ton:
         return Target('blockchain_address', ton['raw'], 'ton', properties={'test_only': bool(ton.get('test_only')), 'original': value},
@@ -108,7 +119,8 @@ def route(value):
         try:
             domain = _domain(value)
             if not domain.endswith(('.local', '.localhost', '.internal', '.invalid', '.test')):
-                return Target('domain', domain, canonical_url='https://' + domain + '/', tools=('domain_lookup', 'historical_contacts', 'web_read'))
+                return Target('domain', domain, canonical_url='https://' + domain + '/',
+                    tools=('domain_lookup', 'domain_dns', 'domain_rdap', 'domain_certificates', 'historical_contacts', 'web_read'))
         except ValueError:
             pass
     if re.fullmatch(r'@?[\w.-]{1,64}', value, re.UNICODE):
@@ -127,6 +139,12 @@ def route_goal(text, attachments=()):
     values += [value.rstrip('.,;:!?\"\')') for value in re.findall(r'https?://[^\s<>]+', text)]
     values += re.findall(r'(?<![\w])(?:-?\d:[a-fA-F0-9]{64}|[A-Za-z0-9_-]{48}|0x[a-fA-F0-9]{40})(?![\w])', text)
     values += re.findall(r'img_[a-f0-9]{64}', text)
+    # Extract the whole literal before validation; never search fragments of an
+    # IPv4 number. Keep CIDR suffixes and compressed IPv6 intact.
+    values += re.findall(r'(?<![\w./])\d{1,3}(?:\.\d{1,3}){3}(?:/\d{1,2})?(?![\w./])', text)
+    values += re.findall(r'(?<![\w:])(?:[a-fA-F0-9]*:){2,}[a-fA-F0-9:.]+(?:/\d{1,3})?', text)
+    values += re.findall(r'(?i)(?<!\w)AS[1-9][0-9]{0,9}(?!\w)', text)
+    values += re.findall(r'(?<![\w@/.])(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61})\.)+[A-Za-z]{2,24}(?![\w/])', text)
     values += re.findall(r'[A-Za-z0-9.!#$%&\'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}', text)
     values += re.findall(r'(?<![\w./])@[A-Za-z][A-Za-z0-9_]{3,63}', text)
     values += re.findall(r'(?<![\d.])[+-]?\d{1,2}\.\d+\s*,\s*[+-]?\d{1,3}\.\d+(?![\d.])', text)

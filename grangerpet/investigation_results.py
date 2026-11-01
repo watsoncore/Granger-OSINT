@@ -27,6 +27,13 @@ def relevance(records, goal):
         identifier = row.get('evidence_id')
         details = row.get('details') if isinstance(row.get('details'), dict) else {}
         url = canonical_url(row.get('url', ''))
+        # Reviewed adapters carry the queried resource separately from their
+        # API URL. A RIPE prefix endpoint is relevant to its explicit IP input;
+        # a technical URL must not erase that typed relationship.
+        if row.get('type') in ('ip','domain','threat_indicator') and any(
+                isinstance(details.get(field),str) and details[field] in identifiers
+                for field in ('address','domain','resource')):
+            return {'level':'direct','score':100,'reason':'Структурированное наблюдение по точному запрошенному ресурсу; достоверность источника оценивается отдельно.','via_evidence_ids':[]}
         from .link_relevance import technical_url
         if url and url not in root_urls and technical_url(url):return None
         target = route(url)

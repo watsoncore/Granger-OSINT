@@ -94,3 +94,52 @@ dynamic-execution индикаторов. Наличие индикатора с
 Финальная приёмка, точные количества работающих источников, новый EXE и
 демонстрация возможностей ещё не выполнены. Проверки каждого этапа будут
 добавляться с явным разделением fixtures и live.
+
+## Сетевой этап: реализовано и проверено отдельно
+
+Добавлены семь операций существующего registry: `network_rdap`,
+`network_routing`, `network_reverse_dns`, `network_reputation`, `domain_dns`,
+`domain_rdap`, `domain_certificates`. Всего теперь 58 зарегистрированных
+операций; это не 58 независимых источников. Исправлены literal IPv4/IPv6/CIDR/ASN
+внутри фразы и ручной auto-поиск IP/domain. Frontier охватывает независимые
+сетевые направления, общий Wikipedia/HN fallback для этих целей отключён.
+
+Использован прежний `fetch_public`: DNS pinning, проверка каждого redirect,
+ограничение размера и отмена; внешние ключи этим операциям не передаются.
+RDAP получает сервер из официального IANA bootstrap. DNS SERVFAIL и пустой
+DROP не выдаются за отрицательный результат. Тайм-аут одного routing endpoint
+сохраняет данные остальных; кэш сохраняет исходное время наблюдения.
+
+Найдена дополнительная причина поверхностной выдачи: итоговый synthesis
+не получал сетевые поля, а relevance отбрасывал prefix endpoints как technical
+URL до проверки точного IP в структурированных данных. Исправлены оба пути.
+Добавлен читаемый сетевой профиль и реальные DNS/PTR/BGP/registry рёбра;
+они не устанавливают общего владельца. Технический API URL больше не скрывает
+сам IP/ASN/организацию в графе.
+
+Проверки: большой gate 223 passed; после уточнений сетевых ошибок и relevance
+дополнительно 81 и 79 passed (пересекающиеся наборы, не сумма уникальных тестов).
+Frontend 125 passed, production build прошёл. Baseline-ассеты/resources/profile
+92/200/66 файлов остаются побайтно прежними.
+
+Live 1 ноября 2026, через настоящий registry, без LLM и сохранённых ключей:
+восемь проверок с данными из девяти. IP `66.249.67.41`: ARIN сообщает
+GOOGLE / Google LLC, диапазон `66.249.64.0—66.249.95.255`; RIPE RIS —
+префикс `66.249.64.0/20`, AS15169 и исторические интервалы; PTR —
+`crawl-66-249-67-41.googlebot.com`. Spamhaus DROP и Feodo проверены отдельно;
+несовпадение не означает безопасность. `example.org`: расширенный DNS и
+авторитетный доменный RDAP вернули данные. crt.sh дал timeout — CT **не**
+засчитан работающим live и не представлен как отсутствие сертификатов.
+
+[Live-матрица](validation/intelligence-v1/network-live/report.json) ·
+[Профиль по сохранённым live-наблюдениям](validation/intelligence-v1/network-live/ip-profile.md).
+Это пока CLI/source-проверка; новая сборка EXE и LLM-led приёмка впереди.
+
+Основные первичные документы:
+[RIPE network-info](https://stat.ripe.net/docs/data-api/api-endpoints/network-info.html),
+[IANA RDAP](https://data.iana.org/rdap/),
+[RFC9224](https://www.rfc-editor.org/rfc/rfc9224.html),
+[Spamhaus DROP](https://www.spamhaus.org/blocklists/do-not-route-or-peer/).
+SSLMate допускает limited unauthenticated evaluation, но просит регистрацию
+для production: такой доступ не включён как автоматическая бесплатная замена
+[CT Search API](https://sslmate.com/help/reference/ct_search_api_v1).

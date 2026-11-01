@@ -700,6 +700,10 @@ class AgentRunner:
         if (not self.limits.auto_continue or self._record.get('fallback_attempts',0)>=3
                 or re.search(r'(?i)\b(?:только|исключительно|only|solely)\b',self._record.get('goal',''))):
             return False
+        from .entity_router import route_goal
+        if any(target.entity_type in ('infrastructure_asset','network_range','autonomous_system','domain')
+               for target in route_goal(self._record.get('current_focus') or self._record.get('goal',''))):
+            return False  # A failed network source is never a Wikipedia query.
         # A Telegram target is not a license to probe a similar GitHub/HN name.
         # Source pivots require actual discovered links, not generated guesses.
         if re.search(r'(?i)(https?://|\btelegram\b|\bтон\b|\bton\b|blockchain|блокчейн|кошел[её]к|geoclip|waypoint|img_[a-f0-9]+)', self._record.get('goal', '')):

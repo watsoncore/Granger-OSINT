@@ -1,0 +1,983 @@
+{
+  "entities": [
+    {
+      "id": "ent_09877fc1f0c486fd8f48d541",
+      "type": "infrastructure_asset",
+      "label": "66.249.67.41",
+      "source": [
+        "ripestat",
+        "rdap_registry",
+        "google_dns",
+        "spamhaus_drop",
+        "feodo_tracker"
+      ],
+      "attributes": {
+        "address": "66.249.67.41",
+        "asset_type": "ip",
+        "is_root": true
+      },
+      "evidence_ids": [
+        "ev_642d32a7c5f722d5aab4",
+        "ev_108a94aa722b5987848c",
+        "ev_e8e919b7357baea9794f",
+        "ev_5abfdb095fa4f040b923",
+        "ev_33ab020712accc915857",
+        "ev_21e9d1a592921fe10160",
+        "ev_c86a6651db23b2303498",
+        "ev_22864ac730ede65acca5"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_6af3adecaae3eae2e005fffd",
+      "type": "infrastructure_asset",
+      "label": "66.249.64.0/20",
+      "source": [
+        "ripestat"
+      ],
+      "attributes": {
+        "address": "66.249.64.0/20",
+        "asset_type": "cidr"
+      },
+      "evidence_ids": [
+        "ev_642d32a7c5f722d5aab4",
+        "ev_5abfdb095fa4f040b923",
+        "ev_33ab020712accc915857",
+        "ev_21e9d1a592921fe10160"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_fd0f8ccfda361e78ccc93e6c",
+      "type": "infrastructure_asset",
+      "label": "AS15169",
+      "source": [
+        "ripestat"
+      ],
+      "attributes": {
+        "address": "AS15169",
+        "asset_type": "asn",
+        "holder": "GOOGLE - Google LLC"
+      },
+      "evidence_ids": [
+        "ev_642d32a7c5f722d5aab4",
+        "ev_5abfdb095fa4f040b923"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_2584cad72647843f552ed7d9",
+      "type": "domain",
+      "label": "stat.ripe.net",
+      "source": [
+        "ripestat"
+      ],
+      "attributes": {},
+      "evidence_ids": [
+        "ev_642d32a7c5f722d5aab4",
+        "ev_5abfdb095fa4f040b923",
+        "ev_33ab020712accc915857",
+        "ev_21e9d1a592921fe10160"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_2044bee322e5e3d87554a5af",
+      "type": "source",
+      "label": "ripestat",
+      "source": [
+        "ripestat"
+      ],
+      "attributes": {
+        "url": "https://stat.ripe.net/data/network-info/data.json?resource=66.249.67.41",
+        "obtained_at": "2026-11-01T15:31:49.816412+00:00"
+      },
+      "evidence_ids": [
+        "ev_642d32a7c5f722d5aab4"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_f4b999c4ac5f0ad775179c86",
+      "type": "infrastructure_asset",
+      "label": "66.249.64.0 — 66.249.95.255",
+      "source": [
+        "rdap_registry"
+      ],
+      "attributes": {
+        "asset_type": "registered_range",
+        "start": "66.249.64.0",
+        "end": "66.249.95.255"
+      },
+      "evidence_ids": [
+        "ev_108a94aa722b5987848c"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_ad3609f95d925969371297e5",
+      "type": "organization",
+      "label": "Google LLC",
+      "source": [
+        "rdap_registry"
+      ],
+      "attributes": {
+        "registry_only": true,
+        "identity_verified": false
+      },
+      "evidence_ids": [
+        "ev_108a94aa722b5987848c"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_d24ede0ac21d885bd1a6b052",
+      "type": "domain",
+      "label": "rdap.arin.net",
+      "source": [
+        "rdap_registry"
+      ],
+      "attributes": {},
+      "evidence_ids": [
+        "ev_108a94aa722b5987848c"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_c47c51af36449f8b49b09e8d",
+      "type": "source",
+      "label": "rdap_registry",
+      "source": [
+        "rdap_registry"
+      ],
+      "attributes": {
+        "url": "https://rdap.arin.net/registry/ip/66.249.67.41",
+        "obtained_at": "2026-11-01T15:31:52.851732+00:00"
+      },
+      "evidence_ids": [
+        "ev_108a94aa722b5987848c"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_70165b76f66757ddbc214a71",
+      "type": "domain",
+      "label": "crawl-66-249-67-41.googlebot.com",
+      "source": [
+        "google_dns"
+      ],
+      "attributes": {},
+      "evidence_ids": [
+        "ev_e8e919b7357baea9794f"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_543076c9d175895d622cd271",
+      "type": "domain",
+      "label": "ent_70165b76f66757ddbc214a71",
+      "source": [
+        "google_dns"
+      ],
+      "attributes": {},
+      "evidence_ids": [
+        "ev_e8e919b7357baea9794f"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_2fdaa6319506fc0d6b0261af",
+      "type": "source",
+      "label": "google_dns",
+      "source": [
+        "google_dns"
+      ],
+      "attributes": {
+        "url": "https://dns.google/resolve?name=41.67.249.66.in-addr.arpa&type=PTR",
+        "obtained_at": "2026-11-01T15:31:53.702401+00:00"
+      },
+      "evidence_ids": [
+        "ev_e8e919b7357baea9794f"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_ae303c3704e0b599bf04f37d",
+      "type": "source",
+      "label": "ripestat",
+      "source": [
+        "ripestat"
+      ],
+      "attributes": {
+        "url": "https://stat.ripe.net/data/prefix-overview/data.json?resource=66.249.64.0%2F20",
+        "obtained_at": "2026-11-01T15:31:57.643360+00:00"
+      },
+      "evidence_ids": [
+        "ev_5abfdb095fa4f040b923"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_cb7534f3ba90fe1d27982a07",
+      "type": "source",
+      "label": "ripestat",
+      "source": [
+        "ripestat"
+      ],
+      "attributes": {
+        "url": "https://stat.ripe.net/data/routing-status/data.json?resource=66.249.64.0%2F20",
+        "obtained_at": "2026-11-01T15:31:57.644225+00:00"
+      },
+      "evidence_ids": [
+        "ev_33ab020712accc915857"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_a15e296de77a255821f28b8f",
+      "type": "source",
+      "label": "ripestat",
+      "source": [
+        "ripestat"
+      ],
+      "attributes": {
+        "url": "https://stat.ripe.net/data/routing-history/data.json?min_peers=10&resource=66.249.64.0%2F20&starttime=2026-10-02",
+        "obtained_at": "2026-11-01T15:31:57.645093+00:00"
+      },
+      "evidence_ids": [
+        "ev_21e9d1a592921fe10160"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_6e7c334f8ac422d38a82b879",
+      "type": "domain",
+      "label": "www.spamhaus.org",
+      "source": [
+        "spamhaus_drop"
+      ],
+      "attributes": {},
+      "evidence_ids": [
+        "ev_c86a6651db23b2303498"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_5690b9adc11dc8207cacaf52",
+      "type": "source",
+      "label": "spamhaus_drop",
+      "source": [
+        "spamhaus_drop"
+      ],
+      "attributes": {
+        "url": "https://www.spamhaus.org/drop/drop_v4.json",
+        "obtained_at": "2026-11-01T15:31:59.116530+00:00"
+      },
+      "evidence_ids": [
+        "ev_c86a6651db23b2303498"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_840ad2ea7b6868713ccb61ef",
+      "type": "domain",
+      "label": "feodotracker.abuse.ch",
+      "source": [
+        "feodo_tracker"
+      ],
+      "attributes": {},
+      "evidence_ids": [
+        "ev_22864ac730ede65acca5"
+      ],
+      "verification_status": "source_reported"
+    },
+    {
+      "id": "ent_328872b78fa3fc6e13096a2c",
+      "type": "source",
+      "label": "feodo_tracker",
+      "source": [
+        "feodo_tracker"
+      ],
+      "attributes": {
+        "url": "https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.json",
+        "obtained_at": "2026-11-01T15:32:00.088161+00:00"
+      },
+      "evidence_ids": [
+        "ev_22864ac730ede65acca5"
+      ],
+      "verification_status": "source_reported"
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel_e342db40debc5028628a9d11",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_6af3adecaae3eae2e005fffd",
+      "relation_type": "within_announced_prefix",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_642d32a7c5f722d5aab4",
+        "ev_5abfdb095fa4f040b923",
+        "ev_33ab020712accc915857",
+        "ev_21e9d1a592921fe10160"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {
+        "observed_field": "prefix"
+      },
+      "source_urls": [
+        "https://stat.ripe.net/data/network-info/data.json?resource=66.249.67.41",
+        "https://stat.ripe.net/data/prefix-overview/data.json?resource=66.249.64.0%2F20",
+        "https://stat.ripe.net/data/routing-status/data.json?resource=66.249.64.0%2F20",
+        "https://stat.ripe.net/data/routing-history/data.json?min_peers=10&resource=66.249.64.0%2F20&starttime=2026-10-02"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "within_announced_prefix",
+          "object": "ent_6af3adecaae3eae2e005fffd",
+          "source_url": "https://stat.ripe.net/data/network-info/data.json?resource=66.249.67.41",
+          "source_record_id": "ev_642d32a7c5f722d5aab4",
+          "observed_text_or_field": "prefix",
+          "observed_field": "prefix",
+          "extraction_method": "source_adapter",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:49.816412+00:00"
+        },
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "within_announced_prefix",
+          "object": "ent_6af3adecaae3eae2e005fffd",
+          "source_url": "https://stat.ripe.net/data/prefix-overview/data.json?resource=66.249.64.0%2F20",
+          "source_record_id": "ev_5abfdb095fa4f040b923",
+          "observed_text_or_field": "prefix",
+          "observed_field": "prefix",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:57.643360+00:00"
+        },
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "within_announced_prefix",
+          "object": "ent_6af3adecaae3eae2e005fffd",
+          "source_url": "https://stat.ripe.net/data/routing-status/data.json?resource=66.249.64.0%2F20",
+          "source_record_id": "ev_33ab020712accc915857",
+          "observed_text_or_field": "prefix",
+          "observed_field": "prefix",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:57.644225+00:00"
+        },
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "within_announced_prefix",
+          "object": "ent_6af3adecaae3eae2e005fffd",
+          "source_url": "https://stat.ripe.net/data/routing-history/data.json?min_peers=10&resource=66.249.64.0%2F20&starttime=2026-10-02",
+          "source_record_id": "ev_21e9d1a592921fe10160",
+          "observed_text_or_field": "prefix",
+          "observed_field": "prefix",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:57.645093+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_08b90732ef0c92fcb363d320",
+      "from_id": "ent_6af3adecaae3eae2e005fffd",
+      "to_id": "ent_fd0f8ccfda361e78ccc93e6c",
+      "relation_type": "announced_by",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_642d32a7c5f722d5aab4",
+        "ev_5abfdb095fa4f040b923"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {
+        "observed_field": "asns"
+      },
+      "source_urls": [
+        "https://stat.ripe.net/data/network-info/data.json?resource=66.249.67.41",
+        "https://stat.ripe.net/data/prefix-overview/data.json?resource=66.249.64.0%2F20"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_6af3adecaae3eae2e005fffd",
+          "predicate": "announced_by",
+          "object": "ent_fd0f8ccfda361e78ccc93e6c",
+          "source_url": "https://stat.ripe.net/data/network-info/data.json?resource=66.249.67.41",
+          "source_record_id": "ev_642d32a7c5f722d5aab4",
+          "observed_text_or_field": "asns",
+          "observed_field": "asns",
+          "extraction_method": "source_adapter",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:49.816412+00:00"
+        },
+        {
+          "subject": "ent_6af3adecaae3eae2e005fffd",
+          "predicate": "announced_by",
+          "object": "ent_fd0f8ccfda361e78ccc93e6c",
+          "source_url": "https://stat.ripe.net/data/prefix-overview/data.json?resource=66.249.64.0%2F20",
+          "source_record_id": "ev_5abfdb095fa4f040b923",
+          "observed_text_or_field": "asns",
+          "observed_field": "asns",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:57.643360+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_f8648f2af6ea2a6c84194049",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_2584cad72647843f552ed7d9",
+      "relation_type": "published_on_domain",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_642d32a7c5f722d5aab4",
+        "ev_5abfdb095fa4f040b923",
+        "ev_33ab020712accc915857",
+        "ev_21e9d1a592921fe10160"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://stat.ripe.net/data/network-info/data.json?resource=66.249.67.41",
+        "https://stat.ripe.net/data/prefix-overview/data.json?resource=66.249.64.0%2F20",
+        "https://stat.ripe.net/data/routing-status/data.json?resource=66.249.64.0%2F20",
+        "https://stat.ripe.net/data/routing-history/data.json?min_peers=10&resource=66.249.64.0%2F20&starttime=2026-10-02"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "published_on_domain",
+          "object": "ent_2584cad72647843f552ed7d9",
+          "source_url": "https://stat.ripe.net/data/network-info/data.json?resource=66.249.67.41",
+          "source_record_id": "ev_642d32a7c5f722d5aab4",
+          "observed_text_or_field": "url.hostname",
+          "observed_field": "url.hostname",
+          "extraction_method": "source_adapter",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:49.816412+00:00"
+        },
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "published_on_domain",
+          "object": "ent_2584cad72647843f552ed7d9",
+          "source_url": "https://stat.ripe.net/data/prefix-overview/data.json?resource=66.249.64.0%2F20",
+          "source_record_id": "ev_5abfdb095fa4f040b923",
+          "observed_text_or_field": "url.hostname",
+          "observed_field": "url.hostname",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:57.643360+00:00"
+        },
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "published_on_domain",
+          "object": "ent_2584cad72647843f552ed7d9",
+          "source_url": "https://stat.ripe.net/data/routing-status/data.json?resource=66.249.64.0%2F20",
+          "source_record_id": "ev_33ab020712accc915857",
+          "observed_text_or_field": "url.hostname",
+          "observed_field": "url.hostname",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:57.644225+00:00"
+        },
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "published_on_domain",
+          "object": "ent_2584cad72647843f552ed7d9",
+          "source_url": "https://stat.ripe.net/data/routing-history/data.json?min_peers=10&resource=66.249.64.0%2F20&starttime=2026-10-02",
+          "source_record_id": "ev_21e9d1a592921fe10160",
+          "observed_text_or_field": "url.hostname",
+          "observed_field": "url.hostname",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:57.645093+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_61a59991f6ffe7ae26e69a23",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_2044bee322e5e3d87554a5af",
+      "relation_type": "supported_by",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_642d32a7c5f722d5aab4"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://stat.ripe.net/data/network-info/data.json?resource=66.249.67.41"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "supported_by",
+          "object": "ent_2044bee322e5e3d87554a5af",
+          "source_url": "https://stat.ripe.net/data/network-info/data.json?resource=66.249.67.41",
+          "source_record_id": "ev_642d32a7c5f722d5aab4",
+          "observed_text_or_field": "evidence_id",
+          "observed_field": "evidence_id",
+          "extraction_method": "source_adapter",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:49.816412+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_e836ad595d95d3e8d6b940b2",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_f4b999c4ac5f0ad775179c86",
+      "relation_type": "within_registered_range",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_108a94aa722b5987848c"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {
+        "observed_field": "startAddress,endAddress"
+      },
+      "source_urls": [
+        "https://rdap.arin.net/registry/ip/66.249.67.41"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "within_registered_range",
+          "object": "ent_f4b999c4ac5f0ad775179c86",
+          "source_url": "https://rdap.arin.net/registry/ip/66.249.67.41",
+          "source_record_id": "ev_108a94aa722b5987848c",
+          "observed_text_or_field": "startAddress,endAddress",
+          "observed_field": "startAddress,endAddress",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:52.851732+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_4e6a7dfff7e7486319a48e50",
+      "from_id": "ent_f4b999c4ac5f0ad775179c86",
+      "to_id": "ent_ad3609f95d925969371297e5",
+      "relation_type": "registered_to",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_108a94aa722b5987848c"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {
+        "observed_field": "registry_entities"
+      },
+      "source_urls": [
+        "https://rdap.arin.net/registry/ip/66.249.67.41"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_f4b999c4ac5f0ad775179c86",
+          "predicate": "registered_to",
+          "object": "ent_ad3609f95d925969371297e5",
+          "source_url": "https://rdap.arin.net/registry/ip/66.249.67.41",
+          "source_record_id": "ev_108a94aa722b5987848c",
+          "observed_text_or_field": "registry_entities",
+          "observed_field": "registry_entities",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:52.851732+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_57907cd1b1f4e932464415e9",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_d24ede0ac21d885bd1a6b052",
+      "relation_type": "published_on_domain",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_108a94aa722b5987848c"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://rdap.arin.net/registry/ip/66.249.67.41"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "published_on_domain",
+          "object": "ent_d24ede0ac21d885bd1a6b052",
+          "source_url": "https://rdap.arin.net/registry/ip/66.249.67.41",
+          "source_record_id": "ev_108a94aa722b5987848c",
+          "observed_text_or_field": "url.hostname",
+          "observed_field": "url.hostname",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:52.851732+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_fc067d3e6d17fcfb948dfef6",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_c47c51af36449f8b49b09e8d",
+      "relation_type": "supported_by",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_108a94aa722b5987848c"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://rdap.arin.net/registry/ip/66.249.67.41"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "supported_by",
+          "object": "ent_c47c51af36449f8b49b09e8d",
+          "source_url": "https://rdap.arin.net/registry/ip/66.249.67.41",
+          "source_record_id": "ev_108a94aa722b5987848c",
+          "observed_text_or_field": "evidence_id",
+          "observed_field": "evidence_id",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:52.851732+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_8516fa62c0bcb5fa9cdbe577",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_70165b76f66757ddbc214a71",
+      "relation_type": "reverse_dns_reports",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_e8e919b7357baea9794f"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {
+        "observed_field": "answers[].value"
+      },
+      "source_urls": [
+        "https://dns.google/resolve?name=41.67.249.66.in-addr.arpa&type=PTR"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "reverse_dns_reports",
+          "object": "ent_70165b76f66757ddbc214a71",
+          "source_url": "https://dns.google/resolve?name=41.67.249.66.in-addr.arpa&type=PTR",
+          "source_record_id": "ev_e8e919b7357baea9794f",
+          "observed_text_or_field": "answers[].value",
+          "observed_field": "answers[].value",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:53.702401+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_f4669f9300475839fdf33b61",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_543076c9d175895d622cd271",
+      "relation_type": "published_on_domain",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_e8e919b7357baea9794f"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://dns.google/resolve?name=41.67.249.66.in-addr.arpa&type=PTR"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "published_on_domain",
+          "object": "ent_543076c9d175895d622cd271",
+          "source_url": "https://dns.google/resolve?name=41.67.249.66.in-addr.arpa&type=PTR",
+          "source_record_id": "ev_e8e919b7357baea9794f",
+          "observed_text_or_field": "url.hostname",
+          "observed_field": "url.hostname",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:53.702401+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_830c4aefd00ccc887edf1ae2",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_2fdaa6319506fc0d6b0261af",
+      "relation_type": "supported_by",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_e8e919b7357baea9794f"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://dns.google/resolve?name=41.67.249.66.in-addr.arpa&type=PTR"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "supported_by",
+          "object": "ent_2fdaa6319506fc0d6b0261af",
+          "source_url": "https://dns.google/resolve?name=41.67.249.66.in-addr.arpa&type=PTR",
+          "source_record_id": "ev_e8e919b7357baea9794f",
+          "observed_text_or_field": "evidence_id",
+          "observed_field": "evidence_id",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:53.702401+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_1db90f16f39126d9933cc357",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_ae303c3704e0b599bf04f37d",
+      "relation_type": "supported_by",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_5abfdb095fa4f040b923"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://stat.ripe.net/data/prefix-overview/data.json?resource=66.249.64.0%2F20"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "supported_by",
+          "object": "ent_ae303c3704e0b599bf04f37d",
+          "source_url": "https://stat.ripe.net/data/prefix-overview/data.json?resource=66.249.64.0%2F20",
+          "source_record_id": "ev_5abfdb095fa4f040b923",
+          "observed_text_or_field": "evidence_id",
+          "observed_field": "evidence_id",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:57.643360+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_535c33cf1bc6a767ef6b4f8b",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_cb7534f3ba90fe1d27982a07",
+      "relation_type": "supported_by",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_33ab020712accc915857"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://stat.ripe.net/data/routing-status/data.json?resource=66.249.64.0%2F20"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "supported_by",
+          "object": "ent_cb7534f3ba90fe1d27982a07",
+          "source_url": "https://stat.ripe.net/data/routing-status/data.json?resource=66.249.64.0%2F20",
+          "source_record_id": "ev_33ab020712accc915857",
+          "observed_text_or_field": "evidence_id",
+          "observed_field": "evidence_id",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:57.644225+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_3e130c978124e1ea80d7c0c3",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_a15e296de77a255821f28b8f",
+      "relation_type": "supported_by",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_21e9d1a592921fe10160"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://stat.ripe.net/data/routing-history/data.json?min_peers=10&resource=66.249.64.0%2F20&starttime=2026-10-02"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "supported_by",
+          "object": "ent_a15e296de77a255821f28b8f",
+          "source_url": "https://stat.ripe.net/data/routing-history/data.json?min_peers=10&resource=66.249.64.0%2F20&starttime=2026-10-02",
+          "source_record_id": "ev_21e9d1a592921fe10160",
+          "observed_text_or_field": "evidence_id",
+          "observed_field": "evidence_id",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:57.645093+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_116e353a25bc785580f6cb28",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_6e7c334f8ac422d38a82b879",
+      "relation_type": "published_on_domain",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_c86a6651db23b2303498"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://www.spamhaus.org/drop/drop_v4.json"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "published_on_domain",
+          "object": "ent_6e7c334f8ac422d38a82b879",
+          "source_url": "https://www.spamhaus.org/drop/drop_v4.json",
+          "source_record_id": "ev_c86a6651db23b2303498",
+          "observed_text_or_field": "url.hostname",
+          "observed_field": "url.hostname",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:59.116530+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_ebb6de1fe42902bc8f7a48fa",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_5690b9adc11dc8207cacaf52",
+      "relation_type": "supported_by",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_c86a6651db23b2303498"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://www.spamhaus.org/drop/drop_v4.json"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "supported_by",
+          "object": "ent_5690b9adc11dc8207cacaf52",
+          "source_url": "https://www.spamhaus.org/drop/drop_v4.json",
+          "source_record_id": "ev_c86a6651db23b2303498",
+          "observed_text_or_field": "evidence_id",
+          "observed_field": "evidence_id",
+          "extraction_method": "public_api",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:31:59.116530+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_1c838d02a8bb247015de0f2f",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_840ad2ea7b6868713ccb61ef",
+      "relation_type": "published_on_domain",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_22864ac730ede65acca5"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.json"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "published_on_domain",
+          "object": "ent_840ad2ea7b6868713ccb61ef",
+          "source_url": "https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.json",
+          "source_record_id": "ev_22864ac730ede65acca5",
+          "observed_text_or_field": "url.hostname",
+          "observed_field": "url.hostname",
+          "extraction_method": "open_dataset",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:32:00.088161+00:00"
+        }
+      ]
+    },
+    {
+      "id": "rel_73cd7b38962485f78a806f9f",
+      "from_id": "ent_09877fc1f0c486fd8f48d541",
+      "to_id": "ent_328872b78fa3fc6e13096a2c",
+      "relation_type": "supported_by",
+      "direction": "directed",
+      "evidence_ids": [
+        "ev_22864ac730ede65acca5"
+      ],
+      "verification_status": "source_reported",
+      "claim_kind": "source_reported",
+      "attributes": {},
+      "source_urls": [
+        "https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.json"
+      ],
+      "provenance": [
+        {
+          "subject": "ent_09877fc1f0c486fd8f48d541",
+          "predicate": "supported_by",
+          "object": "ent_328872b78fa3fc6e13096a2c",
+          "source_url": "https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.json",
+          "source_record_id": "ev_22864ac730ede65acca5",
+          "observed_text_or_field": "evidence_id",
+          "observed_field": "evidence_id",
+          "extraction_method": "open_dataset",
+          "verification_status": "source_reported",
+          "observed_at": "2026-11-01T15:32:00.088161+00:00"
+        }
+      ]
+    }
+  ],
+  "total_entities": 19,
+  "total_relations": 18,
+  "next_offset": null,
+  "evidence_ids": [
+    "ev_108a94aa722b5987848c",
+    "ev_21e9d1a592921fe10160",
+    "ev_22864ac730ede65acca5",
+    "ev_33ab020712accc915857",
+    "ev_5abfdb095fa4f040b923",
+    "ev_642d32a7c5f722d5aab4",
+    "ev_c86a6651db23b2303498",
+    "ev_e8e919b7357baea9794f"
+  ],
+  "root_id": "ent_09877fc1f0c486fd8f48d541",
+  "source_records_examined": 8,
+  "truncated_input": false,
+  "technical_exclusions": [],
+  "relations_truncated": false,
+  "invalid_fields": 0,
+  "warnings": [
+    "Граф отражает основания источников. Одинаковый никнейм, метка сервиса и model score не устанавливают общую личность."
+  ]
+}

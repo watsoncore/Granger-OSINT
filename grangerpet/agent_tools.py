@@ -114,6 +114,13 @@ _SPECS += (
     ToolSpec('arctic_comments','public19','reddit','query','Arctic Shift: исторические комментарии Reddit по author/subreddit, времени и лимиту20; без массового скачивания дампов и без персональных ключей.',input_schema=_PUBLIC19_INPUTS['arctic_comments'],execution_mode='PUBLIC_API_NO_KEY',documentation_url='https://github.com/ArthurHeitmann/arctic_shift',category='archives'),
     ToolSpec('nuclei_check','public19','active_security','target','Nuclei: только один HEAD-запрос к явно подтверждённому своему origin. Наблюдает статус и наличие HTTP-заголовков, не устанавливает уязвимость. Выключен по умолчанию; каждую цель подтверждает пользователь.',True,input_schema=_PUBLIC19_INPUTS['nuclei_check'],execution_mode='LOCAL_CLI',documentation_url='https://github.com/projectdiscovery/nuclei',category='security'),
 )
+from .network_sources import TOOLS as _NETWORK_TOOLS
+_SPECS += tuple(ToolSpec(name, 'network_public', kind, argument, description,
+    max_length=253, execution_mode='PUBLIC_API_NO_KEY', category='infrastructure',
+    documentation_url='https://www.iana.org/assignments/rdap-ipv4' if 'rdap' in name else
+        'https://www.spamhaus.org/blocklists/do-not-route-or-peer/' if name=='network_reputation' else
+        'https://crt.sh/' if name=='domain_certificates' else 'https://stat.ripe.net/docs/')
+    for name,(kind,argument,description) in _NETWORK_TOOLS.items())
 _BY_NAME={spec.name:spec for spec in _SPECS}
 _AUTH = {"telegram": ("telegram_api_hash", "telegram_session"), "vk": ("vk_token",), "instagram": ("instagram_session",)}
 _BASE_OPTIONS = ("source_root", "tools_root", "runtime_python", "telegram_api_id", "instagram_username", "google_cx", "api_cx", "enable_snoop", "profile_sites")
@@ -206,10 +213,25 @@ class ToolRegistry:
                 calls.append({'name': name, 'arguments': args})
             if len(calls) >= 3:
                 break
-        return calls
+        # Cover independent technical branches before a broad search. Existing
+        # three-call seed budget is shared across targets, not multiplied.
+        for target in route_goal(goal):
+            if target.entity_type not in ('infrastructure_asset','network_range','autonomous_system','domain'): continue
+            if target.entity_type=='domain': self.web_reader.seed_urls_from_user(target.canonical_url)
+            for name in target.tools[1:3]:
+                spec=_BY_NAME.get(name)
+                if spec and not spec.requires_approval:
+                    call={'name':name,'arguments':{spec.argument:target.identifier}}
+                    if call not in calls: calls.append(call)
+        return calls[:3]
 
     def canonical_arguments(self, name, args):
         from .investigation_progress import normalized_arguments
+        if name in _NETWORK_TOOLS and isinstance(args,dict):
+            from .network_sources import validate
+            field=_NETWORK_TOOLS[name][1]
+            try: args={**args,field:validate(name,args.get(field))}
+            except (ValueError,TypeError): pass
         if name=='blockchain_gansar':
             args={**args}
             args.setdefault('operation','profile');args.setdefault('chain','auto');args.setdefault('mode',self.settings.research_mode)
@@ -259,6 +281,11 @@ class ToolRegistry:
             if re.search(pattern,goal):operations.append(operation)
         calls=[]
         for target in route_goal(goal):
+            if target.entity_type in ('infrastructure_asset','network_range','autonomous_system','domain'):
+                for name in target.tools:
+                    spec=_BY_NAME.get(name)
+                    if spec and not spec.requires_approval and name not in ('historical_contacts','web_read'):
+                        calls.append({'name':name,'arguments':{spec.argument:target.identifier}})
             if 'blockchain_gansar' not in target.tools:continue
             for operation in operations:
                 if operation=='identity' and target.platform not in ('eth','evm'):continue
@@ -319,6 +346,7 @@ class ToolRegistry:
         # An overall investigation deadline still takes precedence.
         if name=='blockchain_gansar':return max(requested,260)
         if name=='geoint_research':return max(requested,180)
+        if name in _NETWORK_TOOLS:return max(requested,40)
         return max(requested,240 if name=='visual_geoint' else 180) if spec and spec.execution_mode=='LOCAL_MODEL' else requested
 
     def _secret(self, name):
@@ -370,6 +398,8 @@ class ToolRegistry:
             return base
         if spec.source == "web_read":
             base.update(available=True, state="unverified", reason="Прямое чтение обнаруженных публичных URL; DNS и каждый переход проверяются при запросе.")
+        elif spec.source == 'network_public':
+            base.update(available=True, state='unverified', reason='Пассивные публичные HTTPS-источники; доступ и результат подтверждаются только выполнением.')
         elif spec.source == 'telegram_preview':
             base.update(available=True, state='ready', reason='Публичная страница/превью без ключа и сессии; доступ проверяется запросом. Авторизованный режим требует отдельного подтверждения.')
         elif spec.source=='local19':
@@ -555,6 +585,9 @@ class ToolRegistry:
         if type(limit) is not int or not 1 <= limit <= maximum:
             raise ValueError("Лимит результата вне допустимого диапазона.")
         options = self._source_options(spec.source)
+        if spec.source == 'network_public':
+            from .network_sources import validate
+            return validate(spec.name,value),limit,options,None
         if spec.kind in ('image','coordinates'):
             if spec.kind=='image':
                 if not re.fullmatch(r'img_[a-f0-9]{64}',value) or value not in self._attachment_ids:
@@ -725,6 +758,9 @@ class ToolRegistry:
                 outcome = self.web_reader.read(value, cancel_event=cancelled, deadline=deadline)
             elif spec.source == "web_search":
                 outcome = self._web().search(value, limit=limit, cancel_event=cancelled, deadline=deadline)
+            elif spec.source == 'network_public':
+                from .network_sources import execute
+                outcome=execute(spec.name,value,cancel_event=cancelled,deadline=deadline)
             elif spec.source in ("domain_lookup", "ip_lookup"):
                 from .agent_web import lookup_domain, lookup_ip
                 outcome = (lookup_domain if spec.source == "domain_lookup" else lookup_ip)(value, cancel_event=cancelled, deadline=deadline)
@@ -749,9 +785,12 @@ class ToolRegistry:
             for raw in outcome.get("results", [])[:limit]:
                 receive(raw)
             status = str(outcome.get("status", "error"))
-            if spec.source=='blockchain' and isinstance(outcome.get('source_diagnostics'),dict):
+            if spec.source in ('blockchain','network_public') and isinstance(outcome.get('source_diagnostics'),(dict,list)):
                 envelope['source_diagnostics']=redact(outcome['source_diagnostics'],self._redactions)
                 envelope['from_saved_data']=outcome.get('from_saved_data') is True
+            if spec.source=='network_public':
+                envelope['operation']=outcome.get('operation',spec.name)
+                envelope['input_parameters']=deepcopy(outcome.get('input_parameters',{}))
             allowed = {"complete", "completed", "partial", "empty", "error", "timeout", "cancelled", "unavailable", "auth_required", "blocked", "limit_reached", "rate_limited", "invalid_arguments", 'approval_required', 'approval_denied'}
             envelope["status"] = status if status in allowed else "error"
             if contract_errors:

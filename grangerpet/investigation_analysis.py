@@ -160,7 +160,9 @@ def analyze(snapshot):
         # Never add that aggregate to its constituent transfer rows.
         result = computed.get(key) if computed.get(key, {}).get('unique_events', 0) > local['unique_events'] else local
         chains['|'.join(key)] = result
+    from .network_report import profiles
     return {'version': 1, 'goal': goal, 'evidence_examined': len(rows), 'relevant_evidence': len(relevant),
+        'network_profiles':profiles(relevant),
         'blockchain': chains, 'assets': list(assets.values()), 'scenes': scenes,'image_observations':image_observations,
         'geographic_candidates': list(candidates.values()), 'reference_images':references, 'facts': facts,
         'contradictions': contradictions, 'coverage': 'saved_observations_only',
@@ -175,6 +177,7 @@ def model_context(analysis):
     value = {key: deepcopy(analysis[key]) for key in ('goal', 'evidence_examined', 'coverage', 'scenes',
         'geographic_candidates', 'contradictions', 'unresolved_questions', 'source_failures')}
     value['image_observations']=deepcopy(analysis.get('image_observations',[]))
+    value['network_profiles']=deepcopy(analysis.get('network_profiles',[]))
     value['reference_images']=[{**{key:item for key,item in row.items() if key!='comparison'},
         'comparison':{key:row.get('comparison',{}).get(key) for key in ('status','match_count','geometry','spatial_coverage','support_kind','geolocation_verified','score_calibrated','interpretation')}
         } for row in analysis.get('reference_images',[])[:12]]
@@ -217,7 +220,8 @@ def _source(row):
 
 def report_header(analysis):
     """Essential locally verified counts stay visible even if prose omits them."""
-    lines = []
+    from .network_report import markdown
+    lines = [markdown(analysis.get('network_profiles',[]))] if analysis.get('network_profiles') else []
     for data in analysis['blockchain'].values():
         direction = data.get('directions', {})
         lines += [f"**Наблюдаемая выборка: {data['unique_events']} событий, {data['unique_counterparties']} уникальных контрагентов.** "
@@ -252,6 +256,8 @@ def factual_report(analysis, *, reason='', language_unavailable=False):
     lines = []
     if language_unavailable:
         lines += ['Языковой анализ недоступен. Ниже — фактический отчёт, рассчитанный локально по сохранённым данным.', '']
+    from .network_report import markdown
+    if analysis.get('network_profiles'):lines += [markdown(analysis['network_profiles']), '']
     for data in analysis['blockchain'].values():
         direction = data.get('directions', {})
         lines += ['## Анализ операций', '',
@@ -299,9 +305,9 @@ def factual_report(analysis, *, reason='', language_unavailable=False):
         for row in analysis['geographic_candidates']:
             lines.append(f"| {row['latitude']}, {row['longitude']} | {_cell(row['source_model'])} | Модельная гипотеза, место не подтверждено |")
     if not analysis['blockchain'] and not analysis['scenes']:
-        facts = analysis['facts']
-        lines += ['## Результат проверки', '']
-        if not facts:
+        facts = [f for f in analysis['facts'] if not analysis.get('network_profiles') or f.get('kind') not in ('ip','domain','threat_indicator')]
+        if facts or not analysis.get('network_profiles'):lines += ['## Результат проверки', '']
+        if not facts and not analysis.get('network_profiles'):
             lines.append('Пригодных доказательств не получено. Доступные источники не позволяют ответить на поставленный вопрос; это не доказывает отсутствие сведений в интернете.')
         for row in facts:
             lines.append(f"- {_cell(row['title'])}: {_cell(row['description'])}. {_source(row)}")

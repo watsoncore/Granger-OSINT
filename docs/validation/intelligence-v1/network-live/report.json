@@ -1,0 +1,165 @@
+{
+  "at": "2026-11-01T15:32:17.371588+00:00",
+  "test_type": "live",
+  "llm_requests": 0,
+  "saved_user_keys_used": false,
+  "checks": [
+    {
+      "tool": "ip_lookup",
+      "arguments": {
+        "address": "66.249.67.41"
+      },
+      "status": "complete",
+      "observed_at": "2026-11-01T15:31:49.824853+00:00",
+      "records": 1,
+      "seconds": 1.171,
+      "error_code": null,
+      "limitations": [
+        "ASN и префикс — сведения о сети, не точный адрес или личность пользователя. Порты не сканировались.",
+        "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+      ],
+      "test_type": "live HTTPS via production registry"
+    },
+    {
+      "tool": "network_rdap",
+      "arguments": {
+        "resource": "66.249.67.41"
+      },
+      "status": "complete",
+      "observed_at": "2026-11-01T15:31:52.852564+00:00",
+      "records": 1,
+      "seconds": 3.028,
+      "error_code": null,
+      "limitations": [
+        "Пассивные публичные наблюдения; порты не сканировались. Оператор диапазона, сервис и пользователь — разные сущности.",
+        "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+      ],
+      "test_type": "live HTTPS via production registry"
+    },
+    {
+      "tool": "network_reverse_dns",
+      "arguments": {
+        "address": "66.249.67.41"
+      },
+      "status": "complete",
+      "observed_at": "2026-11-01T15:31:53.703126+00:00",
+      "records": 1,
+      "seconds": 0.851,
+      "error_code": null,
+      "limitations": [
+        "Пассивные публичные наблюдения; порты не сканировались. Оператор диапазона, сервис и пользователь — разные сущности.",
+        "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+      ],
+      "test_type": "live HTTPS via production registry"
+    },
+    {
+      "tool": "network_routing",
+      "arguments": {
+        "resource": "66.249.67.41"
+      },
+      "status": "complete",
+      "observed_at": "2026-11-01T15:31:57.646698+00:00",
+      "records": 3,
+      "seconds": 3.944,
+      "error_code": null,
+      "limitations": [
+        "Пассивные публичные наблюдения; порты не сканировались. Оператор диапазона, сервис и пользователь — разные сущности.",
+        "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+      ],
+      "test_type": "live HTTPS via production registry"
+    },
+    {
+      "tool": "network_reputation",
+      "arguments": {
+        "address": "66.249.67.41"
+      },
+      "status": "complete",
+      "observed_at": "2026-11-01T15:31:59.117183+00:00",
+      "records": 1,
+      "seconds": 1.468,
+      "error_code": null,
+      "limitations": [
+        "Пассивные публичные наблюдения; порты не сканировались. Оператор диапазона, сервис и пользователь — разные сущности.",
+        "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+      ],
+      "test_type": "live HTTPS via production registry"
+    },
+    {
+      "tool": "threat_feodo",
+      "arguments": {
+        "address": "66.249.67.41"
+      },
+      "status": "complete",
+      "observed_at": "2026-11-01T15:32:00.088766+00:00",
+      "records": 1,
+      "seconds": 0.972,
+      "error_code": null,
+      "limitations": [
+        "Сведения относятся к ответу конкретного источника. Нулевой результат не устанавливает безопасность или личность.",
+        "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+      ],
+      "test_type": "live HTTPS via production registry"
+    },
+    {
+      "tool": "domain_dns",
+      "arguments": {
+        "domain": "example.org"
+      },
+      "status": "complete",
+      "observed_at": "2026-11-01T15:32:03.609732+00:00",
+      "records": 5,
+      "seconds": 3.522,
+      "error_code": null,
+      "limitations": [
+        "Пассивные публичные наблюдения; порты не сканировались. Оператор диапазона, сервис и пользователь — разные сущности.",
+        "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+      ],
+      "test_type": "live HTTPS via production registry"
+    },
+    {
+      "tool": "domain_rdap",
+      "arguments": {
+        "domain": "example.org"
+      },
+      "status": "complete",
+      "observed_at": "2026-11-01T15:32:06.387624+00:00",
+      "records": 1,
+      "seconds": 2.777,
+      "error_code": null,
+      "limitations": [
+        "Пассивные публичные наблюдения; порты не сканировались. Оператор диапазона, сервис и пользователь — разные сущности.",
+        "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+      ],
+      "test_type": "live HTTPS via production registry"
+    },
+    {
+      "tool": "domain_certificates",
+      "arguments": {
+        "domain": "example.org"
+      },
+      "status": "timeout",
+      "observed_at": "2026-11-01T15:32:17.357104+00:00",
+      "records": 0,
+      "seconds": 10.969,
+      "error_code": "timeout",
+      "limitations": [
+        "Пассивные публичные наблюдения; порты не сканировались. Оператор диапазона, сервис и пользователь — разные сущности.",
+        "domain_certificates: timeout",
+        "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+      ],
+      "test_type": "live HTTPS via production registry"
+    }
+  ],
+  "mandatory_passed": true,
+  "live_sources_with_records": [
+    "feodo_tracker",
+    "google_dns",
+    "rdap_registry",
+    "ripestat",
+    "spamhaus_drop"
+  ],
+  "limitations": [
+    "External source availability is time-specific; CT timeout is not a negative certificate result.",
+    "This CLI is not a native EXE test or an LLM-led investigation."
+  ]
+}
