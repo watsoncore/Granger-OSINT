@@ -175,6 +175,11 @@ class WebSearchProvider:
         if not isinstance(query, str) or not 1 <= len(query.strip()) <= 300 or any(ord(c) < 32 for c in query) or type(limit) is not int or not 1 <= limit <= 10:
             return _envelope("web_search", "", status="invalid_arguments", error_code="invalid_query")
         query = query.strip()
+        from .entity_router import route
+        target=route(query)
+        if target and target.entity_type in ('infrastructure_asset','network_range','autonomous_system'):
+            return _envelope('web_search',query,status='invalid_arguments',error_code='specialized_network_lookup_required',
+                limitations=['Для точного IP/CIDR/ASN используйте сетевые операции registry; числовой поиск по общим индексам не выполнялся.'])
         if self.provider == 'public_sources':
             from .public_sources import search
             return search(query,limit=limit,cancel_event=cancel_event,deadline=deadline,client_factory=self._factory,agent_model=self._model)

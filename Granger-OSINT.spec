@@ -39,7 +39,7 @@ a = Analysis(
            (str(root / "grangerpet/integrations19/classification_rules.json"), "grangerpet/integrations19"),
            (str(resources / "ocr"), "resources/ocr")] + [
         (str(path), "grangerpet/engine") for path in (root / "grangerpet" / "engine").glob("*.py")
-    ] + copy_metadata("httpx") + copy_metadata("Pillow") + copy_metadata("cryptography"),
+    ] + [(str(root / "grangerpet" / name), "grangerpet") for name in ("browser_worker.py", "browser_policy.py", "browser_proxy.py")] + copy_metadata("httpx") + copy_metadata("Pillow") + copy_metadata("cryptography"),
     hiddenimports=["PySide6.QtWebEngineCore", "PySide6.QtWebEngineWidgets", "PySide6.QtWebChannel",
                    "pdb", "pydoc", "doctest", "symtable", "fileinput", "pickletools", "codeop", "unittest.mock"] +
                   [name for package in ("unittest", "asyncio", "multiprocessing", "xml", "importlib.resources", "zoneinfo")

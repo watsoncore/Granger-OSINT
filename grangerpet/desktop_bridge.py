@@ -392,6 +392,9 @@ class DesktopBridge(QObject):
                 'cursorReaction':settings.cursor_reaction,'error':self.host.status.text() if state=='error' else ''})
             return base
         chat = self.host.chat_widget
+        registry=getattr(chat,'_agent_registry',None)
+        browser_state=getattr(registry,'browser_state',None)
+        base['browser']=browser_state() if callable(browser_state) else {}
         current_id=chat._last_investigation.get('id','')
         if current_id and current_id!=self._seen_chat_investigation:
             self._seen_chat_investigation=current_id
@@ -630,9 +633,14 @@ class DesktopBridge(QObject):
                 chat.set_image_attachments(records,store)
                 self._attachments=[row for row in self._attachments if row['id'] not in ids]
             chat.input.setPlainText(text)
+            chat._image_store_provider=self._images
             chat.send_message()
             self.route='chat'
         elif action=='chat_stop': chat.cancel()
+        elif action=='browser_stop':
+            registry=getattr(chat,'_agent_registry',None)
+            if registry is not None:registry.close()
+            if chat.busy:chat.cancel()
         elif action in ('attachment_choose','attachment_import','attachment_remove','attachment_cancel'):
             return self._attachment_action(action,payload)
         elif action=='chat_new': chat.new_conversation(); self._history_time=0

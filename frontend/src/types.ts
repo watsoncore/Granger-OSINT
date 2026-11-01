@@ -219,6 +219,7 @@ export interface DesktopState {
     results: Record<string, unknown>[]
   }
   tools: Tool[]
+  browser?: {status?:string;url?:string;title?:string;image?:string;snapshot_id?:string;error_code?:string;actions?:{action:string;target:string;at:string;status:string}[]}
   toolsChecking?: boolean
   settingsCategory?: 'ai' | 'tools' | 'investigation' | 'interface' | 'hermione' | 'notifications' | 'privacy'
   credentials?: Record<string, boolean>

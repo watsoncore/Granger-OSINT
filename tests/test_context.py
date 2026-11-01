@@ -6,7 +6,30 @@ from grangerpet.agent import AgentRunner
 from grangerpet.agent_evidence import normalize_evidence
 from grangerpet.agent_tools import ToolRegistry
 from grangerpet.config import Settings
-from grangerpet.context import conversation_context, relevant_excerpt
+from grangerpet.context import conversation_context, relevant_excerpt,is_social_turn
+
+
+def test_social_turn_does_not_inherit_investigation_or_provider_failures():
+    from grangerpet.chat import investigation_requested
+    for current in ('Привет, Гермиона!','Как твои дела?','Чем занимаешься?',
+                    'Ты на меня злишься?','Расскажи ещё что-нибудь интересное'):
+        rows=[{'role':'user','text':'Исследуй @solvnox и Apple'},
+              {'role':'model','text':'429. Ошибка провайдера. @solvnox не проверен.','investigation_id':'old'},
+              {'role':'user','text':'Привет, Гермиона!'}, {'role':'model','text':'Привет! Рада тебя видеть.'},
+              {'role':'user','text':current}]
+        original=deepcopy(rows)
+        selected=conversation_context(rows,current)
+        assert is_social_turn(current) and not investigation_requested(current)
+        assert 'solvnox' not in str(selected) and '429' not in str(selected)
+        assert selected[-1]['text']==current and rows==original
+
+
+def test_greeting_with_research_remains_explicit_task_and_followup_is_not_social():
+    from grangerpet.chat import investigation_requested
+    for text in ('Привет, проверь IP 66.249.67.41','Гермиона, открой https://example.org',
+                 'Расскажи ещё об исследовании @solvnox'):
+        assert not is_social_turn(text)
+    assert investigation_requested('Привет, проверь IP 66.249.67.41')
 
 
 def test_old_user_requirements_and_relevant_facts_survive_beyond_twenty_four_turns():

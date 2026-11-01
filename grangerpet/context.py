@@ -4,6 +4,17 @@ from __future__ import annotations
 import re
 
 
+def is_social_turn(text):
+    """Conservative whole-turn match; a greeting plus a task is still a task."""
+    text=str(text or '').casefold().replace('ё','е').strip()
+    text=re.sub(r'\b(?:гермиона|hermione)\b','',text)
+    text=re.sub(r'[!?.,:;—–-]+',' ',text)
+    text=' '.join(text.split())
+    greeting=r'(?:привет(?:ик)?|здравствуй(?:те)?|доброе утро|добрый (?:день|вечер)|hello|hi)'
+    question=r'(?:как (?:твои дела|ты|дела)|что (?:ты делаешь|делаешь)|чем (?:ты )?занимаешься|ты на меня злишься|расскажи (?:мне )?(?:еще )?что\s*нибудь интересное|спасибо(?: тебе)?|спокойной ночи|пока)'
+    return bool(re.fullmatch(r'(?:(?:'+greeting+r')\s+)?(?:'+question+r')|'+greeting,text))
+
+
 def terms(text):
     return {value for value in re.findall(r'[\w@.-]{4,}', str(text).casefold())
             if value not in {'пользователь', 'гермиона', 'публичные', 'публичных', 'проверь', 'найди',
@@ -37,6 +48,16 @@ def conversation_context(messages, query='', *, max_chars=18000, recent=8):
             and isinstance(row.get('text',row.get('content')), str)]
     if not rows:
         return []
+    current=query or rows[-1].get('text',rows[-1].get('content',''))
+    if is_social_turn(current):
+        # Select complete social turns only. Full research and failures stay in
+        # the archive, without becoming background facts of a casual answer.
+        social=[];keep=False
+        for row in rows:
+            if row['role']=='user':keep=is_social_turn(row.get('text',row.get('content','')))
+            if keep and not row.get('investigation_id') and not row.get('error'):
+                social.append(row)
+        rows=social[-recent:] or [rows[-1]]
     constraints = re.compile(r'(?iu)(?:не\s+(?:использ|делай|запуск|передава|отправ|меня|публику|расход)|без\s+(?:поиска|платн|инструмент)|бюджет|не\s+более|обязатель|сохрани|ограничени|\bnever\b|\bdo not\b|\bmust\b|\bbudget\b)')
     user_indices = [index for index,row in enumerate(rows) if row['role']=='user']
     if user_indices:

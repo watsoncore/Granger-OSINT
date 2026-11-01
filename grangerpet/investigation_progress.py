@@ -15,7 +15,7 @@ _TELEMETRY = frozenset(('query', 'original_query', 'retrieved_at', 'obtained_at'
     'acquisition', 'agent_tool', 'source_confirmations', 'preview', 'base64',
     'content_excerpt', 'content_length', 'content_total_chars', 'observations'))
 
-_TELEMETRY=_TELEMETRY|frozenset(('collected_at','observed_at','source_observed_at','cache_hit','source_diagnostics'))
+_TELEMETRY=_TELEMETRY|frozenset(('collected_at','observed_at','source_observed_at','cache_hit','source_diagnostics','snapshot_id','viewport','screenshot_sha256','screenshot_attachment_id','browser_action','elements','visual_access'))
 
 
 def normalized_arguments(name, arguments, default_limit=None):

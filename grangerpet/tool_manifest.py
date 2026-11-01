@@ -69,6 +69,7 @@ def manifest(spec):
     if spec.execution_mode=='PUBLIC_API_NO_KEY':mode='OFFICIAL_API'
     elif spec.execution_mode=='PERMITTED_HTTP_PARSER':mode='PERMITTED_HTTP'
     elif spec.execution_mode=='ISOLATED_PUBLIC_PARSER':mode='PERMITTED_HTTP'
+    elif spec.execution_mode=='ISOLATED_PUBLIC_BROWSER':mode='PERMITTED_HTTP'
     elif spec.execution_mode in ('LOCAL_PYTHON','LOCAL_MODEL'):mode='LOCAL_CLI'
     auth={'telegram':('telegram_api_hash','telegram_session'),'vk':('vk_token',),
           'hash_virustotal':('virustotal_api_key',),'instagram':('instagram_session',)}.get(spec.source,())
@@ -109,8 +110,10 @@ def relevant_names(specs, task, records=()):
     if not task: return {s.name for s in specs}
     text=task.casefold()
     kinds={'dork','web','evidence'}
+    if re.search(r'браузер|browser|динамич|\bDOM\b|кнопк|форм[ауы]|прокру|страниц|открой',task,re.I):kinds.add('browser')
     from .entity_router import route_goal, route
     targets = route_goal(task)
+    if any(t.canonical_url for t in targets):kinds.add('browser')
     if any(target.entity_type != 'username' for target in targets):
         kinds.discard('dork')
     if re.search(r'img_[a-f0-9]{64}|фото|изображени|картинк|exif|ocr|geoint|геолокац',text): kinds.update(('image','coordinates'))

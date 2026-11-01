@@ -28,7 +28,7 @@ from .agent_tools import ToolRegistry
 from .agent_journal import InvestigationJournal
 from .chat_archive import ChatArchive
 from .conversations import ConversationLibrary
-from .context import conversation_context
+from .context import conversation_context,is_social_turn
 
 
 def no_tools_requested(text):
@@ -37,7 +37,7 @@ def no_tools_requested(text):
 
 def investigation_requested(text):
     """Route explicit research requests; ordinary conversation keeps its fast path."""
-    if no_tools_requested(text):
+    if no_tools_requested(text) or is_social_turn(text):
         return False
     from .entity_router import route
     target = route(text)
@@ -341,6 +341,7 @@ class ChatWidget(QWidget):
 
     def set_settings(self, settings):
         if getattr(self, 'settings', None) != settings:
+            if callable(getattr(self._agent_registry,'close',None)):self._agent_registry.close()
             self._agent_registry = None
         self.settings = settings
         self.ai_state.set_settings(settings)
@@ -420,13 +421,14 @@ class ChatWidget(QWidget):
         model = snapshot['model_id']
         generation = self._generation + 1
         conversation_id = self.conversation_id
-        investigate = not no_tools_requested(text) and (bool(images) or investigation_requested(text) or self._agent_followup and bool(re.search(r'(?iu)(ещ[её]|подроб|дальше|сравни|почему|источник|ev_[a-f0-9]+)', text)))
+        investigate = not no_tools_requested(text) and (bool(images) or not is_social_turn(text) and (investigation_requested(text) or self._agent_followup and bool(re.search(r'(?iu)(ещ[её]|подроб|дальше|сравни|почему|источник|ev_[a-f0-9]+)', text))))
         def request(cancelled):
             if snapshot['provider'] == 'deepseek':
                 client = DeepSeekClient()
                 if investigate:
                     if self._agent_registry is None:
                         self._agent_registry = ToolRegistry(settings, redactions=(getattr(client, '_key', ''),),image_store=getattr(self,'_image_store',None))
+                        self._agent_registry._image_store_provider=getattr(self,'_image_store_provider',None)
                     if images: self._agent_registry.allow_attachments([row['id'] for row in images])
                     if hasattr(self._agent_registry, 'seed_urls_from_user'):
                         self._agent_registry.seed_urls_from_user(text)
@@ -684,6 +686,7 @@ class ChatWidget(QWidget):
         if not self._save_archive(messages=[], context=[]):
             return False
         self._context.clear()
+        if callable(getattr(self._agent_registry,'close',None)):self._agent_registry.close()
         self._agent_registry = None
         self._agent_runner = None
         self._agent_followup = False
@@ -742,6 +745,7 @@ class ChatWidget(QWidget):
         self.messages.clear()
         self.history.clear()
         self._context = value.get('context', [])
+        if callable(getattr(self._agent_registry,'close',None)):self._agent_registry.close()
         self._agent_registry = self._agent_runner = None
         self._last_investigation = {}
         self._agent_followup = False
@@ -831,6 +835,7 @@ class ChatWidget(QWidget):
     def shutdown(self):
         self._ending = True
         self.cancel()
+        if callable(getattr(self._agent_registry,'close',None)):self._agent_registry.close()
         if self._progress_snapshot_job:self._progress_snapshot_job.cancel()
         self._save_archive()
 
