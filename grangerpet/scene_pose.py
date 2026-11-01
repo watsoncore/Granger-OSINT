@@ -71,12 +71,16 @@ class BookPose:
     pocket:bool=False
     scale:float=1.
     pocket_lip:float=399.
+    pitch:float=1.
+    perspective:float=0.
 
     @property
     def left_width(self):return 7+81*self.opening
     @property
     def right_width(self):return 57+24*self.opening
     def point(self,x,y):
+        divisor=1-self.perspective*y
+        x,y=x/divisor,y*self.pitch/divisor
         x,y=rotate((x*self.scale,y*self.scale),self.angle)
         return self.center[0]+x,self.center[1]+y
     def left_grip(self):return self.point(-self.left_width-9,-12+50*self.opening)
@@ -132,6 +136,7 @@ class ActorPose:
     sleeping:bool=False
     sleep_lift:float=0.
     phone:bool=False
+    phone_back:bool=False
     phone_center:Point=(270.,340.)
     phone_angle:float=-5.
     phone_lines:int=0
@@ -151,6 +156,9 @@ def reading_pose(q:float,elapsed:float,variant:int=0,*,_draw_elbows=True,rest_po
         (.27,(233.,315.)),(.76,(233.,315.)),(.86,(259.,334.)),(.90,(268.,365.)),(1.,(268.,430.)))
     b.angle=track(q,(0.,-14.),(.16,-10.),(.285,-3.),(.76,-3.),(.88,-14.),(1.,-14.))
     b.opening=track(q,(0.,0.),(.18,0.),(.285,1.),(.77,1.),(.87,0.),(1.,0.))
+    if rest_pose is None:
+        b.pitch=1-.22*b.opening;b.perspective=.0012*b.opening
+        b.center=(b.center[0],b.center[1]+8*b.opening)
     b.pocket=q<.125 or q>.885
     right_follow=track(q,(0.,0.),(.055,1.),(.965,1.),(.999,0.))
     a.right=mix(a.right,b.right_grip(),right_follow)
@@ -165,7 +173,9 @@ def reading_pose(q:float,elapsed:float,variant:int=0,*,_draw_elbows=True,rest_po
     if left_approach<.05:a.arm_art_left='rest'
     reading=track(q,(0.,0.),(.20,0.),(.29,1.),(.74,1.),(.88,0.))
     prepare=track(q,(0.,0.),(.055,1.),(.145,1.),(.24,0.),(1.,0.))
-    a.head=5.5*reading+3*prepare;a.head_drop=3*reading
+    a.head=(7. if rest_pose is None else 5.5)*reading+3*prepare
+    a.head_drop=(5 if rest_pose is None else 3)*reading
+    a.mouth='focused' if reading>.2 and rest_pose is None else 'neutral'
     a.lean=track(q,(0.,0.),(.13,2.5),(.28,1.3),(.75,1.3),(.87,2.),(1.,0.))
     # Three deliberate line scans, with quick return saccades and a page glance.
     scan=track(q,(0.,0.),(.28,-1.),(.34,1.),(.355,-1.),(.415,1.),(.43,-1.),(.47,.8),
@@ -196,11 +206,11 @@ def reading_pose(q:float,elapsed:float,variant:int=0,*,_draw_elbows=True,rest_po
         if math.dist(a.right,a.elbow_right)>58:a.arm_art_right='page'
     if v==1:
         interest=track(q,(0.,0.),(.34,0.),(.39,1.),(.46,1.),(.51,0.),(.63,0.),(.68,1.),(.74,0.))
-        a.head-=4*interest;a.brow=-interest;a.mouth='smile' if interest>.35 else 'neutral'
+        a.head-=4*interest;a.brow=-interest;a.mouth='smile' if interest>.35 else a.mouth
         a.lean+=2*interest
     elif v==2:
         indignation=track(q,(0.,0.),(.32,0.),(.37,1.),(.43,1.),(.47,0.),(.64,0.),(.69,1.),(.75,0.))
-        a.head-=9*indignation;a.brow=indignation;a.mouth='pout' if indignation>.3 else 'neutral'
+        a.head-=9*indignation;a.brow=indignation;a.mouth='pout' if indignation>.3 else a.mouth
         a.gaze=(a.gaze[0],a.gaze[1]-5*indignation)
     a.hair=a.head*.13-a.lean*.4
     a.blink=max(0.,1-abs(elapsed%5.9-4.4)/.075)  # short blink; no long closed reading
@@ -238,11 +248,12 @@ HAND_CONTACTS={'index':(1.,-33.),'pinch':(0.,-24.)}
 def pointing_wrist(elbow,contact,mode,side):
     tip=HAND_CONTACTS[mode];tip=(-tip[0],tip[1]) if side>0 else tip
     dx,dy=contact[0]-elbow[0],contact[1]-elbow[1];distance=math.hypot(dx,dy) or 1.
-    wrist=(contact[0]-dx/distance*abs(tip[1]),contact[1]-dy/distance*abs(tip[1]))
-    for _ in range(5):
-        angle=math.degrees(math.atan2(elbow[1]-wrist[1],elbow[0]-wrist[0]))-90.
-        offset=rotate(tip,angle);wrist=(contact[0]-offset[0],contact[1]-offset[1])
-    return wrist
+    # Exact projected contact. Fixed-point iteration oscillated when the short
+    # forearm length approached the index length (visible near a small phone).
+    along=math.sqrt(max(0.,distance*distance-tip[0]*tip[0]))
+    angle=math.atan2(dy,dx)-math.atan2(tip[0],along)
+    reach=along-abs(tip[1])
+    return elbow[0]+reach*math.cos(angle),elbow[1]+reach*math.sin(angle)
 
 
 def hand_contact(actor,side):
@@ -254,10 +265,14 @@ def hand_contact(actor,side):
 
 
 def action_pose(action,q,t,variant=0,*,aim=(0.,0.),physics=None,_draw_elbows=True):
-    if action=='reading':return reading_pose(q,t,variant)
+    from .solo_sequence import solo_sequence,original_neutral
+    if action=='reading':return solo_sequence(q,t,lambda u,elapsed:reading_pose(u,elapsed,variant))
     from .hermione_actions import drawn_action
     from .hermione_pose_bank import arm_pose_bank
-    a=drawn_action(action,q,t,variant) or arm_pose_bank()['relaxed']
+    if action in ('phone_solvnox','wand_play','cast','avada','shy','annoyed','daydream','happy','error','yawn'):
+        a=solo_sequence(q,t,lambda u,elapsed:drawn_action(action,u,elapsed,variant))
+    else:a=drawn_action(action,q,t,variant) or arm_pose_bank()['relaxed']
+    if action in ('idle','hover','') and physics is None:a=original_neutral()
     a.source_idle=action in ('idle','hover','') and physics is None
     a.source_time=t
     a.blink=max(a.blink,max(0.,1-abs(t%5.3-4.1)/.075))

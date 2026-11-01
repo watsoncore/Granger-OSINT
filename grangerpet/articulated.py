@@ -67,6 +67,8 @@ class HermioneRig:
         self.curls=[]
         from .original_face import OriginalFace
         self.original_face=OriginalFace(master,self.head)
+        self.motion_head=QImage(str(Path(__file__).parent/'assets/original-motion-v1/head.png'))
+        self.motion_face=OriginalFace(master,self.motion_head) if not self.motion_head.isNull() else self.original_face
         # Original costume and footwear are texture layers, not new silhouettes.
         self.torso=image(512);p=QPainter(self.torso);p.setRenderHint(QPainter.RenderHint.Antialiasing)
         pen(p,INK,4);p.setBrush(QColor(ROBE))
@@ -112,7 +114,7 @@ class HermioneRig:
             hands.append((wrist,mode,side,a.hand_angle_left if side<0 else a.hand_angle_right))
         # Head is independently articulated, but hair roots share its transform.
         p.save();p.translate(229+a.turn*5,252+a.head_drop);p.rotate(a.head);p.translate(-229,-252)
-        p.drawImage(0,0,self.original_face.image(a))
+        p.drawImage(0,0,self.motion_face.image(a))
         for index,(curl,root) in enumerate(self.curls):
             p.save();p.translate(*root);p.rotate(a.hair*(1 if index==0 else -.8));p.translate(-root[0],-root[1]);p.drawImage(0,0,curl);p.restore()
         p.restore()
@@ -131,7 +133,8 @@ class HermioneRig:
         if draw_hands:
             for wrist,mode,side,angle in hands:
                 if self.painted_arms:
-                    if held and draw_props:self.painted_arms.hand(p,a,side,fingers_only=True)
+                    if held and draw_props and not (a.phone_back and side<0 and a.left_hand=='index'):
+                        self.painted_arms.hand(p,a,side,fingers_only=True)
                 else:self.hand(p,wrist,mode,side,angle)
         if (a.book.visible and a.book.pocket) or ((a.phone or a.wand) and a.pocket):
             # The actual robe front occludes book and hand entering its pocket.
@@ -207,6 +210,7 @@ class HermioneRig:
         p.save()
         if b.pocket:p.setClipRect(QRectF(0,0,512,b.pocket_lip))
         p.translate(*b.center);p.rotate(b.angle);p.scale(b.scale,b.scale);lw,rw=b.left_width,b.right_width
+        p.setWorldTransform(QTransform(1,0,0,0,b.pitch,-b.perspective,0,0,1),True)
         pen(p,'#3e2a19',3);p.setBrush(QColor('#794a32'))
         p.drawPath(path([(-lw-4,-43),(-4,-48),(rw+4,-43),(rw+4,48),(0,54),(-lw-4,48)]))
         if b.opening>.08:
@@ -234,6 +238,15 @@ class HermioneRig:
         p.save()
         if a.pocket:p.setClipRect(QRectF(0,0,512,a.pocket_lip))
         p.translate(*a.phone_center);p.rotate(a.phone_angle)
+        if a.phone_back:
+            pen(p,'#302416',2.6);p.setBrush(QColor('#615662'))
+            case=QPainterPath(QPointF(-14,-43));case.quadTo(-18,-42,-18,-36)
+            case.lineTo(-15,35);case.quadTo(-15,41,-9,41);case.lineTo(16,35)
+            case.quadTo(21,34,20,28);case.lineTo(13,-37);case.quadTo(12,-42,6,-43);case.closeSubpath();p.drawPath(case)
+            pen(p,'#a69a9c',1.3);p.drawLine(QPointF(12,-35),QPointF(19,28))
+            p.setBrush(QColor('#342e36'));pen(p,'#b0a0a5',1.1);p.drawRoundedRect(QRectF(-12,-36,11,15),3,3)
+            p.setBrush(QColor('#22252d'));p.drawEllipse(QPointF(-6.5,-31),2.3,2.3)
+            p.drawEllipse(QPointF(-6.5,-25.5),2.3,2.3);p.restore();return
         pen(p,'#493b35',3);p.setBrush(QColor('#676176'));p.drawRoundedRect(QRectF(-32,-60,64,104),8,8)
         p.setPen(Qt.PenStyle.NoPen);p.setBrush(QColor('#f7e7d8'));p.drawRoundedRect(QRectF(-26,-50,52,82),3,3)
         p.setPen(QColor('#65505c'));font=QFont('Segoe UI');font.setPixelSize(13);p.setFont(font)
@@ -287,8 +300,8 @@ def render_actor(library,a,size=256,dpr=1.,*,debug=False,props=True):
 
 
 def render_reading(library,life,size=256,dpr=1.,*,debug=False):
-    from .scene_pose import reading_pose
-    a=reading_pose(life.progress,life.elapsed,getattr(life,'variant',0))
+    from .scene_pose import action_pose
+    a=action_pose('reading',life.progress,life.elapsed,getattr(life,'variant',0))
     return render_actor(library,a,size,dpr,debug=debug)
 
 

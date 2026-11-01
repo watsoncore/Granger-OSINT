@@ -19,23 +19,23 @@ def phone_point(a,x,y):
 
 
 def phone_pose(q,t):
-    a=arm_pose_bank()['relaxed'];a.phone=.005<q<.995;a.pocket=q<.14 or q>.89;a.pocket_lip=385.
-    a.phone_center=track(q,(0.,(268.,448.)),(.07,(268.,405.)),(.23,(258.,312.)),
-        (.67,(258.,312.)),(.76,(230.,313.)),(.835,(230.,313.)),(.9,(268.,367.)),(1.,(268.,448.)))
-    a.phone_angle=track(q,(0.,-15.),(.23,-5.),(.67,-5.),(.76,5.),(.85,5.),(1.,-15.))
+    a=arm_pose_bank()['relaxed'];a.phone_back=True;a.phone=.005<q<.995;a.pocket=q<.14 or q>.89;a.pocket_lip=385.
+    a.phone_center=track(q,(0.,(268.,448.)),(.07,(268.,405.)),(.23,(244.,333.)),
+        (.67,(244.,333.)),(.76,(230.,327.)),(.835,(230.,327.)),(.9,(268.,367.)),(1.,(268.,448.)))
+    a.phone_angle=track(q,(0.,-15.),(.23,-9.),(.67,-9.),(.76,5.),(.85,5.),(1.,-15.))
     follow=track(q,(0.,0.),(.055,1.),(.965,1.),(1.,0.))
     # Begin at the side grip; move to a supporting lower corner only once clear
     # of the pocket. The screen never floats in front of a distant palm.
-    grip=track(q,(0.,(27.,-45.)),(.055,(27.,-45.)),(.13,(27.,6.)),(.23,(9.,40.)),
-        (.85,(9.,40.)),(.92,(27.,6.)),(.965,(27.,-45.)),(1.,(27.,-45.)))
+    grip=track(q,(0.,(19.,-39.)),(.055,(19.,-39.)),(.13,(19.,6.)),(.23,(16.,35.)),
+        (.85,(16.,35.)),(.92,(19.,6.)),(.965,(19.,-39.)),(1.,(19.,-39.)))
     a.right=mix(a.right,phone_point(a,*grip),follow);a.right_hand='grip'
     a.elbow_right=track(q,(0.,a.elbow_right),(.08,(347.,354.)),(.23,(310.,355.)),
         (.67,(310.,355.)),(.76,(292.,360.)),(.84,(292.,360.)),(.93,(347.,354.)),(1.,a.elbow_right))
     a.arm_art='reading' if .17<q<.89 else 'reach'
     if q<.035 or q>.985:a.arm_art='rest'
-    a.elbow_left=track(q,(0.,a.elbow_left),(.25,a.elbow_left),(.315,(180.,366.)),
-        (.675,(180.,366.)),(.76,(161.,357.)),(.835,(161.,357.)),(.94,a.elbow_left),(1.,a.elbow_left))
-    target=phone_point(a,-8.,19.)
+    a.elbow_left=track(q,(0.,a.elbow_left),(.25,a.elbow_left),(.315,(160.,366.)),
+        (.675,(160.,366.)),(.76,(161.,357.)),(.835,(161.,357.)),(.94,a.elbow_left),(1.,a.elbow_left))
+    target=phone_point(a,-15.,6.)
     # A full lift-off between distinct taps is visible even at desktop size.
     # During the pause the finger remains away; it never taps continuously.
     tapping=track(q,(0.,0.),(.33,0.),(.34,1.),(.46,1.),(.47,0.),(.55,0.),(.56,1.),(.655,1.),(.665,0.),(1.,0.))
@@ -46,7 +46,7 @@ def phone_pose(q,t):
     a.left=mix(a.left,wrist,approach)
     if approach>.01:a.left_hand='index'
     hug=track(q,(0.,0.),(.715,0.),(.76,1.),(.835,1.),(.94,0.),(1.,0.))
-    a.left=mix(a.left,phone_point(a,-25.,30.),hug)
+    a.left=mix(a.left,phone_point(a,-15.,30.),hug)
     if hug>.4:a.left_hand='grip'
     if q<.25 or q>.94:a.arm_art_left='rest'
     a.phone_lines=int(track(q,(0.,0.),(.33,0.),(.47,3.),(.51,3.),(.55,0.),(.665,3.),(1.,3.)))
@@ -78,6 +78,7 @@ def wand_pose(action,q,t,variant):
         ((.3,-110.),(.43,-132.),(.54,-114.),(.66,-122.))][v]
     a.wand_angle=track(q,(0.,90.),(.06,90.),(.14,180.),(.24,250.),
         *((u,angle+360) for u,angle in angle_keys),(.82,250.),(.9,180.),(.97,90.),(1.,90.))
+    a.wand_angle-=360.  # Same physical angle, continuous with original-neutral preparation.
     a.hand_angle_left=track(q,(0.,0.),(.32,0.),(.43,-9.),(.54,7.),(.68,0.),(1.,0.))
     a.magic=track(q,(0.,0.),(.45,0.),(.52,1.),(.61,.65),(.69,0.),(1.,0.)) if v!=0 or action!='wand_play' else 0.
     a.pocket=q<.2 or q>.84;a.pocket_lip=385.
@@ -118,7 +119,7 @@ def drawn_action(action,q,t,variant):
         a=gesture('chin',q,.28,.77) if action=='daydream' else arm_pose_bank()['chin']
         strength=env if action=='daydream' else 1.
         a.head=-4*strength;a.gaze=(2*strength,-3*strength)
-        a.blush=.4*env if action=='daydream' else 0.;a.mouth='smile' if action=='daydream' else 'neutral'
+        a.blush=.4*env if action=='daydream' else 0.;a.mouth='smile' if action=='daydream' else 'focused'
         a.hearts=.4*env if action=='daydream' else 0.;a.lean=-2*strength
         if action=='working':a.gaze=(track(t%3,(0.,-3.),(1.1,3.),(1.3,-3.),(3.,3.)),3.)
         a.head+=math.sin(t*.9)*.5*strength

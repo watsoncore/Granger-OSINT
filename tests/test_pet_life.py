@@ -152,6 +152,21 @@ def test_windows_activity_does_not_reset_figure_clock():
     assert life.last_activity==stamp and life.last_action
 
 
+def test_open_figure_menu_blocks_life_without_blocking_application_work(app,tmp_path,monkeypatch):
+    monkeypatch.setattr('grangerpet.credentials.get_secret',lambda _: '')
+    pet=PetWindow(Settings(size=100,cursor_reaction=False),SettingsStore(tmp_path/'settings.json'))
+    pet.frame_timer.stop();pet.cursor_timer.stop()
+    try:
+        pet._near=pet._over=False;pet._menu_open=True
+        pet.life.start_action('reading');pet._tick()
+        assert pet.life.action not in ('reading','phone_solvnox')
+        pet._menu_open=False;pet._busy=True
+        pet.life.start_action('reading');pet._tick()
+        assert pet.life.action=='reading'
+    finally:
+        pet.shutdown();pet.panel.deleteLater();pet.deleteLater();app.processEvents()
+
+
 def test_panel_and_chat_navigation_do_not_interrupt_reading(app,tmp_path,monkeypatch):
     monkeypatch.setattr('grangerpet.credentials.get_secret',lambda _: '')
     pet=PetWindow(Settings(size=100,cursor_reaction=False),SettingsStore(tmp_path/'settings.json'))

@@ -55,6 +55,7 @@ class PetWindow(QWidget):
         # shutdown cannot restore an older provider/model over the saved one.
         self.panel.settings_dialog.settings_saved.connect(self._panel_settings_saved)
         self._pressed_at = None
+        self._menu_open = False
         self._dragging = False
         self._press_position = QPoint()
         self._window_start = QPoint()
@@ -419,7 +420,7 @@ class PetWindow(QWidget):
             self._next_dock_poll = now + .25
         if self._near or self._over or self._dragging or self._pressed_at is not None:
             self.life.notify_activity(now,immediate=True)
-        available = not (self._dragging or self._pressed_at is not None or self.physics.active
+        available = not (self._dragging or self._pressed_at is not None or self._menu_open or self.physics.active
                          or self._near or self._over or self._dock_suppressed or now < self._terminal_until)
         life_pose = self.life.update(now, available=available, context='working' if self._busy else 'chat',
                                     allow_travel=not (self.panel.isVisible() or self._main_active),
@@ -763,7 +764,12 @@ class PetWindow(QWidget):
         launcher = menu.addAction("Открыть лаунчер Granger-OSINT")
         back = menu.addAction("Остановить и вернуться в лаунчер")
         quit_action = menu.addAction("Закрыть Гермиону")
-        chosen = menu.exec(event.globalPos())
+        self._menu_open = True
+        try:
+            chosen = menu.exec(event.globalPos())
+        finally:
+            self._menu_open = False
+            self.life.notify_activity(immediate=True)
         if chosen == panel_action:
             self.toggle_panel()
         elif chosen == react:

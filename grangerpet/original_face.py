@@ -62,6 +62,7 @@ class OriginalFace:
             line=QPainterPath(QPointF(215,231 if mouth=='smile' else 235))
             if mouth=='smile':line.quadTo(224,238,233,230)
             elif mouth=='pout':line.quadTo(225,226,234,234)
+            elif mouth=='focused':line=QPainterPath(QPointF(219,231));line.quadTo(226,229,233,231)
             else:p.drawImage(QPointF(211,215),self.master.copy(211,215,28,30));line=QPainterPath()
             p.drawPath(line)
         if brow:

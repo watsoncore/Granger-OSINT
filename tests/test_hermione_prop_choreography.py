@@ -2,21 +2,21 @@
 import math
 import pytest
 from grangerpet.scene_pose import action_pose,hand_contact,rotate
-from grangerpet.hermione_actions import phone_point
+from grangerpet.hermione_actions import phone_point,phone_pose
 
 
 def test_raised_phone_is_supported_and_finger_lifts_between_taps():
     gaps=[]
     for i in range(330,470):
-        q=i/1000;a=action_pose('phone_solvnox',q,q*13)
-        assert a.phone and a.left_hand=='index'
-        assert math.dist(a.right,phone_point(a,9.,40.))<1e-6
-        gaps.append(math.dist(hand_contact(a,-1),phone_point(a,-8.,19.)))
+        q=i/1000;a=phone_pose(q,q*13)
+        assert a.phone and a.phone_back and a.left_hand=='index'
+        assert math.dist(a.right,phone_point(a,16.,35.))<1e-6
+        gaps.append(math.dist(hand_contact(a,-1),phone_point(a,-15.,6.)))
     assert min(gaps)<.2 and max(gaps)>9
-    pause=action_pose('phone_solvnox',.5,6.5)
-    assert math.dist(hand_contact(pause,-1),phone_point(pause,-8.,19.))>9
-    assert action_pose('phone_solvnox',.55,7.15).phone_lines==0
-    assert action_pose('phone_solvnox',.67,8.71).phone_lines==3
+    pause=phone_pose(.5,6.5)
+    assert math.dist(hand_contact(pause,-1),phone_point(pause,-15.,6.))>9
+    assert phone_pose(.55,7.15).phone_lines==0
+    assert phone_pose(.67,8.71).phone_lines==3
 
 
 @pytest.mark.parametrize('variant',range(4))

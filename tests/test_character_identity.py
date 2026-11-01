@@ -105,3 +105,10 @@ def test_original_idle_breathes_without_moving_its_feet(app):
     breathing=render_actor(lib,action_pose('idle',.1,.35),512)
     assert rgba(first)!=rgba(breathing)
     assert rgba(first.copy(0,420,512,92))==rgba(breathing.copy(0,420,512,92))
+
+
+def test_motion_separation_keeps_literal_original_face_and_bangs(app):
+    lib=SpriteLibrary();rig=HermioneRig(lib.scenes.layers['base'])
+    for rect in ((150,154,138,95),(145,60,150,100)):
+        assert rgba(rig.motion_head.copy(*rect))==rgba(rig.head.copy(*rect))
+    assert rgba(rig.motion_face.image(ActorPose()).copy(150,154,138,95))==rgba(rig.head.copy(150,154,138,95))

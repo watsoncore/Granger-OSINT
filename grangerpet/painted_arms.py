@@ -101,6 +101,11 @@ class PaintedArms:
         self.spec=json.loads((directory/'rig.json').read_text(encoding='utf-8'))
         self.drawings={(name,side):ArmDrawing(directory,name,side,spec[side])
             for name,spec in self.spec.items() for side in ('left','right')}
+        original=directory.parent/'original-motion-v1'
+        if (original/'rig.json').is_file():
+            for name,spec in json.loads((original/'rig.json').read_text(encoding='utf-8')).items():
+                self.spec[name]=spec
+                for side in ('left','right'):self.drawings[name,side]=ArmDrawing(original,name,side,spec[side])
         self.hands={}
         for name,spec in json.loads((directory/'hands.json').read_text(encoding='utf-8')).items():
             drawing=object.__new__(ArmDrawing);drawing.hand=QImage(str(directory/('hand-'+name+'.png')))
@@ -121,7 +126,9 @@ class PaintedArms:
         angle=actor.hand_angle_left if side<0 else actor.hand_angle_right
         mode=actor.left_hand if side<0 else actor.right_hand
         sleeve=self.drawing(actor,side);elbow=arm_points(actor,side)[1]
-        override=mode in ('index','pinch','wand_grip','closed_grip') or (mode=='grip' and not actor.book.visible and not actor.phone)
+        # The approved original wand palm is already the actual grip drawing.
+        original_grip=mode=='wand_grip' and ((actor.arm_art_left if side<0 else actor.arm_art_right) or actor.arm_art)=='original'
+        override=(mode in ('index','pinch','wand_grip','closed_grip') and not original_grip) or (mode=='grip' and not actor.book.visible and not actor.phone)
         if override:
             drawing=self.hands['point' if mode=='index' else 'pinch' if mode=='pinch' else 'wand']
             angle+=math.degrees(math.atan2(elbow[1]-wrist[1],elbow[0]-wrist[0]))-90.
