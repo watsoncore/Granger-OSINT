@@ -143,3 +143,41 @@ GOOGLE / Google LLC, диапазон `66.249.64.0—66.249.95.255`; RIPE RIS �
 SSLMate допускает limited unauthenticated evaluation, но просит регистрацию
 для production: такой доступ не включён как автоматическая бесплатная замена
 [CT Search API](https://sslmate.com/help/reference/ct_search_api_v1).
+
+## SteamRecon: проверенный публичный subset
+
+Добавлены `steam_profile`, `steam_aliases`, `steam_friends` в прежний registry,
+manual auto-search, типизацию целей и frontier. Всего 61 операция. Используется
+реальный код MIT-нормализатора SteamRecon и четыре проверенных XML-метода;
+HTTP client, CLI, настройки, keyed APIs и сбор cookies исходного проекта не
+перенесены. Точные исходники/SHA и изменения перечислены в
+`grangerpet/research_vendor/steamrecon-provenance.json`, MIT notice включён.
+
+Исполнение — отдельный собственный процесс, ограниченный временем, числом
+процессов и Windows Job memory budget 384 MiB; окружение очищено от ключей.
+HTTP выполняется прежним DNS-pinned transport, без пользовательской сессии.
+Это ограничение процесса и проверенный код, а не заявление о полноценной
+изоляции прав пользователя средствами ОС.
+
+127 unit/fixture checks прошли. Live: публичный контрольный профиль Robin
+разрешён в SteamID64, получены XML-поля и прежние имена. Первая проверка друзей
+выявила устаревший class selector; исправлен по `_parse_friends` SteamRecon и
+реальной странице. Повтор обнаружил 294 опубликованные ссылки, сохранил
+ограниченную выборку20. Остальные разделы и закрытые данные не объявляются
+проверенными. В public receipts чужие friend identifiers и raw profile не входят.
+
+[Live receipts Steam](validation/intelligence-v1/steam-live.json).
+Нормализация URL защищена от spoofed host, не принимает session query и
+непубличные Steam universes. Steam-поля, aliases и опубликованные связи
+сохраняются в context для итогового анализа; имена не объединяют личности.
+Интеграция всего 37-source проекта SteamRecon не заявляется.
+
+## Browser runtime: подготовка, ещё не готовая интеграция
+
+В отдельной `.toolenvs/research-browser` установлен официальный PyPI wheel
+Playwright 1.64.1 (38,801,836 bytes, SHA-256
+`5e240a79464434c9260957b9ef59a5808e02e96e3fcabdc717fd7485260b9730`),
+greenlet3.5.6, pyee14.0.0, typing-extensions4.16.0. Только binary wheels;
+основная `.venv` не изменялась. Будет использован установленный Microsoft Edge,
+другая копия Chromium не скачивалась. Этот факт сам по себе не считается
+функциональным browser agent или успешным browser live-сценарием.

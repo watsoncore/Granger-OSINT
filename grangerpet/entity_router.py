@@ -79,6 +79,14 @@ def route(value):
             return Target('phone', normalize_phone(value), tools=('phone_metadata',))
         except ValueError:
             return None
+    if (re.fullmatch(r'76\d{15}|STEAM_[0-9]:[01]:\d+|\[?U:1:\d+\]?',value,re.I)
+            or re.match(r'(?i)^(?:https?://)?(?:www\.)?steamcommunity\.com/(?:id|profiles)/',value)):
+        from .steam_public import normalize
+        try:
+            identity,url=normalize(value)
+            return Target('steam_profile',identity.steamid64 if identity else url,'steam',url,
+                {'identity_verified':False},('steam_profile','steam_aliases','steam_friends'))
+        except (ValueError,TypeError):return None
     if re.match(r'^(?:https?://|(?:www\.)?(?:t\.me|telegram\.me|github\.com|x\.com|twitter\.com|vk\.com|instagram\.com)/)', value, re.I):
         url = canonical_url(value if '://' in value else 'https://' + value)
         if not url:
@@ -144,6 +152,7 @@ def route_goal(text, attachments=()):
     values += re.findall(r'(?<![\w./])\d{1,3}(?:\.\d{1,3}){3}(?:/\d{1,2})?(?![\w./])', text)
     values += re.findall(r'(?<![\w:])(?:[a-fA-F0-9]*:){2,}[a-fA-F0-9:.]+(?:/\d{1,3})?', text)
     values += re.findall(r'(?i)(?<!\w)AS[1-9][0-9]{0,9}(?!\w)', text)
+    values += re.findall(r'(?i)(?<!\w)(?:76\d{15}|STEAM_[0-9]:[01]:\d+|\[U:1:\d+\])(?!\w)',text)
     values += re.findall(r'(?<![\w@/.])(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61})\.)+[A-Za-z]{2,24}(?![\w/])', text)
     values += re.findall(r'[A-Za-z0-9.!#$%&\'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}', text)
     values += re.findall(r'(?<![\w./])@[A-Za-z][A-Za-z0-9_]{3,63}', text)

@@ -87,9 +87,19 @@ def analyze(snapshot):
                 and row.get('type') != 'evidence_graph']
     grouped, computed = defaultdict(list), {}
     assets, facts, candidates, scenes, contradictions, references = {}, [], {}, [], [], []
-    image_observations=[]
+    image_observations=[];social_profiles={}
     for row in relevant:
         data = _details(row)
+        if row.get('platform')=='steam' and isinstance(data.get('steamid64'),str):
+            social=social_profiles.setdefault(data['steamid64'],{'platform':'steam','steamid64':data['steamid64'],
+                'url':data.get('canonical_url') or row.get('url'),'profile':{},'aliases':[],'friends':[],'sources':[]})
+            source={'url':row.get('url'),'operation':data.get('operation'),'observed_at':data.get('obtained_at')}
+            if source not in social['sources']:social['sources'].append(source)
+            if isinstance(data.get('profile'),dict):
+                social['profile'].update({key:str(data['profile'][key])[:600] for key in ('personaname','privacy','onlineState','memberSince','headline','summary','location','avatarFull') if data['profile'].get(key)})
+            for field in ('aliases','friends'):
+                for item in data.get(field,[])[:20] if isinstance(data.get(field),list) else []:
+                    if item not in social[field]:social[field].append(deepcopy(item))
         chain = str(data.get('chain') or '')
         target = str(data.get('target_address') or '')
         if data.get('tool') in ('image_metadata','image_ocr'):
@@ -163,6 +173,7 @@ def analyze(snapshot):
     from .network_report import profiles
     return {'version': 1, 'goal': goal, 'evidence_examined': len(rows), 'relevant_evidence': len(relevant),
         'network_profiles':profiles(relevant),
+        'social_profiles':list(social_profiles.values()),
         'blockchain': chains, 'assets': list(assets.values()), 'scenes': scenes,'image_observations':image_observations,
         'geographic_candidates': list(candidates.values()), 'reference_images':references, 'facts': facts,
         'contradictions': contradictions, 'coverage': 'saved_observations_only',
@@ -178,6 +189,7 @@ def model_context(analysis):
         'geographic_candidates', 'contradictions', 'unresolved_questions', 'source_failures')}
     value['image_observations']=deepcopy(analysis.get('image_observations',[]))
     value['network_profiles']=deepcopy(analysis.get('network_profiles',[]))
+    value['social_profiles']=deepcopy(analysis.get('social_profiles',[]))
     value['reference_images']=[{**{key:item for key,item in row.items() if key!='comparison'},
         'comparison':{key:row.get('comparison',{}).get(key) for key in ('status','match_count','geometry','spatial_coverage','support_kind','geolocation_verified','score_calibrated','interpretation')}
         } for row in analysis.get('reference_images',[])[:12]]
@@ -258,6 +270,14 @@ def factual_report(analysis, *, reason='', language_unavailable=False):
         lines += ['Языковой анализ недоступен. Ниже — фактический отчёт, рассчитанный локально по сохранённым данным.', '']
     from .network_report import markdown
     if analysis.get('network_profiles'):lines += [markdown(analysis['network_profiles']), '']
+    for social in analysis.get('social_profiles',[]):
+        profile=social['profile'];link='[Публичный профиль]('+social['url']+')'
+        lines += ['### Steam · '+str(profile.get('personaname') or social['steamid64']),
+            '', 'SteamID64: '+social['steamid64']+'. '+link,
+            'Видимость: '+str(profile.get('privacy') or 'не сообщена')+'. Дата регистрации по профилю: '+str(profile.get('memberSince') or 'не сообщена')+'.']
+        if social['aliases']:lines += ['Прежние имена, опубликованные Steam: '+'; '.join(str(a.get('name','')) for a in social['aliases'] if isinstance(a,dict))+'.']
+        if social['friends']:lines += ['Публичные ссылки из раздела друзей: '+', '.join('[Профиль '+str(i+1)+']('+url+')' for i,url in enumerate(social['friends']) if isinstance(url,str))+'.']
+        lines += ['Отображаемое имя и ссылки не доказывают личность или общего владельца аккаунтов.','']
     for data in analysis['blockchain'].values():
         direction = data.get('directions', {})
         lines += ['## Анализ операций', '',

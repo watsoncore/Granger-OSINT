@@ -121,6 +121,12 @@ _SPECS += tuple(ToolSpec(name, 'network_public', kind, argument, description,
         'https://www.spamhaus.org/blocklists/do-not-route-or-peer/' if name=='network_reputation' else
         'https://crt.sh/' if name=='domain_certificates' else 'https://stat.ripe.net/docs/')
     for name,(kind,argument,description) in _NETWORK_TOOLS.items())
+_SPECS += tuple(ToolSpec(name,'steam_public','steam','profile',description,max_length=200,
+    execution_mode='ISOLATED_PUBLIC_PARSER',category='socmint',documentation_url='https://github.com/zakhar-git/SteamRecon')
+    for name,description in (
+        ('steam_profile','SteamRecon public subset: нормализовать SteamID64/SteamID2/SteamID3/vanity и прочитать опубликованные XML-поля, аватар, группы. Без ключей и cookies; закрытые поля не считаются нулевыми.'),
+        ('steam_aliases','SteamRecon public subset: опубликованные прежние имена конкретного профиля, до20. История может быть неполной; имя не устанавливает личность.'),
+        ('steam_friends','Публичные ссылки из открытого раздела друзей Steam, до20. Закрытый/недоступный список честно помечается; связность не означает общего владельца.')))
 _BY_NAME={spec.name:spec for spec in _SPECS}
 _AUTH = {"telegram": ("telegram_api_hash", "telegram_session"), "vk": ("vk_token",), "instagram": ("instagram_session",)}
 _BASE_OPTIONS = ("source_root", "tools_root", "runtime_python", "telegram_api_id", "instagram_username", "google_cx", "api_cx", "enable_snoop", "profile_sites")
@@ -281,6 +287,11 @@ class ToolRegistry:
             if re.search(pattern,goal):operations.append(operation)
         calls=[]
         for target in route_goal(goal):
+            if target.platform=='steam':
+                resolved=next((row.get('details',{}).get('steamid64') for row in records
+                    if isinstance(row.get('details'),dict) and row['details'].get('requested_profile')==target.canonical_url),None)
+                for name in target.tools[1:]:
+                    calls.append({'name':name,'arguments':{'profile':resolved or target.identifier}})
             if target.entity_type in ('infrastructure_asset','network_range','autonomous_system','domain'):
                 for name in target.tools:
                     spec=_BY_NAME.get(name)
@@ -347,6 +358,7 @@ class ToolRegistry:
         if name=='blockchain_gansar':return max(requested,260)
         if name=='geoint_research':return max(requested,180)
         if name in _NETWORK_TOOLS:return max(requested,40)
+        if name in ('steam_profile','steam_aliases','steam_friends'):return max(requested,35)
         return max(requested,240 if name=='visual_geoint' else 180) if spec and spec.execution_mode=='LOCAL_MODEL' else requested
 
     def _secret(self, name):
@@ -400,6 +412,8 @@ class ToolRegistry:
             base.update(available=True, state="unverified", reason="Прямое чтение обнаруженных публичных URL; DNS и каждый переход проверяются при запросе.")
         elif spec.source == 'network_public':
             base.update(available=True, state='unverified', reason='Пассивные публичные HTTPS-источники; доступ и результат подтверждаются только выполнением.')
+        elif spec.source == 'steam_public':
+            base.update(available=True,state='unverified',reason='Проверенный SteamRecon subset в отдельном ограниченном процессе; публичный доступ проверяется запросом, не импортом.')
         elif spec.source == 'telegram_preview':
             base.update(available=True, state='ready', reason='Публичная страница/превью без ключа и сессии; доступ проверяется запросом. Авторизованный режим требует отдельного подтверждения.')
         elif spec.source=='local19':
@@ -588,6 +602,9 @@ class ToolRegistry:
         if spec.source == 'network_public':
             from .network_sources import validate
             return validate(spec.name,value),limit,options,None
+        if spec.source == 'steam_public':
+            from .steam_public import validate
+            return validate(spec.name,value),limit,options,None
         if spec.kind in ('image','coordinates'):
             if spec.kind=='image':
                 if not re.fullmatch(r'img_[a-f0-9]{64}',value) or value not in self._attachment_ids:
@@ -760,6 +777,9 @@ class ToolRegistry:
                 outcome = self._web().search(value, limit=limit, cancel_event=cancelled, deadline=deadline)
             elif spec.source == 'network_public':
                 from .network_sources import execute
+                outcome=execute(spec.name,value,cancel_event=cancelled,deadline=deadline)
+            elif spec.source == 'steam_public':
+                from .steam_public import execute
                 outcome=execute(spec.name,value,cancel_event=cancelled,deadline=deadline)
             elif spec.source in ("domain_lookup", "ip_lookup"):
                 from .agent_web import lookup_domain, lookup_ip

@@ -68,6 +68,7 @@ def manifest(spec):
     if spec.documentation_url:url=spec.documentation_url
     if spec.execution_mode=='PUBLIC_API_NO_KEY':mode='OFFICIAL_API'
     elif spec.execution_mode=='PERMITTED_HTTP_PARSER':mode='PERMITTED_HTTP'
+    elif spec.execution_mode=='ISOLATED_PUBLIC_PARSER':mode='PERMITTED_HTTP'
     elif spec.execution_mode in ('LOCAL_PYTHON','LOCAL_MODEL'):mode='LOCAL_CLI'
     auth={'telegram':('telegram_api_hash','telegram_session'),'vk':('vk_token',),
           'hash_virustotal':('virustotal_api_key',),'instagram':('instagram_session',)}.get(spec.source,())
@@ -127,6 +128,7 @@ def relevant_names(specs, task, records=()):
     if re.search(r'telegram|телеграм|t\.me/',text): kinds.add('telegram')
     if re.search(r'\bvk\b|вконтакте|vk\.(?:com|ru)',text): kinds.add('vk')
     if re.search(r'instagram|инстаграм',text): kinds.add('instagram')
+    if re.search(r'(?i)steam|стим',text):kinds.add('steam')
     if re.search(r'блокчейн|кошел[её]к|blockchain|0x[a-f0-9]{40}',text): kinds.add('blockchain')
     if re.search(r'домен|dns|rdap|domain|сертификат|инфраструкт',text): kinds.add('domain')
     if re.search(r'\bip\b|asn|\d{1,3}(?:\.\d{1,3}){3}|инфраструкт',text): kinds.add('ip')

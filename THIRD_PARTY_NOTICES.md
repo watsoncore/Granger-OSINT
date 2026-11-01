@@ -43,3 +43,14 @@ Florence-2-base-ft: Microsoft, MIT; compatible native checkpoint maintained by
 florence-community. Pinned model files are downloaded separately, not bundled in
 the executable. License: `resources/third-party/Florence-2-LICENSE.txt`.
 See `docs/SCENE_VISION_RUNTIME.md` for exact revision, hashes and runtime limits.
+
+## Reviewed SteamRecon public subset
+
+`grangerpet/research_vendor/steamid.py` and selected methods in
+`steam_community.py` derive from [SteamRecon](https://github.com/zakhar-git/SteamRecon),
+Copyright (c) 2026 SteamRecon contributors, MIT License. The full notice is in
+`resources/third-party/SteamRecon-LICENSE.txt`; source SHA and exact subset are
+recorded in `grangerpet/research_vendor/steamrecon-provenance.json`.
+Upstream installers, HTTP client, configuration, credentials, CLI and reports
+are not included. Requests use Granger-OSINT's public-only transport in its own
+disposable worker. Steam services/data retain their respective terms.

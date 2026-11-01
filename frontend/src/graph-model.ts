@@ -11,6 +11,7 @@ Object.assign(relationLabels, {
   uses_mail_exchange:'Почтовый сервер', within_announced_prefix:'В анонсируемом префиксе',
   announced_by:'Анонсируется AS', within_registered_range:'В зарегистрированном диапазоне',
   registered_to:'Регистрант по реестру', reverse_dns_reports:'PTR сообщает имя',
+  public_friend_link:'Публичная ссылка в списке друзей',
 })
 export const entityLabel = (node:GraphEntity) => typeLabels[entityType(node)] || node.type
 export function shortLabel(node:GraphEntity) {

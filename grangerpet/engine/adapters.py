@@ -63,6 +63,8 @@ def default_adapters(options=None):
                 ('domain_dns','DNS / SPF / DMARC / CAA',('domain',)),
                 ('domain_rdap','Авторитетный RDAP домена',('domain',)),
                 ('domain_certificates','Certificate Transparency',('domain',)))],
+            *[NetworkPublicAdapter(name,label,('steam',)) for name,label in (
+                ('steam_profile','SteamRecon · публичный профиль'),('steam_aliases','Steam · прежние имена'),('steam_friends','Steam · публичные ссылки друзей'))],
             *[SourceAdapter(source, label, kinds) for source, (label, kinds) in SOURCE_META.items() if source!='google']]
 
 
@@ -73,6 +75,9 @@ class NetworkPublicAdapter(SourceAdapter):
         if self.id=='domain_lookup':
             from ..agent_web import lookup_domain
             result=lookup_domain(query.text,**kwargs)
+        elif self.id in ('steam_profile','steam_aliases','steam_friends'):
+            from ..steam_public import execute
+            result=execute(self.id,query.text,**kwargs)
         elif self.id=='threat_feodo':
             from ..public_integrations import execute
             result=execute(self.id,query.text,**kwargs)

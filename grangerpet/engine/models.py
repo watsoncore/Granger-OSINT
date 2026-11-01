@@ -7,7 +7,7 @@ import hashlib
 import re
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-KINDS = ("auto", "username", "email", "phone", "telegram", "vk", "instagram", "web", "blockchain", "dork", "ip", "network", "domain")
+KINDS = ("auto", "username", "email", "phone", "telegram", "vk", "instagram", "web", "blockchain", "dork", "ip", "network", "domain", "steam")
 
 
 @dataclass

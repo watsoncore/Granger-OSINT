@@ -181,6 +181,9 @@ def test_prefix_api_url_does_not_hide_an_exact_typed_ip_observation():
     assert relevance([row],'Исследуй 8.8.8.8')[row['evidence_id']]['level']=='direct'
     context=model_context(analyze({'goal':'Исследуй 8.8.8.8','evidence':[row]}))
     assert any(f['value']=='AS15169' for f in context['network_profiles'][0]['facts'])
+    from grangerpet.evidence_graph import build
+    graph=build([row],full=True,limit=5000,goal='Исследуй 8.8.8.8')
+    assert any(e['relation_type']=='announced_by' for e in graph['relations'])
 
 
 def test_graph_uses_real_dns_and_route_relations_without_identity_inference():

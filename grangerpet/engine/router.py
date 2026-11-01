@@ -12,7 +12,7 @@ from urllib.parse import unquote, urlsplit, urlunsplit
 
 from ..validators.ton_address import parse_ton_address
 
-KINDS = ("auto", "username", "email", "phone", "telegram", "vk", "instagram", "web", "blockchain", "dork", "ip", "network", "domain")
+KINDS = ("auto", "username", "email", "phone", "telegram", "vk", "instagram", "web", "blockchain", "dork", "ip", "network", "domain", "steam")
 PROFILE_CHOICES = (("Публичные профили", "username"), ("Упоминания", "dork"))
 DOMAIN_TLDS = frozenset("com org net edu gov mil int io ai dev app me info biz pro online site cloud tech ru su kz by ua uk us de fr es it nl pl cz ca au jp cn in ch at eu co tv xyz name museum travel mobi xn--p1ai".split())
 
@@ -177,6 +177,11 @@ def detect_query(text, chosen_kind=None, options=None):
             if domain.endswith(('.local','.internal','.invalid','.test','.localhost','.onion')):
                 return _error(value,'Нужен публичный домен.')
             return _resolution(domain,'domain','Домен','DNS / RDAP / CT',('domain_lookup','domain_dns','domain_rdap','domain_certificates'))
+        if chosen=='steam' or not chosen and (re.fullmatch(r'76\d{15}|STEAM_[0-9]:[01]:\d+|\[?U:1:\d+\]?',value,re.I)
+                or re.match(r'(?i)^(?:https?://)?(?:www\.)?steamcommunity\.com/(?:id|profiles)/',value)):
+            from ..steam_public import normalize
+            identity,url=normalize(value)
+            return _resolution(identity.steamid64 if identity else url,'steam','Steam-профиль','Публичные Steam Community сведения',('steam_profile','steam_aliases','steam_friends'))
         if chosen == "email" or not chosen and "@" in value and not value.startswith("@"):
             return _resolution(normalize_email(value), "email", "Email", "Проверка публичных регистраций", ("holehe",))
         if chosen == "phone" or not chosen and re.fullmatch(r"(?:\+|00)[\d ()-]{6,24}", value):

@@ -116,6 +116,9 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         if target.entity_type=='github_profile':
             return node('public_profile',target.canonical_url,label or target.identifier,record,url=target.canonical_url,
                 platform='github',username=target.identifier,display_type='github_profile',identity_verified=False,reference_only=reference)
+        if target.platform=='steam':
+            return node('public_profile',target.canonical_url,label or target.identifier,record,url=target.canonical_url,
+                platform='steam',display_type='social_profile',identity_verified=False,reference_only=reference)
         if target.entity_type=='github_repository':
             return node('repository',target.canonical_url,label or target.identifier,record,url=target.canonical_url,
                 platform='github',display_type='github_repository',reference_only=reference)
@@ -135,7 +138,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         if unscoped_web_marker(record):
             technical_exclusions.append({'evidence_id':record.get('evidence_id'),'url':url,'reason':'unscoped_css_like_marker_requires_source_review'})
             continue
-        if url and technical_url(url) and canonical_url(url) not in explicit_urls:
+        if url and technical_url(url) and canonical_url(url) not in explicit_urls and kind not in ('ip','domain','threat_indicator'):
             technical_exclusions.append({'evidence_id':record.get('evidence_id'),'url':url,'reason':'site_navigation_or_media_metadata'})
             continue
         resource=url or str(record.get('id',''));label=record.get('title') or resource
@@ -161,6 +164,13 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             if isinstance(company,str) and company.strip():
                 org=node('organization',platform+'|'+company,company,record,statement='profile_field_not_independent_employment_verification')
                 edge(current,org,'profile_mentions_organization',record,'self_reported')
+            if platform=='steam' and current:
+                nodes[current]['attributes'].update(steamid64=details.get('steamid64'),requested_profile=details.get('requested_profile'))
+                if isinstance(details.get('aliases'),list):nodes[current]['attributes']['public_aliases']=deepcopy(details['aliases'][:20])
+                for peer in details.get('friends',[])[:20] if isinstance(details.get('friends'),list) else []:
+                    if not isinstance(peer,str):continue
+                    friend=url_node(peer,record,reference=True)
+                    if friend!=current:edge(current,friend,'public_friend_link',record,'source_reported',observed_field='friends[]')
         elif kind in ('post','publication') and url:
             current=node('public_post',url,label,record,url=url,published_at=details.get('created_at') or details.get('date_utc'),author=details.get('author'))
             author=details.get('author')
@@ -459,6 +469,9 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                 identifier=node('infrastructure_asset',target.identifier,target.identifier,None,
                     asset_type='asn' if target.entity_type=='autonomous_system' else 'cidr' if target.entity_type=='network_range' else 'ip',address=target.identifier)
             elif target.entity_type=='geographic_coordinates':identifier=node('coordinate',str(target.properties['latitude'])+'|'+str(target.properties['longitude']),target.identifier,None,**target.properties)
+            elif target.platform=='steam':
+                identifier=next((key for key,n in nodes.items() if n['attributes'].get('requested_profile')==target.canonical_url),None)
+                identifier=identifier or url_node(target.canonical_url,None,reference=True)
             elif target.canonical_url:identifier=url_node(target.canonical_url,None,reference=True)
             else:continue
             if identifier:scoped.append(identifier)

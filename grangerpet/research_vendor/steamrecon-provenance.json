@@ -1,0 +1,28 @@
+{
+  "upstream": "https://github.com/zakhar-git/SteamRecon",
+  "license": "MIT",
+  "source_files": {
+    "steamrecon/steamid.py": "70b1fc5ec72f8f29142758cf6e991abee667d29070900eba79145394f3f364f9",
+    "steamrecon/sources/steam_community.py": "539e54a6af0fb6127cd7fcc68008a462898997b4e760ce53c3140650b015bdf2",
+    "LICENSE": "2345a9a0583f7fb6e90df83c184ecedda218048615da3896c616c9d25a1c4e0d",
+    "steamrecon/sources/steam_public_pages.py": "0d6b254c1bd2ccc0db1afdc1b434663e615dcdd9f62f8b0ef9c0af03549d757f"
+  },
+  "subset": {
+    "steamid.py": "Original module minus upstream HTTP import; annotations remain deferred.",
+    "steam_community.py": "Only _profile,_groups,_games,_text methods; no HTTP, CLI, key or browser operations.",
+    "steam_public.py": "Own bounded HTMLParser follows upstream _parse_friends friend_block_v2 scope, without BeautifulSoup or upstream network client."
+  },
+  "reviewed_method_calls": [
+    "stdlib regex",
+    "stdlib html.unescape",
+    "ElementTree find on DTD-rejected bounded XML"
+  ],
+  "excluded": [
+    "HttpClient",
+    "CLI/menu",
+    "keyed APIs",
+    "local configuration",
+    "history/report writes",
+    "unbounded collection"
+  ]
+}

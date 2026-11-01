@@ -1,0 +1,42 @@
+{
+  "test_type": "live public HTTPS via disposable worker",
+  "profile_url": "https://steamcommunity.com/id/robinwalker",
+  "checks": [
+    {
+      "operation": "steam_profile",
+      "status": "complete",
+      "source_url": "https://steamcommunity.com/id/robinwalker/?xml=1&l=english",
+      "obtained_at": "2026-11-01T15:49:58.125185+00:00",
+      "records": 1,
+      "public_aliases": null,
+      "observed_friend_links": null,
+      "saved_friend_sample": 0,
+      "capture_sha256": "226fb069f3f4faac77a96f5cd50564767959a4a4f909f5408be41d6ca4e4aeef"
+    },
+    {
+      "operation": "steam_aliases",
+      "status": "complete",
+      "source_url": "https://steamcommunity.com/profiles/76561197960435530/ajaxaliases/",
+      "obtained_at": "2026-11-01T15:56:26.395032+00:00",
+      "records": 1,
+      "public_aliases": 10,
+      "observed_friend_links": null,
+      "saved_friend_sample": 0,
+      "capture_sha256": "4130de7092be3f28923b93256626be67d1fd1936ee528ebf4b7b1d440b80d076"
+    },
+    {
+      "operation": "steam_friends",
+      "status": "complete",
+      "source_url": "https://steamcommunity.com/id/robinwalker/friends?l=english",
+      "obtained_at": "2026-11-01T15:57:58.740805+00:00",
+      "records": 1,
+      "public_aliases": null,
+      "observed_friend_links": 294,
+      "saved_friend_sample": 20,
+      "capture_sha256": "ec2c957e9e6cdc05ff16fad6dffd1322851d938860bade1df6ef39bfd0991ca5"
+    }
+  ],
+  "full_friend_list_published": false,
+  "user_profile_used": false,
+  "limitation": "Not an EXE or LLM-led test;public page availability can change."
+}
