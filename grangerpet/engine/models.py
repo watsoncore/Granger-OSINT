@@ -74,6 +74,7 @@ def canonical_url(value: str) -> str:
                  if not k.lower().startswith("utm_") and k.lower() not in ("fbclid", "gclid")]
         scheme = "https" if host in {"github.com", "gitlab.com", "vk.com", "instagram.com", "t.me", "x.com", "youtube.com", "tiktok.com"} else parsed.scheme.lower()
         fragment = parsed.fragment if parsed.fragment.startswith("/address/") and host == "tronscan.org" else ""
+        if host in ('steamcommunity.com','www.steamcommunity.com') and path.endswith('/inventory') and re.fullmatch(r'\d+_\d+_\d+',parsed.fragment):fragment=parsed.fragment
         return urlunsplit((scheme, host, path, urlencode(sorted(query)), fragment))
     except (ValueError, UnicodeError):
         return ""

@@ -1,0 +1,16 @@
+.steam-inventory{padding:18px;border-bottom:1px solid var(--border);min-width:0}
+.steam-inventory header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.steam-inventory h3{margin:0 0 8px}.steam-inventory p{font-size:13px;line-height:1.5}
+.steam-inventory-filters{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.steam-inventory-filters select,.steam-inventory-filters input{min-width:140px;max-width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--input-background);color:var(--text)}
+.steam-inventory-filters input{flex:1}.steam-item-scroll{height:320px;overflow:auto;margin-top:4px}
+.steam-item-row{display:grid;grid-template-columns:minmax(150px,2fr) minmax(100px,1.3fr) minmax(130px,1.2fr) 70px 95px;align-items:center;gap:10px;border-bottom:1px solid var(--border);padding:6px 4px;font-size:12px;min-width:630px;box-sizing:border-box}
+.steam-item-row small,.steam-gallery small{display:block;color:var(--muted);font-size:11px;overflow:hidden;text-overflow:ellipsis}
+.steam-item-row button,.steam-gallery figcaption button{background:none;border:0;text-align:left;color:var(--text);cursor:pointer;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0;font:inherit}
+.steam-item-header{font-weight:600;color:var(--muted);margin-top:12px}
+.steam-inventory [role=table]{overflow-x:auto}
+.steam-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:12px;max-height:530px;overflow:auto}
+.steam-gallery figure{margin:0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.steam-gallery figure>div{aspect-ratio:1;display:flex;align-items:center;justify-content:center;padding:8px;background:var(--panel)}
+.steam-gallery img{width:100%;height:100%;object-fit:contain}.steam-gallery figcaption{padding:9px;min-width:0}
+.steam-gallery figure p{text-align:center;color:var(--muted);font-size:11px}

@@ -15,11 +15,11 @@ from xml.etree import ElementTree as ET
 
 from .research_vendor import steamid
 
-TOOLS=('steam_profile','steam_aliases','steam_friends')
-_CACHE={};_LOCK=threading.RLock()
+TOOLS=('steam_profile','steam_aliases','steam_friends','steam_inventory')
+_CACHE={};_LOCK=threading.RLock();_COOLDOWN={}
 
 
-def normalize(value):
+def normalize(value,*,allow_inventory=False):
     if not isinstance(value,str) or not 1<=len(value)<=200 or any(ord(c)<33 for c in value):raise ValueError('Invalid Steam target')
     if re.match(r'(?i)^STEAM_[2-9]:',value):raise ValueError('Non-public Steam universe')
     if '://' in value or value.startswith(('steamcommunity.com/','www.steamcommunity.com/')):
@@ -27,6 +27,7 @@ def normalize(value):
         if parsed.scheme not in ('https','http') or parsed.hostname not in ('steamcommunity.com','www.steamcommunity.com') or parsed.username or parsed.password or parsed.port:
             raise ValueError('Steam Community URL required')
         parts=parsed.path.strip('/').split('/')
+        if allow_inventory and len(parts)==3 and parts[2]=='inventory':parts=parts[:2]
         if len(parts)!=2 or parts[0] not in ('profiles','id') or parsed.query or parsed.fragment:raise ValueError('Exact public Steam profile required')
         value=parts[1]
         if parts[0]=='profiles' and not re.fullmatch(r'\d{17}',value):raise ValueError('SteamID64 required')
@@ -38,6 +39,9 @@ def normalize(value):
 
 def validate(tool,value):
     if tool not in TOOLS:raise ValueError('Unknown Steam operation')
+    if tool=='steam_inventory':
+        from .steam_inventory import validate as inventory_validate
+        return inventory_validate(value)
     identity,url=normalize(value)
     return identity.steamid64 if identity else url
 
@@ -132,17 +136,23 @@ def execute(tool,value,*,cancel_event=None,deadline=None):
     from .agent_web import _envelope
     try:value=validate(tool,value)
     except (ValueError,TypeError):return _envelope(tool,'',status='invalid_arguments',error_code='invalid_steam_target')
-    with _LOCK:cached=_CACHE.get((tool,value))
+    cache_key=(tool,json.dumps(value,sort_keys=True) if isinstance(value,dict) else value)
+    summary=value.get('profile','') if isinstance(value,dict) else value
+    with _LOCK:cached=_CACHE.get(cache_key)
     if cached and time.monotonic()-cached[0]<300:
-        result=deepcopy(cached[1]);result['limitations'].append('Сохранённый результат до5мин; исходное время наблюдения не изменено.');return result
+        result=deepcopy(cached[1]);result['from_saved_data']=True
+        result['limitations'].append('Сохранённый результат до5мин; исходное время наблюдения не изменено.');return result
+    with _LOCK:remaining=_COOLDOWN.get(tool,0)-time.monotonic()
+    if remaining>0:return _envelope(tool,summary,status='rate_limited',error_code='steam_retry_after',
+        limitations=['Steam ранее сообщил об ограничении; новый запрос не выполнялся. Повторите через '+str(int(remaining)+1)+' с.'])
     end=min(deadline or float('inf'),time.monotonic()+35)
     from .engine.runtime import _WindowsJob,_PROCESS_SLOTS
     while not _PROCESS_SLOTS.acquire(timeout=.05):
-        if cancel_event and cancel_event.is_set():return _envelope(tool,value,status='cancelled')
-        if time.monotonic()>=end:return _envelope(tool,value,status='timeout')
+        if cancel_event and cancel_event.is_set():return _envelope(tool,summary,status='cancelled')
+        if time.monotonic()>=end:return _envelope(tool,summary,status='timeout')
     process=job=None
     try:
-        if cancel_event and cancel_event.is_set():return _envelope(tool,value,status='cancelled')
+        if cancel_event and cancel_event.is_set():return _envelope(tool,summary,status='cancelled')
         root=Path(__file__).resolve().parents[1]
         line=[sys.executable,'--passive-research-worker'] if getattr(sys,'frozen',False) else [sys.executable,str(root/'main.py'),'--passive-research-worker']
         env={k:v for k,v in os.environ.items() if not re.search(r'KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL|GRANGERPET_|PYTHONPATH|PYTHONHOME',k,re.I)}
@@ -150,24 +160,29 @@ def execute(tool,value,*,cancel_event=None,deadline=None):
             creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
         if os.name=='nt':
             job=_WindowsJob(process,memory_limit=384*1024*1024)
-            if not job.handle:return _envelope(tool,value,status='unavailable',error_code='worker_job_unavailable')
+            if not job.handle:return _envelope(tool,summary,status='unavailable',error_code='worker_job_unavailable')
         payload=json.dumps({'tool':tool,'value':value,'seconds':max(.1,end-time.monotonic())}).encode();sent=False
         while True:
-            if cancel_event and cancel_event.is_set():return _envelope(tool,value,status='cancelled')
-            if time.monotonic()>=end:return _envelope(tool,value,status='timeout')
+            if cancel_event and cancel_event.is_set():return _envelope(tool,summary,status='cancelled')
+            if time.monotonic()>=end:return _envelope(tool,summary,status='timeout')
             try:raw,_=process.communicate(input=None if sent else payload,timeout=.05);break
             except subprocess.TimeoutExpired:sent=True
-        if process.returncode or len(raw)>500_000:raise ValueError('Invalid worker output')
+        if process.returncode or len(raw)>(8_000_000 if tool=='steam_inventory' else 500_000):raise ValueError('Invalid worker output')
         result=json.loads(raw)
         if not isinstance(result,dict) or result.get('tool')!=tool:raise ValueError('Invalid worker contract')
         from .tool_contracts import validate_outcome
         validate_outcome(result)
+        throttled=[failure for row in result.get('results',[]) if isinstance(row,dict)
+            for failure in row.get('details',{}).get('source_failures',[]) if isinstance(failure,dict) and '429' in str(failure.get('error_code',''))]
+        if result.get('status')=='rate_limited' or throttled:
+            delay=max((entry.get('retry_after_seconds') or 60 for entry in throttled),default=60)
+            with _LOCK:_COOLDOWN[tool]=time.monotonic()+min(86400,max(60,delay))
         if result.get('status') in ('complete','partial'):
             with _LOCK:
                 if len(_CACHE)>64:_CACHE.pop(next(iter(_CACHE)))
-                _CACHE[tool,value]=(time.monotonic(),deepcopy(result))
+                _CACHE[cache_key]=(time.monotonic(),deepcopy(result))
         return result
-    except (OSError,ValueError):return _envelope(tool,value,status='error',error_code='steam_worker_failed')
+    except (OSError,ValueError):return _envelope(tool,summary,status='error',error_code='steam_worker_failed')
     finally:
         if job:job.close()
         if process:
@@ -186,7 +201,10 @@ def worker_main():
         value=validate(tool,value);seconds=payload.get('seconds',30)
         if type(seconds) not in (int,float) or not .1<=seconds<=40:raise ValueError()
         end=time.monotonic()+seconds
-        result=_run(lambda:collect(tool,value,deadline=end),deadline=end,timeout=seconds)
+        if tool=='steam_inventory':
+            from .steam_inventory import collect as inventory_collect
+            result=_run(lambda:inventory_collect(value,deadline=end-min(2,seconds/4)),deadline=end,timeout=seconds)
+        else:result=_run(lambda:collect(tool,value,deadline=end),deadline=end,timeout=seconds)
     except (PageReadError,_FetchError) as error:result=_envelope(tool,str(value)[:200],status=error.status,error_code=error.code)
     except (ValueError,TypeError,ET.ParseError):result=_envelope(tool,str(value)[:200],status='error',error_code='invalid_steam_response')
     _binary_pipe('stdout').write(json.dumps(result,ensure_ascii=True).encode('utf-8'))

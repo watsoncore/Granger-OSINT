@@ -131,6 +131,10 @@ _SPECS += tuple(ToolSpec(name,'steam_public','steam','profile',description,max_l
         ('steam_aliases','SteamRecon public subset: опубликованные прежние имена конкретного профиля, до20. История может быть неполной; имя не устанавливает личность.'),
         ('steam_friends','Публичные ссылки из открытого раздела друзей Steam, до20. Закрытый/недоступный список честно помечается; связность не означает общего владельца.')))
 from .browser_session import SCHEMAS as _BROWSER_INPUTS
+from .steam_inventory import INPUT_SCHEMA as _STEAM_INVENTORY_INPUT
+_SPECS += (ToolSpec('steam_inventory','steam_public','steam','profile',
+    'Публичный Steam-инвентарь: реальные assets/descriptions/asset_properties, названия, картинки, float/pattern только если получены; ограниченная cursor-пагинация и Market USD для части предметов. Продолжай только по наблюдённому next_cursor. Счётчик страницы не является списком предметов. Без cookies, входа, trades или выполнения inspect.',
+    input_schema=_STEAM_INVENTORY_INPUT,execution_mode='ISOLATED_PUBLIC_PARSER',category='socmint',documentation_url='https://steamcommunity.com/dev/apiterms'),)
 from .geoint.wikidata import SCHEMA as _WIKIDATA_INPUT
 _SPECS += (ToolSpec('wikidata_places','wikidata','coordinates','query',
     'Публичные места Wikidata по названию: координаты P625 и ссылки на фото P18. При координатах фильтр по радиусу, не доказательство места съёмки.',
@@ -232,6 +236,7 @@ class ToolRegistry:
             if not target.tools or target.entity_type == 'username':
                 continue
             name = target.tools[0]
+            if target.platform=='steam' and re.search(r'(?iu)инвентар|inventory|скин|предмет',goal):name='steam_inventory'
             if target.entity_type == 'image' and not re.search(r'(?iu)(geoint|geoclip|waypoint|мест[оа].{0,25}с[ъь]ём|где.{0,30}снят|определи.{0,30}мест)', goal):
                 name = 'image_metadata'
             spec = _BY_NAME.get(name)
@@ -266,6 +271,12 @@ class ToolRegistry:
 
     def canonical_arguments(self, name, args):
         from .investigation_progress import normalized_arguments
+        if name=='steam_inventory' and isinstance(args,dict):
+            from .steam_inventory import validate
+            try:
+                value=validate(args)
+                return {key:value[key] for key in ('profile','appid','contextid','cursor') if key in value}
+            except (ValueError,TypeError):pass
         if name in ('vk_public','tiktok_public_profile') and isinstance(args,dict):
             from .socmint_targets import vk,tiktok
             try:args={**args,'target':(vk if name=='vk_public' else tiktok)(args.get('target'))['canonical_url']}
@@ -311,6 +322,13 @@ class ToolRegistry:
 
     def begin_investigation(self):
         self.close()
+        # Old investigations remain in their journals/cache, not in the new
+        # run's URL authority and continuation frontier. Reuse only explicitly
+        # selected immutable image observations to avoid repeating CPU inference.
+        retained=[row for row in self.evidence.records() if isinstance(row.get('details'),dict)
+                  and row['details'].get('attachment_id') in self._recent_attachment_ids]
+        self.evidence=InvestigationEvidence()
+        self.evidence.restore(retained,[])
         self._browser_context=uuid.uuid4().hex
         self.web_reader.begin_run()
         self._blockchain_refs={}
@@ -328,7 +346,8 @@ class ToolRegistry:
         if browser is not None:browser.stop()
 
     def continuation_calls(self,goal):
-        records=self.evidence.records()
+        from .agent_evidence import current_observation
+        records=[current_observation(row) for row in self.evidence.records()]
         identifiers={row.get('details',{}).get('attachment_id') for row in records
             if isinstance(row.get('details'),dict) and row['details'].get('predictions')}
         researched={row.get('details',{}).get('attachment_id') for row in records
@@ -348,7 +367,19 @@ class ToolRegistry:
             if target.platform=='steam':
                 resolved=next((row.get('details',{}).get('steamid64') for row in records
                     if isinstance(row.get('details'),dict) and row['details'].get('requested_profile')==target.canonical_url),None)
-                for name in target.tools[1:]:
+                if re.search(r'(?iu)инвентар|inventory|скин|предмет',goal):
+                    inventories=[row['details'] for row in records if row.get('type')=='steam_inventory' and
+                        isinstance(row.get('details'),dict) and (row['details'].get('steamid64')==(resolved or target.identifier) or
+                        row['details'].get('canonical_url')==target.canonical_url)]
+                    if inventories:
+                        latest=inventories[-1];coverage=latest.get('coverage',{})
+                        if coverage.get('more_items') and coverage.get('next_cursor') and coverage.get('stop_reason')=='page_limit':
+                            calls.append({'name':'steam_inventory','arguments':{'profile':latest['steamid64'],
+                                'appid':latest['appid'],'contextid':latest['contextid'],'cursor':coverage['next_cursor'],'price_limit':0}})
+                    else:calls.append({'name':'steam_inventory','arguments':{'profile':resolved or target.identifier}})
+                    calls.append({'name':'steam_profile','arguments':{'profile':resolved or target.identifier}})
+                    continue
+                for name in (name for name in target.tools[1:] if name!='steam_inventory'):
                     calls.append({'name':name,'arguments':{'profile':resolved or target.identifier}})
             if target.entity_type in ('infrastructure_asset','network_range','autonomous_system','domain'):
                 for name in target.tools:
@@ -423,7 +454,7 @@ class ToolRegistry:
         if name=='blockchain_gansar':return max(requested,260)
         if name=='geoint_research':return max(requested,180)
         if name in _NETWORK_TOOLS:return max(requested,40)
-        if name in ('steam_profile','steam_aliases','steam_friends'):return max(requested,35)
+        if name in ('steam_profile','steam_aliases','steam_friends','steam_inventory'):return max(requested,35)
         if name in _BROWSER_INPUTS:return max(requested,45)
         return max(requested,240 if name=='visual_geoint' else 180) if spec and spec.execution_mode=='LOCAL_MODEL' else requested
 
@@ -701,7 +732,7 @@ class ToolRegistry:
                         raise ValueError('Изображение не выбрано пользователем для этой задачи.')
             summary=arguments.get(spec.argument)
             if not isinstance(summary,str):summary=json.dumps(arguments,ensure_ascii=False,sort_keys=True,separators=(',',':'))
-            return summary[:2000],2000 if spec.source=='blockchain' else 100 if spec.source=='geoint_research' else arguments.get('limit',20),{'structured_arguments':arguments},None
+            return summary[:2000],2001 if spec.name=='steam_inventory' else 2000 if spec.source=='blockchain' else 100 if spec.source=='geoint_research' else arguments.get('limit',20),{'structured_arguments':arguments},None
         permitted = {spec.argument, 'limit'} | ({'focus','offset','length'} if spec.source=='evidence_get' else set())
         if not isinstance(args, dict) or set(args) - permitted or spec.argument not in args:
             raise ValueError("Аргументы не соответствуют зарегистрированной схеме.")
@@ -877,7 +908,8 @@ class ToolRegistry:
             try:
                 existing = self.evidence.get(raw.get('evidence_id')) if isinstance(raw,dict) else None
                 reused = existing is not None and raw == existing
-                record = deepcopy(existing) if reused else normalize_evidence(raw, spec.name, value, utc_now(), tuple(self._redactions))
+                observed=outcome.get('obtained_at') if isinstance(outcome,dict) and outcome.get('from_saved_data') else None
+                record = deepcopy(existing) if reused else normalize_evidence(raw, spec.name, value, observed or utc_now(), tuple(self._redactions))
                 if reused:
                     envelope['from_saved_data'] = True
             except (TypeError, ValueError):
@@ -942,6 +974,7 @@ class ToolRegistry:
             for raw in outcome.get("results", [])[:limit]:
                 receive(raw)
             status = str(outcome.get("status", "error"))
+            if outcome.get('from_saved_data') is True:envelope['from_saved_data']=True
             if spec.source in ('blockchain','network_public','vk_public_page') and isinstance(outcome.get('source_diagnostics'),(dict,list)):
                 envelope['source_diagnostics']=redact(outcome['source_diagnostics'],self._redactions)
                 envelope['from_saved_data']=outcome.get('from_saved_data') is True
@@ -991,11 +1024,15 @@ class ToolRegistry:
         if not re.fullmatch(r'[a-zA-Z0-9_.:-]{1,80}',error_code):error_code=''
         with self._lock:
             self._last_executions[spec.name]={'status':envelope['status'],'obtained_at':envelope['obtained_at'],
-                'result_count':len(envelope['results']),'error_code':error_code, 'kind':'source_request'}
+                'result_count':len(envelope['results']),'error_code':error_code,
+                'kind':'cached_source' if envelope.get('from_saved_data') else 'source_request','from_saved_data':envelope.get('from_saved_data') is True}
         return envelope
 
     def _structured_operation(self,spec,args,cancelled,deadline,approved,on_result=None):
         """Repository-owned dispatch, without model-defined handlers or paths."""
+        if spec.name=='steam_inventory':
+            from .steam_public import execute
+            return execute(spec.name,args,cancel_event=cancelled,deadline=deadline)
         if spec.source=='vk_public_page':
             from .socmint_public import vk_public
             def browser_read(url):

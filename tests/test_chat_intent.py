@@ -81,3 +81,20 @@ def test_attachment_working_scope_does_not_fall_back_to_old_authorizations():
     restored=ToolRegistry(Settings(),secret_getter=lambda _: '')
     restored.restore_investigation([],state)
     assert restored.attachment_context()==[] and image in restored._attachment_ids
+
+
+def test_new_registry_run_clears_old_url_authority_but_keeps_selected_image_cache():
+    from grangerpet.agent_tools import ToolRegistry
+    from grangerpet.agent_evidence import normalize_evidence
+    from grangerpet.config import Settings
+    image='img_'+'a'*64
+    old=normalize_evidence({'id':'old','type':'profile','title':'Old scope fixture','platform':'fixture',
+        'url':'https://example.org/old'},'web_read','old')
+    visual=normalize_evidence({'id':'visual','type':'image_analysis','title':'Image cache fixture','platform':'local',
+        'details':{'attachment_id':image}},'image_understand',image)
+    registry=ToolRegistry(Settings(),attachment_ids=[image],secret_getter=lambda _: '')
+    registry.evidence.restore([old,visual],[]);registry.begin_investigation()
+    assert registry.evidence.records()==[visual]
+    registry.allow_attachments([]);registry.begin_investigation()
+    assert registry.evidence.records()==[]
+    assert old['url']=='https://example.org/old'  # This changes only the working projection.

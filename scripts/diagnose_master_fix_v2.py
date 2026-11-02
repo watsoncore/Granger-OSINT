@@ -19,7 +19,7 @@ def main():
     from grangerpet.agent_tools import ToolRegistry
     from grangerpet.config import Settings
     import httpx
-    p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);p.add_argument('--scenario',choices=('chat','short','site','broad','catalog','invalid','tiktok'),required=True)
+    p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);p.add_argument('--scenario',choices=('chat','short','site','broad','catalog','invalid','tiktok','steam'),required=True)
     args=p.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Prior evidence preserved; choose another directory')
     key=resolve_deepseek_key();out.mkdir(parents=True)
@@ -61,7 +61,8 @@ def main():
         'site':'Пассивно исследуй https://voin-cs.kz/ : прочитай опубликованные страницы, DNS, RDAP, ASN, публичные ссылки и доступные архивы. Без активного сканирования. Дай содержательный отчёт по-русски с фактическими находками и ограничениями.',
         'broad':'Пассивно исследуй https://voin-cs.kz/ : DNS RDAP IP ASN domain historical contacts, Telegram VK Instagram Steam TikTok GitHub repository username email phone GEOINT geoclip waypoint graph shadow hash. Только публичные read-only источники, без Nuclei и активных проверок. Покажи только уместные находки; не исследуй случайных людей.',
         'catalog':'Какие инструменты доступны для Steam? Проверь актуальный каталог и последние результаты, без сетевого исследования профилей.',
-        'tiktok':'Проверь TikTok @scout2015. Покажи реально полученные публичные поля; счётчики и дату создания не угадывай.'}
+        'tiktok':'Проверь TikTok @scout2015. Покажи реально полученные публичные поля; счётчики и дату создания не угадывай.',
+        'steam':'Покажи инвентарь Steam 76561198045277210. Нужны реальные предметы и частичная оценка только по полученным ценам. Не изучай друзей.'}
     report={'scenario':args.scenario,'live':True,'user_history_read':False,'source_keys_used':False};started=time.monotonic();registry=None
     try:
         if args.scenario=='chat':

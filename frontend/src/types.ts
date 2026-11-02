@@ -44,8 +44,14 @@ export interface InvestigationGraph {
   truncated_input?:boolean; relations_truncated?:boolean
   refreshing?:boolean;generation?:number
   has_geoint?:boolean
+  steam_inventories?:SteamInventorySummary[]
   counts?:Record<string,number|null>
   summary?:{findings:GraphFinding[];hypotheses:GraphFinding[];background_count:number;limitations:string[];failed_sources:{tool:string;status:string;error?:string}[];report?:string;stop_reason?:string}
+}
+export interface SteamInventorySummary {
+  steamid64:string;appid:number;contextid:string;observed_assets:number;observed_units:number;reported_total:number|null
+  coverage_status:string;coverage_reason:string;categories:Record<string,number>;next_cursor?:string|null
+  valuation:{currency:string;priced_assets:number;unpriced_assets:number;observed_subtotal_decimal:string|null;method:string;quote_first_observed_at?:string|null;quote_last_observed_at?:string|null}
 }
 export interface Message {
   id: string

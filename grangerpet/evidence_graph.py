@@ -63,7 +63,8 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             originals=current['attributes'].setdefault('original_addresses',[])
             for value in (str(label),attributes.get('address')):
                 if value and value not in originals:originals.append(value)
-        if record and kind in ('asset','public_profile','repository','image','website','public_post'):
+        if (record and kind in ('asset','public_profile','repository','image','website','public_post','inventory_item')
+                and (record.get('type')!='steam_item' or kind=='inventory_item')):
             from .public_media import media_reference
             media=media_reference(record)
             if media and kind not in ('source','domain','username'):current['attributes']['media']=media
@@ -148,7 +149,30 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                     if key in details and details[key] is not None and not isinstance(details[key],str)),None)
         if wrong:bad_fields+=1;continue
         current=None
-        if (kind in ('profile','community') or host=='t.me' and kind not in ('post','publication')) and url:
+        if kind in ('steam_item','steam_inventory') and isinstance(details.get('steamid64'),str):
+            owner_url=details.get('canonical_url') or 'https://steamcommunity.com/profiles/'+details['steamid64']
+            owner=url_node(owner_url,record,reference=False)
+            scope=details['steamid64']+'|'+str(details.get('appid'))+'|'+str(details.get('contextid'))
+            game=node('steam_inventory',scope,'CS2 · инвентарь' if details.get('appid')==730 else 'Steam app '+str(details.get('appid')),
+                record,display_type='steam_inventory',steamid64=details['steamid64'],appid=details.get('appid'),contextid=details.get('contextid'),url=owner_url+'/inventory/')
+            edge(owner,game,'has_public_inventory',record,observed_field='steamid64,appid,contextid')
+            current=game
+            if kind=='steam_item' and isinstance(details.get('assetid'),str):
+                category=str(details.get('category') or 'Не классифицировано')
+                group=node('entity_group',scope+'|'+category,category,record,display_type='inventory_category',
+                    grouped_type='inventory_item',scope=scope,grouping_only=True)
+                edge(game,group,'contains_inventory_category',record,observed_field='tags.Type')
+                attrs={key:deepcopy(details.get(key)) for key in ('steamid64','appid','contextid','assetid','classid','instanceid','amount',
+                    'name','market_hash_name','category','rarity','quality','exterior','float_value','pattern_template','price','image_url')}
+                current=node('inventory_item',scope+'|'+details['assetid'],details.get('name') or 'Предмет '+details['assetid'],record,
+                    **attrs,display_type='inventory_item',parent_group_id=group,url=url,ownership_verified=False)
+                if group and current:
+                    members=nodes[group]['attributes'].setdefault('member_ids',[])
+                    if current not in members:members.append(current)
+                    nodes[group]['attributes']['member_count']=len(members)
+                edge(group,current,'contains_inventory_item',record,observed_field='assets[].assetid + descriptions.tags')
+                edge(owner,current,'owns_public_item',record,observed_field='public_inventory.assets[].assetid')
+        elif (kind in ('profile','community') or host=='t.me' and kind not in ('post','publication')) and url:
             canonical=canonical_url(details.get('canonical_url','')) or canonical_url(url)
             if host=='t.me':
                 from .entity_router import route
@@ -410,8 +434,9 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                 if len(parts)>=2:
                     namespace=url_node('https://github.com/'+parts[0],record,reference=True,label=parts[0])
                     edge(current,namespace,'repository_namespace',record,'source_reported',identity_inference=False)
-            source_key=canonical_url(url) or str(record.get('resource_id') or record.get('evidence_id'))
-            source=node('source',source_key,str(record.get('platform') or 'Локальное свидетельство'),record,url=url,
+            source_url=details.get('source_endpoint') if kind=='steam_item' and isinstance(details.get('source_endpoint'),str) else url
+            source_key=canonical_url(source_url) or str(record.get('resource_id') or record.get('evidence_id'))
+            source=node('source',source_key,str(record.get('platform') or 'Локальное свидетельство'),record,url=source_url,
                 obtained_at=(record.get('provenance') or {}).get('obtained_at') if isinstance(record.get('provenance'),dict) else None)
             edge(current,source,'supported_by',record,'source_reported')
     for reference,attachment,candidate_id,record in geo_references:

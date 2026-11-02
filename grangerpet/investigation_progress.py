@@ -16,6 +16,7 @@ _TELEMETRY = frozenset(('query', 'original_query', 'retrieved_at', 'obtained_at'
     'content_excerpt', 'content_length', 'content_total_chars', 'observations'))
 
 _TELEMETRY=_TELEMETRY|frozenset(('collected_at','observed_at','source_observed_at','cache_hit','source_diagnostics','snapshot_id','viewport','screenshot_sha256','screenshot_attachment_id','browser_action','elements','visual_access','workflow_state','action_effect'))
+_TELEMETRY=_TELEMETRY|frozenset(('inventory_observed_at','response_bytes','body_sha256'))
 
 
 def normalized_arguments(name, arguments, default_limit=None):

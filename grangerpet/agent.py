@@ -394,6 +394,28 @@ class AgentRunner:
                 if row['function']['name']=='blockchain_gansar':
                     row['function']['parameters']['properties']['operation']={'type':'string','enum':['cached']}
                     row['function']['parameters']['required']=['address','operation']
+        if method in ('schemas','descriptions'):
+            # Current-run primary observations govern pagination bindings. An
+            # exhausted endpoint is not an invitation to repeat from page one.
+            from .agent_evidence import current_observation
+            scopes={}
+            for raw in self._store.records():
+                row=current_observation(raw);data=row.get('details',{})
+                if row.get('type')=='steam_inventory' and isinstance(data,dict) and isinstance(data.get('coverage'),dict):
+                    scopes[(data.get('steamid64'),data.get('appid'),data.get('contextid'))]=data
+            if len(scopes)==1:
+                scope=next(iter(scopes.values()));coverage=scope['coverage']
+                if coverage.get('stop_reason')=='exhausted':
+                    result=[row for row in result if row['function']['name']!='steam_inventory']
+                elif coverage.get('more_items') and coverage.get('next_cursor'):
+                    result=deepcopy(result)
+                    for row in result:
+                        if row['function']['name']!='steam_inventory':continue
+                        schema=row['function']['parameters'];schema['required']=list(dict.fromkeys([*schema['required'],'cursor']))
+                        schema['properties']['cursor']['enum']=[coverage['next_cursor']]
+                        schema['properties']['profile']['enum']=[scope['steamid64']]
+                        schema['properties']['appid']['enum']=[scope['appid']]
+                        schema['properties']['contextid']['enum']=[scope['contextid']]
         return result
 
     def _messages(self, history, catalog):
@@ -785,6 +807,14 @@ class AgentRunner:
                 row['graph']={key:details.get(key) for key in ('total_entities','total_relations','next_offset','truncated_input')}
                 row['graph']['entities']=[{key:n.get(key) for key in ('id','type','label','evidence_ids')} for n in details.get('entities',[])[:12]]
                 row['graph']['relations']=details.get('relations',[])[:16]
+            if details.get('capability')=='steam_inventory':
+                if record.get('type')=='steam_inventory':
+                    coverage=details.get('coverage',{})
+                    row['inventory']={key:details.get(key) for key in ('steamid64','appid','contextid','categories','prices_observed','price_coverage')}
+                    row['inventory']['coverage']={key:coverage.get(key) for key in ('observed_assets','reported_total','next_cursor','more_items','stop_reason','all_items_observed_in_this_call')}
+                else:
+                    row['structured_record']={key:details.get(key) for key in ('steamid64','appid','contextid','assetid','classid','instanceid',
+                        'name','market_hash_name','amount','category','rarity','exterior','float_value','pattern_template','price','source_endpoint','inventory_observed_at')}
             if details.get('source_record'):
                 if details.get('capability')=='blockchain_gansar':
                     preferred=('chain','target_address','address','asset','asset_id','amount_decimal','holding_status','ownership_status','ownership_verified','name','symbol','contract','type','owner_address','image_url','tx_hash','event_id','from_address','to_address','timestamp','input_resolution','counts','source_diagnostics')

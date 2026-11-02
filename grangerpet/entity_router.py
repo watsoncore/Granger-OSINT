@@ -83,9 +83,9 @@ def route(value):
             or re.match(r'(?i)^(?:https?://)?(?:www\.)?steamcommunity\.com/(?:id|profiles)/',value)):
         from .steam_public import normalize
         try:
-            identity,url=normalize(value)
+            identity,url=normalize(value,allow_inventory=True)
             return Target('steam_profile',identity.steamid64 if identity else url,'steam',url,
-                {'identity_verified':False},('steam_profile','steam_aliases','steam_friends'))
+                {'identity_verified':False},('steam_profile','steam_inventory','steam_aliases','steam_friends'))
         except (ValueError,TypeError):return None
     if re.match(r'(?i)^(?:https?://)?(?:(?:www|m)\.)?vk\.(?:com|ru)/',value):
         from .socmint_targets import vk

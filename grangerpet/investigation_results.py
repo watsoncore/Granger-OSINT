@@ -123,6 +123,7 @@ def readable_finding(row):
 
 
 def project(snapshot, goal=None, *, cancel_event=None):
+    from .steam_inventory_view import inventories
     from .evidence_graph import build
     from .agent_evidence import current_observation
     records = [current_observation(row) for row in snapshot.get('evidence', []) if isinstance(row, dict) and row.get('evidence_id')
@@ -152,7 +153,7 @@ def project(snapshot, goal=None, *, cancel_event=None):
     calls = snapshot.get('tool_calls')
     executions = [row for row in snapshot.get('executions', []) if isinstance(row, dict)]
     failures = [row for row in executions if row.get('status') not in ('complete','completed','empty','partial','duplicate_skipped')]
-    source_urls = {canonical_url(row.get('url','')) for row in records if row.get('url')}
+    source_urls = {canonical_url((row.get('details') or {}).get('source_endpoint') or row.get('url','')) for row in records if row.get('url')}
     source_urls.discard('')
     findings = [row for row in evidence if row['relevance']['level'] in ('direct','linked') and row.get('status') != 'hypothesis']
     priority={'blockchain_summary':0,'balance':1,'token_asset':2,'nft_asset':3,'web3_identity':4,'contract_observation':5,'transaction':7,'blockchain_counterparty':8}
@@ -160,6 +161,7 @@ def project(snapshot, goal=None, *, cancel_event=None):
     hypotheses = [row for row in evidence if row.get('status') == 'hypothesis' or row['relevance']['level'] == 'potential']
     background = [row for row in evidence if row['relevance']['level'] == 'background']
     return {**graph, 'investigation_id':snapshot.get('id'), 'goal':goal, 'status':snapshot.get('status','stopped'),
+        'steam_inventories':inventories(records,include_items=False),
         'revision':snapshot.get('checkpoint_revision') or str(len(records)) + ':' + str(len(executions)),
         'summary':{'findings':findings[:30],'hypotheses':hypotheses[:30], 'background_count':len(background),
             'limitations':list(dict.fromkeys(str(note) for row in failures[-12:] for note in row.get('limitations',[]) if isinstance(note,str)))[:12],

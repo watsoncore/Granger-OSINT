@@ -98,7 +98,7 @@ def analyze(snapshot):
                 'tables':deepcopy(data.get('tables',[])[:2]),'metadata':deepcopy(data.get('metadata',{})),
                 'local_ocr':deepcopy(data.get('local_ocr')),'screenshot_captured':bool(data.get('screenshot_sha256')),
                 'reading_method':'browser_dom'})
-        if row.get('platform')=='steam' and isinstance(data.get('steamid64'),str):
+        if row.get('platform')=='steam' and row.get('type')=='profile' and isinstance(data.get('steamid64'),str):
             social=social_profiles.setdefault(data['steamid64'],{'platform':'steam','steamid64':data['steamid64'],
                 'url':data.get('canonical_url') or row.get('url'),'profile':{},'aliases':[],'friends':[],'sources':[]})
             source={'url':row.get('url'),'operation':data.get('operation'),'observed_at':data.get('obtained_at')}
@@ -179,10 +179,12 @@ def analyze(snapshot):
         result = computed.get(key) if computed.get(key, {}).get('unique_events', 0) > local['unique_events'] else local
         chains['|'.join(key)] = result
     from .network_report import profiles
+    from .steam_inventory_view import model_summaries
     return {'version': 1, 'goal': goal, 'evidence_examined': len(rows), 'relevant_evidence': len(relevant),
         'network_profiles':profiles(relevant),'browser_observations':browser_observations,
         'executed_operations':[{'tool':row.get('tool'),'status':row.get('status')} for row in snapshot.get('executions',[]) if isinstance(row,dict)],
         'social_profiles':list(social_profiles.values()),
+        'steam_inventories':model_summaries(relevant),
         'blockchain': chains, 'assets': list(assets.values()), 'scenes': scenes,'image_observations':image_observations,
         'geographic_candidates': list(candidates.values()), 'reference_images':references, 'facts': facts,
         'contradictions': contradictions, 'coverage': 'saved_observations_only',
@@ -198,7 +200,8 @@ def model_context(analysis):
         'geographic_candidates', 'contradictions', 'unresolved_questions', 'source_failures')}
     value['image_observations']=deepcopy(analysis.get('image_observations',[]))
     value['network_profiles']=deepcopy(analysis.get('network_profiles',[]))
-    value['social_profiles']=deepcopy(analysis.get('social_profiles',[]))
+    value['social_profiles']=[{**deepcopy(row),'sources':deepcopy(row.get('sources',[])[:6])} for row in analysis.get('social_profiles',[])]
+    value['steam_inventories']=deepcopy(analysis.get('steam_inventories',[]))
     value['browser_observations']=deepcopy(analysis.get('browser_observations',[])[-6:])
     value['executed_operations']=deepcopy(analysis.get('executed_operations',[])[-40:])
     value['reference_images']=[{**{key:item for key,item in row.items() if key!='comparison'},
@@ -245,6 +248,15 @@ def report_header(analysis):
     """Essential locally verified counts stay visible even if prose omits them."""
     from .network_report import markdown
     lines = [markdown(analysis.get('network_profiles',[]))] if analysis.get('network_profiles') else []
+    for inventory in analysis.get('steam_inventories',[]):
+        total=inventory.get('reported_total')
+        lines += ['**Steam: получены данные '+str(inventory['observed_assets'])+' уникальных предметов из '+
+            str(total if total is not None else 'неизвестного общего числа')+'.** '+
+            ('Счётчик и курсоры согласованы.' if inventory.get('coverage_status')=='complete' else 'Покрытие частичное; отсутствующие предметы не выдумываются.')]
+        valuation=inventory.get('valuation',{})
+        if valuation.get('observed_subtotal_decimal') is not None:
+            lines += ['Известные котировки: '+valuation['observed_subtotal_decimal']+' USD для '+str(valuation['priced_assets'])+
+                ' предметов; у '+str(valuation['unpriced_assets'])+' цена неизвестна. Это не полная стоимость инвентаря.']
     for data in analysis['blockchain'].values():
         direction = data.get('directions', {})
         lines += [f"**Наблюдаемая выборка: {data['unique_events']} событий, {data['unique_counterparties']} уникальных контрагентов.** "
@@ -281,6 +293,22 @@ def factual_report(analysis, *, reason='', language_unavailable=False):
         lines += ['Языковой анализ недоступен. Ниже — фактический отчёт, рассчитанный локально по сохранённым данным.', '']
     from .network_report import markdown
     if analysis.get('network_profiles'):lines += [markdown(analysis['network_profiles']), '']
+    for inventory in analysis.get('steam_inventories',[]):
+        total=inventory.get('reported_total')
+        lines += ['### Steam · предметы инвентаря','',
+            'Получены данные '+str(inventory['observed_assets'])+' уникальных предметов из '+str(total if total is not None else 'неизвестного общего числа')+
+            '; страниц: '+str(inventory.get('pages_count',0))+'. Полнота: '+('подтверждена по счётчику и курсорам' if inventory.get('coverage_status')=='complete' else 'частичная')+'.']
+        if inventory.get('coverage_reason')=='server_exhausted_before_reported_count':
+            lines += ['Источник завершил пагинацию раньше заявленного числа. Недостающие предметы не восстановлены по догадке.']
+        valuation=inventory.get('valuation',{})
+        if valuation.get('observed_subtotal_decimal') is not None:
+            lines += ['Оценённая часть: '+valuation['observed_subtotal_decimal']+' USD; цены получены для '+str(valuation['priced_assets'])+
+                ' предметов, для '+str(valuation['unpriced_assets'])+' цена неизвестна. Это не полная стоимость инвентаря.']
+        if inventory.get('sample_items'):
+            lines += ['', '| Предмет | Категория | Состояние |', '| --- | --- | --- |']
+            for item in inventory['sample_items']:
+                lines.append('| '+' | '.join(_cell(item.get(key) or 'Не предоставлено') for key in ('name','category','exterior'))+' |')
+        lines += ['','Float/pattern берутся только из опубликованных свойств конкретного asset ID; редкость наклеек и реальная личность владельца не установлены.','']
     for social in analysis.get('social_profiles',[]):
         profile=social['profile'];link='[Публичный профиль]('+social['url']+')'
         lines += ['### Steam · '+str(profile.get('personaname') or social['steamid64']),
@@ -336,7 +364,8 @@ def factual_report(analysis, *, reason='', language_unavailable=False):
         for row in analysis['geographic_candidates']:
             lines.append(f"| {row['latitude']}, {row['longitude']} | {_cell(row['source_model'])} | Модельная гипотеза, место не подтверждено |")
     if not analysis['blockchain'] and not analysis['scenes']:
-        facts = [f for f in analysis['facts'] if not analysis.get('network_profiles') or f.get('kind') not in ('ip','domain','threat_indicator')]
+        facts = [f for f in analysis['facts'] if (not analysis.get('network_profiles') or f.get('kind') not in ('ip','domain','threat_indicator'))
+                 and (not analysis.get('steam_inventories') or f.get('kind') not in ('steam_item','steam_inventory'))]
         if facts or not analysis.get('network_profiles'):lines += ['## Результат проверки', '']
         if not facts and not analysis.get('network_profiles'):
             lines.append('Пригодных доказательств не получено. Доступные источники не позволяют ответить на поставленный вопрос; это не доказывает отсутствие сведений в интернете.')

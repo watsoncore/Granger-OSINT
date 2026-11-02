@@ -54,7 +54,7 @@ def vk_observation(target,outcome,*,browser_read=None):
             'source_status':'public_content_observed','access_mode':'public','identity_verified':False,
             'object_type_verified':False,'field_origin':'public_page_metadata_and_links'}
         fields['identifier_origin']='input_url_not_independent_identity_verification'
-        row=deepcopy(raw);row.update(title=name,platform='VK',type='public_post' if target['kind']=='post' else
+        row=deepcopy(raw);row.update(title=name,platform='VK',type='post' if target['kind']=='post' else
             'community' if target['kind']=='community' else 'profile',details=fields)
         records.append(row)
     return _envelope('vk_public',url,status='partial' if records else 'empty',results=records,
@@ -106,12 +106,12 @@ def tiktok_public(value,*,cancel_event=None,deadline=None,client_factory=None,re
             failure=PageReadError('tiktok_oembed_http_'+str(status),
                 'rate_limited' if status==429 else 'auth_required' if status==401 else 'blocked' if status==403 else 'unavailable')
             retry=response.get('headers',{}).get('retry-after','')
-            failure.retry_after=min(86400,max(60,int(retry))) if str(retry).isdigit() else 60
+            failure.retry_after=min(86400,max(60,int(retry))) if str(retry).isdigit() and len(str(retry))<8 else 60
             raise failure
         fields=tiktok_observation(target,json.loads(response['body'].decode('utf-8-sig')))
         description='TikTok: '+str(fields.get('nickname') or '@'+target['username'])+'. Источник — официальный oEmbed; полная статистика и дата создания аккаунта этим ответом не подтверждены.'
         record=_record('tiktok_public_profile',value,'TikTok · '+str(fields.get('nickname') or '@'+target['username']),
-            target['canonical_url'],description,kind='public_post' if target['kind']=='video' else 'profile',
+            target['canonical_url'],description,kind='post' if target['kind']=='video' else 'profile',
             details={**fields,'capability':'tiktok_public_profile','canonical_url':target['canonical_url'],
                      'source_status':'official_embed_observed','source_endpoint':response['final_url'],'identity_verified':False})
         return _envelope('tiktok_public_profile',value,status='partial',results=[record],limitations=[

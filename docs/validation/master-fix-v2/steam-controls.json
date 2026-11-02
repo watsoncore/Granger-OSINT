@@ -1,0 +1,403 @@
+[
+  {
+    "summary": {
+      "timestamp": "2026-11-02T12:44:18.217766+05:00",
+      "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=50",
+      "profile_status": "complete",
+      "actual_profile_names": [
+        "battery defuser"
+      ],
+      "keys_or_cookies": false,
+      "probe_page_size": 50,
+      "http_status": 200,
+      "response_bytes": 119803,
+      "body_sha256": "ba9be5530cd3d2432ad3504e01ce80b7431b72caa6997346fe467359549b7d83",
+      "final_url": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=50",
+      "payload_keys": [
+        "asset_properties",
+        "assets",
+        "descriptions",
+        "last_assetid",
+        "more_items",
+        "rwgrsn",
+        "success",
+        "total_inventory_count"
+      ],
+      "assets": 50,
+      "descriptions": 37,
+      "more_items": 1,
+      "total_inventory_count": 795,
+      "sample_names": [
+        "Five-SeveN | Desert Seal",
+        "Five-SeveN | Desert Seal",
+        "PP-Bizon | Traitor",
+        "MP9 | Dune Asp",
+        "Sawed-Off | Lunar Wyrm"
+      ]
+    },
+    "id": "steam-inventory-probe"
+  },
+  {
+    "summary": {
+      "timestamp": "2026-11-02T12:58:47.422583+05:00",
+      "live": true,
+      "keys_or_cookies": false,
+      "distinct_assets": 748,
+      "names_observed": 748,
+      "floats_observed": 504,
+      "patterns_observed": 504,
+      "priced_assets": 4,
+      "sample_names": [
+        "Five-SeveN | Desert Seal",
+        "Five-SeveN | Desert Seal",
+        "PP-Bizon | Traitor",
+        "Five-SeveN | Desert Seal",
+        "MP9 | Dune Asp"
+      ],
+      "calls": [
+        {
+          "status": "partial",
+          "coverage": {
+            "observed_assets": 295,
+            "reported_total": 795,
+            "starts_at_cursor": null,
+            "next_cursor": "41233169507",
+            "more_items": true,
+            "stop_reason": "page_limit",
+            "pages": [
+              {
+                "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=100",
+                "http_status": 200,
+                "observed_at": "2026-11-02T12:58:28.626577+05:00",
+                "returned_assets": 100,
+                "new_assets": 100,
+                "reported_total": 795,
+                "cursor": null,
+                "next_cursor": "50433254542"
+              },
+              {
+                "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=100&start_assetid=50433254542",
+                "http_status": 200,
+                "observed_at": "2026-11-02T12:58:29.621625+05:00",
+                "returned_assets": 100,
+                "new_assets": 100,
+                "reported_total": 795,
+                "cursor": "50433254542",
+                "next_cursor": "47476778660"
+              },
+              {
+                "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=100&start_assetid=47476778660",
+                "http_status": 200,
+                "observed_at": "2026-11-02T12:58:30.653358+05:00",
+                "returned_assets": 95,
+                "new_assets": 95,
+                "reported_total": 795,
+                "cursor": "47476778660",
+                "next_cursor": "41233169507"
+              }
+            ],
+            "all_items_observed_in_this_call": false,
+            "inventory_may_change_during_pagination": true,
+            "counts_are_not_item_data": false
+          },
+          "source_failures": []
+        },
+        {
+          "status": "partial",
+          "coverage": {
+            "observed_assets": 264,
+            "reported_total": 795,
+            "starts_at_cursor": "41233169507",
+            "next_cursor": "25081688319",
+            "more_items": true,
+            "stop_reason": "page_limit",
+            "pages": [
+              {
+                "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=100&start_assetid=41233169507",
+                "http_status": 200,
+                "observed_at": "2026-11-02T12:58:36.497623+05:00",
+                "returned_assets": 98,
+                "new_assets": 98,
+                "reported_total": 795,
+                "cursor": "41233169507",
+                "next_cursor": "30559334240"
+              },
+              {
+                "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=100&start_assetid=30559334240",
+                "http_status": 200,
+                "observed_at": "2026-11-02T12:58:37.748034+05:00",
+                "returned_assets": 88,
+                "new_assets": 88,
+                "reported_total": 795,
+                "cursor": "30559334240",
+                "next_cursor": "27444384207"
+              },
+              {
+                "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=100&start_assetid=27444384207",
+                "http_status": 200,
+                "observed_at": "2026-11-02T12:58:38.820842+05:00",
+                "returned_assets": 78,
+                "new_assets": 78,
+                "reported_total": 795,
+                "cursor": "27444384207",
+                "next_cursor": "25081688319"
+              }
+            ],
+            "all_items_observed_in_this_call": false,
+            "inventory_may_change_during_pagination": true,
+            "counts_are_not_item_data": false
+          },
+          "source_failures": []
+        },
+        {
+          "status": "partial",
+          "coverage": {
+            "observed_assets": 189,
+            "reported_total": 795,
+            "starts_at_cursor": "25081688319",
+            "next_cursor": null,
+            "more_items": false,
+            "stop_reason": "exhausted",
+            "pages": [
+              {
+                "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=100&start_assetid=25081688319",
+                "http_status": 200,
+                "observed_at": "2026-11-02T12:58:41.605972+05:00",
+                "returned_assets": 98,
+                "new_assets": 98,
+                "reported_total": 795,
+                "cursor": "25081688319",
+                "next_cursor": "23349323662"
+              },
+              {
+                "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=100&start_assetid=23349323662",
+                "http_status": 200,
+                "observed_at": "2026-11-02T12:58:42.620565+05:00",
+                "returned_assets": 91,
+                "new_assets": 91,
+                "reported_total": 795,
+                "cursor": "23349323662",
+                "next_cursor": null
+              }
+            ],
+            "all_items_observed_in_this_call": false,
+            "inventory_may_change_during_pagination": true,
+            "counts_are_not_item_data": false
+          },
+          "source_failures": []
+        }
+      ],
+      "media": [
+        {
+          "id": "media_1e2831c2279f772cda04b79ce6e91f41b88c47a36b776cc376f43f240765d53d",
+          "state": "ready",
+          "source_url": "https://steamcommunity.com/profiles/76561198045277210/inventory",
+          "url": "https://community.fastly.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL3l4Dl7idN6vyRbq17JeOWGGKe_upzo-R7WxagkBwrjDCAnobsLGWUbwQoXpQmEeBcthi9wYW2MLjlsVHb2YhGzS-o2iNI6nlrsesDA6B25OSJ2Bz1wt-a/256fx256f",
+          "width": 256,
+          "height": 256,
+          "bytes": 39869,
+          "sha256": "159dc5552325dfbcce683c2c6d153466d19edbe4047a5d762514426afd2676a2",
+          "fetched_at": "2026-11-02T12:58:44.550843+05:00"
+        },
+        {
+          "id": "media_eb315b5a0f4fb7d899692dbaccbdc369ca08bc2481d8139ec8714d559b0039ab",
+          "state": "ready",
+          "source_url": "https://steamcommunity.com/profiles/76561198045277210/inventory",
+          "url": "https://community.fastly.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL3l4Dl7idN6vyRbq17JeOWGGKe_upzo-R7WxagkBwrjDWAm5ngb3-eaQJ1A5FyReYMskXukdXvNu3l4QHYgoNDm33-jy0f5i1p5OgFUas7uvqA21GDSNM/256fx256f",
+          "width": 256,
+          "height": 256,
+          "bytes": 40112,
+          "sha256": "fb0ae6b005af497a8f47a9ad7e783c446381e7f02dedbeed38d62c7e8944b66a",
+          "fetched_at": "2026-11-02T12:58:45.874648+05:00"
+        },
+        {
+          "id": "media_01bf4e6d6dfc7038ae72fa34435ddcc28c11225541b53827a73f2756ae2b7fc7",
+          "state": "ready",
+          "source_url": "https://steamcommunity.com/profiles/76561198045277210",
+          "url": "https://avatars.fastly.steamstatic.com/370c6ab34b6edfa7e34f1b4fe50e1cb80d9f4bfa_full.jpg",
+          "width": 184,
+          "height": 184,
+          "bytes": 11589,
+          "sha256": "1bc1ad03f166e541aff2e0c3b6ae6fe2ac656ac0332f4ef9929fc160eece2f28",
+          "fetched_at": "2026-11-02T12:58:47.416114+05:00"
+        }
+      ]
+    },
+    "id": "steam-inventory-retention-fixed"
+  },
+  {
+    "summary": {
+      "timestamp": "2026-11-02T13:12:46.505175+05:00",
+      "live": true,
+      "keys_or_cookies": false,
+      "distinct_assets": 748,
+      "names_observed": 748,
+      "floats_observed": 504,
+      "patterns_observed": 504,
+      "priced_assets": 4,
+      "sample_names": [
+        "Five-SeveN | Desert Seal",
+        "Five-SeveN | Desert Seal",
+        "PP-Bizon | Traitor",
+        "Five-SeveN | Desert Seal",
+        "MP9 | Dune Asp"
+      ],
+      "calls": [
+        {
+          "status": "partial",
+          "coverage": {
+            "observed_assets": 559,
+            "reported_total": 795,
+            "starts_at_cursor": null,
+            "next_cursor": "25081688319",
+            "more_items": true,
+            "stop_reason": "page_limit",
+            "pages": [
+              {
+                "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=200",
+                "http_status": 200,
+                "observed_at": "2026-11-02T13:12:32.128702+05:00",
+                "returned_assets": 200,
+                "new_assets": 200,
+                "reported_total": 795,
+                "cursor": null,
+                "next_cursor": "47476778660"
+              },
+              {
+                "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=200&start_assetid=47476778660",
+                "http_status": 200,
+                "observed_at": "2026-11-02T13:12:33.198953+05:00",
+                "returned_assets": 193,
+                "new_assets": 193,
+                "reported_total": 795,
+                "cursor": "47476778660",
+                "next_cursor": "30559334240"
+              },
+              {
+                "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=200&start_assetid=30559334240",
+                "http_status": 200,
+                "observed_at": "2026-11-02T13:12:34.279948+05:00",
+                "returned_assets": 166,
+                "new_assets": 166,
+                "reported_total": 795,
+                "cursor": "30559334240",
+                "next_cursor": "25081688319"
+              }
+            ],
+            "all_items_observed_in_this_call": false,
+            "inventory_may_change_during_pagination": true,
+            "counts_are_not_item_data": false
+          },
+          "source_failures": []
+        },
+        {
+          "status": "partial",
+          "coverage": {
+            "observed_assets": 189,
+            "reported_total": 795,
+            "starts_at_cursor": "25081688319",
+            "next_cursor": null,
+            "more_items": false,
+            "stop_reason": "exhausted",
+            "pages": [
+              {
+                "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=200&start_assetid=25081688319",
+                "http_status": 200,
+                "observed_at": "2026-11-02T13:12:40.528327+05:00",
+                "returned_assets": 189,
+                "new_assets": 189,
+                "reported_total": 795,
+                "cursor": "25081688319",
+                "next_cursor": null
+              }
+            ],
+            "all_items_observed_in_this_call": false,
+            "inventory_may_change_during_pagination": true,
+            "counts_are_not_item_data": false
+          },
+          "source_failures": []
+        }
+      ],
+      "media": [
+        {
+          "id": "media_1e2831c2279f772cda04b79ce6e91f41b88c47a36b776cc376f43f240765d53d",
+          "state": "ready",
+          "source_url": "https://steamcommunity.com/profiles/76561198045277210/inventory#730_2_54094326840",
+          "url": "https://community.fastly.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL3l4Dl7idN6vyRbq17JeOWGGKe_upzo-R7WxagkBwrjDCAnobsLGWUbwQoXpQmEeBcthi9wYW2MLjlsVHb2YhGzS-o2iNI6nlrsesDA6B25OSJ2Bz1wt-a/256fx256f",
+          "width": 256,
+          "height": 256,
+          "bytes": 39869,
+          "sha256": "159dc5552325dfbcce683c2c6d153466d19edbe4047a5d762514426afd2676a2",
+          "fetched_at": "2026-11-02T13:12:42.722946+05:00"
+        },
+        {
+          "id": "media_eb315b5a0f4fb7d899692dbaccbdc369ca08bc2481d8139ec8714d559b0039ab",
+          "state": "ready",
+          "source_url": "https://steamcommunity.com/profiles/76561198045277210/inventory#730_2_54094325872",
+          "url": "https://community.fastly.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL3l4Dl7idN6vyRbq17JeOWGGKe_upzo-R7WxagkBwrjDWAm5ngb3-eaQJ1A5FyReYMskXukdXvNu3l4QHYgoNDm33-jy0f5i1p5OgFUas7uvqA21GDSNM/256fx256f",
+          "width": 256,
+          "height": 256,
+          "bytes": 40112,
+          "sha256": "fb0ae6b005af497a8f47a9ad7e783c446381e7f02dedbeed38d62c7e8944b66a",
+          "fetched_at": "2026-11-02T13:12:44.963883+05:00"
+        },
+        {
+          "id": "media_01bf4e6d6dfc7038ae72fa34435ddcc28c11225541b53827a73f2756ae2b7fc7",
+          "state": "ready",
+          "source_url": "https://steamcommunity.com/profiles/76561198045277210",
+          "url": "https://avatars.fastly.steamstatic.com/370c6ab34b6edfa7e34f1b4fe50e1cb80d9f4bfa_full.jpg",
+          "width": 184,
+          "height": 184,
+          "bytes": 11589,
+          "sha256": "1bc1ad03f166e541aff2e0c3b6ae6fe2ac656ac0332f4ef9929fc160eece2f28",
+          "fetched_at": "2026-11-02T13:12:46.497112+05:00"
+        }
+      ]
+    },
+    "id": "steam-inventory-page-size-control"
+  },
+  {
+    "summary": {
+      "scenario": "steam",
+      "live": true,
+      "user_history_read": false,
+      "source_keys_used": false,
+      "bound_tool_count": 12,
+      "status": "completed",
+      "stop_reason": null,
+      "evidence_count": 751,
+      "answer_characters": 5343,
+      "api_error": null,
+      "executions": [
+        {
+          "tool": "steam_inventory",
+          "status": "partial"
+        },
+        {
+          "tool": "steam_inventory",
+          "status": "partial"
+        },
+        {
+          "tool": "capabilities_find",
+          "status": "complete"
+        },
+        {
+          "tool": "steam_inventory",
+          "status": "duplicate_skipped"
+        },
+        {
+          "tool": "capabilities_find",
+          "status": "complete"
+        },
+        {
+          "tool": "steam_profile",
+          "status": "complete"
+        }
+      ],
+      "http_requests": 7,
+      "http_errors": [],
+      "elapsed_seconds": 90.222
+    },
+    "id": "steam-agent-cursor-bindings"
+  }
+]

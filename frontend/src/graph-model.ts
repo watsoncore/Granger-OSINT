@@ -7,12 +7,15 @@ export const verificationLabels: Record<string,string> = { verified:'Наблю�
 export const relationLabels: Record<string,string> = { groups_observations:'Группа наблюдений',group_contains:'Включает объект',reference_for_candidate:'Эталон для гипотезы',locally_compared_with:'Сопоставлены локально',source_reports_asset:'Источник сообщает об активе',publishes_link:'Публикует ссылку',repository_namespace:'Namespace GitHub',supported_by:'Основание',published_on_domain:'Опубликовано на домене',uses_public_identifier:'Использует идентификатор',profile_mentions_organization:'Упоминает организацию',source_attributes_authorship:'Источник указывает автора',sent_from:'Отправитель',sent_to:'Получатель',transfers:'Операции',source_labels_address:'Метка источника',metadata_reports_coordinate:'GPS из метаданных',has_geographic_hypothesis:'Гипотеза модели',reference_source_reports_coordinate:'Координаты эталона',historically_published_contact:'Исторический контакт',investigates:'Объект исследования',returned_for_query:'Результат по запросу',uses_email_domain:'Домен email',map_source_reports_location:'Географический объект' }
 export const entityType = (node:GraphEntity) => String(node.attributes?.display_type || node.type)
 Object.assign(relationLabels, {
+  has_public_inventory:'Опубликован инвентарь',contains_inventory_category:'Категория предметов',
+  contains_inventory_item:'Включает предмет',owns_public_item:'Предмет в публичном инвентаре',
   resolves_to:'DNS указывает адрес', uses_nameserver:'Использует NS', dns_alias_of:'DNS-псевдоним',
   uses_mail_exchange:'Почтовый сервер', within_announced_prefix:'В анонсируемом префиксе',
   announced_by:'Анонсируется AS', within_registered_range:'В зарегистрированном диапазоне',
   registered_to:'Регистрант по реестру', reverse_dns_reports:'PTR сообщает имя',
   public_friend_link:'Публичная ссылка в списке друзей',
 })
+Object.assign(typeLabels,{steam_inventory:'Инвентарь игры',inventory_category:'Категория инвентаря',inventory_item:'Предмет Steam'})
 export const entityLabel = (node:GraphEntity) => typeLabels[entityType(node)] || node.type
 export function shortLabel(node:GraphEntity) {
   if (node.type==='public_post' && typeof node.attributes.url==='string') {

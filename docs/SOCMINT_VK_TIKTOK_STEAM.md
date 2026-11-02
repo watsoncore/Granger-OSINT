@@ -1,7 +1,7 @@
 # Public SOCMINT — Master Fix V2
 
 Work in progress. These results concern source/live checks, not the final V2 EXE.
-Steam item-level work and final native acceptance are still outstanding.
+Final native acceptance and the distinct Tree/Graph redesign remain outstanding.
 
 ## VK
 
@@ -74,6 +74,65 @@ submit, next-page click, DOM/table (25 rows), screenshot and local OCR. Cancel
 took 1.146 s and left zero owned processes. Process-tree RSS during that flow
 was 733,224,960 bytes (13 processes); this is a sample, not a general peak bound.
 
-Receipts are in the Master Fix V2 validation directory; raw controlled pages stay
-in ignored output. Pending: richer authorized field coverage when available,
-Steam inventory/valuation/media and the final source/EXE/native UI matrix.
+## Steam inventory
+
+`steam_inventory` is a separate typed capability over the public Community JSON
+response, not a claim that Steam's keyed Web API is anonymously available.
+It runs in the existing disposable process with bounded pages, bytes, memory,
+time, rate and cancellation; uses no account, cookies, trades or inspect execution;
+checks robots and pinned public DNS/TLS. Steam's
+[terms](https://store.steampowered.com/agreement/?l=english) and
+[API terms](https://steamcommunity.com/dev/apiterms) were reviewed. This is a
+user-requested passive read, with no account/gameplay/market action automation.
+The Community endpoint is subject to change and access restrictions.
+
+Actual 2026-11-02 control 76561198045277210 resolved XML customURL ohnePixel and
+display name battery defuser; these fields are not a real-world identity claim.
+Inventory JSON returned actual assets/descriptions/asset_properties. A full
+cursor walk retained **748 unique asset IDs**, all with names, while the source
+reported **795**. Pagination ended before that count. A second walk with a
+different page size produced the same 748. Coverage is therefore **partial**;
+no 47 missing records are invented and no claim of full inventory is made.
+
+504 retained items had source-provided Wear Rating and Pattern Template.
+No sticker or rare-pattern valuation was inferred. Actual Market quotes covered
+four items (three distinct names); observed subtotal 0.22 USD, with 744 items
+unpriced. That is explicitly not total inventory value. Quote time/currency,
+item IDs, tags, exterior, source endpoint, page cursors and body receipts are
+retained. Unknown prices are not zero. Errors/429 stop requests and preserve
+already received items; backoff prevents a new worker during cooldown.
+
+Two actual 256×256 item images and the actual 184×184 avatar were downloaded,
+format-verified and cached via MediaStore, with source URL/date/SHA. Renderer
+loads only backend-produced data images. Source art is not regenerated.
+
+Live testing found and fixed a second data-loss boundary: the generic registry
+kept only 20 results. Inventory now preserves the entire bounded item payload;
+regressions check 257 rows through registry, AgentRunner and checkpoint. A
+1000-item projection test retains all item nodes while passing a compact model
+summary. The real 748-item projection retained 748 item nodes (777 entities,
+3016 relations), taking 1.055 s; model context was 6852 characters rather than
+the initial 126609-character profile/source duplication.
+
+The existing overview now includes a virtual table and real-image gallery with
+game/category/name/rarity filters, unknown-field qualifications and item-to-graph
+selection. Graph nodes distinguish game inventory, category and item; ownership
+is a public account observation, never a person attribution. API page references
+are shared rather than producing a separate page node for every item. Final
+native appearance/interaction testing is still required.
+
+The short natural command was exercised through the real gateway and runner:
+751 evidence records, seven HTTP 200 model responses, no provider error. Current
+cursor enums constrain the next page and exhausted scopes retire that binding;
+one model-proposed repeat was skipped without a network request. The bounded
+run completed in 90.222 s. Source failures and item coverage remain distinct from
+the model's completed report status.
+
+Stage checks: 160 Python fixtures, 13 focused frontend tests, TypeScript passed;
+37 focused cursor/agent fixtures passed separately. A new run clears the
+registry's old URL/frontier working projection, retaining only explicitly
+selected immutable image observations for CPU reuse. Journals/vault are intact.
+
+Receipts are in the Master Fix V2 validation directory; raw controlled pages and
+inventories stay in ignored output. Pending: richer authorized TikTok fields
+when available, remaining network/GEOINT/layout work and final EXE/native matrix.
