@@ -19,7 +19,7 @@ def main():
     from grangerpet.agent_tools import ToolRegistry
     from grangerpet.config import Settings
     import httpx
-    p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);p.add_argument('--scenario',choices=('chat','short','site','broad','catalog','invalid','tiktok','steam'),required=True)
+    p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);p.add_argument('--scenario',choices=('chat','short','site','broad','catalog','invalid','tiktok','steam','location'),required=True)
     args=p.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Prior evidence preserved; choose another directory')
     key=resolve_deepseek_key();out.mkdir(parents=True)
@@ -62,7 +62,8 @@ def main():
         'broad':'Пассивно исследуй https://voin-cs.kz/ : DNS RDAP IP ASN domain historical contacts, Telegram VK Instagram Steam TikTok GitHub repository username email phone GEOINT geoclip waypoint graph shadow hash. Только публичные read-only источники, без Nuclei и активных проверок. Покажи только уместные находки; не исследуй случайных людей.',
         'catalog':'Какие инструменты доступны для Steam? Проверь актуальный каталог и последние результаты, без сетевого исследования профилей.',
         'tiktok':'Проверь TikTok @scout2015. Покажи реально полученные публичные поля; счётчики и дату создания не угадывай.',
-        'steam':'Покажи инвентарь Steam 76561198045277210. Нужны реальные предметы и частичная оценка только по полученным ценам. Не изучай друзей.'}
+        'steam':'Покажи инвентарь Steam 76561198045277210. Нужны реальные предметы и частичная оценка только по полученным ценам. Не изучай друзей.',
+        'location':'А какая локация?'}
     report={'scenario':args.scenario,'live':True,'user_history_read':False,'source_keys_used':False};started=time.monotonic();registry=None
     try:
         if args.scenario=='chat':
@@ -79,7 +80,13 @@ def main():
             registry=ToolRegistry(Settings(),secret_getter=lambda name:'',redactions=(key,))
             report['bound_tool_count']=len(registry.schemas(task=goals[args.scenario]))
             runner=AgentRunner(client,registry,limits=AgentLimits(max_steps=6,max_tool_calls=10,max_tokens=180000,timeout=240,per_tool_timeout=40,per_request_timeout=100,synthesis_timeout=120))
+            scoped={}
+            if args.scenario=='location':
+                from grangerpet.chat_intent import SessionIntent
+                intent=SessionIntent();intent.decide('А этот IP 87.199.131.94?','controlled_network')
+                scoped={'entity_context':intent.decide(goals['location'],'controlled_network')['entity_context'],'conversation_id':'controlled_network'}
             result=runner.run(DEFAULT_DEEPSEEK_MODEL,[{'role':'user','text':goals[args.scenario]}],
+                **scoped,
                 checkpoint_callback=lambda value:write('checkpoint.json',value))
             write('result.json',result);report.update(status=result['investigation']['status'],stop_reason=result['investigation'].get('stop_reason'),
                 evidence_count=len(result.get('evidence',[])),answer_characters=len(result['text']),

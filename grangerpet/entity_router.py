@@ -42,7 +42,7 @@ def route(value):
     try:
         ip = ipaddress.ip_address(value)
         return Target('infrastructure_asset', str(ip), 'ip', properties={'public': ip.is_global},
-                      tools=('ip_lookup', 'network_rdap', 'network_reverse_dns', 'network_routing', 'network_reputation', 'threat_feodo')
+                      tools=('ip_lookup', 'network_rdap', 'network_geoip', 'network_reverse_dns', 'network_routing', 'network_reputation', 'threat_feodo')
                       if ip.is_global and not ip.is_multicast and not ip.is_reserved else ())
     except ValueError:
         if re.fullmatch(r'\d+(?:\.\d+){3}', value): return None

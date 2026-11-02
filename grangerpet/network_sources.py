@@ -8,6 +8,7 @@ from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 import ipaddress
 import json
+import hashlib
 import re
 import threading
 import time
@@ -24,12 +25,14 @@ TOOLS = {
     'network_routing': ('ip', 'resource', 'RIPE RIS: текущая маршрутизация, ASN и история наблюдений'),
     'network_reverse_dns': ('ip', 'address', 'PTR публичного IPv4/IPv6 через DNS over HTTPS'),
     'network_reputation': ('ip', 'address', 'Сопоставление IP с открытым Spamhaus DROP; не вердикт безопасности'),
+    'network_geoip': ('ip','address','Приблизительный GeoIP из двух публичных бесплатных API без ключа; отдельно от страны регистрации и не местоположение человека'),
     'domain_dns': ('domain', 'domain', 'AAAA/SOA/TXT/CAA/SPF/DMARC публичного домена'),
     'domain_rdap': ('domain', 'domain', 'Авторитетный RDAP домена через текущий IANA bootstrap'),
     'domain_certificates': ('domain', 'domain', 'Публичные Certificate Transparency наблюдения crt.sh'),
 }
 _CACHE = {}
 _LOCK = threading.RLock()
+_COOLDOWN={}
 _JSON_TYPES = ('application/json', 'application/rdap+json', 'application/x-ndjson', 'text/json', 'text/plain')
 
 
@@ -99,9 +102,22 @@ def _rdap_fields(data):
         if not isinstance(entity, dict): continue
         card = entity.get('vcardArray')
         if not isinstance(card, list) or len(card) != 2 or not isinstance(card[1], list): continue
+        names={}
         for prop in card[1]:
-            if isinstance(prop, list) and len(prop) >= 4 and prop[0] in ('fn', 'org') and isinstance(prop[3], str):
-                organizations.append({'name': prop[3][:400], 'roles': entity.get('roles', [])[:8] if isinstance(entity.get('roles'), list) else []})
+            if isinstance(prop,list) and len(prop)>=4 and prop[0] in ('fn','org','kind'):
+                if isinstance(prop[3],str):names[prop[0]]=prop[3][:400]
+                elif prop[0]=='org' and isinstance(prop[3],list):names['org']='; '.join(item for item in prop[3][:5] if isinstance(item,str))[:400]
+        if names:
+            from .network_semantics import registry_entity_type
+            item={'name':names.get('org') or names.get('fn'),'handle':str(entity.get('handle') or '')[:200],
+                'roles':[role for role in entity.get('roles',[])[:8] if isinstance(role,str)] if isinstance(entity.get('roles'),list) else [],
+                'organization_name':names.get('org'),'formatted_name':names.get('fn'),'vcard_kind':names.get('kind')}
+            kind=registry_entity_type(item)
+            item['entity_type']='registry_contact' if kind=='organization' and not names.get('org') and names.get('kind')!='org' else kind
+            item['classification_basis']='vcard_org_and_registry_handle_not_service_operator_attribution'
+            existing=next((row for row in organizations if row['handle']==item['handle'] and row['name']==item['name'] and row['entity_type']==item['entity_type']),None)
+            if existing:existing['roles']=list(dict.fromkeys([*existing['roles'],*item['roles']]))
+            else:organizations.append(item)
     fields['registry_entities'] = organizations[:20]
     # No addresses, telephone numbers, secrets or complete vCards copied.
     return fields
@@ -115,9 +131,12 @@ def execute(tool, value, *, cancel_event=None, deadline=None, client_factory=Non
     async def fetch(url, params=None):
         key = url + ('?'+urlencode(params) if params else '')
         with _LOCK: cached = _CACHE.get(key)
-        if client_factory is None and cached and time.monotonic()-cached[0] < (3600 if 'data.iana.org' in url or '/drop/' in url else 300):
+        if client_factory is None and cached and time.monotonic()-cached[0] < (86400 if tool=='network_geoip' else 3600 if 'data.iana.org' in url or '/drop/' in url else 300):
             result = deepcopy(cached[1]); result['cache_hit'] = True
             return result
+        host=urlsplit(url).hostname
+        with _LOCK:remaining=_COOLDOWN.get(host,0)-time.monotonic()
+        if client_factory is None and remaining>0:raise PageReadError('source_retry_after','rate_limited')
         try:
             response = await fetch_public(url, params=params, cancel_event=cancel_event, deadline=end,
                 client_factory=client_factory, resolver=resolver, allowed_types=_JSON_TYPES,
@@ -126,6 +145,10 @@ def execute(tool, value, *, cancel_event=None, deadline=None, client_factory=Non
         except httpx.TransportError:raise PageReadError('network','unavailable') from None
         if response['status'] != 200:
             code = response['status']
+            if client_factory is None and code in (403,429):
+                delay=response.get('headers',{}).get('retry-after','')
+                seconds=min(86400,max(60,int(delay))) if str(delay).isdigit() and len(str(delay))<8 else 86400 if host=='api.ipapi.is' else 60
+                with _LOCK:_COOLDOWN[host]=time.monotonic()+seconds
             raise PageReadError('http_'+str(code), 'rate_limited' if code == 429 else 'auth_required' if code == 401 else 'unavailable')
         response['observed_at'] = datetime.now(timezone.utc).isoformat()
         response['cache_hit'] = False
@@ -146,6 +169,7 @@ def execute(tool, value, *, cancel_event=None, deadline=None, client_factory=Non
                 **fields, 'operation': tool,
                 'acquisition': 'public_api', 'http_status': response['status'],
                 'source_observed_at': observed, 'cache_hit': response.get('cache_hit', False),
+                'body_sha256':hashlib.sha256(response['body']).hexdigest(),
                 'redirects': response.get('redirects', [])})
         row['date'] = observed
         rows.append(row)
@@ -165,6 +189,10 @@ def execute(tool, value, *, cancel_event=None, deadline=None, client_factory=Non
         endpoint = base.rstrip('/') + '/' + ('domain/' if domain else 'autnum/' if value.startswith('AS') else 'ip/') + quote(value[2:] if value.startswith('AS') else value, safe=':/')
         data, response = await get_json(endpoint)
         fields = _rdap_fields(data); fields['bootstrap_source'] = 'https://data.iana.org/rdap/'+family+'.json'
+        if fields.get('objectClassName')=='ip network':
+            from .network_semantics import registration_match
+            fields['registration_match']=registration_match(value,fields)
+            if fields['registration_match'] and fields['registration_match']['match_type']=='mismatch':raise ValueError('RDAP scope mismatch')
         add('rdap_registry', 'RDAP · '+value, response, fields,
             'Регистрация ресурса в авторитетном реестре; организация диапазона не устанавливает пользователя устройства.')
     async def ptr():
@@ -178,6 +206,17 @@ def execute(tool, value, *, cancel_event=None, deadline=None, client_factory=Non
             if isinstance(row, dict) and row.get('type') == 12 and isinstance(row.get('data'), str)]
         add('google_dns', 'PTR · '+value, response, {'address': value, 'record_type': 'PTR', 'response_code': data['Status'], 'answers': records},
             'Наблюдение публичного резолвера. PTR задаётся оператором DNS и не доказывает владельца или геолокацию.')
+    async def geoip():
+        from .geoip_sources import parse,SOURCES
+        for source,info in SOURCES.items():
+            async def one(source=source,info=info):
+                data,response=await get_json(info['endpoint']+quote(value,safe=':') if source=='ipwhois' else info['endpoint'],
+                    None if source=='ipwhois' else {'q':value})
+                fields=parse(source,value,data)
+                place=', '.join(str(fields[key]) for key in ('country_name','region','city') if fields.get(key))
+                add(source,'GeoIP · '+value,response,{'geoip':fields},
+                    'Приблизительная оценка '+source+': '+place+'. Точность неизвестна; это не местоположение человека и не страна регистрации.')
+            await attempt(source,one)
     async def routing():
         resource = value
         if not value.startswith('AS') and '/' not in value:
@@ -243,6 +282,7 @@ def execute(tool, value, *, cancel_event=None, deadline=None, client_factory=Non
     async def operation():
         fn = {'network_rdap': rdap, 'domain_rdap': rdap, 'network_routing': routing,
               'network_reverse_dns': ptr, 'network_reputation': reputation,
+              'network_geoip':geoip,
               'domain_dns': dns, 'domain_certificates': certificates}[tool]
         await attempt(tool, fn)
     status = None

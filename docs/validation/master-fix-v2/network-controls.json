@@ -1,0 +1,374 @@
+{
+  "source_validation_date": "2026-11-02",
+  "final_exe_checked": false,
+  "controls": [
+    {
+      "timestamp": "2026-11-02T08:58:37.575137+00:00",
+      "tool": "network_geoip",
+      "target": "66.249.67.41",
+      "status": "complete",
+      "evidence_count": 2,
+      "seconds": 1.751,
+      "source_diagnostics": [
+        {
+          "source": "ipwhois",
+          "status": "complete"
+        },
+        {
+          "source": "ipapi_is",
+          "status": "complete"
+        },
+        {
+          "source": "network_geoip",
+          "status": "complete"
+        }
+      ],
+      "observations": [
+        {
+          "source_observed_at": "2026-11-02T08:58:36.763493+00:00",
+          "body_sha256": "cd39750141f7006f2e7c528c62426904f55a2ee47d0d326918c919b27c676748",
+          "geoip": {
+            "provider": "ipwhois",
+            "country_name": "United States",
+            "country_code": "US",
+            "region": "California",
+            "city": "San Jose",
+            "latitude": 37.3393939,
+            "longitude": -121.8949553,
+            "accuracy_radius_km": null,
+            "database_updated_at": null,
+            "location_kind": "ip_database_estimate",
+            "exact_device_location_verified": false,
+            "registration_country_is_not_geolocation": true,
+            "provider_network_label": "Google LLC",
+            "documentation_url": "https://ipwhois.io/documentation",
+            "anonymous_daily_limit": 1000,
+            "limitations": [
+              "Оценка базы по IP, возможен центр сети/города; не координаты человека или устройства.",
+              "Источник не предоставил точность/радиус и дату обновления конкретной записи."
+            ]
+          },
+          "registration_match": null,
+          "registry_entities": null
+        },
+        {
+          "source_observed_at": "2026-11-02T08:58:37.568961+00:00",
+          "body_sha256": "b8d5e190e2324e52c7930f60bff584798c92f40820548a67cdc2078bc9f2d30e",
+          "geoip": {
+            "provider": "ipapi_is",
+            "country_name": "United States",
+            "country_code": null,
+            "region": "California",
+            "city": "Mountain View",
+            "latitude": 37.38605,
+            "longitude": -122.08385,
+            "accuracy_radius_km": null,
+            "database_updated_at": null,
+            "location_kind": "ip_database_estimate",
+            "exact_device_location_verified": false,
+            "registration_country_is_not_geolocation": true,
+            "provider_network_label": "Google LLC",
+            "documentation_url": "https://ipapi.is/free-tier.html",
+            "anonymous_daily_limit": 30,
+            "limitations": [
+              "Оценка базы по IP, возможен центр сети/города; не координаты человека или устройства.",
+              "Источник не предоставил точность/радиус и дату обновления конкретной записи."
+            ]
+          },
+          "registration_match": null,
+          "registry_entities": null
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-02T08:58:39.039405+00:00",
+      "tool": "network_geoip",
+      "target": "87.199.131.94",
+      "status": "complete",
+      "evidence_count": 2,
+      "seconds": 1.463,
+      "source_diagnostics": [
+        {
+          "source": "ipwhois",
+          "status": "complete"
+        },
+        {
+          "source": "ipapi_is",
+          "status": "complete"
+        },
+        {
+          "source": "network_geoip",
+          "status": "complete"
+        }
+      ],
+      "observations": [
+        {
+          "source_observed_at": "2026-11-02T08:58:38.326157+00:00",
+          "body_sha256": "fdecf234eb780c6deca62a81cbe4b53d3ffafaa5b5dc61f968799f018f6800ea",
+          "geoip": {
+            "provider": "ipwhois",
+            "country_name": "Kazakhstan",
+            "country_code": "KZ",
+            "region": "Almaty",
+            "city": "Almaty",
+            "latitude": 43.2524914,
+            "longitude": 76.9115105,
+            "accuracy_radius_km": null,
+            "database_updated_at": null,
+            "location_kind": "ip_database_estimate",
+            "exact_device_location_verified": false,
+            "registration_country_is_not_geolocation": true,
+            "provider_network_label": "PS Internet Company LLP",
+            "documentation_url": "https://ipwhois.io/documentation",
+            "anonymous_daily_limit": 1000,
+            "limitations": [
+              "Оценка базы по IP, возможен центр сети/города; не координаты человека или устройства.",
+              "Источник не предоставил точность/радиус и дату обновления конкретной записи."
+            ]
+          },
+          "registration_match": null,
+          "registry_entities": null
+        },
+        {
+          "source_observed_at": "2026-11-02T08:58:39.034350+00:00",
+          "body_sha256": "25b5781216f46cdb3f715afe90b9b21c4803952142bcb6d4624dc6b8c3867d5f",
+          "geoip": {
+            "provider": "ipapi_is",
+            "country_name": "Kazakhstan",
+            "country_code": null,
+            "region": "Almaty",
+            "city": "Almaty",
+            "latitude": 43.2525,
+            "longitude": 76.9115,
+            "accuracy_radius_km": null,
+            "database_updated_at": null,
+            "location_kind": "ip_database_estimate",
+            "exact_device_location_verified": false,
+            "registration_country_is_not_geolocation": true,
+            "provider_network_label": "PS Internet Company LLP",
+            "documentation_url": "https://ipapi.is/free-tier.html",
+            "anonymous_daily_limit": 30,
+            "limitations": [
+              "Оценка базы по IP, возможен центр сети/города; не координаты человека или устройства.",
+              "Источник не предоставил точность/радиус и дату обновления конкретной записи."
+            ]
+          },
+          "registration_match": null,
+          "registry_entities": null
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-02T08:58:41.177451+00:00",
+      "tool": "network_rdap",
+      "target": "31.0.0.0/16",
+      "status": "complete",
+      "evidence_count": 1,
+      "seconds": 2.137,
+      "source_diagnostics": [
+        {
+          "source": "network_rdap",
+          "status": "complete"
+        }
+      ],
+      "observations": [
+        {
+          "source_observed_at": "2026-11-02T08:58:41.171285+00:00",
+          "body_sha256": "17b51ad8252a41328c56fd94aa74f210384d02ba2d9c5138034df44817024210",
+          "geoip": null,
+          "registration_match": {
+            "requested_resource": "31.0.0.0/16",
+            "returned_prefixes": [
+              "31.0.0.0/16"
+            ],
+            "match_type": "matched_exact",
+            "covers_entire_requested_range": true,
+            "requested_prefix_is_returned_object": true,
+            "not_a_bgp_announcement": true
+          },
+          "registry_entities": [
+            {
+              "name": "Polkomtel Sp. z o.o.",
+              "handle": "ORG-PN5-RIPE",
+              "roles": [
+                "registrant"
+              ],
+              "organization_name": null,
+              "formatted_name": "Polkomtel Sp. z o.o.",
+              "vcard_kind": "org",
+              "entity_type": "organization",
+              "classification_basis": "vcard_org_and_registry_handle_not_service_operator_attribution"
+            },
+            {
+              "name": "PlusGSM IP Team",
+              "handle": "PKL1-RIPE",
+              "roles": [
+                "administrative",
+                "technical",
+                "abuse"
+              ],
+              "organization_name": null,
+              "formatted_name": "PlusGSM IP Team",
+              "vcard_kind": "group",
+              "entity_type": "registry_contact",
+              "classification_basis": "vcard_org_and_registry_handle_not_service_operator_attribution"
+            },
+            {
+              "name": "POLKOMTEL-MNT",
+              "handle": "POLKOMTEL-MNT",
+              "roles": [
+                "registrant"
+              ],
+              "organization_name": null,
+              "formatted_name": "POLKOMTEL-MNT",
+              "vcard_kind": "individual",
+              "entity_type": "maintainer",
+              "classification_basis": "vcard_org_and_registry_handle_not_service_operator_attribution"
+            },
+            {
+              "name": "ORG-NCC1-RIPE",
+              "handle": "RIPE-NCC-HM-MNT",
+              "roles": [
+                "registrant"
+              ],
+              "organization_name": "ORG-NCC1-RIPE",
+              "formatted_name": "RIPE-NCC-HM-MNT",
+              "vcard_kind": "individual",
+              "entity_type": "maintainer",
+              "classification_basis": "vcard_org_and_registry_handle_not_service_operator_attribution"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-02T08:58:41.877711+00:00",
+      "tool": "network_rdap",
+      "target": "87.199.131.94",
+      "status": "complete",
+      "evidence_count": 1,
+      "seconds": 0.7,
+      "source_diagnostics": [
+        {
+          "source": "network_rdap",
+          "status": "complete"
+        }
+      ],
+      "observations": [
+        {
+          "source_observed_at": "2026-11-02T08:58:41.873999+00:00",
+          "body_sha256": "d0be3bd1c4b87e51fd9069b50fedfd47cd3e0655a2c4191629518ce3732e1bfb",
+          "geoip": null,
+          "registration_match": {
+            "requested_resource": "87.199.131.94",
+            "returned_prefixes": [
+              "87.199.128.0/22"
+            ],
+            "match_type": "containing_range",
+            "covers_entire_requested_range": true,
+            "requested_prefix_is_returned_object": false,
+            "not_a_bgp_announcement": true
+          },
+          "registry_entities": [
+            {
+              "name": "MNT-PS",
+              "handle": "MNT-PS",
+              "roles": [
+                "registrant"
+              ],
+              "organization_name": null,
+              "formatted_name": "MNT-PS",
+              "vcard_kind": "individual",
+              "entity_type": "maintainer",
+              "classification_basis": "vcard_org_and_registry_handle_not_service_operator_attribution"
+            },
+            {
+              "name": "NOC PS",
+              "handle": "NOC-PS",
+              "roles": [
+                "administrative",
+                "technical",
+                "abuse"
+              ],
+              "organization_name": null,
+              "formatted_name": "NOC PS",
+              "vcard_kind": "group",
+              "entity_type": "registry_contact",
+              "classification_basis": "vcard_org_and_registry_handle_not_service_operator_attribution"
+            },
+            {
+              "name": "PS Internet Company LLP",
+              "handle": "ORG-PICL3-RIPE",
+              "roles": [
+                "registrant"
+              ],
+              "organization_name": null,
+              "formatted_name": "PS Internet Company LLP",
+              "vcard_kind": "org",
+              "entity_type": "organization",
+              "classification_basis": "vcard_org_and_registry_handle_not_service_operator_attribution"
+            },
+            {
+              "name": "ORG-NCC1-RIPE",
+              "handle": "RIPE-NCC-HM-MNT",
+              "roles": [
+                "registrant"
+              ],
+              "organization_name": "ORG-NCC1-RIPE",
+              "formatted_name": "RIPE-NCC-HM-MNT",
+              "vcard_kind": "individual",
+              "entity_type": "maintainer",
+              "classification_basis": "vcard_org_and_registry_handle_not_service_operator_attribution"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "scoped_location_agent": {
+    "scenario": "location",
+    "live": true,
+    "user_history_read": false,
+    "source_keys_used": false,
+    "bound_tool_count": 11,
+    "status": "completed",
+    "stop_reason": null,
+    "evidence_count": 10,
+    "answer_characters": 7707,
+    "api_error": null,
+    "executions": [
+      {
+        "tool": "network_geoip",
+        "status": "complete"
+      },
+      {
+        "tool": "network_rdap",
+        "status": "complete"
+      },
+      {
+        "tool": "ip_lookup",
+        "status": "complete"
+      },
+      {
+        "tool": "network_reverse_dns",
+        "status": "complete"
+      },
+      {
+        "tool": "network_routing",
+        "status": "complete"
+      },
+      {
+        "tool": "network_reputation",
+        "status": "complete"
+      },
+      {
+        "tool": "threat_feodo",
+        "status": "complete"
+      }
+    ],
+    "http_requests": 7,
+    "http_errors": [],
+    "elapsed_seconds": 57.069
+  },
+  "fixtures": "88 passed; real source controls listed separately"
+}

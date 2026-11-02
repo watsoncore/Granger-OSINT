@@ -273,13 +273,36 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             registered=current
             if details.get('startAddress') and details.get('endAddress'):
                 interval=str(details['startAddress'])+' — '+str(details['endAddress'])
-                registered=node('infrastructure_asset',interval,interval,record,asset_type='registered_range',start=details['startAddress'],end=details['endAddress'])
-                edge(current,registered,'within_registered_range',record,'source_reported',observed_field='startAddress,endAddress')
+                from .network_semantics import registration_match
+                try:match=details.get('registration_match') or registration_match(address,details)
+                except (ValueError,TypeError):match={}
+                prefixes=match.get('returned_prefixes',[]) if isinstance(match,dict) else []
+                label=prefixes[0] if len(prefixes)==1 else interval
+                parent=match.get('match_type')=='matched_parent' if isinstance(match,dict) else False
+                registered=node('infrastructure_asset',interval,label+(' · реестровый родитель' if parent else ' · реестровый диапазон'),record,
+                    asset_type='registered_range',start=details['startAddress'],end=details['endAddress'],registration_match=match,
+                    returned_prefixes=prefixes,requested_resource=address,not_bgp_prefix=True)
+                relation='matched_parent_registration' if parent else 'overlaps_registered_range' if isinstance(match,dict) and match.get('match_type') in ('matched_subrange','overlap','mismatch') else 'within_registered_range'
+                edge(current,registered,relation,record,'source_reported',observed_field='startAddress,endAddress')
             for entity in details.get('registry_entities',[]) if isinstance(details.get('registry_entities'),list) else []:
-                if not isinstance(entity,dict) or not isinstance(entity.get('name'),str) or 'registrant' not in entity.get('roles',[]):continue
+                if not isinstance(entity,dict) or not isinstance(entity.get('name'),str):continue
+                from .network_semantics import registry_entity_type
+                entity_type=registry_entity_type(entity)
+                roles=entity.get('roles');roles=roles if isinstance(roles,list) else []
                 identity=str(url).split('/ip/')[0]+'|'+entity['name']
-                org=node('organization',identity,entity['name'],record,registry_only=True,identity_verified=False)
-                edge(registered,org,'registered_to',record,'source_reported',observed_field='registry_entities')
+                kind='organization' if entity_type=='organization' else 'registry_contact'
+                entity_label=(entity.get('handle') or entity['name']) if entity_type=='maintainer' else entity['name']
+                org=node(kind,identity,entity_label,record,registry_only=True,identity_verified=False,registry_entity_type=entity_type,
+                    display_type='registry_'+entity_type if kind=='registry_contact' else 'organization',roles=roles,not_service_operator_attribution=True)
+                relation='registered_to' if entity_type=='organization' and 'registrant' in roles else 'maintained_by' if entity_type=='maintainer' else 'registry_administered_by' if entity_type=='registry_authority' else 'has_registry_contact'
+                edge(registered,org,relation,record,'source_reported',observed_field='registry_entities')
+            geo=details.get('geoip')
+            if isinstance(geo,dict):
+                place=', '.join(str(geo[key]) for key in ('country_name','city') if geo.get(key))
+                estimate=node('geoip_estimate',address+'|'+str(geo.get('provider')),place or 'GeoIP · неизвестно',record,
+                    provider=geo.get('provider'),latitude=geo.get('latitude'),longitude=geo.get('longitude'),
+                    location_kind='ip_database_estimate',accuracy_radius_km=None,exact_device_location_verified=False)
+                edge(current,estimate,'geoip_estimates_location',record,'source_reported',observed_field='geoip',approximate=True)
             if details.get('record_type')=='PTR':
                 for answer in details.get('answers',[]) if isinstance(details.get('answers'),list) else []:
                     name=answer.get('value') if isinstance(answer,dict) else None

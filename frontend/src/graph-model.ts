@@ -8,6 +8,8 @@ export const relationLabels: Record<string,string> = { groups_observations:'Гр
 export const entityType = (node:GraphEntity) => String(node.attributes?.display_type || node.type)
 Object.assign(relationLabels, {
   has_public_inventory:'Опубликован инвентарь',contains_inventory_category:'Категория предметов',
+  matched_parent_registration:'Родительский объект RDAP',overlaps_registered_range:'Частичное покрытие RDAP',
+  maintained_by:'Реестровый maintainer',registry_administered_by:'Администратор реестра',has_registry_contact:'Контакт реестра',geoip_estimates_location:'Приблизительный GeoIP',
   contains_inventory_item:'Включает предмет',owns_public_item:'Предмет в публичном инвентаре',
   resolves_to:'DNS указывает адрес', uses_nameserver:'Использует NS', dns_alias_of:'DNS-псевдоним',
   uses_mail_exchange:'Почтовый сервер', within_announced_prefix:'В анонсируемом префиксе',
@@ -16,6 +18,7 @@ Object.assign(relationLabels, {
   public_friend_link:'Публичная ссылка в списке друзей',
 })
 Object.assign(typeLabels,{steam_inventory:'Инвентарь игры',inventory_category:'Категория инвентаря',inventory_item:'Предмет Steam'})
+Object.assign(typeLabels,{geoip_estimate:'Оценка GeoIP',registry_maintainer:'Maintainer',registry_registry_authority:'Администратор реестра',registry_registry_contact:'Контакт реестра',registry_registry_reference:'Объект реестра'})
 export const entityLabel = (node:GraphEntity) => typeLabels[entityType(node)] || node.type
 export function shortLabel(node:GraphEntity) {
   if (node.type==='public_post' && typeof node.attributes.url==='string') {

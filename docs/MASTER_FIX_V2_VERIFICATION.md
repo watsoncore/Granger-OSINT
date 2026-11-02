@@ -77,3 +77,14 @@ Steam 795; другой размер страницы подтвердил ра�
 Новый run изолирует старые working evidence/URL, сохраняя selected-image cache;
 пользовательские файлы не изменяются. Source/live/fixture QA прошли, native V2
 и визуальное разделение Tree/Graph ещё впереди. [Подробности](SOCMINT_VK_TIKTOK_STEAM.md).
+
+## Сетевые источники и смысл полей
+
+Добавлен key-free GeoIP из двух документированных публичных API с кэшем/backoff.
+Реальные проверки двух заданных IP сохранили отдельные оценки и расхождение
+городов для Google. Короткий follow-up «А какая локация?» выполнил семь сетевых
+операций, получил 10 evidence и 7 HTTP 200 от DeepSeek без provider error.
+RDAP parent range, maintainer, RIR и организация разделены; BGP повторения
+свёрнуты в один факт со всеми источниками. 88 focused Python tests и TypeScript
+прошли. Исторический /8 не воспроизведён live, проверен fixture; фактический
+родительский non-CIDR диапазон проверен live. [Протокол](NETWORK_GEOIP_QA.md).

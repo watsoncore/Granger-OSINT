@@ -121,6 +121,7 @@ from .network_sources import TOOLS as _NETWORK_TOOLS
 _SPECS += tuple(ToolSpec(name, 'network_public', kind, argument, description,
     max_length=253, execution_mode='PUBLIC_API_NO_KEY', category='infrastructure',
     documentation_url='https://www.iana.org/assignments/rdap-ipv4' if 'rdap' in name else
+        'https://ipwhois.io/documentation' if name=='network_geoip' else
         'https://www.spamhaus.org/blocklists/do-not-route-or-peer/' if name=='network_reputation' else
         'https://crt.sh/' if name=='domain_certificates' else 'https://stat.ripe.net/docs/')
     for name,(kind,argument,description) in _NETWORK_TOOLS.items())
@@ -236,6 +237,7 @@ class ToolRegistry:
             if not target.tools or target.entity_type == 'username':
                 continue
             name = target.tools[0]
+            if target.entity_type=='infrastructure_asset' and target.platform=='ip' and re.search(r'(?iu)локаци|местополож|геолокац|geoip|какой.{0,15}город|какая.{0,15}страна',goal):name='network_geoip'
             if target.platform=='steam' and re.search(r'(?iu)инвентар|inventory|скин|предмет',goal):name='steam_inventory'
             if target.entity_type == 'image' and not re.search(r'(?iu)(geoint|geoclip|waypoint|мест[оа].{0,25}с[ъь]ём|где.{0,30}снят|определи.{0,30}мест)', goal):
                 name = 'image_metadata'
