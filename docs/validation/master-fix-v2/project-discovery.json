@@ -1,0 +1,447 @@
+[
+  {
+    "kind": "archive",
+    "path": "Butcher-Tools-main.zip",
+    "bytes": 576717,
+    "sha256": "cc9ac5fa45bb77c5ed213ad4ef2370e5d6dd95349e6f1cd4fe96a8e3d08cdac4",
+    "executed": false,
+    "files": 12,
+    "expanded_bytes": 745580,
+    "unsafe_paths": 0,
+    "manifests": [
+      "Butcher-Tools-main/requirements.txt",
+      "Butcher-Tools-main/setup.py"
+    ],
+    "licenses": [
+      "Butcher-Tools-main/LICENSE"
+    ],
+    "new_since_prior_audit": false,
+    "unchanged_archive_since_prior_audit": true,
+    "nested_component": false
+  },
+  {
+    "kind": "archive",
+    "path": "discordlookup-main.zip",
+    "bytes": 2385483,
+    "sha256": "430a6dc7f2038d137e5779ed6a07307b7108b07f689dbd9ccaf4c8e3ac130cad",
+    "executed": false,
+    "files": 822,
+    "expanded_bytes": 7205883,
+    "unsafe_paths": 0,
+    "manifests": [
+      "discordlookup-main/package.json"
+    ],
+    "licenses": [
+      "discordlookup-main/LICENSE"
+    ],
+    "new_since_prior_audit": false,
+    "unchanged_archive_since_prior_audit": true,
+    "nested_component": false
+  },
+  {
+    "kind": "archive",
+    "path": "instagram-email-scraper-main.zip",
+    "bytes": 10684,
+    "sha256": "ca5fbc3c692b2c203d1c3bd6ff7150cc3cdd83915b91354c12592f6a829a47f3",
+    "executed": false,
+    "files": 5,
+    "expanded_bytes": 33551,
+    "unsafe_paths": 0,
+    "manifests": [
+      "instagram-email-scraper-main/requirements.txt"
+    ],
+    "licenses": [
+      "instagram-email-scraper-main/LICENSE"
+    ],
+    "new_since_prior_audit": false,
+    "unchanged_archive_since_prior_audit": true,
+    "nested_component": false
+  },
+  {
+    "kind": "archive",
+    "path": "pytok-master.zip",
+    "bytes": 163277,
+    "sha256": "cf5cc17fbc9bac7d3f8669fc5a61029eca6ebbd8d184e9def3618128baa74836",
+    "executed": false,
+    "files": 66,
+    "expanded_bytes": 480103,
+    "unsafe_paths": 0,
+    "manifests": [
+      "pytok-master/pyproject.toml"
+    ],
+    "licenses": [
+      "pytok-master/LICENSE"
+    ],
+    "new_since_prior_audit": false,
+    "unchanged_archive_since_prior_audit": true,
+    "nested_component": false
+  },
+  {
+    "kind": "archive",
+    "path": "Reconnaissance-main.zip",
+    "bytes": 1260222,
+    "sha256": "a5a397118ba72eab368f18059572da12a8b04957e5d068fbbac07e5a0fc2230d",
+    "executed": false,
+    "files": 42,
+    "expanded_bytes": 1422587,
+    "unsafe_paths": 0,
+    "manifests": [
+      "Reconnaissance-main/requirements.txt"
+    ],
+    "licenses": [],
+    "new_since_prior_audit": false,
+    "unchanged_archive_since_prior_audit": true,
+    "nested_component": false
+  },
+  {
+    "kind": "archive",
+    "path": "spiderfoot-master.zip",
+    "bytes": 3982089,
+    "sha256": "c6ee64895c9f52da25fb8ebbbd208baf1762a870b22678d09354045a9dadfbbf",
+    "executed": false,
+    "files": 858,
+    "expanded_bytes": 15008361,
+    "unsafe_paths": 0,
+    "manifests": [
+      "spiderfoot-master/requirements.txt",
+      "spiderfoot-master/spiderfoot/static/package.json",
+      "spiderfoot-master/test/acceptance/requirements.txt",
+      "spiderfoot-master/test/requirements.txt"
+    ],
+    "licenses": [
+      "spiderfoot-master/LICENSE",
+      "spiderfoot-master/spiderfoot/dicts/ispell/LICENSE"
+    ],
+    "new_since_prior_audit": false,
+    "unchanged_archive_since_prior_audit": true,
+    "nested_component": false
+  },
+  {
+    "kind": "archive",
+    "path": "steam-osint-main.zip",
+    "bytes": 649529,
+    "sha256": "fbb9427e9eb577ff852a404b09b9443579ca5a822f79960f0d9e360350e07be4",
+    "executed": false,
+    "files": 15,
+    "expanded_bytes": 749679,
+    "unsafe_paths": 0,
+    "manifests": [
+      "steam-osint-main/requirements.txt",
+      "steam-osint-main/setup.py"
+    ],
+    "licenses": [],
+    "new_since_prior_audit": false,
+    "unchanged_archive_since_prior_audit": true,
+    "nested_component": false
+  },
+  {
+    "kind": "archive",
+    "path": "theHarvester-4.11.1.zip",
+    "bytes": 1116905,
+    "sha256": "11ab4de05b8b15bef5f66429010471a1adf80adb140cffbe859cc60b333b3de0",
+    "executed": false,
+    "files": 160,
+    "expanded_bytes": 2848251,
+    "unsafe_paths": 0,
+    "manifests": [
+      "theHarvester-4.11.1/pyproject.toml"
+    ],
+    "licenses": [
+      "theHarvester-4.11.1/README/COPYING",
+      "theHarvester-4.11.1/README/LICENSES"
+    ],
+    "new_since_prior_audit": false,
+    "unchanged_archive_since_prior_audit": true,
+    "nested_component": false
+  },
+  {
+    "kind": "archive",
+    "path": "theHarvester-master.zip",
+    "bytes": 948389,
+    "sha256": "d53e54ae8ae8593d08265cdf32d8e8ccae2b38e3ef4531546f4ae5839a9e1a7f",
+    "executed": false,
+    "files": 341,
+    "expanded_bytes": 3758805,
+    "unsafe_paths": 0,
+    "manifests": [
+      "theHarvester-master/pyproject.toml"
+    ],
+    "licenses": [
+      "theHarvester-master/LICENSE",
+      "theHarvester-master/README/LICENSES"
+    ],
+    "new_since_prior_audit": false,
+    "unchanged_archive_since_prior_audit": true,
+    "nested_component": false
+  },
+  {
+    "kind": "archive",
+    "path": "TikTok-Content-Scraper-main.zip",
+    "bytes": 25041,
+    "sha256": "27dcdbe0655e4e5f284cfc8e8ff718284dd12e9f5844f7859adc564c6b69d7f6",
+    "executed": false,
+    "files": 17,
+    "expanded_bytes": 79717,
+    "unsafe_paths": 0,
+    "manifests": [
+      "TikTok-Content-Scraper-main/requirements.txt"
+    ],
+    "licenses": [
+      "TikTok-Content-Scraper-main/LICENSE"
+    ],
+    "new_since_prior_audit": false,
+    "unchanged_archive_since_prior_audit": true,
+    "nested_component": false
+  },
+  {
+    "kind": "archive",
+    "path": "TokIntel-main.zip",
+    "bytes": 2109820,
+    "sha256": "2e039ff9419ff1b57e3d31da33e984ab805143643e150b9f53d64ba33a08d26f",
+    "executed": false,
+    "files": 15,
+    "expanded_bytes": 2152758,
+    "unsafe_paths": 0,
+    "manifests": [
+      "TokIntel-main/requirements.txt"
+    ],
+    "licenses": [
+      "TokIntel-main/LICENSE"
+    ],
+    "new_since_prior_audit": false,
+    "unchanged_archive_since_prior_audit": true,
+    "nested_component": false
+  },
+  {
+    "kind": "archive",
+    "path": "X-IG-OSINT-Hacker-x-Phantom.zip",
+    "bytes": 14035,
+    "sha256": "3f80150531db52ce84999f35b3549ad01c807b35f328c11069546560a8aab8f5",
+    "executed": false,
+    "files": 5,
+    "expanded_bytes": 45106,
+    "unsafe_paths": 0,
+    "manifests": [],
+    "licenses": [
+      "X-IG-OSINT-Hacker-x-Phantom/LICENSE"
+    ],
+    "new_since_prior_audit": false,
+    "unchanged_archive_since_prior_audit": true,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "blackbird-main",
+    "manifests": [
+      "requirements.txt"
+    ],
+    "licenses": [],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "Gansar-main",
+    "manifests": [
+      "pyproject.toml",
+      "requirements.txt"
+    ],
+    "licenses": [],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "holehe-master",
+    "manifests": [
+      "setup.py"
+    ],
+    "licenses": [
+      "LICENSE.md"
+    ],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "instaloader-master",
+    "manifests": [
+      "setup.py"
+    ],
+    "licenses": [
+      "LICENSE"
+    ],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "maigret-main",
+    "manifests": [
+      "pyproject.toml"
+    ],
+    "licenses": [
+      "LICENSE"
+    ],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "maigret-main/pyinstaller",
+    "manifests": [
+      "requirements.txt"
+    ],
+    "licenses": [],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": true
+  },
+  {
+    "kind": "directory",
+    "path": "phoneinfoga-master",
+    "manifests": [
+      "go.mod"
+    ],
+    "licenses": [
+      "LICENSE"
+    ],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "phoneinfoga-master/web/client",
+    "manifests": [
+      "package.json"
+    ],
+    "licenses": [],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": true
+  },
+  {
+    "kind": "directory",
+    "path": "snoop-master",
+    "manifests": [
+      "requirements.txt"
+    ],
+    "licenses": [],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "social-analyzer-main",
+    "manifests": [
+      "package.json",
+      "requirements.txt",
+      "setup.py"
+    ],
+    "licenses": [
+      "LICENSE"
+    ],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "social-analyzer-main/test",
+    "manifests": [
+      "requirements.txt"
+    ],
+    "licenses": [],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": true
+  },
+  {
+    "kind": "directory",
+    "path": "SteamRecon",
+    "manifests": [
+      "requirements.txt"
+    ],
+    "licenses": [
+      "LICENSE"
+    ],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "Telethon-1",
+    "manifests": [
+      "pyproject.toml",
+      "requirements.txt",
+      "setup.py"
+    ],
+    "licenses": [
+      "LICENSE"
+    ],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "Telethon-1/readthedocs",
+    "manifests": [
+      "requirements.txt"
+    ],
+    "licenses": [],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": true
+  },
+  {
+    "kind": "directory",
+    "path": "vkbottle-master",
+    "manifests": [
+      "pyproject.toml"
+    ],
+    "licenses": [
+      "LICENSE"
+    ],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "vk_api-master",
+    "manifests": [
+      "pyproject.toml",
+      "requirements.txt"
+    ],
+    "licenses": [
+      "LICENSE"
+    ],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  },
+  {
+    "kind": "directory",
+    "path": "waybackpy-master",
+    "manifests": [
+      "pyproject.toml",
+      "requirements.txt",
+      "setup.py"
+    ],
+    "licenses": [
+      "LICENSE"
+    ],
+    "executed": false,
+    "new_since_prior_audit": false,
+    "nested_component": false
+  }
+]

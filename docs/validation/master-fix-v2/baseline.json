@@ -1,0 +1,41 @@
+{
+  "at": "2026-11-02T06:40:53.504772+00:00",
+  "head": "c92b1165aca0570e0e3aee5842b13a0c53baa68e",
+  "groups": {
+    "profile": {
+      "files": 69,
+      "bytes": 57194225,
+      "unstable": 0
+    },
+    "assets": {
+      "files": 92,
+      "bytes": 12319870,
+      "unstable": 0
+    },
+    "resources": {
+      "files": 202,
+      "bytes": 58313915,
+      "unstable": 0
+    },
+    "gansar": {
+      "files": 509,
+      "bytes": 29142240,
+      "unstable": 0
+    },
+    "visual_cpu": {
+      "files": 23387,
+      "bytes": 4180888934,
+      "unstable": 0
+    },
+    "scene_vision": {
+      "files": 25,
+      "bytes": 468555614,
+      "unstable": 0
+    }
+  },
+  "protected_pet_modules": 16,
+  "exe": {
+    "sha256": "1b935f0f0f82f2fe829ea20be22a064a6c45042713ab9ed368380ce0a49cee37",
+    "bytes": 279123275
+  }
+}
