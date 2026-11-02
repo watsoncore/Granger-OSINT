@@ -14,13 +14,16 @@ CLASSES={
 
 
 def scene_text(records):
-    return ' '.join(str((row.get('details') or {}).get('description') or '') for row in records
+    return ' '.join(str((row.get('details') or {}).get('description') or '')+' '+str((row.get('details') or {}).get('description_original') or '') for row in records
         if (row.get('details') or {}).get('tool') in ('image_understand','visual_geoint','image_ocr'))[:6000]
 
 
 def rank_reference(reference,scene,candidate=None):
     reference=deepcopy(reference);candidate=candidate or {}
     text=' '.join(str(reference.get(key) or '') for key in ('title','description'))
+    pixels=reference.get('reference_scene')
+    if isinstance(pixels,dict) and pixels.get('description'):
+        text=str(pixels.get('description_original') or pixels['description'])
     observed={key for key,pattern in CLASSES.items() if re.search(pattern,scene,re.I)}
     shown={key for key,pattern in CLASSES.items() if re.search(pattern,text,re.I)}
     shared=observed&shown;score=3.*len(shared-{'detail'});reasons=[]
@@ -38,6 +41,12 @@ def rank_reference(reference,scene,candidate=None):
         score+=.1/(1+distance/1000)
         reasons.append('Расстояние используется только как слабый дополнительный признак')
     comparison=reference.get('comparison') or {}
+    skyline=comparison.get('skyline')
+    if isinstance(skyline,dict) and skyline.get('status')=='complete' and type(skyline.get('standardized_shape_rmse')) in (int,float):
+        error=skyline['standardized_shape_rmse']
+        if math.isfinite(error):
+            score+=max(-1,min(1,(.8-error)))
+            reasons.append('Граница неба сопоставлена по пикселям; слабый признак при неизвестном ракурсе')
     coverage=comparison.get('spatial_coverage') or []
     if len(coverage)==2 and all(type(x) in (int,float) and math.isfinite(x) for x in coverage):
         geometry=comparison.get('geometry') or {}

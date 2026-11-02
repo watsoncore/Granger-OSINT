@@ -64,11 +64,13 @@ export interface Message {
 }
 export interface GeoRegion { description:string; region:number[]; confidence_kind?:string }
 export interface GeoComparison {
+  skyline?:{status?:string;original_points?:number[][];reference_points?:number[][];standardized_shape_rmse?:number}
   status?:string; match_count?:number; input_sizes?:number[][]; spatial_coverage?:(number|null)[]; support_kind?:string
   matches?:{point0:number[];point1:number[];raw_score?:number}[]
   geometry?:{inliers?:number;inlier_indices?:number[]}; geolocation_verified?:boolean; interpretation?:string
 }
 export interface GeoCandidate {
+  terrain_geometry?:{valid_points:number;sampled_relief_m:number|null;pixel_shape_screening?:{standardized_shape_rmse?:number}}
   candidate_id:string; attachment_id?:string; latitude:number; longitude:number; region?:string; source_model?:string
   verification_status:string; evidence_id?:string; raw_score?:number|null
   model_observations?:{latitude:number;longitude:number;model_lat_std?:number|null;model_lon_std?:number|null;dateline_warning?:boolean}[]

@@ -53,6 +53,23 @@ def test_no_photos_preserves_candidates_and_truthful_uncertainty():
     assert any('не найдены' in text for text in result['limitations'])
 
 
+def test_alternative_regions_have_distinct_provenance_and_both_run_before_photo_work():
+    class Control(Sources):
+        def __init__(self):self.visits=[]
+        def reverse(self,candidate,cancel):
+            self.visits.append(('region',candidate['latitude']))
+            return super().reverse(candidate,cancel)
+        def commons(self,candidate,*args):
+            self.visits.append(('photos',candidate['latitude']))
+            return []
+    sources=Control()
+    regions=[{'latitude':43.157,'longitude':77.058,'label':'Медеу'},{'latitude':46.5,'longitude':11.8,'label':'Доломиты'}]
+    result=execute({'attachment_id':IMAGE,'alternative_regions':regions},records=observations(),store=object(),sources=sources)
+    assert sources.visits[:2]==[('region',43.157),('region',46.5)]
+    assert len(result['candidates'])==2 and all(c['location_role']=='proposed_region' for c in result['candidates'])
+    assert all(not c['source_model'] and not c['supporting_evidence'] and not c['camera_position_verified'] for c in result['candidates'])
+
+
 def test_one_provider_error_does_not_discard_other_candidate_or_claim_success():
     class Failed(Sources):
         def commons(self,*args):raise RuntimeError('Never expose PRIVATE-ERROR-DETAIL')
@@ -89,6 +106,6 @@ def test_explicit_metadata_ocr_scope_prevents_other_sources_even_if_model_reques
     registry=ToolRegistry(Settings(),attachment_ids=[IMAGE],secret_getter=lambda _: '')
     schemas=registry.schemas(task='Только локальные метаданные и OCR выбранного изображения, без внешних источников.')
     names={row['function']['name'] for row in schemas}
-    assert names<={'image_metadata','image_ocr','evidence_get','evidence_graph'}
+    assert names<={'image_metadata','image_ocr','evidence_get','evidence_graph','capabilities_find'}
     blocked=registry.execute('web_search',{'query':'must not leave the computer'})
     assert blocked['error_code']=='outside_user_local_scope' and not blocked['results']

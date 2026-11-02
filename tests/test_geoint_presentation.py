@@ -59,7 +59,8 @@ def test_view_reads_actual_original_at_useful_size_and_missing_reference_without
     value=present({'id':'a'*32,'evidence':rows},store=store,media_store=CacheOnly())
     assert value['has_geoint'] and value['images'][0]['attachment_id']==identifier
     assert value['images'][0]['media']['state']=='unavailable'
-    assert value['scenes'][0]['description'].startswith('Fixture pixels')
+    assert value['scenes'][0]['description_original'].startswith('Fixture pixels')
+    assert 'Локальная модель' in value['scenes'][0]['description']
     with Image.open(io.BytesIO(base64.b64decode(value['originals'][0]['thumbnail'].split(',')[1]))) as preview:
         assert preview.size==(800,400)
     assert 'data:image' not in str(rows)

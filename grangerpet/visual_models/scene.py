@@ -83,7 +83,8 @@ def understand(image, *, cancel_event=None, deadline=None):
                 value = json.loads(output.decode('utf-8'))
                 if not isinstance(value, dict):
                     raise ValueError()
-                return value
+                from ..geoint.scene_language import russian_scene
+                return russian_scene(value)
             except subprocess.TimeoutExpired:
                 first = False
             except (ValueError, UnicodeError):
@@ -113,6 +114,8 @@ def execute(args, *, store, cancel_event=None, deadline=None):
         return {'status':'cancelled' if error.code == 'cancelled' else 'error', 'error_code':error.code, 'results':[]}
     if result.get('status') != 'completed':
         return {**result, 'results':[], 'limitations':['Семантическое описание пикселей не получено; содержимое сцены не угадано.']}
+    from ..geoint.scene_language import russian_scene
+    result=russian_scene(result)
     from .observations import signature, parameters
     details = {**result, 'local_inference_signature':signature('image_understand',args),
         'inference_parameters':parameters('image_understand',args), 'tool':'image_understand', 'capability':'image_understand', 'attachment_id':args['attachment_id'],

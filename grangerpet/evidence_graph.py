@@ -404,7 +404,9 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             image=node('image',attachment,'Исходная фотография',record,attachment_id=attachment,original_image=True)
             # A reference's URL/preview belongs to the reference, never the original.
             if image:nodes[image]['attributes'].pop('media',None)
-            if image and details.get('tool')=='image_understand':nodes[image]['attributes']['scene_description']=details.get('description')
+            if image and details.get('tool')=='image_understand':
+                from .geoint.scene_language import russian_description
+                nodes[image]['attributes']['scene_description']=russian_description(details.get('description'))
             if current and kind=='geoint_candidate':edge(image,current,'has_geographic_hypothesis',record,'model_hypothesis',observed_field='latitude,longitude,verification_status')
         predictions=details.get('predictions') if isinstance(details.get('predictions'),list) else []
         for prediction in predictions[:20]:

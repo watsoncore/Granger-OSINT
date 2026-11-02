@@ -1,0 +1,475 @@
+{
+  "benchmark": [
+    {
+      "id": "case-03",
+      "class": "natural_landscape",
+      "source": "https://api.panoramax.xyz/#focus=pic&pic=79538352-8569-4b36-b315-29b9f96bf444",
+      "license": "CC-BY-SA-4.0",
+      "ground_truth_kind": "archive_camera_metadata_not_independently_surveyed",
+      "archive_camera_lat_lon": [
+        45.923641944,
+        6.868633889
+      ],
+      "original_sha256": "e71e520622e8e00fa3c71ab0d60cf533500fc6c9f561d70d950756185461d192",
+      "pixel_input_sha256": "7fcc82658dfa6efbe4330ab627e8de3d538b8c0ca592c18113b0d579f5f36883",
+      "seed": 0,
+      "samples": 32,
+      "models": {
+        "geoclip": {
+          "status": "completed",
+          "error_code": null,
+          "seconds": 79.87,
+          "predictions": [
+            {
+              "candidate": [
+                45.92512512207031,
+                6.871261119842529
+              ],
+              "distance_to_archive_camera_m": 262
+            },
+            {
+              "candidate": [
+                45.9241828918457,
+                6.869040012359619
+              ],
+              "distance_to_archive_camera_m": 68
+            },
+            {
+              "candidate": [
+                45.92342758178711,
+                6.871490955352783
+              ],
+              "distance_to_archive_camera_m": 222
+            },
+            {
+              "candidate": [
+                45.92727279663086,
+                6.872978210449219
+              ],
+              "distance_to_archive_camera_m": 525
+            },
+            {
+              "candidate": [
+                45.922630310058594,
+                6.875549793243408
+              ],
+              "distance_to_archive_camera_m": 547
+            }
+          ]
+        },
+        "waypoint": {
+          "status": "completed",
+          "error_code": null,
+          "seconds": 8.81,
+          "predictions": [
+            {
+              "candidate": [
+                46.12176770303472,
+                8.2682803467747
+              ],
+              "distance_to_archive_camera_m": 110289
+            }
+          ]
+        }
+      },
+      "pixel_trace_status": "complete",
+      "alternative_regions": {
+        "Medeu": {
+          "status": "complete",
+          "standardized_shape_rmse": 1.2451,
+          "searched_windows": 96,
+          "best_window_center_bearing_deg": 315.0,
+          "assumed_horizontal_fov_deg": 67.5,
+          "camera_position_verified": false,
+          "use": "weak_candidate_screening_only",
+          "not_calibrated_probability": true,
+          "limitations": [
+            "Лучшее из 96 окон при неизвестном ракурсе; случайное сходство возможно.",
+            "Это не измеренное направление камеры. DEM-профиль построен вокруг модельного prior, не проверенной точки съёмки."
+          ]
+        },
+        "Dolomites": {
+          "status": "complete",
+          "standardized_shape_rmse": 1.2335,
+          "searched_windows": 96,
+          "best_window_center_bearing_deg": 247.5,
+          "assumed_horizontal_fov_deg": 90,
+          "camera_position_verified": false,
+          "use": "weak_candidate_screening_only",
+          "not_calibrated_probability": true,
+          "limitations": [
+            "Лучшее из 96 окон при неизвестном ракурсе; случайное сходство возможно.",
+            "Это не измеренное направление камеры. DEM-профиль построен вокруг модельного prior, не проверенной точки съёмки."
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-07",
+      "class": "rural",
+      "source": "https://api.panoramax.xyz/#focus=pic&pic=91e2ff37-92c7-47d5-ac47-e0979e175a3e",
+      "license": "CC-BY-SA-4.0",
+      "ground_truth_kind": "archive_camera_metadata_not_independently_surveyed",
+      "archive_camera_lat_lon": [
+        44.8021465,
+        1.2168783
+      ],
+      "original_sha256": "6ff598f8745303ae3a92994b6c4ed519749e2ce538290878ab92876c698e635b",
+      "pixel_input_sha256": "3a26cc2e29cb546d762e43f43835190f3eca8794b19bedeed99d76457e9606c4",
+      "seed": 0,
+      "samples": 32,
+      "models": {
+        "geoclip": {
+          "status": "completed",
+          "error_code": null,
+          "seconds": 36.35,
+          "predictions": [
+            {
+              "candidate": [
+                43.660282135009766,
+                2.361953020095825
+              ],
+              "distance_to_archive_camera_m": 156345
+            },
+            {
+              "candidate": [
+                45.699588775634766,
+                4.5325927734375
+              ],
+              "distance_to_archive_camera_m": 278055
+            },
+            {
+              "candidate": [
+                45.3182487487793,
+                1.3205300569534302
+              ],
+              "distance_to_archive_camera_m": 57963
+            },
+            {
+              "candidate": [
+                46.434722900390625,
+                4.276319980621338
+              ],
+              "distance_to_archive_camera_m": 299248
+            },
+            {
+              "candidate": [
+                45.70846939086914,
+                4.525423049926758
+              ],
+              "distance_to_archive_camera_m": 277869
+            }
+          ]
+        },
+        "waypoint": {
+          "status": "completed",
+          "error_code": null,
+          "seconds": 8.51,
+          "predictions": [
+            {
+              "candidate": [
+                45.13616639142221,
+                0.62885736799806
+              ],
+              "distance_to_archive_camera_m": 59324
+            },
+            {
+              "candidate": [
+                43.24891732040593,
+                0.6298622541544103
+              ],
+              "distance_to_archive_camera_m": 178973
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-09",
+      "class": "urban_street",
+      "source": "https://api.panoramax.xyz/#focus=pic&pic=d6f8bec6-4250-405c-a54f-a417f6349ef7",
+      "license": "CC-BY-SA-4.0",
+      "ground_truth_kind": "archive_camera_metadata_not_independently_surveyed",
+      "archive_camera_lat_lon": [
+        45.760241279,
+        4.835712817
+      ],
+      "original_sha256": "8e49e7c34895377baa26e9b1dcf7b74665bce41019d1d47c5fb081e4d3f33e47",
+      "pixel_input_sha256": "907d86f3770aa4475357d9e06e76d188232a9e8ca3d656086f47a114bf9bd935",
+      "seed": 0,
+      "samples": 32,
+      "models": {
+        "geoclip": {
+          "status": "completed",
+          "error_code": null,
+          "seconds": 38.87,
+          "predictions": [
+            {
+              "candidate": [
+                45.76334762573242,
+                4.83429479598999
+              ],
+              "distance_to_archive_camera_m": 363
+            },
+            {
+              "candidate": [
+                45.76139450073242,
+                4.835608959197998
+              ],
+              "distance_to_archive_camera_m": 128
+            },
+            {
+              "candidate": [
+                45.760353088378906,
+                4.835506916046143
+              ],
+              "distance_to_archive_camera_m": 20
+            },
+            {
+              "candidate": [
+                45.76444625854492,
+                4.836236953735352
+              ],
+              "distance_to_archive_camera_m": 469
+            },
+            {
+              "candidate": [
+                45.75798034667969,
+                4.836590766906738
+              ],
+              "distance_to_archive_camera_m": 260
+            }
+          ]
+        },
+        "waypoint": {
+          "status": "completed",
+          "error_code": null,
+          "seconds": 8.57,
+          "predictions": [
+            {
+              "candidate": [
+                47.57846144056956,
+                0.25016010713471554
+              ],
+              "distance_to_archive_camera_m": 404005
+            },
+            {
+              "candidate": [
+                44.843274956768866,
+                -0.5803373835011333
+              ],
+              "distance_to_archive_camera_m": 435601
+            },
+            {
+              "candidate": [
+                45.68517268365811,
+                4.717709224111098
+              ],
+              "distance_to_archive_camera_m": 12393
+            },
+            {
+              "candidate": [
+                49.439317823879726,
+                1.0907073732589445
+              ],
+              "distance_to_archive_camera_m": 496051
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-10",
+      "class": "architectural_landmark",
+      "source": "https://api.panoramax.xyz/#focus=pic&pic=68bc5f7f-fc6e-488d-bc8d-ae030fb28c2f",
+      "license": "CC-BY-SA-4.0",
+      "ground_truth_kind": "archive_camera_metadata_not_independently_surveyed",
+      "archive_camera_lat_lon": [
+        48.858335,
+        2.294067
+      ],
+      "original_sha256": "04a365dc2a12a05beead96ca384337bd0897ca5872afff87645449179826c8dd",
+      "pixel_input_sha256": "49a52ddcf5da3113f34f7262d3f901052ac97c31f4eda645ad7424c564bfe5c8",
+      "seed": 0,
+      "samples": 32,
+      "models": {
+        "geoclip": {
+          "status": "completed",
+          "error_code": null,
+          "seconds": 34.06,
+          "predictions": [
+            {
+              "candidate": [
+                49.11480712890625,
+                -1.0972590446472168
+              ],
+              "distance_to_archive_camera_m": 249082
+            },
+            {
+              "candidate": [
+                47.02082824707031,
+                5.720560073852539
+              ],
+              "distance_to_archive_camera_m": 326894
+            },
+            {
+              "candidate": [
+                49.297645568847656,
+                3.1787381172180176
+              ],
+              "distance_to_archive_camera_m": 80859
+            },
+            {
+              "candidate": [
+                48.81703567504883,
+                1.9808000326156616
+              ],
+              "distance_to_archive_camera_m": 23383
+            },
+            {
+              "candidate": [
+                47.29844284057617,
+                4.964789867401123
+              ],
+              "distance_to_archive_camera_m": 263509
+            }
+          ]
+        },
+        "waypoint": {
+          "status": "completed",
+          "error_code": null,
+          "seconds": 9.19,
+          "predictions": [
+            {
+              "candidate": [
+                49.005878342355395,
+                2.456843179245479
+              ],
+              "distance_to_archive_camera_m": 20262
+            },
+            {
+              "candidate": [
+                50.48988298331716,
+                3.204929095294309
+              ],
+              "distance_to_archive_camera_m": 192893
+            },
+            {
+              "candidate": [
+                49.34059179489596,
+                6.268827720548442
+              ],
+              "distance_to_archive_camera_m": 294271
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "geography": [
+    {
+      "status": "complete",
+      "source": "OpenTopoData SRTM90",
+      "source_url": "https://api.opentopodata.org/v1/srtm90m?locations=43.157%2C77.058%7C43.1615%2C77.058%7C43.17499%2C77.058%7C43.21096%2C77.058%7C43.16141%2C77.0592%7C43.17464%2C77.06281%7C43.20992%2C77.07244%7C43.16115%2C77.06036%7C43.17362%2C77.06744%7C43.20685%2C77.08633%7C43.16074%2C77.06142%7C43.17195%2C77.0717%7C43.20186%2C77.09913%7C43.16018%2C77.06236%7C43.16972%2C77.07544%7C43.19514%2C77.11034%7C43.1595%2C77.06313%7C43.16699%2C77.0785%7C43.18696%2C77.11953%7C43.15872%2C77.0637%7C43.16388%2C77.08078%7C43.17763%2C77.12636%7C43.15788%2C77.06405%7C43.16051%2C77.08218%7C43.1675%2C77.13056%7C43.157%2C77.06416%7C43.157%2C77.08266%7C43.15698%2C77.13197%7C43.15612%2C77.06405%7C43.15349%2C77.08218%7C43.14645%2C77.13054%7C43.15528%2C77.06369%7C43.15011%2C77.08078%7C43.13633%2C77.12632%7C43.1545%2C77.06313%7C43.14701%2C77.0785%7C43.12701%2C77.11947%7C43.15382%2C77.06236%7C43.14428%2C77.07543%7C43.11883%2C77.11027%7C43.15326%2C77.06142%7C43.14204%2C77.0717%7C43.11213%2C77.09906%7C43.15285%2C77.06036%7C43.14038%2C77.06743%7C43.10714%2C77.08628%7C43.15259%2C77.0592%7C43.13936%2C77.06281%7C43.10408%2C77.07242&interpolation=bilinear",
+      "valid_points": 97,
+      "point_count": 97,
+      "center_elevation_m": 1728.0,
+      "sampled_relief_m": 2112.0,
+      "receipts": [
+        {
+          "url": "https://api.opentopodata.org/v1/srtm90m?locations=43.157%2C77.058%7C43.1615%2C77.058%7C43.17499%2C77.058%7C43.21096%2C77.058%7C43.16141%2C77.0592%7C43.17464%2C77.06281%7C43.20992%2C77.07244%7C43.16115%2C77.06036%7C43.17362%2C77.06744%7C43.20685%2C77.08633%7C43.16074%2C77.06142%7C43.17195%2C77.0717%7C43.20186%2C77.09913%7C43.16018%2C77.06236%7C43.16972%2C77.07544%7C43.19514%2C77.11034%7C43.1595%2C77.06313%7C43.16699%2C77.0785%7C43.18696%2C77.11953%7C43.15872%2C77.0637%7C43.16388%2C77.08078%7C43.17763%2C77.12636%7C43.15788%2C77.06405%7C43.16051%2C77.08218%7C43.1675%2C77.13056%7C43.157%2C77.06416%7C43.157%2C77.08266%7C43.15698%2C77.13197%7C43.15612%2C77.06405%7C43.15349%2C77.08218%7C43.14645%2C77.13054%7C43.15528%2C77.06369%7C43.15011%2C77.08078%7C43.13633%2C77.12632%7C43.1545%2C77.06313%7C43.14701%2C77.0785%7C43.12701%2C77.11947%7C43.15382%2C77.06236%7C43.14428%2C77.07543%7C43.11883%2C77.11027%7C43.15326%2C77.06142%7C43.14204%2C77.0717%7C43.11213%2C77.09906%7C43.15285%2C77.06036%7C43.14038%2C77.06743%7C43.10714%2C77.08628%7C43.15259%2C77.0592%7C43.13936%2C77.06281%7C43.10408%2C77.07242&interpolation=bilinear",
+          "http_status": 200,
+          "source_observed_at": "2026-11-02T09:45:33.493050+00:00",
+          "body_sha256": "0d6a84133ef43769c852721e52b3c03b4a600a9760b5f2dd33ef5dbbd111f77b",
+          "response_bytes": 7120,
+          "cache_hit": false
+        },
+        {
+          "url": "https://api.opentopodata.org/v1/srtm90m?locations=43.1525%2C77.058%7C43.13901%2C77.058%7C43.10304%2C77.058%7C43.15259%2C77.0568%7C43.13936%2C77.05319%7C43.10408%2C77.04358%7C43.15285%2C77.05564%7C43.14038%2C77.04857%7C43.10714%2C77.02972%7C43.15326%2C77.05458%7C43.14204%2C77.0443%7C43.11213%2C77.01694%7C43.15382%2C77.05364%7C43.14428%2C77.04057%7C43.11883%2C77.00573%7C43.1545%2C77.05287%7C43.14701%2C77.0375%7C43.12701%2C76.99653%7C43.15528%2C77.05231%7C43.15011%2C77.03522%7C43.13633%2C76.98968%7C43.15612%2C77.05195%7C43.15349%2C77.03382%7C43.14645%2C76.98546%7C43.157%2C77.05184%7C43.157%2C77.03334%7C43.15698%2C76.98403%7C43.15788%2C77.05195%7C43.16051%2C77.03382%7C43.1675%2C76.98544%7C43.15872%2C77.0523%7C43.16388%2C77.03522%7C43.17763%2C76.98964%7C43.1595%2C77.05287%7C43.16699%2C77.0375%7C43.18696%2C76.99647%7C43.16018%2C77.05364%7C43.16972%2C77.04056%7C43.19514%2C77.00566%7C43.16074%2C77.05458%7C43.17195%2C77.0443%7C43.20186%2C77.01687%7C43.16115%2C77.05564%7C43.17362%2C77.04856%7C43.20685%2C77.02967%7C43.16141%2C77.0568%7C43.17464%2C77.05319%7C43.20992%2C77.04356&interpolation=bilinear",
+          "http_status": 200,
+          "source_observed_at": "2026-11-02T09:45:34.297166+00:00",
+          "body_sha256": "0a61abf669df69d08d60498bb544d95e0edc028ba700931885114c5aa7482844",
+          "response_bytes": 6979,
+          "cache_hit": false
+        }
+      ],
+      "control": "Medeu",
+      "method": "terrain",
+      "seconds": 2.204
+    },
+    {
+      "status": "complete",
+      "source": "OpenTopoData SRTM90",
+      "source_url": "https://api.opentopodata.org/v1/srtm90m?locations=46.5%2C11.8%7C46.5045%2C11.8%7C46.51799%2C11.8%7C46.55396%2C11.8%7C46.50441%2C11.80127%7C46.51764%2C11.8051%7C46.55292%2C11.81531%7C46.50415%2C11.8025%7C46.51662%2C11.81%7C46.54985%2C11.83003%7C46.50374%2C11.80363%7C46.51495%2C11.81452%7C46.54486%2C11.84359%7C46.50318%2C11.80462%7C46.51272%2C11.81848%7C46.53814%2C11.85547%7C46.5025%2C11.80543%7C46.50999%2C11.82173%7C46.52996%2C11.86521%7C46.50172%2C11.80604%7C46.50688%2C11.82414%7C46.52063%2C11.87245%7C46.50088%2C11.80641%7C46.50351%2C11.82563%7C46.5105%2C11.8769%7C46.5%2C11.80653%7C46.5%2C11.82613%7C46.49997%2C11.87839%7C46.49912%2C11.80641%7C46.49649%2C11.82563%7C46.48945%2C11.87687%7C46.49828%2C11.80603%7C46.49311%2C11.82414%7C46.47933%2C11.87239%7C46.4975%2C11.80543%7C46.49001%2C11.82172%7C46.47%2C11.86514%7C46.49682%2C11.80462%7C46.48728%2C11.81847%7C46.46183%2C11.85539%7C46.49626%2C11.80363%7C46.48504%2C11.81451%7C46.45513%2C11.84351%7C46.49585%2C11.8025%7C46.48338%2C11.81%7C46.45014%2C11.82997%7C46.49559%2C11.80127%7C46.48236%2C11.8051%7C46.44708%2C11.81528&interpolation=bilinear",
+      "valid_points": 97,
+      "point_count": 97,
+      "center_elevation_m": 2099.0,
+      "sampled_relief_m": 1529.0,
+      "receipts": [
+        {
+          "url": "https://api.opentopodata.org/v1/srtm90m?locations=46.5%2C11.8%7C46.5045%2C11.8%7C46.51799%2C11.8%7C46.55396%2C11.8%7C46.50441%2C11.80127%7C46.51764%2C11.8051%7C46.55292%2C11.81531%7C46.50415%2C11.8025%7C46.51662%2C11.81%7C46.54985%2C11.83003%7C46.50374%2C11.80363%7C46.51495%2C11.81452%7C46.54486%2C11.84359%7C46.50318%2C11.80462%7C46.51272%2C11.81848%7C46.53814%2C11.85547%7C46.5025%2C11.80543%7C46.50999%2C11.82173%7C46.52996%2C11.86521%7C46.50172%2C11.80604%7C46.50688%2C11.82414%7C46.52063%2C11.87245%7C46.50088%2C11.80641%7C46.50351%2C11.82563%7C46.5105%2C11.8769%7C46.5%2C11.80653%7C46.5%2C11.82613%7C46.49997%2C11.87839%7C46.49912%2C11.80641%7C46.49649%2C11.82563%7C46.48945%2C11.87687%7C46.49828%2C11.80603%7C46.49311%2C11.82414%7C46.47933%2C11.87239%7C46.4975%2C11.80543%7C46.49001%2C11.82172%7C46.47%2C11.86514%7C46.49682%2C11.80462%7C46.48728%2C11.81847%7C46.46183%2C11.85539%7C46.49626%2C11.80363%7C46.48504%2C11.81451%7C46.45513%2C11.84351%7C46.49585%2C11.8025%7C46.48338%2C11.81%7C46.45014%2C11.82997%7C46.49559%2C11.80127%7C46.48236%2C11.8051%7C46.44708%2C11.81528&interpolation=bilinear",
+          "http_status": 200,
+          "source_observed_at": "2026-11-02T09:45:35.401650+00:00",
+          "body_sha256": "a14a11e0052711e0eb72d48d5ecb8fa9ef5f8031016080674869644ef0f2aaeb",
+          "response_bytes": 7099,
+          "cache_hit": false
+        },
+        {
+          "url": "https://api.opentopodata.org/v1/srtm90m?locations=46.4955%2C11.8%7C46.48201%2C11.8%7C46.44604%2C11.8%7C46.49559%2C11.79873%7C46.48236%2C11.7949%7C46.44708%2C11.78472%7C46.49585%2C11.7975%7C46.48338%2C11.79%7C46.45014%2C11.77003%7C46.49626%2C11.79637%7C46.48504%2C11.78549%7C46.45513%2C11.75649%7C46.49682%2C11.79538%7C46.48728%2C11.78153%7C46.46183%2C11.74461%7C46.4975%2C11.79457%7C46.49001%2C11.77828%7C46.47%2C11.73486%7C46.49828%2C11.79397%7C46.49311%2C11.77586%7C46.47933%2C11.72761%7C46.49912%2C11.79359%7C46.49649%2C11.77437%7C46.48945%2C11.72313%7C46.5%2C11.79347%7C46.5%2C11.77387%7C46.49997%2C11.72161%7C46.50088%2C11.79359%7C46.50351%2C11.77437%7C46.5105%2C11.7231%7C46.50172%2C11.79396%7C46.50688%2C11.77586%7C46.52063%2C11.72755%7C46.5025%2C11.79457%7C46.50999%2C11.77827%7C46.52996%2C11.73479%7C46.50318%2C11.79538%7C46.51272%2C11.78152%7C46.53814%2C11.74453%7C46.50374%2C11.79637%7C46.51495%2C11.78548%7C46.54486%2C11.75641%7C46.50415%2C11.7975%7C46.51662%2C11.79%7C46.54985%2C11.76997%7C46.50441%2C11.79873%7C46.51764%2C11.7949%7C46.55292%2C11.78469&interpolation=bilinear",
+          "http_status": 200,
+          "source_observed_at": "2026-11-02T09:45:36.449381+00:00",
+          "body_sha256": "82b089c5b7099069e4d103d2af474b7834b7cfded50e38e43bad4e56d07d0079",
+          "response_bytes": 6962,
+          "cache_hit": false
+        }
+      ],
+      "control": "Dolomites",
+      "method": "terrain",
+      "seconds": 2.153
+    },
+    {
+      "source": "OpenHistoricalMap",
+      "source_url": "https://overpass-api.openhistoricalmap.org/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A8%5D%5Bmaxsize%3A500000%5D%3Bnwr%28around%3A2000%2C41.89000%2C12.49000%29%5B%22name%22%5D%5B%22start_date%22%5D%3Bout+center+20%3B",
+      "feature_count": 20,
+      "receipt": {
+        "url": "https://overpass-api.openhistoricalmap.org/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A8%5D%5Bmaxsize%3A500000%5D%3Bnwr%28around%3A2000%2C41.89000%2C12.49000%29%5B%22name%22%5D%5B%22start_date%22%5D%3Bout+center+20%3B",
+        "http_status": 200,
+        "source_observed_at": "2026-11-02T09:45:38.379316+00:00",
+        "body_sha256": "057ced3606bf86b40f2d93a2abc32220b01b6c325e75828ff3c843b1fb0b988d",
+        "response_bytes": 4963,
+        "cache_hit": false
+      },
+      "control": "Rome",
+      "method": "historical",
+      "seconds": 1.928,
+      "status": "complete"
+    },
+    {
+      "source": "swisstopo swissALTI3D STAC",
+      "source_url": "https://data.geo.admin.ch/api/stac/v1/collections/ch.swisstopo.swissalti3d/items?bbox=7.8580000000000005%2C46.684%2C7.862%2C46.688&limit=2",
+      "item_count_returned": 2,
+      "collection_license": "proprietary",
+      "assets_downloaded": false,
+      "receipt": {
+        "url": "https://data.geo.admin.ch/api/stac/v1/collections/ch.swisstopo.swissalti3d/items?bbox=7.8580000000000005%2C46.684%2C7.862%2C46.688&limit=2",
+        "http_status": 200,
+        "source_observed_at": "2026-11-02T09:45:40.642875+00:00",
+        "body_sha256": "f5581024ee18aada813128c9a7ac8f70c44bc1fad68f40373fe01c29be86f51d",
+        "response_bytes": 6185,
+        "cache_hit": false
+      },
+      "collection_receipt": {
+        "url": "https://data.geo.admin.ch/api/stac/v1/collections/ch.swisstopo.swissalti3d",
+        "http_status": 200,
+        "source_observed_at": "2026-11-02T09:45:39.596703+00:00",
+        "body_sha256": "f2e87449d1b8a46abb44df2e54cc24f66fede749f1d4ba45a3e6f597cc5fff5b",
+        "response_bytes": 1978,
+        "cache_hit": false
+      },
+      "control": "Interlaken",
+      "method": "regional",
+      "seconds": 2.263,
+      "status": "complete"
+    }
+  ]
+}

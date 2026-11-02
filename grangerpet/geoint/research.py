@@ -25,6 +25,9 @@ INPUT_SCHEMA = {'type':'object','properties':{
     'attachment_id':{'type':'string','minLength':68,'maxLength':68},
     'max_candidates':{'type':'integer','minimum':1,'maximum':3},
     'references_per_candidate':{'type':'integer','minimum':1,'maximum':4},
+    'alternative_regions':{'type':'array','maxItems':2,'items':{'type':'object','properties':{
+        'latitude':{'type':'number','minimum':-85,'maximum':85},'longitude':{'type':'number','minimum':-180,'maximum':180},
+        'label':{'type':'string','maxLength':100}},'required':['latitude','longitude','label'],'additionalProperties':False}},
     'compare':{'type':'boolean'}},'required':['attachment_id'],'additionalProperties':False}
 
 
@@ -73,7 +76,9 @@ def hypotheses(records, attachment_id, maximum=3):
             'longitude':point['longitude'], 'source_model':point['source_model'], 'raw_score':point['raw_score'],
             'model_observations':[point], 'verification_status':'model_candidate' if point['source_kind']=='model_candidate' else 'metadata_candidate',
             'supporting_evidence':[point['evidence_id']], 'contradicting_evidence':[], 'nearby_landmarks':[],
-            'reference_images':[], 'region':'', 'uncertainty_radius_m':None})
+            'reference_images':[], 'region':'', 'uncertainty_radius_m':None,
+            'location_role':'model_prior' if point['source_kind']=='model_candidate' else 'metadata_location_unverified',
+            'camera_position_verified':False})
     return candidates
 
 
@@ -82,6 +87,12 @@ class ResearchSources:
         self.maps = maps or MappingClient()
         self.secret_getter = secret_getter or (lambda _: '')
         self.diagnostics=[]
+        from .open_geography import OpenGeography
+        self.geography=OpenGeography()
+
+    def terrain(self,candidate,cancel,deadline):return self.geography.terrain(candidate,cancel,deadline)
+    def historical(self,candidate,cancel,deadline):return self.geography.historical(candidate,cancel,deadline)
+    def regional(self,candidate,cancel,deadline):return self.geography.regional(candidate,cancel,deadline)
 
     def optional(self):
         from .optional_apis import availability
@@ -219,8 +230,8 @@ class ResearchSources:
 
 
 def queries_for(candidate, records):
-    text = ' '.join(str((row.get('details') or {}).get('description') or '') for row in records)
-    words = 'clock tower' if re.search(r'\bclock\b',text,re.I) else 'architecture street' if re.search(r'building|city|street',text,re.I) else 'landscape'
+    text = scene_text(records)
+    words = 'mountain valley ridge' if re.search(r'mountain|valley|ridge|гор[аы]|хреб[её]т|долин',text,re.I) else 'clock tower' if re.search(r'\bclock\b|башня|часы',text,re.I) else 'architecture street' if re.search(r'building|city|street|здани|город|улиц',text,re.I) else 'landscape'
     region = candidate.get('region','')
     landmarks=candidate.get('nearby_landmarks',[])
     ranked=rank_references([{**row,'title':row.get('name'),'source_url':row.get('url') or str(i)} for i,row in enumerate(landmarks)],text,candidate)
@@ -229,7 +240,7 @@ def queries_for(candidate, records):
     english=(named.get('names') or {}).get('name:en') or name
     russian=(named.get('names') or {}).get('name:ru') or name
     return [{'language':'en','query':(english+' '+words).strip(), 'place_name':english,'basis':'observed_scene_and_candidate_place'},
-        {'language':'ru','query':(russian+' '+('башня часы' if words=='clock tower' else 'архитектура' if words=='architecture street' else 'пейзаж')).strip(),
+        {'language':'ru','query':(russian+' '+('горы долина хребет' if words=='mountain valley ridge' else 'башня часы' if words=='clock tower' else 'архитектура' if words=='architecture street' else 'пейзаж')).strip(),
          'basis':'translated_observed_features_not_country_identification'}]
 
 
@@ -267,6 +278,19 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
     selected = [current_observation(row) for row in records if isinstance(row,dict)
         and (row.get('details') or {}).get('attachment_id')==attachment_id]
     candidates = hypotheses(selected, attachment_id, args.get('max_candidates',2))
+    if selected and args.get('alternative_regions'):
+        alternatives=[]
+        for region in args['alternative_regions'][:2]:
+            lat,lon=region['latitude'],region['longitude']
+            if not all(type(v) in (float,int) and math.isfinite(v) for v in (lat,lon)) or not -85<=lat<=85 or not -180<=lon<=180:
+                raise ValueError('Invalid alternative coordinates')
+            identifier='geo_'+hashlib.sha256(f'{attachment_id}|{lat:.5f}|{lon:.5f}'.encode()).hexdigest()[:24]
+            alternatives.append({'candidate_id':identifier,'attachment_id':attachment_id,'latitude':lat,'longitude':lon,
+                'region':_text(region['label'],100),'location_role':'proposed_region','verification_status':'proposed_region',
+                'source_model':None,'model_observations':[],'raw_score':None,'camera_position_verified':False,
+                'uncertainty_radius_m':None,'supporting_evidence':[],'contradicting_evidence':[],'nearby_landmarks':[],'reference_images':[]})
+        candidates=alternatives+[c for c in candidates if all(haversine_km([c['latitude'],c['longitude']],[a['latitude'],a['longitude']])>2 for a in alternatives)]
+        candidates=candidates[:args.get('max_candidates',2)]
     observed_scene=scene_text(selected)
     rows, stages, limitations = [], [], []
     def emit(kind, key, title, details, url='', description=''):
@@ -283,7 +307,7 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
         try:
             value = function()
             state=value.get('status') if isinstance(value,dict) else None
-            stages.append({'stage':name,'status':state if state in ('error','timeout','cancelled','unavailable') else 'complete',
+            stages.append({'stage':name,'status':state if state in ('partial','not_applicable','error','timeout','cancelled','unavailable') else 'complete',
                 **({'error_code':value.get('error_code')} if state in ('error','timeout','cancelled','unavailable') else {})})
             return value
         except LocalToolError:
@@ -297,7 +321,12 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
         if not candidates:
             return {'status':'unavailable','error_code':'no_saved_geographic_candidates','results':[],
                 'limitations':['Нет сохранённых координатных гипотез; сначала выполните visual_geoint. Место не выдумано.']}
-        comparisons = 0
+        comparisons = 0;prepared=[]
+        mountain_scene=bool(re.search(r'mountain|valley|ridge|гор[аы]|хреб[её]т|долин',observed_scene,re.I))
+        original_trace=None
+        if mountain_scene:
+            from .skyline import extract
+            original_trace=stage('original_skyline_pixels',lambda:extract(store.read_bytes(attachment_id,cancel_event)))
         for candidate in candidates:
             position = stage('reverse_geocode', lambda:sources.reverse(candidate,cancel_event))
             if position:
@@ -315,8 +344,30 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
                     for place in places:
                         emit('map',candidate['candidate_id']+'|'+place['entity_id'],place['title'],
                             {**place,'candidate_id':candidate['candidate_id']},place['source_url'],place['description'])
+            if mountain_scene and hasattr(sources,'terrain'):
+                terrain=stage('dem_terrain_geometry',lambda:sources.terrain(candidate,cancel_event,end))
+                if terrain:
+                    from .skyline import fit_dem
+                    candidate['terrain_geometry']={key:deepcopy(value) for key,value in terrain.items() if key!='points'}
+                    candidate['terrain_geometry']['pixel_shape_screening']=fit_dem(original_trace or {},terrain)
+                    emit('geoint_terrain',candidate['candidate_id']+'|terrain','Рельеф SRTM вокруг гипотезы',
+                        {**terrain,'candidate_id':candidate['candidate_id']},terrain.get('source_url',''),
+                        f"Реальные высоты DEM: {terrain.get('valid_points')} из {terrain.get('point_count')} точек; перепад {terrain.get('sampled_relief_m')} м. Точка камеры не установлена.")
+            for operation in ('historical','regional'):
+                if not hasattr(sources,operation):continue
+                extra=stage(operation+'_geographic_context',lambda name=operation:getattr(sources,name)(candidate,cancel_event,end))
+                if extra and extra.get('status')!='not_applicable':
+                    candidate[operation+'_context']=extra
+                    emit('geoint_context',candidate['candidate_id']+'|'+operation,
+                        'Исторические объекты' if operation=='historical' else 'Региональное DEM-покрытие',
+                        {**extra,'candidate_id':candidate['candidate_id']},extra.get('source_url',''),
+                        'Контекст местности из '+str(extra.get('source'))+'; место и дата исходного снимка не подтверждены.')
             emit('geoint_candidate',candidate['candidate_id'], candidate['region'] or 'Географическая гипотеза', deepcopy(candidate),
                 (position or {}).get('source_url',''), 'Координатная гипотеза; найденная поблизости инфраструктура не доказывает место исходного фото.')
+            prepared.append((candidate,position,queries))
+        # Give every competing region a context pass before costly photo/model work.
+        for candidate,position,queries in prepared:
+            candidate_comparisons=0
             references = stage('commons_image_research',lambda:sources.commons(candidate,queries,args.get('references_per_candidate',3),cancel_event)) or []
             references += stage('panoramax_street_research',lambda:sources.panoramax(candidate,2,cancel_event,end)) or []
             if any(row.get('provider')=='yandex_search' and row.get('state')=='configured_not_tested' for row in optional):
@@ -335,6 +386,9 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
                 'selection':ref['selection']} for ref in references[:12]]
             for index, reference in enumerate(references):
                 check(cancel_event,end)
+                if not reference.get('license') or reference['selection']['score'] < 0:
+                    limitations.append('Эталон исключён из галереи из-за отсутствия лицензии или несоответствия признакам сцены.')
+                    continue
                 if len(candidate['reference_images'])>=args.get('references_per_candidate',3):break
                 key = candidate['candidate_id']+'|'+str(reference['source_url'])
                 raw = emit('reference_image',key,reference['title'],{**reference,'candidate_id':candidate['candidate_id'],
@@ -349,8 +403,8 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
                     raw['details']['image_fetched'] = True
                     candidate['reference_images'].append({'evidence_id':normalized['evidence_id'],'image_url':reference['image_url'],
                         'source_url':reference['source_url'],'title':reference['title'],'media_id':media['id']})
-                    if args.get('compare',True) and comparisons < 2 and time.monotonic()+20 < end:
-                        comparisons += 1
+                    if args.get('compare',True) and candidate_comparisons<1 and comparisons < len(candidates) and time.monotonic()+20 < end:
+                        comparisons += 1;candidate_comparisons+=1
                         def reference_scene():
                             from ..visual_models.scene import understand
                             return understand(media_store.read_original(media),cancel_event=cancel_event,
@@ -358,7 +412,7 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
                         semantics=stage('reference_pixel_understanding',reference_scene)
                         if semantics and semantics.get('status')=='completed':
                             raw['details']['reference_scene']={key:semantics[key] for key in
-                                ('description','observations','model_version','limitations') if key in semantics}
+                                ('description','description_original','observations','model_version','limitations') if key in semantics}
                         def compare():
                             from ..visual_models.manager import get_manager
                             return get_manager().match(store.read_bytes(attachment_id,cancel_event),media_store.read_original(media),
@@ -366,9 +420,21 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
                         comparison = stage('local_visual_comparison',compare)
                         if comparison:
                             raw['details']['comparison'] = comparison_summary(comparison)
-                        refined=rank_reference({**reference,'comparison':raw['details'].get('comparison')},observed_scene,candidate)
+                        if mountain_scene:
+                            from .skyline import extract,compare as compare_skyline
+                            trace=stage('reference_skyline_pixels',lambda:extract(media_store.read_original(media)))
+                            if trace:
+                                raw['details'].setdefault('comparison',{})['skyline']=compare_skyline(original_trace or {},trace)
+                        refined=rank_reference({**reference,'comparison':raw['details'].get('comparison'),
+                            'reference_scene':raw['details'].get('reference_scene')},observed_scene,candidate)
                         raw['details']['selection']=refined['selection']
-                    candidate['reference_images'][-1]['selection']=raw['details'].get('selection',reference['selection'])
+                    final_selection=raw['details'].get('selection',reference['selection'])
+                    if final_selection['score']<0:
+                        candidate['reference_images'].pop()
+                        candidate['contradicting_evidence'].append(normalized['evidence_id'])
+                        raw['details']['match_kind']='different_scene_observed'
+                    else:
+                        candidate['reference_images'][-1]['selection']=final_selection
                     if on_result:
                         on_result(raw)
             if candidate['reference_images']:
@@ -378,7 +444,20 @@ def execute(args, *, records, store, settings=None, sources=None, media_store=No
                 limitations.append('Сравнительные фотографии для '+(candidate['region'] or candidate['candidate_id'])+' не найдены или не загрузились.')
             emit('geoint_candidate',candidate['candidate_id'],candidate['region'] or 'Географическая гипотеза',deepcopy(candidate),
                 (position or {}).get('source_url',''))
-        status = 'partial' if any(stage['status']!='complete' for stage in stages) else 'complete'
+        def priority(candidate):
+            # Nearby shots alone carry no confirmation. Use observed visual
+            # features and explicit disagreements to order further inspection.
+            matched=max((ref['selection']['score'] for ref in candidate['reference_images']),default=0)
+            terrain=candidate.get('terrain_geometry',{}).get('pixel_shape_screening',{})
+            shape=terrain.get('standardized_shape_rmse')
+            terrain_weight=max(-.25,min(.25,(.8-shape)*.25)) if type(shape) in (int,float) else 0
+            return round(matched+terrain_weight-.5*len(candidate['contradicting_evidence']),4)
+        candidates.sort(key=priority,reverse=True)
+        for rank,candidate in enumerate(candidates,1):
+            candidate.update(review_order=rank,review_score=priority(candidate),review_score_calibrated=False)
+            emit('geoint_candidate',candidate['candidate_id'],candidate['region'] or 'Географическая гипотеза',
+                deepcopy(candidate),candidate.get('geocoding',{}).get('source_url',''))
+        status = 'partial' if any(stage['status'] not in ('complete','not_applicable') for stage in stages) else 'complete'
     except LocalToolError as error:
         status = error.code if error.code in ('cancelled','timeout') else 'error'
         limitations.append(str(error))

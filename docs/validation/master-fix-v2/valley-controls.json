@@ -1,0 +1,196 @@
+{
+  "status": "partial",
+  "stages": [
+    {
+      "stage": "original_skyline_pixels",
+      "status": "complete"
+    },
+    {
+      "stage": "reverse_geocode",
+      "status": "complete"
+    },
+    {
+      "stage": "osm_landmarks",
+      "status": "unavailable",
+      "error_code": "timeout"
+    },
+    {
+      "stage": "wikidata_place_research",
+      "status": "complete"
+    },
+    {
+      "stage": "dem_terrain_geometry",
+      "status": "complete"
+    },
+    {
+      "stage": "historical_geographic_context",
+      "status": "complete"
+    },
+    {
+      "stage": "regional_geographic_context",
+      "status": "not_applicable"
+    },
+    {
+      "stage": "reverse_geocode",
+      "status": "complete"
+    },
+    {
+      "stage": "osm_landmarks",
+      "status": "unavailable",
+      "error_code": "timeout"
+    },
+    {
+      "stage": "wikidata_place_research",
+      "status": "complete"
+    },
+    {
+      "stage": "dem_terrain_geometry",
+      "status": "complete"
+    },
+    {
+      "stage": "historical_geographic_context",
+      "status": "complete"
+    },
+    {
+      "stage": "regional_geographic_context",
+      "status": "not_applicable"
+    },
+    {
+      "stage": "commons_image_research",
+      "status": "unavailable",
+      "error_code": "invalid_response"
+    },
+    {
+      "stage": "panoramax_street_research",
+      "status": "complete"
+    },
+    {
+      "stage": "web_landmark_research",
+      "status": "complete"
+    },
+    {
+      "stage": "commons_image_research",
+      "status": "complete"
+    },
+    {
+      "stage": "panoramax_street_research",
+      "status": "complete"
+    },
+    {
+      "stage": "web_landmark_research",
+      "status": "complete"
+    },
+    {
+      "stage": "reference_image_download",
+      "status": "unavailable",
+      "error_code": "ValueError"
+    },
+    {
+      "stage": "reference_image_download",
+      "status": "complete"
+    },
+    {
+      "stage": "reference_pixel_understanding",
+      "status": "complete"
+    },
+    {
+      "stage": "local_visual_comparison",
+      "status": "complete"
+    },
+    {
+      "stage": "reference_skyline_pixels",
+      "status": "unavailable",
+      "error_code": null
+    },
+    {
+      "stage": "reference_image_download",
+      "status": "complete"
+    }
+  ],
+  "regions": [
+    {
+      "region": "улица Керей-Жанибек хандар, Медеу, Медеуский район, Алматы, Казахстан",
+      "location_role": "proposed_region",
+      "dem_valid": 97,
+      "fit": {
+        "status": "complete",
+        "standardized_shape_rmse": 1.2451,
+        "searched_windows": 96,
+        "best_window_center_bearing_deg": 315.0,
+        "assumed_horizontal_fov_deg": 67.5,
+        "camera_position_verified": false,
+        "use": "weak_candidate_screening_only",
+        "not_calibrated_probability": true,
+        "limitations": [
+          "Лучшее из 96 окон при неизвестном ракурсе; случайное сходство возможно.",
+          "Это не измеренное направление камеры. DEM-профиль построен вокруг модельного prior, не проверенной точки съёмки."
+        ]
+      },
+      "reference_candidates": []
+    },
+    {
+      "region": "Pian Schiavaneis, Canazei, Comun General de Fascia, Тренто, Трентино — Альто-Адидже, 38036, Италия",
+      "location_role": "proposed_region",
+      "dem_valid": 97,
+      "fit": {
+        "status": "complete",
+        "standardized_shape_rmse": 1.2335,
+        "searched_windows": 96,
+        "best_window_center_bearing_deg": 247.5,
+        "assumed_horizontal_fov_deg": 90,
+        "camera_position_verified": false,
+        "use": "weak_candidate_screening_only",
+        "not_calibrated_probability": true,
+        "limitations": [
+          "Лучшее из 96 окон при неизвестном ракурсе; случайное сходство возможно.",
+          "Это не измеренное направление камеры. DEM-профиль построен вокруг модельного prior, не проверенной точки съёмки."
+        ]
+      },
+      "reference_candidates": [
+        {
+          "title": "Panoramax · 2025-08-23T08:51:57.127800+00:00",
+          "source_url": "https://api.panoramax.xyz/#focus=pic&pic=58da6a2e-5575-44f9-b7b6-f364776d926e",
+          "selection": {
+            "score": 0.0603,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Расстояние используется только как слабый дополнительный признак"
+            ],
+            "observed_scene_types": [
+              "architecture",
+              "mountain",
+              "street"
+            ],
+            "reference_scene_types": [],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        },
+        {
+          "title": "File:ISS015-E-6467 - View of Italy.jpg",
+          "source_url": "https://commons.wikimedia.org/wiki/File:ISS015-E-6467_-_View_of_Italy.jpg",
+          "selection": {
+            "score": -1.4602,
+            "score_calibrated": false,
+            "geolocation_verified": false,
+            "basis": [
+              "Типы сцены расходятся",
+              "Расстояние используется только как слабый дополнительный признак",
+              "Локальные совпадения распределены по двум кадрам"
+            ],
+            "observed_scene_types": [
+              "architecture",
+              "mountain",
+              "street"
+            ],
+            "reference_scene_types": [
+              "water"
+            ],
+            "interpretation": "Приоритет просмотра, не вероятность географического совпадения."
+          }
+        }
+      ]
+    }
+  ],
+  "coverage": "live research prior to negative-gallery exclusion; archives and pixel data retained locally"
+}
