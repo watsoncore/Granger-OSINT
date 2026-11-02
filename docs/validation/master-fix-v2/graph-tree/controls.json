@@ -1,0 +1,335 @@
+{
+  "date": "2026-11-02",
+  "mode": "actual_source_Qt_WebEngine",
+  "final_exe_checked": false,
+  "gateway_calls": 0,
+  "inference_calls": 0,
+  "source_data": "Previously collected actual public evidence, not new network observations",
+  "cases": [
+    {
+      "name": "actual-steam-v2",
+      "synthetic": false,
+      "input_rows": 751,
+      "raw_entities": 780,
+      "raw_relations": 3018,
+      "canvas": {
+        "drawnNodes": "18",
+        "drawnEdges": "17",
+        "drawnLabels": "18",
+        "drawnImages": "1",
+        "paintMs": "2.600000023841858",
+        "zoom": "0.6479519107985473",
+        "width": 1510.4000244140625,
+        "height": 453
+      },
+      "tree_canvas": {
+        "drawnNodes": "4",
+        "drawnEdges": "3",
+        "modelEdges": "3",
+        "onScreenNodes": "4",
+        "drawnLabels": "4",
+        "paintMs": "2.899999976158142",
+        "zoom": "1.35",
+        "width": 1510.4000244140625,
+        "height": 421
+      },
+      "paired_coordinates_differ": true,
+      "screenshots": {
+        "tree": {
+          "path": "actual-steam-v2-tree.png",
+          "sha256": "afbb09bc0d94059224964c7a32085ec47c50905959ea6d8b0b28caef13484f6b"
+        },
+        "graph": {
+          "path": "actual-steam-v2-graph.png",
+          "sha256": "055380bae9570dde345c6843365e4462598c7dd0b63fc26efb141cea2f7e34bc"
+        }
+      }
+    },
+    {
+      "name": "actual-network-v2",
+      "synthetic": false,
+      "input_rows": 10,
+      "raw_entities": 30,
+      "raw_relations": 38,
+      "canvas": {
+        "drawnNodes": "13",
+        "drawnEdges": "21",
+        "drawnLabels": "13",
+        "drawnImages": "0",
+        "paintMs": "2",
+        "zoom": "0.6562154486622419",
+        "width": 1510.4000244140625,
+        "height": 453
+      },
+      "tree_canvas": {
+        "drawnNodes": "10",
+        "drawnEdges": "9",
+        "modelEdges": "9",
+        "onScreenNodes": "10",
+        "drawnLabels": "10",
+        "paintMs": "1.399999976158142",
+        "zoom": "0.62",
+        "width": 1510.4000244140625,
+        "height": 421
+      },
+      "paired_coordinates_differ": true,
+      "screenshots": {
+        "tree": {
+          "path": "actual-network-v2-tree.png",
+          "sha256": "642fbc594263ee0ff89aea511ad944d8bf506a28b910381d3e2191393166bd9c"
+        },
+        "graph": {
+          "path": "actual-network-v2-graph.png",
+          "sha256": "dcdb0ae576afececa2afd19f6ecca560bb6c60884de83b35a3394cbb3c49c31e"
+        }
+      }
+    },
+    {
+      "name": "actual-geoint",
+      "synthetic": false,
+      "input_rows": 10,
+      "raw_entities": 16,
+      "raw_relations": 23,
+      "canvas": {
+        "drawnNodes": "5",
+        "drawnEdges": "5",
+        "drawnLabels": "5",
+        "drawnImages": "3",
+        "paintMs": "2.200000047683716",
+        "zoom": "0.62",
+        "width": 1510.4000244140625,
+        "height": 453
+      },
+      "tree_canvas": {
+        "drawnNodes": "3",
+        "drawnEdges": "2",
+        "modelEdges": "2",
+        "onScreenNodes": "3",
+        "drawnLabels": "3",
+        "paintMs": "5.700000047683716",
+        "zoom": "1.35",
+        "width": 1510.4000244140625,
+        "height": 421
+      },
+      "paired_coordinates_differ": true,
+      "screenshots": {
+        "tree": {
+          "path": "actual-geoint-tree.png",
+          "sha256": "0102f46adc7aa4314fb4a8da1bd7f4782e44d596fc8f7108afa68514a173bdfe"
+        },
+        "graph": {
+          "path": "actual-geoint-graph.png",
+          "sha256": "71c0073f34adb66f38f8b5aba0092060ca3d5cf770c473bb1eadf7a007d4599d"
+        }
+      }
+    }
+  ],
+  "synthetic_stress": {
+    "name": "synthetic-1000",
+    "input_rows": 1000,
+    "raw_entities": 2010,
+    "raw_relations": 8004,
+    "canvas": {
+      "drawnNodes": "6",
+      "drawnEdges": "5",
+      "drawnLabels": "6",
+      "drawnImages": "0",
+      "paintMs": "0.7999999523162842",
+      "zoom": "0.8705212931517108",
+      "width": 1510.4000244140625,
+      "height": 453
+    },
+    "tree_canvas": {
+      "drawnNodes": "6",
+      "drawnEdges": "5",
+      "modelEdges": "5",
+      "onScreenNodes": "6",
+      "drawnLabels": "6",
+      "paintMs": "3.100000023841858",
+      "zoom": "0.6245283018867924",
+      "width": 1510.4000244140625,
+      "height": 421
+    }
+  },
+  "native_checks_04": [
+    {
+      "name": "synthetic-1000_native_canvas",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_no_window_overflow",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_different_tree_network_coordinates",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_tree_connected_single_parent",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_tree_readable_default",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_tree_breadcrumbs",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_native_tree_drag_persisted",
+      "passed": true
+    },
+    {
+      "name": "native_group_expansion_preserves_large_collection",
+      "passed": true
+    },
+    {
+      "name": "native_search_finds_entity_without_matching_internal_member_hashes",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_native_canvas",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_no_window_overflow",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_different_tree_network_coordinates",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_tree_connected_single_parent",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_tree_readable_default",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_tree_breadcrumbs",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_native_tree_drag_persisted",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_native_inspector",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_native_canvas",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_no_window_overflow",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_different_tree_network_coordinates",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_tree_connected_single_parent",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_tree_readable_default",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_tree_breadcrumbs",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_native_tree_drag_persisted",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_native_canvas",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_no_window_overflow",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_different_tree_network_coordinates",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_tree_connected_single_parent",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_tree_readable_default",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_tree_breadcrumbs",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_native_tree_drag_persisted",
+      "passed": true
+    },
+    {
+      "name": "restart_retains_graph_layout_and_group_state",
+      "passed": true
+    },
+    {
+      "name": "no_unexpected_global_error_banner",
+      "passed": true
+    }
+  ],
+  "native_checks_05": [
+    {
+      "name": "actual-geoint_native_canvas",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_no_window_overflow",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_different_tree_network_coordinates",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_tree_connected_single_parent",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_tree_readable_default",
+      "passed": true
+    },
+    {
+      "name": "geoint_tree_includes_researched_candidate",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_tree_breadcrumbs",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_native_tree_drag_persisted",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_native_inspector",
+      "passed": true
+    },
+    {
+      "name": "restart_retains_graph_layout_and_group_state",
+      "passed": true
+    },
+    {
+      "name": "no_unexpected_global_error_banner",
+      "passed": true
+    }
+  ],
+  "manual_visual_review": "Reviewed the six source UI screenshots; distinct branching hierarchy and network; labeled nodes, no ten-pixel empty boxes. GEOINT retrieval quality and Russian descriptions are separate pending work."
+}

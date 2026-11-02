@@ -29,7 +29,7 @@ def validate_view(value):
     result=deepcopy(value)
     result['version']=1
     if result.get('mode','overview') not in ('overview','tree','graph','evidence','geo'):raise ValueError('Invalid graph mode')
-    if 'layout_algorithm'in result and result['layout_algorithm']!='semantic_cards':raise ValueError('Invalid graph algorithm')
+    if 'layout_algorithm'in result and result['layout_algorithm'] not in ('semantic_cards','semantic_network_v2'):raise ValueError('Invalid graph algorithm')
     if 'inspector_width'in result:_number(result['inspector_width'],260,560)
     if 'inspector_hidden'in result and type(result['inspector_hidden']) is not bool:raise ValueError('Invalid graph inspector')
     for key in ('positions','tree_positions'):
@@ -100,8 +100,8 @@ class GraphViewStore:
                 backup=path.with_name(path.name+'.recovery-backup')
                 if not backup.exists():atomic_write(backup,path.read_bytes())
                 if backup.read_bytes()!=path.read_bytes():raise ValueError('Graph recovery backup verification failed')
-            if value.get('layout_algorithm')=='semantic_cards' and previous.get('layout_algorithm')!='semantic_cards':
-                backup=path.with_name(path.name+'.layout-v1-backup')
+            if value.get('layout_algorithm') in ('semantic_cards','semantic_network_v2') and previous.get('layout_algorithm')!=value.get('layout_algorithm'):
+                backup=path.with_name(path.name+('.layout-v2-backup' if value.get('layout_algorithm')=='semantic_network_v2' else '.layout-v1-backup'))
                 if not backup.exists():atomic_write(backup,path.read_bytes())
         atomic_write(path,CredentialsStore._protect(encoded))
         return value

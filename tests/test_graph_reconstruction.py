@@ -106,3 +106,25 @@ def test_layout_migration_preserves_original_protected_positions_and_refuses_cor
     # A corrupt DPAPI envelope fails explicitly; do not erase bytes to force migration.
     with pytest.raises(Exception):views.save(second,{**original,'layout_algorithm':'semantic_cards'})
     assert views._path(second).read_bytes()==b'broken but preserved bytes'
+
+
+def test_network_topic_groups_retain_relevance_and_preserve_primary_evidence():
+    from grangerpet.investigation_results import project
+    address='66.249.67.41'
+    row=normalize_evidence({'id':'geo','type':'ip','platform':'ipwhois','title':'GeoIP',
+        'url':'https://ipwho.is/'+address,'details':{'address':address,'geoip':{'provider':'ipwhois','country_name':'United States'}}},'network_geoip',address)
+    data=project({'id':'a'*32,'goal':'Исследуй IP '+address,'evidence':[row]})
+    groups=[node for node in data['entities'] if node['attributes'].get('topic_group')]
+    assert groups and all(node['relevance']['level']!='background' for node in groups)
+    assert all(node['evidence_ids']==[row['evidence_id']] for node in groups)
+    assert data['counts']['unique_evidence']==1
+
+
+def test_v2_layout_preserves_previous_sidecar_bytes(tmp_path):
+    from grangerpet.agent_journal import InvestigationJournal
+    from grangerpet.graph_store import GraphViewStore
+    views=GraphViewStore(InvestigationJournal(tmp_path));identifier='b'*32
+    before={'version':1,'layout_algorithm':'semantic_cards','mode':'tree','tree_positions':{'ent_'+'a'*24:{'x':10,'y':20}}}
+    views.save(identifier,before);original=views._path(identifier).read_bytes()
+    views.save(identifier,{**before,'layout_algorithm':'semantic_network_v2','tree_positions':{}})
+    assert views._path(identifier).with_name(identifier+'.graph.dpapi.layout-v2-backup').read_bytes()==original

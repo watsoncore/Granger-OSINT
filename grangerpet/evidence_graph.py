@@ -14,7 +14,9 @@ from .engine.models import canonical_url
 
 ENTITY_TYPES=('username','public_profile','organization','domain','email','public_post','phone','image',
     'geographic_candidate','coordinate','repository','infrastructure_asset','blockchain_address','transaction','service',
-    'root_entity','telegram_channel','social_profile','github_profile','github_repository','website','source','asset','web3_identity','entity_group')
+    'root_entity','telegram_channel','social_profile','github_profile','github_repository','website','source','asset','web3_identity','entity_group',
+    'geoip_estimate','registry_contact','registry_maintainer','registry_registry_authority','registry_registry_contact','registry_registry_reference',
+    'steam_inventory','inventory_category','inventory_item')
 
 
 def verification(value):
@@ -180,6 +182,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                 if target and target.entity_type!='public_post':canonical='https://t.me/'+target.identifier
             display='telegram_channel' if details.get('object_type_verified') and details.get('entity_type')=='telegram_channel' else 'github_profile' if host=='github.com' else 'social_profile'
             current=node('public_profile',canonical,label,record,url=canonical,identity_verified=False,platform='telegram' if host=='t.me' else 'github' if host=='github.com' else platform,display_type=display,reference_only=False)
+            if current:nodes[current]['label']=str(details.get('display_name') or label)[:300]
             username=details.get('login') or details.get('username') or details.get('screen_name')
             if isinstance(username,str) and username:
                 scoped=node('username',platform+'|'+username,username,record,platform=platform)
@@ -570,6 +573,27 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             for member in members:
                 nodes[member]['attributes']['parent_group_id']=group
                 edge(group,member,'group_contains',None,'unverified',grouping_only=True,observed_field='member_ids',extraction_method='local_presentation_grouping')
+        # Presentation topics are explicit local grouping, never source claims.
+        topics={}
+        for identifier,value in list(nodes.items()):
+            if identifier==root_id or value['attributes'].get('parent_group_id') or value['attributes'].get('technical'):continue
+            kind=value['type'];attrs=value['attributes'];topic=None
+            if kind=='infrastructure_asset':
+                topic='Реестр' if attrs.get('asset_type')=='registered_range' else 'Маршрутизация'
+            elif kind in ('registry_contact','organization'):topic='Реестр'
+            elif kind=='geoip_estimate':topic='GeoIP · оценки баз'
+            elif kind=='geographic_candidate':topic='Географические гипотезы'
+            elif kind=='website' and 'web.archive.org/' in str(attrs.get('url','')):topic='Архивы'
+            if topic:topics.setdefault(topic,[]).append(identifier)
+        for topic,members in topics.items():
+            group=node('entity_group','topic|'+root_id+'|'+topic,topic,None,
+                member_ids=members,member_count=len(members),grouping_only=True,topic_group=True)
+            if not group:continue
+            nodes[group]['evidence_ids']=list(dict.fromkeys(eid for member in members for eid in nodes[member]['evidence_ids']))[:150]
+            edge(root_id,group,'groups_observations',None,'unverified',grouping_only=True,extraction_method='local_presentation_grouping')
+            for member in members:
+                nodes[member]['attributes']['parent_group_id']=group
+                edge(group,member,'group_contains',None,'unverified',grouping_only=True,extraction_method='local_presentation_grouping')
     all_nodes=list(nodes.values());all_edges=list(edges.values())
     if center:
         adjacent={center}

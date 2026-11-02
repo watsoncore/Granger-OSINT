@@ -31,7 +31,7 @@ export interface GraphRelation {
 }
 export interface GraphView {
   version:1; mode?:GraphMode; positions?:Record<string,GraphPoint>; tree_positions?:Record<string,GraphPoint>
-  layout_algorithm?:'semantic_cards';inspector_width?:number;inspector_hidden?:boolean
+  layout_algorithm?:'semantic_cards'|'semantic_network_v2';inspector_width?:number;inspector_hidden?:boolean
   viewport?:GraphViewport; tree_viewport?:GraphViewport; selected_id?:string; selected_relation?:string
   expanded?:string[]; expanded_relations?:string[]; collapsed?:string[]; query?:string
   filters?: {types?:string[];statuses?:Verification[];include_background?:boolean;show_sources?:boolean;show_transactions?:boolean}

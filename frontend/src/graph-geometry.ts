@@ -2,12 +2,11 @@ import type { GraphEntity,GraphPoint,GraphRelation,GraphViewport } from './types
 
 export function nodeBox(node:GraphEntity,scale:number){
   if(node.attributes.is_root===true)return {width:Math.max(150,252*scale),height:Math.max(66,106*scale)}
-  if(scale<.3&&node.attributes.is_root!==true)return {width:Math.max(10,24*scale),height:Math.max(10,24*scale)}
-  return {width:220*scale,height:86*scale}
+  return {width:Math.max(136,220*scale),height:Math.max(54,86*scale)}
 }
 interface Point {x:number;y:number}
 export interface EdgeRoute {edge:GraphRelation;points:Point[]}
-export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPoint>,view:GraphViewport,nodes:GraphEntity[]=[]):EdgeRoute[]{
+export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPoint>,view:GraphViewport,nodes:GraphEntity[]=[],mode:'tree'|'graph'='graph'):EdgeRoute[]{
   const byId=new Map(nodes.map(node=>[node.id,node])),groups=new Map<string,GraphRelation[]>()
   for(const edge of edges){const key=[edge.from_id,edge.to_id].sort().join('|');const list=groups.get(key)||[];list.push(edge);groups.set(key,list)}
   const screen=(id:string)=>{const point=positions[id];return point?{x:point.x*view.scale+view.x,y:point.y*view.scale+view.y}:null}
@@ -24,6 +23,9 @@ export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPo
       const node=byId.get(edge.from_id),box=node?nodeBox(node,view.scale):{width:24,height:24},x=a.x+box.width/2+4
       for(let step=0;step<=16;step++){const t=step/16,u=1-t;points.push({x:u*u*u*x+3*u*u*t*(x+90)+3*u*t*t*(x+90)+t*t*t*x,
         y:u*u*u*(a.y-15)+3*u*u*t*(a.y-110)+3*u*t*t*(a.y+110)+t*t*t*(a.y+15)})}
+    }else if(mode==='tree'){
+      const start=border(edge.from_id,a,{x:b.x,y:a.y}),end=border(edge.to_id,b,{x:a.x,y:b.y}),middle=(start.x+end.x)/2
+      points.push(start,{x:middle,y:start.y},{x:middle,y:end.y},end)
     }else{
       // One deterministic lane per directed relation/asset; opposing flows remain pickable.
       const direction=edge.from_id<edge.to_id?1:-1,dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1

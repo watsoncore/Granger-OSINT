@@ -1,12 +1,12 @@
 import { forwardRef,useEffect,useImperativeHandle,useRef,useState } from 'react'
 import type { GraphEntity,GraphPoint,GraphRelation,GraphViewport } from '../types'
-import { entityLabel,entityType,fitViewport,hitNode,hitRelation,nodeBox,relationLabels,shortLabel,zoomAt } from '../graph-model'
+import { entityLabel,entityType,readableViewport,hitNode,hitRelation,nodeBox,relationLabels,shortLabel,zoomAt } from '../graph-model'
 import { routeEdges } from '../graph-geometry'
 
 export interface GraphCanvasHandle { fit():void; zoom(factor:number):void; center(id:string):void }
 interface Props {
   nodes:GraphEntity[];edges:GraphRelation[];positions:Record<string,GraphPoint>;viewport:GraphViewport
-  selected:string;second:string;selectedEdge:string;root:string;theme?:unknown
+  selected:string;second:string;selectedEdge:string;root:string;theme?:unknown;mode?:'tree'|'graph'
   onSelect(id:string,second:boolean):void;onEdge(id:string):void
   onCommitPositions(value:Record<string,GraphPoint>):void;onViewport(value:GraphViewport):void
   onResize(width:number,height:number):void
@@ -31,9 +31,9 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     const onScreen=(point:{x:number;y:number},margin=160)=>point.x>=-margin&&point.x<=width+margin&&point.y>=-margin&&point.y<=height+margin
     const clipped=(value:string,space:number)=>{let output=value;if(space<12)return '';if(ctx.measureText(output).width<=space)return output;const tail=value.length>10?value.slice(-7):'';let head=value.slice(0,-tail.length||undefined);while(head.length>1&&ctx.measureText(head+'…'+tail).width>space)head=head.slice(0,-1);output=head+'…'+tail;if(ctx.measureText(output).width>space)return '…';return output}
     const cards=p.nodes.flatMap(node=>{const point=screen(node.id);return point&&onScreen(point)?[{node,point,box:nodeBox(node,v.scale)}]:[]})
-    if(v.scale>.45){
+    if(p.mode!=='tree'&&v.scale>.45){
       const clusters=new Map<string,typeof cards>()
-      for(const card of cards){if(card.node.id===p.root)continue;const key=entityType(card.node),rows=clusters.get(key)||[];rows.push(card);clusters.set(key,rows)}
+      for(const card of cards){if(card.node.id===p.root||!card.node.attributes.parent_group_id)continue;const key=String(card.node.attributes.parent_group_id),rows=clusters.get(key)||[];rows.push(card);clusters.set(key,rows)}
       for(const rows of clusters.values())if(rows.length>=3){
         const minX=Math.min(...rows.map(row=>row.point.x-row.box.width/2))-16,maxX=Math.max(...rows.map(row=>row.point.x+row.box.width/2))+16
         const minY=Math.min(...rows.map(row=>row.point.y-row.box.height/2))-32,maxY=Math.max(...rows.map(row=>row.point.y+row.box.height/2))+16
@@ -41,7 +41,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
         ctx.font='11px Manrope, sans-serif';ctx.fillStyle=muted;ctx.fillText(`${entityLabel(rows[0].node)} · ${rows.length}`,minX+12,minY+18)
       }
     }
-    const routes=routeEdges(p.edges,positions,v,p.nodes).filter(route=>route.points.some(point=>onScreen(point,20)))
+    const routes=routeEdges(p.edges,positions,v,p.nodes,p.mode).filter(route=>route.points.some(point=>onScreen(point,20)))
     const occupied=cards.map(({point,box})=>({x:point.x-box.width/2-4,y:point.y-box.height/2-4,w:box.width+8,h:box.height+8}))
     for(const {edge,points}of routes){
       const selected=edge.id===p.selectedEdge,related=edge.from_id===p.selected||edge.to_id===p.selected
@@ -65,8 +65,9 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     for(const {node,point,box}of cards){
       const selected=node.id===p.selected||node.id===p.second,root=node.id===p.root,type=entityType(node),x=point.x-box.width/2,y=point.y-box.height/2
       ctx.fillStyle=selected?raised:panel;ctx.strokeStyle=selected||root?accent:node.verification_status==='inferred'?warning:border;ctx.lineWidth=selected||root?1.8:1
-      ctx.beginPath();ctx.roundRect(x,y,box.width,box.height,Math.min(9,box.height/4));ctx.fill();ctx.stroke()
-      if(v.scale>=.3||root||selected){
+      const corner=node.type==='public_profile'?18:node.type==='image'?3:node.type==='entity_group'?11:6
+      ctx.beginPath();ctx.roundRect(x,y,box.width,box.height,Math.min(corner,box.height/4));ctx.fill();ctx.stroke()
+      {
         const font=Math.max(10,Math.min(14,12*Math.sqrt(v.scale))),padding=Math.max(6,12*v.scale),media=node.attributes.media as Record<string,unknown>|undefined
         let left=x+padding,space=box.width-padding*2
         if(media){const key=String(media.id),preview=media.thumbnail
@@ -99,6 +100,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     element.dataset.qaEdges=JSON.stringify(routes.slice(0,20).map(({edge,points})=>({id:edge.id,...points[Math.floor(points.length*.6)]})))
     element.dataset.zoom=String(v.scale);element.dataset.panX=String(v.x);element.dataset.panY=String(v.y)
     element.dataset.drawnNodes=String(p.nodes.length);element.dataset.drawnEdges=String(routes.length);element.dataset.paintMs=String(performance.now()-started)
+    element.dataset.modelEdges=String(p.edges.length);element.dataset.onScreenNodes=String(cards.length)
   }
   function requestDraw(){if(frame.current===undefined)frame.current=requestAnimationFrame(draw)}
   useEffect(()=>{points.current=props.positions;viewport.current=props.viewport;requestDraw()},[props.positions,props.viewport,props.nodes,props.edges,props.selected,props.second,props.selectedEdge,props.theme])
@@ -110,12 +112,12 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     element.addEventListener('wheel',wheel,{passive:false})
     return()=>{observer.disconnect();element.removeEventListener('wheel',wheel);if(frame.current!==undefined)cancelAnimationFrame(frame.current);clearTimeout(wheelTimer.current)}
   },[])
-  useImperativeHandle(forwarded,()=>({fit(){latest.current.onViewport(fitViewport(points.current,sizeRef.current.width,sizeRef.current.height))},zoom(factor){latest.current.onViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,factor))},center(id){const p=points.current[id];if(p)latest.current.onViewport({x:sizeRef.current.width/2-p.x,y:sizeRef.current.height/2-p.y,scale:1})}}),[])
+  useImperativeHandle(forwarded,()=>({fit(){latest.current.onViewport(readableViewport(points.current,sizeRef.current.width,sizeRef.current.height,latest.current.root,latest.current.mode||'graph'))},zoom(factor){latest.current.onViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,factor))},center(id){const p=points.current[id];if(p)latest.current.onViewport({x:sizeRef.current.width/2-p.x,y:sizeRef.current.height/2-p.y,scale:1})}}),[])
   const local=(event:React.PointerEvent)=>{const rect=canvas.current!.getBoundingClientRect();return{x:event.clientX-rect.left,y:event.clientY-rect.top}}
   return <canvas ref={canvas} className="investigation-graph-canvas" role="application" aria-label="Интерактивный граф расследования" tabIndex={0}
-    onPointerDown={event=>{if(event.button!==0)return;const point=local(event),node=hitNode(latest.current.nodes,points.current,viewport.current,point.x,point.y);canvas.current?.focus();event.currentTarget.setPointerCapture?.(event.pointerId);drag.current={id:node?.id,startX:point.x,startY:point.y,point:node?{...points.current[node.id]}:undefined,view:{...viewport.current},moved:false};if(node)latest.current.onSelect(node.id,event.ctrlKey||event.metaKey);else{const edge=hitRelation(latest.current.edges,points.current,viewport.current,point.x,point.y,latest.current.nodes);if(edge)latest.current.onEdge(edge.id)}}}
+    onPointerDown={event=>{if(event.button!==0)return;const point=local(event),node=hitNode(latest.current.nodes,points.current,viewport.current,point.x,point.y);canvas.current?.focus();event.currentTarget.setPointerCapture?.(event.pointerId);drag.current={id:node?.id,startX:point.x,startY:point.y,point:node?{...points.current[node.id]}:undefined,view:{...viewport.current},moved:false};if(node)latest.current.onSelect(node.id,event.ctrlKey||event.metaKey);else{const edge=hitRelation(latest.current.edges,points.current,viewport.current,point.x,point.y,latest.current.nodes,latest.current.mode);if(edge)latest.current.onEdge(edge.id)}}}
     onPointerMove={event=>{const current=drag.current;if(!current)return;const point=local(event),dx=point.x-current.startX,dy=point.y-current.startY;if(Math.hypot(dx,dy)<3&&!current.moved)return;current.moved=true;if(current.id&&current.point)points.current={...points.current,[current.id]:{x:current.point.x+dx/current.view.scale,y:current.point.y+dy/current.view.scale,pinned:true}};else viewport.current={...current.view,x:current.view.x+dx,y:current.view.y+dy};requestDraw()}}
     onPointerUp={event=>{const current=drag.current;drag.current=undefined;event.currentTarget.releasePointerCapture?.(event.pointerId);if(current?.moved){if(current.id)latest.current.onCommitPositions({...points.current});else latest.current.onViewport({...viewport.current})}}}
     onPointerCancel={()=>{drag.current=undefined}}
-    onKeyDown={event=>{const key=event.key;if(['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(key)){event.preventDefault();if(key==='Home')latest.current.onViewport(fitViewport(points.current,sizeRef.current.width,sizeRef.current.height));else if(key==='+'||key==='='||key==='-')latest.current.onViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,key==='-'?.8:1.25));else latest.current.onViewport({...viewport.current,x:viewport.current.x+(key==='ArrowLeft'?40:key==='ArrowRight'?-40:0),y:viewport.current.y+(key==='ArrowUp'?40:key==='ArrowDown'?-40:0)})}}}/>
+    onKeyDown={event=>{const key=event.key;if(['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(key)){event.preventDefault();if(key==='Home')latest.current.onViewport(readableViewport(points.current,sizeRef.current.width,sizeRef.current.height,latest.current.root,latest.current.mode||'graph'));else if(key==='+'||key==='='||key==='-')latest.current.onViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,key==='-'?.8:1.25));else latest.current.onViewport({...viewport.current,x:viewport.current.x+(key==='ArrowLeft'?40:key==='ArrowRight'?-40:0),y:viewport.current.y+(key==='ArrowUp'?40:key==='ArrowDown'?-40:0)})}}}/>
 })

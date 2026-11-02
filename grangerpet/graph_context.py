@@ -5,7 +5,9 @@ import json
 def selection_context(nodes, edges, selected, relation_id=None, records=()):
     attrs={'url','address','username','repository','chain','latitude','longitude','attachment_id',
         'owner_verified','identity_verified','reference_only','calibrated_probability','model','raw_score','display_type','asset_id','asset_type','collection','amount','ownership_status',
-        'flow_summaries','transaction_count','first_seen','last_seen','member_count','grouping_basis','candidate_status','limitations'}
+        'flow_summaries','transaction_count','first_seen','last_seen','member_count','grouping_basis','candidate_status','limitations',
+        'steamid64','appid','contextid','assetid','classid','instanceid','market_hash_name','name','category','rarity','quality','exterior',
+        'float_value','pattern_template','price','location_kind','accuracy_radius_km','registration_match','registry_entity_type','exact_device_location_verified'}
     def compact(value, depth=0):
         if isinstance(value,str):return value[:360]
         if value is None or type(value) in (int,float,bool):return value
@@ -37,7 +39,8 @@ def selection_context(nodes, edges, selected, relation_id=None, records=()):
         context['relations'].append(result)
         if len(context['relations'])>=24:break
     evidence_ids={eid for row in context['entities']+context['relations'] for eid in row.get('evidence_ids',[])}
-    for row in records:
+    primary_ids={eid for identifier in requested for eid in nodes[identifier].get('evidence_ids',[])[:4]}
+    for row in sorted(records,key=lambda row:row.get('evidence_id') not in primary_ids):
         if row.get('evidence_id') not in evidence_ids:continue
         details=row.get('details') if isinstance(row.get('details'),dict) else {}
         provenance=row.get('provenance') if isinstance(row.get('provenance'),dict) else {}

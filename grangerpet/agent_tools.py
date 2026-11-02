@@ -402,6 +402,11 @@ class ToolRegistry:
             evidence=[row.get('evidence_id') for row in context.get('sources',[]) if row.get('evidence_id')]
             return [{'name':'evidence_get','arguments':{'evidence_id':evidence[0],'focus':text[:300],'length':3000}}] if evidence else []
         selected=set(context.get('selected_entity_ids',[]))
+        selected_items=[node for node in context.get('entities',[]) if node.get('id') in selected and node.get('type')=='inventory_item']
+        if selected_items:
+            # Inspect this saved asset, not the owner's entire inventory again.
+            return [{'name':'evidence_get','arguments':{'evidence_id':node['evidence_ids'][0],
+                'focus':text[:300],'length':5000}} for node in selected_items[:3] if node.get('evidence_ids')]
         values=[]
         for node in context.get('entities',[]):
             if node.get('id') not in selected:continue

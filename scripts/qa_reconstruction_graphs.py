@@ -19,6 +19,7 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--exe',type=Path)
     parser.add_argument('--only',nargs='*',help='Targeted cases; omitted runs the full set')
+    parser.add_argument('--master-fix-v2',action='store_true',help='Saved actual Steam/network and paired Tree/Graph controls')
     args=parser.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Choose a fresh QA directory')
     out.mkdir(parents=True);namespace=uuid.uuid4().hex;profile=out/'appdata/GrangerPet'
@@ -69,6 +70,14 @@ def main():
             ('actual-steam-new','Публичный профиль Steam https://steamcommunity.com/id/robinwalker','agent-steam-01')):
         receipt=ROOT/'output/intelligence-v1'/filename/'result.json'
         if receipt.is_file():case(name,goal,json.loads(receipt.read_text(encoding='utf-8'))['evidence'])
+    if args.master_fix_v2:
+        for name,goal,filename in (
+                ('actual-steam-v2','Публичный инвентарь Steam 76561198045277210','steam-agent-cursor-bindings'),
+                ('actual-network-v2','Геолокация и сеть 87.199.131.94','location-agent-live')):
+            receipt=ROOT/'output/master-fix-v2'/filename/'result.json'
+            case(name,goal,json.loads(receipt.read_text(encoding='utf-8'))['evidence'])
+        media=ROOT/'output/master-fix-v2/steam-inventory-retention-fixed/isolated-profile/public-media'
+        if media.exists():shutil.copytree(media,profile/'public-media',dirs_exist_ok=True)
     rows=[normalize_evidence({'id':str(i),'type':'post','platform':'Synthetic QA','title':f'Синтетическая публикация {i}',
         'url':f'https://t.me/qa_public_fixture/{i+1}','description':'Synthetic publication fixture, no public source requested.',
         'details':{'author':'qa_public_fixture'}},'synthetic_fixture','qa_public_fixture') for i in range(100)]
@@ -133,6 +142,30 @@ def main():
             check(case['name']+'_native_canvas',int(case['canvas']['drawnNodes'])>1 and value.get('worker')=='worker')
             check(case['name']+'_no_window_overflow',not dom()['overflow'])
             screenshot(case['name'])
+            if args.master_fix_v2:
+                wait(lambda:bool(views.load(case['id']).get('positions')))
+                graph_points=views.load(case['id'])['positions']
+                click('Дерево');wait(lambda:graph().get('graphMode')=='tree' and graph().get('layoutPending')=='false')
+                wait(lambda:bool(views.load(case['id']).get('tree_positions')))
+                tree_view=views.load(case['id']);tree_points=tree_view['tree_positions'];tree_canvas=graph()['canvas']
+                case['tree_canvas']={key:tree_canvas.get(key) for key in ('drawnNodes','drawnEdges','modelEdges','onScreenNodes','drawnLabels','paintMs','zoom','width','height')}
+                case['paired_coordinates_differ']=any(point!=graph_points.get(key) for key,point in tree_points.items())
+                check(case['name']+'_different_tree_network_coordinates',case['paired_coordinates_differ'])
+                check(case['name']+'_tree_connected_single_parent',int(tree_canvas['modelEdges'])==int(tree_canvas['drawnNodes'])-1)
+                check(case['name']+'_tree_readable_default',float(tree_canvas['zoom'])>=.57 and int(tree_canvas['drawnLabels'])>1)
+                if case['name']=='actual-geoint':check('geoint_tree_includes_researched_candidate',int(tree_canvas['drawnNodes'])>=3)
+                screenshot(case['name']+'-tree')
+                visible_nodes=json.loads(tree_canvas['qaNodes']);selected=next((node for node in visible_nodes if 60<node['x']<tree_canvas['width']-80 and 70<node['y']<tree_canvas['height']-80),visible_nodes[0])
+                at=[tree_canvas['x']+selected['x'],tree_canvas['y']+selected['y']]
+                action('input',{'kind':'click','at':at});wait(lambda:graph().get('selectedId')==selected['id'])
+                check(case['name']+'_tree_breadcrumbs','Путь в дереве' in str(dom().get('text','')) or any(e.get('text')==selected['label'] for e in dom().get('elements',[])))
+                c=graph()['canvas'];point=next((node for node in json.loads(c['qaNodes']) if node['id']==selected['id']),None)
+                if point:
+                    action('input',{'kind':'drag','at':[c['x']+point['x'],c['y']+point['y']],'to':[c['x']+point['x']+25,c['y']+point['y']+20]})
+                    wait(lambda:views.load(case['id']).get('tree_positions',{}).get(selected['id'],{}).get('pinned'))
+                    check(case['name']+'_native_tree_drag_persisted',True)
+                click('Закрыть свойства графа');click('Граф');wait(lambda:opened(case['id']))
+                screenshot(case['name']+'-graph')
             if case['name']=='synthetic-1000':
                 c=graph()['canvas'];group=next(node for node in json.loads(c['qaNodes']) if 'Страницы' in node['label'])
                 action('input',{'kind':'click','at':[c['x']+group['x'],c['y']+group['y']]});wait(lambda:graph().get('selectedId')==group['id'])
@@ -173,7 +206,8 @@ def main():
                     click('Вписать граф в окно');screenshot('synthetic-20-tree');click('Граф');wait(lambda:opened(case['id']))
         # The 1000-node evidence remains intact across process restart.
         action('investigation_graph_get',{'id':cases[3]['id']});wait(lambda:opened(cases[3]['id']))
-        before=views.load(cases[3]['id']);time.sleep(.5)
+        wait(lambda:bool(views.load(cases[3]['id']).get('positions')))
+        time.sleep(.5);before=views.load(cases[3]['id'])
         command('stop');process.wait(timeout=35);owned=None;start(1);wait(lambda:opened(cases[3]['id']))
         after=views.load(cases[3]['id'])
         check('restart_retains_graph_layout_and_group_state',all(after.get(key)==before.get(key) for key in ('positions','tree_positions','filters','expanded','collapsed','mode')))

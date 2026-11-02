@@ -1,4 +1,5 @@
 import { nodeBox,routeEdges } from './graph-geometry'
+import {hierarchy} from './graph-hierarchy'
 export {nodeBox} from './graph-geometry'
 import type { GraphEntity, GraphPoint, GraphRelation, GraphView, GraphViewport } from './types'
 
@@ -19,7 +20,7 @@ Object.assign(relationLabels, {
 })
 Object.assign(typeLabels,{steam_inventory:'Инвентарь игры',inventory_category:'Категория инвентаря',inventory_item:'Предмет Steam'})
 Object.assign(typeLabels,{geoip_estimate:'Оценка GeoIP',registry_maintainer:'Maintainer',registry_registry_authority:'Администратор реестра',registry_registry_contact:'Контакт реестра',registry_registry_reference:'Объект реестра'})
-export const entityLabel = (node:GraphEntity) => typeLabels[entityType(node)] || node.type
+export const entityLabel = (node:GraphEntity) => node.type==='infrastructure_asset'?({ip:'IP-адрес',cidr:'BGP-префикс',asn:'Автономная система',registered_range:'Диапазон реестра'}[String(node.attributes.asset_type)]||'Инфраструктура'):typeLabels[entityType(node)] || node.type
 export function shortLabel(node:GraphEntity) {
   if (node.type==='public_post' && typeof node.attributes.url==='string') {
     const id=node.attributes.url.split('/').filter(Boolean).at(-1)
@@ -47,6 +48,8 @@ function searchText(node:GraphEntity){
 }
 export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:string,view:GraphView,limit=220) {
   const index=indexGraph(nodes,edges), filters=view.filters || {}, expanded=new Set(view.expanded || [])
+  const tree=hierarchy(nodes,edges,root),treeMode=view.mode==='tree'
+  const substantive=new Set(edges.filter(edge=>!['supported_by','published_on_domain'].includes(edge.relation_type)).flatMap(edge=>[edge.from_id,edge.to_id]))
   const expandedTransactions=new Set<string>()
   for (const edge of edges) if (edge.aggregate && view.expanded_relations?.includes(edge.id)) edge.aggregate.transaction_ids.forEach(id=>expandedTransactions.add(id))
   const query=(view.query || '').toLocaleLowerCase()
@@ -58,16 +61,31 @@ export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:stri
     if (!filters.show_sources&&(node.type==='source'||node.attributes.technical===true||node.type==='service'&&!filters.types?.includes('service'))) return false
     if(!filters.show_sources&&node.type==='geographic_candidate'&&node.attributes.raw_prediction_only&&researchedImages.has(node.attributes.attachment_id))return false
     const group=node.attributes.parent_group_id
-    if (typeof group==='string'&&!expanded.has(group)&&!query&&node.id!==view.selected_id) return false
+    if (!treeMode&&typeof group==='string'&&!expanded.has(group)&&!index.byId.get(group)?.attributes.topic_group&&!query&&node.id!==view.selected_id) return false
     if (!filters.show_transactions&&node.type==='transaction'&&!expandedTransactions.has(node.id)) return false
-    if (!filters.show_sources&&['domain','username','coordinate'].includes(node.type)&&!filters.types?.includes(node.type)) return false
+    if (!filters.show_sources&&['domain','username','coordinate'].includes(node.type)&&!filters.types?.includes(node.type)&&!substantive.has(node.id)) return false
+    if(!filters.show_sources&&node.type==='coordinate'&&!filters.types?.includes('coordinate'))return false
     if (!filters.include_background&&node.relevance?.level==='background') return false
     if (filters.statuses!==undefined&&node.verification_status&&!filters.statuses.includes(node.verification_status)) return false
     return true
   })
   const allowedIds=new Set(allowed.map(node=>node.id))
   const collapsed=new Set(view.collapsed || [])
-  if (collapsed.size&&root&&allowedIds.has(root)) {
+  if(treeMode&&!query){
+    const selectedPath=new Set(view.selected_id?tree.path(view.selected_id):[])
+    allowed=allowed.filter(node=>{
+      if(selectedPath.has(node.id))return true
+      const parent=tree.parent.get(node.id),siblings=parent?(tree.children.get(parent)||[]).filter(id=>allowedIds.has(id)):[]
+      if(parent&&!expanded.has(parent)&&siblings.length>6&&siblings.indexOf(node.id)>=5)return false
+      if(parent&&!expanded.has(parent)&&(tree.depth.get(parent)||0)>=1&&siblings.length>3&&siblings.indexOf(node.id)>=2)return false
+      for(const ancestor of tree.path(node.id).slice(0,-1)){
+        if(collapsed.has(ancestor))return false
+        const grouped=index.byId.get(ancestor)
+        if(!expanded.has(ancestor)&&((tree.depth.get(ancestor)||0)>=2||grouped?.type==='entity_group'&&!grouped.attributes.topic_group))return false
+      }
+      return true
+    })
+  }else if (collapsed.size&&root&&allowedIds.has(root)) {
     const visited=new Set([root]), queue=[root]
     for (let cursor=0;cursor<queue.length;cursor++) {
       const current=queue[cursor]
@@ -78,14 +96,15 @@ export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:stri
   }
   if (query) {
     const matches=new Set(allowed.filter(node=>searchText(node).includes(query)).map(node=>node.id))
-    const context=new Set(matches);matches.forEach(id=>index.neighbors.get(id)?.forEach(neighbor=>context.add(neighbor)))
+    const context=new Set(matches);matches.forEach(id=>{index.neighbors.get(id)?.forEach(neighbor=>context.add(neighbor));if(treeMode)tree.path(id).forEach(ancestor=>context.add(ancestor))})
     if (root) context.add(root)
     allowed=allowed.filter(node=>context.has(node.id))
   }
-  const ranked=[...allowed].sort((a,b)=> (a.id===root?-1:b.id===root?1:a.id===view.selected_id?-1:b.id===view.selected_id?1:expanded.has(a.id)?-1:expanded.has(b.id)?1:(b.relevance?.score||0)-(a.relevance?.score||0)))
+  const focusPath=new Set(view.selected_id?tree.path(view.selected_id):[])
+  const ranked=[...allowed].sort((a,b)=> (a.id===root?-1:b.id===root?1:focusPath.has(a.id)&&!focusPath.has(b.id)?-1:focusPath.has(b.id)&&!focusPath.has(a.id)?1:expanded.has(a.id)?-1:expanded.has(b.id)?1:(tree.depth.get(a.id)||0)-(tree.depth.get(b.id)||0)||(b.relevance?.score||0)-(a.relevance?.score||0)))
   const selected=ranked.slice(0,Math.max(limit,Math.min(1200,expanded.size*50+limit)))
   const selectedIds=new Set(selected.map(node=>node.id))
-  let relations=edges.filter(edge=>selectedIds.has(edge.from_id)&&selectedIds.has(edge.to_id)&&(filters.statuses===undefined||filters.statuses.includes(edge.verification_status)))
+  let relations=(treeMode?tree.treeEdges:edges).filter(edge=>selectedIds.has(edge.from_id)&&selectedIds.has(edge.to_id)&&(filters.statuses===undefined||filters.statuses.includes(edge.verification_status)))
   const totalRelations=relations.length
   if(relations.length>selected.length*3){
     const parent=new Map(selected.map(node=>[node.id,node.id]))
@@ -94,75 +113,10 @@ export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:stri
     for(const edge of relations){const a=find(edge.from_id),b=find(edge.to_id);if(a!==b){parent.set(a,b);backbone.add(edge.id)}}
     relations=relations.filter(edge=>backbone.has(edge.id)||edge.id===view.selected_relation||expanded.has(edge.from_id)||expanded.has(edge.to_id)||edge.from_id===view.selected_id||edge.to_id===view.selected_id)
   }
-  return {nodes:selected,edges:relations,available:allowed.length,truncated:allowed.length>selected.length,hiddenRelations:totalRelations-relations.length}
+  return {nodes:selected,edges:relations,available:allowed.length,truncated:allowed.length>selected.length,hiddenRelations:totalRelations-relations.length,
+    crossLinks:treeMode?tree.crossEdges:[],hierarchy:tree,hiddenNodes:nodes.length-selected.length}
 }
-export function layoutGraph(nodes:GraphEntity[],edges:GraphRelation[],root:string,mode:'tree'|'graph',saved:Record<string,GraphPoint>={},preserve=true):Record<string,GraphPoint> {
-  const index=indexGraph(nodes,edges),positions:Record<string,GraphPoint>={}
-  const ordered=[root,...nodes.map(node=>node.id).sort()].filter(id=>index.byId.has(id)),visited=new Set<string>()
-  let component=0
-  for(const seed of ordered){
-    if(visited.has(seed))continue
-    const queue=[seed],depth=new Map([[seed,0]]);visited.add(seed)
-    for(let cursor=0;cursor<queue.length;cursor++)for(const neighbor of index.neighbors.get(queue[cursor])||[])if(!visited.has(neighbor)){
-      visited.add(neighbor);queue.push(neighbor);depth.set(neighbor,depth.get(queue[cursor])!+1)
-    }
-    const originX=component?Math.max(0,...Object.values(positions).map(point=>point.x))+360:0,originY=0
-    positions[seed]={x:originX,y:originY}
-    if(mode==='tree'){
-      const tiers=new Map<number,string[]>()
-      for(const id of queue.slice(1)){const level=depth.get(id)!;const tier=tiers.get(level)||[];tier.push(id);tiers.set(level,tier)}
-      let left=360
-      for(const [,tier]of tiers){
-        tier.sort((a,b)=>entityType(index.byId.get(a)!).localeCompare(entityType(index.byId.get(b)!))||a.localeCompare(b))
-        const columns=Math.min(5,Math.max(1,Math.ceil(Math.sqrt(tier.length)))),rows=Math.ceil(tier.length/columns)
-        tier.forEach((id,i)=>{positions[id]={x:originX+left+(i%columns)*280,y:originY+(Math.floor(i/columns)-(rows-1)/2)*132}})
-        left+=columns*280+100
-      }
-
-    }else{
-      const members=queue.slice(1)
-      if(members.length<=7){
-        const columns=members.length>3?3:2,rows=Math.ceil(members.length/columns)
-        members.forEach((id,i)=>{positions[id]={x:originX+520+(i%columns-(columns-1)/2)*280,y:originY+(Math.floor(i/columns)-(rows-1)/2)*132}})
-      }else{
-        const buckets=new Map<string,string[]>()
-        for(const id of members){const node=index.byId.get(id)!,kind=String(node.attributes.parent_group_id||entityType(node)),list=buckets.get(kind)||[];list.push(id);buckets.set(kind,list)}
-        let main=[...buckets].filter(([,ids])=>ids.length>=3),auxiliary=[...buckets].filter(([,ids])=>ids.length<3).flatMap(([,ids])=>ids)
-        if(!main.length||auxiliary.length>4||main.reduce((sum,[,ids])=>sum+ids.length,0)<members.length/2){main=[['objects',members]];auxiliary=[]}
-        const groups=main.map(([kind,ids])=>{const columns=Math.min(6,Math.max(1,Math.ceil(Math.sqrt(ids.length*2.2))));return{kind,ids,columns,rows:Math.ceil(ids.length/columns)}})
-        const total=groups.reduce((sum,group)=>sum+group.rows*132+60,0)-60
-        let top=-total/2
-        for(const group of groups){
-          group.ids.sort((a,b)=>(index.byId.get(b)!.relevance?.score||0)-(index.byId.get(a)!.relevance?.score||0)||a.localeCompare(b))
-          group.ids.forEach((id,i)=>{positions[id]={x:originX+360+(i%group.columns)*280,y:originY+top+66+Math.floor(i/group.columns)*132}})
-          top+=group.rows*132+60
-        }
-        auxiliary.forEach((id,i)=>{positions[id]={x:originX,y:originY+(i%2?1:-1)*(Math.floor(i/2)+1)*150}})
-      }
-    }
-
-    component++
-  }
-  for(const node of nodes)if(saved[node.id]&&(preserve||saved[node.id].pinned))positions[node.id]={...saved[node.id]}
-  if(preserve){
-    // A newly expanded collection must not occupy positions reserved by the
-    // existing cards. Preserve the user's layout and place new cards beside it.
-    const occupied=nodes.filter(node=>saved[node.id]).map(node=>positions[node.id])
-    const anchorX=occupied.length?Math.min(...occupied.map(point=>point.x)):0
-    const anchorY=occupied.length?Math.max(...occupied.map(point=>point.y))+192:0
-    let slot=0
-    for(const node of nodes.filter(node=>!saved[node.id])){
-      let point=positions[node.id]
-      if(occupied.some(other=>Math.abs(other.x-point.x)<260&&Math.abs(other.y-point.y)<120)){
-        do{point={x:anchorX+(slot%5)*280,y:anchorY+Math.floor(slot/5)*132};slot++}
-        while(occupied.some(other=>Math.abs(other.x-point.x)<260&&Math.abs(other.y-point.y)<120))
-        positions[node.id]=point
-      }
-      occupied.push(point)
-    }
-  }
-  return positions
-}
+export {layoutGraph} from './graph-layout'
 export function fitViewport(points:Record<string,GraphPoint>,width:number,height:number):GraphViewport {
   const rows=Object.values(points)
   if (!rows.length)return {x:width/2,y:height/2,scale:1}
@@ -170,6 +124,12 @@ export function fitViewport(points:Record<string,GraphPoint>,width:number,height
   for(const point of rows){minX=Math.min(minX,point.x);maxX=Math.max(maxX,point.x);minY=Math.min(minY,point.y);maxY=Math.max(maxY,point.y)}
   const scale=Math.max(.001,Math.min(1.35,(width-100)/Math.max(160,maxX-minX+280),(height-90)/Math.max(160,maxY-minY+130)))
   return {x:width/2-(minX+maxX)/2*scale,y:height/2-(minY+maxY)/2*scale,scale}
+}
+export function readableViewport(points:Record<string,GraphPoint>,width:number,height:number,root:string,mode:'tree'|'graph'):GraphViewport{
+  const fit=fitViewport(points,width,height)
+  if(fit.scale>=.62)return fit
+  const anchor=points[root]||Object.values(points)[0]||{x:0,y:0}
+  return {x:(mode==='tree'?140:width/2)-anchor.x*.62,y:height/2-anchor.y*.62,scale:.62}
 }
 export function zoomAt(view:GraphViewport,x:number,y:number,factor:number):GraphViewport {
   const scale=Math.max(.001,Math.min(8,view.scale*factor))
@@ -183,9 +143,9 @@ export function hitNode(nodes:GraphEntity[],positions:Record<string,GraphPoint>,
   }
   return undefined
 }
-export function hitRelation(edges:GraphRelation[],positions:Record<string,GraphPoint>,view:GraphViewport,x:number,y:number,nodes:GraphEntity[]=[]) {
+export function hitRelation(edges:GraphRelation[],positions:Record<string,GraphPoint>,view:GraphViewport,x:number,y:number,nodes:GraphEntity[]=[],mode:'tree'|'graph'='graph') {
   let best:GraphRelation|undefined,distance=7
-  for(const {edge,points}of routeEdges(edges,positions,view,nodes))for(let i=1;i<points.length;i++){
+  for(const {edge,points}of routeEdges(edges,positions,view,nodes,mode))for(let i=1;i<points.length;i++){
     const a=points[i-1],b=points[i],dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/(dx*dx+dy*dy||1)))
     const d=Math.hypot(x-a.x-t*dx,y-a.y-t*dy);if(d<distance){distance=d;best=edge}
   }
