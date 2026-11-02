@@ -81,6 +81,25 @@ class RobotsPolicy:
         return self.cache[origin].can_fetch('Granger-OSINT',url)
 
 
+def search_post_response(proxy, tls, endpoint, body):
+    parts=urlsplit(endpoint)
+    connection=http.client.HTTPSConnection('127.0.0.1',proxy.server_address[1],timeout=8,context=tls)
+    try:
+        connection.set_tunnel(parts.hostname,443)
+        connection.request('POST',parts.path,body=body.encode('ascii'),headers={
+            'Host':parts.netloc,'Content-Type':'application/x-www-form-urlencoded','User-Agent':'Granger-OSINT/3.1 public research'})
+        response=connection.getresponse()
+        if response.status!=200:raise ValueError('search_post_refused')
+        content_type=response.getheader('Content-Type','').split(';')[0].lower()
+        if content_type not in ('text/html','application/json','application/xml','text/xml','text/plain'):
+            raise ValueError('unsafe_search_response_type')
+        content=response.read(512001)
+        if len(content)>512000:raise ValueError('search_response_too_large')
+        return content_type,content
+    finally:
+        connection.close()
+
+
 class Tunnel(socketserver.BaseRequestHandler):
     def handle(self):
         server=self.server

@@ -90,3 +90,13 @@ def test_russian_summary_preserves_original_without_inventing_place_names():
     assert result['description_original']==original['description'] and 'городской вид' in result['description'] and 'башня' in result['description']
     assert 'Москва' not in result['description'] and 'not_verbatim_translation' in result['description_presentation']
     assert russian_scene(result)==result
+
+
+def test_actual_terrain_summary_reaches_bounded_agent_context():
+    from grangerpet.agent import _geoint_context
+    value=_geoint_context({'tool':'geoint_research','candidate_id':'geo_fixture',
+        'location_role':'proposed_region','camera_position_verified':False,
+        'terrain_geometry':{'valid_points':97,'sampled_relief_m':1500,'points':['large array']*97}},2400)
+    assert value['terrain_geometry']['valid_points']==97
+    assert value['location_role']=='proposed_region' and value['camera_position_verified'] is False
+    assert 'points' not in value['terrain_geometry']

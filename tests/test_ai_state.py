@@ -26,6 +26,17 @@ def isolated(monkeypatch):
     return app, vault
 
 
+def test_verified_connection_stays_connected_while_generating(isolated):
+    _,vault=isolated
+    vault['deepseek_api_key']='isolated-test-credential'
+    settings=Settings(ai_provider='deepseek')
+    state=AIState(settings)
+    state.request_started('deepseek','deepseek-v4-flash')
+    state.request_succeeded('deepseek','deepseek-v4-flash')
+    state.request_started('deepseek','deepseek-v4-flash')
+    assert state.snapshot()['connection_status']=='connected' and state.can_send
+
+
 def test_checked_draft_never_unlocks_unconfigured_committed_chat(isolated):
     _, vault = isolated
     state=AIState(Settings())

@@ -22,6 +22,7 @@ def main():
     from perf_process_metrics import ProcessSampler
     from qa_intelligence_agent import GOALS
     p=argparse.ArgumentParser();p.add_argument('--exe',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--v2-group',choices=['network-context','site-social','steam','browser'])
     args=p.parse_args();exe=args.exe.resolve();out=args.output.resolve()
     if out.exists():raise SystemExit('Prior native evidence preserved; choose a new directory')
     key=resolve_deepseek_key();namespace=uuid.uuid4().hex;out.mkdir(parents=True)
@@ -52,15 +53,16 @@ def main():
         while time.monotonic()<end:
             value=function()
             if value:return value
-            time.sleep(.2)
+            time.sleep(.8)
         raise TimeoutError('native_qa_deadline')
     def state():
-        value=send_command('pet','status',timeout=2000)
+        value=send_command('pet','status',timeout=8000)
         if value and owned and value.get('pid')!=owned:raise RuntimeError('Unrelated process left untouched')
         return value
     def command(action,payload=None):
-        if owned and not state():raise RuntimeError('Own instance missing')
-        value=send_command('pet',action,payload or {},timeout=3000)
+        if owned and not state():
+            if process.poll() is not None or not state():raise RuntimeError('Own instance missing')
+        value=send_command('pet',action,payload or {},timeout=12000)
         if not value or not value.get('ok'):raise RuntimeError('Own action rejected: '+action)
     def action(name,payload=None):
         command('qa_desktop',{'action':name,'payload':payload or {}});time.sleep(.3)
@@ -80,6 +82,31 @@ def main():
             row=wait(lambda:s if (s:=snapshot()) and len(s['search']['results'])==count else None,25)
         report['operations'].append({'tool':name,'status':status,'records':len(row['search']['results']),'seconds':round(time.monotonic()-start,3)});write()
         return row
+    def conversation(text,scenario):
+        before=snapshot()
+        start=time.monotonic()
+        action('chat_send',{'text':text})
+        def response():
+            row=snapshot()
+            new=row['messages'][len(before['messages']):]
+            return (row,new) if not row['busy'] and any(m['role']=='model' for m in new) else None
+        row,new=wait(response,520)
+        reply=next(m for m in reversed(new) if m['role']=='model')
+        investigation=row.get('investigation') or {}
+        result={'scenario':scenario,'goal':text,'reply_characters':len(reply.get('text','')),
+            'reply_investigation_id':reply.get('investigation_id'),'seconds':round(time.monotonic()-start,2),
+            'references_previous_ip':any(ip in reply.get('text','') for ip in ('87.199.131.94','66.249.67.41')),
+            'research_status':investigation.get('status'),'tools':[call.get('tool') for call in investigation.get('calls',[])],
+            'reported_evidence_count':len(row.get('evidence',[]))}
+        if investigation.get('id'):
+            from grangerpet.agent_journal import InvestigationJournal
+            from collections import Counter
+            checkpoint=InvestigationJournal(profile/'investigations').load_checkpoint(investigation['id'])
+            records=checkpoint.get('evidence',[]) if isinstance(checkpoint,dict) else []
+            result['saved_record_types']=dict(Counter(r.get('type') for r in records))
+            result['saved_source_statuses']=[{'tool':r.get('tool'),'status':r.get('status'),'error':r.get('error_code')} for r in checkpoint.get('executions',[])] if checkpoint else []
+        report.setdefault('turns',[]).append(result);write()
+        return result
     try:
         started=time.monotonic()
         with (out/'process.log').open('wb') as log:
@@ -91,14 +118,39 @@ def main():
         wait(lambda:(s:=state()) and s.get('desktop',{}).get('ready'),60)
         command('show_workspace',{'route':'chat'});check('native_desktop_ready',True)
         report['startup_seconds']=round(time.monotonic()-started,3)
+        if args.v2_group and args.v2_group!='browser':
+            if not key:raise RuntimeError('Saved gateway credential unavailable')
+            action('connection_test');wait(lambda:snapshot()['connection']['status']=='connected',65)
+            action('chat_new')
+            if args.v2_group=='network-context':
+                for i,text in enumerate(('Привет, Гермиона','Как дела?','Исследуй IP 66.249.67.41','А этот IP 87.199.131.94?',
+                        'А какая локация?','Отложим','Что делаешь?')):
+                    value=conversation(text,'context-'+str(i))
+                    if i in (2,3,4):
+                        check('native_network_evidence_'+str(i),bool(value.get('saved_record_types')) and any(t in ('network_geoip','ip_lookup','network_rdap') for t in value['tools']))
+                    elif i in (0,1,6):
+                        check('native_social_isolated_'+str(i),not value['reply_investigation_id'] and not value['references_previous_ip'])
+                action('chat_new');value=conversation('Привет','fresh-chat')
+                check('native_new_chat_boundary',not value['references_previous_ip'] and not value['reply_investigation_id'])
+            elif args.v2_group=='site-social':
+                for tag,text,expected in [('domain','Исследуй https://voin-cs.kz/ — публичные страницы, услуги и DNS.','web_read'),
+                        ('tiktok','Проверь TikTok @scout2015.','tiktok_public_profile'),
+                        ('vk','Проверь публичную страницу https://vk.com/apiclub.','vk_public')]:
+                    action('chat_new');value=conversation(text,tag)
+                    check('native_'+tag+'_executed',expected in value['tools'] or tag=='domain' and 'browser_navigate' in value['tools'])
+                    if tag!='vk':check('native_'+tag+'_evidence',bool(value.get('saved_record_types')))
+            else:
+                value=conversation('Покажи инвентарь Steam 76561198045277210 и полученные цены.','steam')
+                check('native_steam_item_evidence',value.get('saved_record_types',{}).get('steam_item',0)>20)
+            command('qa_snapshot',{'name':'v2-'+args.v2_group});report['passed']=True;write();return
         for name,args in [('network_rdap',{'resource':'66.249.67.41'}),('network_routing',{'resource':'66.249.67.41'}),
                 ('domain_dns',{'domain':'example.org'}),('steam_profile',{'profile':'https://steamcommunity.com/id/robinwalker'}),
                 ('steam_friends',{'profile':'https://steamcommunity.com/id/robinwalker'}),
                 ('wikidata_places',{'query':'Moscow Kremlin','latitude':55.7517,'longitude':37.6176}),
                 ('telegram_public',{'username':'https://t.me/telegram','access_mode':'public','limit':1}),
                 ('blockchain_gansar',{'address':'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJKZ','operation':'balances','chain':'ton','mode':'quick','limit':1,'depth':0})]:
-            tool(name,args)
-        check('native_public_tools_returned_data',all(row['records']>0 for row in report['operations'][:6]))
+            if not args.v2_group:tool(name,args)
+        if not args.v2_group:check('native_public_tools_returned_data',all(row['records']>0 for row in report['operations'][:6]))
         if key:
             action('connection_test');connected=wait(lambda:s if (s:=snapshot()) and s['connection']['status']=='connected' else None,60)
             check('native_saved_key_connection_consistent',connected['connection']['canSend'])

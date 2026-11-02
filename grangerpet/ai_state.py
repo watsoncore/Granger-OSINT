@@ -190,7 +190,8 @@ class AIState(QObject):
         if provider is not None and (provider, model_id) != self._committed_identity[:2]:
             return
         self._request_identity = self._committed_identity
-        self._committed_status, self._committed_error = "checking", ""
+        self._committed_status = "connected" if self._committed_identity in self._verified else "checking"
+        self._committed_error = ""
         self._emit()
 
     def request_succeeded(self, provider=None, model_id=None):

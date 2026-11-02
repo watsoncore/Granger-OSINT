@@ -93,6 +93,9 @@ class _WindowsProcesses:
             birth,exit,kernel,user=(W.FILETIME() for _ in range(4))
             if not self.kernel.GetProcessTimes(handle,ctypes.byref(birth),ctypes.byref(exit),ctypes.byref(kernel),ctypes.byref(user)):
                 return None
+            # A retained Windows process handle can still expose counters after exit.
+            if _ticks(exit):
+                return None
             memory=_Memory();memory.cb=ctypes.sizeof(memory)
             memory_ok=self.psapi.GetProcessMemoryInfo(handle,ctypes.byref(memory),memory.cb)
             return {'pid':pid,'image':str(Path(image.value).resolve()),'creation_ticks':_ticks(birth),

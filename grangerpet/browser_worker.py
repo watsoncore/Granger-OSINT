@@ -10,7 +10,7 @@ import uuid
 import os
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-from browser_policy import public_url,search_text,SENSITIVE
+from browser_policy import public_url,search_text,SENSITIVE,search_post_destination,validate_search_post,SEARCH_POST_ENDPOINTS
 from browser_proxy import PublicProxy,RobotsPolicy,worker_tls_context
 
 SNAPSHOT=r'''() => {
@@ -32,6 +32,7 @@ SNAPSHOT=r'''() => {
 def main():
     print(json.dumps({'ready':True,'pid':os.getpid(),'protocol':1}),flush=True)
     browser=context=page=proxy=playwright=None;epoch='';last={};handles=[];robots=None
+    entered_search=None
     try:
         for line in sys.stdin:
             if len(line)>32768:break
@@ -84,17 +85,36 @@ def main():
                     # Recheck the actual element immediately before acting.
                     current=handle.evaluate("e=>({tag:e.tagName.toLowerCase(),type:e.getAttribute('type')||'',name:e.getAttribute('name')||'',href:e.tagName==='A'?e.href:'',label:(e.getAttribute('aria-label')||e.innerText||e.getAttribute('placeholder')||e.getAttribute('title')||((e.type==='submit'||e.type==='button')?e.value:'')||'').trim(),form_method:e.form?(e.form.method||'get').toLowerCase():'',search_field:e.matches('input[type=search],input[name=q],input[name=query],input[name=search],input[role=searchbox]')})")
                     element=current
+                    post_target=None
+                    if element['form_method']=='post':
+                        post_target=search_post_destination(page.url,handle.evaluate("e=>e.formAction && e.hasAttribute('formaction') ? e.formAction : e.form.action"))
                     if action=='type':
                         text=search_text(command.get('text'))
-                        if not element['search_field'] or element['type'] not in ('','text','search') or element['form_method'] not in ('','get') or SENSITIVE.search(element['name']):raise ValueError('search_fields_only')
+                        reviewed_field=bool(post_target and element['name']==SEARCH_POST_ENDPOINTS[post_target])
+                        if not (element['search_field'] or reviewed_field) or element['type'] not in ('','text','search') or SENSITIVE.search(element['name']):raise ValueError('search_fields_only')
+                        entered_search=(page.url,post_target,text) if reviewed_field else None
                         handle.fill(text)
                     else:
                         label=element['label'].casefold()
                         if element['href']:public_url(element['href'])
+                        elif post_target and entered_search and entered_search[:2]==(page.url,post_target) and re.search(r'search|поиск|найти',label):
+                            # Serialize the inspected fields, then send through the pinned
+                            # local proxy. Never replay an arbitrary page submit handler.
+                            body=handle.evaluate("e=>new URLSearchParams(new FormData(e.form)).toString()")
+                            endpoint=validate_search_post(page.url,post_target,'application/x-www-form-urlencoded',body,entered_search[2])
+                            entered_search=None
+                            if not robots.allowed(endpoint):raise ValueError('robots_disallowed')
+                            from browser_proxy import search_post_response
+                            content_type,content=search_post_response(proxy,tls,endpoint,body)
+                            # Browser GET navigation is intercepted once, making the result
+                            # available for normal DOM inspection without another request.
+                            page.route(endpoint,lambda route:route.fulfill(body=content,content_type=content_type,
+                                headers={'Content-Security-Policy':"default-src 'none'; sandbox"}),times=1)
+                            page.goto(endpoint,wait_until='domcontentloaded')
                         elif element['form_method']=='get' and re.search(r'search|поиск|найти',label):pass
                         elif not element['form_method'] and re.search(r'^(?:next|more|load more|show|следующ|ещ[её]|показать)',label):pass
                         else:raise ValueError('consequential_or_unknown_button_disabled')
-                        handle.click()
+                        if not post_target:handle.click()
                 elif action=='scroll':
                     delta=command.get('delta',500)
                     if type(delta) is not int or not -1400<=delta<=1400:raise ValueError('invalid_scroll')

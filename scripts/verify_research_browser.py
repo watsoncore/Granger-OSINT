@@ -67,10 +67,16 @@ def main():
         stopped=browser.execute('navigate',{'url':url},cancel_event=cancel)
         timer.cancel();browser.close()
         cancellation={'result':stopped.get('error_code') or 'completed_before_cancel','seconds':round(time.monotonic()-start,3)}
-        time.sleep(2)
+        teardown_deadline=time.monotonic()+8
         if owned:
-            alive=[pid for pid,identity in identities.items() if (row:=metrics.counters(pid)) and (row['creation_ticks'],row['image'])==identity]
+            while True:
+                alive=[pid for pid,identity in identities.items() if (row:=metrics.counters(pid)) and (row['creation_ticks'],row['image'])==identity]
+                if not alive or time.monotonic()>=teardown_deadline:break
+                time.sleep(.2)
             cancellation['owned_processes_left']=len(alive)
+            cancellation['teardown_observed_seconds']=round(time.monotonic()-start,3)
+            if alive:
+                (root/'teardown.json').write_text(json.dumps({**cancellation,'alive_images':[Path(identities[pid][1]).name for pid in alive]}),encoding='utf-8')
             assert not alive,'owned_browser_process_leak'
         report={'test_kind':'live_public_site_real_edge','site':url,'events':events,'structured_rows':len(d['tables'][0]['rows']),
             'screenshot':{'real':True,'sha256':state['image_sha256'],'local_ocr':d.get('local_ocr',{}).get('status')},

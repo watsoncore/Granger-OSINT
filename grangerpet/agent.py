@@ -144,6 +144,7 @@ def _geoint_context(details, maximum):
     if not isinstance(details, dict):
         return {}
     names = {"image_metadata", "image_ocr", "image_understand", "image_compare", "map_geocode", "map_overpass", "map_wikimedia",'map_panoramax','geoclip','waypoint','waypoint_match','visual_geoint','visual_geoint_comparison','shadow_regions'}
+    names.add('geoint_research')
     if details.get("tool") not in names:
         return {}
     value = {key: deepcopy(details[key]) for key in ("tool", "status", "attachment_id") if key in details}
@@ -155,6 +156,17 @@ def _geoint_context(details, maximum):
     def add(key, item):
         if len(_json({**value, key: item})) <= maximum:
             value[key] = item
+    for key in ('candidate_id','latitude','longitude','region','location_role','camera_position_verified',
+                'verification_status','review_order','review_score','source','source_url'):
+        if key in details:
+            add(key,deepcopy(details[key]))
+    terrain = details.get('terrain_geometry')
+    if not isinstance(terrain,dict) and details.get('grid_resolution_m'):
+        terrain = details
+    if isinstance(terrain,dict):
+        add('terrain_geometry',{key:deepcopy(terrain[key]) for key in (
+            'valid_points','point_count','center_elevation_m','sampled_relief_m','grid_resolution_m',
+            'sample_radius_m','pixel_shape_screening','camera_position_verified','limitations') if key in terrain})
     if isinstance(details.get("image"), dict):
         add("image", {key: details["image"][key] for key in
             ("id", "name", "format", "mime", "width", "height", "bytes", "sha256") if key in details["image"]})
