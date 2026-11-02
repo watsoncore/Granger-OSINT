@@ -1,0 +1,640 @@
+{
+  "at_utc": "2026-11-02T15:10:57.494825+00:00",
+  "status": "qualified_partial",
+  "source_bundle_commit": "1f8a34027f0606a6bdfcf20e4cfba51fbc2aa451",
+  "production_code_commit": "58a20ae267d10dd30bda8b110714c6a5c495c784",
+  "branch": "granger/chibi-reconstruction",
+  "artifacts": {
+    "Granger-OSINT.exe": {
+      "bytes": 279228663,
+      "sha256": "428f3d02060bf059573921c7d8e8cdd08cab11a70526cdbef4049473548d2077"
+    },
+    "Granger-OSINT-source.zip": {
+      "bytes": 279821410,
+      "sha256": "7dceaea41c95792ee3074a2f8e1a346a0573c8fca941ef1d7f38622cbbf68e82"
+    }
+  },
+  "source_zip_members": 1226,
+  "source_zip_excludes_runtimes_vault_history": true,
+  "artifact_record_is_external_to_zip": true,
+  "tests": {
+    "python_passed": 1755,
+    "subtests_passed": 32,
+    "skipped": 1,
+    "frontend_passed": 137,
+    "typecheck": true,
+    "canonical_PE_surfaces_passed": 2,
+    "frozen_modules_match": 154,
+    "frozen_resource_checks_match": 221,
+    "native_network_context_checks": 10,
+    "native_site_social_checks": 8,
+    "native_graph_checks": 34,
+    "native_local_core_subset_checks": 51,
+    "native_three_photo_checks": 46
+  },
+  "secret_scan": {
+    "tested_at": "2026-11-02T15:10:11.140003+00:00",
+    "passed": true,
+    "payloads_checked": 4513,
+    "protected_assets": 12,
+    "failures": [],
+    "archive_checked": true,
+    "git_history_checked": true,
+    "method": "Exact saved vault values + credential patterns; source/Git/QA/EXE/decompressed source ZIP; no secret values in report"
+  },
+  "profile_preservation_passed": false,
+  "unchanged_art_resources_pet_files": 310,
+  "unchanged_gansar_files": 509,
+  "unchanged_model_runtime_files": 23412,
+  "previous_release_archived": "dist/archive/before-master-fix-v2-20261102",
+  "limitations": [
+    "Fresh Steam profile/inventory and practice-browser robots fetch timed out",
+    "VK public content unavailable; TikTok fields limited to observed public oEmbed",
+    "Exact GEOINT location not established; 8-sample Waypoint can return no coordinates",
+    "One encrypted conversation differs from baseline; no manual activity reported; cause unknown; no restore without original bytes"
+  ],
+  "commits_since_baseline": [
+    {
+      "commit": "1f8a34027f0606a6bdfcf20e4cfba51fbc2aa451",
+      "subject": "Verify final V2 executable and publish qualified acceptance evidence"
+    },
+    {
+      "commit": "58a20ae267d10dd30bda8b110714c6a5c495c784",
+      "subject": "Keep verified AI state during research and constrain browser search POST"
+    },
+    {
+      "commit": "fc10f1f9896ffa2ed1c034d5aec37d513de950a6",
+      "subject": "Check geographic alternatives against DEM, skyline and licensed reference evidence"
+    },
+    {
+      "commit": "9c7950bcf155e26777bb33695cca93146e3e460a",
+      "subject": "Separate branching investigation tree from evidence network"
+    },
+    {
+      "commit": "0b11f4683ca88d2450cca8d7bf5bdb6b7ec5593e",
+      "subject": "Fix public GeoIP, RDAP scope and registry semantics"
+    },
+    {
+      "commit": "07d88201e12c42b8c35f7ca4b17acb4ee031131d",
+      "subject": "Preserve public Steam items through tools, evidence, reports and inventory UI"
+    },
+    {
+      "commit": "7d1a72e3d8bdfce147d09298e63a3c2f99fc3c2a",
+      "subject": "Collect scoped public social observations and repair research browser TLS"
+    },
+    {
+      "commit": "6b9500e8b4362f32c235de68c6950348305be834",
+      "subject": "Bound model tools with registry discovery and safe provider diagnostics"
+    },
+    {
+      "commit": "acf981aa2dae6dd96048259e6d3d582a5c2d2928",
+      "subject": "Route short research requests within explicit conversation scope"
+    },
+    {
+      "commit": "408c5c4c68fbbb15f09e47ccdfa215218308024a",
+      "subject": "Record Master Fix V2 preservation baseline and project discovery"
+    }
+  ],
+  "changed_files_since_baseline": [
+    {
+      "status": "M",
+      "path": "README.md"
+    },
+    {
+      "status": "M",
+      "path": "VALIDATION.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/BROWSER_SEARCH_POLICY.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/DISK_AUDIT.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/GEOINT_SOURCES_AND_BENCHMARK.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/GRAPH_TREE_UI_QA.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/MASTER_FIX_V2_VERIFICATION.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/NETWORK_GEOIP_QA.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/NEW_TOOLS_AUDIT.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/PROVIDER_CONTEXT_QA.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SOCMINT_VK_TIKTOK_STEAM.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/TOOLS_INTEGRATION_AUDIT.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/art-preservation.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/baseline.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/binarysmoke.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/browser-public-form.jpg"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/browser-public-form.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/browser-source-flow.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/disk.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/geographic-controls.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/graph-tree/actual-geoint-graph.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/graph-tree/actual-geoint-tree.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/graph-tree/actual-network-v2-graph.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/graph-tree/actual-network-v2-tree.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/graph-tree/actual-steam-v2-graph.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/graph-tree/actual-steam-v2-tree.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/graph-tree/controls.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/native-exe.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/native-graph/actual-geoint-graph.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/native-graph/actual-geoint-tree.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/native-graph/actual-network-v2-graph.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/native-graph/actual-network-v2-tree.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/native-graph/actual-steam-v2-graph.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/native-graph/actual-steam-v2-tree.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/native-graph/controls.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/network-controls.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/preservation.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/project-discovery.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/provider-controls.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/robots-network-control.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/socmint-controls.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/steam-controls.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/test-summary.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/tools-integration-audit.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/validation/master-fix-v2/valley-controls.json"
+    },
+    {
+      "status": "M",
+      "path": "frontend/src/components/GeoInvestigation.tsx"
+    },
+    {
+      "status": "M",
+      "path": "frontend/src/components/InvestigationCanvas.tsx"
+    },
+    {
+      "status": "M",
+      "path": "frontend/src/components/InvestigationWorkspace.tsx"
+    },
+    {
+      "status": "A",
+      "path": "frontend/src/components/PublicProfile.tsx"
+    },
+    {
+      "status": "M",
+      "path": "frontend/src/components/Sources.tsx"
+    },
+    {
+      "status": "A",
+      "path": "frontend/src/components/SteamInventory.tsx"
+    },
+    {
+      "status": "M",
+      "path": "frontend/src/components/StructuredToolFields.tsx"
+    },
+    {
+      "status": "A",
+      "path": "frontend/src/components/inventory.css"
+    },
+    {
+      "status": "M",
+      "path": "frontend/src/graph-geometry.ts"
+    },
+    {
+      "status": "A",
+      "path": "frontend/src/graph-hierarchy.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "frontend/src/graph-hierarchy.ts"
+    },
+    {
+      "status": "A",
+      "path": "frontend/src/graph-layout.ts"
+    },
+    {
+      "status": "M",
+      "path": "frontend/src/graph-model.ts"
+    },
+    {
+      "status": "M",
+      "path": "frontend/src/investigation-graph.css"
+    },
+    {
+      "status": "A",
+      "path": "frontend/src/public-profile.test.tsx"
+    },
+    {
+      "status": "A",
+      "path": "frontend/src/steam-inventory.test.tsx"
+    },
+    {
+      "status": "M",
+      "path": "frontend/src/types.ts"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/agent.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/agent_tools.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/ai.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/ai_state.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/browser_policy.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/browser_proxy.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/browser_session.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/browser_worker.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/chat.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/chat_intent.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/context.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/engine/models.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/entity_router.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/evidence_graph.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/geoint/open_geography.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/geoint/presentation.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/geoint/reference_ranking.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/geoint/research.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/geoint/scene_language.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/geoint/skyline.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/geoint/terrain.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/geoip_sources.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/graph_context.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/graph_store.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/investigation_analysis.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/investigation_contracts.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/investigation_progress.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/investigation_results.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/network_report.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/network_semantics.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/network_sources.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/provider_diagnostics.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/socmint_public.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/socmint_targets.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/steam_inventory.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/steam_inventory_view.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/steam_public.py"
+    },
+    {
+      "status": "A",
+      "path": "grangerpet/tool_bindings.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/tool_manifest.py"
+    },
+    {
+      "status": "M",
+      "path": "grangerpet/visual_models/scene.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/audit_master_fix_v2.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/audit_workspace_disk.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/benchmark_geographic_candidates.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/curate_master_v2_release.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/diagnose_master_fix_v2.py"
+    },
+    {
+      "status": "M",
+      "path": "scripts/perf_process_metrics.py"
+    },
+    {
+      "status": "M",
+      "path": "scripts/qa_intelligence_exe.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/qa_master_v2_native_batch.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/qa_network_v2.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/qa_open_geography_v2.py"
+    },
+    {
+      "status": "M",
+      "path": "scripts/qa_reconstruction_exe.py"
+    },
+    {
+      "status": "M",
+      "path": "scripts/qa_reconstruction_graphs.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/qa_socmint_v2.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/qa_steam_inventory_v2.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/qa_vk_archive_v2.py"
+    },
+    {
+      "status": "M",
+      "path": "scripts/verify_research_browser.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_agent_chat.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_agent_tools.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_ai_state.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/test_browser_search_post.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/test_chat_intent.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_geoint_presentation.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_geoint_research.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/test_geoint_terrain.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_graph_context.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_graph_reconstruction.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/test_network_semantics.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/test_provider_diagnostics.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_registry_manifest.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_research_browser.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/test_socmint_public.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/test_steam_inventory.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/test_tool_bindings.py"
+    }
+  ]
+}
