@@ -399,7 +399,7 @@ class AgentRunner:
         messages = [{"role": "system", "content": HERMIONE_SYSTEM + "\n\n" + AGENT_SYSTEM +
                      "\nДоступные операции описаны в tools. Недоступные инструменты (не результаты поиска):\n" + _json(self._safe(unavailable))[:1600]}]
         from .entity_router import route_goal
-        targets = [target.to_dict() for target in route_goal(self._record.get('goal', ''))]
+        targets = [target.to_dict() for target in route_goal(self._record.get('current_focus') or self._record.get('goal', ''))]
         self._record['target_entities'] = targets
         readiness_question=bool(re.search(r'(?iu)какие|доступн|готов|readiness|available',self._record.get('goal','')) and
             re.search(r'(?iu)инструмент|модел|tool|geoclip|waypoint',self._record.get('goal','')))
@@ -758,7 +758,8 @@ class AgentRunner:
         if envelope.get('tool')=='blockchain_gansar':value['evidence_sections']=sections
         rows = []
         from .investigation_results import relevance
-        ranks = relevance(self._store.records(), self._record.get('goal',''))
+        focus=self._record.get('current_focus') or self._record.get('goal','')
+        ranks = relevance(self._store.records(), focus)
         priorities={'blockchain_summary':0,'balance':1,'nft_asset':2,'token_asset':3,'web3_identity':4,'contract_observation':5,'transaction':7,'blockchain_counterparty':8}
         selected_records = sorted(envelope.get('results', []), key=lambda row:(-ranks.get(row.get('evidence_id'),{}).get('score',0),priorities.get(row.get('type'),6)))
         for record in selected_records[:30]:
@@ -770,7 +771,7 @@ class AgentRunner:
             row['relevance'] = ranks.get(record.get('evidence_id'), {'level':'unverified','reason':'Связь с исходной целью не установлена.'})
             origin = record.get('provenance') or {}
             row['provenance'] = {key:origin[key] for key in ('tool','obtained_at','acquisition') if key in origin}
-            row["description"] = relevant_excerpt(record.get("description", ""), self._record.get('goal',''), 450)
+            row["description"] = relevant_excerpt(record.get("description", ""), focus, 450)
             details = {key:item for key,item in (record.get('details') or {}).items()
                        if key not in ('preview','base64','image_bytes','local_path')}
             if details.get('capability')=='evidence_graph':
@@ -872,7 +873,7 @@ class AgentRunner:
     def _progress_facts(self):
         from .investigation_results import relevance
         records = self._store.records()
-        ranks = relevance(records, self._record.get('goal',''))
+        ranks = relevance(records, self._record.get('current_focus') or self._record.get('goal',''))
         return semantic_facts([row for row in records if ranks.get(row.get('evidence_id'),{}).get('level') != 'background'])
 
     def _relevant_links(self, links, page_url, limit):
@@ -884,7 +885,7 @@ class AgentRunner:
         for link in links:
             if isinstance(link, dict) and isinstance(link.get('url'), str):
                 unique.setdefault(link['url'], link)
-        goal_terms = terms(self._record.get('goal', ''))
+        goal_terms = terms(self._record.get('current_focus') or self._record.get('goal', ''))
         def rank(link):
             target_host = urlsplit(link['url']).hostname
             meaningful = target_host in ('github.com', 'gitlab.com', 't.me', 'x.com', 'vk.com')
@@ -896,14 +897,16 @@ class AgentRunner:
         # Compact whole completed protocol groups. Primary results and the full
         # execution log live outside this working context and survive restart.
         def restore_memory():
-            goal_terms = terms(self._record.get('goal',''))
+            focus=self._record.get('current_focus') or self._record.get('goal','')
+            goal_terms = terms(focus)
             ranked = sorted(enumerate(self._store.records()), key=lambda item:
                 (-(50 if item[1].get('verification')=='contradictory' else 0)-len(terms(
                     str(item[1].get('title',''))+' '+str(item[1].get('description','')))&goal_terms), item[0]))
             key_evidence = [{**{key:row.get(key) for key in ('evidence_id','title','url','verification')},
-                             'excerpt':relevant_excerpt(row.get('description') or row.get('details',{}).get('content_text',''),self._record.get('goal',''),260)}
+                             'excerpt':relevant_excerpt(row.get('description') or row.get('details',{}).get('content_text',''),focus,260)}
                             for _,row in ranked[:6]]
             memory = {'goal': self._record.get('goal', ''),
+                      'current_focus':focus,
                       'previous_stages': self._state.get('context_memory', [])[-5:],
                       'key_evidence':key_evidence,
                       'plan':self._state.get('plan','')[:1400],
@@ -955,7 +958,7 @@ class AgentRunner:
                         'query': str(outcome.get('query') or '')[:300],
                         'limitations':outcome.get('limitations',[])[:2],
                         'evidence': [{**{key: row.get(key) for key in ('evidence_id', 'title', 'url', 'verification')},
-                                      'excerpt':relevant_excerpt(row.get('description') or row.get('page_content',{}).get('content_excerpt',''), self._record.get('goal',''),300)}
+                                      'excerpt':relevant_excerpt(row.get('description') or row.get('page_content',{}).get('content_excerpt',''), self._record.get('current_focus') or self._record.get('goal',''),300)}
                                      for row in outcome.get('results', [])[:5]]})
                 except (ValueError, TypeError):
                     continue
@@ -980,6 +983,7 @@ class AgentRunner:
                 for item in value:source_urls(item,depth+1)
         for record in records:source_urls(record.get('details',{}))
         allowed_urls.update(re.findall(r'https?://[^\s<>\]\)\"]+', self._record.get('goal', '')))
+        allowed_urls.update(re.findall(r'https?://[^\s<>\]\)\"]+', self._record.get('current_focus') or ''))
         identifiers = {row.get('evidence_id') for row in records}
         def citation(match):
             label, identifier = match.groups()
@@ -1105,7 +1109,7 @@ class AgentRunner:
         return self._ledger(factual_report(analyze(self.snapshot()), reason=reason))
 
     def run(self, model, history, *, cancel_event=None, on_event=None, approval_callback=None,
-            resume_state=None, checkpoint_callback=None, conversation_id=None, usage_ledger=None, followup=None):
+            resume_state=None, checkpoint_callback=None, conversation_id=None, usage_ledger=None, followup=None, entity_context=None):
         with self._lock:
             if self._running:
                 raise AIError("Расследование уже выполняется.", code="invalid_request")
@@ -1190,6 +1194,15 @@ class AgentRunner:
                 if not isinstance(goal, str) or not goal.strip():
                     raise AIError('Не указана цель расследования.', code='invalid_request')
                 self._record, self._state = new_investigation(self._safe(goal), conversation_id)
+                if entity_context is not None:
+                    from .entity_router import route
+                    if not isinstance(entity_context,dict) or entity_context.get('conversation_id')!=conversation_id:
+                        raise AIError('Контекст объекта относится к другой беседе.',code='invalid_request')
+                    target=entity_context.get('target')
+                    target=route((target.get('canonical_url') or target.get('identifier')) if isinstance(target,dict) else '')
+                    if not target or target.entity_type=='username':raise AIError('Некорректный объект текущего запроса.',code='invalid_request')
+                    self._record['active_target']=target.to_dict()
+                    self._record['current_focus']=goal+'\nОбъект текущего запроса: '+(target.canonical_url or target.identifier)
             for key, expected in (('messages', list), ('context_memory', list), ('pending_calls', list),
                                   ('pending_outcomes', dict), ('call_cache', dict), ('seen_call_ids', list),
                                   ('failures', list), ('completed_steps', list), ('tried_queries', list),
@@ -1218,6 +1231,7 @@ class AgentRunner:
                 self.registry.begin_investigation()
             if hasattr(self.registry, 'seed_urls_from_user'):
                 self.registry.seed_urls_from_user(self._record['goal'])
+                if self._record.get('active_target'):self.registry.seed_urls_from_user(self._record['current_focus'])
             # Restore capabilities before the first persistence snapshot. A fresh
             # registry must not overwrite saved attachment/URL scope with emptiness.
             self._persist()
@@ -1238,7 +1252,7 @@ class AgentRunner:
                 self._state['messages'][0] = fresh[0]
             route_calls=[]
             if resume_state is None and callable(getattr(self.registry,'initial_calls',None)):
-                route_calls=self.registry.initial_calls(self._record['goal'])
+                route_calls=self.registry.initial_calls(self._record.get('current_focus') or self._record['goal'])
             elif followup and not self._state.get('pending_calls') and callable(getattr(self.registry,'focus_calls',None)):
                 route_calls=self.registry.focus_calls(followup)
             if route_calls:

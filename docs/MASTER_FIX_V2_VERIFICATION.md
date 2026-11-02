@@ -5,10 +5,10 @@
 
 ## Воспроизведённые причины
 
-- `investigation_requested('а этот IP 87.199.131.94?')` возвращает False,
+- До исправления `investigation_requested('а этот IP 87.199.131.94?')` возвращал False,
   хотя центральный entity router правильно извлекает infrastructure_asset.
   Таким образом, обычный streaming chat запускается без tools.
-- `is_social_turn('Герми, ты здесь?')` возвращает False; короткая кличка и вопрос
+- До исправления `is_social_turn('Герми, ты здесь?')` возвращал False; короткая кличка и вопрос
   о присутствии не включены в conversational boundary.
 - Provider400/422 сейчас сворачивается в общее «отклонил параметры» без
   безопасной технической диагностики. Причина конкретного live-запроса ещё
@@ -19,3 +19,15 @@
 Baseline и правила зафиксированы в [аудите](NEW_TOOLS_AUDIT.md).
 Pet/animation code, art, Gansar source, пользовательские vault/history/checkpoints
 и установленные модельные runtimes не редактируются.
+
+## Этап 2 — маршрутизация и контекст
+
+Исправлены короткие literal-IP запросы, scoped follow-up, социальные реплики,
+барьер «Отложим», смена беседы и активное изображение. 106 source/Qt fixtures
+прошли. Контрольный live short-IP вызвал реальные сетевые инструменты и дал
+7 evidence, 3 ответа DeepSeek HTTP 200. GeoIP в нём не подтверждён: один источник
+истёк по тайм-ауту. [Протокол](PROVIDER_CONTEXT_QA.md).
+
+Большой multi-category запрос воспроизводит local invalid_request до HTTP:
+набор schemas не согласован с ограничением 40 в клиенте. Узкий voin-cs.kz
+контроль получил 21 evidence и HTTP 200, исторический provider 400 не воспроизведён.

@@ -117,6 +117,23 @@ def test_routing_preserves_ordinary_conversation():
     assert not investigation_requested('Без поиска объясни, что такое DNS и как проверять источники')
 
 
+def test_social_and_defer_after_research_do_not_restart_or_tag_old_investigation(widget,monkeypatch):
+    app,chat=widget
+    chat._submit_text('Исследуй IP 66.249.67.41');wait(app,lambda:not chat.busy)
+    previous=chat._last_investigation['id'];calls=list(chat._agent_registry.calls);histories=[]
+    class SocialClient:
+        last_response_metadata={}
+        def stream_chat(self,model,history,*,on_text,cancel_event):
+            histories.append(deepcopy(history));return 'Да, я здесь.'
+    monkeypatch.setattr('grangerpet.chat.DeepSeekClient',SocialClient)
+    for text in ('Герми, ты здесь?','Отложим','Что делаешь?'):
+        chat._submit_text(text);wait(app,lambda:not chat.busy)
+        assert 'investigation_id' not in chat.messages[-1]
+    assert chat._agent_registry.calls==calls
+    assert chat._last_investigation['id']==previous  # Archive remains available for explicit continuation.
+    assert all('66.249.67.41' not in str(history) for history in histories)
+
+
 def test_paused_investigation_does_not_announce_success_with_happy_animation(widget):
     app,chat=widget;states=[];chat.activity_changed.connect(states.append)
     investigation={'id':'c'*32,'status':'paused','stop_reason':'manual_pause','evidence':[],'executions':[]}

@@ -200,7 +200,7 @@ class ToolRegistry:
         self.web_reader.seed_urls_from_user(text)
 
     def attachment_context(self):
-        return [{'attachment_id': identifier} for identifier in sorted(self._recent_attachment_ids or self._attachment_ids)]
+        return [{'attachment_id': identifier} for identifier in sorted(self._recent_attachment_ids)]
 
     def initial_calls(self, goal):
         """A bounded first route from literal targets, before broad discovery."""
@@ -375,12 +375,14 @@ class ToolRegistry:
 
     def checkpoint_state(self):
         return {**self.web_reader.checkpoint_state(),'attachment_ids':sorted(self._attachment_ids),
+                'active_attachment_ids':sorted(self._recent_attachment_ids),
                 'downloaded_bytes': self._download_budget.snapshot()['used_bytes'],'blockchain_refs':deepcopy(self._blockchain_refs)}
 
     def restore_investigation(self, records, state):
         self.evidence.restore(records, [])
         self.web_reader.restore_state(state, records)
         self.allow_attachments(state.get('attachment_ids',[]))
+        self.allow_attachments(state.get('active_attachment_ids',state.get('attachment_ids',[])))
         count = state.get('downloaded_bytes', 0)
         if type(count) is not int or count < 0:
             raise ValueError('Invalid saved download budget')
@@ -592,7 +594,7 @@ class ToolRegistry:
         self._local_scope=({'image_metadata','image_ocr','evidence_get','evidence_graph'} if metadata_only else
             {'image_metadata','image_ocr','image_understand','image_compare','visual_geoint','geoclip_predict','waypoint_predict','waypoint_match','shadow_regions','evidence_get','evidence_graph'}) if local_only else None
         from .tool_manifest import relevant_names
-        if task and self._attachment_ids:task=task+' · выбранное фото'
+        if task and self._recent_attachment_ids:task=task+' · выбранное фото'
         selected=relevant_names(_SPECS,task,self.evidence.records())
         end=min(deadline,time.monotonic()+12) if deadline is not None else time.monotonic()+12
         cancelled=_Cancellation(cancel_event,end)

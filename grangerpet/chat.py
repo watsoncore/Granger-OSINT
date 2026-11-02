@@ -28,7 +28,8 @@ from .agent_tools import ToolRegistry
 from .agent_journal import InvestigationJournal
 from .chat_archive import ChatArchive
 from .conversations import ConversationLibrary
-from .context import conversation_context,is_social_turn
+from .context import conversation_context,is_social_turn,is_defer_turn
+from .chat_intent import SessionIntent,explicit_research
 
 
 def no_tools_requested(text):
@@ -37,11 +38,9 @@ def no_tools_requested(text):
 
 def investigation_requested(text):
     """Route explicit research requests; ordinary conversation keeps its fast path."""
-    if no_tools_requested(text) or is_social_turn(text):
+    if no_tools_requested(text) or is_social_turn(text) or is_defer_turn(text):
         return False
-    from .entity_router import route
-    target = route(text)
-    return bool(target and target.entity_type != 'username') or bool(re.search(r'(?iu)(найд[иуё]|найти|поищ|поиск|провер[ьить]|исслед|упоминан|сопостав|пробей|whois|rdap|dns|lookup|investigat|search\b|профил|кошел[её]к|блокчейн|прочита|прочти|открой|изучи|страниц|https?://|geoint|geoclip|waypoint|(?:какие|доступн|готов).{0,35}инструмент|инструмент.{0,35}(?:доступн|готов))', text))
+    return explicit_research(text)
 
 
 def label(text, name='Muted'):
@@ -413,6 +412,14 @@ class ChatWidget(QWidget):
                 return
         images=getattr(self,'_pending_images',[])
         self._pending_images=[]
+        intent=getattr(self,'_session_intent',None)
+        if intent is None:
+            intent=self._session_intent=SessionIntent();intent.restore(self.messages,self.conversation_id)
+        decision=intent.decide(text,self.conversation_id,no_tools=no_tools_requested(text),images=images)
+        if decision['kind']=='defer':
+            self._agent_followup=False
+            close=getattr(self._agent_registry,'close',None)
+            if callable(close):close()
         self._append('user', text)
         if images: self.messages[-1]['attachments']=images
         history = conversation_context(self.messages, text)
@@ -421,7 +428,7 @@ class ChatWidget(QWidget):
         model = snapshot['model_id']
         generation = self._generation + 1
         conversation_id = self.conversation_id
-        investigate = not no_tools_requested(text) and (bool(images) or not is_social_turn(text) and (investigation_requested(text) or self._agent_followup and bool(re.search(r'(?iu)(ещ[её]|подроб|дальше|сравни|почему|источник|ev_[a-f0-9]+)', text))))
+        investigate = decision['kind']=='research'
         def request(cancelled):
             if snapshot['provider'] == 'deepseek':
                 client = DeepSeekClient()
@@ -429,13 +436,18 @@ class ChatWidget(QWidget):
                     if self._agent_registry is None:
                         self._agent_registry = ToolRegistry(settings, redactions=(getattr(client, '_key', ''),),image_store=getattr(self,'_image_store',None))
                         self._agent_registry._image_store_provider=getattr(self,'_image_store_provider',None)
-                    if images: self._agent_registry.allow_attachments([row['id'] for row in images])
+                    active_images=[row['id'] for row in images]
+                    target=(decision.get('entity_context') or {}).get('target',{})
+                    if target.get('entity_type')=='image':active_images.append(target['identifier'])
+                    if hasattr(self._agent_registry,'allow_attachments'):self._agent_registry.allow_attachments(active_images)
                     if hasattr(self._agent_registry, 'seed_urls_from_user'):
                         self._agent_registry.seed_urls_from_user(text)
                     limits = self._investigation_limits(settings)
                     runner = AgentRunner(client, self._agent_registry, limits=limits)
                     self._agent_runner = runner
+                    entity_kwargs={'entity_context':decision['entity_context']} if decision['entity_context'] else {}
                     return self._run_investigation(runner, model, history, cancel_event=cancelled,
+                        **entity_kwargs,
                         on_event=lambda value: self._agent_progress.emit(generation, value),
                         approval_callback=lambda name, args: self._approve_tool(generation, name, args, cancelled),
                         conversation_id=conversation_id, usage_ledger=self._usage_ledger,
@@ -688,6 +700,7 @@ class ChatWidget(QWidget):
         if not self._save_archive(messages=[], context=[]):
             return False
         self._context.clear()
+        self._session_intent=SessionIntent(self.conversation_id)
         if callable(getattr(self._agent_registry,'close',None)):self._agent_registry.close()
         self._agent_registry = None
         self._agent_runner = None
@@ -752,6 +765,7 @@ class ChatWidget(QWidget):
         self._last_investigation = {}
         self._agent_followup = False
         self._restore_archive_rows(value.get('messages', []))
+        self._session_intent=SessionIntent();self._session_intent.restore(self.messages,self.conversation_id)
         self._restore_investigation()
         self._activity_log = []
         self._update_actions()
