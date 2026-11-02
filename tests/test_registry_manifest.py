@@ -63,7 +63,7 @@ def test_task_schemas_select_relevant_capabilities_and_hide_keys_private_options
         schema = item['function']['parameters']
         assert schema['additionalProperties'] is False
         assert all(key in schema['properties'] for key in schema['required'])
-        if not schema['required']:assert item['function']['name']=='evidence_graph'
+        if not schema['required']:assert item['function']['name'] in ('evidence_graph','capabilities_find')
     assert 'SYNTHETIC-VT-KEY' not in json.dumps(selected)
     assert 'source_root' not in json.dumps(selected)
 

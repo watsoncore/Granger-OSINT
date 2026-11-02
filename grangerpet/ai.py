@@ -6,6 +6,7 @@ source results. The user enters the gateway credential in the existing UI.
 from __future__ import annotations
 
 from dataclasses import asdict, is_dataclass
+from contextlib import asynccontextmanager
 import asyncio
 import hashlib
 from datetime import datetime, timezone
@@ -30,12 +31,13 @@ from .ai_keys import (DEFAULT_DEEPSEEK_MODEL, DEEPSEEK_BASE_URL,
 
 class AIError(RuntimeError):
     """A UI-safe error without an API credential, raw body or transport message."""
-    def __init__(self, message, *, code="provider_error", http_status=None, retry_after=None):
+    def __init__(self, message, *, code="provider_error", http_status=None, retry_after=None, diagnostic=None):
         super().__init__(message)
         self.code = code
         self.http_status = http_status
         self.retry_after = retry_after
         self.retry_after_seconds = retry_after
+        self.diagnostic = diagnostic or {'origin':'local' if http_status is None else 'provider'}
 
 
 HERMIONE_SYSTEM = (
@@ -157,6 +159,7 @@ class DeepSeekClient:
         self._client_factory = client_factory
         self.timeout = max(.05, float(timeout))
         self.last_response_metadata = {}
+        self._unsupported_parameters={}
 
     def _client(self):
         return (self._client_factory or httpx.AsyncClient)(
@@ -218,10 +221,49 @@ class DeepSeekClient:
                     _DEEPSEEK_BACKOFF[self._backoff_key(DEFAULT_DEEPSEEK_MODEL)] = time.monotonic() + safe.retry_after
             raise safe from None
 
-    async def _post(self, client, payload):
-        data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        async with client.stream("POST", "chat/completions", content=data) as response:
+    async def _check_response(self,response,payload):
+        if not response.is_error:
             response.raise_for_status()
+            return
+        raw=bytearray();truncated=False
+        async for chunk in response.aiter_bytes():
+            remaining=16000-len(raw)
+            raw.extend(chunk[:remaining])
+            if len(chunk)>remaining:truncated=True;break
+        from .provider_diagnostics import classify
+        diagnostic=classify(bytes(raw),response.status_code,payload,truncated=truncated)
+        failure=_safe_deepseek_error(httpx.HTTPStatusError('Provider failure',request=response.request,response=response))
+        failure.diagnostic=diagnostic
+        explanations={'unsupported_parameter':'Провайдер явно не поддерживает параметр',
+                      'context_limit':'Провайдер сообщил о превышении контекста',
+                      'invalid_tool_protocol':'Провайдер отклонил последовательность вызовов инструментов'}
+        if failure.http_status in (400,422) and diagnostic['cause'] in explanations:
+            suffix=explanations[diagnostic['cause']]
+            if diagnostic['parameter']:suffix+=' '+diagnostic['parameter']
+            failure.args=(str(failure)+' '+suffix+'.',)
+        raise failure
+
+    @asynccontextmanager
+    async def _response(self,client,payload):
+        # Only optional usage statistics can be negotiated away. Tools, model,
+        # protocol and output limits are never silently dropped or guessed.
+        model=payload['model'];request=dict(payload)
+        for name in self._unsupported_parameters.get(model,()):request.pop(name,None)
+        for attempt in range(2):
+            async with client.stream('POST','chat/completions',content=json.dumps(request,ensure_ascii=False).encode('utf-8')) as response:
+                try:await self._check_response(response,request)
+                except AIError as error:
+                    details=error.diagnostic
+                    if (attempt==0 and error.http_status in (400,422) and details.get('cause')=='unsupported_parameter'
+                            and details.get('parameter')=='stream_options' and 'stream_options' in request):
+                        self._unsupported_parameters.setdefault(model,set()).add('stream_options')
+                        request.pop('stream_options');continue
+                    raise
+                yield response
+                return
+
+    async def _post(self, client, payload):
+        async with self._response(client,payload) as response:
             raw = bytearray()
             async for chunk in response.aiter_bytes():
                 raw.extend(chunk)
@@ -253,6 +295,8 @@ class DeepSeekClient:
             if finish in ('stop', 'length', 'tool_calls', 'content_filter'):
                 metadata['finish_reason'] = finish
         self.last_response_metadata = metadata
+        if self._unsupported_parameters.get(model):
+            metadata['negotiated_optional_parameters']=sorted(self._unsupported_parameters[model])
 
     @staticmethod
     def _message(result):
@@ -404,7 +448,9 @@ class DeepSeekClient:
             raise AIError("В истории отсутствует результат инструмента.", code="invalid_request")
         definitions = tools or []
         if not isinstance(definitions, list) or len(definitions) > 40:
-            raise AIError("Некорректный реестр инструментов.", code="invalid_request")
+            raise AIError("Локальный набор инструментов превышает допустимый размер или имеет неверный формат; запрос к провайдеру не отправлен.",
+                code="invalid_request",diagnostic={'origin':'local','cause':'tool_binding_limit','parameter':'tools',
+                    'definition_count':len(definitions) if isinstance(definitions,list) else None,'maximum':40})
         for definition in definitions:
             if (not isinstance(definition, dict) or definition.get("type") != "function"
                     or not isinstance(definition.get("function"), dict)
@@ -510,8 +556,7 @@ class DeepSeekClient:
                     finished = True
                     metadata["finish_reason"] = finish
             async with self._client() as client:
-                async with client.stream("POST", "chat/completions", content=json.dumps(payload, ensure_ascii=False).encode("utf-8")) as response:
-                    response.raise_for_status()
+                async with self._response(client,payload) as response:
                     if "text/event-stream" not in response.headers.get("content-type", "").lower():
                         raise AIError("Шлюз не подтвердил потоковый формат ответа.", code="invalid_response")
                     pending, data, received = bytearray(), [], 0

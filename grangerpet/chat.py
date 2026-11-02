@@ -526,7 +526,8 @@ class ChatWidget(QWidget):
                     self._usage_ledger.record_error(provider=provider, model=model, conversation_id=conversation_id,
                         request_id=request_id, error_code=error.code)
                 return {'error': str(error), 'code': getattr(error, 'code', 'provider_error'),
-                        'http_status': getattr(error, 'http_status', None), 'retry_after': getattr(error, 'retry_after', None)}
+                        'http_status': getattr(error, 'http_status', None), 'retry_after': getattr(error, 'retry_after', None),
+                        'diagnostic':error.diagnostic}
         job = UiJob(execute, self)
         self._job = job
         self._update_actions()
@@ -550,7 +551,7 @@ class ChatWidget(QWidget):
                 self._agent_followup = True
                 # _run_investigation persisted this in its worker already.
             if isinstance(result, dict) and result.get('error'):
-                self.last_request = {key: result.get(key) for key in ('code', 'http_status', 'retry_after')}
+                self.last_request = {key: result.get(key) for key in ('code', 'http_status', 'retry_after','diagnostic')}
                 error = result['error']
                 result = None
             elif isinstance(result, dict):

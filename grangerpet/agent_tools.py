@@ -143,6 +143,10 @@ _SPECS += tuple(ToolSpec(name,'browser_agent','browser','url' if name=='browser_
         ('browser_back','Вернуться на предыдущую публичную страницу в своей временной сессии.'),
         ('browser_screenshot','Сделать реальный screenshot текущего браузера; сохранить локально и применить имеющийся локальный OCR, если доступен. Текстовая LLM не получает изображение как vision input.'),
         ('browser_close','Закрыть свою временную browser session. Пользовательские вкладки и browser profiles не затрагиваются.')))
+from .tool_bindings import FIND_SCHEMA as _FIND_SCHEMA
+_SPECS += (ToolSpec('capabilities_find','registry','evidence','query',
+    'Найти реальные операции по названию, категории или задаче; вернуть готовность и включить до 8 подходящих операций в tools следующего шага. Не выполняет поиск людей/сайтов. Для отсутствующей в текущем tools операции сначала используй этот каталог; доступность сети подтверждается только настоящим запуском.',
+    input_schema=_FIND_SCHEMA,execution_mode='LOCAL_PYTHON',category='web'),)
 _BY_NAME={spec.name:spec for spec in _SPECS}
 _AUTH = {"telegram": ("telegram_api_hash", "telegram_session"), "vk": ("vk_token",), "instagram": ("instagram_session",)}
 _BASE_OPTIONS = ("source_root", "tools_root", "runtime_python", "telegram_api_id", "instagram_username", "google_cx", "api_cx", "enable_snoop", "profile_sites")
@@ -189,6 +193,7 @@ class ToolRegistry:
         self._lock = threading.RLock()
         self._blockchain_refs={}
         self._local_scope=None
+        self._discovered_tools=[]
         self._download_budget = DownloadBudget(getattr(settings, 'agent_download_mb', 20) * 1024 * 1024)
         self._redactions = {value for value in redactions if isinstance(value, str) and len(value) >= 4}
         from .agent_browser import PublicPageReader
@@ -302,6 +307,7 @@ class ToolRegistry:
         self._browser_context=uuid.uuid4().hex
         self.web_reader.begin_run()
         self._blockchain_refs={}
+        self._discovered_tools=[]
         self._download_budget = DownloadBudget(getattr(self.settings, 'agent_download_mb', 20) * 1024 * 1024)
 
     def browser_state(self):
@@ -376,6 +382,7 @@ class ToolRegistry:
     def checkpoint_state(self):
         return {**self.web_reader.checkpoint_state(),'attachment_ids':sorted(self._attachment_ids),
                 'active_attachment_ids':sorted(self._recent_attachment_ids),
+                'discovered_tools':list(self._discovered_tools),
                 'downloaded_bytes': self._download_budget.snapshot()['used_bytes'],'blockchain_refs':deepcopy(self._blockchain_refs)}
 
     def restore_investigation(self, records, state):
@@ -383,6 +390,10 @@ class ToolRegistry:
         self.web_reader.restore_state(state, records)
         self.allow_attachments(state.get('attachment_ids',[]))
         self.allow_attachments(state.get('active_attachment_ids',state.get('attachment_ids',[])))
+        discovered=state.get('discovered_tools',[])
+        if not isinstance(discovered,list) or len(discovered)>100 or any(not isinstance(name,str) or name not in _BY_NAME for name in discovered):
+            raise ValueError('Invalid saved tool selection')
+        self._discovered_tools=list(dict.fromkeys(discovered))
         count = state.get('downloaded_bytes', 0)
         if type(count) is not int or count < 0:
             raise ValueError('Invalid saved download budget')
@@ -456,7 +467,9 @@ class ToolRegistry:
         if cancelled is not None and cancelled.is_set():
             base.update(state="cancelled", reason="Проверка отменена.")
             return base
-        if spec.source == "web_read":
+        if spec.source == 'registry':
+            base.update(available=True,state='ready_local',reason='Локальный каталог зарегистрированных операций; не сетевой результат.')
+        elif spec.source == "web_read":
             base.update(available=True, state="unverified", reason="Прямое чтение обнаруженных публичных URL; DNS и каждый переход проверяются при запросе.")
         elif spec.source == 'network_public':
             base.update(available=True, state='unverified', reason='Пассивные публичные HTTPS-источники; доступ и результат подтверждаются только выполнением.')
@@ -593,9 +606,12 @@ class ToolRegistry:
         metadata_only=bool(task and re.search(r'(?iu)только.{0,45}(метаданн|\bocr\b)',task))
         self._local_scope=({'image_metadata','image_ocr','evidence_get','evidence_graph'} if metadata_only else
             {'image_metadata','image_ocr','image_understand','image_compare','visual_geoint','geoclip_predict','waypoint_predict','waypoint_match','shadow_regions','evidence_get','evidence_graph'}) if local_only else None
+        if self._local_scope is not None:self._local_scope.add('capabilities_find')
         from .tool_manifest import relevant_names
         if task and self._recent_attachment_ids:task=task+' · выбранное фото'
         selected=relevant_names(_SPECS,task,self.evidence.records())
+        selected.update(self._discovered_tools)
+        selected.add('capabilities_find')
         end=min(deadline,time.monotonic()+12) if deadline is not None else time.monotonic()+12
         cancelled=_Cancellation(cancel_event,end)
         # Refresh only capabilities relevant to this goal. In particular a
@@ -644,7 +660,8 @@ class ToolRegistry:
                 fields['element_id']['enum']=ids
                 fields['snapshot_id']['enum']=[current['snapshot_id']]
             selected.append(tool)
-        return selected
+        from .tool_bindings import bind
+        return bind(selected,task,self._discovered_tools)
 
     descriptions = schemas
 
@@ -804,6 +821,28 @@ class ToolRegistry:
             return envelope
         if spec.requires_approval and approved is not True:
             envelope.update(status="approval_required", error="Нужно явное подтверждение пользователя перед взаимодействием с этим источником.")
+            return envelope
+        if spec.source=='registry':
+            from .tool_bindings import matches
+            from .tool_manifest import manifest,technical_state
+            found=matches(_SPECS,args.get('query',''),args.get('names',[]))
+            offset=args.get('offset',0);page=found[offset:offset+20];rows=[];enabled=[]
+            for item in page:
+                state=self._state(item,cancelled)
+                allowed=self._local_scope is None or item.name in self._local_scope
+                rows.append({'name':item.name,'category':manifest(item).category,'description':item.description,
+                    'readiness_status':technical_state(state),'available':state['available'],
+                    'allowed_in_current_scope':allowed,'requires_approval':item.requires_approval,
+                    'reason':state['reason'],'last_execution':state.get('last_execution')})
+                if allowed and state['available'] and (args.get('query') or args.get('names')) and len(enabled)<8:
+                    enabled.append(item.name)
+            with self._lock:
+                changed=any(name not in self._discovered_tools for name in enabled)
+                self._discovered_tools=[name for name in self._discovered_tools if name not in enabled]+enabled
+            envelope.update(status='complete',capabilities=rows,matched_operations=len(found),
+                next_offset=offset+len(page) if offset+len(page)<len(found) else None,
+                enabled_operations=enabled,binding_scope_changed=changed,
+                limitations=['Локальная готовность не означает успешный доступ к внешнему источнику.'])
             return envelope
         if spec.source == "evidence_get":
             record = self.evidence.get(value)

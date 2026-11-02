@@ -28,6 +28,9 @@ from .tool_contracts import sanitize_outcome, ToolContractError, log_contract
 
 AGENT_SYSTEM = (
     "Ты работаешь внутри настоящего OSINT-диспетчера Granger-OSINT. "
+    "В tools передан компактный набор. Если нужной операции нет, сначала найди её через capabilities_find; "
+    "он сообщает реальную локальную готовность и добавляет найденные операции в следующий шаг. "
+    "Каталог не является сетевым доказательством и не даёт дополнительных прав. "
     "Для просьбы найти, проверить или исследовать публичные сведения используй подходящие зарегистрированные инструменты, "
     "а не предлагай пользователю запускать их самостоятельно. Для обычной беседы инструменты не обязательны. "
     "Сначала определи сущность и краткий план. Выбирай инструмент по типу аргумента: никнейм, email, телефон, домен, IP, URL или адрес блокчейна. "
@@ -656,8 +659,11 @@ class AgentRunner:
                 details=row.get('details') or {};signature=details.get('workflow_state')
                 if details.get('action_effect') and signature and signature not in seen:
                     browser_progress=True;seen.append(signature)
-        meaningful = added > 0 or browser_progress
-        self._record['progress'] = {'new_facts': added, 'semantic_facts': len(after),'browser_state_advanced':browser_progress}
+        scope_progress=any(call['name']=='capabilities_find' and outcomes[call['id']].get('status')=='complete'
+                           and outcomes[call['id']].get('binding_scope_changed') for call in calls)
+        meaningful = added > 0 or browser_progress or scope_progress
+        self._record['progress'] = {'new_facts': added, 'semantic_facts': len(after),
+                                   'browser_state_advanced':browser_progress,'tool_scope_advanced':scope_progress}
         if meaningful:
             self._record['no_progress_rounds'] = 0
         else:
@@ -749,7 +755,8 @@ class AgentRunner:
         return False
 
     def _compact(self, envelope):
-        value = {key: envelope.get(key) for key in ("tool", "status", "query", "obtained_at", "limitations", "error", "cached_status", "page_budget",'source_diagnostics','from_saved_data') if key in envelope}
+        value = {key: envelope.get(key) for key in ("tool", "status", "query", "obtained_at", "limitations", "error", "cached_status", "page_budget",'source_diagnostics','from_saved_data',
+                 'capabilities','matched_operations','next_offset','enabled_operations','binding_scope_changed') if key in envelope}
         sections={}
         for record in envelope.get('results',[]):
             section=sections.setdefault(record.get('type','unknown'),{'count':0,'sample_evidence_ids':[]})
@@ -1098,7 +1105,7 @@ class AgentRunner:
             raise
         except AIError as error:
             self._record.update(report_status='partial' if parts or self._state.get('report_draft') else 'fallback',
-                synthesis_error={'code':error.code, 'http_status':error.http_status})
+                synthesis_error={'code':error.code, 'http_status':error.http_status,'diagnostic':error.diagnostic})
             written = '\n\n'.join([*parts, self._state.get('report_draft', '')]).strip()
             if written:
                 return assembled(written)+'\n\nГенерация прервана; написанная часть сохранена. Продолжение доступно без повторного поиска.', False, last_metadata
@@ -1283,7 +1290,8 @@ class AgentRunner:
                     self._finish_pending(on_event, approval_callback)
                     if self._state['pending_calls']:
                         continue  # A public fallback was queued before a stalled pause.
-                    if self._record.get('progress', {}).get('new_facts') or getattr(self.registry,'browser_model_state',lambda:{})():
+                    if (self._record.get('progress', {}).get('new_facts') or self._record.get('progress',{}).get('tool_scope_advanced')
+                            or getattr(self.registry,'browser_model_state',lambda:{})()):
                         definitions = self._description('schemas')
                         self._names = {item['function']['name'] for item in definitions}
                 focus=self._state.pop('followup_request',None)
@@ -1418,7 +1426,8 @@ class AgentRunner:
                     self._record['stop_reason'] = final_stop.reason
         except AIError as error:
             state = 'partial' if self._store.records() or self._record.get('tool_calls') else 'error'
-            self._record['api_error'] = {'code': error.code, 'http_status': error.http_status, 'retry_after': error.retry_after}
+            self._record['api_error'] = {'code': error.code, 'http_status': error.http_status, 'retry_after': error.retry_after,
+                                         'diagnostic':error.diagnostic}
             self._record['stop_reason'] = 'api_error'
             self._event(on_event, 'error', code=error.code)
             if state == 'error':

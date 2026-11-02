@@ -248,6 +248,8 @@ def validate_checkpoint(value, identifier=None):
             _integer(registry['downloaded_bytes'], 'checkpoint.registry_state.downloaded_bytes')
         if 'attachment_ids' in registry:
             _string_list(registry['attachment_ids'], 'checkpoint.registry_state.attachment_ids')
+        for field in ('active_attachment_ids','discovered_tools'):
+            if field in registry:_string_list(registry[field], 'checkpoint.registry_state.'+field)
         if 'blockchain_refs' in registry:
             import re
             refs=_expect(registry['blockchain_refs'],dict,'checkpoint.registry_state.blockchain_refs')

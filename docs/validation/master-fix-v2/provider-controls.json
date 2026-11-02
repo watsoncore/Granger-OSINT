@@ -1,0 +1,853 @@
+[
+  {
+    "summary": {
+      "scenario": "chat",
+      "live": true,
+      "user_history_read": false,
+      "source_keys_used": false,
+      "answer_characters": 37,
+      "status": "completed",
+      "http_requests": 1,
+      "http_errors": [],
+      "elapsed_seconds": 3.184
+    },
+    "id": "provider-chat-baseline",
+    "requests": {
+      "at": "2026-11-02T11:57:34.816898+05:00",
+      "http_status": 200,
+      "parameter_names": [
+        "max_tokens",
+        "messages",
+        "model",
+        "stream"
+      ],
+      "model": "deepseek-v4-flash",
+      "max_tokens": 2400,
+      "stream": false,
+      "roles": [
+        "system",
+        "user"
+      ],
+      "message_characters": 1860,
+      "tools": []
+    }
+  },
+  {
+    "summary": {
+      "scenario": "short",
+      "live": true,
+      "user_history_read": false,
+      "source_keys_used": false,
+      "status": "completed",
+      "stop_reason": null,
+      "evidence_count": 7,
+      "answer_characters": 6210,
+      "executions": [
+        {
+          "tool": "network_rdap",
+          "status": "complete"
+        },
+        {
+          "tool": "network_reverse_dns",
+          "status": "complete"
+        },
+        {
+          "tool": "ip_lookup",
+          "status": "timeout"
+        },
+        {
+          "tool": "network_reputation",
+          "status": "complete"
+        },
+        {
+          "tool": "threat_feodo",
+          "status": "complete"
+        },
+        {
+          "tool": "network_routing",
+          "status": "complete"
+        }
+      ],
+      "http_requests": 3,
+      "http_errors": [],
+      "elapsed_seconds": 38.727
+    },
+    "id": "short-ip-live",
+    "requests": [
+      {
+        "at": "2026-11-02T12:05:46.261566+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "tool_choice",
+          "tools"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 1800,
+        "stream": false,
+        "roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "tool",
+          "tool"
+        ],
+        "message_characters": 15894,
+        "tools": [
+          "web_archive",
+          "web_search",
+          "web_read",
+          "domain_lookup",
+          "ip_lookup",
+          "evidence_get",
+          "threat_feodo",
+          "evidence_graph",
+          "network_rdap",
+          "network_routing",
+          "network_reverse_dns",
+          "network_reputation"
+        ]
+      },
+      {
+        "at": "2026-11-02T12:05:58.061376+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "tool_choice",
+          "tools"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 1800,
+        "stream": false,
+        "roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "tool",
+          "tool",
+          "assistant",
+          "tool",
+          "tool",
+          "tool"
+        ],
+        "message_characters": 27173,
+        "tools": [
+          "web_archive",
+          "web_search",
+          "web_read",
+          "domain_lookup",
+          "ip_lookup",
+          "evidence_get",
+          "threat_feodo",
+          "evidence_graph",
+          "network_rdap",
+          "network_routing",
+          "network_reverse_dns",
+          "network_reputation"
+        ]
+      },
+      {
+        "at": "2026-11-02T12:06:00.543546+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "stream_options"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 8192,
+        "stream": true,
+        "roles": [
+          "system",
+          "user"
+        ],
+        "message_characters": 10959,
+        "tools": []
+      }
+    ]
+  },
+  {
+    "summary": {
+      "scenario": "site",
+      "live": true,
+      "user_history_read": false,
+      "source_keys_used": false,
+      "status": "completed",
+      "stop_reason": "tool_limit",
+      "evidence_count": 21,
+      "answer_characters": 6968,
+      "executions": [
+        {
+          "tool": "web_read",
+          "status": "complete"
+        },
+        {
+          "tool": "domain_rdap",
+          "status": "error"
+        },
+        {
+          "tool": "domain_lookup",
+          "status": "partial"
+        },
+        {
+          "tool": "domain_dns",
+          "status": "complete"
+        },
+        {
+          "tool": "web_archive",
+          "status": "complete"
+        },
+        {
+          "tool": "domain_certificates",
+          "status": "timeout"
+        },
+        {
+          "tool": "web_read",
+          "status": "duplicate_skipped"
+        },
+        {
+          "tool": "ip_lookup",
+          "status": "complete"
+        },
+        {
+          "tool": "network_reverse_dns",
+          "status": "complete"
+        },
+        {
+          "tool": "network_reputation",
+          "status": "complete"
+        },
+        {
+          "tool": "network_routing",
+          "status": "complete"
+        }
+      ],
+      "http_requests": 3,
+      "http_errors": [],
+      "elapsed_seconds": 45.991
+    },
+    "id": "provider-site-baseline",
+    "requests": [
+      {
+        "at": "2026-11-02T11:57:41.398816+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "tool_choice",
+          "tools"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 1800,
+        "stream": false,
+        "roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "message_characters": 17159,
+        "tools": [
+          "web_archive",
+          "web_search",
+          "web_read",
+          "domain_lookup",
+          "ip_lookup",
+          "evidence_get",
+          "threat_feodo",
+          "evidence_graph",
+          "historical_contacts",
+          "network_rdap",
+          "network_routing",
+          "network_reverse_dns",
+          "network_reputation",
+          "domain_dns",
+          "domain_rdap",
+          "domain_certificates",
+          "browser_navigate",
+          "browser_close"
+        ]
+      },
+      {
+        "at": "2026-11-02T11:57:57.46874+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "tool_choice",
+          "tools"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 1800,
+        "stream": false,
+        "roles": [
+          "system",
+          "user"
+        ],
+        "message_characters": 25095,
+        "tools": [
+          "web_archive",
+          "web_search",
+          "web_read",
+          "domain_lookup",
+          "ip_lookup",
+          "evidence_get",
+          "threat_feodo",
+          "evidence_graph",
+          "historical_contacts",
+          "network_rdap",
+          "network_routing",
+          "network_reverse_dns",
+          "network_reputation",
+          "domain_dns",
+          "domain_rdap",
+          "domain_certificates",
+          "browser_navigate",
+          "browser_close"
+        ]
+      },
+      {
+        "at": "2026-11-02T11:58:06.060419+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "stream_options"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 8192,
+        "stream": true,
+        "roles": [
+          "system",
+          "user"
+        ],
+        "message_characters": 11456,
+        "tools": []
+      }
+    ]
+  },
+  {
+    "summary": {
+      "scenario": "broad",
+      "live": true,
+      "user_history_read": false,
+      "source_keys_used": false,
+      "status": "partial",
+      "stop_reason": "api_error",
+      "evidence_count": 1,
+      "answer_characters": 1531,
+      "executions": [
+        {
+          "tool": "web_read",
+          "status": "complete"
+        }
+      ],
+      "http_requests": 0,
+      "http_errors": [],
+      "elapsed_seconds": 5.382
+    },
+    "id": "provider-broad-baseline",
+    "requests": null
+  },
+  {
+    "summary": {
+      "scenario": "broad",
+      "live": true,
+      "user_history_read": false,
+      "source_keys_used": false,
+      "bound_tool_count": 32,
+      "status": "completed",
+      "stop_reason": "no_progress",
+      "evidence_count": 12,
+      "answer_characters": 6983,
+      "api_error": null,
+      "executions": [
+        {
+          "tool": "web_read",
+          "status": "complete"
+        },
+        {
+          "tool": "domain_lookup",
+          "status": "partial"
+        },
+        {
+          "tool": "web_search",
+          "status": "empty"
+        },
+        {
+          "tool": "web_archive",
+          "status": "complete"
+        },
+        {
+          "tool": "web_read",
+          "status": "duplicate_skipped"
+        },
+        {
+          "tool": "ip_lookup",
+          "status": "complete"
+        },
+        {
+          "tool": "threat_feodo",
+          "status": "complete"
+        },
+        {
+          "tool": "evidence_get",
+          "status": "complete"
+        },
+        {
+          "tool": "web_search",
+          "status": "empty"
+        },
+        {
+          "tool": "web_search",
+          "status": "empty"
+        },
+        {
+          "tool": "web_read",
+          "status": "complete"
+        }
+      ],
+      "http_requests": 5,
+      "http_errors": [],
+      "elapsed_seconds": 53.611
+    },
+    "id": "provider-broad-fixed",
+    "requests": [
+      {
+        "at": "2026-11-02T12:12:20.514591+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "tool_choice",
+          "tools"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 1800,
+        "stream": false,
+        "roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "message_characters": 18784,
+        "tools": [
+          "capabilities_find",
+          "web_read",
+          "web_archive",
+          "domain_lookup",
+          "evidence_get",
+          "evidence_graph",
+          "web_search",
+          "username_maigret",
+          "username_blackbird",
+          "username_social_analyzer",
+          "email_holehe",
+          "phone_metadata",
+          "telegram_public",
+          "instagram_public",
+          "ip_lookup",
+          "github_repository",
+          "threat_feodo",
+          "image_metadata",
+          "image_ocr",
+          "image_compare",
+          "map_geocode",
+          "map_overpass",
+          "map_wikimedia",
+          "github_profile",
+          "github_users",
+          "github_repositories",
+          "hn_profile",
+          "geoint_research",
+          "image_understand",
+          "map_panoramax",
+          "visual_geoint",
+          "geoclip_predict"
+        ]
+      },
+      {
+        "at": "2026-11-02T12:12:33.388818+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "tool_choice",
+          "tools"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 1800,
+        "stream": false,
+        "roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "tool",
+          "tool"
+        ],
+        "message_characters": 26191,
+        "tools": [
+          "capabilities_find",
+          "web_read",
+          "web_archive",
+          "domain_lookup",
+          "evidence_get",
+          "evidence_graph",
+          "web_search",
+          "username_maigret",
+          "username_blackbird",
+          "username_social_analyzer",
+          "email_holehe",
+          "phone_metadata",
+          "telegram_public",
+          "instagram_public",
+          "ip_lookup",
+          "github_repository",
+          "threat_feodo",
+          "image_metadata",
+          "image_ocr",
+          "image_compare",
+          "map_geocode",
+          "map_overpass",
+          "map_wikimedia",
+          "github_profile",
+          "github_users",
+          "github_repositories",
+          "hn_profile",
+          "geoint_research",
+          "image_understand",
+          "map_panoramax",
+          "visual_geoint",
+          "geoclip_predict"
+        ]
+      },
+      {
+        "at": "2026-11-02T12:12:38.504401+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "tool_choice",
+          "tools"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 1800,
+        "stream": false,
+        "roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "tool",
+          "tool"
+        ],
+        "message_characters": 25805,
+        "tools": [
+          "capabilities_find",
+          "web_read",
+          "web_archive",
+          "domain_lookup",
+          "evidence_get",
+          "evidence_graph",
+          "web_search",
+          "username_maigret",
+          "username_blackbird",
+          "username_social_analyzer",
+          "email_holehe",
+          "phone_metadata",
+          "telegram_public",
+          "instagram_public",
+          "ip_lookup",
+          "github_repository",
+          "threat_feodo",
+          "image_metadata",
+          "image_ocr",
+          "image_compare",
+          "map_geocode",
+          "map_overpass",
+          "map_wikimedia",
+          "github_profile",
+          "github_users",
+          "github_repositories",
+          "hn_profile",
+          "geoint_research",
+          "image_understand",
+          "map_panoramax",
+          "visual_geoint",
+          "geoclip_predict"
+        ]
+      },
+      {
+        "at": "2026-11-02T12:12:47.114998+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "tool_choice",
+          "tools"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 1800,
+        "stream": false,
+        "roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "tool",
+          "tool"
+        ],
+        "message_characters": 26719,
+        "tools": [
+          "capabilities_find",
+          "web_read",
+          "web_archive",
+          "domain_lookup",
+          "evidence_get",
+          "evidence_graph",
+          "web_search",
+          "username_maigret",
+          "username_blackbird",
+          "username_social_analyzer",
+          "email_holehe",
+          "phone_metadata",
+          "telegram_public",
+          "instagram_public",
+          "ip_lookup",
+          "github_repository",
+          "threat_feodo",
+          "image_metadata",
+          "image_ocr",
+          "image_compare",
+          "map_geocode",
+          "map_overpass",
+          "map_wikimedia",
+          "github_profile",
+          "github_users",
+          "github_repositories",
+          "hn_profile",
+          "geoint_research",
+          "image_understand",
+          "map_panoramax",
+          "visual_geoint",
+          "geoclip_predict"
+        ]
+      },
+      {
+        "at": "2026-11-02T12:12:49.766874+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "stream_options"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 8192,
+        "stream": true,
+        "roles": [
+          "system",
+          "user"
+        ],
+        "message_characters": 9564,
+        "tools": []
+      }
+    ]
+  },
+  {
+    "summary": {
+      "scenario": "invalid",
+      "live": true,
+      "user_history_read": false,
+      "source_keys_used": false,
+      "intentional_invalid_control": true,
+      "status": "error",
+      "error_code": "invalid_request",
+      "http_status": 400,
+      "diagnostic": {
+        "origin": "provider",
+        "http_status": 400,
+        "cause": "unspecified",
+        "parameter": "messages",
+        "request_parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream"
+        ],
+        "response_body_sha256": "cb0c942daeb55efa686b9738e5916a8b4254d4c8d3a6b0a45635063ba842cefa",
+        "response_bytes_observed": 134,
+        "response_truncated": false
+      },
+      "http_requests": 1,
+      "http_errors": [
+        400
+      ],
+      "elapsed_seconds": 0.961
+    },
+    "id": "provider-invalid-control",
+    "requests": {
+      "at": "2026-11-02T12:14:07.928774+05:00",
+      "http_status": 400,
+      "parameter_names": [
+        "max_tokens",
+        "messages",
+        "model",
+        "stream"
+      ],
+      "model": "deepseek-v4-flash",
+      "max_tokens": 1,
+      "stream": false,
+      "roles": [],
+      "message_characters": 0,
+      "tools": [],
+      "error_body_sha256": "cb0c942daeb55efa686b9738e5916a8b4254d4c8d3a6b0a45635063ba842cefa",
+      "controlled_public_error_body": "{\"error\":{\"message\":\"Request body must include a non-empty messages array.\",\"type\":\"invalid_request_error\",\"code\":\"missing_messages\"}}"
+    }
+  },
+  {
+    "summary": {
+      "scenario": "catalog",
+      "live": true,
+      "user_history_read": false,
+      "source_keys_used": false,
+      "bound_tool_count": 20,
+      "status": "completed",
+      "stop_reason": null,
+      "evidence_count": 0,
+      "answer_characters": 1646,
+      "api_error": null,
+      "executions": [
+        {
+          "tool": "capabilities_find",
+          "status": "complete"
+        },
+        {
+          "tool": "capabilities_find",
+          "status": "complete"
+        }
+      ],
+      "http_requests": 2,
+      "http_errors": [],
+      "elapsed_seconds": 15.622
+    },
+    "id": "tool-catalog-live",
+    "requests": [
+      {
+        "at": "2026-11-02T12:14:17.524397+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "tool_choice",
+          "tools"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 1800,
+        "stream": false,
+        "roles": [
+          "system",
+          "user"
+        ],
+        "message_characters": 13233,
+        "tools": [
+          "capabilities_find",
+          "evidence_get",
+          "evidence_graph",
+          "web_read",
+          "web_search",
+          "web_archive",
+          "username_maigret",
+          "username_blackbird",
+          "username_social_analyzer",
+          "github_profile",
+          "github_users",
+          "github_repositories",
+          "hn_search",
+          "hn_profile",
+          "openlibrary_search",
+          "wikipedia_search",
+          "x_profile",
+          "steam_profile",
+          "steam_aliases",
+          "steam_friends"
+        ]
+      },
+      {
+        "at": "2026-11-02T12:14:22.569085+05:00",
+        "http_status": 200,
+        "parameter_names": [
+          "max_tokens",
+          "messages",
+          "model",
+          "stream",
+          "tool_choice",
+          "tools"
+        ],
+        "model": "deepseek-v4-flash",
+        "max_tokens": 1800,
+        "stream": false,
+        "roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "tool"
+        ],
+        "message_characters": 20145,
+        "tools": [
+          "capabilities_find",
+          "x_profile",
+          "instagram_public",
+          "steam_friends",
+          "steam_aliases",
+          "steam_profile",
+          "evidence_get",
+          "evidence_graph",
+          "web_read",
+          "web_search",
+          "web_archive",
+          "username_maigret",
+          "username_blackbird",
+          "username_social_analyzer",
+          "github_profile",
+          "github_users",
+          "github_repositories",
+          "hn_search",
+          "hn_profile",
+          "openlibrary_search",
+          "wikipedia_search"
+        ]
+      }
+    ]
+  }
+]

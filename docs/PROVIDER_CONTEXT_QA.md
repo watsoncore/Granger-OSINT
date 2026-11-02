@@ -42,4 +42,34 @@ The observed broad failure is local: the registry can select more than 40
 definitions while DeepSeekClient rejects more than 40. It does not establish
 the cause of the user's historical HTTP 400. The controlled site request did
 not reproduce that HTTP error. Runtime negotiation and safe provider error
-diagnostics are the next stage; no guessed provider limitation is asserted.
+diagnostics were subsequently implemented; no guessed provider limitation is asserted.
+
+## Binding and diagnosis fix
+
+At most 32 tool definitions are bound at a time. Literal targets and discovered
+operations take priority. `capabilities_find` searches the actual registry,
+reports local readiness/last execution and makes up to eight matching ready
+operations available on the next turn. This is operational progress, not new
+evidence. Local-only restrictions, source approval and typed input checks apply.
+Selection persists in the investigation checkpoint, then resets for a new run.
+
+The same broad live control now sent five actual HTTP requests, all 200,
+preserved 12 evidence records and produced a report in 53.611 s. It stopped
+at no_progress with partial source coverage; this is gateway validation, not
+a claim that all site research is complete. Bound definitions: 32.
+A natural Steam-readiness question caused two real capabilities_find calls,
+two HTTP 200 responses and zero invented evidence (15.622 s).
+
+An intentionally invalid messages-type control received actual HTTP 400:
+`Request body must include a non-empty messages array.` The provider returned
+type invalid_request_error and code missing_messages. This deliberately invalid
+control is **not** the historical voin-cs.kz failure. Its receipt includes exact
+safe response body, parameter names, status, timestamp and SHA-256.
+
+Production errors retain a bounded body hash and allowlisted parameter/cause;
+they never retain arbitrary echoed prompts, keys or raw error text. Only an
+explicit unsupported `stream_options` response can cause one corrected retry,
+removing optional usage statistics. Tools, tool_choice, model, message protocol
+and token limits are not silently removed. Other errors are not retried by this
+negotiator. 90 provider/protocol fixtures and 160 registry/contract/context
+fixtures passed. Final native EXE verification remains outstanding.
