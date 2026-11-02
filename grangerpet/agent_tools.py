@@ -26,6 +26,7 @@ from .engine.readiness import runtime_readiness
 from .tool_contracts import ToolContractError, validate_outcome, log_contract, execution_status
 from .download_budget import DownloadBudget, DownloadLimit, CURRENT as DOWNLOAD_BUDGET
 from .telegram_public import INPUT_SCHEMA as _TELEGRAM_INPUT
+from .socmint_public import PROFILE_SCHEMA as _SOCMINT_INPUT
 from .engine.blockchain_contracts import INPUT_SCHEMA as _BLOCKCHAIN_INPUT,policy as blockchain_policy
 
 
@@ -54,7 +55,9 @@ _SPECS = (
     ToolSpec("blockchain_gansar", "blockchain", "blockchain", "address", "Gansar: реальные profile/balances/assets/transactions/NFT/identity/contracts/labels/attribution/trace и сохранённый cached результат.11 сетей с разным покрытием; EVM неоднозначен. ENS/TON DNS и NFT там, где реализованы. Режим управляет временем/пагинацией; ошибки провайдеров сохраняются. Имена/метки не устанавливают личность.", max_length=200,input_schema=_BLOCKCHAIN_INPUT,execution_mode='LOCAL_ENGINE'),
     ToolSpec("web_archive", "wayback", "web", "url", "Wayback: публичные архивные снимки конкретной HTTP(S)-страницы. Только публичные сайты, без обхода доступа.", max_length=1000),
     ToolSpec("telegram_public", "telegram_preview", "telegram", "username", "Telegram: публичные метаданные и доступное превью публикаций точного имени/URL без сессии. Тип объекта проверяется по содержимому, владелец не угадывается. Дополнительный access_mode=authorized использует прежнюю собственную сессию только после явного подтверждения.", input_schema=_TELEGRAM_INPUT, execution_mode='PERMITTED_HTTP_PARSER', documentation_url='https://telegram.org/faq_channels'),
-    ToolSpec("vk_public", "vk", "vk", "username", "VK через существующий разрешённый API-токен: публичный профиль по точному идентификатору. Требуется явное подтверждение пользователя.", True, 64),
+    ToolSpec('vk_public','vk_public_page','vk','target','VK: разрешённое публичное чтение профиля, сообщества или wall-публикации без токена. Метаданные, avatar и видимые ссылки; robots/login/challenge дают конкретный отказ без обхода.',input_schema=_SOCMINT_INPUT,execution_mode='PERMITTED_HTTP_PARSER',documentation_url='https://vk.com/terms',category='socmint'),
+    ToolSpec('vk_authorized','vk','vk','username','Optional VK API через собственный сохранённый токен; требуется отдельное подтверждение. Не базовый публичный путь.',True,64),
+    ToolSpec('tiktok_public_profile','tiktok_embed','tiktok','target','TikTok @username или public video URL: документированный oEmbed JSON без ключа. Возвращает только наблюдённые поля; полные counters/userId/secUid/region/creation не гарантированы. Не путать video ID и user ID; не извлекать их по догадке.',input_schema=_SOCMINT_INPUT,execution_mode='PUBLIC_API_NO_KEY',documentation_url='https://developers.tiktok.com/docs/en/embed-creator-profiles',category='socmint'),
     ToolSpec("instagram_public", "instagram", "instagram", "username", "Instagram: доступный публичный профиль по точному имени, без обхода авторизации. Доступ зависит от ограничений сервиса; требуется подтверждение.", True, 64),
     ToolSpec("web_search", "web_search", "dork", "query", "Поиск индексируемых публичных упоминаний: реальные URL, заголовки и фрагменты. Отдельный веб-поиск, не проверка регистрации и не выдуманная выдача.", max_length=300),
     ToolSpec("web_read", "web_read", "web", "url", "Непосредственно прочитать найденную публичную страницу: основной текст, фрагмент, заголовки, метаданные, таблицы, JSON-LD и связанные ссылки. Это прямое чтение, не сниппет поисковика. Только URL из реальных находок, ссылок прочитанных страниц или явно указанные пользователем; глубина и число страниц ограничены.", max_length=2000),
@@ -235,7 +238,7 @@ class ToolRegistry:
             if spec is None or spec.requires_approval:
                 continue
             value = target.identifier
-            if name == 'telegram_public' or spec.argument == 'url' and target.canonical_url:
+            if name in ('telegram_public','vk_public','tiktok_public_profile') or spec.argument == 'url' and target.canonical_url:
                 value = target.canonical_url
             args = {spec.argument: value}
             if target.properties.get('blockchain_operation'):args['operation']=target.properties['blockchain_operation']
@@ -263,6 +266,10 @@ class ToolRegistry:
 
     def canonical_arguments(self, name, args):
         from .investigation_progress import normalized_arguments
+        if name in ('vk_public','tiktok_public_profile') and isinstance(args,dict):
+            from .socmint_targets import vk,tiktok
+            try:args={**args,'target':(vk if name=='vk_public' else tiktok)(args.get('target'))['canonical_url']}
+            except (TypeError,ValueError):pass
         if name in _BROWSER_INPUTS:
             # Browser reads/actions depend on current page state. Ordinary
             # tool caching must not replay a pre-navigation DOM snapshot.
@@ -477,6 +484,8 @@ class ToolRegistry:
             base.update(available=True,state='unverified',reason='Публичный read-only Wikibase API без ключа; сеть проверяется выполнением.')
         elif spec.source == 'steam_public':
             base.update(available=True,state='unverified',reason='Проверенный SteamRecon subset в отдельном ограниченном процессе; публичный доступ проверяется запросом, не импортом.')
+        elif spec.source in ('vk_public_page','tiktok_embed'):
+            base.update(available=True,state='unverified',reason='Публичный путь без ключа; наличие страницы, доступ и поля подтверждаются только выполнением.')
         elif spec.source=='browser_agent':
             from .browser_session import readiness
             base.update(readiness())
@@ -669,6 +678,9 @@ class ToolRegistry:
         if spec.input_schema is not None:
             from .tool_inputs import validate_object
             arguments=validate_object(args,spec.input_schema)
+            if spec.source in ('vk_public_page','tiktok_embed'):
+                from .socmint_targets import vk,tiktok
+                arguments['target']=(vk if spec.source=='vk_public_page' else tiktok)(arguments['target'])['canonical_url']
             if spec.source=='browser_agent':
                 if spec.name=='browser_navigate':
                     from .agent_browser import public_url
@@ -930,7 +942,7 @@ class ToolRegistry:
             for raw in outcome.get("results", [])[:limit]:
                 receive(raw)
             status = str(outcome.get("status", "error"))
-            if spec.source in ('blockchain','network_public') and isinstance(outcome.get('source_diagnostics'),(dict,list)):
+            if spec.source in ('blockchain','network_public','vk_public_page') and isinstance(outcome.get('source_diagnostics'),(dict,list)):
                 envelope['source_diagnostics']=redact(outcome['source_diagnostics'],self._redactions)
                 envelope['from_saved_data']=outcome.get('from_saved_data') is True
             if spec.source=='network_public':
@@ -984,6 +996,14 @@ class ToolRegistry:
 
     def _structured_operation(self,spec,args,cancelled,deadline,approved,on_result=None):
         """Repository-owned dispatch, without model-defined handlers or paths."""
+        if spec.source=='vk_public_page':
+            from .socmint_public import vk_public
+            def browser_read(url):
+                return self._structured_operation(_BY_NAME['browser_navigate'],{'url':url},cancelled,deadline,approved,on_result=None)
+            return vk_public(args['target'],reader=self.web_reader,cancel_event=cancelled,deadline=deadline,browser_read=browser_read)
+        if spec.source=='tiktok_embed':
+            from .socmint_public import tiktok_public
+            return tiktok_public(args['target'],cancel_event=cancelled,deadline=deadline)
         if spec.source=='wikidata':
             from .geoint.wikidata import execute
             return execute(args,self.settings,cancelled)
@@ -996,7 +1016,7 @@ class ToolRegistry:
             response=self._browser.execute(action,args,cancel_event=cancelled,deadline=deadline)
             if not response.get('ok'):
                 code=response.get('error_code','browser_operation_failed')
-                outcome=_envelope(spec.name,str(args),status='cancelled' if code=='browser_cancelled' else 'timeout' if code=='browser_timeout' else 'blocked' if code in ('consequential_or_unknown_button_disabled','search_fields_only') else 'error',error_code=code)
+                outcome=_envelope(spec.name,str(args),status='cancelled' if code=='browser_cancelled' else 'timeout' if code=='browser_timeout' else 'blocked' if code in ('consequential_or_unknown_button_disabled','search_fields_only','robots_disallowed') else 'error',error_code=code)
                 outcome['source_diagnostics']=response.get('robots_checks',[])
                 if code=='robots_disallowed':outcome.setdefault('limitations',[]).append('Robots.txt запрещает этот путь либо её разрешение не удалось подтвердить. Подробность в диагностике источника; обход не выполняется.')
                 return outcome
@@ -1011,6 +1031,7 @@ class ToolRegistry:
                 'links':links[:60],'elements':data.get('elements',[]),'snapshot_id':response.get('snapshot_id'),
                 'metadata':{str(item.get('name')):str(item.get('content','')) for item in data.get('metadata',[]) if isinstance(item,dict) and item.get('name')},
                 'tables':data.get('tables',[]),'json_ld':data.get('json_ld',[]),
+                'render_wait':data.get('render_wait'),
                 'viewport':data.get('viewport'),'screenshot_sha256':response.get('screenshot_sha256'),
                 'browser_action':action,'visual_access':response.get('visual_access'),'untrusted_source_data':True,
                 'workflow_state':response.get('workflow_state'),'action_effect':response.get('action_effect')}

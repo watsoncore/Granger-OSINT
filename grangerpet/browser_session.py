@@ -57,6 +57,10 @@ class BrowserSession:
         if not python or not worker.is_file():raise ValueError('browser_runtime_missing')
         self.stop_event.clear();self.messages=queue.Queue()
         env={k:v for k,v in os.environ.items() if not re.search(r'KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL|GRANGERPET|PYTHONPATH|PYTHONHOME|PROXY|QTWEBENGINE',k,re.I)}
+        import certifi,hashlib
+        bundle=Path(certifi.where()).resolve()
+        env['GRANGER_RESEARCH_CA_BUNDLE']=str(bundle)
+        env['GRANGER_RESEARCH_CA_SHA256']=hashlib.sha256(bundle.read_bytes()).hexdigest()
         from .engine.runtime import _external_spawn,_WindowsJob
         self.process=_external_spawn([str(python),'-X','utf8','-I',str(worker)],stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,env=env,cwd=worker.parent,

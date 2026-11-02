@@ -52,6 +52,18 @@ def test_robots_uses_literal_own_proxy_and_keeps_tls_tunnel(monkeypatch):
     assert sum(call[0]=='connect' for call in calls)==1
 
 
+def test_worker_ca_bundle_is_integrity_checked_without_disabling_verification(tmp_path,monkeypatch):
+    import hashlib,ssl,certifi
+    from pathlib import Path
+    from grangerpet.browser_proxy import worker_tls_context
+    monkeypatch.setenv('GRANGER_RESEARCH_CA_BUNDLE',certifi.where())
+    monkeypatch.setenv('GRANGER_RESEARCH_CA_SHA256',hashlib.sha256(Path(certifi.where()).read_bytes()).hexdigest())
+    context=worker_tls_context()
+    assert context.verify_mode==ssl.CERT_REQUIRED and context.check_hostname
+    monkeypatch.setenv('GRANGER_RESEARCH_CA_SHA256','0'*64)
+    with pytest.raises(ValueError,match='changed_browser_ca_bundle'):worker_tls_context()
+
+
 def test_proxy_refuses_private_connect_and_post_without_egress(monkeypatch):
     from grangerpet import browser_proxy as proxy
     monkeypatch.setattr(proxy.socket,'create_connection',lambda *a,**k:pytest.fail('Forbidden egress attempted'))

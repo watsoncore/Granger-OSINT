@@ -53,6 +53,7 @@ class SessionIntent:
             if kind in ('infrastructure_asset','network_range','autonomous_system','domain','website'):
                 scoped |= bool(re.search(r'(?iu)\bip\b|\basn\b|локаци|местополож|какая.{0,15}стран|кто.{0,15}оператор|какой.{0,15}префикс|(?:его|этот|этого).{0,15}домен',text))
             if self.target.get('platform')=='steam':scoped |= bool(re.search(r'(?iu)инвентар|скин|предмет|стоимост|цены|аватар',text))
+            if self.target.get('platform') in ('vk','tiktok'):scoped |= bool(re.search(r'(?iu)сч[её]тчик|подписчик|биограф|дата.{0,15}создан|никнейм|аватар|публикаци|пост',text))
             if kind=='image':scoped |= bool(re.search(r'(?iu)где|место|локаци|координат|фото|изображени|геометри|рельеф|сравни|geoint|geoclip|waypoint',text))
         research=bool(images or explicit_research(text) or scoped)
         context={'conversation_id':conversation_id,'target':self.target} if research and scoped else None

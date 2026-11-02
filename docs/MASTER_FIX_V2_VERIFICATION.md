@@ -44,3 +44,20 @@ Runtime negotiation снимает только явно отвергнутый 
 Steam вызвал реальный каталог. Намеренно неправильный messages дал проверенный
 HTTP 400 с безопасным body receipt. 90 provider/protocol и 160 registry fixtures
 прошли. Это source/live QA; финальная V2 EXE ещё не собрана.
+
+## Этап 4 — публичные VK/TikTok и браузер
+
+Публичный VK отделён от optional авторизованного API. Нормализация aliases,
+wall/club/public, дедупликация аргументов, реальные OG/публикации вместо HTTP 200.
+Установлена причина браузерного TLS-отказа (verify 19); worker использует тот же
+проверяемый CA bundle, без отключения TLS и изменения runtime/Windows.
+Два VK-контроля вернули заглушки/JS-shell, два реальных архивных снимка — login;
+публичные поля этих страниц не считаются полученными.
+
+TikTok подключён через документированный публичный oEmbed, реальный профиль и
+видео вернули HTTP 200. Полные counters/avatar/userId/secUid/creation не предоставлены
+и не выдумываются. Natural-language → real agent → tool → evidence → report также
+проверен. В existing SourceDialog добавлены поля и JSON. 206 Python fixtures,
+33 frontend tests, TypeScript — passed. Браузерный live flow: форма, переход,
+25 строк, screenshot/OCR, отмена без оставшихся процессов. Полный протокол и
+ограничения: [SOCMINT](SOCMINT_VK_TIKTOK_STEAM.md). Steam/финальная EXE — далее.

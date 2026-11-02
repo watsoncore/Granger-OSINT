@@ -11,7 +11,7 @@ import os
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from browser_policy import public_url,search_text,SENSITIVE
-from browser_proxy import PublicProxy,RobotsPolicy
+from browser_proxy import PublicProxy,RobotsPolicy,worker_tls_context
 
 SNAPSHOT=r'''() => {
   const visible=e=>{const r=e.getBoundingClientRect();return !!(r.width&&r.height)&&getComputedStyle(e).visibility!=='hidden'};
@@ -47,13 +47,16 @@ def main():
                 if action not in ('navigate','snapshot','screenshot','click','type','scroll','back'):raise ValueError('unknown_browser_action')
                 if browser is None:
                     from playwright.sync_api import sync_playwright
-                    proxy=PublicProxy();robots=RobotsPolicy(proxy);playwright=sync_playwright().start()
+                    tls=worker_tls_context()
+                    proxy=PublicProxy();robots=RobotsPolicy(proxy,tls_context=tls);playwright=sync_playwright().start()
                     browser=playwright.chromium.launch(channel='msedge',headless=True,
                         proxy={'server':'http://127.0.0.1:'+str(proxy.server_address[1]),'bypass':'<-loopback>'},
                         args=['--disable-quic','--disable-background-networking','--force-webrtc-ip-handling-policy=disable_non_proxied_udp'])
+                    identity=browser.new_browser_cdp_session()
+                    native_agent=identity.send('Browser.getVersion')['userAgent'];identity.detach()
                     context=browser.new_context(viewport={'width':1024,'height':720},service_workers='block',
                         accept_downloads=False,permissions=[],ignore_https_errors=False,
-                        user_agent='Granger-OSINT/3.1 public research (https://github.com/watsoncore/Granger-OSINT)')
+                        user_agent=native_agent+' Granger-OSINT/3.1 public research (https://github.com/watsoncore/Granger-OSINT)')
                     def route(request_route):
                         req=request_route.request
                         try:
@@ -98,6 +101,16 @@ def main():
                     page.mouse.wheel(0,delta)
                 elif action=='back':page.go_back(wait_until='domcontentloaded')
                 page.wait_for_timeout(350)
+                render_wait='not_needed'
+                if action in ('navigate','back','click','snapshot'):
+                    # Some public SPAs initially contain only zero-width loading
+                    # placeholders. Wait for actual text with a fixed upper bound.
+                    try:
+                        page.wait_for_function("() => ((document.querySelector('main')||document.body)?.innerText||'').replace(/[\\s\\u200b-\\u200f\\ufeff]/g,'').length>40",timeout=6000)
+                        render_wait='content_ready'
+                    except Exception as error:
+                        if 'Timeout' not in type(error).__name__:raise
+                        render_wait='bounded_wait_expired'
                 public_url(page.url)
                 if not robots.allowed(page.url):raise ValueError('robots_disallowed')
                 for handle in handles:
@@ -110,6 +123,7 @@ def main():
                 secondary=[h for h in page.query_selector_all('input,button,a[href],textarea,select,[role="button"]') if in_view(h)][:25 if primary else 100]
                 handles=primary+secondary
                 last=page.evaluate(SNAPSHOT)
+                last['render_wait']=render_wait
                 # Store the map using metadata from the same retained handles.
                 last['elements']=[]
                 for index,handle in enumerate(handles):

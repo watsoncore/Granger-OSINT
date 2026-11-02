@@ -6,6 +6,10 @@ import threading
 import time
 import http.client
 import ssl
+import re
+import hashlib
+import os
+from pathlib import Path
 from urllib.robotparser import RobotFileParser
 from urllib.parse import urlsplit
 try:from .browser_policy import public_endpoint,public_url
@@ -26,19 +30,31 @@ class PublicProxy(socketserver.ThreadingTCPServer):
     def stop(self):self.shutdown();self.server_close()
 
 
+def worker_tls_context():
+    """Use the host's pinned public CA bundle, with full TLS verification."""
+    path=os.environ.get('GRANGER_RESEARCH_CA_BUNDLE','')
+    digest=os.environ.get('GRANGER_RESEARCH_CA_SHA256','')
+    if not path and not digest:return ssl.create_default_context()
+    if not path or not re.fullmatch(r'[a-f0-9]{64}',digest):raise ValueError('invalid_browser_ca_bundle')
+    source=Path(path)
+    if not source.is_file() or not 0<source.stat().st_size<2_000_000:raise ValueError('invalid_browser_ca_bundle')
+    if hashlib.sha256(source.read_bytes()).hexdigest()!=digest:raise ValueError('changed_browser_ca_bundle')
+    return ssl.create_default_context(cafile=str(source))
+
+
 class RobotsPolicy:
-    def __init__(self,proxy):self.proxy=proxy;self.cache={};self.checks=[]
+    def __init__(self,proxy,*,tls_context=None):self.proxy=proxy;self.cache={};self.checks=[];self.tls_context=tls_context
     def allowed(self,url):
         url=public_url(url);parts=urlsplit(url);origin=parts.scheme+'://'+parts.netloc
         if origin not in self.cache:
             endpoint=origin+'/robots.txt';reader=RobotFileParser(endpoint);status='unavailable'
-            connection=None
+            connection=None;diagnostic={}
             try:
                 # urllib's ProxyHandler still consults Windows proxy-bypass
                 # settings. Connect to our literal proxy directly instead;
                 # HTTPS CONNECT retains normal certificate/hostname validation.
                 if parts.scheme=='https':
-                    connection=http.client.HTTPSConnection('127.0.0.1',self.proxy.server_address[1],timeout=8)
+                    connection=http.client.HTTPSConnection('127.0.0.1',self.proxy.server_address[1],timeout=8,context=self.tls_context)
                     connection.set_tunnel(parts.hostname,443)
                     target='/robots.txt'
                 else:
@@ -52,12 +68,16 @@ class RobotsPolicy:
                     reader.parse(body.decode('utf-8','replace').splitlines());status='parsed'
                 elif response.status in (404,410):reader.parse([]);status='absent'
                 else:reader.disallow_all=True;status='http_'+str(response.status)
-            except ssl.SSLError:reader.disallow_all=True;status='tls_error'
+            except ssl.SSLError as error:
+                reader.disallow_all=True;status='tls_error'
+                code=getattr(error,'verify_code',None);reason=getattr(error,'reason','')
+                if type(code) is int:diagnostic['tls_verify_code']=code
+                if isinstance(reason,str) and re.fullmatch(r'[A-Z0-9_]{1,80}',reason):diagnostic['tls_reason']=reason
             except TimeoutError:reader.disallow_all=True;status='timeout'
             except (OSError,ValueError,http.client.HTTPException):reader.disallow_all=True
             finally:
                 if connection:connection.close()
-            self.cache[origin]=reader;self.checks.append({'origin':origin,'status':status})
+            self.cache[origin]=reader;self.checks.append({'origin':origin,'status':status,**diagnostic})
         return self.cache[origin].can_fetch('Granger-OSINT',url)
 
 

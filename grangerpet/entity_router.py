@@ -87,6 +87,18 @@ def route(value):
             return Target('steam_profile',identity.steamid64 if identity else url,'steam',url,
                 {'identity_verified':False},('steam_profile','steam_aliases','steam_friends'))
         except (ValueError,TypeError):return None
+    if re.match(r'(?i)^(?:https?://)?(?:(?:www|m)\.)?vk\.(?:com|ru)/',value):
+        from .socmint_targets import vk
+        try:target=vk(value)
+        except (ValueError,TypeError):return None
+        return Target('public_post' if target['kind']=='post' else 'community' if target['kind']=='community' else 'social_profile',
+            target['identifier'],'vk',target['canonical_url'],{**target,'identity_verified':False},('vk_public','web_read','web_archive'))
+    if re.match(r'(?i)^(?:https?://)?(?:(?:www|m)\.)?tiktok\.com/',value):
+        from .socmint_targets import tiktok
+        try:target=tiktok(value)
+        except (ValueError,TypeError):return None
+        return Target('public_post' if target['kind']=='video' else 'social_profile',target['username'],'tiktok',
+            target['canonical_url'],target,('tiktok_public_profile',))
     if re.match(r'^(?:https?://|(?:www\.)?(?:t\.me|telegram\.me|github\.com|x\.com|twitter\.com|vk\.com|instagram\.com)/)', value, re.I):
         url = canonical_url(value if '://' in value else 'https://' + value)
         if not url:
@@ -156,6 +168,10 @@ def route_goal(text, attachments=()):
     values += re.findall(r'(?<![\w@/.])(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61})\.)+[A-Za-z]{2,24}(?![\w/])', text)
     values += re.findall(r'[A-Za-z0-9.!#$%&\'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}', text)
     values += re.findall(r'(?<![\w./])@[A-Za-z][A-Za-z0-9_]{3,63}', text)
+    if re.search(r'(?iu)tiktok|тикток',text):
+        values += ['https://www.tiktok.com/'+name.rstrip('.') for name in re.findall(r'(?<![\w./])@[A-Za-z0-9_][A-Za-z0-9_.]{1,23}',text)]
+    if re.search(r'(?iu)\bvk\b|вконтакте|\bвк\b',text):
+        values += ['https://vk.com/'+name.lstrip('@') for name in re.findall(r'(?<![\w./])(?:@[A-Za-z][A-Za-z0-9_]{3,63}|(?:id|club|public)[1-9]\d*)(?!\w)',text)]
     values += re.findall(r'(?<![\d.])[+-]?\d{1,2}\.\d+\s*,\s*[+-]?\d{1,3}\.\d+(?![\d.])', text)
     values += [value for value in attachments if isinstance(value, str)]
     targets = {}

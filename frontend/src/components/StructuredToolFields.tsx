@@ -2,6 +2,7 @@ import type { InputSchema } from '../types'
 import './structured-tools.css'
 
 export const parameterLabels: Record<string, string> = {
+  target: 'Профиль или публичная ссылка', names: 'Названия операций',
   value: 'URL или идентификатор', datetime_utc: 'Дата и время с часовым поясом', object_height: 'Высота объекта', shadow_length: 'Длина тени',
   sun_altitude_deg: 'Высота Солнца над горизонтом, °', tolerance_fraction: 'Относительная погрешность', grid_step_deg: 'Шаг координатной сетки, °',
   bounds: 'Область [запад, юг, восток, север]', max_cells: 'Максимум ячеек в результате', candidates: 'Географические кандидаты', titles: 'Тексты должностей',

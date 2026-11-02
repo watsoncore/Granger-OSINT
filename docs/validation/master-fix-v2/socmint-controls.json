@@ -1,0 +1,266 @@
+[
+  {
+    "summary": [
+      {
+        "platform": "vk",
+        "target": "https://vk.com/apiclub",
+        "status": "auth_required",
+        "error_code": "vk_login_gate",
+        "evidence_count": 0,
+        "fields_present": [],
+        "http_requests": 4,
+        "seconds": 2.746,
+        "limitations": [
+          "Этот URL вернул вход/ограничение либо не подтвердил публичный объект; имя и поля профиля не извлекались."
+        ]
+      },
+      {
+        "platform": "vk",
+        "target": "https://vk.com/vk",
+        "status": "auth_required",
+        "error_code": "vk_login_gate",
+        "evidence_count": 0,
+        "fields_present": [],
+        "http_requests": 2,
+        "seconds": 1.433,
+        "limitations": [
+          "Этот URL вернул вход/ограничение либо не подтвердил публичный объект; имя и поля профиля не извлекались."
+        ]
+      },
+      {
+        "platform": "tiktok",
+        "target": "@scout2015",
+        "status": "partial",
+        "error_code": null,
+        "evidence_count": 1,
+        "fields_present": [
+          [
+            "account_creation_status",
+            "author_name",
+            "author_url",
+            "canonical_url",
+            "capability",
+            "embed_product_id",
+            "embed_type",
+            "field_origin",
+            "identity_verified",
+            "input_kind",
+            "input_username",
+            "nickname",
+            "obtained_at",
+            "public_profile_url",
+            "query",
+            "source_endpoint",
+            "source_status",
+            "title",
+            "unavailable_fields_reason",
+            "uniqueId",
+            "verification"
+          ]
+        ],
+        "http_requests": 1,
+        "seconds": 1.031,
+        "limitations": [
+          "Публичный официальный oEmbed не гарантирует avatar/counters/userId/secUid/region/language/creation; null не означает ноль.",
+          "Автоматическое извлечение полного профиля из сайта не выполняется: общие условия TikTok запрещают scripts для сбора информации. Research/Display API требуют отдельного разрешённого доступа."
+        ]
+      },
+      {
+        "platform": "tiktok",
+        "target": "https://www.tiktok.com/@scout2015/video/6718335390845095173",
+        "status": "partial",
+        "error_code": null,
+        "evidence_count": 1,
+        "fields_present": [
+          [
+            "account_creation_status",
+            "canonical_url",
+            "capability",
+            "embed_product_id",
+            "embed_type",
+            "field_origin",
+            "identity_verified",
+            "input_kind",
+            "input_username",
+            "obtained_at",
+            "public_profile_url",
+            "query",
+            "source_endpoint",
+            "source_status",
+            "unavailable_fields_reason",
+            "verification",
+            "video_id"
+          ]
+        ],
+        "http_requests": 1,
+        "seconds": 0.907,
+        "limitations": [
+          "Публичный официальный oEmbed не гарантирует avatar/counters/userId/secUid/region/language/creation; null не означает ноль.",
+          "Автоматическое извлечение полного профиля из сайта не выполняется: общие условия TikTok запрещают scripts для сбора информации. Research/Display API требуют отдельного разрешённого доступа."
+        ]
+      }
+    ],
+    "id": "socmint-live"
+  },
+  {
+    "summary": [
+      {
+        "platform": "vk",
+        "target": "https://vk.com/apiclub",
+        "status": "blocked",
+        "error_code": "robots_disallowed",
+        "evidence_count": 0,
+        "fields_present": [],
+        "http_requests": 4,
+        "seconds": 4.135,
+        "source_diagnostics": [
+          {
+            "origin": "https://vk.com",
+            "status": "tls_error",
+            "tls_verify_code": 19,
+            "tls_reason": "CERTIFICATE_VERIFY_FAILED"
+          }
+        ],
+        "limitations": [
+          "Robots.txt запрещает этот путь либо её разрешение не удалось подтвердить. Подробность в диагностике источника; обход не выполняется.",
+          "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+        ]
+      },
+      {
+        "platform": "vk",
+        "target": "https://vk.com/vk",
+        "status": "blocked",
+        "error_code": "robots_disallowed",
+        "evidence_count": 0,
+        "fields_present": [],
+        "http_requests": 2,
+        "seconds": 2.869,
+        "source_diagnostics": [
+          {
+            "origin": "https://vk.com",
+            "status": "tls_error",
+            "tls_verify_code": 19,
+            "tls_reason": "CERTIFICATE_VERIFY_FAILED"
+          }
+        ],
+        "limitations": [
+          "Robots.txt запрещает этот путь либо её разрешение не удалось подтвердить. Подробность в диагностике источника; обход не выполняется.",
+          "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+        ]
+      }
+    ],
+    "id": "vk-tls-diagnosis"
+  },
+  {
+    "summary": {
+      "platform": "vk",
+      "target": "https://vk.com/apiclub",
+      "status": "blocked",
+      "error_code": "vk_challenge_or_unverified_content",
+      "evidence_count": 0,
+      "fields_present": [],
+      "http_requests": 4,
+      "seconds": 12.025,
+      "source_diagnostics": null,
+      "limitations": [
+        "Этот URL вернул вход/ограничение либо не подтвердил публичный объект; имя и поля профиля не извлекались.",
+        "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+      ]
+    },
+    "id": "vk-native-agent-render"
+  },
+  {
+    "summary": [
+      {
+        "tool": "web_archive",
+        "args": {
+          "url": "https://vk.com/apiclub",
+          "limit": 2
+        },
+        "status": "complete",
+        "count": 2,
+        "error_code": null,
+        "limitations": [
+          "Получены существующие архивные снимки. Новое архивирование не запускалось.",
+          "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+        ]
+      },
+      {
+        "tool": "web_search",
+        "args": {
+          "query": "site:vk.com/apiclub ВКонтакте API",
+          "limit": 3
+        },
+        "status": "empty",
+        "count": 0,
+        "error_code": null,
+        "limitations": [
+          "Поиск по документированным публичным источникам: hn_search, wikipedia_search, openlibrary_search. Это не полная выдача Google/всего интернета.",
+          "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+        ]
+      }
+    ],
+    "id": "vk-independent-controls"
+  },
+  {
+    "summary": [
+      {
+        "url": "https://web.archive.org/web/20110713092941/http://vk.com:80/apiclub",
+        "original_url": "http://vk.com:80/apiclub",
+        "snapshot_timestamp": "20110713092941",
+        "page_status": "auth_required",
+        "page_error": "login_form",
+        "verified_profile_content": false,
+        "profile_status": "auth_required",
+        "profile_error": null,
+        "limitations": [
+          "Вместо публичной страницы получена форма входа; авторизация не выполнялась. Сниппет поиска не заменяет текст страницы.",
+          "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+        ]
+      },
+      {
+        "url": "https://web.archive.org/web/20110822133437/http://vk.com:80/apiclub",
+        "original_url": "http://vk.com:80/apiclub",
+        "snapshot_timestamp": "20110822133437",
+        "page_status": "auth_required",
+        "page_error": "login_form",
+        "verified_profile_content": false,
+        "profile_status": "auth_required",
+        "profile_error": null,
+        "limitations": [
+          "Вместо публичной страницы получена форма входа; авторизация не выполнялась. Сниппет поиска не заменяет текст страницы.",
+          "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+        ]
+      }
+    ],
+    "id": "vk-archive-content-checked"
+  },
+  {
+    "summary": {
+      "scenario": "tiktok",
+      "live": true,
+      "user_history_read": false,
+      "source_keys_used": false,
+      "bound_tool_count": 15,
+      "status": "completed",
+      "stop_reason": null,
+      "evidence_count": 1,
+      "answer_characters": 2631,
+      "api_error": null,
+      "executions": [
+        {
+          "tool": "tiktok_public_profile",
+          "status": "partial"
+        },
+        {
+          "tool": "evidence_get",
+          "status": "complete"
+        }
+      ],
+      "http_requests": 3,
+      "http_errors": [],
+      "elapsed_seconds": 23.837
+    },
+    "id": "tiktok-agent-punctuation-fixed"
+  }
+]

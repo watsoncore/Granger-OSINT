@@ -120,6 +120,7 @@ def relevant_names(specs, task, records=()):
     if re.search(r'img_[a-f0-9]{64}|фото|изображени|geoclip|waypoint|geoint|геолокац',text):kinds.add('visual_geoint')
     if re.search(r'тень|тени|shadow|солнц|солнечн',text):kinds.add('geoint_geometry')
     if re.search(r'tiktok|тикток|хронолог|timestamp|время.*публикац',text):kinds.add('chronology')
+    if re.search(r'tiktok|тикток',text):kinds.add('tiktok')
     if re.search(r'должност|иерарх|организац|classification|classify',text):kinds.add('social_analytics')
     if re.search(r'граф|связ|отношени|соседн|повторя|graph|relation|neighbor',text):kinds.add('graph')
     if re.search(r'\bx\b|\bx\.com/|twitter\.com/|тв[иu]т|tweet|твиттер',text):kinds.update(('x_post','username'))
