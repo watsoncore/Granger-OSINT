@@ -1,0 +1,424 @@
+{
+  "at": "2026-11-02T15:04:42.651353+00:00",
+  "logical_bytes": 42633500519,
+  "allocated_bytes": 42943458992,
+  "read_errors": 0,
+  "method": "Windows FileStandardInfo.AllocationSize for named files. Hardlinks counted once for allocation. Same-size independent files compared by full SHA-256. Reparse directory targets skipped.",
+  "groups": {
+    "output": {
+      "files": 118240,
+      "logical_bytes": 16361855586,
+      "allocated_bytes": 16561701144,
+      "allocation_unknown": 0
+    },
+    "dist": {
+      "files": 481,
+      "logical_bytes": 14178182699,
+      "allocated_bytes": 14179137872,
+      "allocation_unknown": 0
+    },
+    ".toolenvs": {
+      "files": 66959,
+      "logical_bytes": 6241031851,
+      "allocated_bytes": 6306933824,
+      "allocation_unknown": 0
+    },
+    "build": {
+      "files": 224,
+      "logical_bytes": 4179564852,
+      "allocated_bytes": 4179973016,
+      "allocation_unknown": 0
+    },
+    ".venv": {
+      "files": 11635,
+      "logical_bytes": 771150389,
+      "allocated_bytes": 788638000,
+      "allocation_unknown": 0
+    },
+    ".git": {
+      "files": 957,
+      "logical_bytes": 293064123,
+      "allocated_bytes": 294748312,
+      "allocation_unknown": 0
+    },
+    "docs": {
+      "files": 381,
+      "logical_bytes": 233713932,
+      "allocated_bytes": 234493192,
+      "allocation_unknown": 0
+    },
+    "frontend": {
+      "files": 10690,
+      "logical_bytes": 162213062,
+      "allocated_bytes": 178727856,
+      "allocation_unknown": 0
+    },
+    "resources": {
+      "files": 202,
+      "logical_bytes": 58313915,
+      "allocated_bytes": 58710464,
+      "allocation_unknown": 0
+    },
+    "snoop-master": {
+      "files": 72,
+      "logical_bytes": 38753719,
+      "allocated_bytes": 38900568,
+      "allocation_unknown": 0
+    },
+    "Gansar-main": {
+      "files": 509,
+      "logical_bytes": 29142240,
+      "allocated_bytes": 30122960,
+      "allocation_unknown": 0
+    },
+    "grangerpet": {
+      "files": 427,
+      "logical_bytes": 17766520,
+      "allocated_bytes": 18632448,
+      "allocation_unknown": 0
+    },
+    "social-analyzer-main": {
+      "files": 64,
+      "logical_bytes": 15676617,
+      "allocated_bytes": 15787344,
+      "allocation_unknown": 0
+    },
+    "maigret-main": {
+      "files": 207,
+      "logical_bytes": 11099023,
+      "allocated_bytes": 11497584,
+      "allocation_unknown": 0
+    },
+    "tests": {
+      "files": 253,
+      "logical_bytes": 5334997,
+      "allocated_bytes": 5812224,
+      "allocation_unknown": 0
+    },
+    ".pytest_cache": {
+      "files": 5,
+      "logical_bytes": 4245518,
+      "allocated_bytes": 4252184,
+      "allocation_unknown": 0
+    },
+    "SteamRecon": {
+      "files": 209,
+      "logical_bytes": 4080840,
+      "allocated_bytes": 4406304,
+      "allocation_unknown": 0
+    },
+    "spiderfoot-master.zip": {
+      "files": 1,
+      "logical_bytes": 3982089,
+      "allocated_bytes": 3985408,
+      "allocation_unknown": 0
+    },
+    "phoneinfoga-master": {
+      "files": 155,
+      "logical_bytes": 3508464,
+      "allocated_bytes": 3775072,
+      "allocation_unknown": 0
+    },
+    "blackbird-main": {
+      "files": 81,
+      "logical_bytes": 2415924,
+      "allocated_bytes": 2575224,
+      "allocation_unknown": 0
+    },
+    "discordlookup-main.zip": {
+      "files": 1,
+      "logical_bytes": 2385483,
+      "allocated_bytes": 2387968,
+      "allocation_unknown": 0
+    },
+    "Telethon-1": {
+      "files": 258,
+      "logical_bytes": 2127237,
+      "allocated_bytes": 2568080,
+      "allocation_unknown": 0
+    },
+    "TokIntel-main.zip": {
+      "files": 1,
+      "logical_bytes": 2109820,
+      "allocated_bytes": 2113536,
+      "allocation_unknown": 0
+    },
+    "scripts": {
+      "files": 212,
+      "logical_bytes": 2023965,
+      "allocated_bytes": 2449856,
+      "allocation_unknown": 0
+    },
+    "instaloader-master": {
+      "files": 103,
+      "logical_bytes": 1740006,
+      "allocated_bytes": 1925888,
+      "allocation_unknown": 0
+    },
+    "Reconnaissance-main.zip": {
+      "files": 1,
+      "logical_bytes": 1260222,
+      "allocated_bytes": 1261568,
+      "allocation_unknown": 0
+    },
+    "theHarvester-4.11.1.zip": {
+      "files": 1,
+      "logical_bytes": 1116905,
+      "allocated_bytes": 1118208,
+      "allocation_unknown": 0
+    },
+    "vkbottle-master": {
+      "files": 310,
+      "logical_bytes": 1033618,
+      "allocated_bytes": 1579024,
+      "allocation_unknown": 0
+    },
+    "theHarvester-master.zip": {
+      "files": 1,
+      "logical_bytes": 948389,
+      "allocated_bytes": 950272,
+      "allocation_unknown": 0
+    },
+    "vk_api-master": {
+      "files": 131,
+      "logical_bytes": 904814,
+      "allocated_bytes": 1116408,
+      "allocation_unknown": 0
+    },
+    "steam-osint-main.zip": {
+      "files": 1,
+      "logical_bytes": 649529,
+      "allocated_bytes": 651264,
+      "allocation_unknown": 0
+    },
+    "Butcher-Tools-main.zip": {
+      "files": 1,
+      "logical_bytes": 576717,
+      "allocated_bytes": 577536,
+      "allocation_unknown": 0
+    },
+    "holehe-master": {
+      "files": 182,
+      "logical_bytes": 522584,
+      "allocated_bytes": 780472,
+      "allocation_unknown": 0
+    },
+    "test-output": {
+      "files": 3,
+      "logical_bytes": 333629,
+      "allocated_bytes": 339968,
+      "allocation_unknown": 0
+    },
+    "waybackpy-master": {
+      "files": 77,
+      "logical_bytes": 294487,
+      "allocated_bytes": 425264,
+      "allocation_unknown": 0
+    },
+    "pytok-master.zip": {
+      "files": 1,
+      "logical_bytes": 163277,
+      "allocated_bytes": 163840,
+      "allocation_unknown": 0
+    },
+    "VALIDATION.md": {
+      "files": 1,
+      "logical_bytes": 75941,
+      "allocated_bytes": 77824,
+      "allocation_unknown": 0
+    },
+    "README.md": {
+      "files": 1,
+      "logical_bytes": 65828,
+      "allocated_bytes": 69632,
+      "allocation_unknown": 0
+    },
+    "TikTok-Content-Scraper-main.zip": {
+      "files": 1,
+      "logical_bytes": 25041,
+      "allocated_bytes": 28672,
+      "allocation_unknown": 0
+    },
+    "X-IG-OSINT-Hacker-x-Phantom.zip": {
+      "files": 1,
+      "logical_bytes": 14035,
+      "allocated_bytes": 16384,
+      "allocation_unknown": 0
+    },
+    "instagram-email-scraper-main.zip": {
+      "files": 1,
+      "logical_bytes": 10684,
+      "allocated_bytes": 12288,
+      "allocation_unknown": 0
+    },
+    "THIRD_PARTY_NOTICES.md": {
+      "files": 1,
+      "logical_bytes": 7471,
+      "allocated_bytes": 8192,
+      "allocation_unknown": 0
+    },
+    "Granger-OSINT.spec": {
+      "files": 1,
+      "logical_bytes": 3962,
+      "allocated_bytes": 4096,
+      "allocation_unknown": 0
+    },
+    "GrangerPet.spec": {
+      "files": 1,
+      "logical_bytes": 3860,
+      "allocated_bytes": 4096,
+      "allocation_unknown": 0
+    },
+    "build.ps1": {
+      "files": 1,
+      "logical_bytes": 2070,
+      "allocated_bytes": 4096,
+      "allocation_unknown": 0
+    },
+    ".github": {
+      "files": 1,
+      "logical_bytes": 1782,
+      "allocated_bytes": 4096,
+      "allocation_unknown": 0
+    },
+    ".gitignore": {
+      "files": 1,
+      "logical_bytes": 787,
+      "allocated_bytes": 4096,
+      "allocation_unknown": 0
+    },
+    "__pycache__": {
+      "files": 1,
+      "logical_bytes": 770,
+      "allocated_bytes": 4096,
+      "allocation_unknown": 0
+    },
+    "main.py": {
+      "files": 1,
+      "logical_bytes": 505,
+      "allocated_bytes": 512,
+      "allocation_unknown": 0
+    },
+    ".gitattributes": {
+      "files": 1,
+      "logical_bytes": 322,
+      "allocated_bytes": 328,
+      "allocation_unknown": 0
+    },
+    ".env.example": {
+      "files": 1,
+      "logical_bytes": 143,
+      "allocated_bytes": 144,
+      "allocation_unknown": 0
+    },
+    "secret.env": {
+      "files": 1,
+      "logical_bytes": 99,
+      "allocated_bytes": 104,
+      "allocation_unknown": 0
+    },
+    "requirements.txt": {
+      "files": 1,
+      "logical_bytes": 96,
+      "allocated_bytes": 96,
+      "allocation_unknown": 0
+    },
+    "requirements-dev.txt": {
+      "files": 1,
+      "logical_bytes": 54,
+      "allocated_bytes": 56,
+      "allocation_unknown": 0
+    },
+    "pytest.ini": {
+      "files": 1,
+      "logical_bytes": 27,
+      "allocated_bytes": 32,
+      "allocation_unknown": 0
+    }
+  },
+  "duplicate_groups_count": 20,
+  "additional_duplicate_logical_bytes": 5488141800,
+  "reviewed_release_duplicate_examples": [
+    {
+      "bytes_per_copy": 279228663,
+      "paths": [
+        "dist/Granger-OSINT-v2-final.exe",
+        "dist/Granger-OSINT.exe"
+      ],
+      "sha256": "428f3d02060bf059573921c7d8e8cdd08cab11a70526cdbef4049473548d2077"
+    },
+    {
+      "bytes_per_copy": 279123275,
+      "paths": [
+        "dist/Granger-OSINT-intelligence-verified.exe",
+        "dist/archive/before-master-fix-v2-20261102/Granger-OSINT.exe"
+      ],
+      "sha256": "1b935f0f0f82f2fe829ea20be22a064a6c45042713ab9ed368380ce0a49cee37"
+    },
+    {
+      "bytes_per_copy": 279015421,
+      "paths": [
+        "dist/archive/before-intelligence-v1/Granger-OSINT.exe",
+        "dist/phone-solvnox-final/Granger-OSINT.exe"
+      ],
+      "sha256": "2f39ef873aae31c5040ec220e47bd4cca11f993dd98afbeeda3c545fc1a33d4b"
+    },
+    {
+      "bytes_per_copy": 278980266,
+      "paths": [
+        "dist/archive/before-phone-ba6de760.exe",
+        "dist/emergency-original-final/Granger-OSINT.exe"
+      ],
+      "sha256": "ba6de760a9fffc412cc51913c6e2ed258adb29c737aea9e1d6216392d402deaa"
+    },
+    {
+      "bytes_per_copy": 278519050,
+      "paths": [
+        "dist/archive/before-solo-v4-da5c8693.exe",
+        "dist/hermione-art-v3-final/Granger-OSINT.exe"
+      ],
+      "sha256": "da5c869384ce1ff51d310813f42b40d5e834143a4f8d52fc836fa0b7649f4cef"
+    },
+    {
+      "bytes_per_copy": 278370519,
+      "paths": [
+        "dist/archive/before-hermione-art-v3-83c9d305.exe",
+        "dist/chibi-motion-final/Granger-OSINT.exe"
+      ],
+      "sha256": "83c9d3058644c20745f8ed30336f40fa0c30e914082126660fbbe20c6ad2b2e9"
+    },
+    {
+      "bytes_per_copy": 277961699,
+      "paths": [
+        "dist/archive/before-chibi-4126f5ec.exe",
+        "dist/pet-scenes-candidate/Granger-OSINT.exe"
+      ],
+      "sha256": "4126f5ecdf9cadbe95765ca77c41b3950826a96b04027c5964f76b102f13f458"
+    },
+    {
+      "bytes_per_copy": 277847620,
+      "paths": [
+        "dist/Granger-OSINT-source.zip",
+        "dist/archive/before-master-fix-v2-20261102/Granger-OSINT-source.zip"
+      ],
+      "sha256": "85431059e7746d6758fe572edbe0d6e913da9c17c2fd2cc5123f0332120b8be4"
+    },
+    {
+      "bytes_per_copy": 277070521,
+      "paths": [
+        "dist/archive/before-pet-scenes-6d22ae13.exe",
+        "dist/reconstruction-candidate/Granger-OSINT.exe"
+      ],
+      "sha256": "6d22ae13c01689f9012d4bc71f22e072d46bc002978b9393488a257aa27f6627"
+    },
+    {
+      "bytes_per_copy": 276823658,
+      "paths": [
+        "dist/Granger-OSINT-candidate.exe",
+        "dist/archive/before-master-fix-002fc918.exe"
+      ],
+      "sha256": "3957a014519c6176577a432ccefd971cf2a4483348762ec7bbcc4fae41df9047"
+    }
+  ],
+  "deleted_files": 0
+}

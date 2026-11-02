@@ -1,7 +1,8 @@
 # Public SOCMINT — Master Fix V2
 
-Work in progress. These results concern source/live checks, not the final V2 EXE.
-Final native acceptance and the distinct Tree/Graph redesign remain outstanding.
+Source/live controls and final V2 EXE results are distinguished in this report.
+Final native checks and distinct Tree/Graph rendering are documented below;
+source failures and field coverage remain qualified separately.
 
 ## VK
 
@@ -119,7 +120,8 @@ game/category/name/rarity filters, unknown-field qualifications and item-to-grap
 selection. Graph nodes distinguish game inventory, category and item; ownership
 is a public account observation, never a person attribution. API page references
 are shared rather than producing a separate page node for every item. Final
-native appearance/interaction testing is still required.
+native appearance/interaction testing passed on the final V2 EXE using the saved
+actual dataset; see [paired screenshots](GRAPH_TREE_UI_QA.md).
 
 The short natural command was exercised through the real gateway and runner:
 751 evidence records, seven HTTP 200 model responses, no provider error. Current
@@ -134,5 +136,11 @@ registry's old URL/frontier working projection, retaining only explicitly
 selected immutable image observations for CPU reuse. Journals/vault are intact.
 
 Receipts are in the Master Fix V2 validation directory; raw controlled pages and
-inventories stay in ignored output. Pending: richer authorized TikTok fields
-when available, remaining network/GEOINT/layout work and final EXE/native matrix.
+inventories stay in ignored output. In the final EXE, voin-cs.kz/TikTok/VK
+controls passed their scoped assertions. Fresh Steam profile/inventory attempts
+timed out; the frozen worker and an independent source collector showed the same
+network failure, including a connect-limited direct read. No new item list or
+current price was invented. Earlier 748-item evidence and native saved-data
+rendering remain valid observations at their recorded times. Richer TikTok
+fields and unblocked VK content remain unavailable in these public controls.
+[Final native scope](validation/master-fix-v2/native-exe.json).

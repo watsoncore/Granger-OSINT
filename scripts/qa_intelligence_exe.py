@@ -143,13 +143,13 @@ def main():
                 value=conversation('Покажи инвентарь Steam 76561198045277210 и полученные цены.','steam')
                 check('native_steam_item_evidence',value.get('saved_record_types',{}).get('steam_item',0)>20)
             command('qa_snapshot',{'name':'v2-'+args.v2_group});report['passed']=True;write();return
-        for name,args in [('network_rdap',{'resource':'66.249.67.41'}),('network_routing',{'resource':'66.249.67.41'}),
+        for name,tool_args in [('network_rdap',{'resource':'66.249.67.41'}),('network_routing',{'resource':'66.249.67.41'}),
                 ('domain_dns',{'domain':'example.org'}),('steam_profile',{'profile':'https://steamcommunity.com/id/robinwalker'}),
                 ('steam_friends',{'profile':'https://steamcommunity.com/id/robinwalker'}),
                 ('wikidata_places',{'query':'Moscow Kremlin','latitude':55.7517,'longitude':37.6176}),
                 ('telegram_public',{'username':'https://t.me/telegram','access_mode':'public','limit':1}),
                 ('blockchain_gansar',{'address':'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJKZ','operation':'balances','chain':'ton','mode':'quick','limit':1,'depth':0})]:
-            if not args.v2_group:tool(name,args)
+            if not args.v2_group:tool(name,tool_args)
         if not args.v2_group:check('native_public_tools_returned_data',all(row['records']>0 for row in report['operations'][:6]))
         if key:
             action('connection_test');connected=wait(lambda:s if (s:=snapshot()) and s['connection']['status']=='connected' else None,60)

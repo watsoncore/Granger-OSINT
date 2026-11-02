@@ -1,6 +1,7 @@
 # Provider and conversation scope — Master Fix V2
 
-Work in progress; these checks concern source, not the final V2 EXE.
+Source, controlled live gateway checks and final V2 EXE results are separated
+below. Final SHA-256 is recorded in the native receipt.
 
 ## Routing and conversation boundary
 
@@ -72,4 +73,22 @@ explicit unsupported `stream_options` response can cause one corrected retry,
 removing optional usage statistics. Tools, tool_choice, model, message protocol
 and token limits are not silently removed. Other errors are not retried by this
 negotiator. 90 provider/protocol fixtures and 160 registry/contract/context
-fixtures passed. Final native EXE verification remains outstanding.
+fixtures passed.
+
+## Final frozen replay
+
+The final EXE completed ten network/context assertions and eight site/social
+assertions. The actual sequence included greeting, ordinary conversation, both
+literal IP addresses, a short location follow-up, defer, ordinary conversation
+and a new chat. Saved gateway credentials were verified in an isolated QA
+Credential Manager namespace; only that QA credential was removed afterwards.
+No production conversation was imported into these tests.
+
+The same EXE actually collected site/domain/archive evidence for voin-cs.kz,
+called TikTok public profile tools and reported the VK scoped access limitation.
+An already verified connection stays connected during sends. Native HTTP failure
+responses are not inferred from source fixtures: the intentionally invalid live
+400 and the source transport fixtures retain their own scope. Current Steam
+timeouts and the browser robots-fetch timeout are external-source limitations,
+not a successful provider/tool result.
+[Native receipts](validation/master-fix-v2/native-exe.json).

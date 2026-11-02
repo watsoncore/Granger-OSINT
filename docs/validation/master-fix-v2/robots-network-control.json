@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://www.scrapethissite.com/robots.txt",
+    "error_type": "PageReadError",
+    "code": "timeout",
+    "seconds": 10.82
+  },
+  {
+    "url": "https://quotes.toscrape.com/robots.txt",
+    "error_type": "PageReadError",
+    "code": "timeout",
+    "seconds": 10.59
+  }
+]

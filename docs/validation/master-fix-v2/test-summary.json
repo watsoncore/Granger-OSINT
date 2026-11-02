@@ -1,0 +1,25 @@
+{
+  "python": {
+    "passed": 1755,
+    "skipped": 1,
+    "subtests_passed": 32,
+    "seconds": 356.02,
+    "scope": "full source in isolated APPDATA and credential namespace",
+    "skip": "Ollama not running"
+  },
+  "frontend": {
+    "passed": 137,
+    "files": 21,
+    "typecheck_passed": true
+  },
+  "frozen": {
+    "modules_match": 154,
+    "resources_match": 221,
+    "sha256": "428f3d02060bf059573921c7d8e8cdd08cab11a70526cdbef4049473548d2077"
+  },
+  "log_sha256": {
+    "full-python-final.log": "9ddc98f866001262094e31f556815dfa6a16220e05616b001c726708f5fc1e38",
+    "frontend-tests-final.log": "69a5f01a8076c2d9e3fb48f9e1fed6c77f1ef2d9a1e409568712e34e74976cf3",
+    "frontend-typecheck-final.log": "7965758419f1341c0afff2e3568a1e7265ab4810d48098112dd15e707afc1608"
+  }
+}

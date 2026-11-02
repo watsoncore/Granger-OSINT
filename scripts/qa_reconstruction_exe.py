@@ -34,6 +34,7 @@ def main():
     p.add_argument('--keep-open',action='store_true')
     p.add_argument('--public-tools',action='store_true',help='Also execute one real key-free API and permitted JS sandbox in the frozen EXE')
     p.add_argument('--integrations19',action='store_true',help='Verify typed local tools, graph and the installed optional CPU pipeline')
+    p.add_argument('--benchmark-manifest',type=Path,help='Run three previously selected licensed photos through both models in the actual EXE')
     args=p.parse_args();out=args.output.resolve()
     if out.exists(): raise SystemExit('Previous evidence retained; choose a new directory')
     qa_namespace=uuid.uuid4().hex
@@ -231,6 +232,52 @@ def main():
         same_id=import_image(data.getvalue(),'synthetic-gps.jpg')
         check('same_encrypted_image_reopens_after_restart',same_id==gps_id)
         check('GPS_survives_restart',tool('image_metadata',same_id)['metadata']['gps']['latitude']==51.5)
+        if args.benchmark_manifest:
+            from PIL import ImageOps
+            from grangerpet.agent_journal import InvestigationJournal
+            from grangerpet.visual_models.pipeline import haversine_km
+            manifest_path=args.benchmark_manifest.resolve()
+            manifest=json.loads(manifest_path.read_text(encoding='utf-8'))
+            selected=[case for case in manifest['cases'] if case['case_id'] in ('case-03','case-09','case-10')]
+            check('three_preselected_geographic_classes',len(selected)==3 and all(c['status']=='downloaded' for c in selected))
+            report['geographic_benchmark']=[]
+            for case in selected:
+                raw=(manifest_path.parent/case['path']).read_bytes()
+                check(case['case_id']+'_source_SHA',hashlib.sha256(raw).hexdigest()==case['sha256'])
+                with Image.open(io.BytesIO(raw)) as source:
+                    blind=ImageOps.exif_transpose(source).convert('RGB');blind.info.clear()
+                    pixels=io.BytesIO();blind.save(pixels,format='PNG')
+                filename=case['case_id']+'.png'
+                (out/filename).write_bytes(pixels.getvalue())
+                count=len(snapshot('before-'+case['case_id'])['attachments'])
+                action('attachment_file',{'name':filename})
+                attached=wait(lambda:s if not (s:=snapshot('import-'+case['case_id'])).get('attachment_busy') and len(s['attachments'])>count else None)
+                attachment_id=attached['attachments'][-1]['id']
+                tool('visual_geoint',{'attachment_id':attachment_id,'include_ocr':False,'include_scene':False,
+                    'methods':['geoclip_predict','waypoint_predict'],'top_k':3,'samples':32,'seed':0})
+                current=snapshot('benchmark-'+case['case_id'])
+                def saved_models():
+                    # Source cards can finish before the queued journal write.
+                    journal=InvestigationJournal(profile/'investigations').load(current['search']['investigation_id'])
+                    models={}
+                    for evidence in journal['evidence']:
+                        details=evidence.get('details') or {}
+                        if details.get('attachment_id')!=attachment_id or details.get('capability') not in ('geoclip_predict','waypoint_predict') or not isinstance(details.get('predictions'),list):continue
+                        models[details['capability']]={'predictions':[
+                            {'candidate':[row.get('lat',row.get('latitude')),row.get('lon',row.get('longitude'))],
+                             'distance_to_archive_camera_m':round(haversine_km(
+                                 [row.get('lat',row.get('latitude')),row.get('lon',row.get('longitude'))],case['annotated_coordinate'])*1000)}
+                            for row in details['predictions']], 'status':evidence.get('status')}
+                    return models if set(models)=={'geoclip_predict','waypoint_predict'} else None
+                models=wait(saved_models,20)
+                check(case['case_id']+'_both_frozen_model_responses',set(models)=={'geoclip_predict','waypoint_predict'})
+                report['geographic_benchmark'].append({'id':case['case_id'],'class':case['class'],
+                    'source':case['source']['source_url'],'license':case['source']['license'],
+                    'ground_truth_kind':case['ground_truth_kind'],'archive_camera_lat_lon':case['annotated_coordinate'],
+                    'source_sha256':case['sha256'],'pixel_input_sha256':hashlib.sha256(pixels.getvalue()).hexdigest(),
+                    'input_metadata_stripped':True,'samples':32,'seed':0,'models':models,
+                    'empty_predictions':[name for name,value in models.items() if not value['predictions']]})
+                command('qa_snapshot',{'name':'benchmark-'+case['case_id']});save()
         command('qa_snapshot',{'name':'restart'})
         report['passed']=True;save()
         if args.keep_open:

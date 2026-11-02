@@ -96,16 +96,16 @@ def main():
         while time.monotonic()<end:
             value=fn()
             if value:return value
-            time.sleep(.15)
+            time.sleep(.4)
         latest=state()
         if latest:(out/'timeout-state.json').write_text(json.dumps(latest,ensure_ascii=False,indent=2),encoding='utf-8')
         raise TimeoutError('Own graph UI wait expired')
     def state():
-        value=send_command('pet','status',timeout=2500)
+        value=send_command('pet','status',timeout=8000)
         if value and owned and value.get('pid')!=owned:raise RuntimeError('Own PID mismatch')
         return value
     def command(name,payload=None):
-        value=send_command('pet',name,payload,timeout=4000)
+        value=send_command('pet',name,payload,timeout=12000)
         if not value or not value.get('ok'):raise RuntimeError('Own command failed: '+name)
         return value
     def action(name,payload=None):command('qa_desktop',{'action':name,'payload':payload or {}});time.sleep(.2)

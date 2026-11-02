@@ -1,0 +1,2177 @@
+{
+  "passed": true,
+  "baseline_utc": "2026-11-02T06:40:53.504772+00:00",
+  "final_utc": "2026-11-02T15:01:41.560502+00:00",
+  "files": [
+    {
+      "group": "assets",
+      "path": "GrangerPet.ico",
+      "before_sha256": "bc3cfdef3f68582687e96c961e0d5236020f6819b250e4f57c53928f9cf3e0ae",
+      "after_sha256": "bc3cfdef3f68582687e96c961e0d5236020f6819b250e4f57c53928f9cf3e0ae",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "animations.json",
+      "before_sha256": "61df6fb08c41f5ba25199e37415043d929f387a6b50db377170cbb7999f0a1df",
+      "after_sha256": "61df6fb08c41f5ba25199e37415043d929f387a6b50db377170cbb7999f0a1df",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "character.png",
+      "before_sha256": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b",
+      "after_sha256": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "error.png",
+      "before_sha256": "fe3f7ec13c559b3cbc4a1feecf3ed55eaf18a55cdc38c73f417a2e60dec1c0ef",
+      "after_sha256": "fe3f7ec13c559b3cbc4a1feecf3ed55eaf18a55cdc38c73f417a2e60dec1c0ef",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "happy.png",
+      "before_sha256": "f9672e979de38a4df7d6dadd22af727155ab7e2ca7e9b3e640f029f4125ac379",
+      "after_sha256": "f9672e979de38a4df7d6dadd22af727155ab7e2ca7e9b3e640f029f4125ac379",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hover.png",
+      "before_sha256": "f0c48343b71d43ca48e207558dc493fd582035680c1150f9281e2c48cb7895a8",
+      "after_sha256": "f0c48343b71d43ca48e207558dc493fd582035680c1150f9281e2c48cb7895a8",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "idle.atlas.json",
+      "before_sha256": "9217023772d750ee73cb2cfd90b18698efb1e329555d94c5847091a3a0a37423",
+      "after_sha256": "9217023772d750ee73cb2cfd90b18698efb1e329555d94c5847091a3a0a37423",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "idle.png",
+      "before_sha256": "9ad7e050f8988271ce694050e39c2dd0e5f70c800a4988866536a6baaee44692",
+      "after_sha256": "9ad7e050f8988271ce694050e39c2dd0e5f70c800a4988866536a6baaee44692",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "provenance.json",
+      "before_sha256": "a4e1c3cb0662ae0ca8093ed36137bec642364b78965f3ca77b72813e203c8a2b",
+      "after_sha256": "a4e1c3cb0662ae0ca8093ed36137bec642364b78965f3ca77b72813e203c8a2b",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "thinking.png",
+      "before_sha256": "82dae7bd6d4a24779e392c6fdcd1d11dc4a3bdbd3077ca72de80fe01078133ad",
+      "after_sha256": "82dae7bd6d4a24779e392c6fdcd1d11dc4a3bdbd3077ca72de80fe01078133ad",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "walk.png",
+      "before_sha256": "ca07e51aff5886a4381f225d31cb01fd8adbb8bfd4532d36a1ddba3682300470",
+      "after_sha256": "ca07e51aff5886a4381f225d31cb01fd8adbb8bfd4532d36a1ddba3682300470",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "working.png",
+      "before_sha256": "0ccdf4c917d3fdccc38a4fc86cbafd64749b79dbb01d0a339d7245e211506e28",
+      "after_sha256": "0ccdf4c917d3fdccc38a4fc86cbafd64749b79dbb01d0a339d7245e211506e28",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/cheek-left-hand.png",
+      "before_sha256": "5ab5ca540d5a8c56cba2f3127a4401c63afb439f863a0bc00635215a6fe0a2cb",
+      "after_sha256": "5ab5ca540d5a8c56cba2f3127a4401c63afb439f863a0bc00635215a6fe0a2cb",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/cheek-left-sleeve.png",
+      "before_sha256": "bb74352d265907d4976ab4742dc407d03d8efc6456b728b7613459e99ae2d152",
+      "after_sha256": "bb74352d265907d4976ab4742dc407d03d8efc6456b728b7613459e99ae2d152",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/cheek-right-hand.png",
+      "before_sha256": "bd5a68fa27389ed893e087eb5a22278267992102374bc9f07ab02c7429768c06",
+      "after_sha256": "bd5a68fa27389ed893e087eb5a22278267992102374bc9f07ab02c7429768c06",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/cheek-right-sleeve.png",
+      "before_sha256": "2fa1876f1705d62afdd374ef9954945dce73f235b14f6bc68ddbf8ced0851c42",
+      "after_sha256": "2fa1876f1705d62afdd374ef9954945dce73f235b14f6bc68ddbf8ced0851c42",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/chin-left-hand.png",
+      "before_sha256": "07fb6e4545a24afc663d44ba137d1b35df6ee67d558998a6f4788b5336623026",
+      "after_sha256": "07fb6e4545a24afc663d44ba137d1b35df6ee67d558998a6f4788b5336623026",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/chin-left-sleeve.png",
+      "before_sha256": "1178c02a13fbe5dee3ecd26540febc77d90f84df31c0692f61a4f351f43b425e",
+      "after_sha256": "1178c02a13fbe5dee3ecd26540febc77d90f84df31c0692f61a4f351f43b425e",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/chin-right-hand.png",
+      "before_sha256": "0faf349eb11feba784c9ef31c2fafacbe7f51cab08611438eb1c17869fe24d37",
+      "after_sha256": "0faf349eb11feba784c9ef31c2fafacbe7f51cab08611438eb1c17869fe24d37",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/chin-right-sleeve.png",
+      "before_sha256": "b0dfa1fb126cc746e9cc37164d28fe6b2948c54108149a779cb816138a8f6a34",
+      "after_sha256": "b0dfa1fb126cc746e9cc37164d28fe6b2948c54108149a779cb816138a8f6a34",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/folded-left-hand.png",
+      "before_sha256": "3d75dab3c43d484ace9bcc5df0b18a38c95e4e6b9e48e2be779743c910615b30",
+      "after_sha256": "3d75dab3c43d484ace9bcc5df0b18a38c95e4e6b9e48e2be779743c910615b30",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/folded-left-sleeve.png",
+      "before_sha256": "28072225a1e852cf6922f73c68e58851933d04e90057f5aa48c072ca36dfb1b2",
+      "after_sha256": "28072225a1e852cf6922f73c68e58851933d04e90057f5aa48c072ca36dfb1b2",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/folded-right-hand.png",
+      "before_sha256": "d4dc7d0e107f4052fdbdf17ad6b78d74e0f08b186bb8e4d932180d7ea4634459",
+      "after_sha256": "d4dc7d0e107f4052fdbdf17ad6b78d74e0f08b186bb8e4d932180d7ea4634459",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/folded-right-sleeve.png",
+      "before_sha256": "32d7a508e1b16899ef6d9f86f54992ab77c62b282b64642582ab17cbd3c5bcb2",
+      "after_sha256": "32d7a508e1b16899ef6d9f86f54992ab77c62b282b64642582ab17cbd3c5bcb2",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/hand-pinch.png",
+      "before_sha256": "c4bcb2eeec43f6b97f174d522f0d1530f6d22b5573c6e28cb5b84015f1867d71",
+      "after_sha256": "c4bcb2eeec43f6b97f174d522f0d1530f6d22b5573c6e28cb5b84015f1867d71",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/hand-point.png",
+      "before_sha256": "1d37660a7ab78612de6d9314d27ae3cdb39c573708c87b7d2e27174f95601c34",
+      "after_sha256": "1d37660a7ab78612de6d9314d27ae3cdb39c573708c87b7d2e27174f95601c34",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/hand-wand.png",
+      "before_sha256": "815ca7dde6b69210c5639052126c1a2b3f5de1f25bf69628a7d7b7dc8586a76f",
+      "after_sha256": "815ca7dde6b69210c5639052126c1a2b3f5de1f25bf69628a7d7b7dc8586a76f",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/hands.json",
+      "before_sha256": "b13618410c09ccd50c19cb316d4fe3a58e9a8969b1ac366146e3595d57e604ef",
+      "after_sha256": "b13618410c09ccd50c19cb316d4fe3a58e9a8969b1ac366146e3595d57e604ef",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/hip-left-hand.png",
+      "before_sha256": "aac7d0885b95c88414bdc065da5b14e9a9d56cb3dbe9a6f89c8277551ecb9b29",
+      "after_sha256": "aac7d0885b95c88414bdc065da5b14e9a9d56cb3dbe9a6f89c8277551ecb9b29",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/hip-left-sleeve.png",
+      "before_sha256": "075480c0bddcc4b5d8927ab282ad6c1bf88e9b7580279a155d679fdae6b4d140",
+      "after_sha256": "075480c0bddcc4b5d8927ab282ad6c1bf88e9b7580279a155d679fdae6b4d140",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/hip-right-hand.png",
+      "before_sha256": "d124780d9f6089a053b11ddad9f78444e9d5a1f6cd10a3b2630f5c7e1370b0d4",
+      "after_sha256": "d124780d9f6089a053b11ddad9f78444e9d5a1f6cd10a3b2630f5c7e1370b0d4",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/hip-right-sleeve.png",
+      "before_sha256": "03594f21e7462cb4ba35ecee44ff6c53b977cbd486f6f8bc2d5a11fc264c53ce",
+      "after_sha256": "03594f21e7462cb4ba35ecee44ff6c53b977cbd486f6f8bc2d5a11fc264c53ce",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/page-left-hand.png",
+      "before_sha256": "24e1057eba31d2a28492349e351f20355c3e6c1eb6ed3c9d5fabebc5c2170f7b",
+      "after_sha256": "24e1057eba31d2a28492349e351f20355c3e6c1eb6ed3c9d5fabebc5c2170f7b",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/page-left-sleeve.png",
+      "before_sha256": "c0de8eb85c063b5aa684a0b3181f9adfea89120b1cd29a9d795c45583a4c1396",
+      "after_sha256": "c0de8eb85c063b5aa684a0b3181f9adfea89120b1cd29a9d795c45583a4c1396",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/page-right-hand.png",
+      "before_sha256": "c4bcb2eeec43f6b97f174d522f0d1530f6d22b5573c6e28cb5b84015f1867d71",
+      "after_sha256": "c4bcb2eeec43f6b97f174d522f0d1530f6d22b5573c6e28cb5b84015f1867d71",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/page-right-sleeve.png",
+      "before_sha256": "7aaefe6bc4ec766c5c0f98bba9471b0fee456d5d31fd93dcdab8485c0310ed86",
+      "after_sha256": "7aaefe6bc4ec766c5c0f98bba9471b0fee456d5d31fd93dcdab8485c0310ed86",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/provenance.json",
+      "before_sha256": "d0706e38173f44b012ae88a882ec4bbb1e40308b158ea2d406936cb5aace21e1",
+      "after_sha256": "d0706e38173f44b012ae88a882ec4bbb1e40308b158ea2d406936cb5aace21e1",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/reach-left-hand.png",
+      "before_sha256": "741786c160de37f20281770de88b0d1511d951e5ccde57188b993dd97cb50d67",
+      "after_sha256": "741786c160de37f20281770de88b0d1511d951e5ccde57188b993dd97cb50d67",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/reach-left-sleeve.png",
+      "before_sha256": "120a2006f26b8e9696b9434181c49be0326992c25a9bf7c68b6769f5c27b88d2",
+      "after_sha256": "120a2006f26b8e9696b9434181c49be0326992c25a9bf7c68b6769f5c27b88d2",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/reach-right-hand.png",
+      "before_sha256": "582156ffd1f0e2a3948c267a703a0b3321178b94a2ffc1fed6de1198419f5b7e",
+      "after_sha256": "582156ffd1f0e2a3948c267a703a0b3321178b94a2ffc1fed6de1198419f5b7e",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/reach-right-sleeve.png",
+      "before_sha256": "cc15f8ecc38ae923ee0f492e8b642a017bafac1920637480b5f59250527c97f2",
+      "after_sha256": "cc15f8ecc38ae923ee0f492e8b642a017bafac1920637480b5f59250527c97f2",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/reading-left-hand.png",
+      "before_sha256": "24e1057eba31d2a28492349e351f20355c3e6c1eb6ed3c9d5fabebc5c2170f7b",
+      "after_sha256": "24e1057eba31d2a28492349e351f20355c3e6c1eb6ed3c9d5fabebc5c2170f7b",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/reading-left-sleeve.png",
+      "before_sha256": "c0de8eb85c063b5aa684a0b3181f9adfea89120b1cd29a9d795c45583a4c1396",
+      "after_sha256": "c0de8eb85c063b5aa684a0b3181f9adfea89120b1cd29a9d795c45583a4c1396",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/reading-right-hand.png",
+      "before_sha256": "d9d570db847f9f35dd41a0203736528d70ee428b5a3185e415e0496762b66ed9",
+      "after_sha256": "d9d570db847f9f35dd41a0203736528d70ee428b5a3185e415e0496762b66ed9",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/reading-right-sleeve.png",
+      "before_sha256": "3b3e51444184addec381963ce01572ac88b499983e91ebe48fbf128cc781e2e9",
+      "after_sha256": "3b3e51444184addec381963ce01572ac88b499983e91ebe48fbf128cc781e2e9",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/rest-left-hand.png",
+      "before_sha256": "aac7d0885b95c88414bdc065da5b14e9a9d56cb3dbe9a6f89c8277551ecb9b29",
+      "after_sha256": "aac7d0885b95c88414bdc065da5b14e9a9d56cb3dbe9a6f89c8277551ecb9b29",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/rest-left-sleeve.png",
+      "before_sha256": "075480c0bddcc4b5d8927ab282ad6c1bf88e9b7580279a155d679fdae6b4d140",
+      "after_sha256": "075480c0bddcc4b5d8927ab282ad6c1bf88e9b7580279a155d679fdae6b4d140",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/rest-right-hand.png",
+      "before_sha256": "f0223d3e2874502b9226b3067d9cd871d01133e0baac71a47d9aea05c3ad49be",
+      "after_sha256": "f0223d3e2874502b9226b3067d9cd871d01133e0baac71a47d9aea05c3ad49be",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/rest-right-sleeve.png",
+      "before_sha256": "e6da8c24289d77580f280fddbc6272c2911b1b7d4a657c4de54bee985da7c7f6",
+      "after_sha256": "e6da8c24289d77580f280fddbc6272c2911b1b7d4a657c4de54bee985da7c7f6",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/rig.json",
+      "before_sha256": "8487707857e3769617f8dc9ae511ceb8b0b23f6365e44e98306a6930f679f3dd",
+      "after_sha256": "8487707857e3769617f8dc9ae511ceb8b0b23f6365e44e98306a6930f679f3dd",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/wand-left-hand.png",
+      "before_sha256": "6c0cbace7c0d03a72ccbfee0b0d62d8dc95464e15175644261d1737c205fa81b",
+      "after_sha256": "6c0cbace7c0d03a72ccbfee0b0d62d8dc95464e15175644261d1737c205fa81b",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/wand-left-sleeve.png",
+      "before_sha256": "1dfe8836de32e6aa1699a24a9b89b02c825a943aa048c84cc4a9704f9a3be5b8",
+      "after_sha256": "1dfe8836de32e6aa1699a24a9b89b02c825a943aa048c84cc4a9704f9a3be5b8",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/wand-right-hand.png",
+      "before_sha256": "f0223d3e2874502b9226b3067d9cd871d01133e0baac71a47d9aea05c3ad49be",
+      "after_sha256": "f0223d3e2874502b9226b3067d9cd871d01133e0baac71a47d9aea05c3ad49be",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "hermione-poses-v3/wand-right-sleeve.png",
+      "before_sha256": "e6da8c24289d77580f280fddbc6272c2911b1b7d4a657c4de54bee985da7c7f6",
+      "after_sha256": "e6da8c24289d77580f280fddbc6272c2911b1b7d4a657c4de54bee985da7c7f6",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "original-hermione/blink-closed-head.png",
+      "before_sha256": "46b02d2c1e950117ac0d5e5299e85fca1a0e7af3c4273ccb6c116d559a59602c",
+      "after_sha256": "46b02d2c1e950117ac0d5e5299e85fca1a0e7af3c4273ccb6c116d559a59602c",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "original-hermione/identity.json",
+      "before_sha256": "7c9ef6400b88a97b83bd9a1d220f53e284afcb964553d682947d497138e02aff",
+      "after_sha256": "7c9ef6400b88a97b83bd9a1d220f53e284afcb964553d682947d497138e02aff",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "original-hermione/neutral-512.png",
+      "before_sha256": "4d181f85eeb6c11484c264a38103a56f86ee744ae2fdc82b216355f7954ca47b",
+      "after_sha256": "4d181f85eeb6c11484c264a38103a56f86ee744ae2fdc82b216355f7954ca47b",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "original-motion-v1/head.png",
+      "before_sha256": "167de1d9de76cd71c1a053e33450156154a6074993b8ca5990c9e2a01ba22445",
+      "after_sha256": "167de1d9de76cd71c1a053e33450156154a6074993b8ca5990c9e2a01ba22445",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "original-motion-v1/original-left-hand.png",
+      "before_sha256": "6c0cbace7c0d03a72ccbfee0b0d62d8dc95464e15175644261d1737c205fa81b",
+      "after_sha256": "6c0cbace7c0d03a72ccbfee0b0d62d8dc95464e15175644261d1737c205fa81b",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "original-motion-v1/original-left-sleeve.png",
+      "before_sha256": "1dfe8836de32e6aa1699a24a9b89b02c825a943aa048c84cc4a9704f9a3be5b8",
+      "after_sha256": "1dfe8836de32e6aa1699a24a9b89b02c825a943aa048c84cc4a9704f9a3be5b8",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "original-motion-v1/original-right-hand.png",
+      "before_sha256": "110088eeb62dac80ead0391357e36f626d7c8103008b570b057dcfba714447c3",
+      "after_sha256": "110088eeb62dac80ead0391357e36f626d7c8103008b570b057dcfba714447c3",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "original-motion-v1/original-right-sleeve.png",
+      "before_sha256": "c78541bea883b68bdd5c7761aa187378d87a8ef7ed19e9ddcdec6877749437d1",
+      "after_sha256": "c78541bea883b68bdd5c7761aa187378d87a8ef7ed19e9ddcdec6877749437d1",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "original-motion-v1/provenance.json",
+      "before_sha256": "d2acd0dbffb0c3e7198589faa0d7573607dceaac3d625cf8ff419b0183a2d4e5",
+      "after_sha256": "d2acd0dbffb0c3e7198589faa0d7573607dceaac3d625cf8ff419b0183a2d4e5",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "original-motion-v1/rig.json",
+      "before_sha256": "51b7acd203fd80cd2a7683f22cada22a9194786b14a9972f7cdf9fc4d54793db",
+      "after_sha256": "51b7acd203fd80cd2a7683f22cada22a9194786b14a9972f7cdf9fc4d54793db",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "phone-solvnox-v1/geometry.json",
+      "before_sha256": "a2051151b878d61934196c561202f88f63f86580d5eee716e88f298bf9082cb5",
+      "after_sha256": "a2051151b878d61934196c561202f88f63f86580d5eee716e88f298bf9082cb5",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "phone-solvnox-v1/holding-hand.png",
+      "before_sha256": "2bcd634a6be70fa625f9d415d35eff5092e66cedb44ad0db9a92bfad4c03fc8e",
+      "after_sha256": "2bcd634a6be70fa625f9d415d35eff5092e66cedb44ad0db9a92bfad4c03fc8e",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "phone-solvnox-v1/phone-left-hand.png",
+      "before_sha256": "fbec19477bc80bf0e24c911232414f36bf545062c4f57257aa817e10acdd09be",
+      "after_sha256": "fbec19477bc80bf0e24c911232414f36bf545062c4f57257aa817e10acdd09be",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "phone-solvnox-v1/phone-left-sleeve.png",
+      "before_sha256": "afe80ac32804ce4ceb212d1439a8bb839bf5b02c7dbf0369a78d4a31fbc26296",
+      "after_sha256": "afe80ac32804ce4ceb212d1439a8bb839bf5b02c7dbf0369a78d4a31fbc26296",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "phone-solvnox-v1/phone-right-hand.png",
+      "before_sha256": "fbec19477bc80bf0e24c911232414f36bf545062c4f57257aa817e10acdd09be",
+      "after_sha256": "fbec19477bc80bf0e24c911232414f36bf545062c4f57257aa817e10acdd09be",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "phone-solvnox-v1/phone-right-sleeve.png",
+      "before_sha256": "48e1f156ff144430977c11420780ce1205e4d7913cded52014bd5a1ade0e55e4",
+      "after_sha256": "48e1f156ff144430977c11420780ce1205e4d7913cded52014bd5a1ade0e55e4",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "phone-solvnox-v1/phone.png",
+      "before_sha256": "5c9446f11d3cff9c582f5c0f74a086cbda3cd265992c23b4e88f2c5401c16df0",
+      "after_sha256": "5c9446f11d3cff9c582f5c0f74a086cbda3cd265992c23b4e88f2c5401c16df0",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "phone-solvnox-v1/provenance.json",
+      "before_sha256": "d8daf6f247daee7db27bfd42cf0a0d9376fa8467991106f9189f88731f3d8dbb",
+      "after_sha256": "d8daf6f247daee7db27bfd42cf0a0d9376fa8467991106f9189f88731f3d8dbb",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "phone-solvnox-v1/rest-hand.png",
+      "before_sha256": "b8ee3316021a1f65ff3a5b8a44f6984213663e094d02f9a17baa4c912f4b19e0",
+      "after_sha256": "b8ee3316021a1f65ff3a5b8a44f6984213663e094d02f9a17baa4c912f4b19e0",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "phone-solvnox-v1/rig.json",
+      "before_sha256": "6ea48c9e6d718bffbb734dc5d86dbd9446e264218ba7f39f28a41e167b0ed4b2",
+      "after_sha256": "6ea48c9e6d718bffbb734dc5d86dbd9446e264218ba7f39f28a41e167b0ed4b2",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "phone-solvnox-v1/typing-hover.png",
+      "before_sha256": "59bf3876f89412430c6a4f4716c91d283fca1e145ec87c289435d35979849a94",
+      "after_sha256": "59bf3876f89412430c6a4f4716c91d283fca1e145ec87c289435d35979849a94",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "phone-solvnox-v1/typing-press.png",
+      "before_sha256": "c2dcc27256083f463fb6a6e504ed96d52193bc4a47d9041a5cdd0d9e79cd18ab",
+      "after_sha256": "c2dcc27256083f463fb6a6e504ed96d52193bc4a47d9041a5cdd0d9e79cd18ab",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/articulated-provenance.json",
+      "before_sha256": "e1bf52b3dd00b3c2ef62532bc9e764088e4995d1cb1e2abe4229aead0f21b010",
+      "after_sha256": "e1bf52b3dd00b3c2ef62532bc9e764088e4995d1cb1e2abe4229aead0f21b010",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/draco.png",
+      "before_sha256": "f1c2219026ef74f54ea3cefd0f13df06d7c3208d33118fa87aae9534f0e1ad14",
+      "after_sha256": "f1c2219026ef74f54ea3cefd0f13df06d7c3208d33118fa87aae9534f0e1ad14",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/guest-provenance-v2.json",
+      "before_sha256": "8f11c9937f4c1fd3fc11716e557112c474f2db165c80293d3c6afb118ac61ac7",
+      "after_sha256": "8f11c9937f4c1fd3fc11716e557112c474f2db165c80293d3c6afb118ac61ac7",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/harry-v2.png",
+      "before_sha256": "cfa32242a070439ec4a2b782ea5e40564a0445d82d89f6090ba138703e13b919",
+      "after_sha256": "cfa32242a070439ec4a2b782ea5e40564a0445d82d89f6090ba138703e13b919",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/harry.png",
+      "before_sha256": "b384100031701f94cb012825c3d1a54c53ca9b2056ef847780ac5822a7a25be7",
+      "after_sha256": "b384100031701f94cb012825c3d1a54c53ca9b2056ef847780ac5822a7a25be7",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/hermione-base.png",
+      "before_sha256": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b",
+      "after_sha256": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/hermione-body.png",
+      "before_sha256": "97b7b23dafa6703d231ce2b1383ec7bccb1869db82c3cc75bf027c038d3e5993",
+      "after_sha256": "97b7b23dafa6703d231ce2b1383ec7bccb1869db82c3cc75bf027c038d3e5993",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/hermione-free_arm.png",
+      "before_sha256": "ba138d8303f050a27e4a3a894c701ea011f66afce8f6307a836c94deb5273b73",
+      "after_sha256": "ba138d8303f050a27e4a3a894c701ea011f66afce8f6307a836c94deb5273b73",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/hermione-hair-fringe-v2.png",
+      "before_sha256": "5512436682a15609a658a9104a06b460ede495f9f256c5796adb2699eac551cb",
+      "after_sha256": "5512436682a15609a658a9104a06b460ede495f9f256c5796adb2699eac551cb",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/hermione-head.png",
+      "before_sha256": "aefca77b6dad974687280d6e49969e6a1fd19380c63140ef3d85381945d2ed4b",
+      "after_sha256": "aefca77b6dad974687280d6e49969e6a1fd19380c63140ef3d85381945d2ed4b",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/hermione-left-curl-v2.png",
+      "before_sha256": "8fc1fa45c6254bb6fefcdb826fd94958493d57fa49ae15252a92c42e04ccf7fb",
+      "after_sha256": "8fc1fa45c6254bb6fefcdb826fd94958493d57fa49ae15252a92c42e04ccf7fb",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/hermione-left_leg.png",
+      "before_sha256": "c14b28202f6cc398a4b9e944bc98c4fff1c84aef302fdc497053a5c16aec8b84",
+      "after_sha256": "c14b28202f6cc398a4b9e944bc98c4fff1c84aef302fdc497053a5c16aec8b84",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/hermione-right_leg.png",
+      "before_sha256": "29d7726eaace4c7707c2297a4a2064dbf568c92a586b018217d79f402f671a9c",
+      "after_sha256": "29d7726eaace4c7707c2297a4a2064dbf568c92a586b018217d79f402f671a9c",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/hermione-wand_arm.png",
+      "before_sha256": "e4d5e80bbc93c8c5c5a6d15f1c2ecd173aff5d3f8a65febfa28444cc197319a2",
+      "after_sha256": "e4d5e80bbc93c8c5c5a6d15f1c2ecd173aff5d3f8a65febfa28444cc197319a2",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/provenance.json",
+      "before_sha256": "d8e1da827432c6c667cd11db3d794afbf26fbde4dc990d49679c23e2d1b685f6",
+      "after_sha256": "d8e1da827432c6c667cd11db3d794afbf26fbde4dc990d49679c23e2d1b685f6",
+      "unchanged": true
+    },
+    {
+      "group": "assets",
+      "path": "scenes/ron.png",
+      "before_sha256": "ab2bd1df93117aa93e9aa95d52a881c36ea3163400dc88a6aed6a5da403e7ca3",
+      "after_sha256": "ab2bd1df93117aa93e9aa95d52a881c36ea3163400dc88a6aed6a5da403e7ca3",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "Granger-OSINT-icon.provenance.json",
+      "before_sha256": "60fb607bd4f04df1577b67478df0ec98d502385e7c08e79030923f32a8f01364",
+      "after_sha256": "60fb607bd4f04df1577b67478df0ec98d502385e7c08e79030923f32a8f01364",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "Granger-OSINT.ico",
+      "before_sha256": "039becdf5125c816a3435ee9577e1dabc435587c93f9f6cf7ce12547fe696d82",
+      "after_sha256": "039becdf5125c816a3435ee9577e1dabc435587c93f9f6cf7ce12547fe696d82",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "Granger-OSINT.png",
+      "before_sha256": "a7d4b31b6bfd78744deb277d91a125b8a905489c87f761e0def03ad46463e278",
+      "after_sha256": "a7d4b31b6bfd78744deb277d91a125b8a905489c87f761e0def03ad46463e278",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "Granger-OSINT.svg",
+      "before_sha256": "46aecca483cd9613e5096c03b262ab249d11ba39178d4480abc40008595db78e",
+      "after_sha256": "46aecca483cd9613e5096c03b262ab249d11ba39178d4480abc40008595db78e",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "Granger-OSINT.version.txt",
+      "before_sha256": "c999b97270941c21ee4492d55916adffc14868f169d74e4a217f6354cd3b8ce3",
+      "after_sha256": "c999b97270941c21ee4492d55916adffc14868f169d74e4a217f6354cd3b8ce3",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "browser-runtime-requirements.txt",
+      "before_sha256": "6c460dcb683510a65a901f6bab0f5eae7dafab20452a82d62f6217b66efb957d",
+      "after_sha256": "6c460dcb683510a65a901f6bab0f5eae7dafab20452a82d62f6217b66efb957d",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "character-v2-edit.png",
+      "before_sha256": "dd4706cd837f0763291ab173aa885bb3b8f926860655b39610cdf55cb9daabfb",
+      "after_sha256": "dd4706cd837f0763291ab173aa885bb3b8f926860655b39610cdf55cb9daabfb",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "animation-qa/draco-loop-pose-v1.json",
+      "before_sha256": "6623ca7442c7cec9b0a345af167036d90a6b9f464b2296aac5c5f5369355fbd3",
+      "after_sha256": "6623ca7442c7cec9b0a345af167036d90a6b9f464b2296aac5c5f5369355fbd3",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "cameo-masters/ARTICULATED_PROMPTS.md",
+      "before_sha256": "7a6e261ab5abb46336288cd9b36837610311e581dfabdf7fd1a76314ee6c9018",
+      "after_sha256": "7a6e261ab5abb46336288cd9b36837610311e581dfabdf7fd1a76314ee6c9018",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "cameo-masters/PROMPTS.md",
+      "before_sha256": "9c7de265f0411eefabe4fb9327f13e24bcca3a68f9b07a2924c1d1232a53db7b",
+      "after_sha256": "9c7de265f0411eefabe4fb9327f13e24bcca3a68f9b07a2924c1d1232a53db7b",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "cameo-masters/draco-source.png",
+      "before_sha256": "b3fe3884fc23d5dc80dfc18196f1e442f47367dd061bf16fdabdbe0ac935aa9c",
+      "after_sha256": "b3fe3884fc23d5dc80dfc18196f1e442f47367dd061bf16fdabdbe0ac935aa9c",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "cameo-masters/harry-independent-source.png",
+      "before_sha256": "5bb00e187b922eb048a7e1978fcbafe969d73278684c499b3f2727a335bfab1e",
+      "after_sha256": "5bb00e187b922eb048a7e1978fcbafe969d73278684c499b3f2727a335bfab1e",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "cameo-masters/hermione-hair-repair-source.png",
+      "before_sha256": "cb6e078f9de421b6ad2d540b0bd424df82dd47318e6669cdcb14cf02a2b41d6e",
+      "after_sha256": "cb6e078f9de421b6ad2d540b0bd424df82dd47318e6669cdcb14cf02a2b41d6e",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "cameo-masters/ron-source.png",
+      "before_sha256": "452b620e0b82eb1e89b40009da036b322a645a71104b2540648dc63f756081dc",
+      "after_sha256": "452b620e0b82eb1e89b40009da036b322a645a71104b2540648dc63f756081dc",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-phone-v1/holding-hand.svg",
+      "before_sha256": "3424ac675a5b4a538868fb973763f807750f1a1ae282cf9047ba99281dc34d6a",
+      "after_sha256": "3424ac675a5b4a538868fb973763f807750f1a1ae282cf9047ba99281dc34d6a",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-phone-v1/holding-sleeve.svg",
+      "before_sha256": "046d28d77b1104ea42bf7868e6a727e23f9e24236924a9b3fa07f4fbd8f9db2b",
+      "after_sha256": "046d28d77b1104ea42bf7868e6a727e23f9e24236924a9b3fa07f4fbd8f9db2b",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-phone-v1/phone.svg",
+      "before_sha256": "7e4405cc26445c8dbf8526912983006f5dae7037d94d088ea3c7cb1482199e76",
+      "after_sha256": "7e4405cc26445c8dbf8526912983006f5dae7037d94d088ea3c7cb1482199e76",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-phone-v1/rest-hand.svg",
+      "before_sha256": "08e2880e8223523af13d58c1c6cd2faa9d706cc9b3567704f0bd9b46939cb9d7",
+      "after_sha256": "08e2880e8223523af13d58c1c6cd2faa9d706cc9b3567704f0bd9b46939cb9d7",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-phone-v1/typing-hover.svg",
+      "before_sha256": "6a719d1c4d54fb1a2412b3d251af4b6a822fe83e462546d07a912df281ba49cb",
+      "after_sha256": "6a719d1c4d54fb1a2412b3d251af4b6a822fe83e462546d07a912df281ba49cb",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-phone-v1/typing-press.svg",
+      "before_sha256": "dd27df929514f371d4df3512be747481361fe9d501b684fe2a3e5326644585f6",
+      "after_sha256": "dd27df929514f371d4df3512be747481361fe9d501b684fe2a3e5326644585f6",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-phone-v1/typing-sleeve.svg",
+      "before_sha256": "5e31dbeeb7619b9f79d6f2078d4a246acdc856616c0032702f7089d6530bbb7d",
+      "after_sha256": "5e31dbeeb7619b9f79d6f2078d4a246acdc856616c0032702f7089d6530bbb7d",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/.gitattributes",
+      "before_sha256": "d4278445e63e468596d13fafdbe59057153e1d3177fff356830decbb63bc9062",
+      "after_sha256": "d4278445e63e468596d13fafdbe59057153e1d3177fff356830decbb63bc9062",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/PROMPTS.md",
+      "before_sha256": "c733e16f0df39769679edcc93988039e0a4e5a6b9c5220dc553fb7b0a0533745",
+      "after_sha256": "c733e16f0df39769679edcc93988039e0a4e5a6b9c5220dc553fb7b0a0533745",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/cheek-source.png",
+      "before_sha256": "04d88ffe43a8e17f55f263e066c68eef8ab62e290b9657d354c25bd83c3849e6",
+      "after_sha256": "04d88ffe43a8e17f55f263e066c68eef8ab62e290b9657d354c25bd83c3849e6",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/chin-source.png",
+      "before_sha256": "f9206fc193a9a0f7e4e61064ffeb39fdc1336af9a5d88f4e83b4657bc09eaa84",
+      "after_sha256": "f9206fc193a9a0f7e4e61064ffeb39fdc1336af9a5d88f4e83b4657bc09eaa84",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/folded-source.png",
+      "before_sha256": "d8a54d03db16521e56f6eb013889e42f2dc7f4b67dcacdf47b511c274c29f9f4",
+      "after_sha256": "d8a54d03db16521e56f6eb013889e42f2dc7f4b67dcacdf47b511c274c29f9f4",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/hip-right.svg",
+      "before_sha256": "79912386b13d43f58c4911092f160d29c0cb2bcb12817c1e0b68c75fc8e62b42",
+      "after_sha256": "79912386b13d43f58c4911092f160d29c0cb2bcb12817c1e0b68c75fc8e62b42",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/page-right.svg",
+      "before_sha256": "b0328262d220b6f1a7776672a85da5a4e66099ab8e8180f003d83c3a48b1bf82",
+      "after_sha256": "b0328262d220b6f1a7776672a85da5a4e66099ab8e8180f003d83c3a48b1bf82",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/pinch-hand.svg",
+      "before_sha256": "2752e69e4f8759be87794fd8085d4c4ca141edc5a0497e89a536fa971e5e8b18",
+      "after_sha256": "2752e69e4f8759be87794fd8085d4c4ca141edc5a0497e89a536fa971e5e8b18",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/point-hand.svg",
+      "before_sha256": "e903b63d0aa470940ab92df250f5a40bd5a9e6048dc1045a6f2d2dfb71d8330d",
+      "after_sha256": "e903b63d0aa470940ab92df250f5a40bd5a9e6048dc1045a6f2d2dfb71d8330d",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/reach-arms.svg",
+      "before_sha256": "450b73e138bd60ec87e2e0530e38b7bc2dba1c79cc023cfc7c3e28fa92d326a1",
+      "after_sha256": "450b73e138bd60ec87e2e0530e38b7bc2dba1c79cc023cfc7c3e28fa92d326a1",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/reading-source.png",
+      "before_sha256": "39e9a9148a3e00449b47add1c839e3ff2323812d94db946d69dfa899ba985d98",
+      "after_sha256": "39e9a9148a3e00449b47add1c839e3ff2323812d94db946d69dfa899ba985d98",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/rest-source.png",
+      "before_sha256": "1e4ac668f61a391e55047587c9eafd940f2f5c9413a156d9118ce04850a51116",
+      "after_sha256": "1e4ac668f61a391e55047587c9eafd940f2f5c9413a156d9118ce04850a51116",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/rig.json",
+      "before_sha256": "89d32fe140a26fcbfd099aa5f8aebcaab41814304b47313620f4f058d6887fef",
+      "after_sha256": "89d32fe140a26fcbfd099aa5f8aebcaab41814304b47313620f4f058d6887fef",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "hermione-pose-masters-v3/wand-hand.svg",
+      "before_sha256": "c34317ee5cd357d34148acfc73d60f7d6aea00d68acc5b766ede8cec6e023ad2",
+      "after_sha256": "c34317ee5cd357d34148acfc73d60f7d6aea00d68acc5b766ede8cec6e023ad2",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libLerc.dll",
+      "before_sha256": "1ffee78579c25b073267bcac8d0a6045d9bd446e010c7953b569b2629ca8a58a",
+      "after_sha256": "1ffee78579c25b073267bcac8d0a6045d9bd446e010c7953b569b2629ca8a58a",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libarchive-13.dll",
+      "before_sha256": "607330aaac68f8977dc52eeb8f630c29a583f5edce36c8aae1e991a369520cab",
+      "after_sha256": "607330aaac68f8977dc52eeb8f630c29a583f5edce36c8aae1e991a369520cab",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libb2-1.dll",
+      "before_sha256": "01bbf64090367d511f41d9fc8f34c557f61d4a227b7c9e47ce04052cbfdc3e7d",
+      "after_sha256": "01bbf64090367d511f41d9fc8f34c557f61d4a227b7c9e47ce04052cbfdc3e7d",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libbrotlicommon.dll",
+      "before_sha256": "7b0047dc16dd92a7932124dfd5a6e698d342f533a15d37d61f710def66091436",
+      "after_sha256": "7b0047dc16dd92a7932124dfd5a6e698d342f533a15d37d61f710def66091436",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libbrotlidec.dll",
+      "before_sha256": "c4c987a01597ddf969d93023f933f999a20f285588b0decb4deeb780c9e9cdf8",
+      "after_sha256": "c4c987a01597ddf969d93023f933f999a20f285588b0decb4deeb780c9e9cdf8",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libbz2-1.dll",
+      "before_sha256": "1790bf6473c9d48db14c1f0ee8124142327556d281299ea2a72ee361118ee01a",
+      "after_sha256": "1790bf6473c9d48db14c1f0ee8124142327556d281299ea2a72ee361118ee01a",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libcrypto-3-x64.dll",
+      "before_sha256": "97308feea369b305e562c0098638a1b02a06f52ee9fcc4b8cf3da362ff563cf4",
+      "after_sha256": "97308feea369b305e562c0098638a1b02a06f52ee9fcc4b8cf3da362ff563cf4",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libcurl-4.dll",
+      "before_sha256": "529af2acc6ce7507dbc96fd96e196555bb9a38d9cbb47dee441ea2cce325428d",
+      "after_sha256": "529af2acc6ce7507dbc96fd96e196555bb9a38d9cbb47dee441ea2cce325428d",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libdeflate.dll",
+      "before_sha256": "61a60665da9fd15a0e8668c47424f325e1d74479c3f896fa7ae48ffcee4ca300",
+      "after_sha256": "61a60665da9fd15a0e8668c47424f325e1d74479c3f896fa7ae48ffcee4ca300",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libgcc_s_seh-1.dll",
+      "before_sha256": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270",
+      "after_sha256": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libgif-7.dll",
+      "before_sha256": "547f069546e3233430d3cbf106b403fbdc9c5cf1518e525c462533d58843b31e",
+      "after_sha256": "547f069546e3233430d3cbf106b403fbdc9c5cf1518e525c462533d58843b31e",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libgomp-1.dll",
+      "before_sha256": "ccaf59dc8cff15ace88ab47acd68a5b014167cad8f960e7683466a4c821e41c4",
+      "after_sha256": "ccaf59dc8cff15ace88ab47acd68a5b014167cad8f960e7683466a4c821e41c4",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libiconv-2.dll",
+      "before_sha256": "94ec68fb8d342b6c91b6b48a8d95092819cdcd006a7166e0b68062f946afd08a",
+      "after_sha256": "94ec68fb8d342b6c91b6b48a8d95092819cdcd006a7166e0b68062f946afd08a",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libidn2-0.dll",
+      "before_sha256": "a054a6bb69aaf4666157f968740412e9697085cbc1e48a78f8dd9622169c5aaf",
+      "after_sha256": "a054a6bb69aaf4666157f968740412e9697085cbc1e48a78f8dd9622169c5aaf",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libintl-8.dll",
+      "before_sha256": "0e5a178731e6be6d115442a6ade3df7f03265cd1fc4338f8b6f86a8001cbf582",
+      "after_sha256": "0e5a178731e6be6d115442a6ade3df7f03265cd1fc4338f8b6f86a8001cbf582",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libjbig-0.dll",
+      "before_sha256": "36b6155be36d24a19154a48177a09978ff6c26f48665d8c7bb5057aaace6b91c",
+      "after_sha256": "36b6155be36d24a19154a48177a09978ff6c26f48665d8c7bb5057aaace6b91c",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libjpeg-8.dll",
+      "before_sha256": "c63acd5a3231725aa96aa35444b74cd8d607a6fbdab1dd18b0e0ada7e39476d4",
+      "after_sha256": "c63acd5a3231725aa96aa35444b74cd8d607a6fbdab1dd18b0e0ada7e39476d4",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libleptonica-6.dll",
+      "before_sha256": "c48f31ed1cb3dbea30b1121a169dfcd9a4bdb0ed12b5b6fb20a006094a7480bf",
+      "after_sha256": "c48f31ed1cb3dbea30b1121a169dfcd9a4bdb0ed12b5b6fb20a006094a7480bf",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/liblz4.dll",
+      "before_sha256": "5e83fd34144fa033c12e22718317ec2123f8a3460903932b0bfddb8aad379cfd",
+      "after_sha256": "5e83fd34144fa033c12e22718317ec2123f8a3460903932b0bfddb8aad379cfd",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/liblzma-5.dll",
+      "before_sha256": "d97a260b8bb4f6affc34ec47249429240068b94bb6f7dc30c4d64daaafb3ac69",
+      "after_sha256": "d97a260b8bb4f6affc34ec47249429240068b94bb6f7dc30c4d64daaafb3ac69",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libnghttp2-14.dll",
+      "before_sha256": "550b9933ce54833ebb2c0e24b43e1463006c6c62305c471570c6bf18095581bd",
+      "after_sha256": "550b9933ce54833ebb2c0e24b43e1463006c6c62305c471570c6bf18095581bd",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libnghttp3-9.dll",
+      "before_sha256": "eed257dd6092a2f67a760f3f75103ec27cec929281bb2d7b51afabf21a2cad70",
+      "after_sha256": "eed257dd6092a2f67a760f3f75103ec27cec929281bb2d7b51afabf21a2cad70",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libngtcp2-16.dll",
+      "before_sha256": "e77294cc542bfa35a932217ab0130b19cb45f232fb257d8869d967e750e40b31",
+      "after_sha256": "e77294cc542bfa35a932217ab0130b19cb45f232fb257d8869d967e750e40b31",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libngtcp2_crypto_ossl-0.dll",
+      "before_sha256": "e63698046730c9dfcaee49d52298c489ae4c0b28770bcc3ba7f612d35d031dd8",
+      "after_sha256": "e63698046730c9dfcaee49d52298c489ae4c0b28770bcc3ba7f612d35d031dd8",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libopenjp2-7.dll",
+      "before_sha256": "94f9507828d391cf96d700d34918114f1c1e03f91dd1243a19275e0435690925",
+      "after_sha256": "94f9507828d391cf96d700d34918114f1c1e03f91dd1243a19275e0435690925",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libpng16-16.dll",
+      "before_sha256": "28db7a8c6fcc579ce621729d27f1952324cd3a2b4e24da121611bb586346e732",
+      "after_sha256": "28db7a8c6fcc579ce621729d27f1952324cd3a2b4e24da121611bb586346e732",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libpsl-5.dll",
+      "before_sha256": "a531e72de3c64d43fb83cbfb6fa63e5ee982a970292ec51314e29d0acabf1dd5",
+      "after_sha256": "a531e72de3c64d43fb83cbfb6fa63e5ee982a970292ec51314e29d0acabf1dd5",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libsharpyuv-0.dll",
+      "before_sha256": "d29380c7056383f3e7a80bf9e150f0b8c425c1cf2568d1336e88979ddc2307af",
+      "after_sha256": "d29380c7056383f3e7a80bf9e150f0b8c425c1cf2568d1336e88979ddc2307af",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libssh2-1.dll",
+      "before_sha256": "7c9b4edb678b738b919950492c4a390482fdd644d1276d4728990fdd3c3ea989",
+      "after_sha256": "7c9b4edb678b738b919950492c4a390482fdd644d1276d4728990fdd3c3ea989",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libssl-3-x64.dll",
+      "before_sha256": "8b71cd694f8edfbddc76674111278db6bcdcde0dcd63b99238420193848e6dbf",
+      "after_sha256": "8b71cd694f8edfbddc76674111278db6bcdcde0dcd63b99238420193848e6dbf",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libstdc++-6.dll",
+      "before_sha256": "4e4822dc4aaa99383f581dae7ab9464ae89346c5ca742f7efbcdebe20b0fe7b5",
+      "after_sha256": "4e4822dc4aaa99383f581dae7ab9464ae89346c5ca742f7efbcdebe20b0fe7b5",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libtesseract-5.5.dll",
+      "before_sha256": "f5cd59119469ab090088cca82ca4ca5f52ae09f2f52918e432e338bd603f0d3e",
+      "after_sha256": "f5cd59119469ab090088cca82ca4ca5f52ae09f2f52918e432e338bd603f0d3e",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libtiff-6.dll",
+      "before_sha256": "d047260c3d456f84a2f9cd801d3b57bee0357cade32724caf16006c64c5fe8ff",
+      "after_sha256": "d047260c3d456f84a2f9cd801d3b57bee0357cade32724caf16006c64c5fe8ff",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libunistring-5.dll",
+      "before_sha256": "ee39258fa1086269674a8179d3cfaf7c4e380ada14441b5dd9ed53d82d15c4e3",
+      "after_sha256": "ee39258fa1086269674a8179d3cfaf7c4e380ada14441b5dd9ed53d82d15c4e3",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libwebp-7.dll",
+      "before_sha256": "8dfe40c4e0abc90ddf18f080898987e01253d099b2b2d6daf7db521e55c00446",
+      "after_sha256": "8dfe40c4e0abc90ddf18f080898987e01253d099b2b2d6daf7db521e55c00446",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libwebpmux-3.dll",
+      "before_sha256": "9bd85116a22923d648d6b0ad09f21d08df7bd3d8860b24a5b4a6d4ac788b7340",
+      "after_sha256": "9bd85116a22923d648d6b0ad09f21d08df7bd3d8860b24a5b4a6d4ac788b7340",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libwinpthread-1.dll",
+      "before_sha256": "ee4f503512b09d7e2668518c41d6c176755a354523ae15aa4d36220c9cb31791",
+      "after_sha256": "ee4f503512b09d7e2668518c41d6c176755a354523ae15aa4d36220c9cb31791",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/libzstd.dll",
+      "before_sha256": "48368ab0ca622d0ec12f41ce85d91f22866bf5da92c77a69a06483564c93816c",
+      "after_sha256": "48368ab0ca622d0ec12f41ce85d91f22866bf5da92c77a69a06483564c93816c",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/provenance.json",
+      "before_sha256": "56f243584fe88dcc7f0190a8392c6f83529df588834adabc8dfc9c6e3d4a4965",
+      "after_sha256": "56f243584fe88dcc7f0190a8392c6f83529df588834adabc8dfc9c6e3d4a4965",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/tesseract.exe",
+      "before_sha256": "da07f581278e934f8728c406ce426e0664e3be8e90116685823cb301ba4fd6db",
+      "after_sha256": "da07f581278e934f8728c406ce426e0664e3be8e90116685823cb301ba4fd6db",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/zlib1.dll",
+      "before_sha256": "8ae7aeb0467763a1e271cd831ca8e2f7fd101602adb9923100ea26c6be2a559b",
+      "after_sha256": "8ae7aeb0467763a1e271cd831ca8e2f7fd101602adb9923100ea26c6be2a559b",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/brotli/LICENSE",
+      "before_sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94",
+      "after_sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/bzip2/LICENSE",
+      "before_sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3",
+      "after_sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/c-ares/LICENSE.md",
+      "before_sha256": "460f5e768fda3752ca2169a95df062578a10fb126bfd65f3b9b1a1bed2f84807",
+      "after_sha256": "460f5e768fda3752ca2169a95df062578a10fb126bfd65f3b9b1a1bed2f84807",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/curl/LICENSE",
+      "before_sha256": "82f2f4427d6545ee5aaac4f0b80428da6cc8ba41c2cf5da3a03680ec327b9681",
+      "after_sha256": "82f2f4427d6545ee5aaac4f0b80428da6cc8ba41c2cf5da3a03680ec327b9681",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/expat/COPYING",
+      "before_sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87",
+      "after_sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/gettext-runtime/COPYING",
+      "before_sha256": "7ef2cdfe58e0c0460657b6598b49af29d4e03c1e41cbaf0e1da1eb8ad74b95d0",
+      "after_sha256": "7ef2cdfe58e0c0460657b6598b49af29d4e03c1e41cbaf0e1da1eb8ad74b95d0",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/gettext-runtime/intl/COPYING.LIB",
+      "before_sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "after_sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/gettext-runtime/libasprintf/COPYING",
+      "before_sha256": "03133addae5b99a6148c538300e6d97074453089be1423b741bd081f18e2b298",
+      "after_sha256": "03133addae5b99a6148c538300e6d97074453089be1423b741bd081f18e2b298",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/gettext-runtime/libasprintf/COPYING.LIB",
+      "before_sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "after_sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/jbigkit/COPYING",
+      "before_sha256": "91df39d1816bfb17a4dda2d3d2c83b1f6f2d38d53e53e41e8f97ad5ac46a0cad",
+      "after_sha256": "91df39d1816bfb17a4dda2d3d2c83b1f6f2d38d53e53e41e8f97ad5ac46a0cad",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/lcms2/LICENSE",
+      "before_sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
+      "after_sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/lcms2/LICENSE-fast_float",
+      "before_sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271",
+      "after_sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/leptonica/LICENSE",
+      "before_sha256": "87829abb5bbb00b55a107365da89e9a33f86c4250169e5a1e5588505be7d5806",
+      "after_sha256": "87829abb5bbb00b55a107365da89e9a33f86c4250169e5a1e5588505be7d5806",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/lerc/LICENSE",
+      "before_sha256": "77a8b761727c75e2167b15bfdf61b2c0bcf8792271228bebe80779106ad00671",
+      "after_sha256": "77a8b761727c75e2167b15bfdf61b2c0bcf8792271228bebe80779106ad00671",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libarchive/LICENSE",
+      "before_sha256": "30e556b3959e3985d66efefec5eaac51d4995053caa1d3cffe6eb916f146f229",
+      "after_sha256": "30e556b3959e3985d66efefec5eaac51d4995053caa1d3cffe6eb916f146f229",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libb2/LICENSE",
+      "before_sha256": "6a1ee543e5282cd9061881edf462e6fdab181f328da71fc2c9a6950a80e94d01",
+      "after_sha256": "6a1ee543e5282cd9061881edf462e6fdab181f328da71fc2c9a6950a80e94d01",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libdeflate/COPYING",
+      "before_sha256": "4ad69099cb4374836fd27583d9991e2838cd86b6e4666ab26b2d32582c91e73a",
+      "after_sha256": "4ad69099cb4374836fd27583d9991e2838cd86b6e4666ab26b2d32582c91e73a",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libffi/LICENSE",
+      "before_sha256": "17b64dc60f3b6897a60f971e288b973f655c2edcdf08b25f3c3dd5549857881c",
+      "after_sha256": "17b64dc60f3b6897a60f971e288b973f655c2edcdf08b25f3c3dd5549857881c",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libgcc/COPYING.RUNTIME",
+      "before_sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+      "after_sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libgcc/COPYING3",
+      "before_sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "after_sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libgomp/COPYING.RUNTIME",
+      "before_sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+      "after_sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libgomp/COPYING3",
+      "before_sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "after_sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libiconv/COPYING",
+      "before_sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "after_sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libiconv/COPYING.LIB",
+      "before_sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "after_sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libiconv/README",
+      "before_sha256": "4ae66e61d1c6593c84c47105b368d579bcee1af566dbb959ec63a0c48425dcf4",
+      "after_sha256": "4ae66e61d1c6593c84c47105b368d579bcee1af566dbb959ec63a0c48425dcf4",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libiconv/libcharset/COPYING.LIB",
+      "before_sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "after_sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libjpeg-turbo/LICENSE.md",
+      "before_sha256": "ba6bceebcba0fdd35488477c2cca8c4632ce82c74dbfbc87d886ce6fc4433579",
+      "after_sha256": "ba6bceebcba0fdd35488477c2cca8c4632ce82c74dbfbc87d886ce6fc4433579",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libjpeg-turbo/README.ijg",
+      "before_sha256": "75815e3bf6484201a3c3d17a1bbf10f2e8e3237f84df10a2357ea896db2a81d6",
+      "after_sha256": "75815e3bf6484201a3c3d17a1bbf10f2e8e3237f84df10a2357ea896db2a81d6",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libjpeg-turbo/README.md",
+      "before_sha256": "a44ba17ac66c57edaf0ea7c6e4b31358f08322c780e4e6af092082abb3e20793",
+      "after_sha256": "a44ba17ac66c57edaf0ea7c6e4b31358f08322c780e4e6af092082abb3e20793",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libjpeg-turbo/simd/jsimdext.inc",
+      "before_sha256": "68c5d236785edf75344cebe8b9bec36568bd35c96eb72cc67ffecd66c17dbd74",
+      "after_sha256": "68c5d236785edf75344cebe8b9bec36568bd35c96eb72cc67ffecd66c17dbd74",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libpng/LICENSE",
+      "before_sha256": "bdb0a645ea18c60507d0368379b1ac5474b92255fcc2d115e07486a7672ba526",
+      "after_sha256": "bdb0a645ea18c60507d0368379b1ac5474b92255fcc2d115e07486a7672ba526",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libpsl/COPYING",
+      "before_sha256": "322392e6001b2b3b0fca705dc9f11f26e12441188ecde50eb1d22909980b2925",
+      "after_sha256": "322392e6001b2b3b0fca705dc9f11f26e12441188ecde50eb1d22909980b2925",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libssh2/LICENSE",
+      "before_sha256": "f7f9633cf9ff2f1333f3d7ce46973a8716a4d2a2815ad56f30d437d5fea7bafe",
+      "after_sha256": "f7f9633cf9ff2f1333f3d7ce46973a8716a4d2a2815ad56f30d437d5fea7bafe",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libstdc++/COPYING.RUNTIME",
+      "before_sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+      "after_sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libstdc++/COPYING3",
+      "before_sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "after_sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libtasn1/COPYING",
+      "before_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "after_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libtasn1/COPYING.LESSERv2",
+      "before_sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "after_sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libtiff/LICENSE.md",
+      "before_sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
+      "after_sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libunistring/LICENSE",
+      "before_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "after_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libunistring/LICENSE.LIB",
+      "before_sha256": "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c",
+      "after_sha256": "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libwebp/COPYING",
+      "before_sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf",
+      "after_sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/libwinpthread/COPYING",
+      "before_sha256": "63263614cdd29f2f93cba85e992f041b31f9fc7b4033692f31269489a8a1b177",
+      "after_sha256": "63263614cdd29f2f93cba85e992f041b31f9fc7b4033692f31269489a8a1b177",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/nghttp2/COPYING",
+      "before_sha256": "6b94f3abc1aabd0c72a7c7d92a77f79dda7c8a0cb3df839a97890b4116a2de2a",
+      "after_sha256": "6b94f3abc1aabd0c72a7c7d92a77f79dda7c8a0cb3df839a97890b4116a2de2a",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/nghttp3/COPYING",
+      "before_sha256": "58cc3fc8c6d6cb2485ab35eb5918e849b5bf1e56522974e106d7a39a88d61dcd",
+      "after_sha256": "58cc3fc8c6d6cb2485ab35eb5918e849b5bf1e56522974e106d7a39a88d61dcd",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/ngtcp2/COPYING",
+      "before_sha256": "542dd526d2ea23565f0571cc68df6f05ed11248a90ff0f32de19d8ba589db513",
+      "after_sha256": "542dd526d2ea23565f0571cc68df6f05ed11248a90ff0f32de19d8ba589db513",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/openjpeg/LICENSE",
+      "before_sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
+      "after_sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/openssl/LICENSE",
+      "before_sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
+      "after_sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/pcre2/COPYING",
+      "before_sha256": "99272c55f3dcfa07a8a7e15a5c1a33096e4727de74241d65fa049fccfdd59507",
+      "after_sha256": "99272c55f3dcfa07a8a7e15a5c1a33096e4727de74241d65fa049fccfdd59507",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/pcre2/LICENCE.md",
+      "before_sha256": "197d8a73ffee0d6b09adba2f9c677b5f5aede24edf89258a68e48248d010d811",
+      "after_sha256": "197d8a73ffee0d6b09adba2f9c677b5f5aede24edf89258a68e48248d010d811",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/tessdata_fast/LICENSE",
+      "before_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "after_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/tesseract-ocr/LICENSE",
+      "before_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "after_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/tzdata/LICENSE",
+      "before_sha256": "0613408568889f5739e5ae252b722a2659c02002839ad970a63dc5e9174b27cf",
+      "after_sha256": "0613408568889f5739e5ae252b722a2659c02002839ad970a63dc5e9174b27cf",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/wineditline/LICENSE",
+      "before_sha256": "e1a9520a9b3143ad64adb356c5d2fca6bb09a3ad3950cf1f7213946543582440",
+      "after_sha256": "e1a9520a9b3143ad64adb356c5d2fca6bb09a3ad3950cf1f7213946543582440",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/xz/COPYING",
+      "before_sha256": "616a3ad264ce29b8f1cb97e53037b139d406899ca8d1f799651e17bfa09830b8",
+      "after_sha256": "616a3ad264ce29b8f1cb97e53037b139d406899ca8d1f799651e17bfa09830b8",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/xz/COPYING.0BSD",
+      "before_sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+      "after_sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/xz/COPYING.GPLv2",
+      "before_sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6",
+      "after_sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/xz/COPYING.GPLv3",
+      "before_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "after_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/xz/COPYING.LGPLv2.1",
+      "before_sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "after_sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/zlib/LICENSE",
+      "before_sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2",
+      "after_sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/licenses/zstd/LICENSE",
+      "before_sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8",
+      "after_sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/tessdata/eng.traineddata",
+      "before_sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+      "after_sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/tessdata/rus.traineddata",
+      "before_sha256": "e16e5e036cce1d9ec2b00063cf8b54472625b9e14d893a169e2b0dedeb4df225",
+      "after_sha256": "e16e5e036cce1d9ec2b00063cf8b54472625b9e14d893a169e2b0dedeb4df225",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "ocr/tessdata/configs/tsv",
+      "before_sha256": "59d079bb75d8b3d7c839a3564580cb559e362c93a9d70f234e421c0c3e767e04",
+      "after_sha256": "59d079bb75d8b3d7c839a3564580cb559e362c93a9d70f234e421c0c3e767e04",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-hermione/generator-1b75ee9.py.txt",
+      "before_sha256": "534b11d4c617f5294a72338a24e36b8792ce43e70c4868fa47bd7d69676b5446",
+      "after_sha256": "534b11d4c617f5294a72338a24e36b8792ce43e70c4868fa47bd7d69676b5446",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-v1/GrangerPet.ico",
+      "before_sha256": "c1721b5d2c4ae3ffb26796e3b717d6c0257d7211a192fddd9561e2979a415eb4",
+      "after_sha256": "c1721b5d2c4ae3ffb26796e3b717d6c0257d7211a192fddd9561e2979a415eb4",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-v1/animations.json",
+      "before_sha256": "0a2387cd2f096cc3d0c341e9f1d61dc697445bedf4056d4e75363d9f6df30492",
+      "after_sha256": "0a2387cd2f096cc3d0c341e9f1d61dc697445bedf4056d4e75363d9f6df30492",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-v1/character.png",
+      "before_sha256": "472f84d8449956348efb9441dc918ab251020c3c9fa50301315ccc9c6b6bb73b",
+      "after_sha256": "472f84d8449956348efb9441dc918ab251020c3c9fa50301315ccc9c6b6bb73b",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-v1/error.png",
+      "before_sha256": "d3daae87a72eebc600fade8fdb46fe10690350ff7becccdb61540d8c4227a95f",
+      "after_sha256": "d3daae87a72eebc600fade8fdb46fe10690350ff7becccdb61540d8c4227a95f",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-v1/happy.png",
+      "before_sha256": "d9b83119ec7fbe7f40e2012a021548e18d8d4887cc87c63479000299887bf81d",
+      "after_sha256": "d9b83119ec7fbe7f40e2012a021548e18d8d4887cc87c63479000299887bf81d",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-v1/hover.png",
+      "before_sha256": "2aad09dd51eef5bd001f6a1f11320c7bd1c805629e179a1efed540ad0834cf08",
+      "after_sha256": "2aad09dd51eef5bd001f6a1f11320c7bd1c805629e179a1efed540ad0834cf08",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-v1/idle.atlas.json",
+      "before_sha256": "9217023772d750ee73cb2cfd90b18698efb1e329555d94c5847091a3a0a37423",
+      "after_sha256": "9217023772d750ee73cb2cfd90b18698efb1e329555d94c5847091a3a0a37423",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-v1/idle.png",
+      "before_sha256": "7a8d28a890fcdbb8c9e5e12f332c167dc6a25a4452c4f493c5e581a1add4d347",
+      "after_sha256": "7a8d28a890fcdbb8c9e5e12f332c167dc6a25a4452c4f493c5e581a1add4d347",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-v1/provenance.json",
+      "before_sha256": "acc0047588199bdfc7a1760f3935ab60f91b3f424bf6098d06e8d87ea585c3f5",
+      "after_sha256": "acc0047588199bdfc7a1760f3935ab60f91b3f424bf6098d06e8d87ea585c3f5",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-v1/thinking.png",
+      "before_sha256": "9ff8e718284c6f191c8050b3b8c2c9ff880e0b6aa8e4041be883035645bfd4e8",
+      "after_sha256": "9ff8e718284c6f191c8050b3b8c2c9ff880e0b6aa8e4041be883035645bfd4e8",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-v1/walk.png",
+      "before_sha256": "ce57c705f5d49e6d79ab616f276a7a947bfa5dbe76d14153d3069ed67fa4efd1",
+      "after_sha256": "ce57c705f5d49e6d79ab616f276a7a947bfa5dbe76d14153d3069ed67fa4efd1",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "original-v1/working.png",
+      "before_sha256": "6581f0836bd14f695b87c4e89dc7d3814c419eb15375932a3bf83bb85f7d8309",
+      "after_sha256": "6581f0836bd14f695b87c4e89dc7d3814c419eb15375932a3bf83bb85f7d8309",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/GrangerPet.ico",
+      "before_sha256": "c1721b5d2c4ae3ffb26796e3b717d6c0257d7211a192fddd9561e2979a415eb4",
+      "after_sha256": "c1721b5d2c4ae3ffb26796e3b717d6c0257d7211a192fddd9561e2979a415eb4",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/VALIDATION-before-wand.md",
+      "before_sha256": "2b5b444df260a53fa39211f9e4ef076c3e40a4a90f546164246cf165f11d4efd",
+      "after_sha256": "2b5b444df260a53fa39211f9e4ef076c3e40a4a90f546164246cf165f11d4efd",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/animations.json",
+      "before_sha256": "d0a478f24e234fb9c5b3e561777386b06a24db1c094cdb1533a8954ea1ef47bb",
+      "after_sha256": "d0a478f24e234fb9c5b3e561777386b06a24db1c094cdb1533a8954ea1ef47bb",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/character.png",
+      "before_sha256": "6ad0287da25b865bab195d2fa4b79826366c7400e4591b8cbaba95bbfcbe5467",
+      "after_sha256": "6ad0287da25b865bab195d2fa4b79826366c7400e4591b8cbaba95bbfcbe5467",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/error.png",
+      "before_sha256": "8e1b52157461a8c2741ef382262da89774d32af7760bd924979d6a54c0e563f0",
+      "after_sha256": "8e1b52157461a8c2741ef382262da89774d32af7760bd924979d6a54c0e563f0",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/happy.png",
+      "before_sha256": "1cacba39af2ad4d18352a923c485ada4c6ef6fdb182b34abcec23cd4927bf252",
+      "after_sha256": "1cacba39af2ad4d18352a923c485ada4c6ef6fdb182b34abcec23cd4927bf252",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/hover.png",
+      "before_sha256": "9fbddab5c04441d95395a497acc00f9a99d1a6a7983e0c35cc5bba44009b8a61",
+      "after_sha256": "9fbddab5c04441d95395a497acc00f9a99d1a6a7983e0c35cc5bba44009b8a61",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/idle.atlas.json",
+      "before_sha256": "9217023772d750ee73cb2cfd90b18698efb1e329555d94c5847091a3a0a37423",
+      "after_sha256": "9217023772d750ee73cb2cfd90b18698efb1e329555d94c5847091a3a0a37423",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/idle.png",
+      "before_sha256": "1555ead799c3d48b70f680762536154bbd6e3b0107f1f1d26fafa2653728aea9",
+      "after_sha256": "1555ead799c3d48b70f680762536154bbd6e3b0107f1f1d26fafa2653728aea9",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/provenance.json",
+      "before_sha256": "fa4d804f22560ded4fe500853898e24c49c18a16d99b1ae3828fe86cc368d2ea",
+      "after_sha256": "fa4d804f22560ded4fe500853898e24c49c18a16d99b1ae3828fe86cc368d2ea",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/thinking.png",
+      "before_sha256": "be6a56360558de8490813bce9e2a92e625570e05b5ff25cda5f3887db8c3615c",
+      "after_sha256": "be6a56360558de8490813bce9e2a92e625570e05b5ff25cda5f3887db8c3615c",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/walk.png",
+      "before_sha256": "5d26b3a9a1896acc01ea867bd1e14ab9176321d5a69997fc752827b97aadff86",
+      "after_sha256": "5d26b3a9a1896acc01ea867bd1e14ab9176321d5a69997fc752827b97aadff86",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "pre-wand-assets/working.png",
+      "before_sha256": "c3116ad64690644ed73b6d20f84042dedd5dfb9f9dfe6176fc987deda76f5e3d",
+      "after_sha256": "c3116ad64690644ed73b6d20f84042dedd5dfb9f9dfe6176fc987deda76f5e3d",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/Florence-2-LICENSE.txt",
+      "before_sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "after_sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/SteamRecon-LICENSE.txt",
+      "before_sha256": "f90f367ed1c99a41e2a85b62dce098b411ce2136cc957a78bbca125a4c6a50f7",
+      "after_sha256": "f90f367ed1c99a41e2a85b62dce098b411ce2136cc957a78bbca125a4c6a50f7",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/integrations19/ShadowFinder-LICENSE.txt",
+      "before_sha256": "01d7a6c621dee5a3e91c3782e37fa7d82f37966b2051dcf53982e32ad36924f7",
+      "after_sha256": "01d7a6c621dee5a3e91c3782e37fa7d82f37966b2051dcf53982e32ad36924f7",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/integrations19/SunCalc-BSD-2-Clause.txt",
+      "before_sha256": "58161d93edfed01ed13eed8e84bf8d078cc895e62848d830a182d9b886efccef",
+      "after_sha256": "58161d93edfed01ed13eed8e84bf8d078cc895e62848d830a182d9b886efccef",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/integrations19/linkedin-osint-toolkit-LICENSE.txt",
+      "before_sha256": "b800a52c77c8ac924a16bbd34136fe2877f477efac1eaa1af7af0c36703d8966",
+      "after_sha256": "b800a52c77c8ac924a16bbd34136fe2877f477efac1eaa1af7af0c36703d8966",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/integrations19/provenance.json",
+      "before_sha256": "7301ad7d100c71be4266b8dade66fc56958392ea6a03e153bd3dcc9a37b95a64",
+      "after_sha256": "7301ad7d100c71be4266b8dade66fc56958392ea6a03e153bd3dcc9a37b95a64",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/integrations19/suncalc-py-LICENSE.txt",
+      "before_sha256": "d9ceffd322038615b3c212d2bcee1bdf2a505edb7d7ebff53b2302fd7243d7ba",
+      "after_sha256": "d9ceffd322038615b3c212d2bcee1bdf2a505edb7d7ebff53b2302fd7243d7ba",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/integrations19/tiktok-timestamp-LICENSE.txt",
+      "before_sha256": "38733302b271242ad07b145c0279551267d65ea738acf4d5936667e877db5b6a",
+      "after_sha256": "38733302b271242ad07b145c0279551267d65ea738acf4d5936667e877db5b6a",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/Python-geoint-security/provenance.json",
+      "before_sha256": "58940fc80a16aba60d58d94bf56399e604d0fe17b1faea947b7db8365638e2f9",
+      "after_sha256": "58940fc80a16aba60d58d94bf56399e604d0fe17b1faea947b7db8365638e2f9",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/Python-geoint-security/cryptography/LICENSE",
+      "before_sha256": "3e0c7c091a948b82533ba98fd7cbb40432d6f1a9acbf85f5922d2f99a93ae6bb",
+      "after_sha256": "3e0c7c091a948b82533ba98fd7cbb40432d6f1a9acbf85f5922d2f99a93ae6bb",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/Python-geoint-security/cryptography/LICENSE.APACHE",
+      "before_sha256": "aac73b3148f6d1d7111dbca32099f68d26c644c6813ae1e4f05f6579aa2663fe",
+      "after_sha256": "aac73b3148f6d1d7111dbca32099f68d26c644c6813ae1e4f05f6579aa2663fe",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/Python-geoint-security/cryptography/LICENSE.BSD",
+      "before_sha256": "602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb",
+      "after_sha256": "602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/Python-geoint-security/Pillow/LICENSE",
+      "before_sha256": "988ffe8ab3480b0f4e9a0ab2702bffd73d9fb6b47198043fb3ba101a62fac236",
+      "after_sha256": "988ffe8ab3480b0f4e9a0ab2702bffd73d9fb6b47198043fb3ba101a62fac236",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/Qt-PySide6/GPL-3.0-only.txt",
+      "before_sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "after_sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/Qt-PySide6/LGPL-3.0-only.txt",
+      "before_sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "after_sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/Qt-PySide6/provenance.json",
+      "before_sha256": "7acdbe29ca3c9fee02c89c202ce56c7946baaee08506ca09a8741a48a81a76d3",
+      "after_sha256": "7acdbe29ca3c9fee02c89c202ce56c7946baaee08506ca09a8741a48a81a76d3",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/Qt-PySide6/pyside6-6.11.1.dist-info/LicenseRef-Qt-Commercial.txt",
+      "before_sha256": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3",
+      "after_sha256": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/Qt-PySide6/shiboken6-6.11.1.dist-info/LicenseRef-Qt-Commercial.txt",
+      "before_sha256": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3",
+      "after_sha256": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/visual-models/DINOv2-Apache-2.0.txt",
+      "before_sha256": "600cc67cc4cb2f5ea317dcfc687ad1c74dc4bec8782bbe9db0afd83513b935b7",
+      "after_sha256": "600cc67cc4cb2f5ea317dcfc687ad1c74dc4bec8782bbe9db0afd83513b935b7",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/visual-models/DINOv2-large-registers-model-card.md",
+      "before_sha256": "b47007389111ece52bfc9b4efc4799486b39852d3a5d8100619e4be1fff57793",
+      "after_sha256": "b47007389111ece52bfc9b4efc4799486b39852d3a5d8100619e4be1fff57793",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/visual-models/DISK-Apache-2.0.txt",
+      "before_sha256": "35fd2dfe53babc1523303f3e598666169967f423a77e1c1ffea2c58078d3e848",
+      "after_sha256": "35fd2dfe53babc1523303f3e598666169967f423a77e1c1ffea2c58078d3e848",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/visual-models/GeoCLIP-MIT.txt",
+      "before_sha256": "c272adb7c32db589779b10cc36ee1395af25bbd68aca0be19173f8ef04a23dc3",
+      "after_sha256": "c272adb7c32db589779b10cc36ee1395af25bbd68aca0be19173f8ef04a23dc3",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/visual-models/LightGlue-Apache-2.0.txt",
+      "before_sha256": "0e6031ed3e62dc91dc8b1c8f240abd200b1083f60773362e64e339fe01d1bf18",
+      "after_sha256": "0e6031ed3e62dc91dc8b1c8f240abd200b1083f60773362e64e339fe01d1bf18",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/visual-models/NOTICE.md",
+      "before_sha256": "3203e6b5f8c99e5ba144c1eee355df0119a7ebcd1d8837a0cf6dece687862663",
+      "after_sha256": "3203e6b5f8c99e5ba144c1eee355df0119a7ebcd1d8837a0cf6dece687862663",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/visual-models/OpenAI-CLIP-MIT.txt",
+      "before_sha256": "987e63b32f6c89ff5160e429458a872ff048e6860b590a3912e938f9da8f14db",
+      "after_sha256": "987e63b32f6c89ff5160e429458a872ff048e6860b590a3912e938f9da8f14db",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/visual-models/PLONK-MIT.txt",
+      "before_sha256": "1429db20f9f4337a68f9c2c70940c221a2a668fa51e4deec662949d648938f20",
+      "after_sha256": "1429db20f9f4337a68f9c2c70940c221a2a668fa51e4deec662949d648938f20",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/visual-models/PLONK-YFCC-model-card.md",
+      "before_sha256": "259ebebc5e254bce1298552ebfc5c97f0f4b54cf7a4cf9a744f99b91248b3ffc",
+      "after_sha256": "259ebebc5e254bce1298552ebfc5c97f0f4b54cf7a4cf9a744f99b91248b3ffc",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/visual-models/Waypoint-MIT.txt",
+      "before_sha256": "82d748a82a3b090b4d6264348a89d07a565c782c274b822cc3bbd1f3af685f99",
+      "after_sha256": "82d748a82a3b090b4d6264348a89d07a565c782c274b822cc3bbd1f3af685f99",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/visual-models/Waypoint-models-card.md",
+      "before_sha256": "783a3330ccfb8ad6e8ea4b17ea10ace9ff43745f8f6e5b7491522d8d7d938c4c",
+      "after_sha256": "783a3330ccfb8ad6e8ea4b17ea10ace9ff43745f8f6e5b7491522d8d7d938c4c",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "third-party/visual-models/provenance.json",
+      "before_sha256": "e1e46035e3ecae8000754f46352ad350c77c4f94aa3fe7f124b4dcdaaf1fad00",
+      "after_sha256": "e1e46035e3ecae8000754f46352ad350c77c4f94aa3fe7f124b4dcdaaf1fad00",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "wand-reference/base-512.png",
+      "before_sha256": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b",
+      "after_sha256": "78da6453cb337f3e780523c5aa7c74c50156808173f3ca45bb0292fd3dd5d74b",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "wand-reference/face-inspection.png",
+      "before_sha256": "27770cf1ece19e1c49ce4b1cbd635dc759f6f6e8762e755caab4aa041ed91228",
+      "after_sha256": "27770cf1ece19e1c49ce4b1cbd635dc759f6f6e8762e755caab4aa041ed91228",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "wand-reference/full-body-source.png",
+      "before_sha256": "b1214dc98935674341cac8f2b5bae0cfcc78a4c0ed8115088b668d07d84c6fd8",
+      "after_sha256": "b1214dc98935674341cac8f2b5bae0cfcc78a4c0ed8115088b668d07d84c6fd8",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "wand-reference/imagegen-edit-prompt.txt",
+      "before_sha256": "32f55a1657b3dde61ca2825a1b6d5d7ae829c84b4519586247bc9648a0b2a7d7",
+      "after_sha256": "32f55a1657b3dde61ca2825a1b6d5d7ae829c84b4519586247bc9648a0b2a7d7",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "wand-reference/reference.png",
+      "before_sha256": "6cdebad01e0e85c0381efcbf931b1908eb054fcd9eed9dbd5a6303a9a8d19520",
+      "after_sha256": "6cdebad01e0e85c0381efcbf931b1908eb054fcd9eed9dbd5a6303a9a8d19520",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "wand-reference/rig-metadata.json",
+      "before_sha256": "9874c559bf163c4e709054b18b068fce7325d65ee83208efabd3ca449d9212ec",
+      "after_sha256": "9874c559bf163c4e709054b18b068fce7325d65ee83208efabd3ca449d9212ec",
+      "unchanged": true
+    },
+    {
+      "group": "resources",
+      "path": "wand-reference/size-check.png",
+      "before_sha256": "adb47ad8ea7f1920ddbfb1d88c21491ade710de79fcd56ddf47dbb457bd5d67b",
+      "after_sha256": "adb47ad8ea7f1920ddbfb1d88c21491ade710de79fcd56ddf47dbb457bd5d67b",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/animation.py",
+      "before_sha256": "081e80755cd3567d508020a0ac5f048b9133a1d0233c4c88bbfd70c446016d12",
+      "after_sha256": "081e80755cd3567d508020a0ac5f048b9133a1d0233c4c88bbfd70c446016d12",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/key_poses.py",
+      "before_sha256": "e56fa7a286ced6cdba9153a43acb1fb60128be85eb4bebb7eb04e7ba7d42f73c",
+      "after_sha256": "e56fa7a286ced6cdba9153a43acb1fb60128be85eb4bebb7eb04e7ba7d42f73c",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/motion.py",
+      "before_sha256": "e32cb8332f5980a3d0af7aa7d16b35b2e96f13d7fed577b9f1f1b6df8d6ca5b0",
+      "after_sha256": "e32cb8332f5980a3d0af7aa7d16b35b2e96f13d7fed577b9f1f1b6df8d6ca5b0",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/original_face.py",
+      "before_sha256": "9a32cdfd64ca6798f2923258ddcb98f7942dc815832b2fc42c9d0d0b6e2f7448",
+      "after_sha256": "9a32cdfd64ca6798f2923258ddcb98f7942dc815832b2fc42c9d0d0b6e2f7448",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/original_identity.py",
+      "before_sha256": "dd9f1c901bbe83dc7a6093337e0c754d4e3349a53708ca54ef461e9a0fe7d540",
+      "after_sha256": "dd9f1c901bbe83dc7a6093337e0c754d4e3349a53708ca54ef461e9a0fe7d540",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/original_idle.py",
+      "before_sha256": "0be34b8ef072d8391467e45e791cc21de97a4e2dbd39d45ac53390f67e111770",
+      "after_sha256": "0be34b8ef072d8391467e45e791cc21de97a4e2dbd39d45ac53390f67e111770",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/painted_arms.py",
+      "before_sha256": "df77023e1f0333b7be2e3b486c63c9d23871f837b7e9247143c19e4dc4a5b001",
+      "after_sha256": "df77023e1f0333b7be2e3b486c63c9d23871f837b7e9247143c19e4dc4a5b001",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/pet.py",
+      "before_sha256": "0b6b59922d3c3f6f7daf1fa5c9cf7888bc7806af7fda89be37770982a8bf2dbc",
+      "after_sha256": "0b6b59922d3c3f6f7daf1fa5c9cf7888bc7806af7fda89be37770982a8bf2dbc",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/pet_actions.py",
+      "before_sha256": "53ff2c9dd948637537e307628da27df7ffa5c7020056011eee9cc9fac2050ed3",
+      "after_sha256": "53ff2c9dd948637537e307628da27df7ffa5c7020056011eee9cc9fac2050ed3",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/pet_cameo.py",
+      "before_sha256": "d7fa999dc593ee204cc0bd55b3d93af64bfa8ae59fb7c1aee3ed5092ffe42ec5",
+      "after_sha256": "d7fa999dc593ee204cc0bd55b3d93af64bfa8ae59fb7c1aee3ed5092ffe42ec5",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/pet_capture.py",
+      "before_sha256": "4c05c8e0f1e8fff0023665c589b79603c3c63ef53f6599ab29a461cd3516915f",
+      "after_sha256": "4c05c8e0f1e8fff0023665c589b79603c3c63ef53f6599ab29a461cd3516915f",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/pet_life.py",
+      "before_sha256": "cc6e7ab7a58788b976bc9aa5d540bf9be7be97d2400cbbdc91d1f20efd7b51e1",
+      "after_sha256": "cc6e7ab7a58788b976bc9aa5d540bf9be7be97d2400cbbdc91d1f20efd7b51e1",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/pet_notifications.py",
+      "before_sha256": "ec6b2b1b0ee8c8a04555ec65cd1599aee307ea07f3a0def4be89b0237ba89335",
+      "after_sha256": "ec6b2b1b0ee8c8a04555ec65cd1599aee307ea07f3a0def4be89b0237ba89335",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/scene_art.py",
+      "before_sha256": "232a3e5781500217c807ece42a3dd85fc7b6eedafe293ecbffe7c1b776f7c935",
+      "after_sha256": "232a3e5781500217c807ece42a3dd85fc7b6eedafe293ecbffe7c1b776f7c935",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/scene_pose.py",
+      "before_sha256": "54c25146248715b52a713a77f4ce955b141acd62e170b0a44678a2ea9f261450",
+      "after_sha256": "54c25146248715b52a713a77f4ce955b141acd62e170b0a44678a2ea9f261450",
+      "unchanged": true
+    },
+    {
+      "group": "pet_runtime",
+      "path": "grangerpet/solo_sequence.py",
+      "before_sha256": "fb9e81476feb531c832aba4849d8be4f6579d65db4701927fef0079eb16c269a",
+      "after_sha256": "fb9e81476feb531c832aba4849d8be4f6579d65db4701927fef0079eb16c269a",
+      "unchanged": true
+    }
+  ]
+}

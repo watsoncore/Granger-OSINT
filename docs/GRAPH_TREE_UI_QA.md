@@ -1,6 +1,7 @@
 # Tree / Graph — Master Fix V2
 
-Source/native Qt WebEngine checks on 2026-11-02. Final V2 EXE checks are pending.
+Source and final frozen Qt WebEngine checks on 2026-11-02. Final EXE SHA-256:
+`428f3d02060bf059573921c7d8e8cdd08cab11a70526cdbef4049473548d2077`.
 These controls render previously collected real public evidence; they do not
 claim that opening the visualization performs new source collection.
 
@@ -38,13 +39,13 @@ fields in bounded agent context. Their own evidence precedes neighbor evidence;
 the first targeted follow-up reads that asset with `evidence_get`, rather than
 rescraping the whole owner inventory. This does not fabricate a new market quote.
 
-## Paired source-native screenshots
+## Paired final-EXE screenshots
 
 | Same saved evidence | Tree | Graph |
 | --- | --- | --- |
-| Steam: 751 evidence, 748 item rows | [Branching inventory](validation/master-fix-v2/graph-tree/actual-steam-v2-tree.png) | [Category network](validation/master-fix-v2/graph-tree/actual-steam-v2-graph.png) |
-| Network: 10 evidence, IP 87.199.131.94 | [Registry / routing / GeoIP branches](validation/master-fix-v2/graph-tree/actual-network-v2-tree.png) | [Relations and registry roles](validation/master-fix-v2/graph-tree/actual-network-v2-graph.png) |
-| GEOINT: prior saved 10-record control | [Image → hypotheses → candidate](validation/master-fix-v2/graph-tree/actual-geoint-tree.png) | [Candidate and actual reference photos](validation/master-fix-v2/graph-tree/actual-geoint-graph.png) |
+| Steam: 751 evidence, 748 item rows | [Branching inventory](validation/master-fix-v2/native-graph/actual-steam-v2-tree.png) | [Category network](validation/master-fix-v2/native-graph/actual-steam-v2-graph.png) |
+| Network: 10 evidence, IP 87.199.131.94 | [Registry / routing / GeoIP branches](validation/master-fix-v2/native-graph/actual-network-v2-tree.png) | [Relations and registry roles](validation/master-fix-v2/native-graph/actual-network-v2-graph.png) |
+| GEOINT: prior saved 10-record control | [Image → hypotheses → candidate](validation/master-fix-v2/native-graph/actual-geoint-tree.png) | [Candidate and actual reference photos](validation/master-fix-v2/native-graph/actual-geoint-graph.png) |
 
 All six screenshots were visually reviewed. Different visible counts are
 intentional: Tree hides deeper branches/cross-links by default; neither view
@@ -61,6 +62,9 @@ name `battery defuser`; vanity `ohnePixel` is not substituted for it.
   Actual clicks, selection, drag/persistence, group expansion, search and process
   restart were exercised. The worker was active. No provider/inference calls
   were needed for rendering these saved datasets.
+- Final frozen EXE: 34 checks passed sequentially on the same four saved
+  datasets; all six paired screenshots were inspected. This proves rendering,
+  interaction and persistence, not a fresh Steam download or exact geolocation.
 - Observed single Canvas paints: Steam 2.6 ms, network 2.0 ms, GEOINT 2.2 ms;
   Tree 2.9 / 1.4 / 5.7 ms. These are individual paint samples on this machine,
   not a measured FPS guarantee or total load time.
@@ -69,8 +73,10 @@ name `battery defuser`; vanity `ohnePixel` is not substituted for it.
   not claim all 1,000 labels are simultaneously readable.
 
 Safe metrics, source/synthetic distinctions and screenshot SHA-256 values:
-[controls.json](validation/master-fix-v2/graph-tree/controls.json).
+[source controls](validation/master-fix-v2/graph-tree/controls.json),
+[final EXE controls](validation/master-fix-v2/native-graph/controls.json).
 Earlier QA screenshots found real regressions (hidden groups, fit overlap,
 hidden priors consuming preview slots); they are not the accepted artifacts.
-GEOINT terrain/retrieval/ranking/Russian-description work and final EXE replay
-remain separate pending stages. Character assets and pet runtime were untouched.
+GEOINT accuracy/terrain controls have a separate
+[benchmark](GEOINT_SOURCES_AND_BENCHMARK.md). Character assets and pet runtime
+were untouched.

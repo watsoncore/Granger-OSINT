@@ -1,6 +1,26 @@
 # Granger-OSINT — проверка текущей сборки
 
-## Intelligence/research — текущая поставка, 1 ноября 2026
+## Master Fix V2 — текущая поставка, 2 ноября 2026
+
+Windows x64: 279228663 байта, SHA-256
+`428f3d02060bf059573921c7d8e8cdd08cab11a70526cdbef4049473548d2077`.
+154 frozen modules и 221 ресурс совпали с источниками/build.
+Текущий EXE: network/context 10, site/social 8, Tree/Graph 34 проверок;
+CPU-модели/OCR/EXIF/restart и PE smoke — отдельные receipts.
+Конечный полный source прогон: 1755 passed, 1 skipped (Ollama),
+32 subtests, 356,02 с; frontend 137 passed и TypeScript passed.
+Итоговые повторные результаты и SHA артефактов находятся в release-summary.
+
+Полная сохранность пользовательского профиля не заявляется: один шифрованный
+диалог изменился, два transient lock исчезли, остальные 66 исходных файлов
+совпали. Art/resources/Pet/Gansar и оба модельных runtime совпали целиком.
+Свежие Steam/browser network controls ограничены timeout; исходные live
+наблюдения не выдаются за новые ответы. Точность GEOINT измерена и не гарантирована.
+[Матрица 12 сценариев](docs/MASTER_FIX_V2_VERIFICATION.md) ·
+[Native](docs/validation/master-fix-v2/native-exe.json) ·
+[Сохранность](docs/validation/master-fix-v2/preservation.json).
+
+## Intelligence/research — предыдущая поставка, 1 ноября 2026
 
 Windows x64:279123275 bytes, SHA-256
 `1b935f0f0f82f2fe829ea20be22a064a6c45042713ab9ed368380ce0a49cee37`.

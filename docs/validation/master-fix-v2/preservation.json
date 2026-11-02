@@ -1,0 +1,48 @@
+{
+  "passed": false,
+  "groups": {
+    "profile": {
+      "original_files": 69,
+      "changed": 3
+    },
+    "assets": {
+      "original_files": 92,
+      "changed": 0
+    },
+    "resources": {
+      "original_files": 202,
+      "changed": 0
+    },
+    "gansar": {
+      "original_files": 509,
+      "changed": 0
+    },
+    "visual_cpu": {
+      "original_files": 23387,
+      "changed": 0
+    },
+    "scene_vision": {
+      "original_files": 25,
+      "changed": 0
+    },
+    "pet_runtime": {
+      "original_files": 16,
+      "changed": 0
+    }
+  },
+  "baseline_utc": "2026-11-02T06:40:53.504772+00:00",
+  "profile_exception": {
+    "persistent_files_unchanged": 66,
+    "encrypted_conversations_changed": 1,
+    "transient_locks_removed": 2,
+    "user_denied_manual_app_activity": true,
+    "cause": "not established",
+    "exact_baseline_ciphertext_available": false,
+    "current_file_overwritten": false,
+    "older_copy_messages_retained": 60,
+    "older_copy_is_baseline": false,
+    "message_values_exported": false
+  },
+  "qualification": "Byte preservation passed for art, resources, Pet runtime, Gansar and installed models. Whole-profile preservation failed; do not infer no history loss from an older 60-message copy.",
+  "final_checked_at_utc": "2026-11-02T15:01:41.560502+00:00"
+}

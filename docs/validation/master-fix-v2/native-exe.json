@@ -1,0 +1,1540 @@
+{
+  "scope": "Final frozen EXE; source/live controls are separately linked in the documentation",
+  "curated_at_utc": "2026-11-02T14:53:22.902209+00:00",
+  "groups": {
+    "network_context": {
+      "exe_sha256": "428f3d02060bf059573921c7d8e8cdd08cab11a70526cdbef4049473548d2077",
+      "checks": [
+        {
+          "name": "actual_expected_executable",
+          "passed": true
+        },
+        {
+          "name": "native_desktop_ready",
+          "passed": true
+        },
+        {
+          "name": "native_social_isolated_0",
+          "passed": true
+        },
+        {
+          "name": "native_social_isolated_1",
+          "passed": true
+        },
+        {
+          "name": "native_network_evidence_2",
+          "passed": true
+        },
+        {
+          "name": "native_network_evidence_3",
+          "passed": true
+        },
+        {
+          "name": "native_network_evidence_4",
+          "passed": true
+        },
+        {
+          "name": "native_social_isolated_6",
+          "passed": true
+        },
+        {
+          "name": "native_new_chat_boundary",
+          "passed": true
+        },
+        {
+          "name": "own_process_tree_exited",
+          "passed": true
+        }
+      ],
+      "operations": [],
+      "startup_seconds": 13.507,
+      "passed": true,
+      "receipt_mtime_utc": "2026-11-02T13:55:47.170605+00:00",
+      "turns": [
+        {
+          "scenario": "context-0",
+          "goal": "Привет, Гермиона",
+          "seconds": 2.78,
+          "reply_characters": 85,
+          "tools": [],
+          "research_status": null,
+          "references_previous_ip": false
+        },
+        {
+          "scenario": "context-1",
+          "goal": "Как дела?",
+          "seconds": 3.59,
+          "reply_characters": 194,
+          "tools": [],
+          "research_status": null,
+          "references_previous_ip": false
+        },
+        {
+          "scenario": "context-2",
+          "goal": "Исследуй IP 66.249.67.41",
+          "seconds": 64.22,
+          "reply_characters": 3978,
+          "tools": [
+            "ip_lookup",
+            "network_rdap",
+            "network_geoip",
+            "network_routing",
+            "network_reverse_dns",
+            "network_reputation",
+            "threat_feodo",
+            "network_rdap",
+            "evidence_get",
+            "web_search"
+          ],
+          "research_status": "completed",
+          "saved_record_types": {
+            "ip": 2,
+            "threat_indicator": 1
+          },
+          "saved_source_statuses": [
+            {
+              "tool": "ip_lookup",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "network_rdap",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "network_geoip",
+              "status": "partial",
+              "error": null
+            },
+            {
+              "tool": "network_routing",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "network_reverse_dns",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "network_reputation",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "threat_feodo",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "network_rdap",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "evidence_get",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "web_search",
+              "status": "empty",
+              "error": null
+            }
+          ],
+          "references_previous_ip": true
+        },
+        {
+          "scenario": "context-3",
+          "goal": "А этот IP 87.199.131.94?",
+          "seconds": 52.26,
+          "reply_characters": 6009,
+          "tools": [
+            "ip_lookup",
+            "network_rdap",
+            "network_geoip",
+            "network_reverse_dns",
+            "network_routing",
+            "network_reputation",
+            "threat_feodo"
+          ],
+          "research_status": "completed",
+          "saved_record_types": {
+            "ip": 3,
+            "threat_indicator": 1
+          },
+          "saved_source_statuses": [
+            {
+              "tool": "network_rdap",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "ip_lookup",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "network_geoip",
+              "status": "partial",
+              "error": null
+            },
+            {
+              "tool": "network_reverse_dns",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "network_reputation",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "network_routing",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "threat_feodo",
+              "status": "timeout",
+              "error": null
+            }
+          ],
+          "references_previous_ip": true
+        },
+        {
+          "scenario": "context-4",
+          "goal": "А какая локация?",
+          "seconds": 81.24,
+          "reply_characters": 6390,
+          "tools": [
+            "network_geoip",
+            "network_rdap",
+            "ip_lookup",
+            "network_reverse_dns",
+            "network_routing",
+            "network_reputation",
+            "threat_feodo"
+          ],
+          "research_status": "completed",
+          "saved_record_types": {
+            "ip": 3,
+            "threat_indicator": 2
+          },
+          "saved_source_statuses": [
+            {
+              "tool": "network_rdap",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "network_geoip",
+              "status": "partial",
+              "error": null
+            },
+            {
+              "tool": "ip_lookup",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "network_reverse_dns",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "network_routing",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "network_reputation",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "threat_feodo",
+              "status": "complete",
+              "error": null
+            }
+          ],
+          "references_previous_ip": true
+        },
+        {
+          "scenario": "context-5",
+          "goal": "Отложим",
+          "seconds": 2.8,
+          "reply_characters": 29,
+          "tools": [
+            "network_geoip",
+            "network_rdap",
+            "ip_lookup",
+            "network_reverse_dns",
+            "network_routing",
+            "network_reputation",
+            "threat_feodo"
+          ],
+          "research_status": "completed",
+          "saved_record_types": {
+            "ip": 3,
+            "threat_indicator": 2
+          },
+          "saved_source_statuses": [
+            {
+              "tool": "network_rdap",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "network_geoip",
+              "status": "partial",
+              "error": null
+            },
+            {
+              "tool": "ip_lookup",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "network_reverse_dns",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "network_routing",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "network_reputation",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "threat_feodo",
+              "status": "complete",
+              "error": null
+            }
+          ],
+          "references_previous_ip": false
+        },
+        {
+          "scenario": "context-6",
+          "goal": "Что делаешь?",
+          "seconds": 3.6,
+          "reply_characters": 310,
+          "tools": [
+            "network_geoip",
+            "network_rdap",
+            "ip_lookup",
+            "network_reverse_dns",
+            "network_routing",
+            "network_reputation",
+            "threat_feodo"
+          ],
+          "research_status": "completed",
+          "saved_record_types": {
+            "ip": 3,
+            "threat_indicator": 2
+          },
+          "saved_source_statuses": [
+            {
+              "tool": "network_rdap",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "network_geoip",
+              "status": "partial",
+              "error": null
+            },
+            {
+              "tool": "ip_lookup",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "network_reverse_dns",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "network_routing",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "network_reputation",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "threat_feodo",
+              "status": "complete",
+              "error": null
+            }
+          ],
+          "references_previous_ip": false
+        },
+        {
+          "scenario": "fresh-chat",
+          "goal": "Привет",
+          "seconds": 2.78,
+          "reply_characters": 101,
+          "tools": [],
+          "research_status": null,
+          "references_previous_ip": false
+        }
+      ]
+    },
+    "site_social": {
+      "exe_sha256": "428f3d02060bf059573921c7d8e8cdd08cab11a70526cdbef4049473548d2077",
+      "checks": [
+        {
+          "name": "actual_expected_executable",
+          "passed": true
+        },
+        {
+          "name": "native_desktop_ready",
+          "passed": true
+        },
+        {
+          "name": "native_domain_executed",
+          "passed": true
+        },
+        {
+          "name": "native_domain_evidence",
+          "passed": true
+        },
+        {
+          "name": "native_tiktok_executed",
+          "passed": true
+        },
+        {
+          "name": "native_tiktok_evidence",
+          "passed": true
+        },
+        {
+          "name": "native_vk_executed",
+          "passed": true
+        },
+        {
+          "name": "own_process_tree_exited",
+          "passed": true
+        }
+      ],
+      "operations": [],
+      "startup_seconds": 11.127,
+      "passed": true,
+      "receipt_mtime_utc": "2026-11-02T14:28:06.104008+00:00",
+      "turns": [
+        {
+          "scenario": "domain",
+          "goal": "Исследуй https://voin-cs.kz/ — публичные страницы, услуги и DNS.",
+          "seconds": 115.56,
+          "reply_characters": 10731,
+          "tools": [
+            "web_read",
+            "domain_lookup",
+            "domain_rdap",
+            "domain_dns",
+            "domain_certificates",
+            "web_archive",
+            "web_read",
+            "web_read",
+            "historical_contacts",
+            "web_search",
+            "browser_navigate",
+            "web_read",
+            "web_read",
+            "web_read",
+            "web_read",
+            "domain_dns",
+            "web_read",
+            "web_read",
+            "domain_dns",
+            "web_read"
+          ],
+          "research_status": "completed",
+          "saved_record_types": {
+            "web": 9,
+            "domain": 5,
+            "archive": 5
+          },
+          "saved_source_statuses": [
+            {
+              "tool": "web_read",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "domain_rdap",
+              "status": "error",
+              "error": null
+            },
+            {
+              "tool": "domain_dns",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "domain_lookup",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "web_archive",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "domain_certificates",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "domain_dns",
+              "status": "duplicate_skipped",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "historical_contacts",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "domain_rdap",
+              "status": "duplicate_skipped",
+              "error": null
+            },
+            {
+              "tool": "domain_certificates",
+              "status": "duplicate_skipped",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "duplicate_skipped",
+              "error": null
+            },
+            {
+              "tool": "web_search",
+              "status": "unavailable",
+              "error": null
+            },
+            {
+              "tool": "browser_navigate",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "domain_dns",
+              "status": "invalid_arguments",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "domain_dns",
+              "status": "duplicate_skipped",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "domain_rdap",
+              "status": "duplicate_skipped",
+              "error": null
+            },
+            {
+              "tool": "domain_certificates",
+              "status": "duplicate_skipped",
+              "error": null
+            },
+            {
+              "tool": "domain_dns",
+              "status": "invalid_arguments",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "complete",
+              "error": null
+            }
+          ],
+          "references_previous_ip": false
+        },
+        {
+          "scenario": "tiktok",
+          "goal": "Проверь TikTok @scout2015.",
+          "seconds": 131.67,
+          "reply_characters": 4070,
+          "tools": [
+            "tiktok_public_profile",
+            "web_search",
+            "web_archive",
+            "username_maigret",
+            "username_blackbird",
+            "username_social_analyzer",
+            "github_profile",
+            "x_profile",
+            "web_read",
+            "web_archive",
+            "web_archive",
+            "web_read"
+          ],
+          "research_status": "completed",
+          "saved_record_types": {
+            "archive": 10,
+            "web": 1
+          },
+          "saved_source_statuses": [
+            {
+              "tool": "tiktok_public_profile",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "web_archive",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "web_search",
+              "status": "empty",
+              "error": null
+            },
+            {
+              "tool": "username_maigret",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "username_blackbird",
+              "status": "partial",
+              "error": null
+            },
+            {
+              "tool": "username_social_analyzer",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "x_profile",
+              "status": "empty",
+              "error": null
+            },
+            {
+              "tool": "github_profile",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "tiktok_public_profile",
+              "status": "duplicate_skipped",
+              "error": null
+            },
+            {
+              "tool": "web_archive",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "tiktok_public_profile",
+              "status": "duplicate_skipped",
+              "error": null
+            },
+            {
+              "tool": "web_archive",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "tiktok_public_profile",
+              "status": "duplicate_skipped",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "blocked",
+              "error": null
+            }
+          ],
+          "references_previous_ip": false
+        },
+        {
+          "scenario": "vk",
+          "goal": "Проверь публичную страницу https://vk.com/apiclub.",
+          "seconds": 65.56,
+          "reply_characters": 3816,
+          "tools": [
+            "vk_public",
+            "browser_navigate",
+            "web_archive",
+            "browser_navigate",
+            "web_read",
+            "web_read",
+            "web_search",
+            "web_search"
+          ],
+          "research_status": "completed",
+          "saved_record_types": {
+            "archive": 10
+          },
+          "saved_source_statuses": [
+            {
+              "tool": "vk_public",
+              "status": "blocked",
+              "error": null
+            },
+            {
+              "tool": "browser_navigate",
+              "status": "error",
+              "error": null
+            },
+            {
+              "tool": "web_archive",
+              "status": "complete",
+              "error": null
+            },
+            {
+              "tool": "browser_navigate",
+              "status": "blocked",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "auth_required",
+              "error": null
+            },
+            {
+              "tool": "web_read",
+              "status": "auth_required",
+              "error": null
+            },
+            {
+              "tool": "web_search",
+              "status": "unavailable",
+              "error": null
+            },
+            {
+              "tool": "web_search",
+              "status": "unavailable",
+              "error": null
+            }
+          ],
+          "references_previous_ip": false
+        }
+      ]
+    },
+    "steam_fresh": {
+      "exe_sha256": "428f3d02060bf059573921c7d8e8cdd08cab11a70526cdbef4049473548d2077",
+      "checks": [
+        {
+          "name": "actual_expected_executable",
+          "passed": true
+        },
+        {
+          "name": "native_desktop_ready",
+          "passed": true
+        },
+        {
+          "name": "native_steam_item_evidence",
+          "passed": false
+        },
+        {
+          "name": "own_process_tree_exited",
+          "passed": true
+        }
+      ],
+      "operations": [],
+      "startup_seconds": 12.314,
+      "passed": false,
+      "receipt_mtime_utc": "2026-11-02T14:18:10.934919+00:00",
+      "turns": [
+        {
+          "scenario": "steam",
+          "goal": "Покажи инвентарь Steam 76561198045277210 и полученные цены.",
+          "seconds": 33.84,
+          "reply_characters": 1411,
+          "tools": [
+            "steam_inventory",
+            "steam_profile"
+          ],
+          "research_status": "completed",
+          "saved_record_types": {},
+          "saved_source_statuses": [
+            {
+              "tool": "steam_inventory",
+              "status": "timeout",
+              "error": null
+            },
+            {
+              "tool": "steam_inventory",
+              "status": "duplicate_skipped",
+              "error": null
+            },
+            {
+              "tool": "steam_inventory",
+              "status": "duplicate_skipped",
+              "error": null
+            },
+            {
+              "tool": "steam_profile",
+              "status": "timeout",
+              "error": null
+            }
+          ],
+          "references_previous_ip": false
+        }
+      ]
+    },
+    "browser_fresh": {
+      "exe_sha256": "428f3d02060bf059573921c7d8e8cdd08cab11a70526cdbef4049473548d2077",
+      "checks": [
+        {
+          "name": "actual_expected_executable",
+          "passed": true
+        },
+        {
+          "name": "native_desktop_ready",
+          "passed": true
+        },
+        {
+          "name": "native_saved_key_connection_consistent",
+          "passed": true
+        },
+        {
+          "name": "own_process_tree_exited",
+          "passed": true
+        }
+      ],
+      "operations": [],
+      "startup_seconds": 11.013,
+      "passed": false,
+      "receipt_mtime_utc": "2026-11-02T14:32:42.161803+00:00",
+      "turns": []
+    },
+    "local_pixels_and_models": {
+      "exe_sha256": "428f3d02060bf059573921c7d8e8cdd08cab11a70526cdbef4049473548d2077",
+      "checks": [
+        {
+          "name": "owned_executable",
+          "passed": true
+        },
+        {
+          "name": "theme_dark",
+          "passed": true
+        },
+        {
+          "name": "font_dark",
+          "passed": true
+        },
+        {
+          "name": "overflow_dark",
+          "passed": true
+        },
+        {
+          "name": "theme_black",
+          "passed": true
+        },
+        {
+          "name": "font_black",
+          "passed": true
+        },
+        {
+          "name": "overflow_black",
+          "passed": true
+        },
+        {
+          "name": "theme_light",
+          "passed": true
+        },
+        {
+          "name": "font_light",
+          "passed": true
+        },
+        {
+          "name": "overflow_light",
+          "passed": true
+        },
+        {
+          "name": "theme_mono",
+          "passed": true
+        },
+        {
+          "name": "font_mono",
+          "passed": true
+        },
+        {
+          "name": "overflow_mono",
+          "passed": true
+        },
+        {
+          "name": "fixture_within_tiny_QA_IPC",
+          "passed": true
+        },
+        {
+          "name": "image_import_Синтетическая надпись.png",
+          "passed": true
+        },
+        {
+          "name": "installed_model_readiness_persisted",
+          "passed": true
+        },
+        {
+          "name": "tiktok_timestamp_actual_results",
+          "passed": true
+        },
+        {
+          "name": "typed_timestamp_real_UTC",
+          "passed": true
+        },
+        {
+          "name": "role_classify_actual_results",
+          "passed": true
+        },
+        {
+          "name": "packaged_classification_rules_loaded",
+          "passed": true
+        },
+        {
+          "name": "mail_dns_actual_results",
+          "passed": true
+        },
+        {
+          "name": "packaged_real_DNS",
+          "passed": true
+        },
+        {
+          "name": "map_panoramax_actual_results",
+          "passed": true
+        },
+        {
+          "name": "packaged_Panoramax_license",
+          "passed": true
+        },
+        {
+          "name": "shadow_regions_actual_results",
+          "passed": true
+        },
+        {
+          "name": "typed_shadow_real_geometry",
+          "passed": true
+        },
+        {
+          "name": "visual_geoint_actual_results",
+          "passed": true
+        },
+        {
+          "name": "frozen_pipeline_real_candidates",
+          "passed": true
+        },
+        {
+          "name": "frozen_model_uncalibrated_label",
+          "passed": true
+        },
+        {
+          "name": "evidence_graph_actual_results",
+          "passed": true
+        },
+        {
+          "name": "graph_local_evidence_relations",
+          "passed": true
+        },
+        {
+          "name": "image_metadata_actual_results",
+          "passed": true
+        },
+        {
+          "name": "no_GPS_not_invented",
+          "passed": true
+        },
+        {
+          "name": "image_ocr_actual_results",
+          "passed": true
+        },
+        {
+          "name": "real_russian_pixel_OCR",
+          "passed": true
+        },
+        {
+          "name": "image_import_synthetic-gps.jpg",
+          "passed": true
+        },
+        {
+          "name": "image_metadata_actual_results",
+          "passed": true
+        },
+        {
+          "name": "real_GPS_from_EXIF",
+          "passed": true
+        },
+        {
+          "name": "metadata_not_authenticated",
+          "passed": true
+        },
+        {
+          "name": "encrypted_originals",
+          "passed": true
+        },
+        {
+          "name": "background_visibility",
+          "passed": true
+        },
+        {
+          "name": "restore_active",
+          "passed": true
+        },
+        {
+          "name": "first_run_exit_zero",
+          "passed": true
+        },
+        {
+          "name": "restart_owned_executable",
+          "passed": true
+        },
+        {
+          "name": "saved_theme_restored_after_restart",
+          "passed": true
+        },
+        {
+          "name": "verified_models_ready_after_EXE_restart",
+          "passed": true
+        },
+        {
+          "name": "encrypted_images_preserved_after_restart",
+          "passed": true
+        },
+        {
+          "name": "image_import_synthetic-gps.jpg",
+          "passed": true
+        },
+        {
+          "name": "same_encrypted_image_reopens_after_restart",
+          "passed": true
+        },
+        {
+          "name": "image_metadata_actual_results",
+          "passed": true
+        },
+        {
+          "name": "GPS_survives_restart",
+          "passed": true
+        }
+      ],
+      "metrics": {
+        "startup_ms": 29041.4,
+        "tiktok_timestamp_ms": 324.69,
+        "role_classify_ms": 351.34,
+        "mail_dns_ms": 3184.2,
+        "map_panoramax_ms": 1178.22,
+        "shadow_regions_ms": 337.08,
+        "evidence_graph_ms": 321.78,
+        "image_metadata_ms": 317.97,
+        "image_ocr_ms": 492.49,
+        "post_tools_idle": {
+          "samples": 6,
+          "medians": {
+            "process_count": 5.0,
+            "thread_count": 83.0,
+            "rss_bytes_sum": 2632112128.0,
+            "private_commit_bytes_sum": 2625071104.0,
+            "cpu_percent_one_core": 9.298552900903244,
+            "cpu_percent_machine": 0.7748794084086037,
+            "monitor_seconds": 0.007791400013957173
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 0.0,
+            "gpu_engine_percent_max": 0.0,
+            "gpu_dedicated_bytes": 48920510464.0,
+            "gpu_shared_bytes": 43474944.0
+          }
+        }
+      },
+      "passed": true,
+      "selection_scope": "Core local/OCR/EXIF/installed models/restart assertions only; the original extended run failed afterwards",
+      "excluded_extended_control": "8-sample Waypoint returned no valid coordinates for urban case; recorded as failed, repeated separately with default 32 samples",
+      "receipt_mtime_utc": "2026-11-02T14:39:42.969293+00:00",
+      "turns": []
+    },
+    "geographic_benchmark": {
+      "exe_sha256": "428f3d02060bf059573921c7d8e8cdd08cab11a70526cdbef4049473548d2077",
+      "checks": [
+        {
+          "name": "owned_executable",
+          "passed": true
+        },
+        {
+          "name": "theme_dark",
+          "passed": true
+        },
+        {
+          "name": "font_dark",
+          "passed": true
+        },
+        {
+          "name": "overflow_dark",
+          "passed": true
+        },
+        {
+          "name": "theme_black",
+          "passed": true
+        },
+        {
+          "name": "font_black",
+          "passed": true
+        },
+        {
+          "name": "overflow_black",
+          "passed": true
+        },
+        {
+          "name": "theme_light",
+          "passed": true
+        },
+        {
+          "name": "font_light",
+          "passed": true
+        },
+        {
+          "name": "overflow_light",
+          "passed": true
+        },
+        {
+          "name": "theme_mono",
+          "passed": true
+        },
+        {
+          "name": "font_mono",
+          "passed": true
+        },
+        {
+          "name": "overflow_mono",
+          "passed": true
+        },
+        {
+          "name": "fixture_within_tiny_QA_IPC",
+          "passed": true
+        },
+        {
+          "name": "image_import_Синтетическая надпись.png",
+          "passed": true
+        },
+        {
+          "name": "image_metadata_actual_results",
+          "passed": true
+        },
+        {
+          "name": "no_GPS_not_invented",
+          "passed": true
+        },
+        {
+          "name": "image_ocr_actual_results",
+          "passed": true
+        },
+        {
+          "name": "real_russian_pixel_OCR",
+          "passed": true
+        },
+        {
+          "name": "image_import_synthetic-gps.jpg",
+          "passed": true
+        },
+        {
+          "name": "image_metadata_actual_results",
+          "passed": true
+        },
+        {
+          "name": "real_GPS_from_EXIF",
+          "passed": true
+        },
+        {
+          "name": "metadata_not_authenticated",
+          "passed": true
+        },
+        {
+          "name": "encrypted_originals",
+          "passed": true
+        },
+        {
+          "name": "background_visibility",
+          "passed": true
+        },
+        {
+          "name": "restore_active",
+          "passed": true
+        },
+        {
+          "name": "first_run_exit_zero",
+          "passed": true
+        },
+        {
+          "name": "restart_owned_executable",
+          "passed": true
+        },
+        {
+          "name": "saved_theme_restored_after_restart",
+          "passed": true
+        },
+        {
+          "name": "encrypted_images_preserved_after_restart",
+          "passed": true
+        },
+        {
+          "name": "image_import_synthetic-gps.jpg",
+          "passed": true
+        },
+        {
+          "name": "same_encrypted_image_reopens_after_restart",
+          "passed": true
+        },
+        {
+          "name": "image_metadata_actual_results",
+          "passed": true
+        },
+        {
+          "name": "GPS_survives_restart",
+          "passed": true
+        },
+        {
+          "name": "three_preselected_geographic_classes",
+          "passed": true
+        },
+        {
+          "name": "case-03_source_SHA",
+          "passed": true
+        },
+        {
+          "name": "visual_geoint_actual_results",
+          "passed": true
+        },
+        {
+          "name": "case-03_both_frozen_model_responses",
+          "passed": true
+        },
+        {
+          "name": "case-09_source_SHA",
+          "passed": true
+        },
+        {
+          "name": "visual_geoint_actual_results",
+          "passed": true
+        },
+        {
+          "name": "case-09_both_frozen_model_responses",
+          "passed": true
+        },
+        {
+          "name": "case-10_source_SHA",
+          "passed": true
+        },
+        {
+          "name": "visual_geoint_actual_results",
+          "passed": true
+        },
+        {
+          "name": "case-10_both_frozen_model_responses",
+          "passed": true
+        },
+        {
+          "name": "actual_EXE_exit_zero",
+          "passed": true
+        },
+        {
+          "name": "owned_processes_gone",
+          "passed": true
+        }
+      ],
+      "metrics": {
+        "startup_ms": 13024.18,
+        "image_metadata_ms": 322.39,
+        "image_ocr_ms": 1537.0,
+        "post_tools_idle": {
+          "samples": 6,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 71.0,
+            "rss_bytes_sum": 571996160.0,
+            "private_commit_bytes_sum": 451629056.0,
+            "cpu_percent_one_core": 9.30527926540519,
+            "cpu_percent_machine": 0.7754399387837658,
+            "monitor_seconds": 0.0071975999744609
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 0.0,
+            "gpu_engine_percent_max": 0.0,
+            "gpu_dedicated_bytes": 1080926208.0,
+            "gpu_shared_bytes": 34775040.0
+          }
+        },
+        "visual_geoint_ms": 82935.94
+      },
+      "geographic_benchmark": [
+        {
+          "id": "case-03",
+          "class": "natural_landscape",
+          "source": "https://api.panoramax.xyz/#focus=pic&pic=79538352-8569-4b36-b315-29b9f96bf444",
+          "license": "CC-BY-SA-4.0",
+          "ground_truth_kind": "archive_camera_metadata_not_independently_surveyed",
+          "archive_camera_lat_lon": [
+            45.923641944,
+            6.868633889
+          ],
+          "source_sha256": "e71e520622e8e00fa3c71ab0d60cf533500fc6c9f561d70d950756185461d192",
+          "pixel_input_sha256": "7fcc82658dfa6efbe4330ab627e8de3d538b8c0ca592c18113b0d579f5f36883",
+          "input_metadata_stripped": true,
+          "samples": 32,
+          "seed": 0,
+          "models": {
+            "geoclip_predict": {
+              "predictions": [
+                {
+                  "candidate": [
+                    45.92512512207031,
+                    6.871261119842529
+                  ],
+                  "distance_to_archive_camera_m": 262
+                },
+                {
+                  "candidate": [
+                    45.9241828918457,
+                    6.869040012359619
+                  ],
+                  "distance_to_archive_camera_m": 68
+                },
+                {
+                  "candidate": [
+                    45.92342758178711,
+                    6.871490955352783
+                  ],
+                  "distance_to_archive_camera_m": 222
+                }
+              ],
+              "status": "hypothesis"
+            },
+            "waypoint_predict": {
+              "predictions": [
+                {
+                  "candidate": [
+                    46.12176770303472,
+                    8.2682803467747
+                  ],
+                  "distance_to_archive_camera_m": 110289
+                }
+              ],
+              "status": "hypothesis"
+            }
+          },
+          "empty_predictions": []
+        },
+        {
+          "id": "case-09",
+          "class": "urban_street",
+          "source": "https://api.panoramax.xyz/#focus=pic&pic=d6f8bec6-4250-405c-a54f-a417f6349ef7",
+          "license": "CC-BY-SA-4.0",
+          "ground_truth_kind": "archive_camera_metadata_not_independently_surveyed",
+          "archive_camera_lat_lon": [
+            45.760241279,
+            4.835712817
+          ],
+          "source_sha256": "8e49e7c34895377baa26e9b1dcf7b74665bce41019d1d47c5fb081e4d3f33e47",
+          "pixel_input_sha256": "907d86f3770aa4475357d9e06e76d188232a9e8ca3d656086f47a114bf9bd935",
+          "input_metadata_stripped": true,
+          "samples": 32,
+          "seed": 0,
+          "models": {
+            "geoclip_predict": {
+              "predictions": [
+                {
+                  "candidate": [
+                    45.76334762573242,
+                    4.83429479598999
+                  ],
+                  "distance_to_archive_camera_m": 363
+                },
+                {
+                  "candidate": [
+                    45.76139450073242,
+                    4.835608959197998
+                  ],
+                  "distance_to_archive_camera_m": 128
+                },
+                {
+                  "candidate": [
+                    45.760353088378906,
+                    4.835506916046143
+                  ],
+                  "distance_to_archive_camera_m": 20
+                }
+              ],
+              "status": "hypothesis"
+            },
+            "waypoint_predict": {
+              "predictions": [
+                {
+                  "candidate": [
+                    47.57846144056956,
+                    0.25016010713471554
+                  ],
+                  "distance_to_archive_camera_m": 404005
+                },
+                {
+                  "candidate": [
+                    44.843274956768866,
+                    -0.5803373835011333
+                  ],
+                  "distance_to_archive_camera_m": 435601
+                },
+                {
+                  "candidate": [
+                    45.68517268365811,
+                    4.717709224111098
+                  ],
+                  "distance_to_archive_camera_m": 12393
+                }
+              ],
+              "status": "hypothesis"
+            }
+          },
+          "empty_predictions": []
+        },
+        {
+          "id": "case-10",
+          "class": "architectural_landmark",
+          "source": "https://api.panoramax.xyz/#focus=pic&pic=68bc5f7f-fc6e-488d-bc8d-ae030fb28c2f",
+          "license": "CC-BY-SA-4.0",
+          "ground_truth_kind": "archive_camera_metadata_not_independently_surveyed",
+          "archive_camera_lat_lon": [
+            48.858335,
+            2.294067
+          ],
+          "source_sha256": "04a365dc2a12a05beead96ca384337bd0897ca5872afff87645449179826c8dd",
+          "pixel_input_sha256": "49a52ddcf5da3113f34f7262d3f901052ac97c31f4eda645ad7424c564bfe5c8",
+          "input_metadata_stripped": true,
+          "samples": 32,
+          "seed": 0,
+          "models": {
+            "geoclip_predict": {
+              "predictions": [
+                {
+                  "candidate": [
+                    49.11480712890625,
+                    -1.0972590446472168
+                  ],
+                  "distance_to_archive_camera_m": 249082
+                },
+                {
+                  "candidate": [
+                    47.02082824707031,
+                    5.720560073852539
+                  ],
+                  "distance_to_archive_camera_m": 326894
+                },
+                {
+                  "candidate": [
+                    49.297645568847656,
+                    3.1787381172180176
+                  ],
+                  "distance_to_archive_camera_m": 80859
+                }
+              ],
+              "status": "hypothesis"
+            },
+            "waypoint_predict": {
+              "predictions": [
+                {
+                  "candidate": [
+                    49.005878342355395,
+                    2.456843179245479
+                  ],
+                  "distance_to_archive_camera_m": 20262
+                },
+                {
+                  "candidate": [
+                    50.48988298331716,
+                    3.204929095294309
+                  ],
+                  "distance_to_archive_camera_m": 192893
+                },
+                {
+                  "candidate": [
+                    49.34059179489596,
+                    6.268827720548442
+                  ],
+                  "distance_to_archive_camera_m": 294271
+                }
+              ],
+              "status": "hypothesis"
+            }
+          },
+          "empty_predictions": []
+        }
+      ],
+      "passed": true,
+      "receipt_mtime_utc": "2026-11-02T14:51:57.291972+00:00",
+      "turns": []
+    }
+  },
+  "browser_fresh_limitation": {
+    "target": "https://www.scrapethissite.com/pages/forms/",
+    "actual_tool_status": "blocked",
+    "reason": "robots permission could not be confirmed",
+    "independent_transport_control": "robots.txt GET timed out; this does not prove a Disallow rule",
+    "source_flow_receipt": "browser-final-exit-aware/report.json",
+    "fixture_or_mock": false
+  },
+  "steam_fresh_limitation": {
+    "profile": "76561198045277210",
+    "actual_tool_status": "timeout",
+    "independent_transport_controls": "Frozen worker and source collector timed out; connect-limited direct read timed out too",
+    "earlier_live_coverage": {
+      "unique_items": 748,
+      "source_reported": 795,
+      "complete": false
+    },
+    "fresh_prices_verified": false
+  }
+}
