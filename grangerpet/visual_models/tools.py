@@ -34,6 +34,21 @@ def execute(tool,args,*,store,cancel_event,deadline):
     except GeointError as error:
         return {'status':'cancelled' if error.code=='cancelled' else 'error','error_code':error.code,'results':[],'limitations':[str(error)]}
     status=result.get('status')
+    if tool in ('geoclip_predict','waypoint_predict') and status=='completed' and not result.get('predictions'):
+        # The CPU computation can finish while DBSCAN rejects every sample as
+        # noise. Keep that observation, but never call it successful geolocation.
+        result={**result,'status':'no_candidates','computation_status':'completed',
+            'error_code':'no_geographic_candidates','candidate_count':0}
+        limitations=['Вычисление модели завершено, но пригодных географических кандидатов нет. Все сэмплы могли оказаться шумом кластеризации; место не установлено.']
+        from .observations import signature,parameters
+        details={**result,'attachment_id':args['attachment_id'],'tool':tool,'capability':tool,
+            'execution_mode':'LOCAL_MODEL','acquisition':'local_tool','source_record':True,
+            'local_inference_signature':signature(tool,args),'inference_parameters':parameters(tool,args),
+            'limitations':limitations}
+        return {'status':'empty','error_code':'no_geographic_candidates','limitations':limitations,
+            'results':[{'id':tool+':'+details['local_inference_signature'],'type':'image_analysis','platform':tool,
+                'title':'Модель · географические кандидаты не получены','url':'','status':'unconfirmed',
+                'description':limitations[0],'details':details,'sources':[tool]}]}
     if status!='completed':
         return {'status':status if status in ('cancelled','timeout','error') else 'unavailable',
             'error_code':result.get('error_code','visual_worker_failed'),'results':[],

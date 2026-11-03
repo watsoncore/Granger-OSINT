@@ -31,7 +31,15 @@ def cached(tool, args, records):
     key = signature(tool, args)
     for row in reversed(list(records)):
         details = row.get('details') or {}
-        if details.get('local_inference_signature') == key and details.get('status') == 'completed':
+        if details.get('local_inference_signature') == key and details.get('status') in ('completed','no_candidates'):
+            if tool in ('geoclip_predict','waypoint_predict') and not details.get('predictions'):
+                saved=deepcopy(row)
+                saved['status']='unconfirmed'
+                saved['details'].update(status='no_candidates',computation_status='completed',
+                    error_code='no_geographic_candidates',candidate_count=0)
+                return {'tool':tool,'status':'empty','query':args['attachment_id'],'results':[saved],
+                    'error_code':'no_geographic_candidates','from_saved_data':True,'inference_calls':0,
+                    'limitations':['Сохранённое вычисление не дало географических кандидатов. Место не установлено; повторный inference не выполнялся.']}
             return {'tool': tool, 'status': 'complete', 'query': args['attachment_id'],
                 'results': [deepcopy(row)], 'from_saved_data': True, 'inference_calls': 0,
                 'limitations': ['Использовано сохранённое локальное наблюдение с теми же параметрами и версией модели; новый inference не выполнялся.']}

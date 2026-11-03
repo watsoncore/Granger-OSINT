@@ -52,12 +52,18 @@ def test_owned_worker_and_grandchild_exit_after_terminal_state(tmp_path,monkeypa
     def observe(event):
         if event.get('event')!='stage':return
         ancestry=api.ancestry();owned={spawned[0].pid};changed=True
+        # Toolhelp parent PIDs outlive their parent process and can refer to a
+        # recycled PID. A browser born before our root is never our descendant.
+        root_birth=api.counters(spawned[0].pid)['creation_ticks']
+        identities={spawned[0].pid:api.counters(spawned[0].pid)}
         while changed:
             changed=False
             for pid,row in ancestry.items():
-                if pid not in owned and row['parent_pid'] in owned:owned.add(pid);changed=True
+                if pid not in owned and row['parent_pid'] in owned:
+                    candidate=api.counters(pid);parent=identities.get(row['parent_pid'])
+                    if candidate and parent and candidate['creation_ticks']>=parent['creation_ticks']>=root_birth:
+                        identities[pid]=candidate;owned.add(pid);changed=True
         assert {event['worker_pid'],event['child_pid']}<=owned
-        root_birth=api.counters(spawned[0].pid)['creation_ticks']
         for pid in owned:
             row=api.counters(pid)
             assert row and row['image'].casefold() in allowed and row['creation_ticks']>=root_birth

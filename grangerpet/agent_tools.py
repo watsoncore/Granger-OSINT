@@ -909,8 +909,8 @@ class ToolRegistry:
             return envelope
         records = {}
         contract_errors = []
-        def receive(raw):
-            if cancelled.is_set():
+        def receive(raw,*,allow_stopped=False):
+            if cancelled.is_set() and not allow_stopped:
                 return
             try:
                 existing = self.evidence.get(raw.get('evidence_id')) if isinstance(raw,dict) else None
@@ -979,7 +979,8 @@ class ToolRegistry:
                 outcome = adapter.run(query, Context(cancelled, options, event))
             validate_outcome(outcome)
             for raw in outcome.get("results", [])[:limit]:
-                receive(raw)
+                receive(raw,allow_stopped=spec.name=='steam_inventory' and spec.source=='steam_public'
+                    and outcome.get('status') in ('partial','cancelled','timeout'))
             status = str(outcome.get("status", "error"))
             if outcome.get('from_saved_data') is True:envelope['from_saved_data']=True
             if spec.source in ('blockchain','network_public','vk_public_page') and isinstance(outcome.get('source_diagnostics'),(dict,list)):

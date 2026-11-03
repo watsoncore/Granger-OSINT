@@ -14,6 +14,7 @@ import re
 import logging
 from pathlib import Path
 import time
+import threading
 from urllib.parse import urlsplit
 
 from PySide6.QtCore import QEvent, QObject, QRect, QTimer, Signal, Slot
@@ -148,6 +149,9 @@ class DesktopBridge(QObject):
         self._graph_signature = None
         self._investigation_choices = []
         self._workspace = None
+        self._research_canvas = None
+        self._manual_generation=0
+        self._settling_manual_jobs=set()
         self._seen_chat_investigation = ''
         self._launcher_fingerprint = None
         self.ui_ready = False
@@ -456,6 +460,7 @@ class DesktopBridge(QObject):
             canvas={'id':canvas.document_id,'text':canvas.editor.toPlainText(),'title':canvas.title.text(),'dirty':canvas._dirty} if canvas else None,
             hermione={'state':self.host._last_activity or 'idle','visible':True})
         base['investigation_graph']=self._graph_data
+        if self._research_canvas is not None:base['research_canvas']=self._research_canvas.state
         base['geo_views']=self._geo_views
         base['map_tiles']=self._map_tiles
         base['investigation_choices']=self._investigation_choices
@@ -596,6 +601,12 @@ class DesktopBridge(QObject):
             'chat_send','chat_new','chat_clear','chat_regenerate','history_load','investigation_continue',
             'canvas_open','canvas_edit','canvas_save','canvas_export','search_run','tool_run','search_analyze','attachment_choose','attachment_import'):
             raise ValueError('Сначала разблокируйте переносимое хранилище в настройках.')
+        if action.startswith('research_canvas_'):
+            if portable_enabled() and not portable_unlocked():raise ValueError('Сначала разблокируйте хранилище.')
+            if self._research_canvas is None:
+                from .research_canvas_bridge import ResearchCanvasBridge
+                self._research_canvas=ResearchCanvasBridge(self)
+            return self._research_canvas.action(action,payload)
         if action.startswith('investigation_graph_'):
             if portable_enabled() and not portable_unlocked():raise ValueError('Сначала разблокируйте хранилище.')
             return self._graph_action(action,payload)
@@ -646,7 +657,7 @@ class DesktopBridge(QObject):
                 if callable(close):close()
             if chat.busy:chat.cancel()
             if self._manual_job:
-                self._manual_job.cancel()
+                getattr(self._manual_job,'tool_cancelled',self._manual_job.cancelled).set()
         elif action in ('attachment_choose','attachment_import','attachment_remove','attachment_cancel'):
             return self._attachment_action(action,payload)
         elif action=='chat_new': chat.new_conversation(); self._history_time=0
@@ -722,7 +733,9 @@ class DesktopBridge(QObject):
             self.route='search'
         elif action=='search_stop':
             if self._manual_job:
-                self._manual_job.cancel(); self._manual_job.deleteLater(); self._manual_job=None
+                getattr(self._manual_job,'tool_cancelled',self._manual_job.cancelled).set()
+                self._settling_manual_jobs.add(self._manual_job)
+                self._manual_job=None
                 self.host._set_phase('cancelled')
             for row in self._manual_activity:
                 if row['status']=='running': row['status']='cancelled'
@@ -806,7 +819,8 @@ class DesktopBridge(QObject):
         for job in (*self._geo_jobs.values(),*self._tile_jobs.values()):job.cancel();job.deleteLater()
         self._geo_jobs={};self._tile_jobs={};self._geo_views={};self._map_tiles={}
         jobs=(self._manual_job,self._balance_job,self._models_job,self._tools_job,self._visual_job,self._graph_job,self._media_job,
-              getattr(self,'_attachment_job',None))
+              getattr(self,'_attachment_job',None),self._research_canvas.job if self._research_canvas else None,
+              self._research_canvas.media_job if self._research_canvas else None,*self._settling_manual_jobs)
         if ((chat and chat.busy) or getattr(self.host,'_busy',False) or any(jobs)
                 or bool(getattr(connections,'_jobs',[]))):
             raise ValueError('Дождитесь текущих запросов или остановите задачу перед изменением хранилища.')
@@ -816,6 +830,11 @@ class DesktopBridge(QObject):
                 raise ValueError('Не удалось сохранить изменения Canvas. Хранилище не изменено; документ остаётся открыт.')
         if operation in ('create','lock') and chat and not chat._save_archive(): raise ValueError(chat.archive_error)
         if operation=='lock':
+            if self._research_canvas:
+                self._research_canvas.document=None;self._research_canvas.preview=None
+                self._research_canvas.previews={}
+                self._research_canvas.undo=[];self._research_canvas.redo=[]
+                self._research_canvas.state={'state':'locked','choices':[],'types':[]}
             from .visual_models.manager import get_manager
             get_manager().close()
             credentials.lock_portable_vault()
@@ -1036,7 +1055,7 @@ class DesktopBridge(QObject):
             'state':'checking','reason':'Проверяется локальный запуск.','requires_approval':spec.requires_approval}) for spec in _SPECS]
         self.mark_dirty()
 
-    def _run_tool(self,payload):
+    def _run_tool(self,payload,canvas_target=None):
         if self._manual_job or self.host.chat_widget.busy or self.host._busy: raise ValueError('Сначала дождитесь или остановите текущую задачу.')
         spec = next((s for s in _SPECS if s.name==payload.get('tool')),None)
         query = payload.get('query')
@@ -1082,12 +1101,29 @@ class DesktopBridge(QObject):
         self._manual_activity=[{'id':spec.name,'tool':TOOL_NAMES.get(spec.name,spec.name),'status':'running',
             'inputType':spec.kind,'summary':'Запрос пользователя'}]
         self.host.search_state.emit('working')
-        job = UiJob(lambda:registry.execute(spec.name,arguments,cancel_event=job.cancelled,
-            deadline=time.monotonic()+registry.timeout_for(spec.name,self.host.settings.search_timeout),approved=approved),self)
+        stop_event=threading.Event();self._manual_generation+=1;generation=self._manual_generation
+        conversation_id=self.host.chat_widget.conversation_id
+        previous_manual=self._workspace.manual
+        def execute_manual():
+            outcome=registry.execute(spec.name,arguments,cancel_event=stop_event,
+                deadline=time.monotonic()+registry.timeout_for(spec.name,self.host.settings.search_timeout),approved=approved)
+            if spec.source not in ('graph','evidence_get'):
+                try:
+                    outcome['_saved_manual_snapshot']=self._workspace.manual_result(query,outcome,arguments,registry,
+                        conversation_id,activate=False,previous=None if stop_event.is_set() else previous_manual)
+                except (OSError,ValueError,CredentialError):outcome['_manual_save_failed']=True
+            return outcome
+        job = UiJob(execute_manual,self)
+        job.tool_cancelled=stop_event
         self._manual_job=job
         def done(outcome,error):
-            if self._manual_job is not job:return
+            self._settling_manual_jobs.discard(job)
+            if generation!=self._manual_generation or self._closed:
+                job.deleteLater();return
+            if self._manual_job is not job and not stop_event.is_set():
+                job.deleteLater();return
             self._manual_job=None
+            saved_snapshot=outcome.pop('_saved_manual_snapshot',None) if isinstance(outcome,dict) else None
             status = outcome.get('status','error') if isinstance(outcome,dict) else 'error'
             self._manual_activity[0]['status']=status
             self._manual_activity[0]['summary']=error or str((outcome or {}).get('error') or '')
@@ -1100,11 +1136,15 @@ class DesktopBridge(QObject):
                 self.host.checked_label.setText(f"Коллекторы Gansar: {diagnostic.get('providers_attempted',0)} · HTTP-запросы: {diagnostic.get('http_requests') if diagnostic.get('http_requests') is not None else 'неизвестно'}")
             else:self.host.checked_label.setText('Адаптеров выполнено: 1')
             if isinstance(outcome,dict):
+                if canvas_target and self._research_canvas:
+                    self._research_canvas.accept_tool(outcome,*canvas_target)
                 self.host._agent_evidence(outcome.get('results',[]))
                 for row in outcome.get('results',[]): self._raw_sources[row['evidence_id']]=row
                 if spec.source not in ('graph','evidence_get'):
                     try:
-                        self._workspace.manual_result(query,outcome,arguments,registry,self.host.chat_widget.conversation_id)
+                        if saved_snapshot:
+                            self._workspace.select(saved_snapshot['id']);self._workspace.manual=saved_snapshot
+                        else:self._workspace.manual_result(query,outcome,arguments,registry,conversation_id)
                         self._graph_signature=None
                     except (OSError,ValueError,CredentialError) as failure:
                         from .errors import report_exception
@@ -1113,7 +1153,7 @@ class DesktopBridge(QObject):
             # execution's timeout status, but describe the usable Search result
             # as incomplete rather than saying the whole search failed.
             has_results=bool((outcome or {}).get('results'))
-            self.host._set_phase('completed_with_errors' if status=='partial' or has_results and status not in ('complete','completed') else
+            self.host._set_phase('cancelled' if status=='cancelled' else 'completed_with_errors' if status=='partial' or has_results and status not in ('complete','completed') else
                 'completed' if status in ('complete','completed') and (outcome or {}).get('results') else
                 'completed_empty' if status in ('complete','completed','empty') else 'failed')
             self.host.search_state.emit('happy' if not error and status in ('complete','completed','partial','empty') else 'error')
@@ -1281,6 +1321,12 @@ class DesktopBridge(QObject):
             view=self._workspace.views.save(identifier,payload.get('view'))
             return {'saved':True,'version':view['version']}
         if self._graph_data.get('investigation_id')!=identifier or self._graph_data.get('state')!='ready':raise ValueError('Сначала откройте граф этого расследования.')
+        if action=='investigation_graph_media':
+            entity=payload.get('entity_id')
+            if entity not in {row['id'] for row in self._graph_data['entities']}:raise ValueError('Узел не относится к открытому графу.')
+            if self._media_job:return {'pending':True,'busy':True}
+            self._load_node_media(identifier,entity)
+            return {'pending':self._media_job is not None}
         if action=='investigation_graph_select':
             entity=payload.get('entity_id','');relation=payload.get('relation_id','')
             if entity and entity not in {row['id']for row in self._graph_data['entities']}:raise ValueError('Узел не относится к открытому графу.')
@@ -1403,6 +1449,10 @@ class DesktopBridge(QObject):
     def shutdown(self):
         if self._closed:return
         self._closed = True
+        if self._research_canvas:self._research_canvas.close()
+        for pending in self._settling_manual_jobs:
+            getattr(pending,'tool_cancelled',pending.cancelled).set();pending.cancel()
+        self._settling_manual_jobs.clear()
         close=getattr(self._manual_registry,'close',None)
         if callable(close):close()
         self._flush.stop()
@@ -1415,4 +1465,5 @@ class DesktopBridge(QObject):
             if job: job.cancel();job.deleteLater()
         self._tools_job=None;self._balance_job=None
         if self._manual_job:
+            getattr(self._manual_job,'tool_cancelled',self._manual_job.cancelled).set()
             self._manual_job.cancel(); self._manual_job.deleteLater(); self._manual_job=None

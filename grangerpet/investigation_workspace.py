@@ -55,13 +55,14 @@ class InvestigationWorkspace:
         self.views.select(identifier)
         self.active_id=identifier
 
-    def manual_result(self,query,outcome,arguments,registry,conversation_id):
+    def manual_result(self,query,outcome,arguments,registry,conversation_id,*,activate=True,previous=None):
         secrets=tuple(getattr(registry,'_redactions',()))
         safe=sanitize_outcome(outcome,secrets)
         query=redact(query,secrets)
         arguments=redact(arguments,secrets)
-        if self.manual and self.manual.get('manual_query')==query:
-            old=self.journal.load_checkpoint(self.manual['id'])
+        previous=self.manual if activate else previous
+        if previous and previous.get('manual_query')==query:
+            old=self.journal.load_checkpoint(previous['id'])
             record=deepcopy(old['record'])
             state={key:deepcopy(value) for key,value in old.items() if key not in ('record','version','id','evidence','executions')}
             store=InvestigationEvidence();store.restore(old.get('evidence',[]),old.get('executions',[]))
@@ -75,6 +76,7 @@ class InvestigationWorkspace:
         record.update(mode='manual',manual_query=query,status='paused',stop_reason='manual_result',resumable=True,
             updated_at=now,finished_at=now,tool_calls=record.get('tool_calls',0)+1,
             checkpoint_revision=record.get('checkpoint_revision',0)+1)
+        if safe['status'] in ('cancelled','timeout'):record.update(status=safe['status'],stop_reason=safe['status'])
         record['calls'].append({'tool':name,'arguments':deepcopy(arguments),'origin':'manual','tool_call_id':safe.get('invocation_id','')})
         store.add(safe)
         fingerprint=hashlib.sha256((name+'\0'+_json(registry.canonical_arguments(name,arguments))).encode()).hexdigest()
@@ -87,6 +89,7 @@ class InvestigationWorkspace:
         self.journal.save_checkpoint(checkpoint)
         snapshot={**record,'evidence':store.records(),'executions':store.executions()}
         self.journal.save(snapshot)
-        self.select(record['id'])
-        self.manual=snapshot
+        if activate:
+            self.select(record['id'])
+            self.manual=snapshot
         return snapshot

@@ -118,7 +118,7 @@ def parse_price(payload,*,name,endpoint,observed_at):
         'limitations':'Цена лота Market, не оценка редкости pattern/float/наклеек и не гарантированная цена продажи.'}
 
 
-async def collect(args,*,deadline,cancel_event=None,client_factory=None,resolver=None):
+async def collect(args,*,deadline,cancel_event=None,client_factory=None,resolver=None,on_page=None):
     from .steam_public import normalize,collect as profile_collect
     from .web_http import fetch_public
     from .agent_browser import PublicPageReader,PageReadError
@@ -172,6 +172,7 @@ async def collect(args,*,deadline,cancel_event=None,client_factory=None,resolver
             'returned_assets':len(page['items']),'new_assets':added,'reported_total':page['reported_total'],
             'cursor':cursor,'next_cursor':page['next_cursor']})
         cursor=page['next_cursor'];more=page['more_items']
+        if on_page:on_page(_inventory_outcome(args,identity,profile,items,pages,cursor,total,more,'in_progress',failures,False))
         if not more:stop='exhausted';break
         if not added:stop='no_new_assets';break
     complete=stop=='exhausted' and not args.get('cursor') and total is not None and len(items)==total and not failures
@@ -188,6 +189,12 @@ async def collect(args,*,deadline,cancel_event=None,client_factory=None,resolver
             failures.append({'stage':'price','error_code':getattr(error,'code','price_schema_drift'),
                 'retry_after_seconds':getattr(error,'retry_after_seconds',None)});break
     for item in items.values():item['price']=prices.get(item.get('market_hash_name'))
+    return _inventory_outcome(args,identity,profile,items,pages,cursor,total,more,stop,failures,complete)
+
+
+def _inventory_outcome(args,identity,profile,items,pages,cursor,total,more,stop,failures,complete):
+    from .agent_web import _record,_envelope
+    steamid=identity.steamid64;appid=args['appid'];context=args['contextid']
     records=[];canonical=identity.profile_url
     for item in items.values():
         price=item.get('price');name=item['name'] or 'Предмет '+item['assetid']
@@ -206,7 +213,7 @@ async def collect(args,*,deadline,cancel_event=None,client_factory=None,resolver
         kind='steam_inventory',details={'capability':'steam_inventory','operation':'steam_inventory','steamid64':steamid,
             'appid':appid,'contextid':context,'canonical_url':canonical,'requested_profile':profile,'coverage':coverage,
             'categories':dict(Counter(item['category'] for item in items.values())),'source_failures':failures,
-            'prices_observed':len([price for price in prices.values() if price and price.get('amount_decimal')]),
+            'prices_observed':len({item.get('market_hash_name') for item in items.values() if item.get('price') and item['price'].get('amount_decimal')}),
             'price_coverage':'Частичная оценка только фактически полученных публичных Market quotes; неизвестная цена не равна нулю.'})
     summary['id']='steam_inventory:'+steamid+':'+str(appid)+':'+context+':'+str(args.get('cursor') or 'start')
     if pages:records.insert(0,summary)

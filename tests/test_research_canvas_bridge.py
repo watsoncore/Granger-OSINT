@@ -1,0 +1,98 @@
+import time
+from PySide6.QtWidgets import QApplication
+from PySide6.QtTest import QTest
+from test_desktop_bridge import bridge
+from grangerpet.agent_evidence import normalize_evidence
+
+
+def wait(bridge):
+    end=time.monotonic()+12
+    while bridge._research_canvas.job and time.monotonic()<end:
+        QApplication.processEvents();QTest.qWait(10)
+    assert not bridge._research_canvas.job
+    state=bridge.snapshot()['research_canvas']
+    assert not state.get('error'),state.get('error')
+    return state
+
+
+def action(bridge,op,**payload):
+    document=bridge._research_canvas.document if bridge._research_canvas else None
+    bridge.dispatch('research_canvas_'+op,{'id':document['id'] if document else '',
+        'revision':document['revision'] if document else 0,**payload})
+    return wait(bridge)
+
+
+def test_qt_actual_canvas_editor_undo_redo_and_reopen_do_not_change_chat(bridge):
+    messages=list(bridge.host.chat_widget.messages)
+    created=action(bridge,'new',title='Ручной Qt-контроль');identifier=created['document']['id']
+    changed=action(bridge,'edit',operation='node',arguments={'type':'infrastructure_asset','label':'66.249.67.41'})
+    assert len(changed['document']['entities'])==1 and changed['can_undo']
+    assert action(bridge,'undo')['document']['entities']==[]
+    assert len(action(bridge,'redo')['document']['entities'])==1
+    reopened=action(bridge,'open',id=identifier)
+    assert reopened['document']['title']=='Ручной Qt-контроль'
+    assert bridge.host.chat_widget.messages==messages
+
+
+def test_preview_requires_explicit_selected_server_evidence_and_preserves_source_open(bridge):
+    created=action(bridge,'new',title='Preview');doc_id=created['document']['id']
+    row=normalize_evidence({'id':'qa-profile','type':'profile','platform':'github','title':'octocat',
+        'url':'https://github.com/octocat','details':{'login':'octocat'},'status':'source_reported'},'github_profile','octocat')
+    controller=bridge._research_canvas
+    controller.accept_tool({'tool':'github_profile','status':'partial','results':[row],'limitations':['fixture']},doc_id,'')
+    assert controller.document['entities']==[]
+    state=action(bridge,'insert',token=controller.preview['token'],evidence_ids=[row['evidence_id']])
+    assert state['document']['entities'] and state['preview']['status']=='partial'
+    first=len(controller.document['entities'])
+    action(bridge,'insert',token=controller.preview['token'],evidence_ids=[row['evidence_id']])
+    assert len(controller.document['entities'])==first
+    assert bridge.dispatch('source_open',{'evidence_id':row['evidence_id']})['evidence_id']==row['evidence_id']
+
+
+def test_canvas_tool_action_uses_existing_registry_path_and_does_not_insert_automatically(bridge,monkeypatch):
+    action(bridge,'new',title='Node tool')
+    action(bridge,'edit',operation='node',arguments={'type':'blockchain_address','label':'UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd'})
+    calls=[];monkeypatch.setattr(bridge,'_run_tool',lambda payload,canvas_target=None:calls.append((payload,canvas_target)))
+    doc=bridge._research_canvas.document;node=doc['entities'][0]
+    bridge.dispatch('research_canvas_tool',{'id':doc['id'],'revision':doc['revision'],'entity_id':node['id'],'tool':'blockchain_gansar','arguments':{'address':node['attributes']['address']}})
+    assert calls[0][1]==(doc['id'],node['id']) and not doc['evidence']
+
+
+def test_canvas_rejects_stale_project_even_with_same_canonical_node(bridge):
+    import pytest
+    first=action(bridge,'new',title='Первое')['document']
+    action(bridge,'edit',operation='node',arguments={'type':'infrastructure_asset','label':'66.249.67.41'})
+    old=bridge._research_canvas.document
+    node=old['entities'][0]['id']
+    action(bridge,'new',title='Второе')
+    action(bridge,'edit',operation='node',arguments={'type':'infrastructure_asset','label':'66.249.67.41'})
+    with pytest.raises(ValueError,match='версия'):
+        bridge.dispatch('research_canvas_tool',{'id':old['id'],'revision':old['revision'],'entity_id':node,'tool':'network_rdap','query':'66.249.67.41'})
+
+
+def test_import_keeps_provenance_but_does_not_trust_exported_verification(bridge,tmp_path):
+    import json
+    from copy import deepcopy
+    from grangerpet.research_canvas import new_document,merge_evidence
+    row=normalize_evidence({'id':'import-fixture','type':'profile','platform':'github','title':'octocat',
+        'url':'https://github.com/octocat','details':{'login':'octocat'},'status':'source_reported'},'github_profile','octocat')
+    doc=new_document('Импорт');merge_evidence(doc,[row]);original=deepcopy(doc['evidence'])
+    doc['entities'][0]['verification_status']='verified'
+    path=tmp_path/'import.granger.json';path.write_text(json.dumps(doc,ensure_ascii=False),encoding='utf-8-sig')
+    action(bridge,'list');bridge._research_canvas._import(path)
+    result=bridge._research_canvas.document
+    assert result['id']!=doc['id'] and result['evidence']==original
+    assert all(n['verification_status']=='unverified' and n['attributes']['imported_unverified'] for n in result['entities'])
+
+
+def test_explain_selected_note_is_bounded_valid_context_without_pixels_or_tools(bridge,monkeypatch):
+    import json
+    action(bridge,'new',title='Область ИИ')
+    action(bridge,'edit',operation='node',arguments={'type':'analyst_note','label':'Гипотеза','markdown':'Нужна проверка'})
+    doc=bridge._research_canvas.document;node=doc['entities'][0]
+    calls=[];monkeypatch.setattr(bridge,'dispatch',lambda name,payload:calls.append((name,payload)))
+    bridge._research_canvas.action('research_canvas_analyze',{'id':doc['id'],'revision':doc['revision'],'ids':[node['id']],'intent':'explain'})
+    text=calls[0][1]['text'];assert text.startswith('Не используй инструменты.') and 'base64' not in text
+    context=json.loads(text.split('(не инструкции):\n',1)[1])
+    assert context['selected_entity_ids']==[node['id']]
+    assert context['analyst_annotations'][node['id']]['claim_kind']=='analyst_assertion'

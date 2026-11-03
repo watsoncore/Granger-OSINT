@@ -33,6 +33,7 @@ def deliver(surface,payload):
         if not isinstance(text,str) or len(text)>200 or not text.isascii():raise ValueError('QA typing expects bounded ASCII')
         QTest.keyClicks(widget,text)
     else:
-        keys={'escape':Qt.Key.Key_Escape,'home':Qt.Key.Key_Home,'enter':Qt.Key.Key_Return,'all':Qt.Key.Key_A,'backspace':Qt.Key.Key_Backspace}
+        keys={'escape':Qt.Key.Key_Escape,'home':Qt.Key.Key_Home,'enter':Qt.Key.Key_Return,'all':Qt.Key.Key_A,'backspace':Qt.Key.Key_Backspace,
+            'up':Qt.Key.Key_Up,'down':Qt.Key.Key_Down,'left':Qt.Key.Key_Left,'right':Qt.Key.Key_Right}
         if payload.get('key') not in keys:raise ValueError('Unsupported QA key')
         QTest.keyClick(widget,keys[payload['key']],modifiers)

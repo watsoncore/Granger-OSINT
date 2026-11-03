@@ -32,11 +32,24 @@ export interface GraphRelation {
 export interface GraphView {
   version:1; mode?:GraphMode; positions?:Record<string,GraphPoint>; tree_positions?:Record<string,GraphPoint>
   layout_algorithm?:'semantic_cards'|'semantic_network_v2';inspector_width?:number;inspector_hidden?:boolean
+  layout_mode?:'semantic'|'manual'|'hierarchical'|'radial'|'types'|'communities'|'timeline';manual_positions?:Record<string,GraphPoint>
   viewport?:GraphViewport; tree_viewport?:GraphViewport; selected_id?:string; selected_relation?:string
   expanded?:string[]; expanded_relations?:string[]; collapsed?:string[]; query?:string
-  filters?: {types?:string[];statuses?:Verification[];include_background?:boolean;show_sources?:boolean;show_transactions?:boolean}
+  filters?: {types?:string[];statuses?:Verification[];sources?:string[];include_background?:boolean;show_sources?:boolean;show_transactions?:boolean}
 }
 export interface GraphFinding { evidence_id:string; title:string; description:string; url:string; status:string; relevance?:Source['relevance'] }
+export interface ResearchDocument {
+  schema:'granger-investigation/1';id:string;revision:number;title:string;description:string
+  entities:GraphEntity[];relations:GraphRelation[];evidence:Source[]
+  annotations:Record<string,{label?:string;markdown?:string;color?:string}>
+  view:{positions:Record<string,GraphPoint>;instances?:Record<string,{entity_id:string;position:GraphPoint;parent_group_id?:string}>;viewport:GraphViewport;hidden:string[];removed:string[];collapsed:string[];layout:string;query?:string}
+  custom_types:Record<string,string>;recovered_revision?:boolean
+}
+export interface ResearchCanvasState {
+  state:string;busy?:boolean;error?:string;document?:ResearchDocument;types:string[]
+  choices:{id:string;title:string;revision:number}[];can_undo?:boolean;can_redo?:boolean
+  preview?:{token:string;canvas_id:string;node_id:string;tool:string;status:string;limitations:string[];results:Source[]}
+}
 export interface InvestigationGraph {
   state:'idle'|'loading'|'ready'|'empty'|'locked'|'cancelled'|'error'; investigation_id?:string; goal?:string; status?:string
   revision?:string|number; root_id?:string; entities?:GraphEntity[]; relations?:GraphRelation[]; evidence?:Source[]
@@ -173,6 +186,7 @@ export interface DesktopState {
   map_tiles?:Record<string,{key:string;state:string;image?:string;error_code?:string}>
   errors?: { id: string; message: string; code: string; count: number }[]
   investigation_graph?:InvestigationGraph
+  research_canvas?:ResearchCanvasState
   investigation_choices?:{id:string;title:string;status:string;updated_at?:string}[]
   visual_models?: {
     state: string; installed: boolean; available: boolean; download_bytes?: number | null; disk_recommended_bytes?: number | null
@@ -303,6 +317,17 @@ export function parseState(raw: string | Partial<DesktopState>, previous = empty
         for(const row of [...graph.summary.findings,...graph.summary.hypotheses])if(!object(row)||typeof row.evidence_id!=='string'||typeof row.title!=='string'||typeof row.description!=='string')throw new Error('Некорректная находка графа')
       }
       if(graph.view&&(!object(graph.view)||graph.view.version!==1))throw new Error('Некорректное состояние представления графа')
+    }
+  }
+  const research=value.research_canvas
+  if(research){
+    if(!object(research)||typeof research.state!=='string'||!Array.isArray(research.types)||!Array.isArray(research.choices))throw new Error('Некорректное полотно')
+    const doc=research.document
+    if(doc){
+      if(!object(doc)||doc.schema!=='granger-investigation/1'||typeof doc.id!=='string'||!Number.isInteger(doc.revision)||typeof doc.title!=='string'||!Array.isArray(doc.entities)||doc.entities.length>5000||!Array.isArray(doc.relations)||doc.relations.length>20000||!Array.isArray(doc.evidence)||!object(doc.view)||!object(doc.view.positions)||!object(doc.annotations))throw new Error('Некорректное расследование')
+      const ids=new Set<string>()
+      for(const n of doc.entities){if(!object(n)||typeof n.id!=='string'||ids.has(n.id)||typeof n.label!=='string'||!object(n.attributes)||!Array.isArray(n.evidence_ids))throw new Error('Некорректный объект полотна');ids.add(n.id)}
+      for(const e of doc.relations)if(!object(e)||!ids.has(e.from_id)||!ids.has(e.to_id)||typeof e.relation_type!=='string'||!Array.isArray(e.evidence_ids))throw new Error('Некорректная связь полотна')
     }
   }
   const patch = value as Partial<DesktopState> & { message_updates?: { index: number; message: Message }[]; message_count?: number }

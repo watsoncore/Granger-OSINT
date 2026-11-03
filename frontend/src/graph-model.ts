@@ -57,6 +57,7 @@ export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:stri
   let allowed=nodes.filter(node=> {
     if (node.id===root) return true
     const type=entityType(node)
+    if(filters.sources!==undefined&&!node.source?.some(source=>filters.sources!.includes(source)))return false
     if (filters.types!==undefined&&!filters.types.includes(type)&&!filters.types.includes(node.type)) return false
     if (!filters.show_sources&&(node.type==='source'||node.attributes.technical===true||node.type==='service'&&!filters.types?.includes('service'))) return false
     if(!filters.show_sources&&node.type==='geographic_candidate'&&node.attributes.raw_prediction_only&&researchedImages.has(node.attributes.attachment_id))return false

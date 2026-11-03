@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from urllib.parse import urlsplit
@@ -151,6 +152,22 @@ def execute(tool,value,*,cancel_event=None,deadline=None):
         if cancel_event and cancel_event.is_set():return _envelope(tool,summary,status='cancelled')
         if time.monotonic()>=end:return _envelope(tool,summary,status='timeout')
     process=job=None
+    checkpoint=tempfile.TemporaryDirectory(prefix='granger-steam-') if tool=='steam_inventory' else None
+    checkpoint_path=Path(checkpoint.name)/'inventory.dpapi' if checkpoint else None
+    def interrupted(status):
+        if checkpoint_path and checkpoint_path.is_file():
+            try:
+                from .credentials import WindowsLegacyStore,CredentialError
+                from .tool_contracts import validate_outcome
+                if checkpoint_path.stat().st_size>8_065_536:raise ValueError()
+                result=json.loads(WindowsLegacyStore._protect(checkpoint_path.read_bytes(),decrypt=True))
+                validate_outcome(result)
+                if result.get('tool')!=tool:raise ValueError()
+                result.update(status=status,error_code='steam_inventory_'+status,from_page_checkpoint=True)
+                result.setdefault('limitations',[]).append('Сохранены полученные до остановки страницы. Продолжение доступно с наблюдённого next_cursor; цены не обновлялись после остановки.')
+                return result
+            except (OSError,ValueError,UnicodeError,CredentialError):pass
+        return _envelope(tool,summary,status=status)
     try:
         if cancel_event and cancel_event.is_set():return _envelope(tool,summary,status='cancelled')
         root=Path(__file__).resolve().parents[1]
@@ -161,10 +178,11 @@ def execute(tool,value,*,cancel_event=None,deadline=None):
         if os.name=='nt':
             job=_WindowsJob(process,memory_limit=384*1024*1024)
             if not job.handle:return _envelope(tool,summary,status='unavailable',error_code='worker_job_unavailable')
-        payload=json.dumps({'tool':tool,'value':value,'seconds':max(.1,end-time.monotonic())}).encode();sent=False
+        payload=json.dumps({'tool':tool,'value':value,'seconds':max(.1,end-time.monotonic()),
+            **({'checkpoint':str(checkpoint_path)} if checkpoint_path else {})}).encode();sent=False
         while True:
-            if cancel_event and cancel_event.is_set():return _envelope(tool,summary,status='cancelled')
-            if time.monotonic()>=end:return _envelope(tool,summary,status='timeout')
+            if cancel_event and cancel_event.is_set():return interrupted('cancelled')
+            if time.monotonic()>=end:return interrupted('timeout')
             try:raw,_=process.communicate(input=None if sent else payload,timeout=.05);break
             except subprocess.TimeoutExpired:sent=True
         if process.returncode or len(raw)>(8_000_000 if tool=='steam_inventory' else 500_000):raise ValueError('Invalid worker output')
@@ -190,6 +208,7 @@ def execute(tool,value,*,cancel_event=None,deadline=None):
             try:process.wait(timeout=3)
             except subprocess.TimeoutExpired:process.kill();process.wait(timeout=3)
         _PROCESS_SLOTS.release()
+        if checkpoint:checkpoint.cleanup()
 
 
 def worker_main():
@@ -203,7 +222,18 @@ def worker_main():
         end=time.monotonic()+seconds
         if tool=='steam_inventory':
             from .steam_inventory import collect as inventory_collect
-            result=_run(lambda:inventory_collect(value,deadline=end-min(2,seconds/4)),deadline=end,timeout=seconds)
+            checkpoint=payload.get('checkpoint')
+            def on_page(value):
+                if not checkpoint:return
+                from .credentials import WindowsLegacyStore
+                from .portable_vault import atomic_write
+                path=Path(checkpoint).resolve()
+                if (path.name!='inventory.dpapi' or path.parent.parent!=Path(tempfile.gettempdir()).resolve()
+                        or not path.parent.name.startswith('granger-steam-') or not path.parent.is_dir()):raise ValueError('Invalid owned inventory checkpoint')
+                raw=json.dumps(value,ensure_ascii=True).encode('utf-8')
+                if len(raw)>8_000_000:raise ValueError('Inventory checkpoint limit')
+                atomic_write(path,WindowsLegacyStore._protect(raw))
+            result=_run(lambda:inventory_collect(value,deadline=end-min(2,seconds/4),on_page=on_page),deadline=end,timeout=seconds)
         else:result=_run(lambda:collect(tool,value,deadline=end),deadline=end,timeout=seconds)
     except (PageReadError,_FetchError) as error:result=_envelope(tool,str(value)[:200],status=error.status,error_code=error.code)
     except (ValueError,TypeError,ET.ParseError):result=_envelope(tool,str(value)[:200],status='error',error_code='invalid_steam_response')
