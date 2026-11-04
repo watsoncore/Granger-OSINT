@@ -107,7 +107,7 @@
   "temporary_build_removed": true,
   "secret_scan": {
     "passed": true,
-    "checked_payloads": 6857,
+    "checked_payloads": 6897,
     "archive_checked": false,
     "git_history_checked": true,
     "exe_sha256": "45ef168638da469a31408f899453d469a31b1ca6d3462beb47d4fd88760633d1"
@@ -117,5 +117,12 @@
     "Full Maigret planned and cancelled, not a completed whole-database scan",
     "Only TON and Bitcoin newly tested live in this V4",
     "GEOINT, Steam, SOCMINT and DeepSeek full external services not newly live-tested in V4"
-  ]
+  ],
+  "release": {
+    "code_commit": "b93c1ca132ab6714d1b44893b0a05e65e76bcd66",
+    "branch": "granger/chibi-reconstruction",
+    "source_publication": "pushed to origin",
+    "binary_publication": "installed locally at canonical path; no GitHub Release or ZIP created",
+    "receipt_followup": "documentation-only commit; packaged runtime unchanged"
+  }
 }

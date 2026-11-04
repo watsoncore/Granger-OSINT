@@ -39,10 +39,10 @@ ip→infrastructure_asset, location→coordinate. `label`, `value`, `original_id
 username/address/url/chain отделены. Legacy документы остаются читаемыми, массовой
 миграции нет. Импорт сохраняет тип и снижает claimed verification как прежде.
 
-Fixture проверяет 13 видов: username/nickname, public profile, email, phone, IP,
+Fixture проверяет 13 случаев, включая aliases: username/nickname, public profile, email, phone, IP,
 domain, wallet, transaction, organization, image, location, custom. JSON roundtrip,
 encrypted reopen и annotation edit сохраняют тип/значение. Настоящий file-picker
-экспорт всех 13 видов отдельно не выполнялся; это не называется native export PASS.
+экспорт всей матрицы отдельно не выполнялся; это не называется native export PASS.
 
 ## C. Capability Registry
 
@@ -150,7 +150,7 @@ native smoke **22**, live/interaction **31** checks.
 Тайм-аут теста и production-код OCR ради этого не изменялись.
 
 После установки канонический EXE отдельно прошёл ещё 22/22 native checks.
-Secret scan: 6857 payloads (история Git, исходники,
+Secret scan: 6897 payloads (история Git, исходники,
 извлечённые PE/PYZ), утечек не найдено; значение ключа не сохранялось.
 
 Неуспешные ранние harness-прогоны выявили clipped hit areas, совпадение текста
@@ -162,7 +162,7 @@ trigger/radio, допустимый portal input у верхнего края и
 
 | Requirement | Code evidence | Test evidence | Status |
 |---|---|---|---|
-| Username ≠ account, explicit type | research_canvas, graph-cards | 13-type reopen + mouse create | Implemented and verified |
+| Username ≠ account, explicit type | research_canvas, graph-cards | 13-case reopen + mouse create | Implemented and verified |
 | Tool picker / stale RDAP / typed target | ResearchCanvas, canvas_capabilities, bridge | mouse Maigret/Gansar, readiness tests | Implemented and verified |
 | Original Maigret / full DB | engine/maigret_* | DB hash, original comparison, Full plan/cancel | Implemented and verified |
 | Completed Full Maigret live | existing Full worker | no whole-database sweep | Implemented but not verified |
@@ -185,9 +185,20 @@ trigger/radio, допустимый portal input у верхнего края и
 Единственный путь: `dist/Granger-OSINT.exe`, **279386861 bytes**.
 SHA-256: `45ef168638da469a31408f899453d469a31b1ca6d3462beb47d4fd88760633d1`. Код соответствует текущим исходникам/PYZ, frontend и
 ресурсам. Временные EXE/work/cache/profiles удалены автоматически. Работающий чужой
-процесс не останавливался. Production commit и publication фиксируются после
-окончательной проверки; normal commit/push, без reset/force. Данные очистки
-сохранены как отдельная прежняя операция, не как доказательство V4.
+процесс не останавливался. Код и проверочные материалы опубликованы обычным
+push в `granger/chibi-reconstruction`, commit
+[`b93c1ca132ab6714d1b44893b0a05e65e76bcd66`](https://github.com/watsoncore/Granger-OSINT/commit/b93c1ca132ab6714d1b44893b0a05e65e76bcd66).
+EXE установлен локально; отдельный GitHub Release/ZIP не создавался.
+Следующий documentation-only commit фиксирует этот receipt; runtime не меняется.
+Данные очистки сохранены как отдельная прежняя операция, не как доказательство V4.
+
+Основные изменённые файлы: `grangerpet/research_canvas.py`,
+`grangerpet/canvas_capabilities.py`, `grangerpet/research_canvas_bridge.py`,
+`frontend/src/components/ResearchCanvas.tsx`, `SearchableSelect.tsx`, `GansarFields.tsx`,
+`frontend/src/graph-cards.ts`, `graph-model.ts`, `types.ts`, QA-метаданные в `app.py`.
+Поставка: `scripts/build_release.py`, `qa_clean_release.py`, `qa_v4_investigation.py`,
+spec/build/CI и тесты. Перечень всех изменений, включая прежние удаления производных
+QA-картинок, доступен в commit; оригинальные assets/resources не менялись.
 
 ## L. Unresolved Issues
 
@@ -199,6 +210,8 @@ SHA-256: `45ef168638da469a31408f899453d469a31b1ca6d3462beb47d4fd88760633d1`. К�
 - Реальный file-picker export/import/duplicate всех 13 типов отдельно не проходил
   весь native matrix; schema/encrypted roundtrip и сохранение покрыты tests.
 - Внешние runtimes остаются необходимыми, EXE не устанавливает их заново.
+- OCR integration иногда превышал тестовое ожидание 12 seconds в полном наборе;
+  окончательный full и отдельные повторы прошли. Причина задержки не доказана.
 
 Сохранность: 313/313 текущих
 файлов профиля и все проверенные assets/resources совпали; содержимое/имена
