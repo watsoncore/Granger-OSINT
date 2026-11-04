@@ -157,7 +157,7 @@ class ResearchCanvasBridge:
             node=next((n for n in self.document['entities'] if n['id']==identifier),None)
             if not node:raise CanvasError('Выбранный объект отсутствует.')
             from .canvas_capabilities import capabilities
-            return capabilities(node,payload.get('chain','auto'))
+            return capabilities(node,payload.get('chain','auto'),getattr(bridge,'_tools',None))
         if self.job:raise CanvasError('Дождитесь окончания сохранения полотна.')
         if op in ('tool','analyze','attach','export') and (not self.document or payload.get('id')!=self.document['id'] or payload.get('revision')!=self.document['revision']):
             raise CanvasConflict('Полотно или его версия изменились. Загрузите актуальную версию перед повторением.',revision=(self.document or {}).get('revision'))
@@ -167,13 +167,8 @@ class ResearchCanvasBridge:
             selected_id=self.document['view'].get('instances',{}).get(selected_id,{}).get('entity_id',selected_id)
             node=next((n for n in self.document['entities'] if n['id']==selected_id),None)
             if not node:raise CanvasError('Выберите узел текущего расследования.')
-            if payload.get('tool')=='blockchain_gansar':
-                from .crypto_targets import node_gansar_capability,validate_gansar_arguments
-                arguments=validate_gansar_arguments(payload.get('arguments') or {})
-                capability=node_gansar_capability(node,arguments['chain'])
-                if not capability['compatible'] or capability['canonical_address']!=arguments['address']:
-                    raise CanvasError(capability.get('reason') or 'Аргументы Gansar не соответствуют выбранному объекту.')
-            bridge._run_tool(payload,canvas_target=(self.document['id'],node['id']))
+            from .canvas_capabilities import execution_payload
+            bridge._run_tool(execution_payload(node,payload),canvas_target=(self.document['id'],node['id']))
             return {'pending':True}
         if op=='analyze':
             if not self.document:raise CanvasError('Откройте расследование.')
@@ -266,6 +261,25 @@ class ResearchCanvasBridge:
                 available={r['evidence_id'] for r in self.preview['records']}
                 if not isinstance(selected,list) or not set(selected)<=available:raise CanvasError('Выберите полученные доказательства.')
                 value=deepcopy(self.document);merge_evidence(value,self.preview['records'],selected)
+                owner=self.preview.get('node_id')
+                target=next((node for node in value['entities'] if node['id']==owner),None)
+                if target and target['type']=='blockchain_address' and self.preview['tool']=='blockchain_gansar':
+                    value['view'].setdefault('ui',{}).update(graph_mode='wallet',crypto_root_id=owner)
+                if target and target['type'] in ('username','nickname'):
+                    # These accounts were returned for this identifier; this
+                    # relation never asserts a shared person or account owner.
+                    import hashlib
+                    existing={edge['id'] for edge in value['relations']}
+                    for node in value['entities']:
+                        proof=[eid for eid in node['evidence_ids'] if eid in selected]
+                        if node['type']!='public_profile' or not proof:continue
+                        identifier='rel_'+hashlib.sha256((owner+'|'+node['id']+'|returned_for_query').encode()).hexdigest()[:24]
+                        if identifier in existing:continue
+                        value['relations'].append({'id':identifier,'from_id':owner,'to_id':node['id'],
+                            'relation_type':'returned_for_query','direction':'directed','origin':'tool',
+                            'verification_status':'source_reported','claim_kind':'lookup_result',
+                            'evidence_ids':proof,'source_urls':[],'provenance':[],
+                            'attributes':{'tool':self.preview['tool'],'identity_verified':False,'owner_verified':False}})
                 value['executions'].append({k:self.preview.get(k) for k in ('tool','status','limitations')})
                 return self._commit(value)
             if op=='from_search':

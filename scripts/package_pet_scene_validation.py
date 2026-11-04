@@ -11,6 +11,7 @@ QA=ROOT/'output/pet-scenes'
 
 
 def main():
+    raise SystemExit('Retired historical QA export. Use build.ps1; dist must contain only Granger-OSINT.exe.')
     def read(name):return json.loads((QA/name).read_text(encoding='utf-8'))
     exe=ROOT/'dist/Granger-OSINT.exe';sha=hashlib.sha256(exe.read_bytes()).hexdigest()
     native=read('exe-verified-final/report.json');smoke=read('smoke-position-final.json')

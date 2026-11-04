@@ -30,6 +30,7 @@ def files(root):
 
 
 def main():
+    raise SystemExit('Retired one-off V3 snapshot: it copied protected profiles and created dist/archive. Use the current cleanup/preservation workflow; do not recreate historical releases.')
     if OUT.exists():raise SystemExit('Preserve previous baseline; choose a new directory in code')
     OUT.mkdir(parents=True)
     roots={'profile':Path(os.environ['APPDATA'])/'GrangerPet','assets':ROOT/'grangerpet/assets',

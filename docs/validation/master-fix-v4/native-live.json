@@ -1,0 +1,472 @@
+{
+  "exe_sha256": "45ef168638da469a31408f899453d469a31b1ca6d3462beb47d4fd88760633d1",
+  "origin": "actual frozen Windows Qt/WebEngine, bounded public network tools",
+  "passed": true,
+  "checks": [
+    {
+      "name": "mouse_created_username_keeps_type_and_machine_value",
+      "passed": true
+    },
+    {
+      "name": "no_incompatible_default_tool",
+      "passed": true
+    },
+    {
+      "name": "mouse_selected_maigret_prefills_username",
+      "passed": true
+    },
+    {
+      "name": "username_maigret_returns_actual_worker_results",
+      "passed": true
+    },
+    {
+      "name": "actual_maigret_progress_seen",
+      "passed": true
+    },
+    {
+      "name": "maigret_profiles_enrich_original_username_without_owner_claim",
+      "passed": true
+    },
+    {
+      "name": "switch_username_to_wallet_resets_tool",
+      "passed": true
+    },
+    {
+      "name": "mouse_selected_gansar_uses_address_not_display_label",
+      "passed": true
+    },
+    {
+      "name": "blockchain_gansar_returns_actual_worker_results",
+      "passed": true
+    },
+    {
+      "name": "gansar_insert_selects_wallet_projection_and_preserves_raw_evidence",
+      "passed": true
+    },
+    {
+      "name": "repeat_insert_deduplicates_evidence_and_nodes",
+      "passed": true
+    },
+    {
+      "name": "real_exe_restart_preserves_types_values_evidence_positions",
+      "passed": true
+    },
+    {
+      "name": "blockchain_gansar_returns_actual_worker_results",
+      "passed": true
+    },
+    {
+      "name": "bitcoin_native_worker_parse_insert_provenance",
+      "passed": true
+    },
+    {
+      "name": "native_full_maigret_uses_original_database_not_ten_sites",
+      "passed": true
+    },
+    {
+      "name": "native_full_cancellation_settles_and_keeps_graph",
+      "passed": true
+    },
+    {
+      "name": "node_switch_clears_stale_tool_infrastructure_asset",
+      "passed": true
+    },
+    {
+      "name": "mouse_selects_typed_tool_infrastructure_asset",
+      "passed": true
+    },
+    {
+      "name": "network_rdap_returns_actual_worker_results",
+      "passed": true
+    },
+    {
+      "name": "ip_rdap_real_result_from_typed_node",
+      "passed": true
+    },
+    {
+      "name": "node_switch_clears_stale_tool_username",
+      "passed": true
+    },
+    {
+      "name": "mouse_selects_typed_tool_username",
+      "passed": true
+    },
+    {
+      "name": "node_switch_clears_stale_tool_blockchain_address",
+      "passed": true
+    },
+    {
+      "name": "mouse_selects_typed_tool_blockchain_address",
+      "passed": true
+    },
+    {
+      "name": "node_switch_clears_stale_tool_domain",
+      "passed": true
+    },
+    {
+      "name": "mouse_selects_typed_tool_domain",
+      "passed": true
+    },
+    {
+      "name": "node_switch_clears_stale_tool_email",
+      "passed": true
+    },
+    {
+      "name": "mouse_selects_typed_tool_email",
+      "passed": true
+    },
+    {
+      "name": "node_switch_clears_stale_tool_phone",
+      "passed": true
+    },
+    {
+      "name": "mouse_selects_typed_tool_phone",
+      "passed": true
+    },
+    {
+      "name": "frozen_native_stress_50_100_500_1000_5000_and_real_crypto",
+      "passed": true
+    }
+  ],
+  "maigret": {
+    "result_count": 3,
+    "inserted_evidence": 2,
+    "progress_snapshots": 12,
+    "coverage": {
+      "engine_version": "0.6.6",
+      "database_sha256": "25b734d93fb338c75b24f0149ae0251f6fca88d8fce2f9968a0875884421b343",
+      "database_bytes": 3221408,
+      "database_total": 8232,
+      "enabled_username": 7508,
+      "database_version": "sha256:25b734d93fb338c75b24f0149ae0251f6fca88d8fce2f9968a0875884421b343",
+      "mode": "custom",
+      "selected": 6,
+      "scheduled": 6,
+      "checked": 6,
+      "skipped": 0,
+      "skipped_reasons": {},
+      "pending": 0,
+      "complete": true,
+      "cancelled": false,
+      "phase": "complete",
+      "found": 3,
+      "not_found": 3,
+      "unknown": 0,
+      "blocked": 0,
+      "unavailable": 0,
+      "errors": 0,
+      "processed": 6,
+      "elapsed_seconds": 2.703
+    }
+  },
+  "gansar": {
+    "status": "partial",
+    "preview_records": 236,
+    "inserted_records": 236,
+    "nodes": 432,
+    "relations": 866,
+    "canonical_address": "0:8c50fdc65bbb398b475838a8037346fe9abe97d09870a296d0df46146f34dd64",
+    "raw_evidence_sha256": "64c674c3a0b3ed0ad092b6547343ea3621da6e6271e7a2d611e423ad04e8b049"
+  },
+  "bitcoin": {
+    "status": "partial",
+    "records": 60,
+    "provenance_retained": true
+  },
+  "full_cancel": {
+    "scheduled": 6434,
+    "status": "cancelled",
+    "coverage": {
+      "engine_version": "0.6.6",
+      "database_sha256": "25b734d93fb338c75b24f0149ae0251f6fca88d8fce2f9968a0875884421b343",
+      "database_bytes": 3221408,
+      "database_total": 8232,
+      "enabled_username": 7508,
+      "database_version": "sha256:25b734d93fb338c75b24f0149ae0251f6fca88d8fce2f9968a0875884421b343",
+      "mode": "full",
+      "selected": 7508,
+      "scheduled": 6434,
+      "checked": 0,
+      "skipped": 1074,
+      "skipped_reasons": {
+        "protected": 223,
+        "activation": 3,
+        "non_public_https": 798,
+        "non_read_method": 5,
+        "similar_search": 11,
+        "excluded_category": 19,
+        "unsupported_protocol:dns": 7,
+        "unsupported_protocol:tor": 3,
+        "unsupported_protocol:i2p": 1
+      },
+      "pending": 6434,
+      "complete": false,
+      "cancelled": true,
+      "phase": "cancelled",
+      "found": 0,
+      "not_found": 0,
+      "unknown": 0,
+      "blocked": 0,
+      "unavailable": 0,
+      "errors": 0,
+      "processed": 0,
+      "elapsed_seconds": 0.875
+    }
+  },
+  "entity_switching": [
+    {
+      "entity_type": "infrastructure_asset",
+      "tool": "network_rdap",
+      "runtime_available": true
+    },
+    {
+      "entity_type": "username",
+      "tool": "username_maigret",
+      "runtime_available": true
+    },
+    {
+      "entity_type": "blockchain_address",
+      "tool": "blockchain_gansar",
+      "runtime_available": true
+    },
+    {
+      "entity_type": "domain",
+      "tool": "domain_lookup",
+      "runtime_available": true
+    },
+    {
+      "entity_type": "email",
+      "tool": "email_holehe",
+      "runtime_available": true
+    },
+    {
+      "entity_type": "phone",
+      "tool": "phone_metadata",
+      "runtime_available": true
+    }
+  ],
+  "temporary_profile_removed": true,
+  "gateway_calls": 0,
+  "selection_method": "Qt mouse on real menuitemradio and run/insert controls; viewport centering only uses finite QA action",
+  "performance": {
+    "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+    "cases": [
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 50,
+        "edges": 49,
+        "open_and_expand_seconds": 1.016,
+        "paint_ms": {
+          "count": 35,
+          "median": 3.8,
+          "p95": 13.9,
+          "max": 19.5
+        },
+        "event_to_paint_ms": {
+          "count": 12,
+          "median": 9.65,
+          "p95": 23,
+          "max": 29.3
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 9.0,
+            "thread_count": 101.0,
+            "rss_bytes_sum": 687044608.0,
+            "private_commit_bytes_sum": 791619584.0,
+            "cpu_percent_one_core": 240.1986448622494,
+            "cpu_percent_machine": 20.016553738520784,
+            "monitor_seconds": 0.015030449954792857
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 6.949163948573538,
+            "gpu_engine_percent_max": 6.949163948573538,
+            "gpu_dedicated_bytes": 958410752.0,
+            "gpu_shared_bytes": 44244992.0
+          }
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 100,
+        "edges": 99,
+        "open_and_expand_seconds": 0.724,
+        "paint_ms": {
+          "count": 36,
+          "median": 3.25,
+          "p95": 4.7,
+          "max": 5.7
+        },
+        "event_to_paint_ms": {
+          "count": 12,
+          "median": 7.75,
+          "p95": 25.7,
+          "max": 26.1
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 72.0,
+            "rss_bytes_sum": 654280704.0,
+            "private_commit_bytes_sum": 821000192.0,
+            "cpu_percent_one_core": 57.88164378833849,
+            "cpu_percent_machine": 4.823470315694874,
+            "monitor_seconds": 0.010198050003964454
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 7.0554223047984905,
+            "gpu_engine_percent_max": 7.0554223047984905,
+            "gpu_dedicated_bytes": 1392087040.0,
+            "gpu_shared_bytes": 46669824.0
+          }
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 500,
+        "edges": 499,
+        "open_and_expand_seconds": 3.551,
+        "paint_ms": {
+          "count": 54,
+          "median": 5.25,
+          "p95": 7.7,
+          "max": 11.7
+        },
+        "event_to_paint_ms": {
+          "count": 12,
+          "median": 8.0,
+          "p95": 9.2,
+          "max": 12.2
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 72.0,
+            "rss_bytes_sum": 816300032.0,
+            "private_commit_bytes_sum": 1000517632.0,
+            "cpu_percent_one_core": 87.02282630861643,
+            "cpu_percent_machine": 7.251902192384702,
+            "monitor_seconds": 0.010129750065971166
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 5.6408030560082425,
+            "gpu_engine_percent_max": 5.6408030560082425,
+            "gpu_dedicated_bytes": 1988132864.0,
+            "gpu_shared_bytes": 57159680.0
+          }
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 1000,
+        "edges": 999,
+        "open_and_expand_seconds": 7.359,
+        "paint_ms": {
+          "count": 69,
+          "median": 8.2,
+          "p95": 10.9,
+          "max": 18.6
+        },
+        "event_to_paint_ms": {
+          "count": 12,
+          "median": 11.6,
+          "p95": 23.9,
+          "max": 24.7
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 80.0,
+            "rss_bytes_sum": 982235136.0,
+            "private_commit_bytes_sum": 1164414976.0,
+            "cpu_percent_one_core": 173.21929227415256,
+            "cpu_percent_machine": 14.434941022846047,
+            "monitor_seconds": 0.010359149950090796
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 5.760382157359587,
+            "gpu_engine_percent_max": 5.760382157359587,
+            "gpu_dedicated_bytes": 2680918016.0,
+            "gpu_shared_bytes": 48771072.0
+          }
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 5000,
+        "edges": 4999,
+        "open_and_expand_seconds": 47.719,
+        "paint_ms": {
+          "count": 180,
+          "median": 17.15,
+          "p95": 30.2,
+          "max": 43.9
+        },
+        "event_to_paint_ms": {
+          "count": 12,
+          "median": 33.9,
+          "p95": 48.3,
+          "max": 48.7
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 70.0,
+            "rss_bytes_sum": 1093117952.0,
+            "private_commit_bytes_sum": 1168855040.0,
+            "cpu_percent_one_core": 146.39754942265057,
+            "cpu_percent_machine": 12.199795785220882,
+            "monitor_seconds": 0.011027349974028766
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 2.192317734384183,
+            "gpu_engine_percent_max": 2.1915251241718545,
+            "gpu_dedicated_bytes": 5313236992.0,
+            "gpu_shared_bytes": 65810432.0
+          }
+        }
+      },
+      {
+        "data_origin": "provided_observed_result",
+        "underlying_nodes": 424,
+        "edges": 885,
+        "open_and_expand_seconds": 1.109,
+        "paint_ms": {
+          "count": 32,
+          "median": 1.1,
+          "p95": 3.2,
+          "max": 11.3
+        },
+        "event_to_paint_ms": {
+          "count": 12,
+          "median": 3.6,
+          "p95": 19.1,
+          "max": 30.1
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 76.0,
+            "rss_bytes_sum": 1138262016.0,
+            "private_commit_bytes_sum": 1240090624.0,
+            "cpu_percent_one_core": 113.0783856345893,
+            "cpu_percent_machine": 9.423198802882442,
+            "monitor_seconds": 0.010248799982946366
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 1.7224816752025625,
+            "gpu_engine_percent_max": 1.7224816752025625,
+            "gpu_dedicated_bytes": 5608501248.0,
+            "gpu_shared_bytes": 65810432.0
+          }
+        }
+      }
+    ]
+  }
+}

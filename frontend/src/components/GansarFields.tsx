@@ -4,7 +4,7 @@ import type {InputSchema} from '../types'
 import {SearchableSelect} from './SearchableSelect'
 import {StructuredToolFields} from './StructuredToolFields'
 
-export interface CryptoCapability {valid?:boolean;compatible?:boolean;requires_network?:boolean;chain?:string;canonical_address?:string;reason?:string;error_code?:string;supported_operations?:string[];operation_reasons?:Record<string,string>;chains?:{id:string;label:string}[];tools?:{id:string;compatible:boolean;reason?:string;arguments?:Record<string,unknown>}[]}
+export interface CryptoCapability {valid?:boolean;compatible?:boolean;requires_network?:boolean;chain?:string;canonical_address?:string;reason?:string;error_code?:string;supported_operations?:string[];operation_reasons?:Record<string,string>;chains?:{id:string;label:string}[];tools?:{id:string;compatible:boolean;status?:string;available?:boolean;reason?:string;arguments?:Record<string,unknown>}[]}
 export const cryptoChains=[{id:'auto',label:'Определить сеть'},{id:'btc',label:'Bitcoin'},{id:'doge',label:'Dogecoin'},{id:'eth',label:'Ethereum'},{id:'bsc',label:'BNB Smart Chain'},{id:'polygon',label:'Polygon'},{id:'arbitrum',label:'Arbitrum'},{id:'optimism',label:'Optimism'},{id:'avalanche',label:'Avalanche C-Chain'},{id:'tron',label:'Tron'},{id:'ton',label:'TON'},{id:'solana',label:'Solana'}]
 const operations:Record<string,string>={profile:'Обзор адреса',balances:'Баланс',assets:'Активы',transactions:'Транзакции',identity:'Публичный контекст',contracts:'Контракты',nft:'NFT',labels:'Метки источников',attribution:'Атрибуция источника',trace:'Потоки средств',cached:'Сохранённые наблюдения'}
 export function useCryptoTarget(value:string,chain:string,enabled:boolean){

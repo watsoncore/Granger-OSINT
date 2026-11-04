@@ -51,3 +51,7 @@ portable-data/
 # User-supplied research sources are audited locally; never publish raw bundles.
 /SteamRecon/
 /*.zip
+
+# Auto-cleaned owned build/QA stages; never release directories or user profiles.
+/.granger-build-*/
+/.granger-qa-*/

@@ -1,8 +1,9 @@
-import {fireEvent,render,screen} from '@testing-library/react'
+import {fireEvent,render,screen,waitFor} from '@testing-library/react'
 import {describe,it,expect,vi} from 'vitest'
 import {ResearchCanvas} from './components/ResearchCanvas'
 import {emptyState,type ResearchDocument,type GraphEntity} from './types'
 import {act} from './bridge'
+import userEvent from '@testing-library/user-event'
 vi.mock('./bridge',()=>({act:vi.fn().mockResolvedValue(true)}))
 vi.mock('./components/InvestigationCanvas',()=>({InvestigationCanvas:({nodes,onSelect}:{nodes:GraphEntity[];onSelect(id:string,multi:boolean):void})=> <div data-testid="renderer">{nodes.map(n=><button key={n.id} onClick={()=>onSelect(n.id,false)}>Select {n.id}</button>)}</div>}))
 
@@ -21,12 +22,16 @@ describe('Search analyst canvas controls',()=>{
     fireEvent.click(screen.getByRole('button',{name:'Сохранить заметку'}))
     expect(act).toHaveBeenCalledWith('research_canvas_edit',expect.objectContaining({operation:'node',arguments:expect.objectContaining({type:'analyst_note',markdown:'**Гипотеза** — требует проверки'})}))
   })
-  it('runs a string tool on the canonical value after a user changes the visible label',()=>{
+  it('runs a string tool on the canonical value after a user changes the visible label',async()=>{
+    const user=userEvent.setup()
+    vi.mocked(act).mockImplementation(async(action)=>action==='research_canvas_capability'?{tools:[{id:'network_rdap',compatible:true,arguments:{target:'66.249.67.41'}}]}:true)
     const id='ent_'+'b'.repeat(24),doc={...document,entities:[{id,type:'infrastructure_asset',label:'Исследуемый сервер',attributes:{value:'66.249.67.41'},evidence_ids:[]}],view:{...document.view,positions:{[id]:{x:0,y:0}}}}
     render(<ResearchCanvas state={{...emptyState,tools:[{id:'network_rdap',name:'RDAP',available:true,description:'Registry lookup',inputTypes:['ip'],state:'ready'}],research_canvas:{state:'ready',types:[],choices:[],document:doc}}} onSource={()=>{}}/>)
     fireEvent.click(screen.getByRole('button',{name:'Мои расследования'}));fireEvent.click(screen.getByRole('button',{name:'Select '+id}))
     fireEvent.change(screen.getByLabelText('Название узла'),{target:{value:'Моя аннотация'}})
     fireEvent.click(screen.getByRole('button',{name:'Действия'}))
+    await waitFor(()=>expect(screen.getByRole('button',{name:'Инструмент узла'})).not.toBeDisabled())
+    await user.click(screen.getByRole('button',{name:'Инструмент узла'}));await user.click(screen.getByRole('menuitemradio',{name:/RDAP/}))
     fireEvent.click(screen.getByRole('button',{name:'Выполнить → просмотр'}))
     expect(act).toHaveBeenCalledWith('research_canvas_tool',expect.objectContaining({entity_id:id,query:'66.249.67.41',tool:'network_rdap'}))
   })

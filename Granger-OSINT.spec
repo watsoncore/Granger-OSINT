@@ -6,6 +6,8 @@ import sysconfig
 from PyInstaller.utils.hooks import copy_metadata, collect_submodules
 
 root = Path(SPECPATH)
+from scripts.build_release import validate_spec_paths
+validate_spec_paths(root, DISTPATH, workpath)
 assets = root / "grangerpet" / "assets"
 frontend = root / "frontend" / "dist"
 resources = root / "resources"

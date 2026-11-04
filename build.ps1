@@ -6,6 +6,7 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 Set-Location -LiteralPath $PSScriptRoot
+$env:PYTHONDONTWRITEBYTECODE = "1"
 
 function Invoke-Checked {
     param([string]$Executable, [string[]]$Arguments)
@@ -21,7 +22,7 @@ if (-not (Test-Path -LiteralPath $venvPython)) {
     Invoke-Checked -Executable $Python -Arguments $createArgs
 }
 Invoke-Checked -Executable $venvPython -Arguments @("-m", "ensurepip", "--upgrade")
-Invoke-Checked -Executable $venvPython -Arguments @("-m", "pip", "install", "-r", "requirements-dev.txt")
+Invoke-Checked -Executable $venvPython -Arguments @("-m", "pip", "install", "--no-compile", "-r", "requirements-dev.txt")
 Invoke-Checked -Executable $venvPython -Arguments @("scripts/generate_app_icon.py", "--check")
 Invoke-Checked -Executable $venvPython -Arguments @("scripts/verify_assets.py")
 $npm = (Get-Command npm.cmd -ErrorAction Stop).Source
@@ -35,15 +36,16 @@ try {
 }
 finally {
     Pop-Location
+    Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot "frontend") -Filter "*.tsbuildinfo" -File |
+        Remove-Item -Force
 }
 if (-not $SkipTests) {
-    Invoke-Checked -Executable $venvPython -Arguments @("-m", "pytest", "-q")
+    Invoke-Checked -Executable $venvPython -Arguments @("-m", "pytest", "-q", "-p", "no:cacheprovider")
 }
-Invoke-Checked -Executable $venvPython -Arguments @("-m", "PyInstaller", "--noconfirm", "--clean", "Granger-OSINT.spec")
+Invoke-Checked -Executable $venvPython -Arguments @("scripts/build_release.py")
 $binary = Join-Path $PSScriptRoot "dist\Granger-OSINT.exe"
 if (-not (Test-Path -LiteralPath $binary)) {
     throw "Build did not produce dist\Granger-OSINT.exe"
 }
-Invoke-Checked -Executable $venvPython -Arguments @("scripts/smoke_exe.py", "--exe", $binary, "--output", "dist/binarysmoke.json")
 Get-FileHash -LiteralPath $binary -Algorithm SHA256 | Format-List
 Write-Host "Built: $binary"

@@ -105,6 +105,8 @@ function visibleGraphBase(nodes:GraphEntity[],edges:GraphRelation[],root:string,
   const focusPath=new Set(view.selected_id?tree.path(view.selected_id):[])
   const ranked=[...allowed].sort((a,b)=> (a.id===root?-1:b.id===root?1:focusPath.has(a.id)&&!focusPath.has(b.id)?-1:focusPath.has(b.id)&&!focusPath.has(a.id)?1:expanded.has(a.id)?-1:expanded.has(b.id)?1:(tree.depth.get(a.id)||0)-(tree.depth.get(b.id)||0)||(b.relevance?.score||0)-(a.relevance?.score||0)))
   const selected=ranked.slice(0,Math.max(limit,Math.min(1200,expanded.size*50+limit)))
+  const baseIds=new Set(selected.map(node=>node.id))
+  selected.push(...ranked.filter(node=>expandedTransactions.has(node.id)&&!baseIds.has(node.id)).slice(0,1000))
   const selectedIds=new Set(selected.map(node=>node.id))
   let relations=(treeMode?tree.treeEdges:edges).filter(edge=>selectedIds.has(edge.from_id)&&selectedIds.has(edge.to_id)&&(filters.statuses===undefined||filters.statuses.includes(edge.verification_status)))
   const totalRelations=relations.length

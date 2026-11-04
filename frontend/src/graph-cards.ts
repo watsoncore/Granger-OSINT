@@ -1,11 +1,12 @@
 import type {GraphEntity} from './types'
 
 export type CardMode='auto'|'compact'|'standard'|'expanded'
-export type CardVariant='identity'|'social'|'organization'|'domain'|'ip'|'wallet'|'transaction'|'contract'|'media'|'geo'|'document'|'note'|'hypothesis'|'evidence'|'group'|'custom'
+export type CardVariant='identity'|'username'|'social'|'organization'|'domain'|'ip'|'wallet'|'transaction'|'contract'|'media'|'geo'|'document'|'note'|'hypothesis'|'evidence'|'group'|'custom'
 export interface CardSize {width:number;height:number}
-export const cardVariants:Record<string,{label:string;symbol:string}>={identity:{label:'Личность',symbol:'◎'},social:{label:'Профиль',symbol:'@'},organization:{label:'Организация',symbol:'▥'},domain:{label:'Домен',symbol:'⊕'},ip:{label:'Инфраструктура',symbol:'⌘'},wallet:{label:'Кошелёк',symbol:'◈'},transaction:{label:'Транзакция',symbol:'⇄'},contract:{label:'Контракт',symbol:'◇'},media:{label:'Изображение',symbol:'▧'},geo:{label:'География',symbol:'⌖'},document:{label:'Документ',symbol:'▤'},note:{label:'Заметка',symbol:'✎'},hypothesis:{label:'Гипотеза',symbol:'?'},evidence:{label:'Источник',symbol:'↗'},group:{label:'Группа',symbol:'⊞'},custom:{label:'Объект',symbol:'◆'}}
+export const cardVariants:Record<string,{label:string;symbol:string}>={username:{label:'Никнейм',symbol:'#'},identity:{label:'Личность',symbol:'◎'},social:{label:'Профиль',symbol:'@'},organization:{label:'Организация',symbol:'▥'},domain:{label:'Домен',symbol:'⊕'},ip:{label:'Инфраструктура',symbol:'⌘'},wallet:{label:'Кошелёк',symbol:'◈'},transaction:{label:'Транзакция',symbol:'⇄'},contract:{label:'Контракт',symbol:'◇'},media:{label:'Изображение',symbol:'▧'},geo:{label:'География',symbol:'⌖'},document:{label:'Документ',symbol:'▤'},note:{label:'Заметка',symbol:'✎'},hypothesis:{label:'Гипотеза',symbol:'?'},evidence:{label:'Источник',symbol:'↗'},group:{label:'Группа',symbol:'⊞'},custom:{label:'Объект',symbol:'◆'}}
 export function cardVariant(node:GraphEntity):CardVariant {
   const type=String(node.attributes.display_type||node.type)
+  if(node.type==='username'||node.type==='nickname')return 'username'
   if(node.type==='image'||node.attributes.original_image===true||type==='inventory_item')return 'media'
   if(node.type==='person'||type==='identity')return 'identity'
   if(/profile|telegram_channel|username/.test(type))return 'social'
@@ -65,6 +66,7 @@ export function cardRows(node:GraphEntity):string[]{
 }
 export function cardBadge(node:GraphEntity){
   const variant=cardVariant(node)
+  if(variant==='username')return 'Никнейм'
   if(variant==='wallet'||variant==='transaction'||variant==='contract')return String(node.attributes.chain||'Сеть не указана').toUpperCase()
   if(variant==='social')return String(node.attributes.platform||node.attributes.display_type||'Публичный профиль').replace(/_/g,' ')
   return cardVariants[variant].label

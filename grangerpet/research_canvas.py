@@ -68,7 +68,7 @@ def card_size(value):
 
 
 def view_ui(value):
-    if not isinstance(value,dict) or set(value)-{'inspector_tab','inspector_width','inspector_open','card_mode','graph_mode'}:
+    if not isinstance(value,dict) or set(value)-{'inspector_tab','inspector_width','inspector_open','card_mode','graph_mode','crypto_root_id'}:
         raise CanvasError('Неизвестные настройки представления.')
     if 'inspector_tab' in value and value['inspector_tab'] not in ('details','evidence','actions'):raise CanvasError('Неизвестная вкладка инспектора.')
     if 'inspector_width' in value:
@@ -77,6 +77,7 @@ def view_ui(value):
     if 'inspector_open' in value and type(value['inspector_open']) is not bool:raise CanvasError('Некорректная видимость инспектора.')
     if 'card_mode' in value and value['card_mode'] not in CARD_MODES:raise CanvasError('Неизвестный режим карточек.')
     if 'graph_mode' in value and value['graph_mode'] not in GRAPH_MODES:raise CanvasError('Неизвестный режим графа.')
+    if 'crypto_root_id' in value and not re.fullmatch(r'ent_[a-f0-9]{24}',str(value['crypto_root_id'])):raise CanvasError('Некорректная цель криптографа.')
     return deepcopy(value)
 
 
@@ -262,13 +263,16 @@ class CanvasStore:
 
 
 def add_node(doc,args):
-    kind=text(args.get('type','custom_entity'),80);label=text(args.get('label','Новый объект'),300).strip()
+    requested_kind=text(args.get('type','custom_entity'),80)
+    kind={'nickname':'username','crypto_address':'blockchain_address','ip':'infrastructure_asset','location':'coordinate'}.get(requested_kind,requested_kind)
+    label=text(args.get('label','Новый объект'),300).strip()
     if not re.fullmatch(r'[a-z][a-z0-9_]{0,79}',kind) or not label:raise CanvasError('Укажите тип и название.')
     attrs={'origin':'analyst','claim_kind':'analyst_assertion','identity_verified':False}
     key=uuid.uuid4().hex
     from .entity_router import route
     from .crypto_targets import resolve_crypto_target
-    machine_value=args.get('value') or label
+    machine_value=text(args.get('value') or label,2000).strip()
+    attrs.update(value=machine_value,original_identifier=machine_value,requested_type=requested_kind)
     target=route(machine_value)
     crypto=kind in ('blockchain_address','contract','nft','collection','token')
     if crypto:
@@ -280,17 +284,23 @@ def add_node(doc,args):
             target_kind=resolved['target_kind'],name_resolution_pending=resolved['target_kind']!='address')
         if kind in ('nft','collection','token'):attrs['asset_id']=resolved['canonical_address']
         if kind=='contract':attrs.update(contract=resolved['canonical_address'],asset_type='blockchain_contract')
-    elif target and kind not in ('analyst_note','hypothesis','person','custom_entity','entity_group','document','image'):
-        kind={'network_range':'infrastructure_asset','autonomous_system':'infrastructure_asset'}.get(target.entity_type,kind)
-        key=target.identifier
-        attrs.update(target.properties or {},value=target.identifier,url=target.canonical_url,platform=target.platform)
-        if kind=='blockchain_address':
-            resolved=resolve_crypto_target(target.identifier,args.get('chain') or target.platform or 'auto')
-            if not resolved['valid'] or resolved['requires_network']:raise CanvasError(resolved['reason'])
-            key=resolved['identity_key'];attrs.update(address=resolved['canonical_address'],value=resolved['canonical_address'],
-                chain=resolved['chain'],platform=resolved['chain'],representation=resolved['representation'])
-        if kind=='infrastructure_asset':attrs.update(address=target.identifier,asset_type='ip')
-        if kind in ('public_profile','social_profile','website') and target.canonical_url:key=target.canonical_url
+    elif kind=='username':
+        # An explicitly chosen identifier is not an observed platform account.
+        if not re.fullmatch(r'@?[\w.-]{1,64}',machine_value,re.UNICODE):raise CanvasError('Введите никнейм без URL и пробелов.')
+        key=machine_value.removeprefix('@');attrs.update(value=key,username=key)
+    elif target:
+        expected={'email':('email',),'phone':('phone',),'domain':('domain',),
+            'infrastructure_asset':('infrastructure_asset','network_range','autonomous_system'),
+            'coordinate':('geographic_coordinates',),
+            'public_profile':('public_profile','social_profile','github_profile','public_channel_or_profile','steam_profile'),
+            'social_profile':('public_profile','social_profile','github_profile','public_channel_or_profile','steam_profile'),
+            'website':('website','public_profile','social_profile','public_channel_or_profile','github_repository')}
+        if kind in expected and target.entity_type in expected[kind]:
+            key=target.canonical_url if kind in ('public_profile','social_profile','website') else target.identifier
+            key=key or target.identifier
+            attrs.update(target.properties or {},value=target.identifier,url=target.canonical_url,platform=target.platform)
+            if kind=='infrastructure_asset':attrs.update(address=target.identifier,asset_type='ip' if target.entity_type=='infrastructure_asset' else target.entity_type)
+            if kind in ('public_profile','social_profile'):attrs['username']=target.properties.get('username') or target.identifier
     if kind not in TYPES:doc['custom_types'][kind]=kind
     identifier=_id(kind,key)
     if identifier not in {n['id'] for n in doc['entities']}:

@@ -160,6 +160,38 @@ def test_canvas_ip_capability_refuses_gansar_before_any_tool_runner(finite):
     assert finite.launched == []
 
 
+def test_canvas_tool_execution_rebinds_target_and_rejects_stale_kind(finite):
+    controller=finite._research_canvas
+    controller.document=controller.store.save(apply(new_document(),'node',{
+        'type':'nickname','label':'Visible alias','value':'solvnox'}),0)
+    doc=controller.document;node=doc['entities'][0]
+    payload={'id':doc['id'],'revision':doc['revision'],'entity_id':node['id']}
+    with pytest.raises(ValueError):
+        finite.dispatch('research_canvas_tool',payload|{'tool':'network_rdap','query':'66.249.67.41'})
+    assert finite.launched==[]
+    finite.dispatch('research_canvas_tool',payload|{'tool':'username_maigret','query':'Visible alias','arguments':{'mode':'full'}})
+    actual,scope=finite.launched[0]
+    assert actual[0]['arguments']=={'username':'solvnox','mode':'full'}
+    assert actual[0]['query']=='solvnox' and scope['canvas_target']==(doc['id'],node['id'])
+
+
+def test_canvas_username_result_insertion_links_source_accounts_without_identity_claim(finite):
+    from grangerpet.agent_evidence import normalize_evidence
+    controller=finite._research_canvas
+    controller.document=controller.store.save(apply(new_document(),'node',{'type':'username','label':'solvnox'}),0)
+    doc=controller.document;owner=doc['entities'][0]['id']
+    record=normalize_evidence({'id':'github-fixture','type':'profile','platform':'github','title':'Public account',
+        'url':'https://github.com/solvnox','details':{'username':'solvnox'}},'username_maigret','solvnox')
+    controller.accept_tool({'tool':'username_maigret','status':'complete','results':[record]},doc['id'],owner)
+    payload={'id':doc['id'],'revision':doc['revision'],'token':controller.preview['token'],'evidence_ids':[record['evidence_id']]}
+    controller.action('research_canvas_insert',payload)
+    wait_until(lambda:controller.job is None)
+    saved=controller.store.load(doc['id'])
+    links=[edge for edge in saved['relations'] if edge['from_id']==owner and edge['relation_type']=='returned_for_query']
+    assert links and all(edge['attributes']['owner_verified'] is False for edge in links)
+    assert next(node for node in saved['entities'] if node['id']==owner)['type']=='username'
+
+
 def image_node(finite):
     stream = io.BytesIO()
     Image.new("RGB", (64, 48), "#a08040").save(stream, "PNG")

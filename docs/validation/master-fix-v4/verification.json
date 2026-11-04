@@ -1,0 +1,121 @@
+{
+  "schema": "granger-master-fix-v4/1",
+  "at_utc": "2026-11-04T17:27:42.511638+00:00",
+  "passed": true,
+  "exe": {
+    "path": "dist/Granger-OSINT.exe",
+    "bytes": 279386861,
+    "sha256": "45ef168638da469a31408f899453d469a31b1ca6d3462beb47d4fd88760633d1"
+  },
+  "tests": {
+    "backend_full": "2009 passed, 1 skipped, 32 subtests passed in 355.70s (0:05:55)",
+    "frontend_passed": 180,
+    "late_focused_backend_passed": 40,
+    "prior_concurrent_full_attempt": "1 failed (12-second OCR integration wait), 2008 passed, 1 skipped, 32 subtests passed; failing case passed separately in 6.63s before full repeat",
+    "prior_second_attempt": "1 failed (same OCR wait), 1909 passed, 1 skipped, 99 temporary-directory setup errors; clean isolated full repeat passed without production changes",
+    "canonical_path_native_checks": 22,
+    "frozen_python_modules": 163,
+    "frozen_resources": 239,
+    "native_smoke_checks": 22,
+    "frozen_live_checks": 31
+  },
+  "preservation": {
+    "profile": {
+      "expected": 313,
+      "unchanged": 313
+    },
+    "assets": {
+      "expected": 92,
+      "unchanged": 92
+    },
+    "resources": {
+      "expected": 202,
+      "unchanged": 202
+    },
+    "pet_runtime": {
+      "expected": 2,
+      "unchanged": 2
+    }
+  },
+  "maigret_capability": {
+    "engine_version": "0.6.6",
+    "database_sha256": "25b734d93fb338c75b24f0149ae0251f6fca88d8fce2f9968a0875884421b343",
+    "database_bytes": 3221408,
+    "database_total": 8232,
+    "enabled_username": 7508,
+    "database_version": "sha256:25b734d93fb338c75b24f0149ae0251f6fca88d8fce2f9968a0875884421b343",
+    "modes": {
+      "quick": {
+        "selected": 16,
+        "eligible": 12,
+        "skipped": 4,
+        "skipped_reasons": {
+          "protected": 3,
+          "activation": 1
+        }
+      },
+      "standard": {
+        "selected": 509,
+        "eligible": 365,
+        "skipped": 144,
+        "skipped_reasons": {
+          "protected": 117,
+          "activation": 2,
+          "non_public_https": 14,
+          "non_read_method": 2,
+          "similar_search": 3,
+          "credential_headers": 1,
+          "excluded_category": 5
+        }
+      },
+      "full": {
+        "selected": 7508,
+        "eligible": 6434,
+        "skipped": 1074,
+        "skipped_reasons": {
+          "protected": 223,
+          "activation": 3,
+          "non_public_https": 798,
+          "non_read_method": 5,
+          "similar_search": 11,
+          "credential_headers": 4,
+          "excluded_category": 19,
+          "unsupported_protocol:dns": 7,
+          "unsupported_protocol:tor": 3,
+          "unsupported_protocol:i2p": 1
+        }
+      }
+    },
+    "native_durable_resume": false,
+    "notes": "Counts depend on the identifier and database; no network requests performed."
+  },
+  "original_maigret_comparison": {
+    "username": "solvnox",
+    "engine_version": "0.6.6",
+    "database_sha256": "25b734d93fb338c75b24f0149ae0251f6fca88d8fce2f9968a0875884421b343",
+    "sites": [
+      "YouTube",
+      "GitHub",
+      "WordPressOrg",
+      "GooglePlayStore",
+      "Wikipedia",
+      "TikTok"
+    ],
+    "status_differences": []
+  },
+  "single_canonical_file": true,
+  "temporary_build_removed": true,
+  "secret_scan": {
+    "passed": true,
+    "checked_payloads": 6857,
+    "archive_checked": false,
+    "git_history_checked": true,
+    "exe_sha256": "45ef168638da469a31408f899453d469a31b1ca6d3462beb47d4fd88760633d1"
+  },
+  "limits": [
+    "No confirmed 60 FPS at 5000 nodes",
+    "Full Maigret planned and cancelled, not a completed whole-database scan",
+    "Only TON and Bitcoin newly tested live in this V4",
+    "GEOINT, Steam, SOCMINT and DeepSeek full external services not newly live-tested in V4"
+  ]
+}

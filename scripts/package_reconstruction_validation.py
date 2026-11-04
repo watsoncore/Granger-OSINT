@@ -10,6 +10,7 @@ QA=ROOT/'output/reconstruction'
 
 
 def main():
+    raise SystemExit('Retired historical QA export. Use build.ps1; dist must contain only Granger-OSINT.exe.')
     out=QA/'release-public';out.mkdir(exist_ok=True)
     exe=ROOT/'dist/Granger-OSINT.exe'
     with exe.open('rb') as file:sha=hashlib.file_digest(file,'sha256').hexdigest()

@@ -14,6 +14,8 @@ jobs:
   build:
     runs-on: windows-latest
     timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -33,25 +35,18 @@ jobs:
           npm run build
           npm test
       - name: Install dependencies
-        run: python -m pip install -r requirements-dev.txt
+        run: python -m pip install --no-compile -r requirements-dev.txt
       - name: Verify character assets
         run: python scripts/verify_assets.py
       - name: Test
-        run: python -m pytest -q
-      - name: Build executable
-        run: python -m PyInstaller --noconfirm --clean Granger-OSINT.spec
-      - name: Smoke test standalone native executable
-        run: python scripts/smoke_exe.py --output dist/binarysmoke.json
-      - name: Record checksum
-        shell: pwsh
-        run: |
-          (Get-FileHash -LiteralPath dist/Granger-OSINT.exe -Algorithm SHA256).Hash + '  Granger-OSINT.exe' | Set-Content -LiteralPath dist/Granger-OSINT.sha256 -Encoding ascii
+        run: python -m pytest -q -p no:cacheprovider
+      - name: Build and verify canonical executable (external tool catalog only)
+        # External vendor/toolenv directories are intentionally absent from Git.
+        # Their actual availability is reported; no external tool success is claimed.
+        run: python scripts/build_release.py --allow-missing-external-tools
       - uses: actions/upload-artifact@v4
         with:
           name: Granger-OSINT-Windows-x64
           path: |
             dist/Granger-OSINT.exe
-            dist/Granger-OSINT.sha256
-            dist/binarysmoke.json
-            README.md
           if-no-files-found: error

@@ -1,5 +1,25 @@
 # Granger-OSINT — проверка текущей сборки
 
+## Master Fix V4 — проверенная сборка
+
+Канонический путь запуска — только `dist/Granger-OSINT.exe`.
+Финальная frozen/live приёмка завершена: реальный
+Maigret, Gansar для TON и Bitcoin, планирование и отмена Full Maigret,
+маршрутизация по типу объекта, вставка evidence и сохранность после перезапуска.
+Окончательные результаты и SHA фиксируются в
+[отчёте A–L](docs/MASTER_FIX_V4.md) и
+[verification.json](docs/validation/master-fix-v4/verification.json).
+
+Итоговый полный backend-прогон: **2009 passed, 1 skipped, 32 subtests**.
+Frontend: **180 passed / 29 suites**. Frozen: **163 modules / 239 resources**;
+live/interaction: **31 check**; native smoke: **22 check** до установки и
+**22 check** из канонического пути. Ранние два OCR timeout и ошибки тестового
+временного каталога сохранены в отчёте вместе с успешным изолированным повтором.
+Эти source-проверки не заменяют приёмку итогового EXE. Полное закрытие V3/V4,
+60 FPS и свежая live-проверка остальных девяти сетей Gansar не заявляются.
+Ниже сохранены исторические результаты; их старые пути выпуска не являются
+действующими путями запуска.
+
 <!-- master-fix-v3-start -->
 ## Master Fix V3 — 4 ноября 2026
 

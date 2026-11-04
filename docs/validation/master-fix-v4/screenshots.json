@@ -1,0 +1,33 @@
+{
+  "origin": "own isolated native QA windows",
+  "files": [
+    {
+      "name": "username-maigret.png",
+      "sha256": "2e70287c6ba5c41a0c8c415b0e290edf9574857005adbdd1f37c51b567267c03"
+    },
+    {
+      "name": "maigret-results.png",
+      "sha256": "32066ce72ca0df45364008385da06888c3f93edb2c9a29e9a18ffc77c8fa3902"
+    },
+    {
+      "name": "wallet-gansar.png",
+      "sha256": "0c938dc805bb6c6ae4c5d1c5e5441d062ad5811b8eceb615addef721793d1bf8"
+    },
+    {
+      "name": "gansar-results.png",
+      "sha256": "4ca55ff56794cb2e3a9cfa866225cb684a0aeadd37214f4a2d60b4d30b36fab0"
+    },
+    {
+      "name": "crypto-graph.png",
+      "sha256": "3a71121ec25ff5e11786989ecd3dc30be0a4b29b4c4e44481e2c5f1d49aed663"
+    },
+    {
+      "name": "reopened.png",
+      "sha256": "06744de1e8940f61a7a22ddde8dcfadc5e8effa576f35960f737eb8348cda754"
+    },
+    {
+      "name": "observed-crypto.png",
+      "sha256": "9a517b1e4b5880354119714f385520ac8857cc28232b4187e7f7aecb19740ab0"
+    }
+  ]
+}

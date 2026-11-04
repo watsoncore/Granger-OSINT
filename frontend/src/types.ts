@@ -44,7 +44,7 @@ export interface ResearchDocument {
   schema:'granger-investigation/1';id:string;revision:number;title:string;description:string
   entities:GraphEntity[];relations:GraphRelation[];evidence:Source[]
   annotations:Record<string,{label?:string;markdown?:string;color?:string}>
-  view:{positions:Record<string,GraphPoint>;instances?:Record<string,{entity_id:string;position:GraphPoint;parent_group_id?:string}>;viewport:GraphViewport;hidden:string[];removed:string[];collapsed:string[];layout:string;query?:string;card_sizes?:Record<string,{width:number;height:number}>;ui?:{inspector_tab?:'details'|'evidence'|'actions';inspector_width?:number;inspector_open?:boolean;card_mode?:'auto'|'compact'|'standard'|'expanded';graph_mode?:'wallet'|'flow'|'counterparties'|'transactions'|'paths'|'manual'};expanded?:string[];expanded_relations?:string[]}
+  view:{positions:Record<string,GraphPoint>;instances?:Record<string,{entity_id:string;position:GraphPoint;parent_group_id?:string}>;viewport:GraphViewport;hidden:string[];removed:string[];collapsed:string[];layout:string;query?:string;card_sizes?:Record<string,{width:number;height:number}>;ui?:{inspector_tab?:'details'|'evidence'|'actions';inspector_width?:number;inspector_open?:boolean;card_mode?:'auto'|'compact'|'standard'|'expanded';crypto_root_id?:string;graph_mode?:'wallet'|'flow'|'counterparties'|'transactions'|'paths'|'manual'};expanded?:string[];expanded_relations?:string[]}
   custom_types:Record<string,string>;recovered_revision?:boolean
 }
 export interface ResearchCanvasState {
