@@ -1,0 +1,68 @@
+{
+  "exe_sha256": "0027d25ee40ce4b6ef8e2e179144a6c493e9dc1379ae24fe137e0dc3e2675283",
+  "checks": [
+    {
+      "name": "actual_phone_typing_active",
+      "passed": true
+    },
+    {
+      "name": "hover_interrupts_phone",
+      "passed": true
+    },
+    {
+      "name": "hover_no_added_timer",
+      "passed": true
+    },
+    {
+      "name": "actual_phone_typing_active",
+      "passed": true
+    },
+    {
+      "name": "drag_up_interrupts_phone",
+      "passed": true
+    },
+    {
+      "name": "drag_up_physical_reaction",
+      "passed": true
+    },
+    {
+      "name": "drag_up_no_added_timer",
+      "passed": true
+    },
+    {
+      "name": "actual_phone_typing_active",
+      "passed": true
+    },
+    {
+      "name": "drag_down_interrupts_phone",
+      "passed": true
+    },
+    {
+      "name": "drag_down_physical_reaction",
+      "passed": true
+    },
+    {
+      "name": "drag_down_no_added_timer",
+      "passed": true
+    },
+    {
+      "name": "first_exit_zero",
+      "passed": true
+    },
+    {
+      "name": "no_owned_orphans",
+      "passed": true
+    },
+    {
+      "name": "restart_has_no_phone_or_guest",
+      "passed": true
+    },
+    {
+      "name": "restart_exit_zero_without_orphans",
+      "passed": true
+    }
+  ],
+  "isolated_profile": true,
+  "api_requests": 0,
+  "passed": true
+}

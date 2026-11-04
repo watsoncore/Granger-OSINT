@@ -1,0 +1,418 @@
+{
+  "test_kind": "actual_frozen_EXE_real_public_sources_and_gateway",
+  "exe_sha256": "0027d25ee40ce4b6ef8e2e179144a6c493e9dc1379ae24fe137e0dc3e2675283",
+  "isolated_profile_and_ipc": true,
+  "user_history_read": false,
+  "gateway_available": true,
+  "checks": [
+    {
+      "name": "actual_expected_executable",
+      "passed": true
+    },
+    {
+      "name": "native_desktop_ready",
+      "passed": true
+    },
+    {
+      "name": "native_social_isolated_0",
+      "passed": true
+    },
+    {
+      "name": "native_social_isolated_1",
+      "passed": true
+    },
+    {
+      "name": "native_network_evidence_2",
+      "passed": true
+    },
+    {
+      "name": "native_network_evidence_3",
+      "passed": true
+    },
+    {
+      "name": "native_network_evidence_4",
+      "passed": true
+    },
+    {
+      "name": "native_social_isolated_6",
+      "passed": true
+    },
+    {
+      "name": "native_new_chat_boundary",
+      "passed": true
+    },
+    {
+      "name": "own_process_tree_exited",
+      "passed": true
+    }
+  ],
+  "operations": [],
+  "turns": [
+    {
+      "scenario": "context-0",
+      "goal": "Привет, Гермиона",
+      "reply_characters": 94,
+      "reply_investigation_id": null,
+      "seconds": 12.6,
+      "references_previous_ip": false,
+      "research_status": null,
+      "tools": [],
+      "reported_evidence_count": 0
+    },
+    {
+      "scenario": "context-1",
+      "goal": "Как дела?",
+      "reply_characters": 173,
+      "reply_investigation_id": null,
+      "seconds": 21.61,
+      "references_previous_ip": false,
+      "research_status": null,
+      "tools": [],
+      "reported_evidence_count": 0
+    },
+    {
+      "scenario": "context-2",
+      "goal": "Исследуй IP 66.249.67.41",
+      "reply_characters": 7618,
+      "reply_investigation_id": "8eae23418be347bdac54f8c121c2dfa6",
+      "seconds": 94.73,
+      "references_previous_ip": true,
+      "research_status": "completed",
+      "tools": [
+        "ip_lookup",
+        "network_rdap",
+        "network_geoip",
+        "network_reverse_dns",
+        "network_routing",
+        "network_reputation",
+        "threat_feodo",
+        "evidence_get",
+        "evidence_get"
+      ],
+      "reported_evidence_count": 7,
+      "saved_record_types": {
+        "ip": 5,
+        "threat_indicator": 2
+      },
+      "saved_source_statuses": [
+        {
+          "tool": "ip_lookup",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_rdap",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_geoip",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_reverse_dns",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_reputation",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "threat_feodo",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_routing",
+          "status": "timeout",
+          "error": null
+        },
+        {
+          "tool": "evidence_get",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "evidence_get",
+          "status": "complete",
+          "error": null
+        }
+      ]
+    },
+    {
+      "scenario": "context-3",
+      "goal": "А этот IP 87.199.131.94?",
+      "reply_characters": 7270,
+      "reply_investigation_id": "717fa7fe175b42fea27dd7f59c9069ca",
+      "seconds": 120.44,
+      "references_previous_ip": true,
+      "research_status": "completed",
+      "tools": [
+        "ip_lookup",
+        "network_rdap",
+        "network_geoip",
+        "network_reverse_dns",
+        "network_routing",
+        "network_reputation",
+        "threat_feodo"
+      ],
+      "reported_evidence_count": 13,
+      "saved_record_types": {
+        "ip": 4,
+        "threat_indicator": 2
+      },
+      "saved_source_statuses": [
+        {
+          "tool": "network_rdap",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_geoip",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "ip_lookup",
+          "status": "timeout",
+          "error": null
+        },
+        {
+          "tool": "network_reverse_dns",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_reputation",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "threat_feodo",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_routing",
+          "status": "timeout",
+          "error": null
+        },
+        {
+          "tool": "ip_lookup",
+          "status": "duplicate_skipped",
+          "error": null
+        }
+      ]
+    },
+    {
+      "scenario": "context-4",
+      "goal": "А какая локация?",
+      "reply_characters": 7295,
+      "reply_investigation_id": "479096b85eaf4c569c35cacc5916039e",
+      "seconds": 189.82,
+      "references_previous_ip": true,
+      "research_status": "completed",
+      "tools": [
+        "network_geoip",
+        "network_rdap",
+        "ip_lookup",
+        "network_reverse_dns",
+        "network_routing",
+        "network_reputation",
+        "threat_feodo"
+      ],
+      "reported_evidence_count": 17,
+      "saved_record_types": {
+        "ip": 8,
+        "threat_indicator": 2
+      },
+      "saved_source_statuses": [
+        {
+          "tool": "network_geoip",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_rdap",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "ip_lookup",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_reverse_dns",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_routing",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_reputation",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "threat_feodo",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "ip_lookup",
+          "status": "duplicate_skipped",
+          "error": null
+        }
+      ]
+    },
+    {
+      "scenario": "context-5",
+      "goal": "Отложим",
+      "reply_characters": 79,
+      "reply_investigation_id": null,
+      "seconds": 28.75,
+      "references_previous_ip": false,
+      "research_status": "completed",
+      "tools": [
+        "network_geoip",
+        "network_rdap",
+        "ip_lookup",
+        "network_reverse_dns",
+        "network_routing",
+        "network_reputation",
+        "threat_feodo"
+      ],
+      "reported_evidence_count": 17,
+      "saved_record_types": {
+        "ip": 8,
+        "threat_indicator": 2
+      },
+      "saved_source_statuses": [
+        {
+          "tool": "network_geoip",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_rdap",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "ip_lookup",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_reverse_dns",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_routing",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_reputation",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "threat_feodo",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "ip_lookup",
+          "status": "duplicate_skipped",
+          "error": null
+        }
+      ]
+    },
+    {
+      "scenario": "context-6",
+      "goal": "Что делаешь?",
+      "reply_characters": 221,
+      "reply_investigation_id": null,
+      "seconds": 20.5,
+      "references_previous_ip": false,
+      "research_status": "completed",
+      "tools": [
+        "network_geoip",
+        "network_rdap",
+        "ip_lookup",
+        "network_reverse_dns",
+        "network_routing",
+        "network_reputation",
+        "threat_feodo"
+      ],
+      "reported_evidence_count": 17,
+      "saved_record_types": {
+        "ip": 8,
+        "threat_indicator": 2
+      },
+      "saved_source_statuses": [
+        {
+          "tool": "network_geoip",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_rdap",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "ip_lookup",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_reverse_dns",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_routing",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "network_reputation",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "threat_feodo",
+          "status": "complete",
+          "error": null
+        },
+        {
+          "tool": "ip_lookup",
+          "status": "duplicate_skipped",
+          "error": null
+        }
+      ]
+    },
+    {
+      "scenario": "fresh-chat",
+      "goal": "Привет",
+      "reply_characters": 114,
+      "reply_investigation_id": null,
+      "seconds": 11.83,
+      "references_previous_ip": false,
+      "research_status": null,
+      "tools": [],
+      "reported_evidence_count": 17
+    }
+  ],
+  "passed": true
+}

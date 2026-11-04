@@ -1,0 +1,509 @@
+{
+  "mode": "actual_frozen_GUI_local_pixel_tools",
+  "mock": false,
+  "user_data_read": false,
+  "gateway_calls": 0,
+  "exe_sha256": "0027d25ee40ce4b6ef8e2e179144a6c493e9dc1379ae24fe137e0dc3e2675283",
+  "checks": [
+    {
+      "name": "owned_executable",
+      "passed": true
+    },
+    {
+      "name": "theme_dark",
+      "passed": true
+    },
+    {
+      "name": "font_dark",
+      "passed": true
+    },
+    {
+      "name": "overflow_dark",
+      "passed": true
+    },
+    {
+      "name": "theme_black",
+      "passed": true
+    },
+    {
+      "name": "font_black",
+      "passed": true
+    },
+    {
+      "name": "overflow_black",
+      "passed": true
+    },
+    {
+      "name": "theme_light",
+      "passed": true
+    },
+    {
+      "name": "font_light",
+      "passed": true
+    },
+    {
+      "name": "overflow_light",
+      "passed": true
+    },
+    {
+      "name": "theme_mono",
+      "passed": true
+    },
+    {
+      "name": "font_mono",
+      "passed": true
+    },
+    {
+      "name": "overflow_mono",
+      "passed": true
+    },
+    {
+      "name": "fixture_within_tiny_QA_IPC",
+      "passed": true
+    },
+    {
+      "name": "image_import_Синтетическая надпись.png",
+      "passed": true
+    },
+    {
+      "name": "installed_model_readiness_persisted",
+      "passed": true
+    },
+    {
+      "name": "tiktok_timestamp_actual_results",
+      "passed": true
+    },
+    {
+      "name": "typed_timestamp_real_UTC",
+      "passed": true
+    },
+    {
+      "name": "role_classify_actual_results",
+      "passed": true
+    },
+    {
+      "name": "packaged_classification_rules_loaded",
+      "passed": true
+    },
+    {
+      "name": "mail_dns_actual_results",
+      "passed": true
+    },
+    {
+      "name": "packaged_real_DNS",
+      "passed": true
+    },
+    {
+      "name": "map_panoramax_actual_results",
+      "passed": true
+    },
+    {
+      "name": "packaged_Panoramax_license",
+      "passed": true
+    },
+    {
+      "name": "shadow_regions_actual_results",
+      "passed": true
+    },
+    {
+      "name": "typed_shadow_real_geometry",
+      "passed": true
+    },
+    {
+      "name": "visual_geoint_actual_results",
+      "passed": true
+    },
+    {
+      "name": "frozen_pipeline_real_candidates",
+      "passed": true
+    },
+    {
+      "name": "frozen_model_uncalibrated_label",
+      "passed": true
+    },
+    {
+      "name": "evidence_graph_actual_results",
+      "passed": true
+    },
+    {
+      "name": "graph_local_evidence_relations",
+      "passed": true
+    },
+    {
+      "name": "image_metadata_actual_results",
+      "passed": true
+    },
+    {
+      "name": "no_GPS_not_invented",
+      "passed": true
+    },
+    {
+      "name": "image_ocr_actual_results",
+      "passed": true
+    },
+    {
+      "name": "real_russian_pixel_OCR",
+      "passed": true
+    },
+    {
+      "name": "image_import_synthetic-gps.jpg",
+      "passed": true
+    },
+    {
+      "name": "image_metadata_actual_results",
+      "passed": true
+    },
+    {
+      "name": "real_GPS_from_EXIF",
+      "passed": true
+    },
+    {
+      "name": "metadata_not_authenticated",
+      "passed": true
+    },
+    {
+      "name": "encrypted_originals",
+      "passed": true
+    },
+    {
+      "name": "background_visibility",
+      "passed": true
+    },
+    {
+      "name": "restore_active",
+      "passed": true
+    },
+    {
+      "name": "first_run_exit_zero",
+      "passed": true
+    },
+    {
+      "name": "restart_owned_executable",
+      "passed": true
+    },
+    {
+      "name": "saved_theme_restored_after_restart",
+      "passed": true
+    },
+    {
+      "name": "verified_models_ready_after_EXE_restart",
+      "passed": true
+    },
+    {
+      "name": "encrypted_images_preserved_after_restart",
+      "passed": true
+    },
+    {
+      "name": "image_import_synthetic-gps.jpg",
+      "passed": true
+    },
+    {
+      "name": "same_encrypted_image_reopens_after_restart",
+      "passed": true
+    },
+    {
+      "name": "image_metadata_actual_results",
+      "passed": true
+    },
+    {
+      "name": "GPS_survives_restart",
+      "passed": true
+    },
+    {
+      "name": "three_preselected_geographic_classes",
+      "passed": true
+    },
+    {
+      "name": "case-03_source_SHA",
+      "passed": true
+    },
+    {
+      "name": "visual_geoint_actual_results",
+      "passed": true
+    },
+    {
+      "name": "case-03_both_frozen_model_responses",
+      "passed": true
+    },
+    {
+      "name": "case-09_source_SHA",
+      "passed": true
+    },
+    {
+      "name": "waypoint_predict_actual_results",
+      "passed": true
+    },
+    {
+      "name": "urban_eight_samples_completed_without_invented_candidates",
+      "passed": true
+    },
+    {
+      "name": "visual_geoint_actual_results",
+      "passed": true
+    },
+    {
+      "name": "case-09_both_frozen_model_responses",
+      "passed": true
+    },
+    {
+      "name": "case-10_source_SHA",
+      "passed": true
+    },
+    {
+      "name": "visual_geoint_actual_results",
+      "passed": true
+    },
+    {
+      "name": "case-10_both_frozen_model_responses",
+      "passed": true
+    },
+    {
+      "name": "actual_EXE_exit_zero",
+      "passed": true
+    },
+    {
+      "name": "owned_processes_gone",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "startup_ms": 11262.38,
+    "tiktok_timestamp_ms": 326.47,
+    "role_classify_ms": 360.98,
+    "mail_dns_ms": 3387.04,
+    "map_panoramax_ms": 1058.69,
+    "shadow_regions_ms": 503.39,
+    "visual_geoint_ms": 107401.17,
+    "evidence_graph_ms": 386.8,
+    "image_metadata_ms": 417.92,
+    "image_ocr_ms": 768.71,
+    "post_tools_idle": {
+      "samples": 6,
+      "medians": {
+        "process_count": 5.0,
+        "thread_count": 84.0,
+        "rss_bytes_sum": 2676230144.0,
+        "private_commit_bytes_sum": 2640566272.0,
+        "cpu_percent_one_core": 10.067369131323943,
+        "cpu_percent_machine": 0.8389474276103286,
+        "monitor_seconds": 0.00807919999351725
+      },
+      "gpu_medians": {
+        "gpu_engine_percent_sum": 0.0,
+        "gpu_engine_percent_max": 0.0,
+        "gpu_dedicated_bytes": 45748133888.0,
+        "gpu_shared_bytes": 44384256.0
+      }
+    },
+    "waypoint_predict_ms": 4874.65
+  },
+  "geographic_benchmark": [
+    {
+      "id": "case-03",
+      "class": "natural_landscape",
+      "source": "https://api.panoramax.xyz/#focus=pic&pic=79538352-8569-4b36-b315-29b9f96bf444",
+      "license": "CC-BY-SA-4.0",
+      "ground_truth_kind": "archive_camera_metadata_not_independently_surveyed",
+      "archive_camera_lat_lon": [
+        45.923641944,
+        6.868633889
+      ],
+      "source_sha256": "e71e520622e8e00fa3c71ab0d60cf533500fc6c9f561d70d950756185461d192",
+      "pixel_input_sha256": "7fcc82658dfa6efbe4330ab627e8de3d538b8c0ca592c18113b0d579f5f36883",
+      "input_metadata_stripped": true,
+      "samples": 32,
+      "seed": 0,
+      "models": {
+        "geoclip_predict": {
+          "predictions": [
+            {
+              "candidate": [
+                45.92512512207031,
+                6.871261119842529
+              ],
+              "distance_to_archive_camera_m": 262
+            },
+            {
+              "candidate": [
+                45.9241828918457,
+                6.869040012359619
+              ],
+              "distance_to_archive_camera_m": 68
+            },
+            {
+              "candidate": [
+                45.92342758178711,
+                6.871490955352783
+              ],
+              "distance_to_archive_camera_m": 222
+            }
+          ],
+          "status": "hypothesis"
+        },
+        "waypoint_predict": {
+          "predictions": [
+            {
+              "candidate": [
+                46.12176770303472,
+                8.2682803467747
+              ],
+              "distance_to_archive_camera_m": 110289
+            }
+          ],
+          "status": "hypothesis"
+        }
+      },
+      "empty_predictions": []
+    },
+    {
+      "id": "case-09",
+      "class": "urban_street",
+      "source": "https://api.panoramax.xyz/#focus=pic&pic=d6f8bec6-4250-405c-a54f-a417f6349ef7",
+      "license": "CC-BY-SA-4.0",
+      "ground_truth_kind": "archive_camera_metadata_not_independently_surveyed",
+      "archive_camera_lat_lon": [
+        45.760241279,
+        4.835712817
+      ],
+      "source_sha256": "8e49e7c34895377baa26e9b1dcf7b74665bce41019d1d47c5fb081e4d3f33e47",
+      "pixel_input_sha256": "907d86f3770aa4475357d9e06e76d188232a9e8ca3d656086f47a114bf9bd935",
+      "input_metadata_stripped": true,
+      "samples": 32,
+      "seed": 0,
+      "models": {
+        "waypoint_predict": {
+          "predictions": [
+            {
+              "candidate": [
+                47.57846144056956,
+                0.25016010713471554
+              ],
+              "distance_to_archive_camera_m": 404005
+            },
+            {
+              "candidate": [
+                44.843274956768866,
+                -0.5803373835011333
+              ],
+              "distance_to_archive_camera_m": 435601
+            },
+            {
+              "candidate": [
+                45.68517268365811,
+                4.717709224111098
+              ],
+              "distance_to_archive_camera_m": 12393
+            }
+          ],
+          "status": "hypothesis"
+        },
+        "geoclip_predict": {
+          "predictions": [
+            {
+              "candidate": [
+                45.76334762573242,
+                4.83429479598999
+              ],
+              "distance_to_archive_camera_m": 363
+            },
+            {
+              "candidate": [
+                45.76139450073242,
+                4.835608959197998
+              ],
+              "distance_to_archive_camera_m": 128
+            },
+            {
+              "candidate": [
+                45.760353088378906,
+                4.835506916046143
+              ],
+              "distance_to_archive_camera_m": 20
+            }
+          ],
+          "status": "hypothesis"
+        }
+      },
+      "empty_predictions": []
+    },
+    {
+      "id": "case-10",
+      "class": "architectural_landmark",
+      "source": "https://api.panoramax.xyz/#focus=pic&pic=68bc5f7f-fc6e-488d-bc8d-ae030fb28c2f",
+      "license": "CC-BY-SA-4.0",
+      "ground_truth_kind": "archive_camera_metadata_not_independently_surveyed",
+      "archive_camera_lat_lon": [
+        48.858335,
+        2.294067
+      ],
+      "source_sha256": "04a365dc2a12a05beead96ca384337bd0897ca5872afff87645449179826c8dd",
+      "pixel_input_sha256": "49a52ddcf5da3113f34f7262d3f901052ac97c31f4eda645ad7424c564bfe5c8",
+      "input_metadata_stripped": true,
+      "samples": 32,
+      "seed": 0,
+      "models": {
+        "geoclip_predict": {
+          "predictions": [
+            {
+              "candidate": [
+                49.11480712890625,
+                -1.0972590446472168
+              ],
+              "distance_to_archive_camera_m": 249082
+            },
+            {
+              "candidate": [
+                47.02082824707031,
+                5.720560073852539
+              ],
+              "distance_to_archive_camera_m": 326894
+            },
+            {
+              "candidate": [
+                49.297645568847656,
+                3.1787381172180176
+              ],
+              "distance_to_archive_camera_m": 80859
+            }
+          ],
+          "status": "hypothesis"
+        },
+        "waypoint_predict": {
+          "predictions": [
+            {
+              "candidate": [
+                49.005878342355395,
+                2.456843179245479
+              ],
+              "distance_to_archive_camera_m": 20262
+            },
+            {
+              "candidate": [
+                50.48988298331716,
+                3.204929095294309
+              ],
+              "distance_to_archive_camera_m": 192893
+            },
+            {
+              "candidate": [
+                49.34059179489596,
+                6.268827720548442
+              ],
+              "distance_to_archive_camera_m": 294271
+            }
+          ],
+          "status": "hypothesis"
+        }
+      },
+      "empty_predictions": []
+    }
+  ],
+  "empty_waypoint_control": {
+    "status": "no_candidates",
+    "computation_status": "completed",
+    "error_code": "no_geographic_candidates",
+    "candidate_count": 0,
+    "predictions": []
+  },
+  "passed": true
+}

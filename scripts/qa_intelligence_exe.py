@@ -120,7 +120,9 @@ def main():
         report['startup_seconds']=round(time.monotonic()-started,3)
         if args.v2_group and args.v2_group!='browser':
             if not key:raise RuntimeError('Saved gateway credential unavailable')
-            action('connection_test');wait(lambda:snapshot()['connection']['status']=='connected',65)
+            # test_connection has two independently bounded client operations:
+            # generation, then the complete echo tool round trip (45.5 s each).
+            action('connection_test');wait(lambda:snapshot()['connection']['status']=='connected',105)
             action('chat_new')
             if args.v2_group=='network-context':
                 for i,text in enumerate(('Привет, Гермиона','Как дела?','Исследуй IP 66.249.67.41','А этот IP 87.199.131.94?',
@@ -152,7 +154,7 @@ def main():
             if not args.v2_group:tool(name,tool_args)
         if not args.v2_group:check('native_public_tools_returned_data',all(row['records']>0 for row in report['operations'][:6]))
         if key:
-            action('connection_test');connected=wait(lambda:s if (s:=snapshot()) and s['connection']['status']=='connected' else None,60)
+            action('connection_test');connected=wait(lambda:s if (s:=snapshot()) and s['connection']['status']=='connected' else None,105)
             check('native_saved_key_connection_consistent',connected['connection']['canSend'])
             action('chat_new');action('chat_send',{'text':GOALS['browser']})
             live=wait(lambda:s if (s:=snapshot()) and s.get('browser',{}).get('url') else None,90)

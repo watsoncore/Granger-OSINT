@@ -1,0 +1,137 @@
+{
+  "origin": "source-algorithm-node",
+  "native": false,
+  "fps_measured": false,
+  "cases": [
+    {
+      "nodes": 50,
+      "edges": 49,
+      "layouts": {
+        "hierarchical": {
+          "median_ms": 0.211,
+          "max_ms": 2.289
+        },
+        "radial": {
+          "median_ms": 9.6,
+          "max_ms": 15.141
+        },
+        "types": {
+          "median_ms": 0.048,
+          "max_ms": 0.43
+        },
+        "communities": {
+          "median_ms": 0.106,
+          "max_ms": 0.402
+        },
+        "timeline": {
+          "median_ms": 0.077,
+          "max_ms": 1.288
+        }
+      }
+    },
+    {
+      "nodes": 100,
+      "edges": 99,
+      "layouts": {
+        "hierarchical": {
+          "median_ms": 0.359,
+          "max_ms": 0.708
+        },
+        "radial": {
+          "median_ms": 22.747,
+          "max_ms": 29.302
+        },
+        "types": {
+          "median_ms": 0.096,
+          "max_ms": 0.231
+        },
+        "communities": {
+          "median_ms": 0.447,
+          "max_ms": 0.548
+        },
+        "timeline": {
+          "median_ms": 0.123,
+          "max_ms": 0.2
+        }
+      }
+    },
+    {
+      "nodes": 500,
+      "edges": 499,
+      "layouts": {
+        "hierarchical": {
+          "median_ms": 6.407,
+          "max_ms": 7.543
+        },
+        "radial": {
+          "median_ms": 1.032,
+          "max_ms": 1.622
+        },
+        "types": {
+          "median_ms": 0.606,
+          "max_ms": 0.736
+        },
+        "communities": {
+          "median_ms": 7.554,
+          "max_ms": 9.002
+        },
+        "timeline": {
+          "median_ms": 0.542,
+          "max_ms": 0.585
+        }
+      }
+    },
+    {
+      "nodes": 1000,
+      "edges": 999,
+      "layouts": {
+        "hierarchical": {
+          "median_ms": 15.014,
+          "max_ms": 19.798
+        },
+        "radial": {
+          "median_ms": 0.428,
+          "max_ms": 0.918
+        },
+        "types": {
+          "median_ms": 0.518,
+          "max_ms": 0.745
+        },
+        "communities": {
+          "median_ms": 31.693,
+          "max_ms": 36.619
+        },
+        "timeline": {
+          "median_ms": 1.104,
+          "max_ms": 1.158
+        }
+      }
+    },
+    {
+      "nodes": 5000,
+      "edges": 4999,
+      "layouts": {
+        "hierarchical": {
+          "median_ms": 313.288,
+          "max_ms": 380.443
+        },
+        "radial": {
+          "median_ms": 4.216,
+          "max_ms": 4.958
+        },
+        "types": {
+          "median_ms": 2.695,
+          "max_ms": 3.284
+        },
+        "communities": {
+          "median_ms": 522.458,
+          "max_ms": 660.95
+        },
+        "timeline": {
+          "median_ms": 6.235,
+          "max_ms": 7.943
+        }
+      }
+    }
+  ]
+}

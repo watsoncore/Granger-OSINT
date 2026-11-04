@@ -1,0 +1,281 @@
+{
+  "origin": "frozen-EXE",
+  "data_origin": "synthetic_fixture",
+  "exe_sha256": "0027d25ee40ce4b6ef8e2e179144a6c493e9dc1379ae24fe137e0dc3e2675283",
+  "cases": [
+    {
+      "id": "503281d9c9534f3795c2aca02f5d9310",
+      "underlying_nodes": 50,
+      "edges": 49,
+      "encrypted_seed_write_ms": 38.72,
+      "open_and_expand_seconds": 1.044,
+      "renderer": {
+        "paintMs": "5.600000023841858",
+        "drawnNodes": "50",
+        "onScreenNodes": "12",
+        "modelEdges": "49",
+        "drawnImages": "2",
+        "zoom": "0.835270211411272"
+      },
+      "paint_ms": {
+        "count": 28,
+        "median": 3.4,
+        "p95": 6.6,
+        "max": 19.2
+      },
+      "active_intervals_ms": {
+        "count": 8,
+        "median": 24.95,
+        "p95": 50.4,
+        "max": 99
+      },
+      "event_to_paint_ms": {
+        "count": 12,
+        "median": 5.5,
+        "p95": 11,
+        "max": 19.1
+      },
+      "active_interval_reciprocal_fps": 40.08,
+      "resources": {
+        "samples": 12,
+        "medians": {
+          "process_count": 9.0,
+          "thread_count": 98.0,
+          "rss_bytes_sum": 657227776,
+          "private_commit_bytes_sum": 787824640,
+          "cpu_percent_one_core": 231.2757603445869,
+          "cpu_percent_machine": 19.272980028715576,
+          "monitor_seconds": 0.010484049969818443
+        },
+        "gpu_medians": {
+          "gpu_engine_percent_sum": 21.996842983645085,
+          "gpu_engine_percent_max": 21.996842983645085,
+          "gpu_dedicated_bytes": 1670049792.0,
+          "gpu_shared_bytes": 41656320.0
+        }
+      }
+    },
+    {
+      "id": "2ed72f0bb0c54d35a2ee511a9da7bdbd",
+      "underlying_nodes": 100,
+      "edges": 99,
+      "encrypted_seed_write_ms": 24.09,
+      "open_and_expand_seconds": 0.737,
+      "renderer": {
+        "paintMs": "2.8000000715255737",
+        "drawnNodes": "100",
+        "onScreenNodes": "12",
+        "modelEdges": "99",
+        "drawnImages": "2",
+        "zoom": "0.835270211411272"
+      },
+      "paint_ms": {
+        "count": 30,
+        "median": 3.6,
+        "p95": 4.9,
+        "max": 5.7
+      },
+      "active_intervals_ms": {
+        "count": 11,
+        "median": 14.4,
+        "p95": 23.1,
+        "max": 98.3
+      },
+      "event_to_paint_ms": {
+        "count": 12,
+        "median": 4.85,
+        "p95": 7.3,
+        "max": 12.5
+      },
+      "active_interval_reciprocal_fps": 69.44,
+      "resources": {
+        "samples": 12,
+        "medians": {
+          "process_count": 3.0,
+          "thread_count": 71.0,
+          "rss_bytes_sum": 630439936.0,
+          "private_commit_bytes_sum": 821348352.0,
+          "cpu_percent_one_core": 53.85764522751903,
+          "cpu_percent_machine": 4.488137102293252,
+          "monitor_seconds": 0.007592500012833625
+        },
+        "gpu_medians": {
+          "gpu_engine_percent_sum": 4.809267709105374,
+          "gpu_engine_percent_max": 4.809267709105374,
+          "gpu_dedicated_bytes": 2547179520.0,
+          "gpu_shared_bytes": 43769856.0
+        }
+      }
+    },
+    {
+      "id": "2ea618db7dcf4917b5542a331fb4f37c",
+      "underlying_nodes": 500,
+      "edges": 499,
+      "encrypted_seed_write_ms": 35.82,
+      "open_and_expand_seconds": 2.754,
+      "renderer": {
+        "paintMs": "5.100000023841858",
+        "drawnNodes": "500",
+        "onScreenNodes": "16",
+        "modelEdges": "499",
+        "drawnImages": "3",
+        "zoom": "0.835270211411272"
+      },
+      "paint_ms": {
+        "count": 37,
+        "median": 4.7,
+        "p95": 5.8,
+        "max": 5.8
+      },
+      "active_intervals_ms": {
+        "count": 9,
+        "median": 16.3,
+        "p95": 23.3,
+        "max": 45
+      },
+      "event_to_paint_ms": {
+        "count": 12,
+        "median": 5.35,
+        "p95": 6.6,
+        "max": 12.1
+      },
+      "active_interval_reciprocal_fps": 61.35,
+      "resources": {
+        "samples": 12,
+        "medians": {
+          "process_count": 3.0,
+          "thread_count": 71.0,
+          "rss_bytes_sum": 714864640.0,
+          "private_commit_bytes_sum": 921217024.0,
+          "cpu_percent_one_core": 58.9166830852395,
+          "cpu_percent_machine": 4.909723590436625,
+          "monitor_seconds": 0.007550250040367246
+        },
+        "gpu_medians": {
+          "gpu_engine_percent_sum": 4.345171519980713,
+          "gpu_engine_percent_max": 4.345171519980713,
+          "gpu_dedicated_bytes": 2942197760.0,
+          "gpu_shared_bytes": 45703168.0
+        }
+      }
+    },
+    {
+      "id": "c6b5464b4b384b9a9c6193d93db75d9c",
+      "underlying_nodes": 1000,
+      "edges": 999,
+      "encrypted_seed_write_ms": 58.02,
+      "open_and_expand_seconds": 3.333,
+      "renderer": {
+        "paintMs": "6.600000023841858",
+        "drawnNodes": "1000",
+        "onScreenNodes": "9",
+        "modelEdges": "999",
+        "drawnImages": "1",
+        "zoom": "0.9139311852712282"
+      },
+      "paint_ms": {
+        "count": 47,
+        "median": 6.8,
+        "p95": 7.8,
+        "max": 8.3
+      },
+      "active_intervals_ms": {
+        "count": 18,
+        "median": 19.25,
+        "p95": 52.3,
+        "max": 97.7
+      },
+      "event_to_paint_ms": {
+        "count": 12,
+        "median": 8.1,
+        "p95": 9.5,
+        "max": 10.5
+      },
+      "active_interval_reciprocal_fps": 51.95,
+      "resources": {
+        "samples": 12,
+        "medians": {
+          "process_count": 3.0,
+          "thread_count": 72.0,
+          "rss_bytes_sum": 892411904.0,
+          "private_commit_bytes_sum": 1118410752.0,
+          "cpu_percent_one_core": 88.13773681920529,
+          "cpu_percent_machine": 7.34481140160044,
+          "monitor_seconds": 0.007551850052550435
+        },
+        "gpu_medians": {
+          "gpu_engine_percent_sum": 6.638655488908582,
+          "gpu_engine_percent_max": 6.638655488908582,
+          "gpu_dedicated_bytes": 3360092160.0,
+          "gpu_shared_bytes": 45981696.0
+        }
+      }
+    },
+    {
+      "id": "8d626c76678d4e71b15091ff77fb633f",
+      "underlying_nodes": 5000,
+      "edges": 4999,
+      "encrypted_seed_write_ms": 270.86,
+      "open_and_expand_seconds": 25.652,
+      "renderer": {
+        "paintMs": "23.200000047683716",
+        "drawnNodes": "5000",
+        "onScreenNodes": "9",
+        "modelEdges": "4999",
+        "drawnImages": "1",
+        "zoom": "1.0941742837052104"
+      },
+      "paint_ms": {
+        "count": 109,
+        "median": 16.4,
+        "p95": 27.9,
+        "max": 43.8
+      },
+      "active_intervals_ms": {
+        "count": 9,
+        "median": 69.6,
+        "p95": 75.8,
+        "max": 93.2
+      },
+      "event_to_paint_ms": {
+        "count": 12,
+        "median": 25.25,
+        "p95": 32.5,
+        "max": 35
+      },
+      "active_interval_reciprocal_fps": 14.37,
+      "resources": {
+        "samples": 12,
+        "medians": {
+          "process_count": 3.0,
+          "thread_count": 71.5,
+          "rss_bytes_sum": 1038788608.0,
+          "private_commit_bytes_sum": 1170878464.0,
+          "cpu_percent_one_core": 165.12980544843543,
+          "cpu_percent_machine": 13.760817120702953,
+          "monitor_seconds": 0.007913699955679476
+        },
+        "gpu_medians": {
+          "gpu_engine_percent_sum": 3.924569504173011,
+          "gpu_engine_percent_max": 3.924569504173011,
+          "gpu_dedicated_bytes": 4800045056.0,
+          "gpu_shared_bytes": 45981696.0
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "native_search_filters_and_restores_1000",
+      "passed": true
+    },
+    {
+      "name": "native_six_layouts_restore_manual_positions",
+      "passed": true
+    }
+  ],
+  "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+  "passed": true,
+  "owned_processes_left": 0,
+  "parent_exit_code": 0
+}

@@ -1,0 +1,24 @@
+{
+  "origin": "source",
+  "counts": {
+    "python_full": [
+      "1772 passed, 2 skipped, 32 subtests passed in 333.03s (0:05:33)"
+    ],
+    "python_latest_focused": [
+      "23 passed in 15.27s"
+    ],
+    "frontend_final": [
+      "Tests  150 passed (150)"
+    ],
+    "frontend_production_build": {
+      "passed": true,
+      "warning": "bundle chunk exceeds 500 kB"
+    }
+  },
+  "full_suite_precedes_final_canvas_fixes": true,
+  "final_canvas_fixes_verified_in_focused_suite": true,
+  "skips": [
+    "Ollama service not running",
+    "Second owner pet instance already running at time of full suite"
+  ]
+}

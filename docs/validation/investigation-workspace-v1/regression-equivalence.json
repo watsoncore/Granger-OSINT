@@ -1,0 +1,12 @@
+{
+  "reference_exe_sha256": "0027d25ee40ce4b6ef8e2e179144a6c493e9dc1379ae24fe137e0dc3e2675283",
+  "delivery_exe_sha256": "bfe62a9a5e37ddbf9b51c87b869d607899e3f89db22cde418e8f5156c5a84ff2",
+  "application_modules_compared": 156,
+  "changed_modules": [
+    "grangerpet.research_canvas"
+  ],
+  "unchanged_modules": 155,
+  "bundled_resources_compared": 244,
+  "bundled_resources_identical": true,
+  "scope": "Reference receipts for provider, phone, models, automatic graphs and stress belong to the reference SHA. Their subsystem bytecode/resources are unchanged. Delivery canvas/group/AI and PE smoke are tested separately."
+}

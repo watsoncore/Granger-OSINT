@@ -109,6 +109,21 @@ def main():
             intervals=frame.get('active_intervals_ms',[])
             case['active_interval_reciprocal_fps']=round(1000/statistics.median(intervals),2) if intervals else None
             case['resources']=summarize(samples)
+            if target==1000:
+                click('Поиск на полотне');action('input',{'kind':'text','text':'person 0'})
+                wait(lambda:int(metrics()['canvas']['drawnNodes'])==1)
+                click('Поиск на полотне');action('input',{'kind':'key','key':'all','ctrl':True});action('input',{'kind':'key','key':'backspace'})
+                wait(lambda:int(metrics()['canvas']['drawnNodes'])==target)
+                report['checks'].append({'name':'native_search_filters_and_restores_1000','passed':True})
+                manual=snapshot()['research_canvas']['document']['view']['positions']
+                for mode,steps in [('hierarchical',1),('radial',2),('types',3),('communities',4),('timeline',5),('manual',0)]:
+                    click('Раскладка полотна');action('input',{'kind':'key','key':'home'})
+                    for _ in range(steps):action('input',{'kind':'key','key':'down'})
+                    action('input',{'kind':'key','key':'enter'})
+                    wait(lambda:not (r:=snapshot()['research_canvas']).get('busy') and r['document']['view']['layout']==mode)
+                restored=snapshot()['research_canvas']['document']['view']['positions']
+                report['checks'].append({'name':'native_six_layouts_restore_manual_positions','passed':restored==manual})
+                if restored!=manual:raise AssertionError('Manual positions changed by reversible layout')
             report['cases'].append(case);save();print(json.dumps({'nodes':target,'paint':case.get('paint_ms'),'active_interval_reciprocal_fps':case['active_interval_reciprocal_fps']}),flush=True)
         report['passed']=True;save()
     except Exception as error:report.update(passed=False,error_type=type(error).__name__,error=str(error)[:200]);save();raise

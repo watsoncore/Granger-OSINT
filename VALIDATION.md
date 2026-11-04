@@ -1,6 +1,28 @@
 # Granger-OSINT — проверка текущей сборки
 
-## Master Fix V2 — текущая поставка, 2 ноября 2026
+## Полотно расследований — 4 ноября 2026
+
+Текущий EXE: 279283981 байт, SHA-256
+`bfe62a9a5e37ddbf9b51c87b869d607899e3f89db22cde418e8f5156c5a84ff2`.
+Встроенный production code `20f035a`: 156 modules / 222 resource checks passed.
+Итоговый manual canvas: 28 native assertions, реальный DeepSeek selected-node
+explain без автоматического изменения фактов, реальный RDAP/Gansar, cancellation,
+node/port/group drag и restart. Presentation thumbnail cache в проверке фактов
+учитывается отдельно.
+
+На предшествующем candidate `0027d25e…`: 34 automatic graph/tree assertions,
+65 local model/OCR/EXIF/restart/exit, 15 phone assertions, native dialogs,
+пять размеров stress и live provider/context. Между двумя EXE изменился только
+grangerpet.research_canvas: 155 остальных application modules и 244 bundled
+resources совпали побайтно/по нормализованным code objects.
+
+Полный source suite: 1772 passed, 2 skipped, 32 subtests; после последних правок
+23 focused passed; frontend 150 passed и TypeScript/production build passed.
+Ограничения, происхождение данных, точные SHA каждой проверки и ошибки ранних
+harness-прогонов: [отчёт A–L](docs/INVESTIGATION_WORKSPACE_V1.md),
+[public receipts](docs/validation/investigation-workspace-v1/release-summary.json).
+
+## Master Fix V2 — предыдущая поставка, 2 ноября 2026
 
 Windows x64: 279228663 байта, SHA-256
 `428f3d02060bf059573921c7d8e8cdd08cab11a70526cdbef4049473548d2077`.

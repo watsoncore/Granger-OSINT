@@ -1,0 +1,152 @@
+{
+  "mode": "actual_frozen_Qt_WebEngine",
+  "exe_sha256": "0027d25ee40ce4b6ef8e2e179144a6c493e9dc1379ae24fe137e0dc3e2675283",
+  "gateway_calls": 0,
+  "inference_calls": 0,
+  "checks": [
+    {
+      "name": "synthetic-1000_native_canvas",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_no_window_overflow",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_different_tree_network_coordinates",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_tree_connected_single_parent",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_tree_readable_default",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_tree_breadcrumbs",
+      "passed": true
+    },
+    {
+      "name": "synthetic-1000_native_tree_drag_persisted",
+      "passed": true
+    },
+    {
+      "name": "native_group_expansion_preserves_large_collection",
+      "passed": true
+    },
+    {
+      "name": "native_search_finds_entity_without_matching_internal_member_hashes",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_native_canvas",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_no_window_overflow",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_different_tree_network_coordinates",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_tree_connected_single_parent",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_tree_readable_default",
+      "passed": true
+    },
+    {
+      "name": "geoint_tree_includes_researched_candidate",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_tree_breadcrumbs",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_native_tree_drag_persisted",
+      "passed": true
+    },
+    {
+      "name": "actual-geoint_native_inspector",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_native_canvas",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_no_window_overflow",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_different_tree_network_coordinates",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_tree_connected_single_parent",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_tree_readable_default",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_tree_breadcrumbs",
+      "passed": true
+    },
+    {
+      "name": "actual-steam-v2_native_tree_drag_persisted",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_native_canvas",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_no_window_overflow",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_different_tree_network_coordinates",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_tree_connected_single_parent",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_tree_readable_default",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_tree_breadcrumbs",
+      "passed": true
+    },
+    {
+      "name": "actual-network-v2_native_tree_drag_persisted",
+      "passed": true
+    },
+    {
+      "name": "restart_retains_graph_layout_and_group_state",
+      "passed": true
+    },
+    {
+      "name": "no_unexpected_global_error_banner",
+      "passed": true
+    }
+  ],
+  "manual_visual_review": {
+    "reviewed": [
+      "actual-steam-v2-tree-search.png",
+      "actual-geoint-graph-search.png"
+    ],
+    "observations": "Readable profile hierarchy and local avatar; geographic hypothesis remains distinct from original/reference images; minimap and source/layout controls visible."
+  },
+  "passed": true
+}

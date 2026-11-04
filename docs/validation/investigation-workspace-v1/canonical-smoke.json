@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "tested_at_utc": "2026-11-04T02:59:08.729171+00:00",
+  "executable": "<workspace>\\dist\\Granger-OSINT.exe",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "launcher",
+      "spawned_pid": 23152,
+      "timeout_seconds": 60,
+      "restricted_path": "C:\\Windows\\System32",
+      "fresh_profile": true,
+      "passed": true,
+      "elapsed_seconds": 11.995,
+      "exit_code": 0,
+      "fresh_start_log": true,
+      "react_ready": true
+    },
+    {
+      "name": "pet",
+      "spawned_pid": 15452,
+      "timeout_seconds": 60,
+      "restricted_path": "C:\\Windows\\System32",
+      "fresh_profile": true,
+      "passed": true,
+      "elapsed_seconds": 12.796,
+      "exit_code": 0,
+      "fresh_start_log": true,
+      "react_ready": true
+    }
+  ],
+  "sha256": "bfe62a9a5e37ddbf9b51c87b869d607899e3f89db22cde418e8f5156c5a84ff2",
+  "size_bytes": 279283981,
+  "pe": {
+    "machine": "AMD64",
+    "format": "PE32+",
+    "subsystem": "Windows GUI",
+    "subsystem_id": 2
+  },
+  "isolated_ipc": true
+}

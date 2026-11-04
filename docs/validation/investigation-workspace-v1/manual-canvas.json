@@ -1,0 +1,165 @@
+{
+  "origin": "frozen-EXE",
+  "mocked": false,
+  "isolated_profile": true,
+  "gateway_calls": null,
+  "gateway_generation_checks": 1,
+  "ai_reply_characters": 2196,
+  "ai_immutable_comparison_excludes": [
+    "entities.attributes.media (presentation cache only)"
+  ],
+  "checks": [
+    {
+      "name": "actual_click_created_empty_investigation",
+      "passed": true
+    },
+    {
+      "name": "three_typed_nodes_two_analyst_relations",
+      "passed": true
+    },
+    {
+      "name": "group_membership_and_pin_saved",
+      "passed": true
+    },
+    {
+      "name": "encrypted_local_image_attached",
+      "passed": true
+    },
+    {
+      "name": "network_rdap_preview_does_not_insert",
+      "passed": true
+    },
+    {
+      "name": "network_rdap_explicit_insertion_has_evidence",
+      "passed": true
+    },
+    {
+      "name": "network_rdap_reinsertion_deduplicated",
+      "passed": true
+    },
+    {
+      "name": "blockchain_gansar_preview_does_not_insert",
+      "passed": true
+    },
+    {
+      "name": "blockchain_gansar_explicit_insertion_has_evidence",
+      "passed": true
+    },
+    {
+      "name": "blockchain_gansar_reinsertion_deduplicated",
+      "passed": true
+    },
+    {
+      "name": "saved_search_preview_retains_scope_without_requests",
+      "passed": true
+    },
+    {
+      "name": "saved_search_preview_does_not_insert",
+      "passed": true
+    },
+    {
+      "name": "saved_search_insert_deduplicates_existing_evidence",
+      "passed": true
+    },
+    {
+      "name": "gansar_cached_repeat_is_explicit_and_makes_no_requests",
+      "passed": true
+    },
+    {
+      "name": "gansar_same_cached_observations_do_not_duplicate_entities",
+      "passed": true
+    },
+    {
+      "name": "native_stop_releases_ui_within_five_seconds",
+      "passed": true
+    },
+    {
+      "name": "native_cancelled_outcome_is_explicit",
+      "passed": true
+    },
+    {
+      "name": "cancelled_preview_does_not_mutate_canvas",
+      "passed": true
+    },
+    {
+      "name": "native_tool_can_run_after_cancel",
+      "passed": true
+    },
+    {
+      "name": "actual_native_node_drag_committed",
+      "passed": true
+    },
+    {
+      "name": "actual_native_port_drag_creates_analyst_relation",
+      "passed": true
+    },
+    {
+      "name": "native_collapsed_group_drag_keeps_hidden_members_aligned",
+      "passed": true
+    },
+    {
+      "name": "restart_keeps_entities_relations_annotations_positions",
+      "passed": true
+    },
+    {
+      "name": "reopened_sources_keep_provenance",
+      "passed": true
+    },
+    {
+      "name": "native_selected_node_ai_explanation_returns_real_text",
+      "passed": true
+    },
+    {
+      "name": "native_explanation_keeps_canvas_facts_and_layout",
+      "passed": true
+    },
+    {
+      "name": "native_explanation_does_not_run_tools",
+      "passed": true
+    },
+    {
+      "name": "own_app_exit_zero",
+      "passed": true
+    }
+  ],
+  "live_tools": [
+    {
+      "tool": "network_rdap",
+      "status": "complete",
+      "records": 1,
+      "seconds": 2.56,
+      "limitations": [
+        "Пассивные публичные наблюдения; порты не сканировались. Оператор диапазона, сервис и пользователь — разные сущности.",
+        "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+      ]
+    },
+    {
+      "tool": "blockchain_gansar",
+      "status": "partial",
+      "records": 71,
+      "seconds": 17.25,
+      "limitations": [
+        "Получены фактические Gansar observations. Полнота/ошибки каждого провайдера сохранены отдельно.",
+        "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+      ]
+    }
+  ],
+  "cached_scope": {
+    "requested_mode": "quick",
+    "requested_limit": 5,
+    "previous_nodes": 111,
+    "after_cached_nodes": 111,
+    "preview_records": 69
+  },
+  "interrupted_operation": {
+    "tool": "blockchain_gansar",
+    "status": "cancelled",
+    "retained_records": 0,
+    "limitations": [
+      "Поиск отменён.",
+      "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+    ]
+  },
+  "exe_sha256": "bfe62a9a5e37ddbf9b51c87b869d607899e3f89db22cde418e8f5156c5a84ff2",
+  "passed": true
+}

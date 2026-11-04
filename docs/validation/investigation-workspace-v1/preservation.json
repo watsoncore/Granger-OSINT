@@ -1,0 +1,44 @@
+{
+  "protected_groups": {
+    "assets": {
+      "original_files": 92,
+      "changed": 0,
+      "unstable": 0
+    },
+    "resources": {
+      "original_files": 202,
+      "changed": 0,
+      "unstable": 0
+    },
+    "gansar": {
+      "original_files": 509,
+      "changed": 0,
+      "unstable": 0
+    },
+    "visual_cpu": {
+      "original_files": 23387,
+      "changed": 0,
+      "unstable": 0
+    },
+    "scene_vision": {
+      "original_files": 25,
+      "changed": 0,
+      "unstable": 0
+    },
+    "pet_runtime": {
+      "original_files": 16,
+      "changed": 0
+    }
+  },
+  "protected_resources_all_unchanged": true,
+  "profile_baseline_files": 87,
+  "profile_identical_bytes": 85,
+  "missing_transient_lock_files": 1,
+  "changed_encrypted_dialogs": 1,
+  "changed_dialog_plaintext_bytes_equal": true,
+  "baseline_and_current_ciphertext_copies_retained": true,
+  "user_reports_no_manual_app_changes": true,
+  "write_initiator_proven": false,
+  "historical_v2_exception_resolved": false,
+  "plaintext_contents_exported": false
+}

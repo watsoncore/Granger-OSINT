@@ -35,6 +35,7 @@ def main():
     p.add_argument('--public-tools',action='store_true',help='Also execute one real key-free API and permitted JS sandbox in the frozen EXE')
     p.add_argument('--integrations19',action='store_true',help='Verify typed local tools, graph and the installed optional CPU pipeline')
     p.add_argument('--benchmark-manifest',type=Path,help='Run three previously selected licensed photos through both models in the actual EXE')
+    p.add_argument('--empty-waypoint-control',action='store_true',help='Also reproduce the 8-sample urban no-candidates observation')
     args=p.parse_args();out=args.output.resolve()
     if out.exists(): raise SystemExit('Previous evidence retained; choose a new directory')
     qa_namespace=uuid.uuid4().hex
@@ -106,7 +107,7 @@ def main():
                 'error':result['activity'][-1].get('error','')})
             check(name+'_failure_keeps_GUI_responsive',not result['search']['busy'])
             return None
-        check(name+'_actual_results',bool(result['search']['results']) and result['activity'][-1]['status'] in ('complete','partial'))
+        check(name+'_actual_results',bool(result['search']['results']) and result['activity'][-1]['status'] in (('complete','partial','empty') if name=='waypoint_predict' else ('complete','partial')))
         # Tool completion precedes the asynchronous source-view refresh.
         # Poll the new view rather than returning the snapshot taken before it.
         time.sleep(.5)
@@ -253,6 +254,10 @@ def main():
                 action('attachment_file',{'name':filename})
                 attached=wait(lambda:s if not (s:=snapshot('import-'+case['case_id'])).get('attachment_busy') and len(s['attachments'])>count else None)
                 attachment_id=attached['attachments'][-1]['id']
+                if args.empty_waypoint_control and case['case_id']=='case-09':
+                    empty=tool('waypoint_predict',{'attachment_id':attachment_id,'top_k':3,'samples':8,'seed':0})
+                    report['empty_waypoint_control']={k:empty.get(k) for k in ('status','computation_status','error_code','candidate_count','predictions')}
+                    check('urban_eight_samples_completed_without_invented_candidates',empty.get('status')=='no_candidates' and empty.get('computation_status')=='completed' and empty.get('predictions')==[])
                 tool('visual_geoint',{'attachment_id':attachment_id,'include_ocr':False,'include_scene':False,
                     'methods':['geoclip_predict','waypoint_predict'],'top_k':3,'samples':32,'seed':0})
                 current=snapshot('benchmark-'+case['case_id'])

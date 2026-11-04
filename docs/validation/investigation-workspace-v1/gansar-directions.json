@@ -1,0 +1,22 @@
+{
+  "origin": "frozen-EXE/saved-actual-Gansar-observations",
+  "checked_sender_receiver_relations": 12,
+  "directions_match_typed_source_fields": true,
+  "relation_types": {
+    "linked_to": 1,
+    "analyst_comparison": 1,
+    "within_registered_range": 1,
+    "registered_to": 1,
+    "published_on_domain": 24,
+    "supported_by": 56,
+    "sent_from": 5,
+    "sent_to": 7,
+    "source_labels_address": 10,
+    "source_reports_asset": 9,
+    "source_reports_collection": 6,
+    "transfers": 3,
+    "potentially_related": 1
+  },
+  "all_tool_relations_have_evidence": true,
+  "wallet_owner_not_attested": true
+}

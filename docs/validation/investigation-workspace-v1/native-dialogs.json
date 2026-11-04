@@ -1,0 +1,13 @@
+{
+  "origin": "frozen-EXE/native-Windows-dialogs",
+  "exe_sha256": "0027d25ee40ce4b6ef8e2e179144a6c493e9dc1379ae24fe137e0dc3e2675283",
+  "checks": {
+    "native_export_valid": true,
+    "native_import_new_id": true,
+    "evidence_unchanged": true,
+    "annotations_view_unchanged": true,
+    "import_does_not_attest_claims": true,
+    "no_false_timeout_after_45_seconds": true
+  },
+  "passed": true
+}

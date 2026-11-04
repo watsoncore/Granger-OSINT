@@ -1,0 +1,101 @@
+{
+  "origin": "frozen-EXE/source-live",
+  "exe_sha256": "0027d25ee40ce4b6ef8e2e179144a6c493e9dc1379ae24fe137e0dc3e2675283",
+  "gateway_calls": 0,
+  "cookies_or_keys": false,
+  "operations": [
+    {
+      "status": "partial",
+      "coverage": {
+        "observed_assets": 200,
+        "reported_total": 795,
+        "starts_at_cursor": null,
+        "next_cursor": "47476778660",
+        "more_items": true,
+        "stop_reason": "page_limit",
+        "pages": [
+          {
+            "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=100",
+            "http_status": 200,
+            "observed_at": "2026-11-04T02:40:01.759673+00:00",
+            "body_sha256": "9dcd9c54eebb595dbc0624a44a66efbb94bffe29041d4f7a01879ac7681cc163",
+            "response_bytes": 244713,
+            "returned_assets": 100,
+            "new_assets": 100,
+            "reported_total": 795,
+            "cursor": null,
+            "next_cursor": "50433254542"
+          },
+          {
+            "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=100&start_assetid=50433254542",
+            "http_status": 200,
+            "observed_at": "2026-11-04T02:40:03.154650+00:00",
+            "body_sha256": "c10a75297abddba09695d76edc0f17456cd417cb5f8c7a50ab8f4685415e06fd",
+            "response_bytes": 282717,
+            "returned_assets": 100,
+            "new_assets": 100,
+            "reported_total": 795,
+            "cursor": "50433254542",
+            "next_cursor": "47476778660"
+          }
+        ],
+        "all_items_observed_in_this_call": false,
+        "inventory_may_change_during_pagination": true,
+        "counts_are_not_item_data": false
+      },
+      "source_failures": [],
+      "retained_item_records": 200,
+      "gui_busy_after_completion": false,
+      "resume_cursor_supplied": false
+    },
+    {
+      "status": "partial",
+      "coverage": {
+        "observed_assets": 193,
+        "reported_total": 795,
+        "starts_at_cursor": "47476778660",
+        "next_cursor": "30559334240",
+        "more_items": true,
+        "stop_reason": "page_limit",
+        "pages": [
+          {
+            "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=100&start_assetid=47476778660",
+            "http_status": 200,
+            "observed_at": "2026-11-04T02:40:08.182666+00:00",
+            "body_sha256": "5efc80cddc92d9ec7b9ea62ae9f6c69a7183407a8d39c195612c3a6de8d8325f",
+            "response_bytes": 245536,
+            "returned_assets": 95,
+            "new_assets": 95,
+            "reported_total": 795,
+            "cursor": "47476778660",
+            "next_cursor": "41233169507"
+          },
+          {
+            "endpoint": "https://steamcommunity.com/inventory/76561198045277210/730/2?l=english&count=100&start_assetid=41233169507",
+            "http_status": 200,
+            "observed_at": "2026-11-04T02:40:09.715437+00:00",
+            "body_sha256": "085df776053182ee84396a63842948ed36735c12207ca14c04b81cf85498f528",
+            "response_bytes": 305732,
+            "returned_assets": 98,
+            "new_assets": 98,
+            "reported_total": 795,
+            "cursor": "41233169507",
+            "next_cursor": "30559334240"
+          }
+        ],
+        "all_items_observed_in_this_call": false,
+        "inventory_may_change_during_pagination": true,
+        "counts_are_not_item_data": false
+      },
+      "source_failures": [],
+      "retained_item_records": 393,
+      "gui_busy_after_completion": false,
+      "resume_cursor_supplied": true
+    }
+  ],
+  "live_item_data_verified": true,
+  "fresh_prices_verified": false,
+  "passed": true,
+  "owned_processes_left": 0,
+  "receipt_correction": "Original report.json is retained. Resume metadata now uses the corresponding operation observation ordered by obtained_at, instead of the first summary in the accumulated journal. Assertions/status/item records are unchanged."
+}

@@ -1,0 +1,39 @@
+{
+  "curated_at_utc": "2026-11-04T03:03:54.780571+00:00",
+  "scope": "Explicit aggregate acceptance receipts only. Saved/live/fixture origins are separate.",
+  "public_evidence_files": [
+    "automatic-graphs.json",
+    "build-environment.json",
+    "candidate-smoke.json",
+    "canonical-smoke.json",
+    "changed-files.json",
+    "delivery-candidate.json",
+    "delivery-frozen-assets.json",
+    "delivery-frozen-sources.json",
+    "gansar-directions.json",
+    "geoint-graph-saved-observations.png",
+    "graph-stress.json",
+    "layout-algorithm.json",
+    "local-models.json",
+    "manual-canvas-reopened.png",
+    "manual-canvas.json",
+    "native-dialogs.json",
+    "phone-regression.json",
+    "preservation.json",
+    "provider-context.json",
+    "regression-equivalence.json",
+    "release-summary.json",
+    "secret-scan.json",
+    "source-tests.json",
+    "steam-fresh.json",
+    "steam-tree-saved-observations.png"
+  ],
+  "production_commit": "20f035a",
+  "all_requested_capabilities_fully_verified": false,
+  "limitations": [
+    "5000-node native interaction is below the 60 FPS target; see qualified metrics.",
+    "Historical dialog write initiator remains unknown; current compared plaintext is unchanged.",
+    "Original local-image bytes are not included in portable canvas JSON export.",
+    "Fresh Steam complete inventory/prices and all Gansar networks are not established by saved-data controls."
+  ]
+}

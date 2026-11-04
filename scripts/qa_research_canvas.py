@@ -19,8 +19,13 @@ def main():
     parser.add_argument('--exe',type=Path);parser.add_argument('--gansar',action='store_true')
     parser.add_argument('--keep-open',action='store_true',help='Keep the verified own QA window for native dialog review until qa-close.flag')
     parser.add_argument('--cancel',action='store_true',help='Cancel one real bounded read-only Gansar request and verify restart')
+    parser.add_argument('--ai',action='store_true',help='Verify one saved-node explanation with the existing protected gateway key')
     args=parser.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Choose a fresh evidence directory')
+    from grangerpet.ai_keys import resolve_deepseek_key
+    from grangerpet.credentials import WindowsLegacyStore
+    gateway_key=resolve_deepseek_key() if args.ai else ''
+    if args.ai and not gateway_key:raise SystemExit('A saved working key is required; no fake credential will be used')
     out.mkdir(parents=True);namespace=uuid.uuid4().hex
     os.environ.update(APPDATA=str(out/'appdata'),GRANGERPET_QA_NAMESPACE=namespace,
         GRANGERPET_QA_VAULT='GrangerPet/QA/canvas_'+namespace,GRANGERPET_INTERACTION_TRACE=str(out/'interaction.jsonl'))
@@ -32,9 +37,11 @@ def main():
     from PIL import Image
     app=QApplication.instance() or QApplication([])
     profile=out/'appdata/GrangerPet';profile.mkdir(parents=True)
-    (profile/'settings.json').write_text(json.dumps(Settings(source_root=str(ROOT),cursor_reaction=False,reduced_motion=True).to_dict()),encoding='utf-8')
+    qa_credentials=WindowsLegacyStore(prefix=os.environ['GRANGERPET_QA_VAULT'],directory=profile/'vault')
+    if gateway_key:qa_credentials.set('deepseek_api_key',gateway_key)
+    (profile/'settings.json').write_text(json.dumps(Settings(source_root=str(ROOT),cursor_reaction=False,reduced_motion=True,ai_provider='deepseek' if gateway_key else 'none').to_dict()),encoding='utf-8')
     report={'origin':'frozen-EXE' if args.exe else 'native-source','mocked':False,'isolated_profile':True,
-        'gateway_calls':0,'checks':[],'live_tools':[],'screenshots':[]}
+        'gateway_calls':None if gateway_key else 0,'checks':[],'live_tools':[],'screenshots':[]}
     if args.exe:report['exe_sha256']=hashlib.sha256(args.exe.read_bytes()).hexdigest()
     owned=None;process=None
     def save():(out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
@@ -206,15 +213,34 @@ def main():
         check('reopened_sources_keep_provenance',all(row.get('evidence_id') for row in doc['evidence']))
         wait(lambda:'Развернуть полотно' in dom().get('text',''));click('Развернуть полотно')
         wait(lambda:'Вернуть в Поиск' in dom().get('text',''));shot('canvas-after-restart');report['passed']=True;save()
+        if args.ai:
+            before=snapshot();saved_doc=canvas()['document'];message_count=len(before['messages'])
+            action('research_canvas_analyze',{'id':identifier,'revision':saved_doc['revision'],'ids':[ids[0]],'intent':'explain'})
+            explained=wait(lambda:s if not (s:=snapshot())['busy'] and any(m.get('role')=='model' for m in s['messages'][message_count:]) else None,140)
+            reply=next(m for m in reversed(explained['messages'][message_count:]) if m.get('role')=='model')
+            check('native_selected_node_ai_explanation_returns_real_text',bool(reply.get('text')) and explained['connection']['status']=='connected')
+            def facts_and_layout(document):
+                value=json.loads(json.dumps(document))
+                # The asynchronous MediaStore may finish a presentation-only
+                # thumbnail while the model answers. Keep every other field.
+                for node in value['entities']:node['attributes'].pop('media',None)
+                return value
+            check('native_explanation_keeps_canvas_facts_and_layout',facts_and_layout(explained['research_canvas']['document'])==facts_and_layout(saved_doc))
+            report['ai_immutable_comparison_excludes']=['entities.attributes.media (presentation cache only)']
+            check('native_explanation_does_not_run_tools',not any(a.get('status')=='running' for a in explained.get('activity',[])) and not explained.get('investigation',{}).get('id'))
+            report['gateway_generation_checks']=1;report['ai_reply_characters']=len(reply.get('text',''));save()
         if args.keep_open:
             print(json.dumps({'ready_for_native_dialog_review':True,'owned_pid':owned}),flush=True)
             while process.poll() is None and not (out/'qa-close.flag').exists():time.sleep(.5)
     except Exception as error:report.update(passed=False,error_type=type(error).__name__,error=str(error)[:250]);save();raise
     finally:
-        if process and process.poll() is None:
-            if state():command('stop')
-            process.wait(timeout=30)
-        if process:check('own_app_exit_zero',process.returncode==0)
+        try:
+            if process and process.poll() is None:
+                if state():command('stop')
+                process.wait(timeout=30)
+            if process:check('own_app_exit_zero',process.returncode==0)
+        finally:
+            if gateway_key:qa_credentials.delete('deepseek_api_key')
     print(json.dumps({'passed':report['passed'],'checks':len(report['checks'])}))
 
 
