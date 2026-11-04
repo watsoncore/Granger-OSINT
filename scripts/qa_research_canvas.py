@@ -18,6 +18,7 @@ def main():
     parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--exe',type=Path);parser.add_argument('--gansar',action='store_true')
     parser.add_argument('--keep-open',action='store_true',help='Keep the verified own QA window for native dialog review until qa-close.flag')
+    parser.add_argument('--cancel',action='store_true',help='Cancel one real bounded read-only Gansar request and verify restart')
     args=parser.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Choose a fresh evidence directory')
     out.mkdir(parents=True);namespace=uuid.uuid4().hex
@@ -143,12 +144,29 @@ def main():
         check('saved_search_insert_deduplicates_existing_evidence',len(doc['entities'])==before and {r['evidence_id'] for r in doc['evidence']}==evidence_before)
         if args.gansar:
             previous_token=canvas()['preview']['token'];old=doc['revision']
-            action('research_canvas_tool',{'id':identifier,'revision':old,'entity_id':ids[2],'tool':'blockchain_gansar','query':'UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd','arguments':{'address':'UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd','operation':'cached'},'limit':10})
+            action('research_canvas_tool',{'id':identifier,'revision':old,'entity_id':ids[2],'tool':'blockchain_gansar','query':'UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd','arguments':{'address':'UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd','operation':'cached','mode':'quick','limit':5,'depth':0},'limit':10})
             reused=wait(lambda:r['preview'] if (r:=canvas()).get('preview',{}).get('token')!=previous_token and r.get('preview',{}).get('tool')=='blockchain_gansar' and not snapshot()['search']['busy'] else None,90)
             check('gansar_cached_repeat_is_explicit_and_makes_no_requests',reused['from_saved_data'] and reused['request_counts']['http_requests']==0 and bool(reused['results']))
             action('research_canvas_insert',{'id':identifier,'revision':old,'token':reused['token'],'evidence_ids':[r['evidence_id'] for r in reused['results']]})
             doc=settled(old)['document']
-            check('gansar_cached_repeat_does_not_duplicate_entities',len(doc['entities'])==before)
+            report['cached_scope']={'requested_mode':'quick','requested_limit':5,'previous_nodes':before,'after_cached_nodes':len(doc['entities']),'preview_records':len(reused['results'])}
+            count=len(doc['entities']);old=doc['revision']
+            action('research_canvas_insert',{'id':identifier,'revision':old,'token':reused['token'],'evidence_ids':[r['evidence_id'] for r in reused['results']]})
+            doc=settled(old)['document']
+            check('gansar_same_cached_observations_do_not_duplicate_entities',len(doc['entities'])==count)
+        if args.cancel:
+            old_token=canvas()['preview']['token'];old=doc['revision']
+            action('research_canvas_tool',{'id':identifier,'revision':old,'entity_id':ids[2],'tool':'blockchain_gansar','query':'UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd','arguments':{'address':'UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd','operation':'transactions','mode':'deep','limit':1000,'depth':0,'refresh':True},'limit':10})
+            wait(lambda:snapshot()['search']['busy'],10)
+            stopped=time.monotonic();action('search_stop');wait(lambda:not snapshot()['search']['busy'],5)
+            check('native_stop_releases_ui_within_five_seconds',time.monotonic()-stopped<5)
+            cancelled=wait(lambda:r['preview'] if (r:=canvas()).get('preview',{}).get('token')!=old_token else None,40)
+            report['interrupted_operation']={'tool':'blockchain_gansar','status':cancelled['status'],'retained_records':len(cancelled['results']),'limitations':cancelled['limitations']}
+            check('native_cancelled_outcome_is_explicit',cancelled['status']=='cancelled')
+            check('cancelled_preview_does_not_mutate_canvas',canvas()['document']['revision']==old)
+            token=cancelled['token'];action('research_canvas_tool',{'id':identifier,'revision':old,'entity_id':ids[0],'tool':'network_rdap','query':'66.249.67.41','limit':1})
+            resumed=wait(lambda:r['preview'] if (r:=canvas()).get('preview',{}).get('token')!=token and not snapshot()['search']['busy'] else None,70)
+            check('native_tool_can_run_after_cancel',resumed['tool']=='network_rdap' and resumed['status'] in ('complete','partial') and bool(resumed['results']))
         wait(lambda:'Развернуть полотно' in dom().get('text',''));click('Развернуть полотно')
         wait(lambda:'Вернуть в Поиск' in dom().get('text',''))
         def settled_metrics(document):
@@ -170,6 +188,17 @@ def main():
         old=doc['revision'];count=len(doc['relations'])
         action('input',{'kind':'drag','at':[drawn['x']+first['x']+half,drawn['y']+first['y']], 'to':[drawn['x']+second['x'],drawn['y']+second['y']]})
         doc=settled(old)['document'];check('actual_native_port_drag_creates_analyst_relation',len(doc['relations'])==count+1)
+        group=next(n for n in doc['entities'] if n['type']=='entity_group' and n['label']=='Сеть QA')
+        group_id=group['id'];original_view=doc['view']['viewport'];gp=doc['view']['positions'][group_id]
+        doc=edit('view',{'view':{'collapsed':[group_id],'viewport':{'x':500-gp['x'],'y':250-gp['y'],'scale':1}}})
+        def visible_group():
+            m=metrics();c=m.get('canvas') or {};p=next((n for n in json.loads(c.get('qaNodes','[]')) if n['id']==group_id),None)
+            return (c,p) if m.get('revision')==str(doc['revision']) and p and abs(p['x']-500)<1 and abs(p['y']-250)<1 else None
+        drawn,point=wait(visible_group);old=doc['revision'];before=doc['view']['positions'];at=[drawn['x']+point['x'],drawn['y']+point['y']]
+        action('input',{'kind':'drag','at':at,'to':[at[0]+30,at[1]+20]})
+        doc=settled(old)['document'];after=doc['view']['positions'];dx=after[group_id]['x']-before[group_id]['x'];dy=after[group_id]['y']-before[group_id]['y']
+        check('native_collapsed_group_drag_keeps_hidden_members_aligned',abs(dx)>10 and all(abs(after[i]['x']-before[i]['x']-dx)<1 and abs(after[i]['y']-before[i]['y']-dy)<1 for i in ids[:2]))
+        doc=edit('view',{'view':{'collapsed':[],'viewport':original_view}})
         shot('canvas-before-restart');saved={key:doc[key] for key in ('entities','relations','annotations','view')}
         command('stop');process.wait(timeout=30);owned=None;start(1)
         click('Мои расследования');action('research_canvas_open',{'id':identifier});doc=wait(lambda:r.get('document') if not (r:=canvas()).get('busy') else None)

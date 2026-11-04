@@ -96,11 +96,15 @@ def validate(value):
     for annotation in annotations.values():
         if not isinstance(annotation,dict) or set(annotation)-{'label','markdown','color'}:raise CanvasError('Некорректная аннотация.')
         for key,item in annotation.items():text(item,20000 if key=='markdown' else 300)
+    by_id={n['id']:n for n in nodes}
     parents={n['id']:n['attributes'].get('parent_group_id') for n in nodes}
-    for identifier in ids:
+    parents.update({i:v.get('parent_group_id') for i,v in instances.items()})
+    for identifier in view_ids:
         seen=set();parent=parents[identifier]
         while parent:
-            if parent not in ids or parent in seen or parent==identifier:raise CanvasError('Циклическая или отсутствующая группа.')
+            if not isinstance(parent,str) or parent not in view_ids or parent in seen or parent==identifier:raise CanvasError('Циклическая или отсутствующая группа.')
+            owner=instances[parent]['entity_id'] if parent in instances else parent
+            if by_id[owner]['type']!='entity_group':raise CanvasError('Родитель должен быть группой.')
             seen.add(parent);parent=parents[parent]
     if len(encoded(value))>MAX_BYTES:raise CanvasError('Расследование превышает 24 MB; сохранённые данные не изменены.')
     return value
@@ -291,6 +295,23 @@ def apply(doc,operation,args):
             if doc['view'].get('layout')=='manual':doc['view']['manual_positions']={**deepcopy(doc['view']['positions']),**{i:deepcopy(v['position']) for i,v in instances.items()}}
             if mode=='manual':supplied={key:value for key,value in doc['view'].get('manual_positions',{}).items() if key in nodes or key in instances}
             doc['view']['layout']=mode
+        else:
+            supplied={key:point(value) for key,value in supplied.items()}
+            before={**doc['view']['positions'],**{i:v['position'] for i,v in instances.items()}}
+            parents={i:n['attributes'].get('parent_group_id') for i,n in nodes.items()}
+            parents.update({i:v.get('parent_group_id') for i,v in instances.items()})
+            deltas={i:(p['x']-before[i]['x'],p['y']-before[i]['y']) for i,p in supplied.items()
+                if i in before and nodes[canonical(i)]['type']=='entity_group'}
+            # Renderer projection omits collapsed/filtered/progressive members.
+            # Move those descendants here. Explicit renderer positions win so
+            # visible members and nested groups are never translated twice.
+            for identifier,previous in before.items():
+                if identifier in supplied:continue
+                parent=parents.get(identifier);seen=set()
+                while parent and parent not in seen:
+                    if parent in deltas:
+                        dx,dy=deltas[parent];supplied[identifier]=point({**previous,'x':previous['x']+dx,'y':previous['y']+dy});break
+                    seen.add(parent);parent=parents.get(parent)
         for key,value in supplied.items():
             if key in instances:instances[key]['position']=point(value)
             else:doc['view']['positions'][key]=point(value)
@@ -320,6 +341,8 @@ def apply(doc,operation,args):
             doc['relations']=[e for e in doc['relations'] if e['from_id'] not in ids and e['to_id'] not in ids]
             for n in doc['entities']:
                 if n['attributes'].get('parent_group_id') in ids:n['attributes'].pop('parent_group_id')
+            for instance in instances.values():
+                if instance.get('parent_group_id') in ids:instance.pop('parent_group_id')
             for identifier in ids:doc['view']['positions'].pop(identifier,None);doc['annotations'].pop(identifier,None)
             doc['annotations']={k:v for k,v in doc['annotations'].items() if k in {n['id'] for n in doc['entities']}|{e['id'] for e in doc['relations']}|set(instances)}
         for key in ('hidden','removed','collapsed'):

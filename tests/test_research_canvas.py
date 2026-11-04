@@ -116,3 +116,28 @@ def test_manual_layout_restores_original_positions_after_automatic_layout():
     arranged=apply(doc,'layout',{'mode':'types','positions':{identifier:{'x':300,'y':200}}})
     restored=apply(arranged,'layout',{'mode':'manual','positions':{}})
     assert restored['view']['positions'][identifier]=={'x':10,'y':40}
+
+
+def test_group_move_translates_collapsed_nested_and_visual_members_once():
+    doc=apply(new_document(),'node',{'type':'person','label':'Member','position':{'x':10,'y':20}})
+    member=doc['entities'][0]['id'];doc=apply(doc,'duplicate_nodes',{'ids':[member]});instance=next(iter(doc['view']['instances']))
+    doc=apply(doc,'group',{'ids':[member,instance],'label':'Inner'});inner=doc['entities'][-1]['id']
+    doc=apply(doc,'group',{'ids':[inner],'label':'Outer'});outer=doc['entities'][-1]['id'];doc['view']['collapsed']=[outer]
+    before=deepcopy(doc);p=doc['view']['positions'][outer]
+    moved=apply(doc,'positions',{'positions':{outer:{'x':p['x']+40,'y':p['y']-15}}})
+    for identifier in (member,inner,outer):
+        assert moved['view']['positions'][identifier]['x']==before['view']['positions'][identifier]['x']+40
+        assert moved['view']['positions'][identifier]['y']==before['view']['positions'][identifier]['y']-15
+    assert moved['view']['instances'][instance]['position']['x']==before['view']['instances'][instance]['position']['x']+40
+    explicit=apply(doc,'positions',{'positions':{outer:{'x':p['x']+40,'y':p['y']-15},member:{'x':999,'y':888}}})
+    assert explicit['view']['positions'][member]=={'x':999,'y':888}
+
+
+def test_visual_membership_rejects_cycles_and_detaches_when_parent_deleted():
+    doc=apply(new_document(),'node',{'type':'person','label':'Member'})
+    member=doc['entities'][0]['id'];doc=apply(doc,'duplicate_nodes',{'ids':[member]});instance=next(iter(doc['view']['instances']))
+    doc=apply(doc,'group',{'ids':[instance],'label':'Parent'});parent=doc['entities'][-1]['id']
+    bad=deepcopy(doc);bad['view']['instances'][instance]['parent_group_id']=instance
+    with pytest.raises(ValueError,match='групп'):validate(bad)
+    removed=apply(doc,'delete_entity',{'ids':[parent]})
+    assert not removed['view']['instances'][instance].get('parent_group_id')
