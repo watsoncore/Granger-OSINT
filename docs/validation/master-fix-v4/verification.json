@@ -124,5 +124,11 @@
     "source_publication": "pushed to origin",
     "binary_publication": "installed locally at canonical path; no GitHub Release or ZIP created",
     "receipt_followup": "documentation-only commit; packaged runtime unchanged"
+  },
+  "temporary_diagnostics": {
+    "retained_in_windows_temp": true,
+    "removal_rejected_by_automatic_review": true,
+    "reason": "blocked by policy; no further details supplied",
+    "native_profiles_and_build_stages_removed": true
   }
 }
