@@ -31,18 +31,20 @@ export interface GraphRelation {
 }
 export interface GraphView {
   version:1; mode?:GraphMode; positions?:Record<string,GraphPoint>; tree_positions?:Record<string,GraphPoint>
-  layout_algorithm?:'semantic_cards'|'semantic_network_v2';inspector_width?:number;inspector_hidden?:boolean
-  layout_mode?:'semantic'|'manual'|'hierarchical'|'radial'|'types'|'communities'|'timeline';manual_positions?:Record<string,GraphPoint>
+  layout_algorithm?:'semantic_cards'|'semantic_network_v2'|'semantic_network_v3';inspector_width?:number;inspector_hidden?:boolean
+  layout_mode?:'semantic'|'manual'|'hierarchical'|'radial'|'types'|'communities'|'timeline'|'wallet'|'flow'|'counterparties'|'paths';manual_positions?:Record<string,GraphPoint>
   viewport?:GraphViewport; tree_viewport?:GraphViewport; selected_id?:string; selected_relation?:string
   expanded?:string[]; expanded_relations?:string[]; collapsed?:string[]; query?:string
   filters?: {types?:string[];statuses?:Verification[];sources?:string[];include_background?:boolean;show_sources?:boolean;show_transactions?:boolean}
+  card_sizes?:Record<string,{width:number;height:number}>;card_mode?:'auto'|'compact'|'standard'|'expanded'
+  projection_mode?:'wallet'|'flow'|'counterparties'|'transactions'|'paths'|'manual';inspector_tab?:'details'|'evidence'|'actions'
 }
 export interface GraphFinding { evidence_id:string; title:string; description:string; url:string; status:string; relevance?:Source['relevance'] }
 export interface ResearchDocument {
   schema:'granger-investigation/1';id:string;revision:number;title:string;description:string
   entities:GraphEntity[];relations:GraphRelation[];evidence:Source[]
   annotations:Record<string,{label?:string;markdown?:string;color?:string}>
-  view:{positions:Record<string,GraphPoint>;instances?:Record<string,{entity_id:string;position:GraphPoint;parent_group_id?:string}>;viewport:GraphViewport;hidden:string[];removed:string[];collapsed:string[];layout:string;query?:string}
+  view:{positions:Record<string,GraphPoint>;instances?:Record<string,{entity_id:string;position:GraphPoint;parent_group_id?:string}>;viewport:GraphViewport;hidden:string[];removed:string[];collapsed:string[];layout:string;query?:string;card_sizes?:Record<string,{width:number;height:number}>;ui?:{inspector_tab?:'details'|'evidence'|'actions';inspector_width?:number;inspector_open?:boolean;card_mode?:'auto'|'compact'|'standard'|'expanded';graph_mode?:'wallet'|'flow'|'counterparties'|'transactions'|'paths'|'manual'};expanded?:string[];expanded_relations?:string[]}
   custom_types:Record<string,string>;recovered_revision?:boolean
 }
 export interface ResearchCanvasState {
@@ -227,6 +229,7 @@ export interface DesktopState {
   task_sources?: Source[]
   history: HistoryItem[]
   search: {
+    maigret_progress?:{mode?:string;database_total?:number;enabled_username?:number;selected?:number;scheduled?:number;checked?:number;processed?:number;found?:number;not_found?:number;unknown?:number;blocked?:number;unavailable?:number;errors?:number;skipped?:number;pending?:number;complete?:boolean;cancelled?:boolean;elapsed_seconds?:number;skipped_reasons?:Record<string,number>}|null
     investigation_id?:string
     query: string
     kind: string

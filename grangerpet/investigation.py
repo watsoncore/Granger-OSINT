@@ -5,7 +5,8 @@ from copy import deepcopy
 import math
 import uuid
 
-from .agent_evidence import EvidenceStore, EvidenceContractError, validate_saved_evidence, redact
+from .agent_evidence import (EvidenceStore, EvidenceContractError, validate_saved_evidence, redact,
+                             sanitize_execution, MAIGRET_DATABASE_ROW_LIMIT)
 
 
 def new_investigation(goal, conversation_id=None):
@@ -33,10 +34,16 @@ class InvestigationEvidence(EvidenceStore):
 
     def add(self, envelope):
         with self._lock:
-            identifiers = super().add(envelope)
+            if isinstance(envelope,dict) and envelope.get('tool')=='username_maigret' and isinstance(envelope.get('results'),list):
+                values=envelope['results']
+                if len(values)>MAIGRET_DATABASE_ROW_LIMIT:raise EvidenceContractError('maigret.results',values)
+                identifiers=[]
+                for offset in range(0,len(values),2000):
+                    identifiers.extend(super().add({**envelope,'results':values[offset:offset+2000],'stream_event':True}))
+            else:identifiers = super().add(envelope)
             if isinstance(envelope, dict) and envelope.get('stream_event') is not True:
-                self._all_executions.append({key: deepcopy(envelope[key]) for key in
-                      ('tool', 'status', 'query', 'obtained_at', 'limitations', 'error','source_diagnostics','from_saved_data') if key in envelope})
+                self._all_executions.append(sanitize_execution({key: deepcopy(envelope[key]) for key in
+                      ('tool', 'status', 'query', 'obtained_at', 'limitations', 'error','source_diagnostics','from_saved_data') if key in envelope}))
             return identifiers
 
     def executions(self):
@@ -71,7 +78,8 @@ class InvestigationEvidence(EvidenceStore):
             if not isinstance(row, dict):
                 self._diagnose(EvidenceContractError('executions[]', row))
                 continue
-            safe_executions.append(redact(row))
+            try:safe_executions.append(sanitize_execution(row))
+            except EvidenceContractError as error:self._diagnose(error)
         with self._lock:
             self._records.update(restored)
             self._all_executions = safe_executions

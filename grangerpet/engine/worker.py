@@ -37,6 +37,11 @@ def probe(source, options):
                 "snoop": [root / "snoop-master/BDdemo"]}.get(source, [])
     if required and not any(path.is_file() and path.stat().st_size > 10 for path in required):
         return {"source": source, "status": "unavailable", "error_code": "missing_database", "results": [], "message": "Нет необходимой локальной базы источника."}
+    if source == "maigret":
+        from maigret_bridge import capability
+        return {"source": source, "status": "ready", "results": [],
+                "source_diagnostics": {"capability": capability(root / "maigret-main")},
+                "message": "Оригинальный движок и полная локальная база Maigret проверены без сетевого поиска."}
     return {"source": source, "status": "ready", "results": [], "message": "Реальный импорт адаптера и локальные ресурсы проверены."}
 
 
@@ -78,6 +83,11 @@ def main():
                         outcome = run_adapter(source, query, options)
             finally:
                 os.chdir(original_cwd)
+        if source == "maigret" and options.get("operation") != "probe":
+            # Findings have already been emitted individually. Avoid duplicating
+            # the entire Full result set in a single, unbounded JSONL line.
+            outcome["streamed_result_count"] = len(outcome.get("results", []))
+            outcome["results"] = []
         emit({"event": "final", "outcome": outcome})
         return 0
     except (ImportError, ModuleNotFoundError) as exc:

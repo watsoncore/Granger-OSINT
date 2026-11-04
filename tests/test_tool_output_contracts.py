@@ -28,7 +28,7 @@ def test_invalid_adapter_output_is_failed_not_empty_success_or_execution_verifie
 def test_valid_partial_neighbor_survives_one_invalid_result_with_explicit_error():
     adapter = Adapter({'status': 'complete', 'results': [finding(), 'PRIVATE BAD']})
     reg, _ = registry(adapter)
-    result = reg.execute('username_maigret', {'username': 'fixture', 'limit': 3})
+    result = reg.execute('username_maigret', {'username': 'fixture', 'mode':'quick', 'site_count':3})
     assert result['status'] == 'partial' and result['execution_status'] == 'partial'
     assert len(result['results']) == 1 and result['error_code'] == 'invalid_tool_output'
 

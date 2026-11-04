@@ -74,6 +74,32 @@ def test_hiding_removing_and_deleting_have_distinct_semantics():
     deleted=apply(doc,'delete_entity',{'ids':[identifier]});assert identifier not in {n['id'] for n in deleted['entities']} and deleted['evidence']==before
 
 
+def test_explicit_refresh_retains_original_proof_and_projects_latest_observation():
+    from grangerpet.agent_evidence import current_observation
+    first=finding();second=deepcopy(first)
+    second['details']['login']='updated-login'
+    second['provenance']['obtained_at']='2026-11-05T00:00:00+00:00'
+    doc=new_document();merge_evidence(doc,[first]);merge_evidence(doc,[second])
+    assert len(doc['evidence'])==1
+    saved=doc['evidence'][0]
+    assert saved['details']==first['details']
+    assert current_observation(saved)['details']['login']=='updated-login'
+    assert saved['observations'][0]['details']==first['details']
+    count=len(saved['observations']);merge_evidence(doc,[second])
+    assert len(doc['evidence'][0]['observations'])==count
+    validate(doc)
+
+
+def test_unrelated_import_updates_aggregates_without_resurrecting_deleted_membership():
+    first=finding();doc=new_document();merge_evidence(doc,[first])
+    deleted=next(n['id'] for n in doc['entities'] if n['type']=='public_profile')
+    doc=apply(doc,'delete_entity',{'ids':[deleted]})
+    second=normalize_evidence({'id':'other-profile','type':'profile','platform':'github','title':'other',
+        'url':'https://github.com/other','details':{'login':'other'},'status':'source_reported'},'github_profile','other')
+    merge_evidence(doc,[second]);validate(doc)
+    assert len(doc['evidence'])==2 and deleted not in {n['id'] for n in doc['entities']}
+
+
 def test_manual_claim_cannot_be_promoted_to_verified_or_rewrite_source_relation():
     doc=apply(new_document(),'node',{'type':'person','label':'Утверждение аналитика'})
     doc=apply(doc,'node',{'type':'hypothesis','label':'Гипотеза'});a,b=[n['id'] for n in doc['entities']]

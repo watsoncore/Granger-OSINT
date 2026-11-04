@@ -1,7 +1,7 @@
 """Strict adapter/runner boundary, compatible with the existing results API."""
 from __future__ import annotations
 import logging
-from .agent_evidence import redact, sanitize_evidence
+from .agent_evidence import redact, sanitize_evidence, safe_maigret_diagnostics, MAIGRET_DATABASE_ROW_LIMIT
 from .engine.models import Result
 
 STATUSES = frozenset(('complete', 'completed', 'partial', 'empty', 'error', 'timeout', 'cancelled',
@@ -39,7 +39,11 @@ def validate_outcome(value):
 def sanitize_outcome(value, secrets=()):
     """No payload can consume the envelope's status/origin/record budgets."""
     validate_outcome(value)
-    safe = redact({key: item for key, item in value.items() if key != 'results'}, secrets)
+    maigret=value.get('tool')=='username_maigret'
+    if maigret and len(value.get('results',[]))>MAIGRET_DATABASE_ROW_LIMIT:
+        raise ToolContractError('outcome.results','at most 10000 original database rows',value['results'])
+    safe = redact({key: item for key, item in value.items() if key != 'results' and
+                   not (maigret and key in ('source_diagnostics','data','evidence_ids'))}, secrets)
     safe['results'] = []
     for index, row in enumerate(value.get('results', [])):
         try:
@@ -48,6 +52,16 @@ def sanitize_outcome(value, secrets=()):
         except (ValueError, TypeError):
             raise ToolContractError(f'outcome.results[{index}]', 'finding object', row) from None
         safe['results'].append(candidate)
+    if maigret:
+        from copy import deepcopy
+        if 'source_diagnostics' in value:
+            safe['source_diagnostics']=safe_maigret_diagnostics(value['source_diagnostics'],secrets)
+        if 'data' in value:
+            if not isinstance(value['data'],dict):raise ToolContractError('outcome.data','object',value['data'])
+            safe['data']=redact({k:v for k,v in value['data'].items() if k!='results'},secrets)
+            safe['data']['results']=deepcopy(safe['results'])
+        if 'evidence_ids' in value:
+            safe['evidence_ids']=[row['evidence_id'] for row in safe['results'] if row.get('evidence_id')]
     return safe
 
 

@@ -1,0 +1,468 @@
+{
+  "base_commit": "4c9f64e8c2e1b00881b8632fc7f01e2a9ff6d47c",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 71780,
+      "sha256": "3754e23b16ae1a78318d5e45529ce3e55f09031ed7f2f25d8696e2b95701b18e"
+    },
+    {
+      "path": "VALIDATION.md",
+      "bytes": 79944,
+      "sha256": "bab6be70889aff234773668777b705dc7ffb6614d384c1cd3cc033aacdd4acf8"
+    },
+    {
+      "path": "docs/CANVAS_COMMIT_RECOVERY_V3.md",
+      "bytes": 4700,
+      "sha256": "93e93ead01e89e91c9f33c295720ef4f3a86b05aabc8e6145e5695ee468a1419"
+    },
+    {
+      "path": "docs/GANSAR_CAPABILITIES_V3.md",
+      "bytes": 16342,
+      "sha256": "e7c5c31dbcd5fba9177cc00fa76372dacc93e9873b5acaeea330ef895fb46a98"
+    },
+    {
+      "path": "docs/MAIGRET_ENGINE_V3.md",
+      "bytes": 11013,
+      "sha256": "55bd4c77beb0b2ea62b7787f9071795c47e48e6f772958715f3eb3b48e4dd2e7"
+    },
+    {
+      "path": "docs/MASTER_FIX_V3.md",
+      "bytes": 18994,
+      "sha256": "20c8634b09a7418f6ea4c917e1e615b0cc0aaed64a0b39810fa8f3db100d48e2"
+    },
+    {
+      "path": "frontend/src/app-boot.test.tsx",
+      "bytes": 2898,
+      "sha256": "f559b372dc65db6a4ca0ccdd7df1915c5614a88d4f5f8bf4bc9cc92eeb860b3e"
+    },
+    {
+      "path": "frontend/src/bridge.ts",
+      "bytes": 4667,
+      "sha256": "e77ee4c0d62e94c99db4fa21ef79a7f1d821ba3df3e8141553cb230e1140a73f"
+    },
+    {
+      "path": "frontend/src/canvas-editor-drafts.test.ts",
+      "bytes": 3581,
+      "sha256": "8abbf8e79f2564c7f2e9236f17ff348502efd9a78198ff8565613dccd52254ab"
+    },
+    {
+      "path": "frontend/src/canvas-editor-drafts.ts",
+      "bytes": 2426,
+      "sha256": "cbdbe9c3a7891b11a0eb79b3054eaddddac5891f883d0ee1fee7aa4eecffbf94"
+    },
+    {
+      "path": "frontend/src/canvas-mutations.test.ts",
+      "bytes": 9429,
+      "sha256": "ec9de9b76bcba6e7c94a01769cd075751bae6bddcdbdc51533f214e9e41ea9d0"
+    },
+    {
+      "path": "frontend/src/canvas-mutations.ts",
+      "bytes": 8778,
+      "sha256": "f6caa77749387c489e2e66fe0149cd8cbe2b908a2f067c6f4cf4291faec930ee"
+    },
+    {
+      "path": "frontend/src/components/GansarFields.tsx",
+      "bytes": 4383,
+      "sha256": "4583bc05cf19f40b6d168af931894a26f69ee265197751ffc78d6b94b16479e2"
+    },
+    {
+      "path": "frontend/src/components/InvestigationCanvas.tsx",
+      "bytes": 25343,
+      "sha256": "51ac588c1db30ed85c3e828b29e70fc9cfbbde00c24ec104c077de3b50668464"
+    },
+    {
+      "path": "frontend/src/components/InvestigationOverview.tsx",
+      "bytes": 6743,
+      "sha256": "c383c182bb4e7dffa7ca5fd0415994ad2a5a7088635a44be31b73b0dd2d13cc6"
+    },
+    {
+      "path": "frontend/src/components/InvestigationWorkspace.tsx",
+      "bytes": 38234,
+      "sha256": "85444b3a50df40b9d1429ca79fcff60c1e445b634625a2806fc1d49bfd538c0c"
+    },
+    {
+      "path": "frontend/src/components/MaigretFields.tsx",
+      "bytes": 3029,
+      "sha256": "a25659506acaebe10bb819c5102eac560876b3c62b357f0cccf5877da3817769"
+    },
+    {
+      "path": "frontend/src/components/MediaViewer.tsx",
+      "bytes": 5394,
+      "sha256": "9a2ba13edeb9bd6dbccc37f498f3ae07a1275648d3852259f538659e7f85e9bc"
+    },
+    {
+      "path": "frontend/src/components/ResearchCanvas.tsx",
+      "bytes": 41310,
+      "sha256": "038a444032114092291481eec1e24c9d8a7f6c81dcc5de683fd47cd5a84f258b"
+    },
+    {
+      "path": "frontend/src/components/Search.tsx",
+      "bytes": 16854,
+      "sha256": "8a61f8fadba9b4ba70a54b41c9b9e9184f7fad8d86785c4c2a214fc070a6ef70"
+    },
+    {
+      "path": "frontend/src/components/SearchableSelect.tsx",
+      "bytes": 2795,
+      "sha256": "744b406e87164cc99c3eb271c697dc978ef05978f6ce4784263eb3553e075df8"
+    },
+    {
+      "path": "frontend/src/components/StructuredToolFields.tsx",
+      "bytes": 9148,
+      "sha256": "ce8e50e97b607476010528864809107e582831fa77dc0128496593bf1f6bbc0e"
+    },
+    {
+      "path": "frontend/src/components/WorkspaceDensity.tsx",
+      "bytes": 937,
+      "sha256": "c93a452b7c0f59f9bec49f9cda18dac7baa15d32a643d0836b5ec69055119497"
+    },
+    {
+      "path": "frontend/src/graph-cards.test.ts",
+      "bytes": 5576,
+      "sha256": "54bd26a86ced48134770c9146b9ab08d239996c842b7a451d4b9463c9dc19843"
+    },
+    {
+      "path": "frontend/src/graph-cards.ts",
+      "bytes": 6599,
+      "sha256": "6f12eb5c0dc2158aaa29d9844cb0837275244ace7d2d8d31fed046ff1c51c0e8"
+    },
+    {
+      "path": "frontend/src/graph-geometry.ts",
+      "bytes": 3366,
+      "sha256": "b28a62c8285afa3bbcb568ce90e28b3c2aa01bce40c52635683896d1d50576e5"
+    },
+    {
+      "path": "frontend/src/graph-hierarchy.test.ts",
+      "bytes": 5119,
+      "sha256": "671e68df619cf21a1c4a39ee8e58c15bfd79b7806284c2281477c2ec1ec2efe7"
+    },
+    {
+      "path": "frontend/src/graph-hierarchy.ts",
+      "bytes": 4409,
+      "sha256": "01923975c039ed5bd74df2a217295e41399e7df3afe9dbe2f3441b85c7e57ea1"
+    },
+    {
+      "path": "frontend/src/graph-layout.ts",
+      "bytes": 7329,
+      "sha256": "c706d711a1f2a87ee11a3fe835ec13205d5205d4b5c93665083fc157ea74e91b"
+    },
+    {
+      "path": "frontend/src/graph-model.ts",
+      "bytes": 18315,
+      "sha256": "ca6846b6c27e0040b51f3e74ce3307b8f13209b56c1c054f19d90388cd08b908"
+    },
+    {
+      "path": "frontend/src/main.tsx",
+      "bytes": 340,
+      "sha256": "2de6e6d4b0a7b9a41266f44610a4c61af17fce6a2aa9cddb45605fa000f27d8e"
+    },
+    {
+      "path": "frontend/src/research-canvas.css",
+      "bytes": 3913,
+      "sha256": "38c65e17c16357a3c195446f63cded6cb0f148820509fa189191a70d456907a7"
+    },
+    {
+      "path": "frontend/src/research-canvas.test.tsx",
+      "bytes": 6768,
+      "sha256": "bf165cf6a6993626bf616e5d5e0bb5965978681c3bcce98e3efe87050c293f76"
+    },
+    {
+      "path": "frontend/src/research-layout.test.ts",
+      "bytes": 2421,
+      "sha256": "84df4e55394e08e3989f6c5131ba0d740cba2b950eaf52b943cfb94b88d19575"
+    },
+    {
+      "path": "frontend/src/research-layout.ts",
+      "bytes": 5503,
+      "sha256": "0bb8e66a689849aea5ac47c09d9b9ee306c0e8247eb83d26841f9fbbf0ec5157"
+    },
+    {
+      "path": "frontend/src/search.test.tsx",
+      "bytes": 7010,
+      "sha256": "77498b9f996d3b86aa021bdf74fdb967e34f81a6d4df1334e46b37a5bc0adf3e"
+    },
+    {
+      "path": "frontend/src/searchable-select.test.tsx",
+      "bytes": 1341,
+      "sha256": "495df21d33a17aef5d5fa6eaf0b1b01325864e15d4b11e4012f6ad9df5886c1f"
+    },
+    {
+      "path": "frontend/src/structured-tools.test.tsx",
+      "bytes": 17805,
+      "sha256": "43f81954c746d0b18af50178ee4899acec1395195e011e0f46a5b91ad72b16f6"
+    },
+    {
+      "path": "frontend/src/types.ts",
+      "bytes": 22631,
+      "sha256": "cfb3b9400e0d25ed417e4dda180ffa08798a6146858ac328256f3800b8b15360"
+    },
+    {
+      "path": "frontend/src/useCanvasMutations.ts",
+      "bytes": 2142,
+      "sha256": "7eec0f8870853567f7216c6cb3ca22bdb43504468d5d025b380510901416ed5f"
+    },
+    {
+      "path": "frontend/src/workbench.css",
+      "bytes": 31017,
+      "sha256": "233ec67cfca3985bcbec99094c0f73c18064abc0027979a378b1b1b726b4e345"
+    },
+    {
+      "path": "grangerpet/agent_evidence.py",
+      "bytes": 19115,
+      "sha256": "a3b8d6853cb7a387164f03dc0ead26cc6de62b8aab2c1cb6abdaea90d08c4371"
+    },
+    {
+      "path": "grangerpet/agent_journal.py",
+      "bytes": 11600,
+      "sha256": "231a41ffed00a871d5c7323ca2eb1de5a01588f3a7f39bce88ef6f1176835590"
+    },
+    {
+      "path": "grangerpet/agent_tools.py",
+      "bytes": 114417,
+      "sha256": "8819a225ee968969f8544cd2dce01b74e939b0fe83502559dd3d3114b3910745"
+    },
+    {
+      "path": "grangerpet/app.py",
+      "bytes": 34680,
+      "sha256": "c5ec91d43fb1186ed32afd3935205f758b9f27bcd45b169e6edd51ac5be5459d"
+    },
+    {
+      "path": "grangerpet/async_reply.py",
+      "bytes": 612,
+      "sha256": "912ec0a55d90f3a527bd7b544076233cc6f181be1c32da6495089a89021a1d18"
+    },
+    {
+      "path": "grangerpet/canvas_capabilities.py",
+      "bytes": 2258,
+      "sha256": "203724c9ee89b2e6ec4e77b1452711521e57ca2b0a9499b16137b8e827dc77b4"
+    },
+    {
+      "path": "grangerpet/canvas_media.py",
+      "bytes": 4336,
+      "sha256": "4e11b2b0602028c283c8eed037e38bb4f5ff9506794c58c51169556b894be31a"
+    },
+    {
+      "path": "grangerpet/canvas_pending.py",
+      "bytes": 9811,
+      "sha256": "562a6de1f6183d79f078fbda02e0cc830c62d86b98d4e16dd389702e9cbf9ab8"
+    },
+    {
+      "path": "grangerpet/crypto_targets.py",
+      "bytes": 18296,
+      "sha256": "181766723e51d86b8130c36061122bfa601c9a343530dad9922fcbafb1aabe39"
+    },
+    {
+      "path": "grangerpet/desktop_bridge.py",
+      "bytes": 102364,
+      "sha256": "43524d30eef302c0be7d51d9479b706b07a1574e330bafa0e9e74bef9374734c"
+    },
+    {
+      "path": "grangerpet/desktop_surface.py",
+      "bytes": 9593,
+      "sha256": "467da374253cdca8ead6865fd85118884e35163fc76d1af3cdfd2266bcb2a615"
+    },
+    {
+      "path": "grangerpet/engine/blockchain_analytics.py",
+      "bytes": 15091,
+      "sha256": "cccfcca98126f056656a3d7ff06f2463b7dba51d3e9e9387ba950e479f71fa61"
+    },
+    {
+      "path": "grangerpet/engine/blockchain_rows.py",
+      "bytes": 17246,
+      "sha256": "b2e268a64e841677c21abccaf4ed134d48dbe43c0460230e930dde45cf02e959"
+    },
+    {
+      "path": "grangerpet/engine/blockchain_runner.py",
+      "bytes": 13381,
+      "sha256": "632082073094eeb45be63311b707279ff35a810655bd924ba507ca8e54380349"
+    },
+    {
+      "path": "grangerpet/engine/local_tools.py",
+      "bytes": 14683,
+      "sha256": "55ba4f612edcaec2519d9be7e71437dc6513000d85cbe493378177aacc22f5cf"
+    },
+    {
+      "path": "grangerpet/engine/maigret_bridge.py",
+      "bytes": 19679,
+      "sha256": "a6b5ce5023ab98e7be5fa1e60530512f5b52b22a19bc2d26aeb04ed274f25fce"
+    },
+    {
+      "path": "grangerpet/engine/maigret_contracts.py",
+      "bytes": 3697,
+      "sha256": "26ab500efbfe4768d9b479815d2876a240d896471b0d07bedd416394027b8de9"
+    },
+    {
+      "path": "grangerpet/engine/runtime.py",
+      "bytes": 19992,
+      "sha256": "8c2fdbebe0bcf70d0f912a95fc92bd7cf61d686b915e793308d662212cb7f769"
+    },
+    {
+      "path": "grangerpet/engine/worker.py",
+      "bytes": 6102,
+      "sha256": "e611f82bdf7d4e0f7b36fe97bd8b99a754c4344cef3e9edf8aa793a8580ec6b4"
+    },
+    {
+      "path": "grangerpet/evidence_graph.py",
+      "bytes": 56780,
+      "sha256": "0c3317f85f7339ab1843ab2229664be78364873bd02d96afd88a429eda93bb55"
+    },
+    {
+      "path": "grangerpet/graph_store.py",
+      "bytes": 8660,
+      "sha256": "00cd9af42c3f82973a8d11db359c3d49c9be90bb0a165812114ffa4ac4d7a21f"
+    },
+    {
+      "path": "grangerpet/investigation.py",
+      "bytes": 4274,
+      "sha256": "fcbf9bb3d0a497ae188b835c3c3aca68e6b53fdfc053651bc3c285c96ce5b919"
+    },
+    {
+      "path": "grangerpet/media_viewer.py",
+      "bytes": 2111,
+      "sha256": "529cd00ec70d21a28e970ee43e4c3261d2cb641210240a40e44209b3b9401e4c"
+    },
+    {
+      "path": "grangerpet/research_canvas.py",
+      "bytes": 34813,
+      "sha256": "ce50402509cbc9e01edb3b753d70d9fd98bd67f3d4f951e6501ca8c077cbea84"
+    },
+    {
+      "path": "grangerpet/research_canvas_bridge.py",
+      "bytes": 25293,
+      "sha256": "a9aabb983e2614a6c56a9b8d2e67202d0ba978fabfa072d419919e789b5066ee"
+    },
+    {
+      "path": "grangerpet/tool_contracts.py",
+      "bytes": 4280,
+      "sha256": "5c47744cd0e64aa1d0372e02e63584b60f991778455c78e7ae714a01041d66ec"
+    },
+    {
+      "path": "scripts/audit_v3_baseline.py",
+      "bytes": 5403,
+      "sha256": "0ea0734339366e72b461fab94243d5e2a047739a4e28054b389c4647bbebfd50"
+    },
+    {
+      "path": "scripts/audit_v3_preservation.py",
+      "bytes": 6092,
+      "sha256": "cb2a39824a1fe6a1bca81519d9bca94d136dcc4480524a30ac35575532997ac4"
+    },
+    {
+      "path": "scripts/curate_v3_validation.py",
+      "bytes": 14554,
+      "sha256": "691e718164411fe2b0dd7cda30808bbf288e20b75da1c39aedf29a76db7feace"
+    },
+    {
+      "path": "scripts/package_release.py",
+      "bytes": 4490,
+      "sha256": "054e3d744162a6ee75048d339ae3eaebbe121253b27182661a2ae8da35071ad8"
+    },
+    {
+      "path": "scripts/qa_canvas_stress.py",
+      "bytes": 20046,
+      "sha256": "61d38655f298e1ddadaf196a2d55524930972baaf5e64a8b18e4696e4ada9d6f"
+    },
+    {
+      "path": "scripts/qa_reconstruction_graphs.py",
+      "bytes": 21781,
+      "sha256": "8b3d48788b6c38486dba426c7c82298a75d0960c87e42677954783a24be51a1a"
+    },
+    {
+      "path": "scripts/qa_research_canvas.py",
+      "bytes": 26506,
+      "sha256": "52f9d9e13e5a2d170b139f7fdf19f210a927eea386a7a16b77c5481178a8362b"
+    },
+    {
+      "path": "scripts/qa_v3_maigret_exe.py",
+      "bytes": 5761,
+      "sha256": "d6a280d8c46a50c028dddb05cbcb9ccb8d4ff75209574451a7a4b3f203aedcf4"
+    },
+    {
+      "path": "scripts/verify_frozen_assets.py",
+      "bytes": 2911,
+      "sha256": "39b599d0683ad6663f8e83f0f1178a4a2796fc6b0ce5e021fbb8929657bb7e2d"
+    },
+    {
+      "path": "scripts/verify_frozen_sources.py",
+      "bytes": 2316,
+      "sha256": "41ca2ec48b9851b20b96e6d10310b56459ff370906582bdabb58a16dac8ed5f4"
+    },
+    {
+      "path": "scripts/verify_maigret_v3.py",
+      "bytes": 7799,
+      "sha256": "34840c3b7b48e251a508fc0ebde8c356d7002fd16237598c73ddd50b7d38584b"
+    },
+    {
+      "path": "tests/test_agent_tools.py",
+      "bytes": 10349,
+      "sha256": "2f129e5eaf3dd07b072c7b8e63598ff6f2e9671e171babfae783e97dab3ad0a9"
+    },
+    {
+      "path": "tests/test_blockchain_dossier.py",
+      "bytes": 8743,
+      "sha256": "84a7879750723a16e04b33f0d2806a2c8cef9203a7ec01e89e8c62483fa01d29"
+    },
+    {
+      "path": "tests/test_blockchain_projection_budget.py",
+      "bytes": 3949,
+      "sha256": "458fbe7721eb6d2434e60a22191a01e8784899102a06b54027c3e601af351322"
+    },
+    {
+      "path": "tests/test_canvas_pending_v3.py",
+      "bytes": 11249,
+      "sha256": "002ca655372a494f1b3093d62a626cc6345b83062c1ecea7df93afe1c6157d54"
+    },
+    {
+      "path": "tests/test_canvas_stress_v3.py",
+      "bytes": 3420,
+      "sha256": "e8b4b976d667e70a5b8f650bf684c844366523ef2350a2c2b4a8a31e38615ac0"
+    },
+    {
+      "path": "tests/test_crypto_counterparty_graph.py",
+      "bytes": 4306,
+      "sha256": "2403e49e896772c64578d27ee4ff01a5a656b332f8d689c3ab22a719dc86d442"
+    },
+    {
+      "path": "tests/test_crypto_targets.py",
+      "bytes": 13330,
+      "sha256": "115a79f88e4951d3424d4e12036a60d027a26a5d2cf34db64292a06e45b2784d"
+    },
+    {
+      "path": "tests/test_maigret_full_engine.py",
+      "bytes": 11808,
+      "sha256": "765bce0c3fccedeceeca0b27c3ff205038e7dbba5399a857c62bd8c5366495b6"
+    },
+    {
+      "path": "tests/test_master_v3_bridge.py",
+      "bytes": 9664,
+      "sha256": "743be1dfec76723786b61915c751ff4644fe1dacdf3d965700f04f7689b4a3f9"
+    },
+    {
+      "path": "tests/test_registry_v3.py",
+      "bytes": 8886,
+      "sha256": "5d9a6a4c181a7c75071933e3e9d57499f3394d7c409ccfbf445b24b3ebd4cb36"
+    },
+    {
+      "path": "tests/test_research_canvas.py",
+      "bytes": 10543,
+      "sha256": "5b1f2f0d402d625a2eb41cec96abb9a2c538215f5a92e252557099f67909da56"
+    },
+    {
+      "path": "tests/test_research_canvas_v3.py",
+      "bytes": 14688,
+      "sha256": "da25006a1d54c279ade5a31f51279cb1f510b1cd41b04862cba54673fc2fc112"
+    },
+    {
+      "path": "tests/test_tool_output_contracts.py",
+      "bytes": 3566,
+      "sha256": "3c776b04c37312b5ea8c135766fbabbb7a45496e47a4bc17967e09d220ede1c6"
+    },
+    {
+      "path": "tests/test_validation_curation_v3.py",
+      "bytes": 5212,
+      "sha256": "35f1bf18bc2b95d0a6b1fae4f098209985b32a6770b6010e10f4bc7cbb3e53cf"
+    }
+  ],
+  "excluded_self_referential_reports": [
+    "docs/validation/master-fix-v3/"
+  ]
+}

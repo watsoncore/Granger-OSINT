@@ -25,6 +25,9 @@ def main():
         if path.is_file():
             name=str(path.relative_to(ROOT)).replace('/','\\')
             rows.append({'path':name,'matches':name in archive.toc and archive.extract(name)==path.read_bytes()})
+    for path in sorted((ROOT/'grangerpet/engine').glob('*.py')):
+        name=str(path.relative_to(ROOT)).replace('/','\\')
+        rows.append({'path':name,'matches':name in archive.toc and archive.extract(name)==path.read_bytes()})
     for directory in ('resources/ocr','resources/third-party/Python-geoint-security'):
         for path in sorted((ROOT/directory).rglob('*')):
             if path.is_file():

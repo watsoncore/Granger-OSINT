@@ -18,8 +18,48 @@ NATIVE = {'ton':'TON','btc':'BTC','bitcoin':'BTC','eth':'ETH','ethereum':'ETH','
     'trx':'TRX','solana':'SOL','sol':'SOL','dogecoin':'DOGE','doge':'DOGE'}
 
 
+def _bitcoin_witness(value):
+    """BIP-173/BIP-350 mainnet checksum, independent of vendor imports.
+
+    Kept here because this module also runs as a standalone source-worker file.
+    The lightweight main-process input contract reuses this representation rule.
+    """
+    if not 14 <= len(value) <= 90 or value not in (value.lower(), value.upper()):
+        return False
+    value = value.lower()
+    if not value.startswith('bc1'):
+        return False
+    alphabet = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
+    data = [alphabet.find(char) for char in value[3:]]
+    if len(data) < 7 or -1 in data or data[0] > 16:
+        return False
+    state = 1
+    generators = (0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3)
+    for part in [3, 3, 0, 2, 3] + data:  # HRP expansion of "bc".
+        high = state >> 25
+        state = ((state & 0x1ffffff) << 5) ^ part
+        for bit in range(5):
+            if high & (1 << bit):
+                state ^= generators[bit]
+    if state != (1 if data[0] == 0 else 0x2bc830a3):
+        return False
+    accumulator = bits = 0
+    program = []
+    for digit in data[1:-6]:
+        accumulator = ((accumulator << 5) | digit) & 0xfff
+        bits += 5
+        if bits >= 8:
+            bits -= 8
+            program.append((accumulator >> bits) & 255)
+    if bits >= 5 or ((accumulator << (8 - bits)) & 255):
+        return False
+    return len(program) in (20, 32) if data[0] == 0 else 2 <= len(program) <= 40
+
+
 def canonical_address(chain, address):
     value = str(address or '').strip()
+    if chain.lower() in ('btc', 'bitcoin') and _bitcoin_witness(value):
+        return value.lower()
     if chain.lower() == 'ton':
         if match := re.fullmatch(r'(-?\d{1,10}):([0-9a-fA-F]{64})', value):
             workchain = int(match[1])
@@ -33,6 +73,8 @@ def canonical_address(chain, address):
                 return ('test:' if raw[0] & 0x80 else '')+str(int.from_bytes(raw[1:2], 'big', signed=True))+':'+raw[2:34].hex()
         except (ValueError, binascii.Error):
             pass
+    # Historical observations can contain incomplete/unknown identifiers. Keep
+    # their exact value rather than discard evidence or claim validation here.
     return value.lower() if chain.lower() in EVM else value
 
 

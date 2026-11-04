@@ -22,10 +22,22 @@ class CanvasError(ValueError):
     code='analyst_canvas_invalid_operation'
 
 
+class CanvasConflict(CanvasError):
+    code='analyst_canvas_revision_conflict'
+
+    def __init__(self,message,*,revision=None):
+        super().__init__(message)
+        self.revision=revision
+
+
 MAX_BYTES = 24_000_000
 MANUAL_TYPES = ('person','analyst_note','hypothesis','custom_entity','document','contract','nft','collection','token')
 TYPES = tuple(dict.fromkeys((*ENTITY_TYPES, *MANUAL_TYPES)))
 STATUSES = ('verified','source_reported','inferred','unverified','contradicted')
+LAYOUTS = ('manual','hierarchical','radial','types','communities','timeline',
+           'wallet','flow','counterparties','paths')
+GRAPH_MODES = ('wallet','flow','counterparties','transactions','paths','manual')
+CARD_MODES = ('auto','compact','standard','expanded')
 
 
 def encoded(value):
@@ -43,6 +55,36 @@ def point(value):
         if type(value.get(key)) not in (int,float) or not math.isfinite(value[key]) or abs(value[key])>10_000_000:
             raise CanvasError('Некорректная координата.')
     if 'pinned' in value and type(value['pinned']) is not bool: raise CanvasError('Некорректное закрепление.')
+    return deepcopy(value)
+
+
+def card_size(value):
+    if not isinstance(value,dict) or set(value)!={'width','height'}:raise CanvasError('Некорректный размер карточки.')
+    for key,minimum,maximum in (('width',160,720),('height',72,640)):
+        number=value.get(key)
+        if type(number) not in (int,float) or not math.isfinite(number) or not minimum<=number<=maximum:
+            raise CanvasError('Размер карточки вне допустимых границ.')
+    return deepcopy(value)
+
+
+def view_ui(value):
+    if not isinstance(value,dict) or set(value)-{'inspector_tab','inspector_width','inspector_open','card_mode','graph_mode'}:
+        raise CanvasError('Неизвестные настройки представления.')
+    if 'inspector_tab' in value and value['inspector_tab'] not in ('details','evidence','actions'):raise CanvasError('Неизвестная вкладка инспектора.')
+    if 'inspector_width' in value:
+        width=value['inspector_width']
+        if type(width) not in (int,float) or not math.isfinite(width) or not 220<=width<=650:raise CanvasError('Некорректная ширина инспектора.')
+    if 'inspector_open' in value and type(value['inspector_open']) is not bool:raise CanvasError('Некорректная видимость инспектора.')
+    if 'card_mode' in value and value['card_mode'] not in CARD_MODES:raise CanvasError('Неизвестный режим карточек.')
+    if 'graph_mode' in value and value['graph_mode'] not in GRAPH_MODES:raise CanvasError('Неизвестный режим графа.')
+    return deepcopy(value)
+
+
+def viewport(value):
+    if not isinstance(value,dict) or set(value)!={'x','y','scale'}:raise CanvasError('Некорректная область просмотра.')
+    point({key:value[key] for key in ('x','y')})
+    if type(value['scale']) not in (int,float) or not math.isfinite(value['scale']) or not .001<=value['scale']<=10:
+        raise CanvasError('Неверный масштаб.')
     return deepcopy(value)
 
 
@@ -86,16 +128,41 @@ def validate(value):
         positions=view.get(key,{})
         if not isinstance(positions,dict) or len(positions)>5000:raise CanvasError('Некорректные позиции.')
         for identifier,p in positions.items():
+            # Older revisions retained stale manual-layout snapshots after an
+            # entity deletion. Keep them readable; current deletion cleans up.
             if identifier not in ids and key=='positions':raise CanvasError('Позиция неизвестного узла.')
             point(p)
-    if view.get('layout','manual') not in ('manual','hierarchical','radial','types','communities','timeline'):raise CanvasError('Неизвестная раскладка.')
-    for key in ('hidden','removed','collapsed'):
-        if not isinstance(view.get(key,[]),list) or not set(view.get(key,[]))<=view_ids:raise CanvasError('Некорректная видимость.')
+    if view.get('layout','manual') not in LAYOUTS:raise CanvasError('Неизвестная раскладка.')
+    if 'viewport' in view:viewport(view['viewport'])
+    if 'query' in view:text(view['query'],2000)
+    for key in ('hidden','removed','collapsed','expanded'):
+        identifiers=view.get(key,[])
+        if not isinstance(identifiers,list) or not all(isinstance(i,str) for i in identifiers) or not set(identifiers)<=view_ids:raise CanvasError('Некорректная видимость.')
+    expanded_relations=view.get('expanded_relations',[])
+    if not isinstance(expanded_relations,list) or not all(isinstance(i,str) for i in expanded_relations) or not set(expanded_relations)<=relation_ids:
+        raise CanvasError('Неизвестная раскрытая связь.')
+    sizes=view.get('card_sizes',{})
+    if not isinstance(sizes,dict) or len(sizes)>5000 or not set(sizes)<=view_ids:raise CanvasError('Размер неизвестной карточки.')
+    for size in sizes.values():card_size(size)
+    view_ui(view.get('ui',{}))
     annotations=value.get('annotations',{})
     if not isinstance(annotations,dict) or not set(annotations)<=view_ids|relation_ids:raise CanvasError('Некорректная аннотация.')
     for annotation in annotations.values():
         if not isinstance(annotation,dict) or set(annotation)-{'label','markdown','color'}:raise CanvasError('Некорректная аннотация.')
         for key,item in annotation.items():text(item,20000 if key=='markdown' else 300)
+    retired=value.get('retired_tool_relations',{})
+    if not isinstance(retired,dict) or len(retired)>20000:raise CanvasError('Некорректный архив связей.')
+    for identifier,entry in retired.items():
+        if not isinstance(entry,dict) or set(entry)!={'relation','annotation','retired_at'}:raise CanvasError('Некорректный архив связей.')
+        edge=entry['relation'];annotation=entry['annotation']
+        if (not isinstance(edge,dict) or not re.fullmatch(r'rel_[a-f0-9]{24}',identifier)
+                or edge.get('id')!=identifier or edge.get('origin')!='tool'
+                or not all(re.fullmatch(r'ent_[a-f0-9]{24}',str(edge.get(k,''))) for k in ('from_id','to_id'))
+                or not isinstance(edge.get('evidence_ids'),list) or not set(edge['evidence_ids'])<=evs):
+            raise CanvasError('Некорректная архивная связь.')
+        if not isinstance(annotation,dict) or set(annotation)-{'label','markdown','color'}:raise CanvasError('Некорректная архивная аннотация.')
+        for key,item in annotation.items():text(item,20000 if key=='markdown' else 300)
+        text(entry['retired_at'],100)
     by_id={n['id']:n for n in nodes}
     parents={n['id']:n['attributes'].get('parent_group_id') for n in nodes}
     parents.update({i:v.get('parent_group_id') for i,v in instances.items()})
@@ -115,7 +182,8 @@ def new_document(title='Новое расследование', description=''):
     return {'schema':'granger-investigation/1','id':uuid.uuid4().hex,'revision':0,'title':text(title,200),
         'description':text(description,10000),'created_at':now,'updated_at':now,'entities':[],'relations':[],
         'evidence':[],'executions':[],'annotations':{},'custom_types':{},'view':{
-            'positions':{},'instances':{},'viewport':{'x':380,'y':250,'scale':1},'hidden':[],'removed':[],'collapsed':[],'layout':'manual'}}
+            'positions':{},'instances':{},'viewport':{'x':380,'y':250,'scale':1},'hidden':[],'removed':[],'collapsed':[],
+            'expanded':[],'expanded_relations':[],'card_sizes':{},'ui':{},'layout':'manual'}}
 
 
 class CanvasStore:
@@ -164,7 +232,7 @@ class CanvasStore:
             revisions=list(folder.glob('r[0-9]*.dpapi'))
             if revisions:
                 previous=self.load(value['id'])
-                if expected_revision!=previous['revision']:raise CanvasError('Конфликт версии. Откройте актуальное расследование; чужие изменения сохранены.')
+                if expected_revision!=previous['revision']:raise CanvasConflict('Конфликт версии. Другой редактор сохранил изменения. Загрузите актуальную версию перед повторением своих действий.',revision=previous['revision'])
                 number=max(int(p.stem[1:]) for p in revisions)+1
             else:
                 if expected_revision!=0:raise CanvasError('Не найдена исходная версия.')
@@ -199,12 +267,28 @@ def add_node(doc,args):
     attrs={'origin':'analyst','claim_kind':'analyst_assertion','identity_verified':False}
     key=uuid.uuid4().hex
     from .entity_router import route
-    target=route(args.get('value') or label)
-    if target and kind not in ('analyst_note','hypothesis','person','custom_entity','entity_group','document','image'):
+    from .crypto_targets import resolve_crypto_target
+    machine_value=args.get('value') or label
+    target=route(machine_value)
+    crypto=kind in ('blockchain_address','contract','nft','collection','token')
+    if crypto:
+        resolved=resolve_crypto_target(machine_value,args.get('chain','auto'))
+        if not resolved['valid'] or resolved['requires_network']:raise CanvasError(resolved['reason'])
+        key=resolved['identity_key']
+        attrs.update(address=resolved['canonical_address'],value=resolved['canonical_address'],chain=resolved['chain'],
+            platform=resolved['chain'],original_address=machine_value,representation=resolved['representation'],
+            target_kind=resolved['target_kind'],name_resolution_pending=resolved['target_kind']!='address')
+        if kind in ('nft','collection','token'):attrs['asset_id']=resolved['canonical_address']
+        if kind=='contract':attrs.update(contract=resolved['canonical_address'],asset_type='blockchain_contract')
+    elif target and kind not in ('analyst_note','hypothesis','person','custom_entity','entity_group','document','image'):
         kind={'network_range':'infrastructure_asset','autonomous_system':'infrastructure_asset'}.get(target.entity_type,kind)
         key=target.identifier
         attrs.update(target.properties or {},value=target.identifier,url=target.canonical_url,platform=target.platform)
-        if kind=='blockchain_address':key=target.platform+'|'+key;attrs.update(address=target.identifier,chain=target.platform)
+        if kind=='blockchain_address':
+            resolved=resolve_crypto_target(target.identifier,args.get('chain') or target.platform or 'auto')
+            if not resolved['valid'] or resolved['requires_network']:raise CanvasError(resolved['reason'])
+            key=resolved['identity_key'];attrs.update(address=resolved['canonical_address'],value=resolved['canonical_address'],
+                chain=resolved['chain'],platform=resolved['chain'],representation=resolved['representation'])
         if kind=='infrastructure_asset':attrs.update(address=target.identifier,asset_type='ip')
         if kind in ('public_profile','social_profile','website') and target.canonical_url:key=target.canonical_url
     if kind not in TYPES:doc['custom_types'][kind]=kind
@@ -231,10 +315,47 @@ def merge_evidence(doc,records,selected=None):
     if selected is not None:records=[r for r in records if r['evidence_id'] in selected]
     for record in records:validate_saved_evidence(record)
     ev={r['evidence_id']:r for r in doc['evidence']}
-    for record in records:ev.setdefault(record['evidence_id'],deepcopy(record))
+    from .agent_evidence import current_observation
+    refreshed=set()
+    for record in records:
+        previous=ev.get(record['evidence_id'])
+        if previous is None:ev[record['evidence_id']]=deepcopy(record);continue
+        fields=('status','description','details','provenance')
+        observation=lambda row:{key:deepcopy(row[key]) for key in fields}
+        old=observation(current_observation(previous));incoming=observation(current_observation(record))
+        if old!=incoming:
+            refreshed.add(record['evidence_id'])
+            # Match the shared evidence ledger: keep the original proof and
+            # bounded observation history; the graph projects the latest entry.
+            history=previous.setdefault('observations',[observation(previous)])
+            for item in [*record.get('observations',[]),incoming]:
+                if not history or history[-1]!=item:history.append(deepcopy(item))
+            del history[:-8]
+            if previous['status']!=incoming['status']:previous['verification']='contradictory'
     doc['evidence']=list(ev.values())
-    graph=build(records,full=True,limit=5000)
+    # Recompute shared aggregates over all retained observations. Building only
+    # the latest batch replaced an existing flow's count/amount/member IDs while
+    # leaving its older evidence and transaction nodes in the document.
+    graph=build(doc['evidence'],full=True,limit=5000)
     nodes={n['id']:n for n in doc['entities']};edges={e['id']:e for e in doc['relations']}
+    # Old evidence survives an analyst's explicit membership deletion. Refresh
+    # aggregate values without resurrecting those nodes during an unrelated import.
+    incoming_ids={n['id'] for n in build(records,full=True,limit=5000)['entities']}
+    members=set(nodes)|incoming_ids
+    graph['entities']=[n for n in graph['entities'] if n['id'] in members]
+    graph['relations']=[e for e in graph['relations'] if e['from_id'] in members and e['to_id'] in members]
+    if refreshed and not (graph['truncated_input'] or graph['relations_truncated'] or graph['next_offset']):
+        # Absence in a complete refreshed projection invalidates the previous
+        # derived edge. Keep its exact snapshot and analyst note in this same
+        # versioned document, outside the active financial graph.
+        active={edge['id'] for edge in graph['relations']}
+        retired=doc.setdefault('retired_tool_relations',{})
+        for identifier,edge in list(edges.items()):
+            if edge.get('origin')!='tool' or identifier in active or not refreshed.intersection(edge['evidence_ids']):continue
+            annotation=doc['annotations'].pop(identifier,retired.get(identifier,{}).get('annotation',{}))
+            retired[identifier]={'relation':deepcopy(edge),'annotation':deepcopy(annotation),'retired_at':utc_now()}
+            del edges[identifier]
+        doc['view']['expanded_relations']=[identifier for identifier in doc['view'].get('expanded_relations',[]) if identifier in edges]
     added=[]
     for node in graph['entities']:
         identifier=node['id']
@@ -246,6 +367,9 @@ def merge_evidence(doc,records,selected=None):
         else:added.append(identifier)
         nodes[identifier]=node
     for edge in graph['relations']:
+        archived=doc.get('retired_tool_relations',{}).get(edge['id'])
+        if archived and archived['annotation']:
+            doc['annotations'].setdefault(edge['id'],deepcopy(archived['annotation']))
         if edge['id'] in edges:
             old=edges[edge['id']]
             for key in ('evidence_ids','source_urls','provenance'):
@@ -281,6 +405,10 @@ def apply(doc,operation,args):
             previous=edges.get(args.get('relation_id'))
             if not previous or previous.get('origin')!='analyst':raise CanvasError('Источник связи нельзя переписать. Добавьте отдельную гипотезу.')
             doc['relations']=[e for e in doc['relations'] if e['id']!=previous['id']]
+            if previous['id']!=identifier:
+                annotation=doc['annotations'].pop(previous['id'],None)
+                if annotation:doc['annotations'].setdefault(identifier,annotation)
+                doc['view']['expanded_relations']=[identifier if old==previous['id'] else old for old in doc['view'].get('expanded_relations',[])]
         edge={'id':identifier,'from_id':a,'to_id':b,'relation_type':kind,'direction':'directed','evidence_ids':[],
               'source_urls':[],'verification_status':args.get('status','unverified'),'origin':'analyst',
               'claim_kind':'analyst_assertion','attributes':{'observed_at':utc_now(),'visual_from_id':visual_a,'visual_to_id':visual_b},'provenance':[]}
@@ -291,7 +419,7 @@ def apply(doc,operation,args):
         if not isinstance(supplied,dict) or not set(supplied)<=set(nodes)|set(instances):raise CanvasError('Неизвестная позиция.')
         if operation=='layout':
             mode=args.get('mode')
-            if mode not in ('manual','hierarchical','radial','types','communities','timeline'):raise CanvasError('Неизвестная раскладка.')
+            if mode not in LAYOUTS:raise CanvasError('Неизвестная раскладка.')
             if doc['view'].get('layout')=='manual':doc['view']['manual_positions']={**deepcopy(doc['view']['positions']),**{i:deepcopy(v['position']) for i,v in instances.items()}}
             if mode=='manual':supplied={key:value for key,value in doc['view'].get('manual_positions',{}).items() if key in nodes or key in instances}
             doc['view']['layout']=mode
@@ -317,11 +445,18 @@ def apply(doc,operation,args):
             else:doc['view']['positions'][key]=point(value)
     elif operation=='view':
         patch=args.get('view',{})
-        if not isinstance(patch,dict) or set(patch)-{'viewport','layout','collapsed','hidden','removed','query'}:raise CanvasError('Неизвестное представление.')
-        if 'viewport' in patch:
-            v=patch['viewport'];point({k:v[k] for k in ('x','y')})
-            if type(v.get('scale')) not in (int,float) or not math.isfinite(v['scale']) or not .001<=v['scale']<=10:raise CanvasError('Неверный масштаб.')
+        if not isinstance(patch,dict) or set(patch)-{'viewport','layout','collapsed','hidden','removed','query','card_sizes','ui','expanded','expanded_relations'}:raise CanvasError('Неизвестное представление.')
+        patch=deepcopy(patch)
+        if 'viewport' in patch:patch['viewport']=viewport(patch['viewport'])
+        if 'ui' in patch:patch['ui']={**doc['view'].get('ui',{}),**view_ui(patch['ui'])}
+        if 'card_sizes' in patch:
+            if not isinstance(patch['card_sizes'],dict):raise CanvasError('Некорректные размеры карточек.')
+            patch['card_sizes']={**doc['view'].get('card_sizes',{}),**patch['card_sizes']}
         doc['view'].update(patch)
+    elif operation=='card_size':
+        identifier=args.get('id')
+        if identifier not in nodes and identifier not in instances:raise CanvasError('Карточка не найдена.')
+        doc['view'].setdefault('card_sizes',{})[identifier]=card_size({key:args.get(key) for key in ('width','height')})
     elif operation=='group':
         parent=add_node(doc,{'type':'entity_group','label':args.get('label','Группа')})
         next(n for n in doc['entities'] if n['id']==parent)['attributes']['member_count']=len(ids)
@@ -345,6 +480,10 @@ def apply(doc,operation,args):
                 if instance.get('parent_group_id') in ids:instance.pop('parent_group_id')
             for identifier in ids:doc['view']['positions'].pop(identifier,None);doc['annotations'].pop(identifier,None)
             doc['annotations']={k:v for k,v in doc['annotations'].items() if k in {n['id'] for n in doc['entities']}|{e['id'] for e in doc['relations']}|set(instances)}
+            for key in ('card_sizes','manual_positions'):
+                doc['view'][key]={i:v for i,v in doc['view'].get(key,{}).items() if i not in ids}
+            doc['view']['expanded']=[i for i in doc['view'].get('expanded',[]) if i not in ids]
+            doc['view']['expanded_relations']=[i for i in doc['view'].get('expanded_relations',[]) if i in {e['id'] for e in doc['relations']}]
         for key in ('hidden','removed','collapsed'):
             doc['view'][key]=[i for i in doc['view'][key] if i not in ids]
         if operation in ('hide','remove'):doc['view']['hidden' if operation=='hide' else 'removed']+=ids
@@ -355,5 +494,6 @@ def apply(doc,operation,args):
             old=instances[identifier]['position'] if identifier in instances else doc['view']['positions'].get(identifier,{'x':0,'y':0})
             instances[new_id]={'entity_id':canonical(identifier),'position':{'x':old['x']+40,'y':old['y']+40}}
             if identifier in doc['annotations']:doc['annotations'][new_id]=deepcopy(doc['annotations'][identifier])
+            if identifier in doc['view'].get('card_sizes',{}):doc['view']['card_sizes'][new_id]=deepcopy(doc['view']['card_sizes'][identifier])
     else:raise CanvasError('Неизвестная операция полотна.')
     return validate(doc)

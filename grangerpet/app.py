@@ -233,7 +233,7 @@ def main(argv: list[str] | None = None) -> int:
                     content={'name':name,'base64':base64.b64encode(path.read_bytes()).decode('ascii')}
                     QTimer.singleShot(0,lambda:surface.bridge.request('qa','attachment_import',json.dumps(content)))
                 elif payload.get('action')=='graph_scroll' and qa_vault_active:
-                    surface.page().runJavaScript("document.querySelector('.investigation-tabs')?.scrollIntoView({block:'start'})")
+                    surface.page().runJavaScript("document.querySelector('.investigation-tabs')?.scrollIntoView({block:'center'})")
                 elif payload.get('action')=='geoint_scroll' and qa_vault_active:
                     selector={'header':'.geoint-view > header','controls':'.geo-compare-toolbar','map':'.geo-map-wrap','gallery':'.geo-original','compare':'.geo-comparison'}.get(payload.get('payload',{}).get('section'))
                     if selector:surface.page().runJavaScript("document.querySelector("+json.dumps(selector)+")?.scrollIntoView({block:'start'})")
@@ -423,6 +423,10 @@ def main(argv: list[str] | None = None) -> int:
                         pet.panel.grab().save(str(directory / f"{name}-search.png"))
                     if pet.panel.settings_dialog.isVisible():
                         pet.panel.settings_dialog.grab().save(str(directory / f"{name}-settings.png"))
+                    if qa_vault_active:
+                        from .media_viewer import OriginalImageViewer
+                        for index,viewer in enumerate(pet.panel.findChildren(OriginalImageViewer)):
+                            if viewer.isVisible():viewer.grab().save(str(directory/f'{name}-original-{index}.png'))
                 QTimer.singleShot(0, snapshot)
                 return {"ok": True}
             return {"ok": False, "error": "unknown command"}

@@ -203,9 +203,9 @@ def _run_worker(source, query, options, cancelled, event=None):
     def read_output():
         try:
             total = 0
-            for line in iter(lambda: process.stdout.readline(16_000_001 if source=='blockchain' else 1_000_001), b""):
+            for line in iter(lambda: process.stdout.readline(16_000_001 if source in ('blockchain','maigret') else 1_000_001), b""):
                 total += len(line)
-                if len(line) > (16_000_000 if source=='blockchain' else 1_000_000) or total > (64_000_000 if source=='blockchain' else 4_000_000):
+                if len(line) > (16_000_000 if source in ('blockchain','maigret') else 1_000_000) or total > (128_000_000 if source=='maigret' else 64_000_000 if source=='blockchain' else 4_000_000):
                     lines.put({"event": "transport_error"})
                     return
                 try:
@@ -213,6 +213,11 @@ def _run_worker(source, query, options, cancelled, event=None):
                     if isinstance(item, dict):
                         lines.put(item)
                 except (ValueError, UnicodeError):
+                    # The larger Maigret frame allowance is for structured
+                    # findings/final diagnostics, never oversized vendor noise.
+                    if source=='maigret' and len(line)>1_000_000:
+                        lines.put({"event":"transport_error"})
+                        return
                     continue
         finally:
             lines.put(None)
@@ -235,6 +240,21 @@ def _run_worker(source, query, options, cancelled, event=None):
     partial = []
     partial_ids={}
     gansar_state={}
+    maigret_state={}
+    maigret_checks={}
+    maigret_sites=[]
+    def retained_state(status=None):
+        if source != 'maigret':
+            return gansar_state
+        diagnostics=dict(maigret_state)
+        coverage=dict(diagnostics.get('coverage',{}))
+        if status:
+            coverage.update(phase=status,complete=False,cancelled=status=='cancelled')
+        diagnostics.update(coverage=coverage,site_checks=list(maigret_checks.values()),
+            resumption={'native_durable_resume':False,
+                        'remaining_sites':[name for name in maigret_sites if name not in maigret_checks],
+                        'method':'Explicit Custom sites filter; remaining checks are rerun.'})
+        return {'source_diagnostics':diagnostics}
     try:
         payload_options = dict(options)
         payload_options["tools_root"] = str(root)
@@ -242,9 +262,9 @@ def _run_worker(source, query, options, cancelled, event=None):
         process.stdin.close()
         while True:
             if cancelled.is_set():
-                return {"source": source, "status": "cancelled", "results": partial, **gansar_state,"message": "Поиск отменён."}
+                return {"source": source, "status": "cancelled", "results": partial, **retained_state('cancelled'),"message": "Поиск отменён."}
             if time.monotonic() >= deadline:
-                return {"source": source, "status": "timeout", "results": partial, **gansar_state,"message": "Источник превысил время ожидания."}
+                return {"source": source, "status": "timeout", "results": partial, **retained_state('timeout'),"message": "Источник превысил время ожидания."}
             try:
                 item = lines.get(timeout=0.06)
             except queue.Empty:
@@ -256,7 +276,7 @@ def _run_worker(source, query, options, cancelled, event=None):
             if item.get("event") == "result":
                 result = item.get("result")
                 if isinstance(result, dict):
-                    identifier=result.get('id') if source=='blockchain' else None
+                    identifier=result.get('id') if source in ('blockchain','maigret') else None
                     if identifier and identifier in partial_ids:partial[partial_ids[identifier]]=result
                     else:
                         if identifier:partial_ids[identifier]=len(partial)
@@ -267,13 +287,23 @@ def _run_worker(source, query, options, cancelled, event=None):
                 outcome = item.get("outcome")
             elif source=='blockchain' and item.get('event')=='gansar_snapshot' and isinstance(item.get('report'),dict):
                 gansar_state={'gansar_report':item['report'],'source_diagnostics':item.get('source_diagnostics',{})}
+            elif source=='maigret' and item.get('event')=='maigret_progress' and isinstance(item.get('progress'),dict):
+                maigret_state['coverage']=item['progress']
+                if event:event(item)
+            elif source=='maigret' and item.get('event')=='maigret_plan':
+                maigret_sites=[name for name in item.get('scheduled_sites',[]) if isinstance(name,str)]
+                maigret_state['configuration']=item.get('configuration',{})
+            elif source=='maigret' and item.get('event')=='maigret_checks':
+                for check in item.get('checks',[]):
+                    if isinstance(check,dict) and isinstance(check.get('site'),str):
+                        maigret_checks[check['site']]=check
             elif item.get("event") == "transport_error":
-                return {"source": source, "status": "partial" if partial else "error", "results": partial, **gansar_state,"message": "Источник превысил допустимый объём ответа."}
+                return {"source": source, "status": "partial" if partial else "error", "results": partial, **retained_state('transport_error'),"message": "Источник превысил допустимый объём ответа."}
             elif event:
                 event(item)
         if not isinstance(outcome, dict):
             code = process.poll()
-            return {"source": source, "status": "error", "results": partial, **gansar_state,
+            return {"source": source, "status": "error", "results": partial, **retained_state('error'),
                     "exit_code": code, "stderr_bytes": stderr_count[0],
                     "message": "Локальный источник завершился без структурированного ответа; проверьте его зависимости." + (f" Код: {code}." if code is not None else "")}
         try:
@@ -286,6 +316,15 @@ def _run_worker(source, query, options, cancelled, event=None):
             if partial and not outcome.get('results'):
                 outcome['results']=partial
                 if outcome.get('status')=='error':outcome['status']='partial'
+        if source=='maigret':
+            diagnostics={**retained_state().get('source_diagnostics',{}),**outcome.get('source_diagnostics',{})}
+            outcome['source_diagnostics']=diagnostics
+            if 'streamed_result_count' in outcome:
+                expected=outcome.pop('streamed_result_count')
+                outcome['results']=partial
+                if expected != len(partial):
+                    outcome['status']='partial'
+                    outcome['message']='Получен неполный поток Maigret; сохранены все принятые наблюдения.'
         outcome["stderr_bytes"] = stderr_count[0]
         if code not in (0, None) and outcome.get("status") in {"complete", "ready", "empty"}:
             outcome["status"] = "partial" if outcome.get("results") else "error"

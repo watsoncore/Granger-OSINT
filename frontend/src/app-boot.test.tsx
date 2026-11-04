@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { emptyState } from './types'
-import { useDesktop } from './bridge'
+import { act,useDesktop } from './bridge'
 import App from './App'
 
 vi.mock('./bridge', () => ({ useDesktop: vi.fn(), act: vi.fn().mockResolvedValue(true), dismissNotice: vi.fn() }))
@@ -31,3 +31,9 @@ describe('desktop bootstrap', () => {
     expect(screen.queryByRole('textbox', { name: 'Сообщение Гермионе' })).toBeNull()
   })
 })
+
+vi.mock('./useCanvasMutations',()=>({registerCanvasDraftProvider:vi.fn(),useCanvasMutations:(current?:{document?:{id:string;revision:number}})=>({
+  pending:0,error:'',retry:vi.fn(),discard:vi.fn(),
+  send:(op:string,payload:Record<string,unknown>={})=>act('research_canvas_'+op,{id:current?.document?.id,revision:current?.document?.revision,...payload}),
+  edit:(operation:string,args:Record<string,unknown>={})=>act('research_canvas_edit',{id:current?.document?.id,revision:current?.document?.revision,operation,arguments:args})
+})}))

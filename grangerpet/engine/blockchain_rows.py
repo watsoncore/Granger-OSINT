@@ -1,5 +1,6 @@
 """Project actual Gansar DTOs into Granger findings without a second collector."""
 from datetime import datetime,timezone
+from collections import Counter,deque
 import hashlib
 import json
 
@@ -35,9 +36,16 @@ def compact_observation(value,depth=0,budget=None):
 
 def normalize_dossier(report,*,operation='profile',max_transactions=200,transport=None,max_records=2000):
     if not isinstance(report,dict) or not isinstance(report.get('target_address'),str):raise ValueError('Invalid Gansar report')
-    target=report['target_address'];chains=report.get('detected_chains',[]);rows=[]
+    if type(max_records) is not int or not 1<=max_records<=2000:raise ValueError('Invalid Gansar projection record budget')
+    if type(max_transactions) is not int or not 0<=max_transactions<=1000:raise ValueError('Invalid Gansar transaction projection budget')
+    target=report['target_address'];chains=report.get('detected_chains',[]);categories={};available=Counter()
     observed=report.get('_observed_at') or datetime.now(timezone.utc).isoformat()
     def add(kind,identifier,title,details,*,chain='',url='',description='',status='source_reported',source='Gansar'):
+        available[kind]+=1
+        rows=categories.setdefault(kind,deque())
+        # Keep each category independently bounded so an earlier token section
+        # cannot consume the transaction/counterparty budget. Count ALL observed
+        # candidates even when their category's storage queue is already full.
         if len(rows)>=max_records:return
         details=finding_fields(details)
         rows.append({'id':kind+':'+str(identifier),'type':kind,'title':str(title)[:300],
@@ -96,6 +104,7 @@ def normalize_dossier(report,*,operation='profile',max_transactions=200,transpor
                 chain='ton',url=row.get('evidence_url') or row.get('external_url'),source=row.get('source'),
                 description=f"Тип: {row.get('type')}; владение: {row.get('ownership_status','unknown')}; свежая on-chain проверка: {row.get('ownership_verified') is True}. Метаданные не подтверждают подлинность.")
     if include('transactions','trace'):
+        available['transaction']+=max(0,counts['transactions']-max_transactions)
         for row in _items(report.get('transactions'))[:max_transactions]:
             amount=exact(row.get('amount_decimal',row.get('amount')))
             detail={k:v for k,v in row.items() if k!='raw'};detail['amount_decimal']=amount
@@ -147,4 +156,33 @@ def normalize_dossier(report,*,operation='profile',max_transactions=200,transpor
             if value:
                 add('blockchain_context',target+'|'+key,key,{'section':key,'data':compact_observation(value),'projection_bounded':True},
                     description='Структурированные сведения существующего Gansar; полный исходный DTO сохранён отдельно. Риск-флаг или публичная метка не устанавливают личность.',status='unconfirmed' if key in ('risk_flags','telegram_identities') else 'source_reported')
+    rows=[]
+    # The summary and full-sample analytics stay first. Remaining source kinds
+    # share the bounded transport fairly rather than starve in DTO field order.
+    for kind in ('blockchain_summary','blockchain_analytics'):
+        queue=categories.get(kind)
+        if queue and len(rows)<max_records:rows.append(queue.popleft())
+    active=deque(kind for kind,queue in categories.items() if queue)
+    while active and len(rows)<max_records:
+        kind=active.popleft();rows.append(categories[kind].popleft())
+        if categories[kind]:active.append(kind)
+    emitted=Counter(row['type'] for row in rows)
+    omitted={kind:count-emitted[kind] for kind,count in available.items() if count>emitted[kind]}
+    sections=[]
+    for section,fields in (('balances',('balances',)),('assets',('tokens','ton_assets')),
+            ('transactions',('transactions','counterparties')),('nft',('ton_assets','nft_intelligence')),
+            ('identity',('ens_profile','public_address_context')),('contracts',('contract_observations',)),
+            ('labels',('labels',)),('attribution',('counterparties','attribution_intelligence'))):
+        if any(report.get(field) for field in fields):sections.append(section)
+    projection={'record_budget':max_records,'emitted_counts':dict(emitted),'available_counts':dict(available),
+        'omitted_counts':omitted,'truncated':bool(omitted),'transaction_observed':counts['transactions'],
+        'transaction_selected':emitted['transaction'],'transaction_limit':max_transactions,
+        'raw_dossier_retained_elsewhere':False,'available_saved_sections':sections,
+        'selection':'summary_analytics_first_then_round_robin_by_observation_kind'}
+    summary=next(row for row in rows if row['type']=='blockchain_summary')
+    summary['details']['projection']=projection
+    if projection['truncated']:
+        summary['description']=(summary['description'][:1050]
+            +f" Проекция ограничена: показано {len(rows)} из {sum(available.values())} наблюдений; "
+            +'полный DTO передан для отдельного защищённого сохранения. Разделы: '+', '.join(sections)+'.')
     return rows

@@ -1,14 +1,17 @@
 import type { GraphEntity,GraphPoint,GraphRelation,GraphViewport } from './types'
+import {cardSize} from './graph-cards'
 
 export function nodeBox(node:GraphEntity,scale:number){
-  if(node.attributes.is_root===true)return {width:Math.max(150,252*scale),height:Math.max(66,106*scale)}
-  return {width:Math.max(136,220*scale),height:Math.max(54,86*scale)}
+  const size=cardSize(node)
+  return {width:size.width*scale,height:size.height*scale}
 }
 interface Point {x:number;y:number}
 export interface EdgeRoute {edge:GraphRelation;points:Point[]}
+const nodeIndexes=new WeakMap<GraphEntity[],Map<string,GraphEntity>>()
+const edgeGroups=new WeakMap<GraphRelation[],Map<string,GraphRelation[]>>()
 export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPoint>,view:GraphViewport,nodes:GraphEntity[]=[],mode:'tree'|'graph'='graph',clip?:{left:number;top:number;right:number;bottom:number}):EdgeRoute[]{
-  const byId=new Map(nodes.map(node=>[node.id,node])),groups=new Map<string,GraphRelation[]>()
-  for(const edge of edges){const key=[edge.from_id,edge.to_id].sort().join('|');const list=groups.get(key)||[];list.push(edge);groups.set(key,list)}
+  let byId=nodeIndexes.get(nodes);if(!byId){byId=new Map(nodes.map(node=>[node.id,node]));nodeIndexes.set(nodes,byId)}
+  let groups=edgeGroups.get(edges);if(!groups){groups=new Map<string,GraphRelation[]>();for(const edge of edges){const key=[edge.from_id,edge.to_id].sort().join('|');const list=groups.get(key)||[];list.push(edge);groups.set(key,list)}edgeGroups.set(edges,groups)}
   const screen=(id:string)=>{const point=positions[id];return point?{x:point.x*view.scale+view.x,y:point.y*view.scale+view.y}:null}
   const border=(id:string,center:Point,towards:Point)=>{
     const node=byId.get(id),box=node?nodeBox(node,view.scale):{width:16,height:16}

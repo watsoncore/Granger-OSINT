@@ -15,7 +15,7 @@ import re
 import tempfile
 import threading
 
-from .agent_evidence import redact, sanitize_evidence, validate_saved_evidence
+from .agent_evidence import redact, sanitize_evidence, validate_saved_evidence, sanitize_execution
 from .config import data_directory
 from .credentials import CredentialsStore, CredentialError, protected_path, portable_enabled
 from .investigation_contracts import (InvestigationContractError,
@@ -203,7 +203,7 @@ class InvestigationJournal:
         safe = recover_public_snapshot(safe, identifier, stop_running=False)
         self._report_contracts(identifier, safe.get('validation_warnings', []))
         safe['evidence'] = [sanitize_evidence(row, secrets) for row in safe['evidence']]
-        safe['executions'] = [redact(row, secrets) for row in safe['executions']]
+        safe['executions'] = [sanitize_execution(row, secrets) for row in safe['executions']]
         encoded = json.dumps(safe, ensure_ascii=False, indent=2, allow_nan=False).encode('utf-8')
         if len(encoded) > CHECKPOINT_LIMIT:
             raise ValueError('Investigation journal limit exceeded')

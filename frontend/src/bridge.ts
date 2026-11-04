@@ -75,9 +75,9 @@ export function connectDesktop() {
       if (!call) return
       clearTimeout(call.timeout); pending.delete(id)
       try {
-        const response = JSON.parse(raw) as { ok: boolean; result?: unknown; error?: string }
+        const response = JSON.parse(raw) as { ok: boolean; result?: unknown; error?: string; code?: string; revision?: number }
         if (response.ok) call.resolve(response.result)
-        else call.reject(new Error(typeof response.error === 'string' ? response.error : 'Действие не выполнено'))
+        else call.reject(Object.assign(new Error(typeof response.error === 'string' ? response.error : 'Действие не выполнено'), {code:response.code,revision:response.revision}))
       } catch { call.reject(new Error('Некорректный ответ приложения')) }
     })
     desktop.stateChanged.connect(receiveState)

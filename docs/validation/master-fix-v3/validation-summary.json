@@ -1,0 +1,657 @@
+{
+  "schema": "granger-public-validation/1",
+  "generated_at_utc": "2026-11-04T12:21:58.357927+00:00",
+  "status": "receipts_collected",
+  "candidate_exe_sha256": "4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7",
+  "final_release_certified": false,
+  "privacy": {
+    "raw_findings_exported": false,
+    "renderer_state_exported": false,
+    "profile_paths_exported": false,
+    "raw_logs_exported": false,
+    "screenshots_copied": false
+  },
+  "receipts": {
+    "baseline": {
+      "receipt": {
+        "kind": "baseline",
+        "sha256": "558142223b036eb246fa9d3e081782c5d3302eabcb3a1f4125137d0eec8f763e",
+        "bytes": 1267,
+        "state": "available"
+      },
+      "summary": {
+        "profile_files": 185,
+        "protected_pet_modules": 16,
+        "profile_copy_stable": true,
+        "profile_plaintext_exported": false,
+        "protected_groups": {
+          "assets": {
+            "files": 92,
+            "bytes": 12319870,
+            "unstable": 0
+          },
+          "resources": {
+            "files": 202,
+            "bytes": 58313915,
+            "unstable": 0
+          },
+          "gansar": {
+            "files": 509,
+            "bytes": 29142240,
+            "unstable": 0
+          },
+          "maigret": {
+            "files": 207,
+            "bytes": 11099023,
+            "unstable": 0
+          },
+          "visual_cpu": {
+            "files": 23387,
+            "bytes": 4180888934,
+            "unstable": 0
+          },
+          "scene_vision": {
+            "files": 25,
+            "bytes": 468555614,
+            "unstable": 0
+          },
+          "maigret_runtime": {
+            "files": 9796,
+            "bytes": 112817644,
+            "unstable": 0
+          }
+        },
+        "release": {
+          "Granger-OSINT.exe": {
+            "sha256": "bfe62a9a5e37ddbf9b51c87b869d607899e3f89db22cde418e8f5156c5a84ff2",
+            "bytes": 279283981
+          },
+          "Granger-OSINT-source.zip": {
+            "sha256": "0e261db8525ab5a124c69f2a69bc0a16de9d34fad2ab3a94aea148187ab2460a",
+            "bytes": 280867047
+          }
+        }
+      }
+    },
+    "preservation": {
+      "receipt": {
+        "kind": "preservation",
+        "sha256": "4e9552e7af4c48ae1a4f7de48e880d67ae43b3415e475959c02af17cdb832c42",
+        "bytes": 3013,
+        "state": "available"
+      },
+      "summary": {
+        "profile_decrypted": false,
+        "source_files_written": false,
+        "restored_files": 0,
+        "groups": {
+          "profile": {
+            "expected": 185,
+            "actual": 185,
+            "unchanged": 185,
+            "unstable": 0,
+            "unreadable": 0,
+            "changed_or_missing": 0,
+            "added": 0
+          },
+          "assets": {
+            "expected": 92,
+            "actual": 92,
+            "unchanged": 92,
+            "unstable": 0,
+            "unreadable": 0,
+            "changed_or_missing": 0,
+            "added": 0,
+            "current_tree_sha256": "de141d1b6042608ee2c13a7195112b32448abf78e5334516c981c04acb7e5243"
+          },
+          "resources": {
+            "expected": 202,
+            "actual": 202,
+            "unchanged": 202,
+            "unstable": 0,
+            "unreadable": 0,
+            "changed_or_missing": 0,
+            "added": 0,
+            "current_tree_sha256": "26f2cae39f84a44ce05e567369f4fb7e3799314c63b2e6549fdd1486ee1aeaff"
+          },
+          "gansar": {
+            "expected": 509,
+            "actual": 509,
+            "unchanged": 509,
+            "unstable": 0,
+            "unreadable": 0,
+            "changed_or_missing": 0,
+            "added": 0,
+            "current_tree_sha256": "440750c28acaeac43c146aa6e26460ace626cd012df91dc928f5590a4d3d1ef8"
+          },
+          "maigret": {
+            "expected": 207,
+            "actual": 207,
+            "unchanged": 207,
+            "unstable": 0,
+            "unreadable": 0,
+            "changed_or_missing": 0,
+            "added": 0,
+            "current_tree_sha256": "e216e369715a18272f7e63f5de037f5f5298e72b7d7df387fe80931c7826f016"
+          },
+          "visual_cpu": {
+            "expected": 23387,
+            "actual": 23387,
+            "unchanged": 23387,
+            "unstable": 0,
+            "unreadable": 0,
+            "changed_or_missing": 0,
+            "added": 0,
+            "current_tree_sha256": "6a291059131f24712819d5a96653de0164e01fa4d445cf3322e3255ec8980c0c"
+          },
+          "scene_vision": {
+            "expected": 25,
+            "actual": 25,
+            "unchanged": 25,
+            "unstable": 0,
+            "unreadable": 0,
+            "changed_or_missing": 0,
+            "added": 0,
+            "current_tree_sha256": "fcba10552af8bd6239fbbc49afe9277231e5a422dba88be34b17c26a7860b402"
+          },
+          "maigret_runtime": {
+            "expected": 9796,
+            "actual": 9796,
+            "unchanged": 9796,
+            "unstable": 0,
+            "unreadable": 0,
+            "changed_or_missing": 0,
+            "added": 0,
+            "current_tree_sha256": "9c5062ad0dfee6560b9510784dc83b6deeb7c382c97f0ef905961f35ce7f35fe"
+          }
+        },
+        "pet_runtime": {
+          "expected": 16,
+          "unchanged": 16
+        },
+        "release": {
+          "Granger-OSINT.exe": {
+            "baseline_sha256": "bfe62a9a5e37ddbf9b51c87b869d607899e3f89db22cde418e8f5156c5a84ff2",
+            "current_matches_baseline": true,
+            "archive_matches_baseline": true
+          },
+          "Granger-OSINT-source.zip": {
+            "baseline_sha256": "0e261db8525ab5a124c69f2a69bc0a16de9d34fad2ab3a94aea148187ab2460a",
+            "current_matches_baseline": true,
+            "archive_matches_baseline": true
+          }
+        }
+      }
+    },
+    "native_source": {
+      "receipt": {
+        "kind": "native_source",
+        "sha256": "2fd2be7d60bbd1e50b48864ef60dff2969ce9d1a056d8da261f971bc106d8dab",
+        "bytes": 3803,
+        "state": "available"
+      },
+      "summary": {
+        "mocked": false,
+        "isolated_profile": true,
+        "passed": true,
+        "gateway_calls": 0,
+        "checks": {
+          "total": 24,
+          "passed": 24,
+          "failed": 0,
+          "unresolved": 0
+        },
+        "live_tool_runs": [
+          {
+            "records": 1,
+            "seconds": 2.91,
+            "status": "complete"
+          }
+        ]
+      }
+    },
+    "frozen_canvas": {
+      "receipt": {
+        "kind": "frozen_canvas",
+        "sha256": "d0f6c55a4a94964465929af27179e07d6c4eb3fd9675d99b8f92f7ae28183f48",
+        "bytes": 6140,
+        "state": "available",
+        "matches_candidate_binary": true
+      },
+      "summary": {
+        "mocked": false,
+        "isolated_profile": true,
+        "passed": true,
+        "gateway_calls": 0,
+        "exe_sha256": "4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7",
+        "checks": {
+          "total": 34,
+          "passed": 34,
+          "failed": 0,
+          "unresolved": 0
+        },
+        "live_tool_runs": [
+          {
+            "records": 1,
+            "seconds": 2.52,
+            "status": "complete"
+          },
+          {
+            "records": 71,
+            "seconds": 18.12,
+            "status": "partial"
+          }
+        ]
+      }
+    },
+    "frozen_stress": {
+      "receipt": {
+        "kind": "frozen_stress",
+        "sha256": "244f390054c5d9a6d6823c0f99ef6b70b589be5e785f6f0e55e6a67f9e2092ab",
+        "bytes": 16955,
+        "state": "available",
+        "matches_candidate_binary": true
+      },
+      "summary": {
+        "passed": true,
+        "owned_processes_left": 0,
+        "parent_exit_code": 0,
+        "exe_sha256": "4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7",
+        "checks": {
+          "total": 3,
+          "passed": 3,
+          "failed": 0,
+          "unresolved": 0
+        },
+        "live_tool_runs": [],
+        "synthetic_cases": [
+          {
+            "underlying_nodes": 50,
+            "edges": 49,
+            "encrypted_seed_write_ms": 51.9,
+            "open_and_expand_seconds": 1.016,
+            "active_interval_reciprocal_fps": 37.81,
+            "paint_ms": {
+              "count": 37,
+              "max": 14.4,
+              "median": 3.4,
+              "p95": 9
+            },
+            "active_intervals_ms": {
+              "count": 16,
+              "max": 86.2,
+              "median": 26.45,
+              "p95": 76.3
+            },
+            "event_to_paint_ms": {
+              "count": 13,
+              "max": 17.8,
+              "median": 8.3,
+              "p95": 14.1
+            },
+            "data_origin": "synthetic_fixture"
+          },
+          {
+            "underlying_nodes": 100,
+            "edges": 99,
+            "encrypted_seed_write_ms": 33.19,
+            "open_and_expand_seconds": 0.711,
+            "active_interval_reciprocal_fps": 39.53,
+            "paint_ms": {
+              "count": 38,
+              "max": 8.3,
+              "median": 3.0,
+              "p95": 4.9
+            },
+            "active_intervals_ms": {
+              "count": 18,
+              "max": 96,
+              "median": 25.3,
+              "p95": 46.5
+            },
+            "event_to_paint_ms": {
+              "count": 12,
+              "max": 22,
+              "median": 9.4,
+              "p95": 19.3
+            },
+            "data_origin": "synthetic_fixture"
+          },
+          {
+            "underlying_nodes": 500,
+            "edges": 499,
+            "encrypted_seed_write_ms": 29.05,
+            "open_and_expand_seconds": 3.527,
+            "active_interval_reciprocal_fps": 42.55,
+            "paint_ms": {
+              "count": 49,
+              "max": 9.2,
+              "median": 4.9,
+              "p95": 7.1
+            },
+            "active_intervals_ms": {
+              "count": 15,
+              "max": 58.9,
+              "median": 23.5,
+              "p95": 55
+            },
+            "event_to_paint_ms": {
+              "count": 12,
+              "max": 23.9,
+              "median": 7.3,
+              "p95": 21.4
+            },
+            "data_origin": "synthetic_fixture"
+          },
+          {
+            "underlying_nodes": 1000,
+            "edges": 999,
+            "encrypted_seed_write_ms": 57.08,
+            "open_and_expand_seconds": 4.4,
+            "active_interval_reciprocal_fps": 43.1,
+            "paint_ms": {
+              "count": 56,
+              "max": 18.3,
+              "median": 7.9,
+              "p95": 9.5
+            },
+            "active_intervals_ms": {
+              "count": 18,
+              "max": 62.6,
+              "median": 23.2,
+              "p95": 51.1
+            },
+            "event_to_paint_ms": {
+              "count": 12,
+              "max": 32,
+              "median": 11.1,
+              "p95": 23.3
+            },
+            "data_origin": "synthetic_fixture"
+          },
+          {
+            "underlying_nodes": 5000,
+            "edges": 4999,
+            "encrypted_seed_write_ms": 248.01,
+            "open_and_expand_seconds": 38.428,
+            "active_interval_reciprocal_fps": 16.75,
+            "paint_ms": {
+              "count": 153,
+              "max": 38.3,
+              "median": 18.5,
+              "p95": 30.6
+            },
+            "active_intervals_ms": {
+              "count": 11,
+              "max": 97.9,
+              "median": 59.7,
+              "p95": 91.5
+            },
+            "event_to_paint_ms": {
+              "count": 12,
+              "max": 59.3,
+              "median": 31.35,
+              "p95": 57.6
+            },
+            "data_origin": "synthetic_fixture"
+          }
+        ],
+        "observed_cases": [
+          {
+            "underlying_nodes": 230,
+            "edges": 587,
+            "encrypted_seed_write_ms": 154.26,
+            "open_and_expand_seconds": 0.938,
+            "active_interval_reciprocal_fps": 43.57,
+            "paint_ms": {
+              "count": 33,
+              "max": 12,
+              "median": 1.7,
+              "p95": 6.4
+            },
+            "active_intervals_ms": {
+              "count": 10,
+              "max": 64.8,
+              "median": 22.95,
+              "p95": 64.7
+            },
+            "event_to_paint_ms": {
+              "count": 13,
+              "max": 18.3,
+              "median": 5.1,
+              "p95": 14.2
+            },
+            "data_origin": "provided_observed_result"
+          }
+        ],
+        "data_origin": "synthetic_fixture_and_separate_provided_observations"
+      }
+    },
+    "frozen_maigret": {
+      "receipt": {
+        "kind": "frozen_maigret",
+        "sha256": "c689f916d3708694d4a11240cf724f1bc1172f55abd8cba254134ee07a862097",
+        "bytes": 2332,
+        "state": "available",
+        "matches_candidate_binary": true
+      },
+      "summary": {
+        "mocked": false,
+        "isolated_profile": true,
+        "passed": true,
+        "gateway_calls": 0,
+        "parent_exit_code": 0,
+        "exe_sha256": "4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7",
+        "checks": {
+          "total": 7,
+          "passed": 7,
+          "failed": 0,
+          "unresolved": 0
+        },
+        "coverage": {
+          "database_total": 8232,
+          "enabled_username": 7508,
+          "selected": 6,
+          "scheduled": 6,
+          "checked": 6,
+          "found": 3,
+          "not_found": 3,
+          "unknown": 0,
+          "blocked": 0,
+          "unavailable": 0,
+          "errors": 0,
+          "skipped": 0,
+          "pending": 0,
+          "complete": true,
+          "cancelled": false
+        },
+        "result_count": 3,
+        "progress_snapshots": 13,
+        "live_tool_runs": []
+      }
+    },
+    "frozen_sources": {
+      "receipt": {
+        "kind": "frozen_sources",
+        "sha256": "a3edcd8c107fd2d0eaf6d637856e5553a73f8780cc1c0aff552bbc87e74fb931",
+        "bytes": 15092,
+        "state": "available",
+        "matches_candidate_binary": true
+      },
+      "summary": {
+        "passed": true,
+        "module_count": 163,
+        "mismatches": 0
+      }
+    },
+    "frozen_assets": {
+      "receipt": {
+        "kind": "frozen_assets",
+        "sha256": "253899be5ce736d6d3bd7a33d05410cdcf9f67d5b32de305fa3fa76e4384d0f4",
+        "bytes": 24484,
+        "state": "available",
+        "matches_candidate_binary": true
+      },
+      "summary": {
+        "passed": true,
+        "asset_count": 239,
+        "failures": 0,
+        "exe_sha256": "4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7"
+      }
+    },
+    "live_btc": {
+      "receipt": {
+        "kind": "live_btc",
+        "sha256": "67a5ea5afe965232bb89c2eadfd194d4dcccc8f55ad17141def2655946c51e95",
+        "bytes": 1550,
+        "state": "available"
+      },
+      "summary": {
+        "mock": false,
+        "count": 135,
+        "streamed_evidence_events": 139,
+        "protected_datasets": 1,
+        "elapsed_seconds": 14.9,
+        "status": "partial",
+        "kinds": {
+          "blockchain_summary": 1,
+          "blockchain_analysis": 5,
+          "blockchain_analytics": 1,
+          "balance": 1,
+          "transaction": 50,
+          "blockchain_counterparty": 74,
+          "blockchain_context": 3
+        },
+        "source_diagnostics": {
+          "providers_attempted": 2,
+          "http_requests": 16,
+          "request_budget": 60,
+          "budget_exhausted": false,
+          "provider_count_complete": true,
+          "http_statuses": {
+            "200": 12,
+            "400": 1
+          }
+        },
+        "restored_cache": {
+          "count": 185,
+          "status": "complete",
+          "source_diagnostics": {
+            "providers_attempted": 0,
+            "http_requests": 0,
+            "from_saved_data": true
+          }
+        }
+      }
+    },
+    "live_solana": {
+      "receipt": {
+        "kind": "live_solana",
+        "sha256": "7c6dcf8f77b343527e40c196a85904fdc03dd92aa00e8b27607c3f461ed49345",
+        "bytes": 1546,
+        "state": "available"
+      },
+      "summary": {
+        "mock": false,
+        "count": 1105,
+        "streamed_evidence_events": 3876,
+        "protected_datasets": 1,
+        "elapsed_seconds": 14.366,
+        "status": "partial",
+        "kinds": {
+          "blockchain_summary": 1,
+          "blockchain_analytics": 1,
+          "balance": 1,
+          "token_asset": 1102
+        },
+        "source_diagnostics": {
+          "providers_attempted": 2,
+          "http_requests": 15,
+          "request_budget": 60,
+          "budget_exhausted": false,
+          "provider_count_complete": true,
+          "http_statuses": {
+            "200": 14,
+            "429": 1
+          }
+        },
+        "restored_cache": {
+          "count": 1104,
+          "status": "complete",
+          "source_diagnostics": {
+            "providers_attempted": 0,
+            "http_requests": 0,
+            "from_saved_data": true
+          }
+        }
+      }
+    },
+    "live_tron": {
+      "receipt": {
+        "kind": "live_tron",
+        "sha256": "670966188877677eda95b8719454bfc1ae3e3e379da9583675eb2df132b662f7",
+        "bytes": 2491,
+        "state": "available"
+      },
+      "summary": {
+        "mock": false,
+        "count": 168,
+        "streamed_evidence_events": 208,
+        "protected_datasets": 1,
+        "elapsed_seconds": 14.046,
+        "status": "partial",
+        "kinds": {
+          "blockchain_summary": 1,
+          "blockchain_analysis": 7,
+          "blockchain_analytics": 1,
+          "balance": 1,
+          "transaction": 82,
+          "blockchain_counterparty": 69,
+          "blockchain_context": 2,
+          "token_asset": 5
+        },
+        "source_diagnostics": {
+          "providers_attempted": 3,
+          "http_requests": 11,
+          "request_budget": 60,
+          "budget_exhausted": false,
+          "provider_count_complete": true,
+          "http_statuses": {
+            "200": 11
+          }
+        },
+        "restored_cache": {
+          "count": 216,
+          "status": "complete",
+          "source_diagnostics": {
+            "providers_attempted": 0,
+            "http_requests": 0,
+            "from_saved_data": true
+          }
+        }
+      }
+    }
+  },
+  "warnings": [
+    "Aggregate receipts are not a final release declaration or an unbounded real-world coverage claim."
+  ],
+  "tests": {
+    "backend": {
+      "kind": "backend",
+      "receipt_sha256": "d4c3c94d9c294fa1b5ea9fc2a447edb057a03656064b6d8f6d0144683087575b",
+      "state": "passed",
+      "passed": 1953,
+      "skipped": 2,
+      "subtests_passed": 32
+    },
+    "frontend": {
+      "kind": "frontend",
+      "receipt_sha256": "0d00bc73fc6fad6b823c0d9c5e982c0c0f2610f7034ca2b551813bc6e0cfbf4b",
+      "state": "passed",
+      "passed": 175
+    }
+  },
+  "pending_receipts": [],
+  "failed_receipts": [],
+  "unfinished_test_runs": []
+}

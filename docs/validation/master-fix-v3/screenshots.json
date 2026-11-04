@@ -1,0 +1,14 @@
+[
+  {
+    "name": "synthetic-5000.png",
+    "sha256": "70f74887345acfdb459d653e47ed636a7e6b09b0c0a206e8a0aa44ab5876416c",
+    "origin": "frozen-EXE synthetic fixture, actual Qt screenshot",
+    "reviewed": true
+  },
+  {
+    "name": "original-fixture-viewer.png",
+    "sha256": "edf1b796acef44dcdf5c86906787da89cf220dd66160ba5ad7eda0af401f5688",
+    "origin": "frozen-EXE actual original viewer, synthetic local image",
+    "reviewed": true
+  }
+]

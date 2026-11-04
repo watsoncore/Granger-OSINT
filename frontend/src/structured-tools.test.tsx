@@ -27,6 +27,7 @@ describe('manual structured tools use actual arguments protocol', () => {
   fireEvent.change(screen.getByLabelText('Длина тени'),{target:{value:'5'}})
   fireEvent.click(screen.getByRole('button',{name:'Найти'}))
   expect(act).toHaveBeenCalledWith('tool_run',{tool:'shadow_regions',arguments:{datetime_utc:'2024-02-29T13:59:59Z',object_height:10,shadow_length:5}})
+  fireEvent.click(screen.getByRole('button',{name:'Инструменты'}))
   expect(screen.getByText('Локальное вычисление')).toBeInTheDocument()
  })
  it('permits an empty arguments object for a graph page with only optional fields', () => {
@@ -171,3 +172,10 @@ describe('optional local model settings preserve truthful state and explicit act
   expect(screen.getByText(/Только ограниченное HTTP HEAD-наблюдение/)).toBeInTheDocument()
  })
 })
+
+vi.mock('./useCanvasMutations',()=>({registerCanvasDraftProvider:vi.fn(),useCanvasMutations:(current?:{document?:{id:string;revision:number}})=>({
+  pending:0,error:'',retry:vi.fn(),discard:vi.fn(),
+  send:(op:string,payload:Record<string,unknown>={})=>act('research_canvas_'+op,{id:current?.document?.id,revision:current?.document?.revision,...payload}),
+  edit:(operation:string,args:Record<string,unknown>={})=>act('research_canvas_edit',{id:current?.document?.id,revision:current?.document?.revision,operation,arguments:args})
+})}))
+vi.mock('./components/SearchableSelect',()=>({SearchableSelect:({label,value,options,onChange,disabled}:{label:string;value:string;options:{value:string;label:string;disabled?:boolean}[];onChange(value:string):void;disabled?:boolean})=><select aria-label={label} value={value} disabled={disabled} onChange={e=>onChange(e.target.value)}>{options.map(o=><option value={o.value} key={o.value} disabled={o.disabled}>{o.label}</option>)}</select>}))

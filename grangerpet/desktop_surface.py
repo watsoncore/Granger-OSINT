@@ -184,7 +184,12 @@ class DesktopSurface(QWebEngineView):
     def _deny_permission(permission): permission.deny()
 
     def shutdown(self):
-        if self._closing:return
+        if self._closing or getattr(self,'_shutdown_draining',False):return
+        # Keep QWebChannel and queued durable ACKs alive before closing the page.
+        from .canvas_pending import flush_canvas_pending
+        self._shutdown_draining=True
+        try:self.canvas_shutdown=flush_canvas_pending(self)
+        finally:self._shutdown_draining=False
         self._closing=True
         self.host.removeEventFilter(self)
         self.bridge.shutdown()

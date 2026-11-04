@@ -1,0 +1,528 @@
+{
+  "manual": {
+    "receipt_sha256": "d0f6c55a4a94964465929af27179e07d6c4eb3fd9675d99b8f92f7ae28183f48",
+    "exe_sha256": "4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7",
+    "passed": true,
+    "origin": "frozen-EXE and bounded real RDAP/TON",
+    "checks": [
+      {
+        "name": "actual_click_created_empty_investigation",
+        "passed": true
+      },
+      {
+        "name": "three_typed_nodes_two_analyst_relations",
+        "passed": true
+      },
+      {
+        "name": "group_membership_and_pin_saved",
+        "passed": true
+      },
+      {
+        "name": "encrypted_local_image_attached",
+        "passed": true
+      },
+      {
+        "name": "network_rdap_preview_does_not_insert",
+        "passed": true
+      },
+      {
+        "name": "native_insert_ack_collapses_preview",
+        "passed": true
+      },
+      {
+        "name": "network_rdap_explicit_insertion_has_evidence",
+        "passed": true
+      },
+      {
+        "name": "network_rdap_reinsertion_deduplicated",
+        "passed": true
+      },
+      {
+        "name": "blockchain_gansar_preview_does_not_insert",
+        "passed": true
+      },
+      {
+        "name": "native_insert_ack_collapses_preview",
+        "passed": true
+      },
+      {
+        "name": "blockchain_gansar_explicit_insertion_has_evidence",
+        "passed": true
+      },
+      {
+        "name": "blockchain_gansar_reinsertion_deduplicated",
+        "passed": true
+      },
+      {
+        "name": "saved_search_preview_retains_scope_without_requests",
+        "passed": true
+      },
+      {
+        "name": "saved_search_preview_does_not_insert",
+        "passed": true
+      },
+      {
+        "name": "saved_search_insert_deduplicates_existing_evidence",
+        "passed": true
+      },
+      {
+        "name": "gansar_cached_repeat_is_explicit_and_makes_no_requests",
+        "passed": true
+      },
+      {
+        "name": "gansar_same_cached_observations_do_not_duplicate_entities",
+        "passed": true
+      },
+      {
+        "name": "native_stop_releases_ui_within_five_seconds",
+        "passed": true
+      },
+      {
+        "name": "native_cancelled_outcome_is_explicit",
+        "passed": true
+      },
+      {
+        "name": "cancelled_preview_does_not_mutate_canvas",
+        "passed": true
+      },
+      {
+        "name": "native_tool_can_run_after_cancel",
+        "passed": true
+      },
+      {
+        "name": "actual_native_node_drag_committed",
+        "passed": true
+      },
+      {
+        "name": "actual_native_port_drag_creates_analyst_relation",
+        "passed": true
+      },
+      {
+        "name": "native_collapsed_group_drag_keeps_hidden_members_aligned",
+        "passed": true
+      },
+      {
+        "name": "dirty_note_not_automatically_applied_to_facts",
+        "passed": true
+      },
+      {
+        "name": "restart_keeps_entities_relations_annotations_positions",
+        "passed": true
+      },
+      {
+        "name": "reopened_sources_keep_provenance",
+        "passed": true
+      },
+      {
+        "name": "recovered_dirty_note_is_inert_before_user_retry",
+        "passed": true
+      },
+      {
+        "name": "actual_unsaved_note_survives_process_close_and_explicit_retry",
+        "passed": true
+      },
+      {
+        "name": "dirty_note_recovery_preserves_other_facts_and_positions",
+        "passed": true
+      },
+      {
+        "name": "native_media_preview_matches_original_digest_and_dimensions",
+        "passed": true
+      },
+      {
+        "name": "actual_native_original_viewer_displayed",
+        "passed": true
+      },
+      {
+        "name": "original_file_unchanged_after_view",
+        "passed": true
+      },
+      {
+        "name": "own_app_exit_zero",
+        "passed": true
+      }
+    ],
+    "gateway_calls": 0,
+    "parent_exit_code": null,
+    "isolated_profile": true
+  },
+  "media": {
+    "receipt_sha256": "2f8d7a58e4a476910fde464bfc36d2e9ced00d65b24f73f943b7d0b4a4e92ff9",
+    "exe_sha256": "4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7",
+    "passed": true,
+    "origin": "frozen-EXE native media card and inert draft recovery",
+    "checks": [
+      {
+        "name": "actual_click_created_empty_investigation",
+        "passed": true
+      },
+      {
+        "name": "three_typed_nodes_two_analyst_relations",
+        "passed": true
+      },
+      {
+        "name": "group_membership_and_pin_saved",
+        "passed": true
+      },
+      {
+        "name": "encrypted_local_image_attached",
+        "passed": true
+      },
+      {
+        "name": "network_rdap_preview_does_not_insert",
+        "passed": true
+      },
+      {
+        "name": "native_insert_ack_collapses_preview",
+        "passed": true
+      },
+      {
+        "name": "network_rdap_explicit_insertion_has_evidence",
+        "passed": true
+      },
+      {
+        "name": "network_rdap_reinsertion_deduplicated",
+        "passed": true
+      },
+      {
+        "name": "saved_search_preview_retains_scope_without_requests",
+        "passed": true
+      },
+      {
+        "name": "saved_search_preview_does_not_insert",
+        "passed": true
+      },
+      {
+        "name": "saved_search_insert_deduplicates_existing_evidence",
+        "passed": true
+      },
+      {
+        "name": "actual_native_node_drag_committed",
+        "passed": true
+      },
+      {
+        "name": "actual_native_port_drag_creates_analyst_relation",
+        "passed": true
+      },
+      {
+        "name": "native_collapsed_group_drag_keeps_hidden_members_aligned",
+        "passed": true
+      },
+      {
+        "name": "dirty_note_not_automatically_applied_to_facts",
+        "passed": true
+      },
+      {
+        "name": "restart_keeps_entities_relations_annotations_positions",
+        "passed": true
+      },
+      {
+        "name": "reopened_sources_keep_provenance",
+        "passed": true
+      },
+      {
+        "name": "recovered_dirty_note_is_inert_before_user_retry",
+        "passed": true
+      },
+      {
+        "name": "actual_unsaved_note_survives_process_close_and_explicit_retry",
+        "passed": true
+      },
+      {
+        "name": "dirty_note_recovery_preserves_other_facts_and_positions",
+        "passed": true
+      },
+      {
+        "name": "actual_native_media_card_has_visible_image",
+        "passed": true
+      },
+      {
+        "name": "native_media_preview_matches_original_digest_and_dimensions",
+        "passed": true
+      },
+      {
+        "name": "actual_native_original_viewer_displayed",
+        "passed": true
+      },
+      {
+        "name": "original_file_unchanged_after_view",
+        "passed": true
+      },
+      {
+        "name": "own_app_exit_zero",
+        "passed": true
+      }
+    ],
+    "gateway_calls": 0,
+    "parent_exit_code": null,
+    "isolated_profile": true
+  },
+  "maigret": {
+    "receipt_sha256": "c689f916d3708694d4a11240cf724f1bc1172f55abd8cba254134ee07a862097",
+    "exe_sha256": "4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7",
+    "passed": true,
+    "origin": "frozen-live six exact sites",
+    "checks": [
+      {
+        "name": "real_manual_execution_saved",
+        "passed": true
+      },
+      {
+        "name": "six_exact_original_database_sites_scheduled",
+        "passed": true
+      },
+      {
+        "name": "all_six_per_site_outcomes_retained_in_encrypted_checkpoint",
+        "passed": true
+      },
+      {
+        "name": "coverage_counters_published_to_existing_search",
+        "passed": true
+      },
+      {
+        "name": "no_fake_absence_for_unknown_or_blocked",
+        "passed": true
+      },
+      {
+        "name": "actual_profile_metadata_retained",
+        "passed": true
+      },
+      {
+        "name": "no_secret_or_login_supplied",
+        "passed": true
+      }
+    ],
+    "gateway_calls": 0,
+    "parent_exit_code": 0,
+    "isolated_profile": true
+  },
+  "smoke": {
+    "receipt_sha256": "230dddb69d5fd9a7e5ae6e8b7e2fa5eba6a419b053a0be817cc51b7e4ddd54c7",
+    "exe_sha256": "4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7",
+    "passed": true,
+    "origin": "frozen-EXE native restricted PATH",
+    "checks": [
+      {
+        "name": "launcher",
+        "passed": true
+      },
+      {
+        "name": "pet",
+        "passed": true
+      }
+    ],
+    "gateway_calls": null,
+    "parent_exit_code": null,
+    "isolated_profile": true
+  },
+  "automatic": {
+    "receipt_sha256": "3724830c19616b537dd9b049df3b2889bef46c8b487c68eeafd32873b0409fb5",
+    "exe_sha256": "4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7",
+    "passed": true,
+    "origin": "frozen-EXE saved actual observations; no fresh inference/collection",
+    "checks": [
+      {
+        "name": "actual-ton-302_native_canvas",
+        "passed": true
+      },
+      {
+        "name": "actual-ton-302_no_window_overflow",
+        "passed": true
+      },
+      {
+        "name": "actual-ton-302_graph_content_above_fold",
+        "passed": true
+      },
+      {
+        "name": "actual-ton-302_visible_graph_height",
+        "passed": true
+      },
+      {
+        "name": "actual-ton-302_tree_uses_actual_worker",
+        "passed": true
+      },
+      {
+        "name": "actual-ton-302_overview_has_no_window_overflow",
+        "passed": true
+      },
+      {
+        "name": "actual-ton-302_overview_primary_content_above_fold",
+        "passed": true
+      },
+      {
+        "name": "actual-ton-302_views_preserve_original_evidence",
+        "passed": true
+      },
+      {
+        "name": "actual-geoint_native_canvas",
+        "passed": true
+      },
+      {
+        "name": "actual-geoint_no_window_overflow",
+        "passed": true
+      },
+      {
+        "name": "actual-geoint_graph_content_above_fold",
+        "passed": true
+      },
+      {
+        "name": "actual-geoint_visible_graph_height",
+        "passed": true
+      },
+      {
+        "name": "actual-geoint_tree_uses_actual_worker",
+        "passed": true
+      },
+      {
+        "name": "actual-geoint_overview_has_no_window_overflow",
+        "passed": true
+      },
+      {
+        "name": "actual-geoint_overview_primary_content_above_fold",
+        "passed": true
+      },
+      {
+        "name": "actual-geoint_views_preserve_original_evidence",
+        "passed": true
+      },
+      {
+        "name": "actual-steam-v2_native_canvas",
+        "passed": true
+      },
+      {
+        "name": "actual-steam-v2_no_window_overflow",
+        "passed": true
+      },
+      {
+        "name": "actual-steam-v2_graph_content_above_fold",
+        "passed": true
+      },
+      {
+        "name": "actual-steam-v2_visible_graph_height",
+        "passed": true
+      },
+      {
+        "name": "actual-steam-v2_tree_uses_actual_worker",
+        "passed": true
+      },
+      {
+        "name": "actual-steam-v2_overview_has_no_window_overflow",
+        "passed": true
+      },
+      {
+        "name": "actual-steam-v2_overview_primary_content_above_fold",
+        "passed": true
+      },
+      {
+        "name": "actual-steam-v2_views_preserve_original_evidence",
+        "passed": true
+      },
+      {
+        "name": "actual-network-v2_native_canvas",
+        "passed": true
+      },
+      {
+        "name": "actual-network-v2_no_window_overflow",
+        "passed": true
+      },
+      {
+        "name": "actual-network-v2_graph_content_above_fold",
+        "passed": true
+      },
+      {
+        "name": "actual-network-v2_visible_graph_height",
+        "passed": true
+      },
+      {
+        "name": "actual-network-v2_tree_uses_actual_worker",
+        "passed": true
+      },
+      {
+        "name": "actual-network-v2_overview_has_no_window_overflow",
+        "passed": true
+      },
+      {
+        "name": "actual-network-v2_overview_primary_content_above_fold",
+        "passed": true
+      },
+      {
+        "name": "actual-network-v2_views_preserve_original_evidence",
+        "passed": true
+      }
+    ],
+    "gateway_calls": 0,
+    "parent_exit_code": null,
+    "isolated_profile": null
+  },
+  "phone": {
+    "receipt_sha256": "1e7b782ecebfc24b31d49fa02a5b892a19d7efda66bed19c54d5612f2ea53262",
+    "exe_sha256": "4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7",
+    "passed": true,
+    "origin": "frozen-EXE original pet interruption/restart",
+    "checks": [
+      {
+        "name": "actual_phone_typing_active",
+        "passed": true
+      },
+      {
+        "name": "hover_interrupts_phone",
+        "passed": true
+      },
+      {
+        "name": "hover_no_added_timer",
+        "passed": true
+      },
+      {
+        "name": "actual_phone_typing_active",
+        "passed": true
+      },
+      {
+        "name": "drag_up_interrupts_phone",
+        "passed": true
+      },
+      {
+        "name": "drag_up_physical_reaction",
+        "passed": true
+      },
+      {
+        "name": "drag_up_no_added_timer",
+        "passed": true
+      },
+      {
+        "name": "actual_phone_typing_active",
+        "passed": true
+      },
+      {
+        "name": "drag_down_interrupts_phone",
+        "passed": true
+      },
+      {
+        "name": "drag_down_physical_reaction",
+        "passed": true
+      },
+      {
+        "name": "drag_down_no_added_timer",
+        "passed": true
+      },
+      {
+        "name": "first_exit_zero",
+        "passed": true
+      },
+      {
+        "name": "no_owned_orphans",
+        "passed": true
+      },
+      {
+        "name": "restart_has_no_phone_or_guest",
+        "passed": true
+      },
+      {
+        "name": "restart_exit_zero_without_orphans",
+        "passed": true
+      }
+    ],
+    "gateway_calls": null,
+    "parent_exit_code": null,
+    "isolated_profile": true
+  }
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "target_dpr": 1,
+    "receipt_sha256": "b88d506beda46171cc5d3aa3890cd473f2928828fe54ff2558e984168a002276",
+    "exe_sha256": "361d7a6a9f87a2cc869a0357e9427234c0652dcc38cd19f6171d00f830bbdf51",
+    "passed": true,
+    "checks_total": 16,
+    "checks_passed": 16,
+    "scope": "previous candidate; Windows settings unchanged; final candidate screenshot controls separate"
+  },
+  {
+    "target_dpr": 1.5,
+    "receipt_sha256": "1222835f48244f8b3996f1eb4dd57b2ee9d947ef46d17fed7377ad50ce611d04",
+    "exe_sha256": "361d7a6a9f87a2cc869a0357e9427234c0652dcc38cd19f6171d00f830bbdf51",
+    "passed": true,
+    "checks_total": 10,
+    "checks_passed": 10,
+    "scope": "previous candidate; Windows settings unchanged; final candidate screenshot controls separate"
+  }
+]

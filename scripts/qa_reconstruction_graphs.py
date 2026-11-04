@@ -20,6 +20,8 @@ def main():
     parser.add_argument('--exe',type=Path)
     parser.add_argument('--only',nargs='*',help='Targeted cases; omitted runs the full set')
     parser.add_argument('--master-fix-v2',action='store_true',help='Saved actual Steam/network and paired Tree/Graph controls')
+    parser.add_argument('--simple-v3',action='store_true',help='Current shared views without historical inspector control labels')
+    parser.add_argument('--density-v3',action='store_true',help='Measure actual native/CSS graph geometry and first useful Overview control')
     args=parser.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Choose a fresh QA directory')
     out.mkdir(parents=True);namespace=uuid.uuid4().hex;profile=out/'appdata/GrangerPet'
@@ -114,6 +116,7 @@ def main():
         value=wait(state,10)
         return value['desktop'].get('dom',{})
     def click(label):
+        if label in ('Дерево','Граф','Обзор','Доказательства'):action('graph_scroll')
         value=wait(lambda:next((e for e in dom().get('elements',[]) if (e.get('label')==label or e.get('text')==label) and e['width']>0 and 0<e['y']<dom().get('height',0)-10),None))
         action('input',{'kind':'click','at':[value['x']+value['width']/2,value['y']+min(18,value['height']/2)]})
     def graph():return dom().get('graph') or {}
@@ -138,10 +141,47 @@ def main():
             action('investigation_graph_get',{'id':case['id'],'mode':'graph'})
             value=wait(lambda:opened(case['id']))
             click('Вписать граф в окно');time.sleep(.3)
-            value=graph();case['canvas']={key:value['canvas'].get(key) for key in ('drawnNodes','drawnEdges','drawnLabels','drawnImages','paintMs','zoom','width','height')};save()
+            viewport_dom=dom();value=viewport_dom.get('graph') or {}
+            case['canvas']={key:value['canvas'].get(key) for key in ('drawnNodes','drawnEdges','drawnLabels','drawnImages','paintMs','zoom','x','y','width','height')}
+            bounds=value['canvas'];viewport_height=viewport_dom['height']
+            case['canvas']['visible_height']=max(0,min(bounds['y']+bounds['height'],viewport_height)-max(bounds['y'],0))
+            case['viewport']={'width':viewport_dom['width'],'height':viewport_height,'units':'Qt WebEngine CSS pixels'}
+            save()
             check(case['name']+'_native_canvas',int(case['canvas']['drawnNodes'])>1 and value.get('worker')=='worker')
             check(case['name']+'_no_window_overflow',not dom()['overflow'])
             screenshot(case['name'])
+            if args.density_v3:
+                from PIL import Image
+                with Image.open(out/(case['name']+'-search.png')) as captured:
+                    native_width,native_height=captured.size
+                scale=native_width/viewport_dom['width']
+                case['density']={'native_window_width':native_width,'native_window_height':native_height,
+                    'native_pixels_per_css_pixel':scale,'canvas_top_native':bounds['y']*scale,
+                    'canvas_height_native':bounds['height']*scale,
+                    'visible_canvas_height_native':case['canvas']['visible_height']*scale}
+                save()
+                if viewport_dom['width']>=1400:
+                    check(case['name']+'_graph_content_above_fold',case['density']['canvas_top_native']<=550)
+                    check(case['name']+'_visible_graph_height',case['canvas']['visible_height']>=400 and bounds['height']>=450 and case['density']['visible_canvas_height_native']>=450)
+            if args.simple_v3:
+                before=journal.load_checkpoint(case['id'])['evidence']
+                click('Дерево');wait(lambda:graph().get('graphMode')=='tree' and graph().get('layoutPending')=='false')
+                check(case['name']+'_tree_uses_actual_worker',graph().get('worker')=='worker')
+                screenshot(case['name']+'-tree')
+                click('Обзор');wait(lambda:graph().get('graphMode')=='overview')
+                check(case['name']+'_overview_has_no_window_overflow',not dom()['overflow'])
+                screenshot(case['name']+'-overview')
+                if args.density_v3 and viewport_dom['width']>=1400:
+                    overview_dom=dom()
+                    primary_label='Таблица' if case['name'].startswith('actual-steam') else 'Открыть граф'
+                    primary=next((e for e in overview_dom.get('elements',[]) if e.get('text')==primary_label and e['width']>0 and e['height']>0),None)
+                    case['density']['overview_primary_control']=primary_label
+                    case['density']['overview_primary_control_top_native']=primary['y']*scale if primary else None
+                    save()
+                    check(case['name']+'_overview_primary_content_above_fold',primary is not None and 0<=primary['y']*scale<=550)
+                click('Граф');wait(lambda:opened(case['id']))
+                check(case['name']+'_views_preserve_original_evidence',journal.load_checkpoint(case['id'])['evidence']==before)
+                continue
             if args.master_fix_v2:
                 wait(lambda:bool(views.load(case['id']).get('positions')))
                 graph_points=views.load(case['id'])['positions']
@@ -204,6 +244,10 @@ def main():
                 if case['name']=='synthetic-20':
                     click('Дерево');wait(lambda:graph().get('graphMode')=='tree' and graph().get('layoutPending')=='false')
                     click('Вписать граф в окно');screenshot('synthetic-20-tree');click('Граф');wait(lambda:opened(case['id']))
+        if args.simple_v3:
+            report['passed']=all(check['passed'] for check in report['checks']);save()
+            command('stop');process.wait(timeout=35);owned=None
+            return
         # The 1000-node evidence remains intact across process restart.
         action('investigation_graph_get',{'id':cases[3]['id']});wait(lambda:opened(cases[3]['id']))
         wait(lambda:bool(views.load(cases[3]['id']).get('positions')))
@@ -214,6 +258,8 @@ def main():
         screenshot('restored-1000-grouped')
         check('no_unexpected_global_error_banner','Операция остановлена из-за ошибки' not in dom().get('text','') and 'Сначала откройте граф' not in dom().get('text',''))
         command('stop');process.wait(timeout=30);owned=None
+    except Exception as error:
+        report.update(passed=False,error_type=type(error).__name__,error=str(error)[:200]);save();raise
     finally:
         if owned and process and process.poll() is None:
             try:command('stop');process.wait(timeout=30)

@@ -18,6 +18,8 @@ def main():
     parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--exe',type=Path);parser.add_argument('--gansar',action='store_true')
     parser.add_argument('--keep-open',action='store_true',help='Keep the verified own QA window for native dialog review until qa-close.flag')
+    parser.add_argument('--media-v3',action='store_true',help='Verify saved original bytes and the actual native image viewer')
+    parser.add_argument('--draft-v3',action='store_true',help='Type an unsaved note, close, reopen and explicitly recover it')
     parser.add_argument('--cancel',action='store_true',help='Cancel one real bounded read-only Gansar request and verify restart')
     parser.add_argument('--ai',action='store_true',help='Verify one saved-node explanation with the existing protected gateway key')
     args=parser.parse_args();out=args.output.resolve()
@@ -88,14 +90,25 @@ def main():
         action('research_canvas_metrics')
         return wait(lambda:m if (m:=canvas().get('metrics',{})).get('generation',0)>previous else None)
     def click(label):
+        aliases={'Мои расследования':['Моё полотно','Мои расследования'],'Новое расследование':['Новое расследование','Новое'],
+            'Развернуть полотно':['Развернуть полотно','Развернуть']}
         def element():
             d=dom()
-            return next((e for e in d.get('elements',[]) if (e.get('label')==label or e.get('text')==label) and e['width']>0 and 0<e['y']<d['height']-16),None)
+            for name in aliases.get(label,[label]):
+                found=next((e for e in d.get('elements',[]) if (e.get('label')==name or e.get('text')==name) and e['width']>0 and 0<e['y']<d['height']-16),None)
+                if found:return found
         e=wait(element);action('input',{'kind':'click','at':[e['x']+e['width']/2,e['y']+min(16,e['height']/2)]})
     def shot(label):
         command('qa_snapshot',{'name':label});time.sleep(.4)
         path=out/(label+'-search.png')
         if path.exists():report['screenshots'].append({'name':path.name,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()});save()
+    def click_scrolled(label):
+        for _ in range(12):
+            d=dom()
+            if any((e.get('label')==label or e.get('text')==label) and e['width']>0 and 0<e['y']<d['height']-30 for e in d.get('elements',[])):
+                click(label);return
+            action('input',{'kind':'wheel','at':[d['width']-25,d['height']-80],'delta':-720})
+        raise AssertionError('Visible own QA control not reached: '+label)
     def start(number):
         nonlocal process,owned
         argv=([str(args.exe.resolve())] if args.exe else [sys.executable,str(ROOT/'main.py')])+['--pet','--interaction-qa']
@@ -124,6 +137,8 @@ def main():
         attachment=wait(lambda:s['attachments'][-1] if (s:=snapshot()).get('attachments') and not s.get('attachment_busy') else None)
         old=doc['revision'];action('research_canvas_attach',{'id':doc['id'],'revision':old,'attachment_id':attachment['id']});doc=settled(old)['document']
         check('encrypted_local_image_attached',any(n['attributes'].get('attachment_id')==attachment['id'] and n['attributes'].get('media',{}).get('thumbnail','').startswith('data:image/') for n in doc['entities']))
+        v3='Моё полотно' in dom().get('text','')
+        if v3:doc=edit('view',{'view':{'ui':{'graph_mode':'manual'},'expanded':[n['id'] for n in doc['entities'] if n['type']=='entity_group']}})
         # Real free source through the same manual ToolRegistry, never fixtures.
         for tool,node_id,arguments in [('network_rdap',ids[0],{'resource':'66.249.67.41'})]+(
                 [('blockchain_gansar',ids[2],{'address':'UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd','mode':'quick','operation':'profile','limit':5,'depth':0})] if args.gansar else []):
@@ -133,8 +148,14 @@ def main():
             check(tool+'_preview_does_not_insert',len(canvas()['document']['entities'])==before)
             if preview['results']:
                 doc=canvas()['document'];old=doc['revision']
-                action('research_canvas_insert',{'id':identifier,'revision':old,'token':preview['token'],'evidence_ids':[r['evidence_id'] for r in preview['results']]})
+                if v3:
+                    click_scrolled(f"Выбрать все ({len(preview['results'])})")
+                    click_scrolled(f"Добавить выбранные ({len(preview['results'])})")
+                else:action('research_canvas_insert',{'id':identifier,'revision':old,'token':preview['token'],'evidence_ids':[r['evidence_id'] for r in preview['results']]})
                 doc=settled(old)['document'];count=len(doc['entities'])
+                if v3:
+                    check('native_insert_ack_collapses_preview','Выбрать все (' not in dom().get('text',''))
+                    d=dom();action('input',{'kind':'wheel','at':[d['width']-25,100],'delta':1200})
                 check(tool+'_explicit_insertion_has_evidence',bool(doc['evidence']) and any(n['evidence_ids'] for n in doc['entities']))
                 action('research_canvas_insert',{'id':identifier,'revision':doc['revision'],'token':preview['token'],'evidence_ids':[r['evidence_id'] for r in preview['results']]})
                 doc=settled(doc['revision'])['document'];check(tool+'_reinsertion_deduplicated',len(doc['entities'])==count)
@@ -174,8 +195,8 @@ def main():
             token=cancelled['token'];action('research_canvas_tool',{'id':identifier,'revision':old,'entity_id':ids[0],'tool':'network_rdap','query':'66.249.67.41','limit':1})
             resumed=wait(lambda:r['preview'] if (r:=canvas()).get('preview',{}).get('token')!=token and not snapshot()['search']['busy'] else None,70)
             check('native_tool_can_run_after_cancel',resumed['tool']=='network_rdap' and resumed['status'] in ('complete','partial') and bool(resumed['results']))
-        wait(lambda:'Развернуть полотно' in dom().get('text',''));click('Развернуть полотно')
-        wait(lambda:'Вернуть в Поиск' in dom().get('text',''))
+        wait(lambda:'Развернуть' in dom().get('text',''));click('Развернуть полотно')
+        wait(lambda:('Встроить' if v3 else 'Вернуть в Поиск') in dom().get('text',''))
         def settled_metrics(document):
             m=metrics()
             if m.get('revision')!=str(document['revision']):return None
@@ -185,6 +206,7 @@ def main():
                 node=next((n for n in points if n['id']==identifier),None)
                 if not node or abs(node['x']-(p['x']*v['scale']+v['x']))>1 or abs(node['y']-(p['y']*v['scale']+v['y']))>1:return None
             return c
+        shot('canvas-geometry')
         drawn=wait(lambda:settled_metrics(doc));points=json.loads(drawn['qaNodes']);first=next(n for n in points if n['id']==ids[0]);second=next(n for n in points if n['id']==ids[1])
         before=canvas()['document'];old=before['revision'];position=before['view']['positions'][ids[0]]
         at=[drawn['x']+first['x'],drawn['y']+first['y']]
@@ -192,6 +214,7 @@ def main():
         doc=settled(old)['document'];check('actual_native_node_drag_committed',abs(doc['view']['positions'][ids[0]]['x']-position['x'])>10)
         drawn=wait(lambda:settled_metrics(doc));points=json.loads(drawn['qaNodes']);first=next(n for n in points if n['id']==ids[0]);second=next(n for n in points if n['id']==ids[1])
         root=next(n for n in doc['entities'] if n['id']==ids[0]);scale=doc['view']['viewport']['scale'];half=max(150 if root['attributes'].get('is_root') else 136,(252 if root['attributes'].get('is_root') else 220)*scale)/2
+        if v3:half=first['width']/2
         old=doc['revision'];count=len(doc['relations'])
         action('input',{'kind':'drag','at':[drawn['x']+first['x']+half,drawn['y']+first['y']], 'to':[drawn['x']+second['x'],drawn['y']+second['y']]})
         doc=settled(old)['document'];check('actual_native_port_drag_creates_analyst_relation',len(doc['relations'])==count+1)
@@ -207,12 +230,23 @@ def main():
         check('native_collapsed_group_drag_keeps_hidden_members_aligned',abs(dx)>10 and all(abs(after[i]['x']-before[i]['x']-dx)<1 and abs(after[i]['y']-before[i]['y']-dy)<1 for i in ids[:2]))
         doc=edit('view',{'view':{'collapsed':[],'viewport':original_view}})
         shot('canvas-before-restart');saved={key:doc[key] for key in ('entities','relations','annotations','view')}
+        unsaved_note='UNSAVED NATIVE DRAFT 2026-11-04'
+        if args.draft_v3:
+            click_scrolled('Заметка узла');action('input',{'kind':'key','key':'all','ctrl':True})
+            action('input',{'kind':'text','text':unsaved_note})
+            check('dirty_note_not_automatically_applied_to_facts',canvas()['document']['annotations'].get(group_id,{}).get('markdown')!=unsaved_note)
         command('stop');process.wait(timeout=30);owned=None;start(1)
         click('Мои расследования');action('research_canvas_open',{'id':identifier});doc=wait(lambda:r.get('document') if not (r:=canvas()).get('busy') else None)
         check('restart_keeps_entities_relations_annotations_positions',all(doc[key]==value for key,value in saved.items()))
         check('reopened_sources_keep_provenance',all(row.get('evidence_id') for row in doc['evidence']))
-        wait(lambda:'Развернуть полотно' in dom().get('text',''));click('Развернуть полотно')
-        wait(lambda:'Вернуть в Поиск' in dom().get('text',''));shot('canvas-after-restart');report['passed']=True;save()
+        if args.draft_v3:
+            check('recovered_dirty_note_is_inert_before_user_retry',doc['annotations'].get(group_id,{}).get('markdown')!=unsaved_note)
+            click_scrolled('Загрузить актуальную версию и повторить действие')
+            doc=wait(lambda:r['document'] if (r:=canvas()).get('document',{}).get('annotations',{}).get(group_id,{}).get('markdown')==unsaved_note and not r.get('busy') else None)
+            check('actual_unsaved_note_survives_process_close_and_explicit_retry',doc['annotations'][group_id]['markdown']==unsaved_note)
+            check('dirty_note_recovery_preserves_other_facts_and_positions',doc['relations']==saved['relations'] and doc['view']['positions']==saved['view']['positions'] and {n['id'] for n in doc['entities']}=={n['id'] for n in saved['entities']})
+        wait(lambda:'Развернуть' in dom().get('text',''));click('Развернуть полотно')
+        wait(lambda:('Встроить' if v3 else 'Вернуть в Поиск') in dom().get('text',''));shot('canvas-after-restart');report['passed']=True;save()
         if args.ai:
             before=snapshot();saved_doc=canvas()['document'];message_count=len(before['messages'])
             action('research_canvas_analyze',{'id':identifier,'revision':saved_doc['revision'],'ids':[ids[0]],'intent':'explain'})
@@ -230,8 +264,27 @@ def main():
             check('native_explanation_does_not_run_tools',not any(a.get('status')=='running' for a in explained.get('activity',[])) and not explained.get('investigation',{}).get('id'))
             report['gateway_generation_checks']=1;report['ai_reply_characters']=len(reply.get('text',''));save()
         if args.keep_open:
+            (out/'qa-session.json').write_text(json.dumps({'namespace':namespace,'vault':os.environ['GRANGERPET_QA_VAULT'],'pid':owned}),encoding='utf-8')
             print(json.dumps({'ready_for_native_dialog_review':True,'owned_pid':owned}),flush=True)
             while process.poll() is None and not (out/'qa-close.flag').exists():time.sleep(.5)
+        if args.media_v3:
+            media_node=next(n for n in doc['entities'] if n['attributes'].get('attachment_id')==attachment['id'])
+            position=doc['view']['positions'][media_node['id']]
+            doc=edit('view',{'view':{'viewport':{'x':500-position['x'],'y':300-position['y'],'scale':1}}})
+            wait(lambda:int((metrics().get('canvas') or {}).get('drawnImages','0'))>0)
+            shot('media-card')
+            check('actual_native_media_card_has_visible_image',int((metrics().get('canvas') or {}).get('drawnImages','0'))>0)
+            context={'canvas_id':doc['id'],'entity_id':media_node['id']}
+            action('canvas_media_view',context)
+            detail=wait(lambda:r.get('result') if (r:=state()['desktop'].get('last_response',{})).get('result',{}).get('sha256')==attachment['sha256'] else None)
+            check('native_media_preview_matches_original_digest_and_dimensions',detail['original_available'] and detail['width']==96 and detail['height']==64 and detail['preview'].startswith('data:image/'))
+            action('canvas_media_open',context);time.sleep(1)
+            command('qa_snapshot',{'name':'original-viewer'});time.sleep(.5)
+            original_shots=list(out.glob('original-viewer-original-*.png'))
+            check('actual_native_original_viewer_displayed',bool(original_shots))
+            for path in original_shots:report['screenshots'].append({'name':path.name,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+            check('original_file_unchanged_after_view',hashlib.sha256((out/'fixture.png').read_bytes()).hexdigest()==attachment['sha256'])
+            save()
     except Exception as error:report.update(passed=False,error_type=type(error).__name__,error=str(error)[:250]);save();raise
     finally:
         try:

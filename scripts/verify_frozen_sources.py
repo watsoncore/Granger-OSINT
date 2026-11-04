@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import hashlib
 from pathlib import Path
 from types import CodeType
 
@@ -35,6 +36,7 @@ def main():
         match = normalized(frozen) == normalized(source)
         results.append({'module': module, 'source_matches': match})
     report = {'method': 'Compare actual PyInstaller embedded Python code objects with optimize=1 compiled delivered source; normalize filenames only',
+              'exe_sha256':hashlib.sha256(args.exe.read_bytes()).hexdigest(),
               'passed': bool(results) and all(item['source_matches'] for item in results), 'modules': results}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')

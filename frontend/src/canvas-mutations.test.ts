@@ -1,0 +1,109 @@
+import {describe,it,expect,vi} from 'vitest'
+import {CanvasMutations} from './canvas-mutations'
+import {CanvasEditorDrafts} from './canvas-editor-drafts'
+const tick=()=>new Promise(resolve=>setTimeout(resolve,0))
+const doc='a'.repeat(32),other='b'.repeat(32)
+describe('acknowledged canvas intents',()=>{
+  it('captures unsaved editor text only on shutdown and restores it inert until an explicit owner-aware retry',async()=>{
+    const drafts=new CanvasEditorDrafts(),transport=vi.fn(),provider=vi.fn(drafts.intentions)
+    drafts.set(doc+'|ent_note',{label:'Подпись',note:'Несохранённая русская гипотеза 漢',dirty:true})
+    drafts.set(other+'|',{label:'',note:'Черновик нового объекта',dirty:true})
+    const queue=new CanvasMutations(transport);queue.observe({id:doc,revision:1});queue.registerDraftProvider(provider)
+    expect(queue.exportPending().intents).toEqual([]);expect(provider).not.toHaveBeenCalled();expect(transport).not.toHaveBeenCalled()
+    const snapshot=queue.prepareShutdown();expect(snapshot.intents).toHaveLength(2);expect(provider).toHaveBeenCalledTimes(1);expect(transport).not.toHaveBeenCalled()
+    expect(queue.exportPending().intents).toEqual(snapshot.intents);expect(queue.prepareShutdown().intents).toEqual(snapshot.intents);expect(provider).toHaveBeenCalledTimes(1)
+    const revisions=new Map([[doc,1],[other,4]])
+    const recoveredTransport=vi.fn(async(name:string,payload:Record<string,unknown>)=>{const owner=String(payload.id);if(name==='research_canvas_edit')revisions.set(owner,revisions.get(owner)!+1);return {canvas_id:owner,revision:revisions.get(owner)}})
+    const recovered=new CanvasMutations(recoveredTransport);recovered.restore(snapshot)
+    expect(recoveredTransport).not.toHaveBeenCalled();await recovered.retry();await tick()
+    expect(recoveredTransport.mock.calls[0]).toEqual(['research_canvas_open',expect.objectContaining({id:doc})])
+    expect(recoveredTransport.mock.calls[1][1]).toEqual(expect.objectContaining({mutation_id:snapshot.intents[0].token,arguments:{entity_id:'ent_note',annotation:{label:'Подпись',markdown:'Несохранённая русская гипотеза 漢'}}}))
+    expect(recovered.getSnapshot().pending).toBe(1);expect(recoveredTransport).toHaveBeenCalledTimes(2)
+    expect(recovered.getSnapshot().error).toContain('другому расследованию')
+    await recovered.retry();await tick()
+    expect(recoveredTransport.mock.calls[2]).toEqual(['research_canvas_open',expect.objectContaining({id:other})])
+    expect(recoveredTransport.mock.calls[3][1]).toEqual(expect.objectContaining({mutation_id:snapshot.intents[1].token,arguments:{type:'analyst_note',label:'Восстановленная заметка',markdown:'Черновик нового объекта'}}))
+    expect(recovered.getSnapshot().pending).toBe(0);expect(revisions.get(doc)).toBe(2);expect(revisions.get(other)).toBe(5)
+  })
+  it('deduplicates shutdown text against an accepted save and filters its late acknowledgement without another revision',async()=>{
+    let acknowledge!:(value:unknown)=>void
+    const transport=vi.fn((_action:string,_payload:Record<string,unknown>)=>new Promise(resolve=>{acknowledge=resolve})),drafts=new CanvasEditorDrafts()
+    const args={entity_id:'ent_a',annotation:{label:'Заметка',markdown:'Русский текст'}}
+    drafts.set(doc+'|ent_a',{label:'Заметка',note:'Русский текст',dirty:true})
+    const queue=new CanvasMutations(transport);queue.observe({id:doc,revision:1});queue.registerDraftProvider(drafts.intentions)
+    const saving=queue.edit('annotate',args),pendingToken=transport.mock.calls[0]?.[1] as Record<string,unknown>|undefined
+    const captured=queue.prepareShutdown()
+    expect(captured.intents).toHaveLength(1);expect(captured.intents[0].token).toBe(pendingToken?.mutation_id)
+    acknowledge({canvas_id:doc,revision:2});await saving
+    expect(queue.exportPending().intents).toEqual([]);expect(queue.prepareShutdown().intents).toEqual([])
+    expect(transport).toHaveBeenCalledTimes(1);expect(drafts.get(doc+'|ent_a')?.dirty).toBe(true)
+  })
+  it('exports unfinished intents without callbacks and restores them inert until explicit retry',async()=>{
+    const transport=vi.fn().mockRejectedValue(new Error('network'))
+    const queue=new CanvasMutations(transport);queue.observe({id:doc,revision:1})
+    void queue.edit('annotate',{entity_id:'x',annotation:{markdown:'Русская заметка'}});await tick()
+    const draft=queue.prepareShutdown()
+    expect(draft.intents[0]).not.toHaveProperty('waiters')
+    expect(await queue.edit('node',{label:'Не принимать при выходе'})).toBeNull()
+    const restoredTransport=vi.fn().mockResolvedValueOnce({canvas_id:doc,revision:3}).mockResolvedValueOnce({canvas_id:doc,revision:4})
+    const restored=new CanvasMutations(restoredTransport)
+    expect(restored.restore(draft)).toBe(true);expect(restoredTransport).not.toHaveBeenCalled()
+    await restored.retry();await tick()
+    expect(restoredTransport.mock.calls[0][0]).toBe('research_canvas_open')
+    expect(restoredTransport.mock.calls[1][1].arguments.annotation.markdown).toBe('Русская заметка')
+    expect(restored.getSnapshot().pending).toBe(0)
+  })
+  it('waits for durable ACK, uses its revision before a coalesced state snapshot',async()=>{
+    let resolve!:(value:unknown)=>void
+    const transport=vi.fn().mockImplementationOnce(()=>new Promise(r=>{resolve=r})).mockResolvedValue({canvas_id:doc,revision:9})
+    const queue=new CanvasMutations(transport);queue.observe({id:doc,revision:7})
+    const first=queue.edit('node',{label:'Первый'}),second=queue.edit('node',{label:'Второй'})
+    expect(transport).toHaveBeenCalledTimes(1);expect(queue.getSnapshot().pending).toBe(2)
+    resolve({canvas_id:doc,revision:8});await Promise.all([first,second])
+    expect(transport.mock.calls[1][1].revision).toBe(8)
+    queue.observe({id:doc,revision:7});await queue.edit('annotate',{entity_id:'x',annotation:{markdown:'Русский текст'}})
+    expect(transport.mock.calls[2][1].revision).toBe(9)
+    expect(queue.getSnapshot().pending).toBe(0)
+  })
+  it('keeps failed deltas and retries an uncertain timeout with the same idempotency token',async()=>{
+    const transport=vi.fn().mockRejectedValueOnce(new Error('timeout')).mockResolvedValue({canvas_id:doc,revision:2})
+    const queue=new CanvasMutations(transport);queue.observe({id:doc,revision:1})
+    const intent=queue.edit('node',{label:'Сохранить'});await tick()
+    expect(queue.getSnapshot()).toEqual({pending:1,error:'timeout'})
+    await queue.retry();await intent
+    expect(transport.mock.calls[0][1].mutation_id).toBe(transport.mock.calls[1][1].mutation_id)
+  })
+  it('never automatically rebases a real external CAS conflict; explicit retry reloads before applying',async()=>{
+    const transport=vi.fn().mockRejectedValueOnce(Object.assign(new Error('conflict'),{code:'analyst_canvas_revision_conflict'}))
+      .mockResolvedValueOnce({canvas_id:doc,revision:4}).mockResolvedValueOnce({canvas_id:doc,revision:5})
+    const queue=new CanvasMutations(transport);queue.observe({id:doc,revision:1})
+    const intent=queue.edit('annotate',{entity_id:'x',annotation:{markdown:'Моя заметка'}});await tick()
+    expect(transport).toHaveBeenCalledTimes(1)
+    await queue.retry();await intent
+    expect(transport.mock.calls[1][0]).toBe('research_canvas_open')
+    expect(transport.mock.calls[2][1].revision).toBe(4)
+    expect(transport.mock.calls[2][1].mutation_id).not.toBe(transport.mock.calls[0][1].mutation_id)
+  })
+  it('retains an old-project edit when the current project changes, without mutating the new project',async()=>{
+    let resolve!:(value:unknown)=>void
+    const transport=vi.fn().mockImplementationOnce(()=>new Promise(r=>{resolve=r}))
+    const queue=new CanvasMutations(transport);queue.observe({id:doc,revision:1})
+    const open=queue.send('open',{id:other}),intent=queue.edit('node',{label:'Old project'})
+    resolve({canvas_id:other,revision:2});await open;await tick()
+    expect(transport).toHaveBeenCalledTimes(1);expect(queue.getSnapshot().error).toContain('другому расследованию')
+    queue.discard();expect(await intent).toBeNull()
+    queue.observe({id:doc,revision:1}) // stale delivery behind successful open
+    expect(queue.getSnapshot().pending).toBe(0)
+  })
+  it('coalesces only unsent position/view patches and keeps all node deltas and inspector fields',async()=>{
+    let resolve!:(value:unknown)=>void
+    const transport=vi.fn().mockImplementationOnce(()=>new Promise(r=>{resolve=r})).mockResolvedValue({canvas_id:doc,revision:3})
+    const queue=new CanvasMutations(transport);queue.observe({id:doc,revision:1})
+    const a=queue.edit('annotate',{entity_id:'a',annotation:{label:'A'}})
+    const b=queue.edit('view',{view:{ui:{inspector_tab:'actions'},card_sizes:{a:{width:300,height:200}}}})
+    const c=queue.edit('view',{view:{ui:{inspector_width:330},card_sizes:{b:{width:410,height:280}}}})
+    expect(queue.getSnapshot().pending).toBe(2)
+    resolve({canvas_id:doc,revision:2});await Promise.all([a,b,c])
+    expect(transport.mock.calls[1][1].arguments.view).toEqual({ui:{inspector_tab:'actions',inspector_width:330},card_sizes:{a:{width:300,height:200},b:{width:410,height:280}}})
+  })
+})

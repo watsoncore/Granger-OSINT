@@ -7,7 +7,8 @@ import re
 from pathlib import Path
 
 from PySide6.QtWidgets import QFileDialog, QMessageBox
-from .research_canvas import CanvasStore, new_document, apply, merge_evidence, validate, TYPES, MAX_BYTES, CanvasError
+from .research_canvas import CanvasStore, new_document, apply, merge_evidence, validate, TYPES, MAX_BYTES, CanvasError, CanvasConflict
+from .async_reply import DeferredReply
 from .ui_jobs import UiJob
 
 
@@ -17,6 +18,9 @@ class ResearchCanvasBridge:
         self.store=CanvasStore(bridge.host.chat_widget._journal)
         self.document=None;self.preview=None;self.previews={};self.job=None;self.media_job=None;self.undo=[];self.redo=[]
         self.state={'state':'idle','choices':[],'types':list(TYPES)}
+        self._commit_replies={}
+        self._active_receipt=None
+        self._recovery_reply=None
 
     def publish(self,value):
         self.state=value;self.bridge.mark_dirty()
@@ -35,26 +39,46 @@ class ResearchCanvasBridge:
             state['preview']={k:v for k,v in self.preview.items() if k!='records'}
         return state
 
-    def work(self,task):
+    def work(self,task,*,receipt=None):
         if self.job:raise CanvasError('Дождитесь сохранения полотна.')
         self.publish({**self.state,'busy':True,'error':''})
-        job=UiJob(task,self.bridge);self.job=job
+        deferred=DeferredReply() if receipt else None
+        def execute():
+            self._active_receipt=receipt
+            try:return task()
+            except CanvasConflict as error:return {'_canvas_conflict':{'error':str(error),'code':error.code,'revision':error.revision}}
+            finally:self._active_receipt=None
+        job=UiJob(execute,self.bridge);self.job=job
         def done(value,error):
             self.job=None
+            failure=value.get('_canvas_conflict') if isinstance(value,dict) else None
+            if error:failure={'error':error,'code':'canvas_save_failed'}
             if not self.bridge._closed:
-                if error:self.publish({**self.state,'busy':False,'error':error})
+                if failure:self.publish({**self.state,'busy':False,'error':failure['error'],'conflict':failure if failure.get('code')==CanvasConflict.code else None})
                 else:self.publish(value)
+            if deferred:
+                document=self.document or {}
+                deferred.resolve({'mutation_id':receipt['mutation_id'],'canvas_id':document.get('id'),'revision':document.get('revision',0)},failure)
             job.deleteLater()
         job.done.connect(done);job.start()
-        return {'pending':True}
+        return deferred if deferred else {'pending':True}
 
     def _commit(self,value,*,history=True):
         old=self.document
+        value=self._with_receipt(value,previous=old if old and old['id']==value['id'] else None)
         saved=self.store.save(value,old['revision'] if old and old['id']==value['id'] else 0)
         if history and old and old['id']==saved['id']:
             self.undo=(self.undo+[old['revision']])[-40:];self.redo=[]
         self.document=saved
         return self.render()
+
+    def _with_receipt(self,value,*,previous=None):
+        value=deepcopy(value)
+        receipts=list((previous or {}).get('mutation_receipts',[]))+list(value.get('mutation_receipts',[]))
+        active=self._active_receipt
+        if active:receipts.append(active['mutation_id'])
+        value['mutation_receipts']=list(dict.fromkeys(receipts))[-128:]
+        return value
 
     def accept_tool(self,outcome,canvas_id,node_id,*,notify=True):
         if not isinstance(outcome,dict):return
@@ -74,12 +98,48 @@ class ResearchCanvasBridge:
 
     def action(self,action,payload):
         op=action.removeprefix('research_canvas_');bridge=self.bridge
+        if op in ('queue_recovery','queue_read','queue_clear'):
+            from .canvas_pending import PendingCanvasStore
+            pending=PendingCanvasStore(self.store)
+            if op=='queue_clear':
+                if set(payload)!={'draft_id'}:raise CanvasError('Передайте идентификатор сохранённой очереди.')
+                pending.clear(payload['draft_id']);return {'cleared':True}
+            if payload:raise CanvasError('Восстановление очереди не принимает пути или команды.')
+            if self._recovery_reply:return self._recovery_reply
+            deferred=DeferredReply();self._recovery_reply=deferred
+            job=UiJob(pending.recovery,bridge)
+            def recovered(value,error):
+                self._recovery_reply=None
+                deferred.resolve(value,{'code':'canvas_queue_recovery_failed','error':'Сохранённая очередь не прочитана. Исходные файлы оставлены без изменений.'} if error else None)
+                job.deleteLater()
+            job.done.connect(recovered);job.start()
+            return deferred
+        receipt=None
+        if payload.get('await_commit') is True:
+            mutation_id=payload.get('mutation_id')
+            if not isinstance(mutation_id,str) or not re.fullmatch(r'[a-f0-9]{32}',mutation_id):raise CanvasError('Некорректный идентификатор сохранения.')
+            import hashlib
+            signature=hashlib.sha256(json.dumps({'op':op,**{k:v for k,v in payload.items() if k not in ('revision','await_commit','mutation_id')}},sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+            previous=self._commit_replies.get(mutation_id)
+            if previous:
+                if previous[0]!=signature:raise CanvasError('Идентификатор сохранения уже относится к другому действию.')
+                return previous[1]
+            receipt={'mutation_id':mutation_id,'signature':signature,'intent':{
+                'op':op,'payload':{k:v for k,v in payload.items() if k not in ('id','revision','await_commit','mutation_id')},
+                'token':mutation_id,**({'target':payload['id']} if payload.get('id') else {})}}
+            if op=='open' and payload.get('id'):receipt['intent']['payload']['id']=payload['id']
+        def work(task):
+            result=self.work(task,receipt=receipt)
+            if receipt:
+                self._commit_replies[receipt['mutation_id']]=(receipt['signature'],result)
+                while len(self._commit_replies)>128:self._commit_replies.pop(next(iter(self._commit_replies)))
+            return result
         if op=='metrics':
             if not (os.environ.get('GRANGERPET_INTERACTION_TRACE') and re.fullmatch(r'[a-f0-9]{32}',os.environ.get('GRANGERPET_QA_NAMESPACE','')) and re.fullmatch(r'GrangerPet/QA/[a-zA-Z0-9_-]{8,80}',os.environ.get('GRANGERPET_QA_VAULT',''))):
                 raise CanvasError('Измерения доступны только в изолированном QA.')
             surface=bridge.host.desktop_surface
             generation=getattr(self,'_metric_generation',0)+1;self._metric_generation=generation
-            script="""JSON.stringify((()=>{let editor=document.querySelector('.research-editor'),canvas=editor?.querySelector('canvas'),r=canvas?.getBoundingClientRect();return {editor:!!editor,canvas_id:editor?.dataset.canvasId,revision:editor?.dataset.revision,canvas:canvas?{...canvas.dataset,x:r.x,y:r.y,width:r.width,height:r.height}:null}})())"""
+            script="""JSON.stringify((()=>{let editor=document.querySelector('.research-editor'),canvas=editor?.querySelector('canvas'),r=canvas?.getBoundingClientRect();return {editor:!!editor,canvas_id:editor?.dataset.canvasId,revision:editor?.dataset.revision,queue_pending:window.grangerCanvasQueue?.snapshot?.()?.intents?.length||0,canvas:canvas?{...canvas.dataset,x:r.x,y:r.y,width:r.width,height:r.height}:null}})())"""
             def result(value):
                 if bridge._closed:return
                 try:data=json.loads(value)
@@ -90,15 +150,29 @@ class ResearchCanvasBridge:
         if op=='media':
             if not self.document or payload.get('id')!=self.document['id']:return None
             return self._media(payload.get('entity_id'))
+        if op=='capability':
+            if not self.document or payload.get('id')!=self.document['id']:raise CanvasError('Откройте нужное расследование.')
+            identifier=payload.get('entity_id')
+            identifier=self.document['view'].get('instances',{}).get(identifier,{}).get('entity_id',identifier)
+            node=next((n for n in self.document['entities'] if n['id']==identifier),None)
+            if not node:raise CanvasError('Выбранный объект отсутствует.')
+            from .canvas_capabilities import capabilities
+            return capabilities(node,payload.get('chain','auto'))
         if self.job:raise CanvasError('Дождитесь окончания сохранения полотна.')
         if op in ('tool','analyze','attach','export') and (not self.document or payload.get('id')!=self.document['id'] or payload.get('revision')!=self.document['revision']):
-            raise CanvasError('Полотно или его версия изменились. Повторите действие в нужном расследовании.')
+            raise CanvasConflict('Полотно или его версия изменились. Загрузите актуальную версию перед повторением.',revision=(self.document or {}).get('revision'))
         if op=='tool':
             if not self.document:raise CanvasError('Откройте расследование.')
             selected_id=payload.get('entity_id')
             selected_id=self.document['view'].get('instances',{}).get(selected_id,{}).get('entity_id',selected_id)
             node=next((n for n in self.document['entities'] if n['id']==selected_id),None)
             if not node:raise CanvasError('Выберите узел текущего расследования.')
+            if payload.get('tool')=='blockchain_gansar':
+                from .crypto_targets import node_gansar_capability,validate_gansar_arguments
+                arguments=validate_gansar_arguments(payload.get('arguments') or {})
+                capability=node_gansar_capability(node,arguments['chain'])
+                if not capability['compatible'] or capability['canonical_address']!=arguments['address']:
+                    raise CanvasError(capability.get('reason') or 'Аргументы Gansar не соответствуют выбранному объекту.')
             bridge._run_tool(payload,canvas_target=(self.document['id'],node['id']))
             return {'pending':True}
         if op=='analyze':
@@ -139,31 +213,31 @@ class ResearchCanvasBridge:
                 filename,_=QFileDialog.getSaveFileName(bridge.host,'Экспорт расследования','investigation.granger.json','Granger JSON (*.granger.json)')
                 if not filename:return None
                 data=deepcopy(self.document)
-                return self.work(lambda:self._export(filename,data))
+                return work(lambda:self._export(filename,data))
             if op=='import':
                 filename,_=QFileDialog.getOpenFileName(bridge.host,'Импорт расследования','','Granger JSON (*.json)')
                 if not filename:return None
-                return self.work(lambda:self._import(filename))
+                return work(lambda:self._import(filename))
             attachment=payload.get('attachment_id')
             if attachment:
                 image=bridge._images().get(attachment)
-                return self.work(lambda:self._image(image))
+                return work(lambda:self._image(image))
             filename,_=QFileDialog.getOpenFileName(bridge.host,'Изображение на полотно','','Изображения (*.png *.jpg *.jpeg *.webp)')
             if not filename:return None
             def image_task():
                 path=Path(filename)
                 if path.stat().st_size>20_000_000:raise CanvasError('Изображение превышает 20 MB.')
                 return self._image(bridge._images().import_bytes(path.read_bytes(),path.name))
-            return self.work(image_task)
+            return work(image_task)
         expected=payload.get('revision')
         if op not in ('list','open','new'):
             if not self.document or payload.get('id')!=self.document['id'] or expected!=self.document['revision']:
-                raise CanvasError('Версия полотна изменилась. Повторите действие с текущим расследованием.')
+                raise CanvasConflict('Версия полотна изменилась. Действие сохранено в очереди; загрузите актуальную версию перед повторением.',revision=(self.document or {}).get('revision'))
         def task():
             if op=='list':return self.render()
             if op=='new':
                 self.undo=[];self.redo=[];self.preview=None
-                self.document=self.store.save(new_document(payload.get('title','Новое расследование'),payload.get('description','')),0)
+                self.document=self.store.save(self._with_receipt(new_document(payload.get('title','Новое расследование'),payload.get('description',''))),0)
                 return self.render()
             if op=='open':
                 self.document=self.store.load(payload.get('id'));self.undo=[];self.redo=[];self.preview=self.previews.get(self.document['id'])
@@ -204,7 +278,7 @@ class ResearchCanvasBridge:
                     'source_diagnostics':{'providers_attempted':0,'http_requests':0},'limitations':['Сохранённые наблюдения; свежие запросы не выполнялись.']},self.document['id'],'',notify=False)
                 return self.render()
             raise CanvasError('Неизвестное действие расследования.')
-        return self.work(task)
+        return work(task)
 
     def _export(self,filename,value):
         from .portable_vault import atomic_write
@@ -233,6 +307,7 @@ class ResearchCanvasBridge:
         identifier=add_node(value,{'type':'image','label':image['name']})
         node=next(n for n in value['entities'] if n['id']==identifier)
         node['attributes'].update(attachment_id=image['id'],original_image=True,media={
+            **{key:image.get(key) for key in ('width','height','bytes','mime','sha256')},
             'id':image['id'],'kind':'local_attachment','state':'ready','thumbnail':self.bridge._images().small_preview(image['id'])})
         return self._commit(value)
 

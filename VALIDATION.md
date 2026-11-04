@@ -1,6 +1,28 @@
 # Granger-OSINT — проверка текущей сборки
 
-## Полотно расследований — 4 ноября 2026
+<!-- master-fix-v3-start -->
+## Master Fix V3 — 4 ноября 2026
+
+Новая поставка: `dist/master-fix-v3-complete/Granger-OSINT.exe` (279378959 bytes).
+SHA-256: `4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7`.
+Старый canonical EXE и его архив сохранены. Перед запуском новой версии закройте
+старую через обычный выход: single-instance IPC иначе откроет работающий старый процесс.
+
+Исправлены network-scoped Gansar targets, общая агрегация криптографа, Maigret
+0.6.6 с базой 8232 entries и Full/Custom без прежнего registry slice, durable
+очередь изменений и восстановление несохранённых заметок. Карточки, media viewer,
+раскладки, плотность Поиска и контекстный inspector обновлены в существующем UI.
+2D-персонаж, artwork, анимации и runtime питомца сохранены побайтно.
+
+Backend: 1953 passed, 2 skipped, 32 subtests passed in 359.92s (0:05:59). Frontend: 175 tests PASS, TypeScript/build PASS.
+163 frozen modules / 239 resources совпали. Точная область native/frozen/live QA,
+пять stress sizes, сохранность и SHA — в [отчёте A–L](docs/MASTER_FIX_V3.md)
+и [публичных агрегатах](docs/validation/master-fix-v3/validation-summary.json).
+60 FPS на 5000 узлов не подтверждены; Full Maigret live и восемь Gansar сетей
+не объявлены проверенными в сети. Ряд других адаптеров остаётся sampled.
+<!-- master-fix-v3-end -->
+
+## Полотно расследований V1 — предыдущая поставка 4 ноября 2026
 
 Текущий EXE: 279283981 байт, SHA-256
 `bfe62a9a5e37ddbf9b51c87b869d607899e3f89db22cde418e8f5156c5a84ff2`.

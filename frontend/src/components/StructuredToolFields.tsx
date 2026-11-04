@@ -2,6 +2,7 @@ import type { InputSchema } from '../types'
 import './structured-tools.css'
 
 export const parameterLabels: Record<string, string> = {
+  username:'Никнейм',mode:'Режим',site_count:'Число сайтов (0 — все подходящие)',sites:'Сайты по имени',tags:'Включить теги',exclude_tags:'Исключить теги',per_site_timeout:'Тайм-аут сайта, с',concurrency:'Параллельные проверки',parse_metadata:'Извлекать метаданные',include_mirrors:'Включать зеркала',time_budget:'Лимит времени, с',
   target: 'Профиль или публичная ссылка', names: 'Названия операций',
   value: 'URL или идентификатор', datetime_utc: 'Дата и время с часовым поясом', object_height: 'Высота объекта', shadow_length: 'Длина тени',
   sun_altitude_deg: 'Высота Солнца над горизонтом, °', tolerance_fraction: 'Относительная погрешность', grid_step_deg: 'Шаг координатной сетки, °',

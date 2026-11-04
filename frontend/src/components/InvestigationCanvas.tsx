@@ -1,7 +1,8 @@
-import { forwardRef,useEffect,useImperativeHandle,useRef,useState } from 'react'
+import { forwardRef,useEffect,useImperativeHandle,useMemo,useRef,useState } from 'react'
 import type { GraphEntity,GraphPoint,GraphRelation,GraphViewport } from '../types'
-import { entityLabel,entityType,readableViewport,hitNode,hitRelation,nodeBox,relationLabels,shortLabel,zoomAt } from '../graph-model'
+import { entityLabel,readableViewport,hitNode,hitRelation,nodeBox,relationLabels,shortLabel,zoomAt } from '../graph-model'
 import { routeEdges } from '../graph-geometry'
+import {cardBadge,cardRows,cardTitle,cardVariant,cardVariants,withCardPresentation,type CardMode,type CardSize} from '../graph-cards'
 
 export interface GraphCanvasHandle { fit():void; zoom(factor:number):void; center(id:string):void }
 interface Props {
@@ -13,9 +14,12 @@ interface Props {
   selection?:string[];onSelection?(ids:string[]):void
   onCreate?(position:GraphPoint):void;onConnect?(from:string,to:string):void
   onContext?(id:string,position:GraphPoint):void
+  cardSizes?:Record<string,CardSize>;cardMode?:CardMode
+  onCardResize?(id:string,size:CardSize):void;onOpenMedia?(node:GraphEntity):void;onExpand?(id:string):void
 }
 export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function InvestigationCanvas(props,forwarded) {
-  const canvas=useRef<HTMLCanvasElement>(null),latest=useRef(props);latest.current=props
+  const presented=useMemo(()=>withCardPresentation(props.nodes,props.cardSizes,props.cardMode),[props.nodes,props.cardSizes,props.cardMode])
+  const canvas=useRef<HTMLCanvasElement>(null),latest=useRef(props);latest.current={...props,nodes:presented}
   const points=useRef(props.positions),viewport=useRef(props.viewport)
   const [size,setSize]=useState({width:800,height:440})
   const sizeRef=useRef(size);sizeRef.current=size
@@ -25,6 +29,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
   const linking=useRef<string|undefined>(undefined),marquee=useRef<{x:number;y:number;endX:number;endY:number}|undefined>(undefined)
   const mini=useRef<{x:number;y:number;w:number;h:number;minX:number;minY:number;scale:number}|undefined>(undefined)
   const moving=useRef<Record<string,GraphPoint>>({})
+  const hovered=useRef(''),resizing=useRef<{id:string;x:number;y:number;size:CardSize}|undefined>(undefined),resizeSizes=useRef<Record<string,CardSize>>({})
   const paints=useRef<number[]>([]),intervals=useRef<number[]>([]),latencies=useRef<number[]>([]),lastPaint=useRef(0),lastInput=useRef(0)
   function draw() {
     frame.current=undefined
@@ -36,10 +41,11 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     const text=color('--text'),muted=color('--muted'),accent=color('--accent'),border=color('--border'),panel=color('--panel'),raised=color('--panel-raised'),warning=color('--warning'),danger=color('--danger')
     const screen=(id:string)=>{const point=positions[id];return point?{x:point.x*v.scale+v.x,y:point.y*v.scale+v.y}:null}
     const onScreen=(point:{x:number;y:number},margin=160)=>point.x>=-margin&&point.x<=width+margin&&point.y>=-margin&&point.y<=height+margin
-    const clipped=(value:string,space:number)=>{let output=value;if(space<12)return '';if(ctx.measureText(output).width<=space)return output;const tail=value.length>10?value.slice(-7):'';let head=value.slice(0,-tail.length||undefined);while(head.length>1&&ctx.measureText(head+'…'+tail).width>space)head=head.slice(0,-1);output=head+'…'+tail;if(ctx.measureText(output).width>space)return '…';return output}
-    const cards=p.nodes.flatMap(node=>{const point=screen(node.id);return point&&onScreen(point)?[{node,point,box:nodeBox(node,v.scale)}]:[]})
+    const fitText=(value:string,space:number)=>{let low=0,high=value.length;while(low<high){const mid=Math.ceil((low+high)/2);if(ctx.measureText(value.slice(0,mid)).width<=space)low=mid;else high=mid-1}return low}
+    const clipped=(value:string,space:number)=>{if(space<12)return '';if(ctx.measureText(value).width<=space)return value;const tail=value.length>10?value.slice(-7):'',suffix='…'+tail,available=space-ctx.measureText(suffix).width;return available<=0?'…':value.slice(0,fitText(value.slice(0,value.length-tail.length),available))+suffix}
+    const cards=p.nodes.flatMap(original=>{const node=resizeSizes.current[original.id]?{...original,attributes:{...original.attributes,_card_size:resizeSizes.current[original.id]}}:original,point=screen(node.id),box=nodeBox(node,v.scale);return point&&onScreen(point,Math.max(box.width,box.height)/2+24)?[{node,point,box}]:[]})
     const visibleMedia=new Set(cards.map(c=>String((c.node.attributes.media as Record<string,unknown>|undefined)?.id||'')))
-    for(const key of thumbnails.current.keys())if(!visibleMedia.has(key))thumbnails.current.delete(key)
+    if(thumbnails.current.size>80)for(const key of thumbnails.current.keys()){if(thumbnails.current.size<=64)break;if(!visibleMedia.has(key))thumbnails.current.delete(key)}
     if(p.mode!=='tree'&&v.scale>.45){
       const clusters=new Map<string,typeof cards>()
       for(const card of cards){if(card.node.id===p.root||!card.node.attributes.parent_group_id)continue;const key=String(card.node.attributes.parent_group_id),rows=clusters.get(key)||[];rows.push(card);clusters.set(key,rows)}
@@ -50,7 +56,8 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
         ctx.font='11px Manrope, sans-serif';ctx.fillStyle=muted;ctx.fillText(`${entityLabel(rows[0].node)} · ${rows.length}`,minX+12,minY+18)
       }
     }
-    const routes=routeEdges(p.edges,positions,v,p.nodes,p.mode,{left:-20,top:-20,right:width+20,bottom:height+20})
+    const routeNodes=resizing.current?p.nodes.map(node=>resizeSizes.current[node.id]?{...node,attributes:{...node.attributes,_card_size:resizeSizes.current[node.id]}}:node):p.nodes
+    const routes=routeEdges(p.edges,positions,v,routeNodes,p.mode,{left:-20,top:-20,right:width+20,bottom:height+20})
     const occupied=cards.map(({point,box})=>({x:point.x-box.width/2-4,y:point.y-box.height/2-4,w:box.width+8,h:box.height+8}))
     for(const {edge,points}of routes){
       const selected=edge.id===p.selectedEdge,related=edge.from_id===p.selected||edge.to_id===p.selected
@@ -58,8 +65,9 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       ctx.lineWidth=selected?2.4:edge.aggregate?1.6:1;ctx.globalAlpha=p.selected&&!related&&!selected ? .25 : selected ? 1 : .65
       ctx.setLineDash(['inferred','unverified'].includes(edge.verification_status)?[5,5]:[])
       ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);points.slice(1).forEach(point=>ctx.lineTo(point.x,point.y));ctx.stroke();ctx.setLineDash([])
-      const end=points.at(-1)!,prior=points.at(-2)!,angle=Math.atan2(end.y-prior.y,end.x-prior.x)
-      ctx.fillStyle=selected?accent:muted;ctx.beginPath();ctx.moveTo(end.x,end.y);ctx.lineTo(end.x-Math.cos(angle-.45)*8,end.y-Math.sin(angle-.45)*8);ctx.lineTo(end.x-Math.cos(angle+.45)*8,end.y-Math.sin(angle+.45)*8);ctx.closePath();ctx.fill();ctx.globalAlpha=1
+      if(edge.direction!=='undirected'){const end=points.at(-1)!,prior=points.at(-2)!,angle=Math.atan2(end.y-prior.y,end.x-prior.x)
+        ctx.fillStyle=selected?accent:muted;ctx.beginPath();ctx.moveTo(end.x,end.y);ctx.lineTo(end.x-Math.cos(angle-.45)*8,end.y-Math.sin(angle-.45)*8);ctx.lineTo(end.x-Math.cos(angle+.45)*8,end.y-Math.sin(angle+.45)*8);ctx.closePath();ctx.fill()}
+      ctx.globalAlpha=1
       if(selected||v.scale>.45&&p.nodes.length<=45&&(edge.aggregate||related)){
         const asset=edge.aggregate?.asset_label||edge.aggregate?.asset||'',label=edge.aggregate?`${edge.aggregate.count} · ${edge.aggregate.amount??'?'} ${asset.length>12?'актив':asset}`:relationLabels[edge.relation_type]||edge.relation_type
         ctx.font='11px Manrope, sans-serif';const caption=clipped(label,190),w=ctx.measureText(caption).width+12
@@ -69,49 +77,57 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
         }
       }
     }
-    const qaNodes:{id:string;x:number;y:number;label:string}[]=[]
+    const qaNodes:{id:string;x:number;y:number;width:number;height:number;label:string}[]=[]
+    const selectedIds=new Set([p.selected,p.second,...(p.selection||[])])
     let drawnLabels=0,drawnImages=0
     for(const {node,point,box}of cards){
-      const selected=node.id===p.selected||node.id===p.second||p.selection?.includes(node.id),root=node.id===p.root,type=entityType(node),x=point.x-box.width/2,y=point.y-box.height/2
+      const selected=selectedIds.has(node.id),root=node.id===p.root,x=point.x-box.width/2,y=point.y-box.height/2
       ctx.fillStyle=selected?raised:panel;ctx.strokeStyle=selected||root?accent:node.verification_status==='inferred'?warning:border;ctx.lineWidth=selected||root?1.8:1
-      const corner=node.type==='public_profile'?18:node.type==='image'?3:node.type==='entity_group'?11:6
+      const variant=cardVariant(node),corner=variant==='social'?16:variant==='note'?3:variant==='group'?12:8
+      if(variant==='hypothesis')ctx.setLineDash([4,3])
       ctx.beginPath();ctx.roundRect(x,y,box.width,box.height,Math.min(corner,box.height/4));ctx.fill();ctx.stroke()
+      ctx.setLineDash([])
+      if(box.width<58||box.height<28){ctx.fillStyle=selected?accent:muted;ctx.fillRect(x+2,y+2,Math.max(1,Math.min(3,box.width-4)),Math.max(1,box.height-4));continue}
+      if(v.scale>.55){
+        if(['wallet','transaction','contract','social','organization'].includes(variant)){ctx.save();ctx.beginPath();ctx.roundRect(x+1,y+1,box.width-2,box.height-2,Math.min(corner,box.height/4));ctx.clip();ctx.fillStyle=raised;ctx.fillRect(x+1,y+1,box.width-2,Math.min(27*v.scale,box.height/3));ctx.restore()}
+        if(variant==='note'){ctx.strokeStyle=border;ctx.lineWidth=.7;for(let line=y+box.height*.6;line<y+box.height-10;line+=15*v.scale){ctx.beginPath();ctx.moveTo(x+10,line);ctx.lineTo(x+box.width-12,line);ctx.stroke()}}
+        if(variant==='document'){ctx.strokeStyle=muted;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+box.width-23,y+1);ctx.lineTo(x+box.width-23,y+18);ctx.lineTo(x+box.width-2,y+18);ctx.stroke()}
+        if(variant==='group'){ctx.strokeStyle=border;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(x+6,y+box.height+3,box.width-12,4,2);ctx.stroke()}
+      }
       ctx.fillStyle=node.verification_status==='contradicted'?danger:node.verification_status==='inferred'?warning:node.verification_status==='verified'?accent:muted
       ctx.beginPath();ctx.arc(x+box.width-11,y+11,3,0,Math.PI*2);ctx.fill()
       if(typeof node.attributes.analyst_color==='string'&&/^#[0-9a-f]{6}$/i.test(node.attributes.analyst_color)){ctx.fillStyle=node.attributes.analyst_color;ctx.fillRect(x+1,y+8,3,box.height-16)}
       {
-        const font=Math.max(10,Math.min(14,12*Math.sqrt(v.scale))),padding=Math.max(6,12*v.scale),media=node.attributes.media as Record<string,unknown>|undefined
+        const font=Math.max(9,Math.min(16,13*v.scale)),padding=Math.max(6,12*v.scale),media=node.attributes.media as Record<string,unknown>|undefined,compact=p.cardMode==='compact'||p.cardMode==='auto'&&v.scale<.7||v.scale<.45
         let left=x+padding,space=box.width-padding*2
-        if(media){const key=String(media.id),preview=media.thumbnail
+        if(media&&box.width>105){const key=String(media.id),preview=media.thumbnail
           if(typeof preview==='string'&&/^data:image\/(?:jpeg|png|webp);base64,/.test(preview)&&!thumbnails.current.has(key)&&thumbnails.current.size<64){
             const picture=new Image();thumbnails.current.set(key,picture);picture.onload=requestDraw;picture.src=preview
           }
           const picture=thumbnails.current.get(key)
           if(picture?.complete&&picture.naturalWidth&&box.width>105){
-            const side=Math.min(48,box.height-padding*2),ratio=Math.max(side/picture.naturalWidth,side/picture.naturalHeight)
-            ctx.save();ctx.beginPath();ctx.roundRect(left,y+(box.height-side)/2,side,side,5);ctx.clip()
-            ctx.drawImage(picture,left+(side-picture.naturalWidth*ratio)/2,y+(box.height-picture.naturalHeight*ratio)/2,picture.naturalWidth*ratio,picture.naturalHeight*ratio);ctx.restore();left+=side+8;space-=side+8;drawnImages++
+            const mediaCard=variant==='media',w=mediaCard?space:Math.min(42*v.scale,box.height-padding*2),h=mediaCard?Math.max(24,box.height-padding*2-font*3.5):w,top=mediaCard?y+padding:y+(box.height-h)/2,ratio=Math.min(w/picture.naturalWidth,h/picture.naturalHeight)
+            ctx.save();ctx.beginPath();ctx.roundRect(left,top,w,h,4);ctx.clip();ctx.fillStyle=raised;ctx.fillRect(left,top,w,h)
+            ctx.drawImage(picture,left+(w-picture.naturalWidth*ratio)/2,top+(h-picture.naturalHeight*ratio)/2,picture.naturalWidth*ratio,picture.naturalHeight*ratio);ctx.restore();if(!mediaCard){left+=w+8;space-=w+8}drawnImages++
           }
         }
-        const badge=node.type==='blockchain_address'?String(node.attributes.chain||'сеть').toUpperCase()+(root?'':` · ${node.attributes.transaction_count??'—'} событий`):type==='github_profile'||type==='github_repository'?'GitHub':type==='telegram_channel'?'Telegram':node.type==='entity_group'?`Группа · ${node.attributes.member_count}`:node.attributes.reference_photo?'Эталон':entityLabel(node)
-        if(box.height>=48){ctx.font=`${Math.max(8,font-2)}px Manrope, sans-serif`;ctx.fillStyle=muted;ctx.fillText(clipped((({blockchain_address:'◈ ',person:'◎ ',public_profile:'● ',domain:'⊕ ',infrastructure_asset:'⌘ ',transaction:'⇄ ',image:'▧ ',source:'▤ ',analyst_note:'✎ ',hypothesis:'? ',entity_group:'⊞ '} as Record<string,string>)[node.type]||'◇ ')+badge,space),left,y+Math.max(14,box.height*.25))}
+        const mediaCard=variant==='media',badge=cardBadge(node),headingY=mediaCard?y+box.height-padding-font*2.1:y+padding+font*.75
+        if(!mediaCard&&!compact){ctx.fillStyle=variant==='hypothesis'?warning:muted;ctx.font=`600 ${Math.max(8,font-2)}px Manrope, sans-serif`;ctx.fillText(clipped(`${cardVariants[variant].symbol}  ${badge}`,space-8),left,headingY)}
         ctx.font=`600 ${font}px Manrope, sans-serif`;ctx.fillStyle=text
-        const title=shortLabel(node);let split=title.length
-        while(split>1&&ctx.measureText(title.slice(0,split)).width>space)split--
-        const twoLines=split<title.length&&box.height>=70
-        ctx.fillText(twoLines?title.slice(0,split):clipped(title,space),left,y+box.height*.48+(box.height<48?4:0))
-        if(twoLines)ctx.fillText(clipped(title.slice(split),space),left,y+box.height*.48+font+2)
+        const title=cardTitle(node),split=fitText(title,space)
+        const twoLines=split<title.length&&!compact&&!mediaCard&&variant!=='wallet'&&box.height>=90*v.scale,titleY=mediaCard?headingY:compact?y+box.height*.48:headingY+font*1.65
+        ctx.fillText(twoLines?title.slice(0,split):clipped(title,space),left,titleY)
+        if(twoLines)ctx.fillText(clipped(title.slice(split),space),left,titleY+font+3)
         drawnLabels++
-        let subtitle=String(node.attributes.reference_photo?'Место исходника не подтверждено':node.attributes.scope_only?'Область исследования':node.attributes.scene_description||node.attributes.url||'')
-        if(node.type==='blockchain_address')subtitle=`${node.attributes.transaction_count??'—'} событий · ${node.attributes.counterparty_count??'—'} контрагентов`
-        if(node.type==='blockchain_address'&&!root&&Array.isArray(node.attributes.flow_summaries)){const flow=node.attributes.flow_summaries[0] as {direction:string;amount:string|null;asset:string};if(flow)subtitle=`${flow.direction==='to_target'?'К цели':'От цели'}: ${flow.amount??'?'} ${flow.asset}${node.attributes.flow_summaries.length>1?' · + активы':''}`}
-        if(node.type==='entity_group')subtitle='Раскройте группу для просмотра'
-        if(node.type==='geographic_candidate')subtitle='Географическая гипотеза'
-        if(box.height>=48){ctx.font=`${Math.max(9,font-1)}px Manrope, sans-serif`;ctx.fillStyle=muted;ctx.fillText(clipped(subtitle,space),left,y+box.height*.79)}
+        const rows=cardRows(node),technical=['wallet','transaction','ip','contract'].includes(variant)
+        ctx.font=`${Math.max(8,font-1)}px ${technical?'Consolas, monospace':'Manrope, sans-serif'}`;ctx.fillStyle=muted
+        const start=titleY+font*(twoLines?2.8:1.6),maxRows=compact?1:mediaCard?1:p.cardMode==='expanded'?4:2
+        for(let row=0;row<Math.min(maxRows,rows.length);row++){const at=start+row*(font+5);if(at<y+box.height-padding/2)ctx.fillText(clipped(rows[row],space),left,at)}
       }
       if(positions[node.id]?.pinned){ctx.fillStyle=accent;ctx.fillRect(x+box.width-8,y+4,4,4)}
-      if(p.onConnect){for(const sign of [-1,1]){ctx.fillStyle=accent;ctx.beginPath();ctx.arc(point.x+sign*box.width/2,point.y,5,0,Math.PI*2);ctx.fill()}}
-      if(qaNodes.length<30)qaNodes.push({id:node.id,x:point.x,y:point.y,label:shortLabel(node)})
+      if(p.onConnect&&v.scale>.55&&(selected||hovered.current===node.id||linking.current===node.id)){for(const sign of [-1,1]){ctx.fillStyle=panel;ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(point.x+sign*box.width/2,point.y,4,0,Math.PI*2);ctx.fill();ctx.stroke()}}
+      if(p.onCardResize&&selected&&variant==='media'&&v.scale>.55){ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+box.width-13,y+box.height-4);ctx.lineTo(x+box.width-4,y+box.height-13);ctx.moveTo(x+box.width-8,y+box.height-4);ctx.lineTo(x+box.width-4,y+box.height-8);ctx.stroke()}
+      if(qaNodes.length<30)qaNodes.push({id:node.id,x:point.x,y:point.y,width:box.width,height:box.height,label:shortLabel(node)})
     }
     if(marquee.current){const r=marquee.current;ctx.strokeStyle=accent;ctx.setLineDash([4,3]);ctx.strokeRect(r.x,r.y,r.endX-r.x,r.endY-r.y);ctx.setLineDash([])}
     if(p.nodes.length>3&&width>420){
@@ -131,10 +147,10 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     const now=performance.now();paints.current.push(now-started);if(lastPaint.current&&now-lastPaint.current<100)intervals.current.push(now-lastPaint.current)
     if(lastInput.current){latencies.current.push(now-lastInput.current);lastInput.current=0}lastPaint.current=now
     for(const array of [paints.current,intervals.current,latencies.current])if(array.length>240)array.splice(0,array.length-240)
-    element.dataset.frameMetrics=JSON.stringify({paint_ms:paints.current,active_intervals_ms:intervals.current,event_to_paint_ms:latencies.current})
+    if(paints.current.length%5===0||!drag.current)element.dataset.frameMetrics=JSON.stringify({paint_ms:paints.current,active_intervals_ms:intervals.current,event_to_paint_ms:latencies.current})
   }
   function requestDraw(){if(frame.current===undefined)frame.current=requestAnimationFrame(draw)}
-  useEffect(()=>{points.current=props.positions;viewport.current=props.viewport;requestDraw()},[props.positions,props.viewport,props.nodes,props.edges,props.selected,props.second,props.selection,props.selectedEdge,props.theme])
+  useEffect(()=>{points.current=props.positions;viewport.current=props.viewport;resizeSizes.current={};requestDraw()},[props.positions,props.viewport,presented,props.edges,props.selected,props.second,props.selection,props.selectedEdge,props.theme])
   useEffect(()=> {
     const element=canvas.current;if(!element)return
     const observer=new ResizeObserver(entries=>{const rect=entries[0].contentRect;if(rect.width&&rect.height){const next={width:rect.width,height:rect.height};setSize(next);sizeRef.current=next;latest.current.onResize(next.width,next.height);requestDraw()}})
@@ -143,10 +159,10 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     element.addEventListener('wheel',wheel,{passive:false})
     return()=>{observer.disconnect();element.removeEventListener('wheel',wheel);if(frame.current!==undefined)cancelAnimationFrame(frame.current);clearTimeout(wheelTimer.current)}
   },[])
-  useImperativeHandle(forwarded,()=>({fit(){latest.current.onViewport(readableViewport(points.current,sizeRef.current.width,sizeRef.current.height,latest.current.root,latest.current.mode||'graph'))},zoom(factor){latest.current.onViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,factor))},center(id){const p=points.current[id];if(p)latest.current.onViewport({x:sizeRef.current.width/2-p.x,y:sizeRef.current.height/2-p.y,scale:1})}}),[])
+  useImperativeHandle(forwarded,()=>({fit(){latest.current.onViewport(readableViewport(Object.fromEntries(latest.current.nodes.filter(n=>points.current[n.id]).map(n=>[n.id,points.current[n.id]])),sizeRef.current.width,sizeRef.current.height,latest.current.root,latest.current.mode||'graph',latest.current.nodes))},zoom(factor){latest.current.onViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,factor))},center(id){const p=points.current[id];if(p)latest.current.onViewport({x:sizeRef.current.width/2-p.x,y:sizeRef.current.height/2-p.y,scale:1})}}),[])
   const local=(event:{clientX:number;clientY:number})=>{const rect=canvas.current!.getBoundingClientRect();return{x:event.clientX-rect.left,y:event.clientY-rect.top}}
   return <canvas ref={canvas} className="investigation-graph-canvas" role="application" aria-label="Интерактивный граф расследования" tabIndex={0}
-    onDoubleClick={event=>{const r=event.currentTarget.getBoundingClientRect(),v=viewport.current;if(!hitNode(latest.current.nodes,points.current,v,event.clientX-r.left,event.clientY-r.top))latest.current.onCreate?.({x:(event.clientX-r.left-v.x)/v.scale,y:(event.clientY-r.top-v.y)/v.scale})}}
+    onDoubleClick={event=>{const r=event.currentTarget.getBoundingClientRect(),v=viewport.current,node=hitNode(latest.current.nodes,points.current,v,event.clientX-r.left,event.clientY-r.top);if(node){if(node.attributes.media)latest.current.onOpenMedia?.(node);else latest.current.onExpand?.(node.id)}else latest.current.onCreate?.({x:(event.clientX-r.left-v.x)/v.scale,y:(event.clientY-r.top-v.y)/v.scale})}}
     onContextMenu={event=>{event.preventDefault();const p=local(event),v=viewport.current,node=hitNode(latest.current.nodes,points.current,v,p.x,p.y);latest.current.onContext?.(node?.id||'',{x:(p.x-v.x)/v.scale,y:(p.y-v.y)/v.scale})}}
     onPointerDown={event=>{
       if(event.button!==0)return
@@ -154,8 +170,9 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       canvas.current?.focus();event.currentTarget.setPointerCapture?.(event.pointerId)
       const m=mini.current
       if(m&&point.x>=m.x&&point.x<=m.x+m.w&&point.y>=m.y&&point.y<=m.y+m.h){latest.current.onViewport({...v,x:sizeRef.current.width/2-((point.x-m.x)/m.scale+m.minX)*v.scale,y:sizeRef.current.height/2-((point.y-m.y)/m.scale+m.minY)*v.scale});return}
-      if(p.onConnect){const port=p.nodes.find(n=>{const pos=points.current[n.id];if(!pos)return false;const box=nodeBox(n,v.scale);return Math.abs(point.y-(pos.y*v.scale+v.y))<10&&Math.abs(Math.abs(point.x-(pos.x*v.scale+v.x))-box.width/2)<10});if(port){linking.current=port.id;return}}
+      if(p.onConnect&&v.scale>.55){const port=p.nodes.find(n=>{if(n.id!==p.selected&&n.id!==hovered.current&&!p.selection?.includes(n.id))return false;const pos=points.current[n.id];if(!pos)return false;const box=nodeBox(n,v.scale);return Math.abs(point.y-(pos.y*v.scale+v.y))<10&&Math.abs(Math.abs(point.x-(pos.x*v.scale+v.x))-box.width/2)<10});if(port){linking.current=port.id;requestDraw();return}}
       const node=hitNode(p.nodes,points.current,v,point.x,point.y)
+      if(node&&p.onCardResize&&(node.id===p.selected||p.selection?.includes(node.id))&&cardVariant(node)==='media'){const box=nodeBox(node,v.scale),at=points.current[node.id];if(point.x>at.x*v.scale+v.x+box.width/2-18&&point.y>at.y*v.scale+v.y+box.height/2-18){resizing.current={id:node.id,x:point.x,y:point.y,size:{width:box.width/v.scale,height:box.height/v.scale}};return}}
       if(event.shiftKey&&!node&&p.onSelection){marquee.current={x:point.x,y:point.y,endX:point.x,endY:point.y};return}
       drag.current={id:node?.id,startX:point.x,startY:point.y,point:node?{...points.current[node.id]}:undefined,view:{...v},moved:false}
       moving.current={}
@@ -169,8 +186,9 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     }}
     onPointerMove={event=>{
       const point=local(event)
+      if(resizing.current){const r=resizing.current;resizeSizes.current[r.id]={width:Math.max(160,Math.min(720,r.size.width+(point.x-r.x)/viewport.current.scale)),height:Math.max(120,Math.min(640,r.size.height+(point.y-r.y)/viewport.current.scale))};lastInput.current=performance.now();requestDraw();return}
       if(marquee.current){marquee.current.endX=point.x;marquee.current.endY=point.y;requestDraw();return}
-      const current=drag.current;if(!current)return
+      const current=drag.current;if(!current){const node=hitNode(latest.current.nodes,points.current,viewport.current,point.x,point.y),id=node?.id||'';if(hovered.current!==id){hovered.current=id;requestDraw()}event.currentTarget.style.cursor=node?'grab':'default';return}
       const dx=point.x-current.startX,dy=point.y-current.startY;if(Math.hypot(dx,dy)<3&&!current.moved)return
       lastInput.current=performance.now()
       current.moved=true
@@ -180,11 +198,13 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     }}
     onPointerUp={event=>{
       const point=local(event),p=latest.current,v=viewport.current
+      if(resizing.current){const r=resizing.current;resizing.current=undefined;if(resizeSizes.current[r.id])p.onCardResize?.(r.id,resizeSizes.current[r.id]);requestDraw()}
       if(linking.current){const target=hitNode(p.nodes,points.current,v,point.x,point.y),from=linking.current;linking.current=undefined;if(target&&target.id!==from)p.onConnect?.(from,target.id)}
       if(marquee.current){const r=marquee.current;marquee.current=undefined;p.onSelection?.(p.nodes.filter(n=>{const pos=points.current[n.id];if(!pos)return false;const x=pos.x*v.scale+v.x,y=pos.y*v.scale+v.y;return x>=Math.min(r.x,r.endX)&&x<=Math.max(r.x,r.endX)&&y>=Math.min(r.y,r.endY)&&y<=Math.max(r.y,r.endY)}).map(n=>n.id));requestDraw()}
       const current=drag.current;drag.current=undefined;event.currentTarget.releasePointerCapture?.(event.pointerId)
       if(current?.moved){if(current.id)p.onCommitPositions({...points.current});else p.onViewport({...viewport.current})}
     }}
-    onPointerCancel={()=>{drag.current=undefined;marquee.current=undefined;linking.current=undefined}}
-    onKeyDown={event=>{const key=event.key;if(['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(key)){event.preventDefault();if(key==='Home')latest.current.onViewport(readableViewport(points.current,sizeRef.current.width,sizeRef.current.height,latest.current.root,latest.current.mode||'graph'));else if(key==='+'||key==='='||key==='-')latest.current.onViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,key==='-'?.8:1.25));else latest.current.onViewport({...viewport.current,x:viewport.current.x+(key==='ArrowLeft'?40:key==='ArrowRight'?-40:0),y:viewport.current.y+(key==='ArrowUp'?40:key==='ArrowDown'?-40:0)})}}}/>
+    onPointerLeave={()=>{if(!drag.current){hovered.current='';requestDraw()}}}
+    onPointerCancel={()=>{drag.current=undefined;marquee.current=undefined;linking.current=undefined;resizing.current=undefined;resizeSizes.current={};requestDraw()}}
+    onKeyDown={event=>{const key=event.key;if(['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(key)){event.preventDefault();if(key==='Home')latest.current.onViewport(readableViewport(Object.fromEntries(latest.current.nodes.filter(n=>points.current[n.id]).map(n=>[n.id,points.current[n.id]])),sizeRef.current.width,sizeRef.current.height,latest.current.root,latest.current.mode||'graph',latest.current.nodes));else if(key==='+'||key==='='||key==='-')latest.current.onViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,key==='-'?.8:1.25));else latest.current.onViewport({...viewport.current,x:viewport.current.x+(key==='ArrowLeft'?40:key==='ArrowRight'?-40:0),y:viewport.current.y+(key==='ArrowUp'?40:key==='ArrowDown'?-40:0)})}}}/>
 })

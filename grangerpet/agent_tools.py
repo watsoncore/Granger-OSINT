@@ -28,6 +28,7 @@ from .download_budget import DownloadBudget, DownloadLimit, CURRENT as DOWNLOAD_
 from .telegram_public import INPUT_SCHEMA as _TELEGRAM_INPUT
 from .socmint_public import PROFILE_SCHEMA as _SOCMINT_INPUT
 from .engine.blockchain_contracts import INPUT_SCHEMA as _BLOCKCHAIN_INPUT,policy as blockchain_policy
+from .engine.maigret_contracts import INPUT_SCHEMA as _MAIGRET_INPUT
 
 
 @dataclass(frozen=True)
@@ -46,7 +47,7 @@ class ToolSpec:
 
 
 _SPECS = (
-    ToolSpec("username_maigret", "maigret", "username", "username", "Maigret: ограниченная проверка существования публичных профилей по точному никнейму. Совпадение никнейма не доказывает общего владельца.", max_length=64),
+    ToolSpec("username_maigret", "maigret", "username", "username", "Maigret: оригинальная база публичных профилей, Quick/Standard/Full/Custom; Full без top-N лимита. Прогресс и частичные результаты сохраняются. Совпадение никнейма не доказывает общего владельца.", max_length=64,input_schema=_MAIGRET_INPUT),
     ToolSpec("username_blackbird", "blackbird", "username", "username", "Blackbird: независимая проверка публичных профилей по точному никнейму, по локальной базе WhatsMyName.", max_length=64),
     ToolSpec("username_social_analyzer", "social_analyzer", "username", "username", "Social Analyzer: проверка публичных страниц профилей по никнейму; не устанавливает личность.", max_length=64),
     ToolSpec("username_snoop", "snoop", "username", "username", "Snoop: дополнительная локальная проверка публичных профилей, только если интеграция включена пользователем.", max_length=64),
@@ -250,9 +251,20 @@ class ToolRegistry:
             args = {spec.argument: value}
             if target.properties.get('blockchain_operation'):args['operation']=target.properties['blockchain_operation']
             if name=='blockchain_gansar':
+                from .crypto_targets import resolve_crypto_target
                 requested=re.search(r'(?iu)\boperation\s+(profile|balances|assets|transactions|nft|identity|contracts|labels|attribution|trace|cached)\b',goal)
                 if requested:args['operation']=requested.group(1).lower()
                 elif re.search(r'(?iu)\bENS\b|Web3.{0,20}идентификатор',goal) and not re.search(r'(?iu)баланс|актив|транзакц|NFT',goal):args['operation']='identity'
+                chains={'eth':r'(?iu)\bethereum\b|эфириум','bsc':r'(?iu)\bbsc\b|\bbnb\b|binance',
+                    'polygon':r'(?iu)\bpolygon\b','arbitrum':r'(?iu)\barbitrum\b',
+                    'optimism':r'(?iu)\boptimism\b','avalanche':r'(?iu)\bavalanche\b|\bavax\b'}
+                named=[chain for chain,pattern in chains.items() if re.search(pattern,goal)]
+                # Identity is the installed Ethereum public-context service,
+                # not an inferred financial network for an ambiguous wallet.
+                selected=named[0] if len(named)==1 else 'eth' if args.get('operation')=='identity' else 'auto'
+                resolution=resolve_crypto_target(value,selected)
+                if not resolution['valid'] or resolution['requires_network']:continue
+                args['chain']=resolution['chain']
             if name == 'visual_geoint':
                 args.update(methods=['geoclip_predict', 'waypoint_predict'], top_k=3, samples=32)
             if not any(call['name']==name and call['arguments'].get(spec.argument)==value for call in calls):
@@ -454,8 +466,12 @@ class ToolRegistry:
                 self._attachment_ids.add(value);self._recent_attachment_ids.add(value)
 
     @staticmethod
-    def timeout_for(name, requested):
+    def timeout_for(name, requested, arguments=None):
         spec=_BY_NAME.get(name)
+        if name=='username_maigret':
+            from .engine.maigret_contracts import normalize_options
+            try:return max(requested,normalize_options(arguments or {},legacy_timeout=requested)['time_budget']+5)
+            except (ValueError,TypeError):return requested
         # CPU model cold starts are materially slower than HTTP requests.
         # An overall investigation deadline still takes precedence.
         if name=='blockchain_gansar':return max(requested,260)
@@ -713,9 +729,22 @@ class ToolRegistry:
     descriptions = schemas
 
     def _validate(self, spec, args):
+        if spec.source=='maigret':
+            from .tool_inputs import validate_object
+            from .engine.maigret_contracts import normalize_options
+            arguments=validate_object(args,spec.input_schema)
+            options=self._source_options(spec.source)
+            options['maigret']=normalize_options(arguments,legacy_timeout=getattr(self.settings,'search_timeout',25))
+            query=SearchQuery(arguments['username'],'username',50,25,options).normalized()
+            query.timeout=options['maigret']['time_budget']
+            return query.text,None,options,query
         if spec.input_schema is not None:
             from .tool_inputs import validate_object
             arguments=validate_object(args,spec.input_schema)
+            if spec.source=='blockchain':
+                from .crypto_targets import validate_gansar_arguments
+                arguments=validate_gansar_arguments(arguments)
+                args.clear();args.update(arguments)
             if spec.source in ('vk_public_page','tiktok_embed'):
                 from .socmint_targets import vk,tiktok
                 arguments['target']=(vk if spec.source=='vk_public_page' else tiktok)(arguments['target'])['canonical_url']
@@ -845,15 +874,15 @@ class ToolRegistry:
             envelope.update(status="unknown_tool", error="Инструмент не зарегистрирован.")
             return envelope
         if deadline is None:
-            deadline = time.monotonic() + self.timeout_for(name,25)
+            deadline = time.monotonic() + self.timeout_for(name,25,args)
         cancelled = _Cancellation(cancel_event, deadline)
         if cancelled.is_set():
             envelope["status"] = "cancelled" if cancel_event and cancel_event.is_set() else "timeout"
             return envelope
         try:
             value, limit, options, query = self._validate(spec, args)
-        except (ValueError, TypeError, OverflowError):
-            envelope["error"] = "Некорректные аргументы инструмента. Используйте его строго заданный тип и допустимый лимит."
+        except (ValueError, TypeError, OverflowError) as error:
+            envelope["error"] = redact(str(error),self._redactions)[:300] if spec.source=='blockchain' else "Некорректные аргументы инструмента. Используйте его строго заданный тип и допустимый лимит."
             return envelope
         envelope["query"] = redact(value, self._redactions)
         from .visual_models.observations import cached, TOOLS
@@ -925,7 +954,7 @@ class ToolRegistry:
                 log_contract(error, spec.name)
                 return
             key = record["evidence_id"]
-            if key in records and (spec.source not in ('blockchain','geoint_research') or records[key].get('details')==record.get('details')) or key not in records and len(records)>=limit:
+            if key in records and (spec.source not in ('blockchain','geoint_research') or records[key].get('details')==record.get('details')) or key not in records and limit is not None and len(records)>=limit:
                 return
             records[key] = record
             self.web_reader.add_evidence([record])
@@ -940,9 +969,11 @@ class ToolRegistry:
         def event(row):
             if isinstance(row, dict) and row.get("event") == "result":
                 receive(row.get("result"))
+            elif spec.source=='maigret' and isinstance(row,dict) and row.get('event')=='maigret_progress' and callable(on_event):
+                on_event({'type':'progress','tool':spec.name,'progress':deepcopy(row.get('progress',{}))})
         outcome=None
         try:
-            if spec.input_schema is not None:
+            if spec.input_schema is not None and spec.source!='maigret':
                 outcome=self._structured_operation(spec,options['structured_arguments'],cancelled,deadline,approved,on_result=receive)
             elif spec.source == "web_read":
                 # Search evidence is the URL authority. The model cannot invent
@@ -979,12 +1010,15 @@ class ToolRegistry:
                 outcome = adapter.run(query, Context(cancelled, options, event))
             validate_outcome(outcome)
             for raw in outcome.get("results", [])[:limit]:
-                receive(raw,allow_stopped=spec.name=='steam_inventory' and spec.source=='steam_public'
+                receive(raw,allow_stopped=(spec.name=='steam_inventory' and spec.source=='steam_public' or spec.source=='maigret')
                     and outcome.get('status') in ('partial','cancelled','timeout'))
             status = str(outcome.get("status", "error"))
             if outcome.get('from_saved_data') is True:envelope['from_saved_data']=True
-            if spec.source in ('blockchain','network_public','vk_public_page') and isinstance(outcome.get('source_diagnostics'),(dict,list)):
-                envelope['source_diagnostics']=redact(outcome['source_diagnostics'],self._redactions)
+            if spec.source in ('blockchain','network_public','vk_public_page','maigret') and isinstance(outcome.get('source_diagnostics'),(dict,list)):
+                if spec.source=='maigret':
+                    from .agent_evidence import safe_maigret_diagnostics
+                    envelope['source_diagnostics']=safe_maigret_diagnostics(outcome['source_diagnostics'],self._redactions)
+                else:envelope['source_diagnostics']=redact(outcome['source_diagnostics'],self._redactions)
                 envelope['from_saved_data']=outcome.get('from_saved_data') is True
             if spec.source=='network_public':
                 envelope['operation']=outcome.get('operation',spec.name)
@@ -1107,7 +1141,9 @@ class ToolRegistry:
                 saved=store.load(reference)
                 section=args.get('section','all') if operation=='cached' else operation
                 rows=normalize_dossier(saved,operation=section,max_transactions=blockchain_policy(args)['transactions'])
-                return {'status':'complete','results':rows,'from_saved_data':True,'source_diagnostics':{'providers_attempted':0,'http_requests':0,'from_saved_data':True},
+                projection=next((r['details'].get('projection',{}) for r in rows if r.get('type')=='blockchain_summary'),{})
+                projection['raw_dossier_retained_elsewhere']=True
+                return {'status':'partial' if projection.get('truncated') else 'complete','results':rows,'from_saved_data':True,'source_diagnostics':{'providers_attempted':0,'http_requests':0,'from_saved_data':True,'projection':projection},
                     'limitations':['Сохранённые наблюдения, не новая проверка баланса/владения. Новых сетевых запросов не выполнялось.']}
             if operation=='cached':return {'status':'empty','results':[],'limitations':['В этом расследовании ещё нет сохранённого Gansar dossier этого объекта.']}
             chosen=blockchain_policy(args,getattr(self.settings,'research_mode','standard'))
@@ -1129,6 +1165,10 @@ class ToolRegistry:
                     previous=store.load(reference) if reference else {}
                     report=merge_reports(previous,report,operation)
                     identifier=store.save(report,secrets=self._redactions,identifier=reference)
+                    for row in result.get('results',[]):
+                        if row.get('type')=='blockchain_summary':row.get('details',{}).get('projection',{})['raw_dossier_retained_elsewhere']=True
+                    projection=(result.get('source_diagnostics') or {}).get('projection')
+                    if isinstance(projection,dict):projection['raw_dossier_retained_elsewhere']=True
                     self._blockchain_refs[key]=identifier
                     if len(self._blockchain_refs)>100:self._blockchain_refs.pop(next(iter(self._blockchain_refs)))
                 except (ValueError,OSError,CredentialError):

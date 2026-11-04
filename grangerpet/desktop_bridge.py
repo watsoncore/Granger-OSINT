@@ -90,6 +90,7 @@ class DesktopBridge(QObject):
     stateChanged = Signal(str)
     toolProgress = Signal(object)
     visualProgress = Signal(object)
+    manualProgress = Signal(object)
     rendererReady = Signal()
 
     def __init__(self, host, surface='main'):
@@ -167,6 +168,7 @@ class DesktopBridge(QObject):
             self._errors.taskFailed.connect(self._fail_active_task)
         self.toolProgress.connect(self._tool_progress)
         self.visualProgress.connect(self._visual_progressed)
+        self.manualProgress.connect(self._manual_progressed)
         self._flush = QTimer(self)
         self._flush.setSingleShot(True)
         self._flush.setInterval(80)
@@ -448,6 +450,7 @@ class DesktopBridge(QObject):
                 'phase':self.host.phase,'count':self.host.result_model.rowCount(),
                 'checked':int((re.search(r'\d+',self.host.checked_label.text()) or ['0'])[0]),
                 'checkedLabel':self.host.checked_label.text(),
+                'maigret_progress':next((row.get('progress') for row in reversed(self._manual_activity) if row.get('id')=='username_maigret' and isinstance(row.get('progress'),dict)),None),
                 'status':self.host.status.text() if self.host.phase!='idle' else '',
                 'error':self.host.status.text() if self.host.phase in ('error','failed','completed_with_errors') else '',
                 'choices':[{'label':name,'value':kind} for name,kind in self.host._resolution().choices], 'results':self._search_sources_view},
@@ -548,9 +551,16 @@ class DesktopBridge(QObject):
             payload = json.loads(payload_json)
             if not isinstance(payload,dict): raise ValueError('Ожидался объект параметров.')
             result = self.dispatch(action,payload)
-            self.response.emit(identifier,self._json({'ok':True,'result':result}))
+            from .async_reply import DeferredReply
+            if isinstance(result,DeferredReply):
+                def reply(value,error):
+                    if not self._closed:
+                        self.response.emit(identifier,self._json({'ok':False,**error} if error else {'ok':True,'result':value}))
+                result.subscribe(reply)
+            else:self.response.emit(identifier,self._json({'ok':True,'result':result}))
         except (ValueError,TypeError,KeyError) as error:
-            self.response.emit(identifier,self._json({'ok':False,'error':str(error)[:300]}))
+            self.response.emit(identifier,self._json({'ok':False,'error':str(error)[:300],'code':getattr(error,'code','invalid_request'),
+                **({'revision':error.revision} if hasattr(error,'revision') else {})}))
         except Exception:
             self.response.emit(identifier,self._json({'ok':False,'error':'Операция не завершена. Проверьте состояние приложения.'}))
         self.mark_dirty()
@@ -607,6 +617,13 @@ class DesktopBridge(QObject):
                 from .research_canvas_bridge import ResearchCanvasBridge
                 self._research_canvas=ResearchCanvasBridge(self)
             return self._research_canvas.action(action,payload)
+        if action=='crypto_target_resolve':
+            from .crypto_targets import resolve_crypto_target,CHAIN_OPTIONS
+            return {**resolve_crypto_target(payload.get('value'),payload.get('chain','auto')),'chains':list(CHAIN_OPTIONS)}
+        if action in ('canvas_media_view','canvas_media_open'):
+            if portable_enabled() and not portable_unlocked():raise ValueError('Сначала разблокируйте хранилище.')
+            from .canvas_media import request_media
+            return request_media(self,action,payload)
         if action.startswith('investigation_graph_'):
             if portable_enabled() and not portable_unlocked():raise ValueError('Сначала разблокируйте хранилище.')
             return self._graph_action(action,payload)
@@ -1106,7 +1123,8 @@ class DesktopBridge(QObject):
         previous_manual=self._workspace.manual
         def execute_manual():
             outcome=registry.execute(spec.name,arguments,cancel_event=stop_event,
-                deadline=time.monotonic()+registry.timeout_for(spec.name,self.host.settings.search_timeout),approved=approved)
+                deadline=time.monotonic()+registry.timeout_for(spec.name,self.host.settings.search_timeout,arguments),approved=approved,
+                on_event=lambda event:self.manualProgress.emit((generation,event)))
             if spec.source not in ('graph','evidence_get'):
                 try:
                     outcome['_saved_manual_snapshot']=self._workspace.manual_result(query,outcome,arguments,registry,
@@ -1132,6 +1150,10 @@ class DesktopBridge(QObject):
             diagnostic=outcome.get('source_diagnostics') if isinstance(outcome,dict) else None
             if isinstance(diagnostic,dict) and diagnostic.get('from_saved_data'):
                 self.host.checked_label.setText('Сохранённые данные · новых запросов: 0')
+            elif isinstance(diagnostic,dict) and spec.source=='maigret':
+                coverage=diagnostic.get('coverage',{})
+                self._manual_activity[0]['progress']=coverage
+                self.host.checked_label.setText(f"Maigret: {coverage.get('checked',0)}/{coverage.get('scheduled',0)} · найдено {coverage.get('found',0)} · пропущено {coverage.get('skipped',0)}")
             elif isinstance(diagnostic,dict):
                 self.host.checked_label.setText(f"Коллекторы Gansar: {diagnostic.get('providers_attempted',0)} · HTTP-запросы: {diagnostic.get('http_requests') if diagnostic.get('http_requests') is not None else 'неизвестно'}")
             else:self.host.checked_label.setText('Адаптеров выполнено: 1')
@@ -1160,6 +1182,16 @@ class DesktopBridge(QObject):
             QTimer.singleShot(0,self._refresh_tools)
             job.deleteLater(); self.mark_dirty()
         job.done.connect(done); job.start()
+
+    def _manual_progressed(self,value):
+        generation,event=value
+        if self._closed or generation!=self._manual_generation or not self._manual_job:return
+        if not isinstance(event,dict) or event.get('type')!='progress':return
+        progress=event.get('progress')
+        if not isinstance(progress,dict) or not self._manual_activity:return
+        self._manual_activity[0]['progress']=progress
+        self._manual_activity[0]['summary']=f"Проверено {progress.get('checked',0)} / {progress.get('scheduled',0)} · найдено {progress.get('found',0)} · неизвестно {progress.get('unknown',0)} · пропущено {progress.get('skipped',0)}"
+        self.mark_dirty()
 
     def _geoint_action(self,action,payload):
         if self.surface!='main':raise ValueError('Откройте рабочее пространство.')

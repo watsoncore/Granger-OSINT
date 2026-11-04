@@ -24,15 +24,22 @@ def _number(value, low=-10_000_000, high=10_000_000):
 def validate_view(value):
     if not isinstance(value,dict): raise ValueError('Graph view must be an object')
     allowed={'version','mode','positions','tree_positions','viewport','tree_viewport','selected_id',
-        'selected_relation','expanded','expanded_relations','collapsed','filters','query','layout_algorithm','inspector_width','inspector_hidden','layout_mode','manual_positions'}
+        'selected_relation','expanded','expanded_relations','collapsed','filters','query','layout_algorithm','inspector_width','inspector_hidden','layout_mode','manual_positions','card_sizes','card_mode','projection_mode','inspector_tab'}
     if set(value)-allowed or value.get('version',1)!=1: raise ValueError('Unsupported graph view')
     result=deepcopy(value)
     result['version']=1
     if result.get('mode','overview') not in ('overview','tree','graph','evidence','geo'):raise ValueError('Invalid graph mode')
-    if 'layout_algorithm'in result and result['layout_algorithm'] not in ('semantic_cards','semantic_network_v2'):raise ValueError('Invalid graph algorithm')
+    if 'layout_algorithm'in result and result['layout_algorithm'] not in ('semantic_cards','semantic_network_v2','semantic_network_v3'):raise ValueError('Invalid graph algorithm')
     if 'inspector_width'in result:_number(result['inspector_width'],260,560)
     if 'inspector_hidden'in result and type(result['inspector_hidden']) is not bool:raise ValueError('Invalid graph inspector')
-    if result.get('layout_mode','semantic') not in ('semantic','manual','hierarchical','radial','types','communities','timeline'):raise ValueError('Invalid graph layout mode')
+    for field,choices in (('card_mode',('auto','compact','standard','expanded')),('projection_mode',('wallet','flow','counterparties','transactions','paths','manual')),('inspector_tab',('details','evidence','actions'))):
+        if field in result and result[field] not in choices:raise ValueError('Invalid graph presentation')
+    sizes=result.get('card_sizes',{})
+    if not isinstance(sizes,dict) or len(sizes)>5000:raise ValueError('Invalid card sizes')
+    for identifier,size in sizes.items():
+        if not isinstance(identifier,str) or not ENTITY_ID.fullmatch(identifier) or not isinstance(size,dict) or set(size)!={'width','height'}:raise ValueError('Invalid card size')
+        _number(size['width'],120,1200);_number(size['height'],80,1200)
+    if result.get('layout_mode','semantic') not in ('semantic','manual','hierarchical','radial','types','communities','timeline','wallet','flow','counterparties','paths'):raise ValueError('Invalid graph layout mode')
     for key in ('positions','tree_positions','manual_positions'):
         positions=result.get(key,{})
         if not isinstance(positions,dict) or len(positions)>5000:raise ValueError('Invalid graph positions')

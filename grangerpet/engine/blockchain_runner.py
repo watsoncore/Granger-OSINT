@@ -159,8 +159,10 @@ async def execute_gansar(query,options):
     snapshot(latest,True)
     rows=normalize_dossier(latest,operation=operation,max_transactions=chosen['transactions'],transport=ledger)
     health=diagnostics(latest,ledger)
+    projection=next((r.get('details',{}).get('projection') for r in rows if r.get('type')=='blockchain_summary'),{})
+    health['projection']=projection
     usable=len(rows)>1
-    failures=ledger.get('engine_error') or ledger.get('timeout') or ledger['budget_exhausted'] or any(r['status'] not in ('ok','empty','skipped') for r in health['health'])
+    failures=ledger.get('engine_error') or ledger.get('timeout') or ledger['budget_exhausted'] or projection.get('truncated') or any(r['status'] not in ('ok','empty','skipped') for r in health['health'])
     return {'source':'blockchain','status':'partial' if failures and usable else 'complete' if usable else 'empty' if not failures else 'unavailable',
         'results':rows,**({'gansar_report':latest} if not callable(publish) else {}),'source_diagnostics':health,'requests_used':ledger['requests_used'],
         'message':'Получены фактические Gansar observations. Полнота/ошибки каждого провайдера сохранены отдельно.',

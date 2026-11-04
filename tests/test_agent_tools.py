@@ -99,10 +99,10 @@ def test_real_adapter_contract_provenance_dedup_and_incremental_events():
                       event=lambda query, context: context.event({"event": "result", "result": finding()}))
     reg, _ = registry(adapter)
     events = []
-    result = reg.execute("username_maigret", {"username": "solvnox", "limit": 3}, on_event=events.append)
+    result = reg.execute("username_maigret", {"username": "solvnox", "mode":"quick", "site_count":3}, on_event=events.append)
     assert result["status"] == "partial" and result["result_count"] == 1 and len(events) == 1
     query, context = adapter.calls[0]
-    assert query.kind == "username" and query.text == "solvnox" and query.limit == 3
+    assert query.kind == "username" and query.text == "solvnox" and query.options['maigret']['site_count'] == 3
     record = result["results"][0]
     assert record["evidence_id"].startswith("ev_") and record["provenance"]["tool"] == "username_maigret"
     assert record["provenance"]["query"] == "solvnox" and record["provenance"]["obtained_at"]

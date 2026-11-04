@@ -1,0 +1,72 @@
+{
+  "schema": "granger-master-fix-v3-release/1",
+  "generated_at_utc": "2026-11-04T12:22:01.850323+00:00",
+  "status": "verified_separate_candidate",
+  "branch": "granger/chibi-reconstruction",
+  "base_commit": "4c9f64e8c2e1b00881b8632fc7f01e2a9ff6d47c",
+  "exe": {
+    "path": "dist/master-fix-v3-complete/Granger-OSINT.exe",
+    "bytes": 279378959,
+    "sha256": "4d07eb036a7f0366a48777663b99508027b0ad5404267b889063938cc5b8eff7"
+  },
+  "canonical_running_release_replaced": false,
+  "public_evidence_files": [
+    "git-publication.json"
+  ],
+  "tests": {
+    "backend": {
+      "kind": "backend",
+      "receipt_sha256": "d4c3c94d9c294fa1b5ea9fc2a447edb057a03656064b6d8f6d0144683087575b",
+      "state": "passed",
+      "passed": 1953,
+      "skipped": 2,
+      "subtests_passed": 32
+    },
+    "frontend": {
+      "kind": "frontend",
+      "receipt_sha256": "0d00bc73fc6fad6b823c0d9c5e982c0c0f2610f7034ca2b551813bc6e0cfbf4b",
+      "state": "passed",
+      "passed": 175
+    }
+  },
+  "native": {
+    "manual": {
+      "passed": true,
+      "checks": 34
+    },
+    "media": {
+      "passed": true,
+      "checks": 25
+    },
+    "maigret": {
+      "passed": true,
+      "checks": 7
+    },
+    "smoke": {
+      "passed": true,
+      "checks": 2
+    },
+    "automatic": {
+      "passed": true,
+      "checks": 32
+    },
+    "phone": {
+      "passed": true,
+      "checks": 15
+    }
+  },
+  "limits": [
+    "5000 nodes do not meet a confirmed 60 FPS target",
+    "No live Full Maigret scan",
+    "Eight Gansar networks lack new live tests",
+    "Other adapter samples documented",
+    "External models/tool/browser runtimes remain separate"
+  ],
+  "privacy": {
+    "user_profile_exported": false,
+    "raw_logs_exported": false,
+    "findings_exported": false,
+    "screenshots": "explicitly reviewed own QA subset"
+  },
+  "git_publication_receipt": "git-publication.json in delivery and source ZIP"
+}

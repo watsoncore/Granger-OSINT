@@ -1,7 +1,7 @@
 """Actual calls into supplied vendor code, kept outside the GUI's interpreter.
 
-No vendor files are patched. Adapters intentionally use a small public profile
-set and do not activate CAPTCHA solvers, TLS impersonation, login or recovery.
+No vendor files are patched. Explicit Maigret modes use the original database;
+adapters do not activate CAPTCHA solvers, TLS impersonation, login or recovery.
 """
 from __future__ import annotations
 
@@ -54,44 +54,11 @@ def _selected(options, name, url=""):
 
 
 def maigret_adapter(root, query, options):
-    sys.path.insert(0, str(root))
-    from maigret.checking import maigret
-    from maigret.result import MaigretCheckStatus
-    from maigret.sites import MaigretDatabase
-    database = MaigretDatabase().load_from_file(str(root / "maigret/resources/data.json"))
-    all_sites = database.ranked_sites_dict(top=500 if options.get("profile_sites") else _limit(query) * 3,
-                                         disabled=False, excluded_tags=["porn", "nsfw", "tor", "i2p"])
-    sites = {}
-    for name, site in all_sites.items():
-        if (getattr(site, "similar_search", False) or getattr(site, "protection", None)
-                or getattr(site, "tls_fingerprint", None) or not site.url.startswith("https://")
-                or getattr(site, "activation", None)
-                or getattr(site, "request_method", "GET") not in ("", "GET", "HEAD")
-                or not _selected(options, name, site.url)):
-            continue
-        sites[name] = site
-        if len(sites) >= _limit(query):
-            break
-    if not sites:
-        return {"source": "maigret", "status": "unavailable", "results": [], "message": "В локальной базе нет доступных безопасных проверок."}
-    results = []
-    failures = 0
-    async def run():
-        return await maigret(query["text"], sites, logging.getLogger("grangerpet.vendor"), timeout=_timeout(query),
-                             max_connections=3, no_progressbar=True, retries=0, is_parsing_enabled=False,
-                             is_enrich_enabled=False, check_domains=False, cloudflare_bypass=None, dns_resolver="threaded")
-    raw = asyncio.run(run())
-    for name, item in raw.items():
-        check = item.get("status")
-        if check and check.status == MaigretCheckStatus.CLAIMED:
-            result = _result("maigret", name, query["text"], item.get("url_user", ""),
-                             details={"http_status": item.get("http_status"), "verification": "Site-specific Maigret detection rule"})
-            results.append(result)
-            _emit(options, result)
-        elif check and check.status == MaigretCheckStatus.UNKNOWN:
-            failures += 1
-    return _outcome("maigret", results, checked=len(sites), failures=failures,
-                    message=f"Проверено ограниченное число площадок: {len(sites)}. Недоступно: {failures}.")
+    try:
+        from .maigret_bridge import run_adapter
+    except ImportError:
+        from maigret_bridge import run_adapter
+    return run_adapter(root, query, options)
 
 
 def blackbird_adapter(root, query, options):

@@ -14,8 +14,11 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--qa',type=Path,default=ROOT/'output/refinement-qa')
+    parser.add_argument('--dist-dir',type=Path,default=ROOT/'dist',help='Separate reviewed candidate delivery; preserves a running canonical EXE')
     args=parser.parse_args()
-    dist = ROOT / "dist"
+    dist = args.dist_dir.resolve()
+    dist.relative_to(ROOT / 'dist')
+    dist.mkdir(parents=True,exist_ok=True)
     archive = dist / "archive"
     archive.mkdir(parents=True, exist_ok=True)
     for name in ("README.md", "VALIDATION.md", "Granger-OSINT-source.zip"):

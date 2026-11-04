@@ -346,7 +346,36 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                 edge(owner,current,'has_public_web3_record',record,'source_reported',owner_verified=False)
         elif kind=='blockchain_counterparty':
             chain=details.get('chain') or '';address=details.get('address')
-            if address:current=node('blockchain_address',chain+'|'+_wallet(chain,address),address,record,chain=chain,address=address,owner_verified=False)
+            if address:
+                canonical=_wallet(chain,address)
+                current=node('blockchain_address',chain+'|'+canonical,address,record,chain=chain,address=canonical,owner_verified=False)
+                target=details.get('target_address')
+                if full and target and canonical!=_wallet(chain,target):
+                    # The vendor explicitly reports a counterparty relationship.
+                    # UTXO inputs/outputs need not identify a pairwise transfer:
+                    # retain this undirected source claim without allocating an
+                    # amount, sending direction, common owner or flow aggregate.
+                    owner=node('blockchain_address',chain+'|'+_wallet(chain,target),target,record,
+                        chain=chain,address=_wallet(chain,target),owner_verified=False)
+                    raw_count=details.get('tx_count')
+                    count=raw_count if type(raw_count) is int and raw_count>=0 else None
+                    relation=edge(owner,current,'source_reports_counterparty',record,'source_reported',
+                        observed_field='target_address,address,tx_count,first_seen,last_seen',
+                        financial_transfer=False,owner_verified=False,direction_unknown=True,
+                        count_semantics='maximum_source_reported_count_not_summed')
+                    if relation is not None:
+                        from .engine.blockchain_analytics import _date
+                        relation['direction']='undirected'
+                        attrs=relation['attributes'];previous=attrs.get('count')
+                        if count is not None:attrs['count']=max(count,previous) if type(previous) is int else count
+                        else:attrs.setdefault('count',None)
+                        for key,choose in (('first_seen',min),('last_seen',max)):
+                            stamp=_date(details.get(key))
+                            if stamp:attrs[key]=choose(attrs[key],stamp) if attrs.get(key) else stamp
+                        claim={'evidence_id':record.get('evidence_id'),'count':count,
+                            'first_seen':details.get('first_seen'),'last_seen':details.get('last_seen')}
+                        claims=attrs.setdefault('source_count_claims',[])
+                        if claim not in claims and len(claims)<100:claims.append(claim)
         elif kind=='transaction':
             chain=details.get('chain') or platform;tx=details.get('tx_hash') or record.get('id')
             event=details.get('event_id') or tx
@@ -514,7 +543,31 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         scoped=[]
         for target in targets:
             if target.entity_type=='blockchain_address' and target.tools:
-                identifier=node('blockchain_address',target.platform+'|'+target.identifier,target.identifier,None,chain=target.platform,address=target.identifier,owner_verified=False)
+                from .crypto_targets import resolve_crypto_target
+                resolution=resolve_crypto_target(target.identifier,target.platform or 'auto')
+                if resolution['valid'] and resolution['requires_network']:
+                    # The same hex value may already be observed on several
+                    # networks. Mark those exact scopes, never invent Ethereum
+                    # or merge their financial identities into an "evm" wallet.
+                    matches=[key for key,value in nodes.items() if value['type']=='blockchain_address'
+                        and value['attributes'].get('chain') in resolution['candidates']
+                        and _wallet(value['attributes']['chain'],value['attributes'].get('address'))==resolution['canonical_address']]
+                    if matches:
+                        scoped.extend(matches)
+                        continue
+                    identifier=node('root_entity','crypto-scope|'+resolution['canonical_address'],target.identifier,None,
+                        scope_only=True,requested_address=resolution['canonical_address'],
+                        network_selection_required=True,candidate_chains=resolution['candidates'])
+                elif resolution['valid'] and resolution['target_kind']=='address':
+                    identifier=node('blockchain_address',resolution['identity_key'],target.identifier,None,
+                        chain=resolution['chain'],address=resolution['canonical_address'],owner_verified=False)
+                else:
+                    # Names, public NFT references and invalid representations
+                    # are research scope, not a verified/resolved wallet.
+                    identifier=node('root_entity','crypto-reference|'+(resolution['identity_key'] or target.identifier),target.identifier,None,
+                        scope_only=True,requested_identifier=target.identifier,
+                        name_resolution_pending=resolution['target_kind']!='address',
+                        resolution_status=resolution['error_code'] or 'deferred')
             elif target.entity_type=='image':identifier=node('image',target.identifier,target.identifier,None,attachment_id=target.identifier)
             elif target.entity_type=='domain':identifier=node('domain',target.identifier,target.identifier,None,domain=target.identifier)
             elif target.entity_type=='email':identifier=node('email',target.identifier,target.identifier,None,address=target.identifier)

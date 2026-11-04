@@ -21,17 +21,20 @@ export function hierarchy(nodes:GraphEntity[],edges:GraphRelation[],root:string)
     add(edge.to_id,edge.from_id,edge,cost+40)
   }
   const parent=new Map<string,string>(),parentEdge=new Map<string,GraphRelation>(),distance=new Map<string,number>()
-  const remaining=new Set(byId.keys());if(byId.has(root))distance.set(root,0)
-  while(remaining.size){
-    let current='',best=Infinity
-    for(const id of remaining){const d=distance.get(id)??Infinity;if(d<best||(d===best&&id<current)){best=d;current=id}}
-    if(!current)break
+  const remaining=new Set(byId.keys()),heap:{id:string;distance:number}[]=[]
+  const less=(a:{id:string;distance:number},b:{id:string;distance:number})=>a.distance<b.distance||a.distance===b.distance&&a.id<b.id
+  const push=(row:{id:string;distance:number})=>{heap.push(row);let at=heap.length-1;while(at>0){const parent=(at-1)>>1;if(!less(heap[at],heap[parent]))break;[heap[at],heap[parent]]=[heap[parent],heap[at]];at=parent}}
+  const pop=()=>{const first=heap[0],last=heap.pop()!;if(heap.length){heap[0]=last;let at=0;while(at*2+1<heap.length){let child=at*2+1;if(child+1<heap.length&&less(heap[child+1],heap[child]))child++;if(!less(heap[child],heap[at]))break;[heap[at],heap[child]]=[heap[child],heap[at]];at=child}}return first}
+  if(byId.has(root)){distance.set(root,0);push({id:root,distance:0})}
+  while(heap.length){
+    const row=pop(),current=row.id,best=row.distance
+    if(!remaining.has(current)||distance.get(current)!==best)continue
     remaining.delete(current)
     for(const next of adjacent.get(current)||[]){
       if(!remaining.has(next.id))continue
       const candidate=best+next.cost,previous=distance.get(next.id)??Infinity
       if(candidate<previous||(candidate===previous&&current<(parent.get(next.id)||'~'))){
-        distance.set(next.id,candidate);parent.set(next.id,current);parentEdge.set(next.id,next.edge)
+        distance.set(next.id,candidate);parent.set(next.id,current);parentEdge.set(next.id,next.edge);push({id:next.id,distance:candidate})
       }
     }
   }

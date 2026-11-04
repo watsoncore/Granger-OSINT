@@ -83,6 +83,60 @@ def redact(value, secrets=(), *, _depth=0, _budget=None):
     return None
 
 
+MAIGRET_DATABASE_ROW_LIMIT = 10_000
+
+
+def safe_maigret_diagnostics(value, secrets=()):
+    """Redact each original-engine check independently, without a 150-row cut.
+
+    The 10,000-row structural guard covers the actual local 8,232-entry database.
+    It rejects an oversized contract explicitly; it never silently slices it.
+    Other sources keep their existing redaction budgets.
+    """
+    if not isinstance(value,dict):
+        raise EvidenceContractError('maigret.source_diagnostics',value)
+    safe=redact({k:v for k,v in value.items() if k not in ('site_checks','resumption')},secrets)
+    if 'site_checks' in value:
+        checks=value['site_checks']
+        if not isinstance(checks,list) or len(checks)>MAIGRET_DATABASE_ROW_LIMIT:
+            raise EvidenceContractError('maigret.site_checks',checks)
+        safe['site_checks']=[]
+        states={'found','not_found','unknown','blocked','unavailable','errors','skipped'}
+        for row in checks:
+            if (not isinstance(row,dict) or not isinstance(row.get('site'),str) or
+                    not 1<=len(row['site'])<=160 or any(ord(c)<32 for c in row['site']) or
+                    not isinstance(row.get('status'),str) or row['status'] not in states):
+                raise EvidenceContractError('maigret.site_checks[]',row)
+            if 'reason' in row and (not isinstance(row['reason'],str) or len(row['reason'])>1000):
+                raise EvidenceContractError('maigret.site_checks[].reason',row.get('reason'))
+            if 'http_status' in row and not (row['http_status'] in (None,'') or
+                    type(row['http_status']) is int and 0<=row['http_status']<=599):
+                raise EvidenceContractError('maigret.site_checks[].http_status',row['http_status'])
+            safe['site_checks'].append(redact({k:row[k] for k in ('site','status','http_status','reason') if k in row},secrets))
+    if 'resumption' in value:
+        resume=value['resumption']
+        if not isinstance(resume,dict):raise EvidenceContractError('maigret.resumption',resume)
+        clean=redact({k:v for k,v in resume.items() if k!='remaining_sites'},secrets)
+        if 'remaining_sites' in resume:
+            sites=resume['remaining_sites']
+            if (not isinstance(sites,list) or len(sites)>MAIGRET_DATABASE_ROW_LIMIT or
+                    any(not isinstance(name,str) or not 1<=len(name)<=160 or any(ord(c)<32 for c in name) for name in sites)):
+                raise EvidenceContractError('maigret.resumption.remaining_sites',sites)
+            clean['remaining_sites']=[redact(name,secrets) for name in sites]
+        safe['resumption']=clean
+    return safe
+
+
+def sanitize_execution(value,secrets=()):
+    """Keep complete Maigret coverage in durable executions, still secret-free."""
+    if not isinstance(value,dict):raise EvidenceContractError('execution',value)
+    if value.get('tool')!='username_maigret' or 'source_diagnostics' not in value:
+        return redact(value,secrets)
+    safe=redact({k:v for k,v in value.items() if k!='source_diagnostics'},secrets)
+    safe['source_diagnostics']=safe_maigret_diagnostics(value['source_diagnostics'],secrets)
+    return safe
+
+
 def sanitize_evidence(value, secrets=()):
     """Bound a fact's payload without spending its identity/provenance budget.
 

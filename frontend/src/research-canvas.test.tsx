@@ -26,7 +26,28 @@ describe('Search analyst canvas controls',()=>{
     render(<ResearchCanvas state={{...emptyState,tools:[{id:'network_rdap',name:'RDAP',available:true,description:'Registry lookup',inputTypes:['ip'],state:'ready'}],research_canvas:{state:'ready',types:[],choices:[],document:doc}}} onSource={()=>{}}/>)
     fireEvent.click(screen.getByRole('button',{name:'Мои расследования'}));fireEvent.click(screen.getByRole('button',{name:'Select '+id}))
     fireEvent.change(screen.getByLabelText('Название узла'),{target:{value:'Моя аннотация'}})
+    fireEvent.click(screen.getByRole('button',{name:'Действия'}))
     fireEvent.click(screen.getByRole('button',{name:'Выполнить → просмотр'}))
     expect(act).toHaveBeenCalledWith('research_canvas_tool',expect.objectContaining({entity_id:id,query:'66.249.67.41',tool:'network_rdap'}))
   })
+  it('retains unsaved note drafts across revisions and switching the selected node',()=>{
+    const nodes:GraphEntity[]=['first','second'].map(id=>({id,type:'analyst_note',label:id,attributes:{},evidence_ids:[]})),doc={...document,id:'d'.repeat(32),entities:nodes},state={...emptyState,research_canvas:{state:'ready',types:[],choices:[],document:doc}}
+    const view=render(<ResearchCanvas state={state} onSource={()=>{}} active/>);fireEvent.click(screen.getByRole('button',{name:'Select first'}))
+    fireEvent.change(screen.getByLabelText('Заметка узла'),{target:{value:'Несохранённая русская гипотеза'}})
+    view.rerender(<ResearchCanvas state={{...state,research_canvas:{...state.research_canvas,document:{...doc,revision:5}}}} onSource={()=>{}} active/>)
+    expect(screen.getByLabelText('Заметка узла')).toHaveValue('Несохранённая русская гипотеза')
+    fireEvent.click(screen.getByRole('button',{name:'Select second'}));fireEvent.change(screen.getByLabelText('Заметка узла'),{target:{value:'Вторая заметка'}});fireEvent.click(screen.getByRole('button',{name:'Select first'}))
+    expect(screen.getByLabelText('Заметка узла')).toHaveValue('Несохранённая русская гипотеза')
+  })
+  it('keeps a mixed manual project visible when a wallet is not the investigation root',()=>{
+    const nodes:GraphEntity[]=[{id:'manualroot',type:'analyst_note',label:'Мой план',attributes:{},evidence_ids:[]},{id:'wallet',type:'blockchain_address',label:'TON wallet',attributes:{chain:'ton'},evidence_ids:[]},{id:'domain',type:'domain',label:'example.org',attributes:{},evidence_ids:[]}],doc={...document,id:'e'.repeat(32),entities:nodes}
+    render(<ResearchCanvas state={{...emptyState,research_canvas:{state:'ready',types:[],choices:[],document:doc}}} onSource={()=>{}} active/>)
+    expect(screen.getByRole('button',{name:'Select manualroot'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Select domain'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Представление полотна'})).toHaveTextContent('Все объекты')
+  })
 })
+
+vi.mock('./useCanvasMutations',()=>({registerCanvasDraftProvider:vi.fn(),useCanvasMutations:(current?:{document?:{id:string;revision:number}})=>({
+  pending:0,error:'',retry:vi.fn(),discard:vi.fn(),
+  send:(op:string,payload:Record<string,unknown>={})=>act('research_canvas_'+op,{id:current?.document?.id,revision:current?.document?.revision,...payload}),
+  edit:(operation:string,args:Record<string,unknown>={})=>act('research_canvas_edit',{id:current?.document?.id,revision:current?.document?.revision,operation,arguments:args})
+})}))
