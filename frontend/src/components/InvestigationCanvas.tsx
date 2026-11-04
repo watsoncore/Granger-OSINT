@@ -50,7 +50,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
         ctx.font='11px Manrope, sans-serif';ctx.fillStyle=muted;ctx.fillText(`${entityLabel(rows[0].node)} · ${rows.length}`,minX+12,minY+18)
       }
     }
-    const routes=routeEdges(p.edges,positions,v,p.nodes,p.mode).filter(route=>route.points.some(point=>onScreen(point,20)))
+    const routes=routeEdges(p.edges,positions,v,p.nodes,p.mode,{left:-20,top:-20,right:width+20,bottom:height+20})
     const occupied=cards.map(({point,box})=>({x:point.x-box.width/2-4,y:point.y-box.height/2-4,w:box.width+8,h:box.height+8}))
     for(const {edge,points}of routes){
       const selected=edge.id===p.selectedEdge,related=edge.from_id===p.selected||edge.to_id===p.selected

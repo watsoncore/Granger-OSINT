@@ -17,6 +17,7 @@ sys.path.insert(0,str(ROOT))
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--exe',type=Path);parser.add_argument('--gansar',action='store_true')
+    parser.add_argument('--keep-open',action='store_true',help='Keep the verified own QA window for native dialog review until qa-close.flag')
     args=parser.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Choose a fresh evidence directory')
     out.mkdir(parents=True);namespace=uuid.uuid4().hex
@@ -130,14 +131,41 @@ def main():
                 action('research_canvas_insert',{'id':identifier,'revision':doc['revision'],'token':preview['token'],'evidence_ids':[r['evidence_id'] for r in preview['results']]})
                 doc=settled(doc['revision'])['document'];check(tool+'_reinsertion_deduplicated',len(doc['entities'])==count)
             else:report.setdefault('external_blockers',[]).append({'tool':tool,'status':preview['status']})
+        # A saved automatic result is a preview, never an implicit graph mutation.
+        old=doc['revision'];before=len(doc['entities']);evidence_before={r['evidence_id'] for r in doc['evidence']}
+        saved_id=snapshot()['search']['investigation_id']
+        action('research_canvas_from_search',{'id':identifier,'revision':old,'investigation_id':saved_id})
+        imported=settled()['preview']
+        check('saved_search_preview_retains_scope_without_requests',imported['tool']=='saved_investigation' and imported['from_saved_data'] and imported['request_counts']['http_requests']==0)
+        check('saved_search_preview_does_not_insert',len(canvas()['document']['entities'])==before)
+        action('research_canvas_insert',{'id':identifier,'revision':old,'token':imported['token'],'evidence_ids':[r['evidence_id'] for r in imported['results']]})
+        doc=settled(old)['document']
+        check('saved_search_insert_deduplicates_existing_evidence',len(doc['entities'])==before and {r['evidence_id'] for r in doc['evidence']}==evidence_before)
+        if args.gansar:
+            previous_token=canvas()['preview']['token'];old=doc['revision']
+            action('research_canvas_tool',{'id':identifier,'revision':old,'entity_id':ids[2],'tool':'blockchain_gansar','query':'UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd','arguments':{'address':'UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd','operation':'cached'},'limit':10})
+            reused=wait(lambda:r['preview'] if (r:=canvas()).get('preview',{}).get('token')!=previous_token and r.get('preview',{}).get('tool')=='blockchain_gansar' and not snapshot()['search']['busy'] else None,90)
+            check('gansar_cached_repeat_is_explicit_and_makes_no_requests',reused['from_saved_data'] and reused['request_counts']['http_requests']==0 and bool(reused['results']))
+            action('research_canvas_insert',{'id':identifier,'revision':old,'token':reused['token'],'evidence_ids':[r['evidence_id'] for r in reused['results']]})
+            doc=settled(old)['document']
+            check('gansar_cached_repeat_does_not_duplicate_entities',len(doc['entities'])==before)
         wait(lambda:'Развернуть полотно' in dom().get('text',''));click('Развернуть полотно')
         wait(lambda:'Вернуть в Поиск' in dom().get('text',''))
-        drawn=metrics()['canvas'];points=json.loads(drawn['qaNodes']);first=next(n for n in points if n['id']==ids[0]);second=next(n for n in points if n['id']==ids[1])
+        def settled_metrics(document):
+            m=metrics()
+            if m.get('revision')!=str(document['revision']):return None
+            c=m.get('canvas') or {};points=json.loads(c.get('qaNodes','[]'))
+            for identifier in ids[:2]:
+                p=document['view']['positions'][identifier];v=document['view']['viewport']
+                node=next((n for n in points if n['id']==identifier),None)
+                if not node or abs(node['x']-(p['x']*v['scale']+v['x']))>1 or abs(node['y']-(p['y']*v['scale']+v['y']))>1:return None
+            return c
+        drawn=wait(lambda:settled_metrics(doc));points=json.loads(drawn['qaNodes']);first=next(n for n in points if n['id']==ids[0]);second=next(n for n in points if n['id']==ids[1])
         before=canvas()['document'];old=before['revision'];position=before['view']['positions'][ids[0]]
         at=[drawn['x']+first['x'],drawn['y']+first['y']]
         action('input',{'kind':'drag','at':at,'to':[at[0]+35,at[1]+20]})
         doc=settled(old)['document'];check('actual_native_node_drag_committed',abs(doc['view']['positions'][ids[0]]['x']-position['x'])>10)
-        drawn=metrics()['canvas'];points=json.loads(drawn['qaNodes']);first=next(n for n in points if n['id']==ids[0]);second=next(n for n in points if n['id']==ids[1])
+        drawn=wait(lambda:settled_metrics(doc));points=json.loads(drawn['qaNodes']);first=next(n for n in points if n['id']==ids[0]);second=next(n for n in points if n['id']==ids[1])
         root=next(n for n in doc['entities'] if n['id']==ids[0]);scale=doc['view']['viewport']['scale'];half=max(150 if root['attributes'].get('is_root') else 136,(252 if root['attributes'].get('is_root') else 220)*scale)/2
         old=doc['revision'];count=len(doc['relations'])
         action('input',{'kind':'drag','at':[drawn['x']+first['x']+half,drawn['y']+first['y']], 'to':[drawn['x']+second['x'],drawn['y']+second['y']]})
@@ -149,6 +177,9 @@ def main():
         check('reopened_sources_keep_provenance',all(row.get('evidence_id') for row in doc['evidence']))
         wait(lambda:'Развернуть полотно' in dom().get('text',''));click('Развернуть полотно')
         wait(lambda:'Вернуть в Поиск' in dom().get('text',''));shot('canvas-after-restart');report['passed']=True;save()
+        if args.keep_open:
+            print(json.dumps({'ready_for_native_dialog_review':True,'owned_pid':owned}),flush=True)
+            while process.poll() is None and not (out/'qa-close.flag').exists():time.sleep(.5)
     except Exception as error:report.update(passed=False,error_type=type(error).__name__,error=str(error)[:250]);save();raise
     finally:
         if process and process.poll() is None:

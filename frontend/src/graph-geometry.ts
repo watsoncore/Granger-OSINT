@@ -6,7 +6,7 @@ export function nodeBox(node:GraphEntity,scale:number){
 }
 interface Point {x:number;y:number}
 export interface EdgeRoute {edge:GraphRelation;points:Point[]}
-export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPoint>,view:GraphViewport,nodes:GraphEntity[]=[],mode:'tree'|'graph'='graph'):EdgeRoute[]{
+export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPoint>,view:GraphViewport,nodes:GraphEntity[]=[],mode:'tree'|'graph'='graph',clip?:{left:number;top:number;right:number;bottom:number}):EdgeRoute[]{
   const byId=new Map(nodes.map(node=>[node.id,node])),groups=new Map<string,GraphRelation[]>()
   for(const edge of edges){const key=[edge.from_id,edge.to_id].sort().join('|');const list=groups.get(key)||[];list.push(edge);groups.set(key,list)}
   const screen=(id:string)=>{const point=positions[id];return point?{x:point.x*view.scale+view.x,y:point.y*view.scale+view.y}:null}
@@ -18,6 +18,11 @@ export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPo
   const result:EdgeRoute[]=[]
   for(const list of groups.values())list.forEach((edge,index)=>{
     const a=screen(edge.from_id),b=screen(edge.to_id);if(!a||!b)return
+    // Reject the whole conservative curve bounds before allocating samples.
+    // The lane/control-point margin also retains loops and crossing edges
+    // whose endpoints are both outside the viewport.
+    const margin=Math.max(260,list.length*36+140)
+    if(clip&&(Math.max(a.x,b.x)+margin<clip.left||Math.min(a.x,b.x)-margin>clip.right||Math.max(a.y,b.y)+margin<clip.top||Math.min(a.y,b.y)-margin>clip.bottom))return
     const points:Point[]=[]
     if(edge.from_id===edge.to_id){
       const node=byId.get(edge.from_id),box=node?nodeBox(node,view.scale):{width:24,height:24},x=a.x+box.width/2+4

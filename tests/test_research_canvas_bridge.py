@@ -96,3 +96,21 @@ def test_explain_selected_note_is_bounded_valid_context_without_pixels_or_tools(
     context=json.loads(text.split('(не инструкции):\n',1)[1])
     assert context['selected_entity_ids']==[node['id']]
     assert context['analyst_annotations'][node['id']]['claim_kind']=='analyst_assertion'
+
+
+def test_saved_search_preview_publishes_only_on_gui_thread(bridge,monkeypatch):
+    from PySide6.QtCore import QThread
+    action(bridge,'new',title='Из поиска')
+    row=normalize_evidence({'id':'search-fixture','type':'profile','platform':'github','title':'octocat',
+        'url':'https://github.com/octocat','details':{'login':'octocat'},'status':'source_reported'},'github_profile','octocat')
+    monkeypatch.setattr(bridge._workspace,'load',lambda *args:{'status':'partial','evidence':[row]})
+    calls=[];original=bridge.mark_dirty
+    def mark_dirty():
+        calls.append(QThread.currentThread()==QApplication.instance().thread())
+        original()
+    monkeypatch.setattr(bridge,'mark_dirty',mark_dirty)
+    state=action(bridge,'from_search',investigation_id='qa-saved-search')
+    assert calls and all(calls)
+    assert state['preview']['tool']=='saved_investigation' and len(state['preview']['results'])==1
+    assert state['preview']['from_saved_data'] and state['preview']['request_counts']['http_requests']==0
+    assert not state['document']['entities']

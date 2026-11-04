@@ -56,7 +56,7 @@ class ResearchCanvasBridge:
         self.document=saved
         return self.render()
 
-    def accept_tool(self,outcome,canvas_id,node_id):
+    def accept_tool(self,outcome,canvas_id,node_id,*,notify=True):
         if not isinstance(outcome,dict):return
         from .desktop_bridge import source_view
         records=deepcopy(outcome.get('results',[]))
@@ -70,7 +70,7 @@ class ResearchCanvasBridge:
         while len(self.previews)>8:self.previews.pop(next(iter(self.previews)))
         if self.document and self.document['id']==canvas_id:
             self.state={**self.state,'preview':{k:v for k,v in self.preview.items() if k!='records'}}
-        self.bridge.mark_dirty()
+        if notify:self.bridge.mark_dirty()
 
     def action(self,action,payload):
         op=action.removeprefix('research_canvas_');bridge=self.bridge
@@ -198,7 +198,10 @@ class ResearchCanvasBridge:
                 identifier=payload.get('investigation_id') or bridge._workspace.active_id
                 snapshot=bridge._workspace.load(identifier,bridge.host.chat_widget._last_investigation)
                 records=snapshot.get('evidence',[])
-                self.accept_tool({'results':records,'tool':'saved_investigation','status':snapshot.get('status'),'limitations':['Сохранённые наблюдения; свежие запросы не выполнялись.']},self.document['id'],'')
+                # work() publishes its result on the GUI thread; never start a Qt
+                # timer here in the storage/projection worker.
+                self.accept_tool({'results':records,'tool':'saved_investigation','status':snapshot.get('status'),'from_saved_data':True,
+                    'source_diagnostics':{'providers_attempted':0,'http_requests':0},'limitations':['Сохранённые наблюдения; свежие запросы не выполнялись.']},self.document['id'],'',notify=False)
                 return self.render()
             raise CanvasError('Неизвестное действие расследования.')
         return self.work(task)

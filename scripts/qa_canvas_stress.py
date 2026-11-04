@@ -16,7 +16,8 @@ ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--exe',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p=argparse.ArgumentParser();p.add_argument('--exe',type=Path);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--counts',type=int,nargs='+',default=[50,100,500,1000,5000])
     args=p.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Use a fresh receipt directory')
     out.mkdir(parents=True);namespace=uuid.uuid4().hex
@@ -37,7 +38,8 @@ def main():
     from PIL import Image
     pixels=io.BytesIO();Image.new('RGB',(64,64),'#497077').save(pixels,'PNG')
     thumbnail='data:image/png;base64,'+base64.b64encode(pixels.getvalue()).decode('ascii')
-    for count in (50,100,500,1000,5000):
+    for count in args.counts:
+        if count not in (50,100,500,1000,5000):raise ValueError('Use documented stress sizes')
         d=new_document(f'SYNTHETIC QA · {count} objects')
         for i in range(count):
             kind=['person','domain','blockchain_address','image','analyst_note','entity_group'][i%6];identifier=_id(kind,'synthetic-qa-'+str(i))
@@ -47,7 +49,7 @@ def main():
             if i:d['relations'].append({'id':'rel_'+hashlib.sha256(str(i).encode()).hexdigest()[:24],'from_id':d['entities'][(i-1)//3]['id'],'to_id':identifier,'relation_type':'potentially_related','direction':'directed','origin':'synthetic_fixture','verification_status':'inferred','evidence_ids':[]})
         start=time.perf_counter();saved=store.save(d,0)
         cases.append({'id':saved['id'],'underlying_nodes':count,'edges':count-1,'encrypted_seed_write_ms':round((time.perf_counter()-start)*1000,2)})
-    report={'origin':'frozen-EXE','data_origin':'synthetic_fixture','exe_sha256':hashlib.sha256(args.exe.read_bytes()).hexdigest(),'cases':[],'checks':[],
+    report={'origin':'frozen-EXE' if args.exe else 'native-source','data_origin':'synthetic_fixture','exe_sha256':hashlib.sha256(args.exe.read_bytes()).hexdigest() if args.exe else None,'cases':[],'checks':[],
         'metric_semantics':'Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.'}
     def save():(out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     def wait(fn,seconds=60):
@@ -64,7 +66,9 @@ def main():
         return r
     def command(name,payload=None):
         r=send_command('pet',name,payload or {},timeout=12000)
-        if not r or not r.get('ok'):raise RuntimeError('Own IPC command failed')
+        if not r or not r.get('ok'):
+            report['ipc_failure']={'command':name,'action':(payload or {}).get('action'),'response':r,'parent_exit_code':process.poll() if process else None};save()
+            raise RuntimeError('Own IPC command failed: '+name+'/'+str((payload or {}).get('action')))
     def action(name,payload=None):command('qa_desktop',{'action':name,'payload':payload or {}});time.sleep(.15)
     def snapshot():
         command('qa_desktop',{'action':'save_state','name':'current-state'})
@@ -79,7 +83,8 @@ def main():
         action('research_canvas_metrics')
         return wait(lambda:m if (m:=snapshot().get('research_canvas',{}).get('metrics',{})).get('generation',0)>old else None)
     try:
-        with (out/'process.log').open('wb') as stream:process=subprocess.Popen([str(args.exe.resolve()),'--pet','--interaction-qa'],cwd=ROOT,env=os.environ.copy(),stdout=stream,stderr=subprocess.STDOUT)
+        argv=([str(args.exe.resolve())] if args.exe else [sys.executable,str(ROOT/'main.py')])+['--pet','--interaction-qa']
+        with (out/'process.log').open('wb') as stream:process=subprocess.Popen(argv,cwd=ROOT,env=os.environ.copy(),stdout=stream,stderr=subprocess.STDOUT)
         owned=wait(state,80)['pid'];wait(lambda:state()['desktop']['ready']);monitor.sample([process.pid])
         command('show_workspace',{'route':'search'});action('window',{'mode':'maximize'});click('Мои расследования')
         for index,case in enumerate(cases):
@@ -112,7 +117,10 @@ def main():
             if state():command('stop')
             process.wait(timeout=30)
         if process:
-            time.sleep(.3);report['owned_processes_left']=monitor.sample([process.pid])['process_count'];save()
+            report['parent_exit_code']=process.poll()
+            time.sleep(.3);report['owned_processes_left']=monitor.sample([process.pid])['process_count']
+            if report['owned_processes_left']:report.update(passed=False,error='Owned QA processes remain after exit')
+            save()
         monitor.close()
 
 

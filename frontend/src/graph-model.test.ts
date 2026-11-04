@@ -67,6 +67,11 @@ describe('investigation graph transformations',()=>{
       expect(hitRelation(edges,positions,v,point.x,point.y,nodes)?.id).toBe(route.edge.id)
     }
   })
+  it('culls distant edge geometry while retaining offscreen-endpoint crossings',()=>{
+    const nodes=['a','b','c','d'].map(id=>node(id)),positions={a:{x:-10000,y:200},b:{x:10000,y:200},c:{x:10000,y:10000},d:{x:11000,y:11000}}
+    const routes=routeEdges([edge('a','b','crossing'),edge('c','d','distant')],positions,{x:0,y:0,scale:1},nodes,'graph',{left:0,top:0,right:800,bottom:600})
+    expect(routes.map(r=>r.edge.id)).toEqual(['crossing'])
+  })
   it('queries public object fields without matching thousands of internal member IDs or image bytes',()=>{
     const nodes=[node('root'),{...node('group','entity_group'),attributes:{member_ids:['needle','other'],media:{thumbnail:'needle'}}},
       {...node('target'),label:'needle',attributes:{parent_group_id:'group'}},...Array.from({length:100},(_,i)=>({...node('extra'+i),attributes:{parent_group_id:'group'}}))]
