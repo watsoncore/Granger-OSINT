@@ -45,7 +45,7 @@ describe('shared analytical projection and semantic cards',()=>{
     expect(cardVariant(media)).toBe('media');expect(cardVariant(note)).toBe('note');expect(cardSize(media).height).toBeGreaterThan(cardSize(wallet).height)
     const rows=withCardPresentation([media,wallet],{photo:{width:500,height:330}}),points={photo:{x:0,y:0},root:{x:700,y:0}},view={x:100,y:100,scale:.4}
     expect(nodeBox(rows[0],.4)).toEqual({width:200,height:132});expect(hitNode(rows,points,view,190,100)?.id).toBe('photo');expect(hitNode(rows,points,view,215,100)).toBeUndefined()
-    const route=routeEdges([edge('photo','root')],points,view,rows)[0];expect(route.points[0].x).toBeCloseTo(204)
+    const route=routeEdges([edge('photo','root')],points,view,rows)[0];expect(route.points[0].x).toBeCloseTo(100+(250+4)*view.scale)
   })
   it('lays out large resizable media with unequal cards without overlapping or moving pins',()=>{
     const rows=withCardPresentation([node('root','blockchain_address'),node('photo','image'),node('note','analyst_note'),node('peer','blockchain_address')],{photo:{width:650,height:430}}),links=[edge('root','photo'),edge('root','note'),edge('root','peer')]

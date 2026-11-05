@@ -54,9 +54,12 @@ export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPo
   let byId=nodeIndexes.get(nodes);if(!byId){byId=new Map(nodes.map(node=>[node.id,node]));nodeIndexes.set(nodes,byId)}
   let groups=edgeGroups.get(edges);if(!groups){groups=new Map<string,GraphRelation[]>();for(const edge of edges){const key=[edge.from_id,edge.to_id].sort().join('|');const list=groups.get(key)||[];list.push(edge);groups.set(key,list)}edgeGroups.set(edges,groups)}
   const screen=(id:string)=>{const point=positions[id];return point?{x:point.x*view.scale+view.x,y:point.y*view.scale+view.y}:null}
+  // Detailed cards and their edge lanes share world units. Far-zoom glyphs
+  // have a minimum pixel size and still need scale-specific routes.
+  const unit=view.scale>=.38?view.scale:1
   const border=(id:string,center:Point,towards:Point)=>{
-    const node=byId.get(id),box=node?nodeBox(node,view.scale):{width:16,height:16}
-    const dx=towards.x-center.x,dy=towards.y-center.y,t=Math.min(1,1/Math.max(Math.abs(dx)/(box.width/2+4),Math.abs(dy)/(box.height/2+4),.0001))
+    const node=byId.get(id),box=node?nodeBox(node,view.scale):{width:16*unit,height:16*unit}
+    const dx=towards.x-center.x,dy=towards.y-center.y,t=Math.min(1,1/Math.max(Math.abs(dx)/(box.width/2+4*unit),Math.abs(dy)/(box.height/2+4*unit),.0001))
     return {x:center.x+dx*t,y:center.y+dy*t}
   }
   const result:EdgeRoute[]=[]
@@ -65,13 +68,13 @@ export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPo
     // Reject the whole conservative curve bounds before allocating samples.
     // The lane/control-point margin also retains loops and crossing edges
     // whose endpoints are both outside the viewport.
-    const margin=Math.max(260,list.length*36+140)
+    const margin=Math.max(260,list.length*36+140)*unit
     if(clip&&(Math.max(a.x,b.x)+margin<clip.left||Math.min(a.x,b.x)-margin>clip.right||Math.max(a.y,b.y)+margin<clip.top||Math.min(a.y,b.y)-margin>clip.bottom))return
     const points:Point[]=[]
     if(edge.from_id===edge.to_id){
-      const node=byId.get(edge.from_id),box=node?nodeBox(node,view.scale):{width:24,height:24},x=a.x+box.width/2+4
-      for(let step=0;step<=16;step++){const t=step/16,u=1-t;points.push({x:u*u*u*x+3*u*u*t*(x+90)+3*u*t*t*(x+90)+t*t*t*x,
-        y:u*u*u*(a.y-15)+3*u*u*t*(a.y-110)+3*u*t*t*(a.y+110)+t*t*t*(a.y+15)})}
+      const node=byId.get(edge.from_id),box=node?nodeBox(node,view.scale):{width:24*unit,height:24*unit},x=a.x+box.width/2+4*unit
+      for(let step=0;step<=16;step++){const t=step/16,u=1-t;points.push({x:u*u*u*x+3*u*u*t*(x+90*unit)+3*u*t*t*(x+90*unit)+t*t*t*x,
+        y:u*u*u*(a.y-15*unit)+3*u*u*t*(a.y-110*unit)+3*u*t*t*(a.y+110*unit)+t*t*t*(a.y+15*unit)})}
     }else if(mode==='tree'){
       const start=border(edge.from_id,a,{x:b.x,y:a.y}),end=border(edge.to_id,b,{x:a.x,y:b.y}),middle=(start.x+end.x)/2
       points.push(start,{x:middle,y:start.y},{x:middle,y:end.y},end)
@@ -79,7 +82,7 @@ export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPo
       // One deterministic lane per directed relation/asset; opposing flows remain pickable.
       const direction=edge.from_id<edge.to_id?1:-1,dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1
       const offset=(index-(list.length-1)/2)*36*direction
-      const c={x:(a.x+b.x)/2-dy/d*offset*2,y:(a.y+b.y)/2+dx/d*offset*2}
+      const c={x:(a.x+b.x)/2-dy/d*offset*2*unit,y:(a.y+b.y)/2+dx/d*offset*2*unit}
       const start=border(edge.from_id,a,c),end=border(edge.to_id,b,c)
       const segments=offset===0?2:Math.min(12,Math.max(4,Math.ceil(Math.sqrt(Math.abs(offset))*1.3)))
       for(let step=0;step<=segments;step++){const t=step/segments,u=1-t;points.push({x:u*u*start.x+2*u*t*c.x+t*t*end.x,y:u*u*start.y+2*u*t*c.y+t*t*end.y})}

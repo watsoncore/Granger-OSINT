@@ -224,12 +224,14 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       }
     }
     const routeNodes=resizing.current?p.nodes.map(node=>resizeSizes.current[node.id]?{...node,attributes:{...node.attributes,_card_size:resizeSizes.current[node.id]}}:node):p.nodes
+    const routingScale=v.scale<.38?v.scale:1
     let cachedRoutes=geometry.current
-    if(!cachedRoutes||cachedRoutes.edges!==p.edges||cachedRoutes.nodes!==routeNodes||cachedRoutes.scale!==v.scale||cachedRoutes.mode!==(p.mode||'graph')){
-      cachedRoutes=new EdgeRouteIndex(p.edges,routeNodes,positions,v.scale,p.mode);geometry.current=cachedRoutes
+    if(!cachedRoutes||cachedRoutes.edges!==p.edges||cachedRoutes.nodes!==routeNodes||cachedRoutes.scale!==routingScale||cachedRoutes.mode!==(p.mode||'graph')){
+      cachedRoutes=new EdgeRouteIndex(p.edges,routeNodes,positions,routingScale,p.mode);geometry.current=cachedRoutes
     }else if(cachedRoutes.positions!==positions)cachedRoutes.updatePositions(positions)
-    const worldRoutes=cachedRoutes.query(v,{left:-20,top:-20,right:width+20,bottom:height+20},moving.current)
-    const routes=worldRoutes.map(row=>({edge:row.edge,points:row.points.map(point=>({x:point.x*v.scale+v.x,y:point.y*v.scale+v.y}))}))
+    const movingNodes=!!drag.current?.id&&drag.current.moved
+    const worldRoutes=cachedRoutes.query(v,{left:-20,top:-20,right:width+20,bottom:height+20},movingNodes?moving.current:undefined)
+    const projectRoute=(row:(typeof worldRoutes)[number])=>({edge:row.edge,points:row.points.map(point=>({x:point.x*v.scale+v.x,y:point.y*v.scale+v.y}))})
     const rgba=(value:string,alpha:number):[number,number,number,number]=>{
       const known=edgeColors.current.get(value)
       if(known)return [known[0],known[1],known[2],alpha]
@@ -238,10 +240,12 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     }
     const layer=gpu.current
     let gpuRendered=false
-    if(layer?.available&&p.edges.length>=120){
-      const key=[cachedRoutes.generation,p.selected,p.selectedEdge,accent,border,muted,danger,warning,...worldRoutes.map(row=>row.edge.id)].join('|')
-      if(uploaded.current?.index!==cachedRoutes||uploaded.current.key!==key||drag.current?.moved||resizing.current){
-        const lines:GpuLine[]=worldRoutes.map(({edge,points})=>{
+    if(layer?.available&&worldRoutes.length>=120){
+      const key=[cachedRoutes.generation,p.root,p.selected,p.selectedEdge,accent,border,muted,danger,warning,movingNodes].join('|')
+      if(uploaded.current?.index!==cachedRoutes||uploaded.current.key!==key||movingNodes||resizing.current){
+        // The GPU clips the stationary mesh. Camera motion must not rebuild
+        // it just because a different set of edges crosses the viewport.
+        const lines:GpuLine[]=(movingNodes?worldRoutes:cachedRoutes.routes).map(({edge,points})=>{
           const selected=edge.id===p.selectedEdge,related=edge.from_id===p.selected||edge.to_id===p.selected,manual=edge.claim_kind==='analyst_assertion'
           const incoming=edge.to_id===p.root&&edge.from_id!==p.root,outgoing=edge.from_id===p.root&&edge.to_id!==p.root
           const flow=edge.aggregate&&(incoming||outgoing)?incoming?'#68aab4':'#cfaa73':null
@@ -254,8 +258,12 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       }
       gpuRendered=layer.render(v,width,height,dpr)
     }
+    if(gpuCanvas.current)gpuCanvas.current.style.visibility=gpuRendered?'visible':'hidden'
     if(qa)element.dataset.renderer=gpuRendered?'webgl2-edges-canvas-cards':'canvas2d'
-    const occupied=cards.map(({point,box})=>({x:point.x-box.width/2-4,y:point.y-box.height/2-4,w:box.width+8,h:box.height+8}))
+    const showRelatedLabels=v.scale>.45&&p.nodes.length<=45
+    const needsLabel=(edge:GraphRelation)=>edge.id===p.selectedEdge||showRelatedLabels&&(!!edge.aggregate||edge.from_id===p.selected||edge.to_id===p.selected)
+    const routes=(gpuRendered?worldRoutes.filter(row=>needsLabel(row.edge)):worldRoutes).map(projectRoute)
+    const occupied=p.selectedEdge||showRelatedLabels?cards.map(({point,box})=>({x:point.x-box.width/2-4,y:point.y-box.height/2-4,w:box.width+8,h:box.height+8})):[]
     for(const {edge,points}of routes){
       const selected=edge.id===p.selectedEdge,related=edge.from_id===p.selected||edge.to_id===p.selected
       const incoming=edge.to_id===p.root&&edge.from_id!==p.root,outgoing=edge.from_id===p.root&&edge.to_id!==p.root
@@ -270,7 +278,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       if(edge.direction==='bidirectional'){const end=points[0],prior=points[1],angle=Math.atan2(end.y-prior.y,end.x-prior.x);ctx.fillStyle=customColor||muted;ctx.beginPath();ctx.moveTo(end.x,end.y);ctx.lineTo(end.x-Math.cos(angle-.45)*8,end.y-Math.sin(angle-.45)*8);ctx.lineTo(end.x-Math.cos(angle+.45)*8,end.y-Math.sin(angle+.45)*8);ctx.closePath();ctx.fill()}
       }
       ctx.globalAlpha=1
-      if(selected||v.scale>.45&&p.nodes.length<=45&&(edge.aggregate||related)){
+      if(needsLabel(edge)){
         const asset=edge.aggregate?.asset_label||edge.aggregate?.asset||'',label=edge.aggregate?`${edge.aggregate.count} · ${formatGraphAmount(edge.aggregate.amount)} ${asset.length>12?'актив':asset}`:relationLabels[edge.relation_type]||edge.relation_type
         ctx.font='11px Manrope, sans-serif';const caption=clipped(label,190),w=ctx.measureText(caption).width+12
         for(const fraction of [.5,.32,.68]){
@@ -380,12 +388,12 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     if(!qa)return
     element.dataset.drawnLabels=String(drawnLabels);element.dataset.drawnImages=String(drawnImages)
     element.dataset.qaNodes=JSON.stringify(qaNodes)
-    element.dataset.qaEdges=JSON.stringify(routes.slice(0,20).map(({edge,points})=>({id:edge.id,...points[Math.floor(points.length*.6)]})))
+    element.dataset.qaEdges=JSON.stringify(worldRoutes.slice(0,20).map(projectRoute).map(({edge,points})=>({id:edge.id,...points[Math.floor(points.length*.6)]})))
     element.dataset.zoom=String(v.scale);element.dataset.panX=String(v.x);element.dataset.panY=String(v.y)
     element.dataset.semanticZoom=v.scale<.38?'far':v.scale<.75?'medium':'close'
     element.dataset.qaFarClusters=JSON.stringify(farClusters.current.slice(0,30).map(cluster=>({...cluster,count:cluster.members.length,members:cluster.members.slice(0,64)})))
     element.dataset.modelNodes=String(original.nodes.length)
-    element.dataset.drawnNodes=String(p.nodes.length);element.dataset.drawnEdges=String(routes.length);element.dataset.paintMs=String(performance.now()-started)
+    element.dataset.drawnNodes=String(p.nodes.length);element.dataset.drawnEdges=String(worldRoutes.length);element.dataset.paintMs=String(performance.now()-started)
     element.dataset.modelEdges=String(p.edges.length);element.dataset.onScreenNodes=String(cards.length)
     const now=performance.now();paints.current.push(now-started);if(lastPaint.current&&now-lastPaint.current<100)intervals.current.push(now-lastPaint.current)
     if(lastInput.current){latencies.current.push(now-lastInput.current);lastInput.current=0}lastPaint.current=now
@@ -525,7 +533,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
         let changed=true;while(changed){changed=false;for(const n of p.nodes)if(!ids.has(n.id)&&ids.has(String(n.attributes.parent_group_id))){ids.add(n.id);changed=true}}
         for(const id of ids)if(points.current[id])moving.current[id]={...points.current[id]}
         if(!p.selection?.includes(node.id)||event.ctrlKey||event.metaKey)p.onSelect(node.id,event.ctrlKey||event.metaKey)
-      }else{const edge=hitRelation(p.edges,points.current,v,point.x,point.y,p.nodes,p.mode);if(edge)p.onEdge(edge.id)}
+      }
     }}
     onPointerMove={event=>{
       const point=local(event)
@@ -554,6 +562,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
         Object.assign(pendingPoints.current,updates);spatial.current=undefined;geometry.current?.updatePositions(points.current);semanticCache.current=undefined;miniGeometry.current=undefined
         p.onCommitPositions(updates)
       }else commitViewport()}
+      else if(current&&!current.id){const edge=hitRelation(p.edges,points.current,v,point.x,point.y,p.nodes,p.mode);if(edge)p.onEdge(edge.id)}
       if(current?.id&&!current.moved){
         const node=nodeAt(point),previous=lastMediaClick.current,at=performance.now()
         if(node?.id===current.id&&visualMedia(node)){

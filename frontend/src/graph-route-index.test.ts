@@ -13,7 +13,7 @@ describe('cached world routes',()=>{
  it('matches original pixel lanes through camera translations and zoom',()=>{
   const positions={a:{x:120,y:160},b:{x:600,y:310}},edges=[edge('out','a','b'),edge('back','b','a')]
   for(const scale of [.3,1,2]){
-   const view={x:130,y:-50,scale},cached=new EdgeRouteIndex(edges,nodes,positions,scale).query(view,{left:-5000,top:-5000,right:5000,bottom:5000})
+   const view={x:130,y:-50,scale},cached=new EdgeRouteIndex(edges,nodes,positions,scale<.38?scale:1).query(view,{left:-5000,top:-5000,right:5000,bottom:5000})
    const original=routeEdges(edges,positions,view,nodes)
    expect(cached.map(row=>row.edge.id)).toEqual(original.map(row=>row.edge.id))
    cached.forEach((row,i)=>row.points.forEach((point,j)=>{expect(point.x*scale+view.x).toBeCloseTo(original[i].points[j].x);expect(point.y*scale+view.y).toBeCloseTo(original[i].points[j].y)}))

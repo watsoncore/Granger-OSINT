@@ -211,7 +211,7 @@ def main():
             for delta in (-120,120,-120,120):action('input',{'kind':'wheel','at':[c['x']+c['width']/2,c['y']+c['height']/2],'delta':delta})
             wait(lambda:metrics().get('queue_pending',0)==0 and not snapshot().get('research_canvas',{}).get('busy'))
             final=metrics()['canvas'];frame=json.loads(final.get('frameMetrics','{}'))
-            case['renderer']={k:final.get(k) for k in ('paintMs','drawnNodes','onScreenNodes','modelEdges','drawnImages','zoom')}
+            case['renderer']={k:final.get(k) for k in ('renderer','paintMs','drawnNodes','onScreenNodes','modelNodes','modelEdges','drawnImages','zoom')}
             for key,values in frame.items():
                 if values:
                     ordered=sorted(values)
@@ -221,6 +221,12 @@ def main():
             intervals=frame.get('active_intervals_ms',[])
             case['active_interval_reciprocal_fps']=round(1000/statistics.median(intervals),2) if intervals else None
             case['resources']=summarize(samples)
+            if synthetic and target==5000:
+                click('Показать всё')
+                fitted=wait(lambda:m if (m:=metrics().get('canvas',{})) and float(m.get('zoom',1))<.38 else None)
+                case['fit_overview']={k:fitted.get(k) for k in ('renderer','paintMs','drawnNodes','onScreenNodes','modelNodes','modelEdges','drawnEdges','zoom')}
+                if int(fitted['modelNodes'])!=target:raise AssertionError('Fit overview dropped objects from the model')
+                command('qa_snapshot',{'name':'synthetic-5000-fit'})
             if synthetic and target==1000:
                 report['stage']['phase']='search-layouts';save()
                 click('Настроить полотно');click('Поиск на полотне');action('input',{'kind':'text','text':'person 0'})

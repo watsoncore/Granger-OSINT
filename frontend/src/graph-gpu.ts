@@ -55,8 +55,15 @@ export class GraphGpuLayer {
   }
   setLines(lines:GpuLine[],origin={x:0,y:0}){
     this.origin=origin
-    const values:number[]=[]
-    const put=(point:{x:number;y:number},dx:number,dy:number,line:GpuLine,distance:number,dashed=line.dashed)=>values.push(point.x-origin.x,point.y-origin.y,dx,dy,...line.color,distance,dashed?line.dotted?2:1:0)
+    const capacity=lines.reduce((sum,line)=>sum+Math.max(0,line.points.length-1)*6+(line.arrowStart?3:0)+(line.arrowEnd?3:0),0)
+    const values=new Float32Array(capacity*10)
+    let offset=0
+    const put=(point:{x:number;y:number},dx:number,dy:number,line:GpuLine,distance:number,dashed=line.dashed)=>{
+      values[offset++]=point.x-origin.x;values[offset++]=point.y-origin.y
+      values[offset++]=dx;values[offset++]=dy
+      values.set(line.color,offset);offset+=4
+      values[offset++]=distance;values[offset++]=dashed?(line.dotted?2:1):0
+    }
     const arrow=(tip:{x:number;y:number},from:{x:number;y:number},line:GpuLine)=>{
       const dx=tip.x-from.x,dy=tip.y-from.y,length=Math.hypot(dx,dy)||1,ux=dx/length,uy=dy/length,size=Math.max(6,line.width*3)
       put(tip,0,0,line,0,false);put(tip,-ux*size-uy*size*.52,-uy*size+ux*size*.52,line,0,false);put(tip,-ux*size+uy*size*.52,-uy*size-ux*size*.52,line,0,false)
@@ -71,7 +78,7 @@ export class GraphGpuLayer {
       }
       if(line.points.length>1){if(line.arrowEnd)arrow(line.points.at(-1)!,line.points.at(-2)!,line);if(line.arrowStart)arrow(line.points[0],line.points[1],line)}
     }
-    this.data=new Float32Array(values)
+    this.data=values.subarray(0,offset)
     if(this.gl&&this.buffer){this.gl.bindBuffer(this.gl.ARRAY_BUFFER,this.buffer);this.gl.bufferData(this.gl.ARRAY_BUFFER,this.data,this.gl.DYNAMIC_DRAW)}
   }
   render(view:GraphViewport,width:number,height:number,dpr=1){
