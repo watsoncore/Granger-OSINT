@@ -1,0 +1,2139 @@
+{
+  "code_commit": "174ae70861106d0f32db670f4307282db4b5102d",
+  "branch": "main",
+  "exe": {
+    "canonical_path": "dist/Granger-OSINT.exe",
+    "bytes": 279427970,
+    "sha256": "6a9e9224ea474acbec80ab58d4178148a7fe0529c016b8e03c0f67a9bbc83230",
+    "frozen_modules": 163,
+    "resource_checks": 239
+  },
+  "tests": {
+    "backend_full": "2036 passed, 2 skipped, 32 subtests passed",
+    "backend_full_scope": "Before final native-input and media QA refinements",
+    "late_backend_scope": "87 passed plus release-gate regression 16 passed, overlapping scopes",
+    "frontend": "206 passed in 35 files",
+    "native_smoke": 22
+  },
+  "native_media": {
+    "passed": true,
+    "origin": "frozen-Windows-EXE",
+    "exe_sha256": "6a9e9224ea474acbec80ab58d4178148a7fe0529c016b8e03c0f67a9bbc83230",
+    "checks": [
+      {
+        "name": "native_route_Гермиона",
+        "passed": true
+      },
+      {
+        "name": "native_route_Поиск",
+        "passed": true
+      },
+      {
+        "name": "native_route_История",
+        "passed": true
+      },
+      {
+        "name": "native_route_Canvas",
+        "passed": true
+      },
+      {
+        "name": "native_route_Настройки",
+        "passed": true
+      },
+      {
+        "name": "command_palette_native_keyboard",
+        "passed": true
+      },
+      {
+        "name": "qt_drop_exact_world_position_and_bytes",
+        "passed": true
+      },
+      {
+        "name": "stored_media_has_no_inline_thumbnail",
+        "passed": true
+      },
+      {
+        "name": "media_resize_saved",
+        "passed": true
+      },
+      {
+        "name": "windows_clipboard_ctrl_v_imports_bitmap",
+        "passed": true
+      },
+      {
+        "name": "local_path_import",
+        "passed": true
+      },
+      {
+        "name": "https_import_pins_verified_original",
+        "passed": true
+      },
+      {
+        "name": "native_double_click_opens_full_viewer",
+        "passed": true
+      },
+      {
+        "name": "restart_preserves_media_positions_sizes_and_originals",
+        "passed": true
+      },
+      {
+        "name": "reopened_remote_uses_saved_attachment",
+        "passed": true
+      },
+      {
+        "name": "attachment_dedup_and_evidence_preserved",
+        "passed": true
+      },
+      {
+        "name": "detach_preserves_evidence_and_encrypted_original",
+        "passed": true
+      },
+      {
+        "name": "responsive_window_1366",
+        "passed": true
+      },
+      {
+        "name": "responsive_window_1600",
+        "passed": true
+      },
+      {
+        "name": "responsive_window_1920",
+        "passed": true
+      },
+      {
+        "name": "responsive_window_2560",
+        "passed": true
+      },
+      {
+        "name": "effects_mode_reduced",
+        "passed": true
+      },
+      {
+        "name": "effects_mode_off",
+        "passed": true
+      },
+      {
+        "name": "effects_mode_full",
+        "passed": true
+      },
+      {
+        "name": "qt_scale_200_canvas_readable",
+        "passed": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "chat.png",
+        "sha256": "b569219708496a66b609cac681269530735a5369d298f81ab735d069544d939b"
+      },
+      {
+        "name": "search.png",
+        "sha256": "9437490ea91d5fdff24e06b57de44d98174513b98c0207c737e7e23f5e3084f1"
+      },
+      {
+        "name": "history.png",
+        "sha256": "52cf1858cff6a6d5419d8bbde31b1e08b296caa32153c19410b16eb26cc600a6"
+      },
+      {
+        "name": "text-canvas.png",
+        "sha256": "e34c5afc5d9dbbe5746efab7423030bb5740abbbc0309280f46d6fe4c56cac01"
+      },
+      {
+        "name": "settings.png",
+        "sha256": "a4bf85816fb206688047a337eb674651907156da29701e31e86ea8c6a07dcbcf"
+      },
+      {
+        "name": "command-palette.png",
+        "sha256": "37fabd6266e7b271ce72c6ad4f024098ac225d544c0612555a133284d2da6c35"
+      },
+      {
+        "name": "media-drop.png",
+        "sha256": "8111fd0afe8bbdadffe7dd3fd9e84d6f9e2791c9b3c46cb908c1cf4727807ad5"
+      },
+      {
+        "name": "media-clipboard.png",
+        "sha256": "b45811059125dd7a639f81729c7b78aad5083e9bf4f1f8f537c73caecddd3b16"
+      },
+      {
+        "name": "media-viewer.png",
+        "sha256": "03d136aac0bab7c72181fcd51d2242477772afde5876dafa43ae9e8b3a8eb021"
+      },
+      {
+        "name": "media-original.png",
+        "sha256": "8716793b4daa40bdf327da4f8f2aaaeba5d9856f270be24cdbea77b23b7aac79"
+      },
+      {
+        "name": "media-attached.png",
+        "sha256": "87ff5fc23a9ed74224114b9b3956ff3988f9eb822f812a8c194014b22aab4fca"
+      },
+      {
+        "name": "graph-qt-200.png",
+        "sha256": "aa563522dd04a00b1aa450b108ad556427783c48e44be889fdb8d01b85ec0dac"
+      }
+    ],
+    "startup_owned_workspace_seconds": 12.939,
+    "navigation_observed_seconds": {
+      "Гермиона": 0.62,
+      "Поиск": 0.616,
+      "История": 0.625,
+      "Canvas": 0.616,
+      "Настройки": 0.622
+    },
+    "viewports": [
+      {
+        "requested_qt_logical": [
+          1366,
+          768
+        ],
+        "web_view": [
+          1366,
+          768
+        ],
+        "native_dpr": 1.25
+      },
+      {
+        "requested_qt_logical": [
+          1600,
+          900
+        ],
+        "web_view": [
+          1600,
+          900
+        ],
+        "native_dpr": 1.25
+      },
+      {
+        "requested_qt_logical": [
+          1920,
+          1080
+        ],
+        "web_view": [
+          1920,
+          1080
+        ],
+        "native_dpr": 1.25
+      },
+      {
+        "requested_qt_logical": [
+          2560,
+          1440
+        ],
+        "web_view": [
+          2560,
+          1440
+        ],
+        "native_dpr": 1.25
+      }
+    ],
+    "qt_scale_200": {
+      "observed_native_dpr": 2.5,
+      "canvas": [
+        489.8000183105469,
+        217.40000915527344
+      ]
+    },
+    "temporary_profile_removed": true
+  },
+  "native_graph": {
+    "schema": "granger-v5-native/1",
+    "origin": "frozen-Windows-EXE",
+    "passed": true,
+    "exe_sha256": "6a9e9224ea474acbec80ab58d4178148a7fe0529c016b8e03c0f67a9bbc83230",
+    "checks": [
+      {
+        "name": "observed_crypto600_root_visible_readable",
+        "passed": true
+      },
+      {
+        "name": "counterparty_page_has_accessible_rows",
+        "passed": true
+      },
+      {
+        "name": "real_counterparty_pagination_changes_objects",
+        "passed": true
+      },
+      {
+        "name": "counterparty_page_preserves_durable_layout_revision",
+        "passed": true
+      },
+      {
+        "name": "full_address_filter_preserves_saved_camera_and_positions",
+        "passed": true
+      },
+      {
+        "name": "full_address_index_search_and_selection",
+        "passed": true
+      },
+      {
+        "name": "selected_flow_exposes_original_transactions",
+        "passed": true
+      },
+      {
+        "name": "transaction_inspector_has_exact_hash_sender_recipient",
+        "passed": true
+      },
+      {
+        "name": "transaction_and_root_have_separate_visible_cards",
+        "passed": true
+      },
+      {
+        "name": "transaction_source_links_preserve_original_evidence",
+        "passed": true
+      },
+      {
+        "name": "native_flow_collapse_removes_only_presentation",
+        "passed": true
+      },
+      {
+        "name": "far18_percent_uses_named_semantic_marks",
+        "passed": true
+      },
+      {
+        "name": "far_cluster_click_zooms_to_original_members",
+        "passed": true
+      },
+      {
+        "name": "near_zoom_shows_full_cards",
+        "passed": true
+      },
+      {
+        "name": "native_pan_camera_no_snapback",
+        "passed": true
+      },
+      {
+        "name": "native_node_drag_persisted_in_manual_layout",
+        "passed": true
+      },
+      {
+        "name": "native_manual_wallet_manual_preserves_positions_camera",
+        "passed": true
+      },
+      {
+        "name": "native_layout_flow",
+        "passed": true
+      },
+      {
+        "name": "native_layout_radial",
+        "passed": true
+      },
+      {
+        "name": "native_layout_communities",
+        "passed": true
+      },
+      {
+        "name": "native_layout_timeline",
+        "passed": true
+      },
+      {
+        "name": "native_layout_wallet",
+        "passed": true
+      },
+      {
+        "name": "socmint_root_profiles_without_technical_multiplication",
+        "passed": true
+      },
+      {
+        "name": "socmint_public_profile_pages",
+        "passed": true
+      },
+      {
+        "name": "socmint_profile_url_and_identity_caution",
+        "passed": true
+      },
+      {
+        "name": "real_restart_preserves_observed_evidence_positions_types",
+        "passed": true
+      },
+      {
+        "name": "fresh_ton_native_worker_parse_insert_readable",
+        "passed": true
+      },
+      {
+        "name": "fresh_btc_native_worker_parse_insert_readable",
+        "passed": true
+      },
+      {
+        "name": "fresh_maigret_streamed_findings_before_completion",
+        "passed": true
+      },
+      {
+        "name": "fresh_maigret_native_profiles_inserted",
+        "passed": true
+      },
+      {
+        "name": "qt_scale_125_root_readable",
+        "passed": true
+      },
+      {
+        "name": "qt_scale_150_root_readable",
+        "passed": true
+      },
+      {
+        "name": "native_density_changes_index_geometry",
+        "passed": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "crypto-overview.png",
+        "sha256": "6565047af73e4c9c0f112250b7b98bf88384fe0e0aee8f4a095f6e4c2218ab7a"
+      },
+      {
+        "name": "counterparty-page2.png",
+        "sha256": "08e16b925ab417ac8ea94dcb7443e11ee0de0e59cf314cf698e4021e35b0de10"
+      },
+      {
+        "name": "counterparty-selected.png",
+        "sha256": "0f8dbd189c40b9f8c61aefb1f76aa282630be5ea6d1a496f0d7b96d5a68d39cf"
+      },
+      {
+        "name": "flow-drill.png",
+        "sha256": "891a41ae85db7f07c67f283004fb9a0fa063276acf24581021d966472fc8d067"
+      },
+      {
+        "name": "transaction-selected.png",
+        "sha256": "d7d4bca4339ea50f8ef6f9b411360e44574053b34af7d6b7eacef5cca54e5dbf"
+      },
+      {
+        "name": "transaction-provenance.png",
+        "sha256": "959817a64755be1c56a687949869bf43ab4a0896f459f5292f479dcd0f7ad7fa"
+      },
+      {
+        "name": "semantic-far18.png",
+        "sha256": "a8564497b3386fec0551c955660b7c64bbba67da6400a977361403a37fdbfaf7"
+      },
+      {
+        "name": "semantic-near.png",
+        "sha256": "6afbe7afb48fb0e38755c73602b2f987c5d0a274f897b946b0149adf3795a3c5"
+      },
+      {
+        "name": "socmint-profiles.png",
+        "sha256": "915b3c219b7247411efcaff321a050097fd75bd80f9793ef57918d5731a52353"
+      },
+      {
+        "name": "socmint-profile-selected.png",
+        "sha256": "2dd4b0adabae7697f16e9d9585694379350e035ef40223b7ad5c2dabc37a7df9"
+      },
+      {
+        "name": "crypto-reopened.png",
+        "sha256": "f5355f35a620b04aa20339a0e5bbe198ae7989d067c7378f60dfd2ccb2f524ca"
+      },
+      {
+        "name": "fresh-ton-live.png",
+        "sha256": "4a323266dcf48c594c98f8fc86dfe8b54b99d9df0e462dd622340af33c82d591"
+      },
+      {
+        "name": "fresh-btc-live.png",
+        "sha256": "60e6cccd5d5e3f5ecd123657d2f471e605fc0d1baeecc4cd1f900a086fe40d43"
+      },
+      {
+        "name": "fresh-maigret-live.png",
+        "sha256": "cc120a12d523c62802d3c3d9597defbd463609d9e406e755a06b4422e3956b86"
+      },
+      {
+        "name": "crypto-dpi125.png",
+        "sha256": "6b06ac449f1fb9c18dc9c9cdcb1f78c41cbffb6355a76fb4fbbac1f5cd216250"
+      },
+      {
+        "name": "crypto-windowed125.png",
+        "sha256": "9c72216c4db87860a1a69ae71779ae25c3cc32a4fa22af448f68553058cb61f6"
+      },
+      {
+        "name": "crypto-dpi150.png",
+        "sha256": "2c322b36ad6b1dff51ffa8b4fdd833ea9be8d62cbe35d9f18323f430aabbcefc"
+      },
+      {
+        "name": "crypto-windowed150.png",
+        "sha256": "f340d46a7bb1e9b398c40b8268347db2f9b94f11c9e7f24bb621feaa4dd2e8ae"
+      }
+    ],
+    "fresh_network_requested": true,
+    "gateway_calls": 0,
+    "dpi_cases": [
+      {
+        "requested_qt_scale": 1,
+        "observed_native_dpr": 1.25,
+        "canvas_width": 1280.800048828125,
+        "canvas_height": 551.2000122070312,
+        "system_settings_changed": false
+      },
+      {
+        "requested_qt_scale": 1.25,
+        "observed_native_dpr": 1.5625,
+        "canvas_width": 669.8800048828125,
+        "canvas_height": 390.0799865722656,
+        "system_settings_changed": false,
+        "windowed_canvas": {
+          "width": 588.4400024414062,
+          "height": 353.7599792480469
+        }
+      },
+      {
+        "requested_qt_scale": 1.5,
+        "observed_native_dpr": 1.875,
+        "canvas_width": 492.86669921875,
+        "canvas_height": 285.6000061035156,
+        "system_settings_changed": false,
+        "windowed_canvas": {
+          "width": 452.86669921875,
+          "height": 301.6000061035156
+        }
+      }
+    ],
+    "observed_inputs": {
+      "crypto": [
+        {
+          "file": "ton-observed-private.json",
+          "sha256": "4d2a5739025881ffa25913e610ba3308eb984804e581e2895e680260ca225f3f",
+          "records": 236,
+          "source_status": "partial",
+          "data_origin": "reused_real_public_observations",
+          "network_calls_for_reuse": 0
+        },
+        {
+          "file": "gansar-eth-live-raw.json",
+          "sha256": "243b38c9b055083b7bf125b3119dcc2a82d615e683a39f95f2c8d5a6f60569ab",
+          "records": 234,
+          "source_status": "partial",
+          "data_origin": "reused_real_public_observations",
+          "network_calls_for_reuse": 0
+        },
+        {
+          "file": "gansar-solana-live-raw.json",
+          "sha256": "1ac51f670f22b237272ba52ea25a44f9b6d5b1da8001e68ea7ada81b971bbce7",
+          "records": 2000,
+          "source_status": "partial",
+          "data_origin": "reused_real_public_observations",
+          "network_calls_for_reuse": 0
+        }
+      ],
+      "socmint": {
+        "file": "maigret-socmint-observed-live-raw.json",
+        "sha256": "8fc511b253934098eb1b57a08a1e1b4da5aba0544cf5d9199e288cf9d0eb7d67",
+        "records": 26,
+        "source_status": "partial",
+        "data_origin": "reused_real_public_observations",
+        "network_calls_for_reuse": 0
+      }
+    },
+    "observed_counts": {
+      "crypto_nodes": 1621,
+      "crypto_edges": 3241,
+      "crypto_evidence": 846,
+      "socmint_profiles": 26,
+      "socmint_raw_nodes": 105
+    },
+    "phase": "complete",
+    "motion": {
+      "passed": true,
+      "camera_observations": 11,
+      "stable_scale": true,
+      "backward_jumps": 0,
+      "largest_backward_jump_px": 0,
+      "expected_pan_px": [
+        108,
+        60
+      ],
+      "actual_pan_px": [
+        108.0,
+        60.0
+      ],
+      "endpoint_error_px": 0.0,
+      "settled_ack_error_px": 0.0,
+      "failure_code": null,
+      "origin": "actual owned QWidget snapshots + renderer rAF telemetry",
+      "recording_semantics": "Discrete native frames after six Qt drag gestures, each eight mouse moves at12ms; GIF timing reflects snapshot times. No continuous FPS claim.",
+      "native_drag_segments": 6,
+      "native_pointer_moves": 48,
+      "native_snapshots": 7,
+      "recording_duration_seconds": 5.7829,
+      "camera_frames": [
+        {
+          "x": 487.8984375,
+          "y": 275.59375,
+          "scale": 0.9975466314031181,
+          "event": "ack",
+          "at_ms": 0.0
+        },
+        {
+          "x": 505.8984375,
+          "y": 285.59375,
+          "scale": 0.9975466314031181,
+          "event": "commit",
+          "at_ms": 179.3
+        },
+        {
+          "x": 505.8984375,
+          "y": 285.59375,
+          "scale": 0.9975466314031181,
+          "event": "ack",
+          "at_ms": 535.7
+        },
+        {
+          "x": 523.8984375,
+          "y": 295.59375,
+          "scale": 0.9975466314031181,
+          "event": "commit",
+          "at_ms": 977.6
+        },
+        {
+          "x": 541.8984375,
+          "y": 305.59375,
+          "scale": 0.9975466314031181,
+          "event": "commit",
+          "at_ms": 2154.4
+        },
+        {
+          "x": 541.8984375,
+          "y": 305.59375,
+          "scale": 0.9975466314031181,
+          "event": "ack",
+          "at_ms": 2866.0
+        },
+        {
+          "x": 541.8984375,
+          "y": 305.59375,
+          "scale": 0.9975466314031181,
+          "event": "ack",
+          "at_ms": 3148.4
+        },
+        {
+          "x": 559.8984375,
+          "y": 315.59375,
+          "scale": 0.9975466314031181,
+          "event": "commit",
+          "at_ms": 3500.1
+        },
+        {
+          "x": 577.8984375,
+          "y": 325.59375,
+          "scale": 0.9975466314031181,
+          "event": "commit",
+          "at_ms": 4490.1
+        },
+        {
+          "x": 595.8984375,
+          "y": 335.59375,
+          "scale": 0.9975466314031181,
+          "event": "commit",
+          "at_ms": 5214.5
+        },
+        {
+          "x": 595.8984375,
+          "y": 335.59375,
+          "scale": 0.9975466314031181,
+          "event": "ack",
+          "at_ms": 5608.4
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "crypto-pan-motion-start.png",
+          "sha256": "fe120df5cb9ca31aba090c0e4d2ea3b9e42acaa63cccbb09bb2365e5f6176365"
+        },
+        {
+          "name": "crypto-pan-motion-middle.png",
+          "sha256": "ed58d1e0a490ada118fce2ae59a286ce1a15b51ee5b1652d1747649d1e7b1383"
+        },
+        {
+          "name": "crypto-pan-motion-end.png",
+          "sha256": "d2e3f762df717945c28120ddf93ba47b1a0930e80bfe9b2a9164e614a8550ac0"
+        },
+        {
+          "name": "crypto-pan-motion.gif",
+          "sha256": "eb0e7cdde55a406ef234c221365134392f593564658e5b0e5f037f15b9a98685"
+        }
+      ],
+      "zoom_out_steps_to_clear_pan_path": 0
+    },
+    "fresh_ton": {
+      "status": "partial",
+      "records": 236,
+      "raw_evidence_count": 236,
+      "request_counts": {
+        "providers_attempted": 10,
+        "http_requests": 46,
+        "http_statuses": {
+          "200": 37,
+          "404": 1,
+          "429": 1,
+          "502": 1,
+          "500": 3
+        }
+      },
+      "worker_and_insert_seconds": 45.05
+    },
+    "fresh_btc": {
+      "status": "partial",
+      "records": 107,
+      "raw_evidence_count": 107,
+      "request_counts": {
+        "providers_attempted": 3,
+        "http_requests": 12,
+        "http_statuses": {
+          "502": 1,
+          "200": 7,
+          "400": 1
+        }
+      },
+      "worker_and_insert_seconds": 28.24
+    },
+    "fresh_maigret": {
+      "status": "partial",
+      "records": 24,
+      "sites_requested": 26,
+      "progress_seen": true,
+      "findings_while_worker_running": true
+    },
+    "density": {
+      "compact_index_input_css_px": 142.40000915527344,
+      "comfortable_index_input_css_px": 196.40000915527344
+    },
+    "ipc_status_observations": {
+      "timed_out_requests": 0,
+      "longest_successful_recovery_ms": 0
+    },
+    "temporary_profile_removed": true,
+    "performance": {
+      "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+      "cases": [
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 50,
+          "edges": 49,
+          "open_and_expand_seconds": 0.999,
+          "paint_ms": {
+            "count": 39,
+            "median": 2.7,
+            "p95": 6.8,
+            "p99": 8.1,
+            "max": 14.3
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 8.05,
+            "p95": 12.8,
+            "p99": 12.8,
+            "max": 13.2
+          },
+          "active_intervals_ms": {
+            "count": 18,
+            "median": 25.75,
+            "p95": 67.9,
+            "p99": 67.9,
+            "max": 88.2
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 8.5,
+              "thread_count": 93.5,
+              "rss_bytes_sum": 670916608.0,
+              "private_commit_bytes_sum": 795799552.0,
+              "cpu_percent_one_core": 201.7738293983513,
+              "cpu_percent_machine": 16.81448578319594,
+              "monitor_seconds": 0.010116250021383166
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 8.956823441497825,
+              "gpu_engine_percent_max": 8.956823441497825,
+              "gpu_dedicated_bytes": 776851456.0,
+              "gpu_shared_bytes": 44785664.0
+            }
+          },
+          "renderer": {
+            "paintMs": "2",
+            "drawnNodes": "50",
+            "onScreenNodes": "6",
+            "modelEdges": "49",
+            "drawnImages": "0",
+            "zoom": "1"
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 100,
+          "edges": 99,
+          "open_and_expand_seconds": 0.716,
+          "paint_ms": {
+            "count": 38,
+            "median": 2.8,
+            "p95": 3.9,
+            "p99": 3.9,
+            "max": 4.9
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 5.45,
+            "p95": 12.8,
+            "p99": 12.8,
+            "max": 13.5
+          },
+          "active_intervals_ms": {
+            "count": 16,
+            "median": 14.45,
+            "p95": 22.5,
+            "p99": 22.5,
+            "max": 22.7
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 73.0,
+              "rss_bytes_sum": 642379776.0,
+              "private_commit_bytes_sum": 816125952.0,
+              "cpu_percent_one_core": 58.56106314612789,
+              "cpu_percent_machine": 4.880088595510657,
+              "monitor_seconds": 0.008423400053288788
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 7.840118977679033,
+              "gpu_engine_percent_max": 7.840118977679033,
+              "gpu_dedicated_bytes": 1212264448.0,
+              "gpu_shared_bytes": 46899200.0
+            }
+          },
+          "renderer": {
+            "paintMs": "2.299999952316284",
+            "drawnNodes": "100",
+            "onScreenNodes": "6",
+            "modelEdges": "99",
+            "drawnImages": "0",
+            "zoom": "1"
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 500,
+          "edges": 499,
+          "open_and_expand_seconds": 1.25,
+          "paint_ms": {
+            "count": 47,
+            "median": 4.3,
+            "p95": 5.4,
+            "p99": 6,
+            "max": 6.3
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 6.4,
+            "p95": 11,
+            "p99": 11,
+            "max": 12.6
+          },
+          "active_intervals_ms": {
+            "count": 24,
+            "median": 17.1,
+            "p95": 60.1,
+            "p99": 65.2,
+            "max": 93.7
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 73.0,
+              "rss_bytes_sum": 773044224.0,
+              "private_commit_bytes_sum": 1019041792.0,
+              "cpu_percent_one_core": 88.10005599149089,
+              "cpu_percent_machine": 7.341671332624241,
+              "monitor_seconds": 0.008209799998439848
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 8.80939553538721,
+              "gpu_engine_percent_max": 8.80939553538721,
+              "gpu_dedicated_bytes": 1750999040.0,
+              "gpu_shared_bytes": 50339840.0
+            }
+          },
+          "renderer": {
+            "paintMs": "4.200000047683716",
+            "drawnNodes": "500",
+            "onScreenNodes": "6",
+            "modelEdges": "499",
+            "drawnImages": "0",
+            "zoom": "1"
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 1000,
+          "edges": 999,
+          "open_and_expand_seconds": 1.316,
+          "paint_ms": {
+            "count": 48,
+            "median": 5.85,
+            "p95": 7,
+            "p99": 7.5,
+            "max": 7.6
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 6.2,
+            "p95": 9.3,
+            "p99": 9.3,
+            "max": 11.1
+          },
+          "active_intervals_ms": {
+            "count": 23,
+            "median": 22.4,
+            "p95": 40.5,
+            "p99": 45.8,
+            "max": 49.1
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 73.0,
+              "rss_bytes_sum": 989679616.0,
+              "private_commit_bytes_sum": 1270083584.0,
+              "cpu_percent_one_core": 136.9381981876804,
+              "cpu_percent_machine": 11.411516515640034,
+              "monitor_seconds": 0.008061100030317903
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 6.935473519347937,
+              "gpu_engine_percent_max": 6.935473519347937,
+              "gpu_dedicated_bytes": 2222399488.0,
+              "gpu_shared_bytes": 51388416.0
+            }
+          },
+          "renderer": {
+            "paintMs": "5.799999952316284",
+            "drawnNodes": "1000",
+            "onScreenNodes": "6",
+            "modelEdges": "999",
+            "drawnImages": "0",
+            "zoom": "1"
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 5000,
+          "edges": 4999,
+          "open_and_expand_seconds": 2.352,
+          "paint_ms": {
+            "count": 40,
+            "median": 11.35,
+            "p95": 28.4,
+            "p99": 34.4,
+            "max": 34.6
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 21.15,
+            "p95": 29.9,
+            "p99": 29.9,
+            "max": 40.9
+          },
+          "active_intervals_ms": {
+            "count": 11,
+            "median": 51.5,
+            "p95": 82.7,
+            "p99": 82.7,
+            "max": 86.2
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 79.0,
+              "rss_bytes_sum": 1041754112.0,
+              "private_commit_bytes_sum": 1501483008.0,
+              "cpu_percent_one_core": 135.84722221540477,
+              "cpu_percent_machine": 11.32060185128373,
+              "monitor_seconds": 0.008263349998742342
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 2.712559909524008,
+              "gpu_engine_percent_max": 2.712559909524008,
+              "gpu_dedicated_bytes": 3951988736.0,
+              "gpu_shared_bytes": 58605568.0
+            }
+          },
+          "renderer": {
+            "paintMs": "23.800000071525574",
+            "drawnNodes": "5000",
+            "onScreenNodes": "6",
+            "modelEdges": "4999",
+            "drawnImages": "0",
+            "zoom": "1"
+          }
+        },
+        {
+          "data_origin": "provided_observed_result",
+          "underlying_nodes": 424,
+          "edges": 885,
+          "open_and_expand_seconds": 1.067,
+          "paint_ms": {
+            "count": 31,
+            "median": 1.1,
+            "p95": 2.8,
+            "p99": 3.6,
+            "max": 4.3
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 3.9,
+            "p95": 4.3,
+            "p99": 4.3,
+            "max": 4.4
+          },
+          "active_intervals_ms": {
+            "count": 9,
+            "median": 58.8,
+            "p95": 73.8,
+            "p99": 73.8,
+            "max": 78.4
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 79.0,
+              "rss_bytes_sum": 1066498048.0,
+              "private_commit_bytes_sum": 1518727168.0,
+              "cpu_percent_one_core": 117.06290097629804,
+              "cpu_percent_machine": 9.755241748024837,
+              "monitor_seconds": 0.008139749930705875
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 2.839992965997193,
+              "gpu_engine_percent_max": 2.839992965997193,
+              "gpu_dedicated_bytes": 4218814464.0,
+              "gpu_shared_bytes": 58900480.0
+            }
+          },
+          "renderer": {
+            "paintMs": "1.2999999523162842",
+            "drawnNodes": "9",
+            "onScreenNodes": "2",
+            "modelEdges": "9",
+            "drawnImages": "0",
+            "zoom": "1"
+          }
+        }
+      ]
+    }
+  },
+  "baseline_frozen_v5": {
+    "origin": "frozen-EXE",
+    "effects": "full",
+    "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+    "cases": [
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 50,
+        "edges": 49,
+        "open_and_expand_seconds": 1.016,
+        "paint_ms": {
+          "count": 40,
+          "median": 3.4,
+          "p95": 9.2,
+          "max": 14.9
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 8.75,
+          "p95": 14.3,
+          "max": 14.3
+        },
+        "active_intervals_ms": {
+          "count": 18,
+          "median": 20.7,
+          "p95": 68.9,
+          "max": 86.5
+        },
+        "renderer": {
+          "paintMs": "2.600000023841858",
+          "drawnNodes": "50",
+          "onScreenNodes": "9",
+          "modelEdges": "49",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 100,
+        "edges": 99,
+        "open_and_expand_seconds": 0.725,
+        "paint_ms": {
+          "count": 38,
+          "median": 3.0,
+          "p95": 4.3,
+          "max": 5
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 5.6,
+          "p95": 7.8,
+          "max": 10.3
+        },
+        "active_intervals_ms": {
+          "count": 16,
+          "median": 12.45,
+          "p95": 19.5,
+          "max": 24.9
+        },
+        "renderer": {
+          "paintMs": "2.700000047683716",
+          "drawnNodes": "100",
+          "onScreenNodes": "9",
+          "modelEdges": "99",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 500,
+        "edges": 499,
+        "open_and_expand_seconds": 1.284,
+        "paint_ms": {
+          "count": 35,
+          "median": 4.8,
+          "p95": 6.2,
+          "max": 10.5
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 7.45,
+          "p95": 8.5,
+          "max": 12.2
+        },
+        "active_intervals_ms": {
+          "count": 11,
+          "median": 13.5,
+          "p95": 16.3,
+          "max": 21.9
+        },
+        "renderer": {
+          "paintMs": "4.899999976158142",
+          "drawnNodes": "500",
+          "onScreenNodes": "9",
+          "modelEdges": "499",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 1000,
+        "edges": 999,
+        "open_and_expand_seconds": 1.331,
+        "paint_ms": {
+          "count": 49,
+          "median": 6.7,
+          "p95": 8.2,
+          "max": 10.2
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 8.8,
+          "p95": 12.9,
+          "max": 15.8
+        },
+        "active_intervals_ms": {
+          "count": 26,
+          "median": 34.05,
+          "p95": 72.9,
+          "max": 99.4
+        },
+        "renderer": {
+          "paintMs": "8.200000047683716",
+          "drawnNodes": "1000",
+          "onScreenNodes": "9",
+          "modelEdges": "999",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 5000,
+        "edges": 4999,
+        "open_and_expand_seconds": 2.07,
+        "paint_ms": {
+          "count": 36,
+          "median": 21.4,
+          "p95": 37.4,
+          "max": 54.6
+        },
+        "event_to_paint_ms": {
+          "count": 15,
+          "median": 24.3,
+          "p95": 32.6,
+          "max": 39.7
+        },
+        "active_intervals_ms": {
+          "count": 9,
+          "median": 46.2,
+          "p95": 85.5,
+          "max": 86.8
+        },
+        "renderer": {
+          "paintMs": "21.799999952316284",
+          "drawnNodes": "5000",
+          "onScreenNodes": "9",
+          "modelEdges": "4999",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "provided_observed_result",
+        "underlying_nodes": 424,
+        "edges": 885,
+        "open_and_expand_seconds": 1.089,
+        "paint_ms": {
+          "count": 33,
+          "median": 1.2,
+          "p95": 1.9,
+          "max": 4.9
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 3.8,
+          "p95": 15.2,
+          "max": 19.8
+        },
+        "active_intervals_ms": {
+          "count": 8,
+          "median": 45.15,
+          "p95": 68.6,
+          "max": 89.2
+        },
+        "renderer": {
+          "paintMs": "1",
+          "drawnNodes": "9",
+          "onScreenNodes": "2",
+          "modelEdges": "9",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      }
+    ]
+  },
+  "source_preview_v6": {
+    "origin": "native-source",
+    "effects": "full",
+    "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+    "cases": [
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 50,
+        "edges": 49,
+        "open_and_expand_seconds": 1.09,
+        "paint_ms": {
+          "count": 39,
+          "median": 2.7,
+          "p95": 8.3,
+          "p99": 15.3,
+          "max": 36.2
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 6.35,
+          "p95": 12.8,
+          "p99": 12.8,
+          "max": 18.4
+        },
+        "active_intervals_ms": {
+          "count": 17,
+          "median": 28.1,
+          "p95": 41.1,
+          "p99": 41.1,
+          "max": 43
+        },
+        "renderer": {
+          "paintMs": "1.7999999523162842",
+          "drawnNodes": "50",
+          "onScreenNodes": "6",
+          "modelEdges": "49",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 100,
+        "edges": 99,
+        "open_and_expand_seconds": 0.728,
+        "paint_ms": {
+          "count": 38,
+          "median": 2.9,
+          "p95": 3.7,
+          "p99": 4.3,
+          "max": 4.4
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 6.5,
+          "p95": 19.1,
+          "p99": 19.1,
+          "max": 20.2
+        },
+        "active_intervals_ms": {
+          "count": 16,
+          "median": 21.35,
+          "p95": 27.3,
+          "p99": 27.3,
+          "max": 37.1
+        },
+        "renderer": {
+          "paintMs": "2.8000000715255737",
+          "drawnNodes": "100",
+          "onScreenNodes": "6",
+          "modelEdges": "99",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 500,
+        "edges": 499,
+        "open_and_expand_seconds": 1.264,
+        "paint_ms": {
+          "count": 47,
+          "median": 4.6,
+          "p95": 5.7,
+          "p99": 6.3,
+          "max": 6.9
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 6.55,
+          "p95": 12,
+          "p99": 12,
+          "max": 15.2
+        },
+        "active_intervals_ms": {
+          "count": 29,
+          "median": 53.3,
+          "p95": 98.7,
+          "p99": 98.9,
+          "max": 99.3
+        },
+        "renderer": {
+          "paintMs": "4.299999952316284",
+          "drawnNodes": "500",
+          "onScreenNodes": "6",
+          "modelEdges": "499",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 1000,
+        "edges": 999,
+        "open_and_expand_seconds": 1.331,
+        "paint_ms": {
+          "count": 48,
+          "median": 6.4,
+          "p95": 7.4,
+          "p99": 7.8,
+          "max": 8.7
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 8.15,
+          "p95": 9.7,
+          "p99": 9.7,
+          "max": 12.2
+        },
+        "active_intervals_ms": {
+          "count": 28,
+          "median": 61.8,
+          "p95": 87.4,
+          "p99": 89.3,
+          "max": 99.6
+        },
+        "renderer": {
+          "paintMs": "6",
+          "drawnNodes": "1000",
+          "onScreenNodes": "6",
+          "modelEdges": "999",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 5000,
+        "edges": 4999,
+        "open_and_expand_seconds": 2.422,
+        "paint_ms": {
+          "count": 40,
+          "median": 11.3,
+          "p95": 29.5,
+          "p99": 30.4,
+          "max": 35.8
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 17.5,
+          "p95": 30.6,
+          "p99": 30.6,
+          "max": 35.9
+        },
+        "active_intervals_ms": {
+          "count": 12,
+          "median": 45.45,
+          "p95": 80.9,
+          "p99": 80.9,
+          "max": 96.8
+        },
+        "renderer": {
+          "paintMs": "22",
+          "drawnNodes": "5000",
+          "onScreenNodes": "6",
+          "modelEdges": "4999",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "provided_observed_result",
+        "underlying_nodes": 424,
+        "edges": 885,
+        "open_and_expand_seconds": 1.137,
+        "paint_ms": {
+          "count": 34,
+          "median": 1.1,
+          "p95": 2.5,
+          "p99": 3.6,
+          "max": 4.3
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 3.9,
+          "p95": 4.5,
+          "p99": 4.5,
+          "max": 4.5
+        },
+        "active_intervals_ms": {
+          "count": 10,
+          "median": 61.55,
+          "p95": 70.6,
+          "p99": 70.6,
+          "max": 88.9
+        },
+        "renderer": {
+          "paintMs": "1.399999976158142",
+          "drawnNodes": "9",
+          "onScreenNodes": "2",
+          "modelEdges": "9",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      }
+    ]
+  },
+  "source_effects_reduced": {
+    "origin": "native-source",
+    "effects": "reduced",
+    "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+    "cases": [
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 5000,
+        "edges": 4999,
+        "open_and_expand_seconds": 3.996,
+        "paint_ms": {
+          "count": 40,
+          "median": 21.0,
+          "p95": 51,
+          "p99": 52.5,
+          "max": 55.2
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 46.4,
+          "p95": 86.9,
+          "p99": 86.9,
+          "max": 971.7
+        },
+        "active_intervals_ms": {
+          "count": 9,
+          "median": 47.3,
+          "p95": 54.3,
+          "p99": 54.3,
+          "max": 74
+        },
+        "renderer": {
+          "paintMs": "21.799999952316284",
+          "drawnNodes": "5000",
+          "onScreenNodes": "6",
+          "modelEdges": "4999",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      }
+    ]
+  },
+  "source_effects_off": {
+    "origin": "native-source",
+    "effects": "off",
+    "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+    "cases": [
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 5000,
+        "edges": 4999,
+        "open_and_expand_seconds": 2.867,
+        "paint_ms": {
+          "count": 42,
+          "median": 14.3,
+          "p95": 28.7,
+          "p99": 30.2,
+          "max": 34.8
+        },
+        "event_to_paint_ms": {
+          "count": 17,
+          "median": 20.1,
+          "p95": 38.3,
+          "p99": 38.3,
+          "max": 46.2
+        },
+        "active_intervals_ms": {
+          "count": 11,
+          "median": 25.1,
+          "p95": 56.6,
+          "p99": 56.6,
+          "max": 85.2
+        },
+        "renderer": {
+          "paintMs": "21",
+          "drawnNodes": "5000",
+          "onScreenNodes": "6",
+          "modelEdges": "4999",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      }
+    ]
+  },
+  "preservation": {
+    "unchanged_assets_and_vendor_files": {
+      "resources": 202,
+      "pet_runtime": 2,
+      "assets": 92,
+      "external_tool_source": 508
+    },
+    "profile_files_unchanged_after_authorized_shutdown": 572,
+    "normal_shutdown": {
+      "changes": [
+        {
+          "group": "profile",
+          "name": "chat-history.dpapi",
+          "reason": "changed"
+        },
+        {
+          "group": "profile",
+          "name": "GrangerPet-fb7e54d0b265-pet.lock",
+          "reason": "missing"
+        },
+        {
+          "group": "profile",
+          "name": "settings.json",
+          "reason": "changed"
+        },
+        {
+          "group": "profile",
+          "name": "f5ef2ea2393a4cbd8c2cab00eda5ab27.dpapi",
+          "reason": "changed"
+        }
+      ],
+      "post_shutdown_profile_count": 572
+    }
+  },
+  "production_dependency_audit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "dependency_metadata": [
+    {
+      "name": "motion",
+      "version": "12.43.0",
+      "license": "MIT",
+      "repository": "https://github.com/motiondivision/motion",
+      "install_scripts": {},
+      "integrity": "sha512-BQgQbSa9Hn3/mtbib0MK53y6JSANa+YKUKlaYnWzAVDH424RYQ5LVpV3pNiWH00BA2z4ojsSdMzqT7g2FQwjuQ==",
+      "dependencies": {
+        "framer-motion": "^12.43.0",
+        "tslib": "^2.4.0"
+      }
+    },
+    {
+      "name": "@radix-ui/react-dialog",
+      "version": "1.3.1",
+      "license": "MIT",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/radix-ui/primitives.git",
+        "directory": "packages/react/dialog"
+      },
+      "install_scripts": {},
+      "integrity": "sha512-+0E4qvVTwjAWra9sEhJ+9BTsvHE00zkUuNw1VGh7S+Gc13dfYk+S1PVQdchWDj+XYHhAai7Z7IpzXVDCGsDplg==",
+      "dependencies": {
+        "aria-hidden": "^1.2.4",
+        "react-remove-scroll": "^2.7.2",
+        "@radix-ui/primitive": "1.2.0",
+        "@radix-ui/react-compose-refs": "1.1.5",
+        "@radix-ui/react-context": "1.3.0",
+        "@radix-ui/react-dismissable-layer": "1.2.1",
+        "@radix-ui/react-focus-guards": "1.2.0",
+        "@radix-ui/react-focus-scope": "1.3.1",
+        "@radix-ui/react-id": "1.1.4",
+        "@radix-ui/react-portal": "1.2.0",
+        "@radix-ui/react-presence": "1.1.11",
+        "@radix-ui/react-primitive": "2.2.0",
+        "@radix-ui/react-slot": "1.5.0",
+        "@radix-ui/react-use-controllable-state": "1.3.0",
+        "@radix-ui/react-use-layout-effect": "1.1.4"
+      }
+    },
+    {
+      "name": "@radix-ui/react-dropdown-menu",
+      "version": "2.2.1",
+      "license": "MIT",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/radix-ui/primitives.git",
+        "directory": "packages/react/dropdown-menu"
+      },
+      "install_scripts": {},
+      "integrity": "sha512-XsHcmYG2AcqnvTqrOXXWcMrhquEIlqucizuDH1MV/qMRW+DndpBCMvNeTRXOxqmG1H5j89M/+I0/34Zdd+zDcQ==",
+      "dependencies": {
+        "@radix-ui/primitive": "1.2.0",
+        "@radix-ui/react-compose-refs": "1.1.5",
+        "@radix-ui/react-context": "1.3.0",
+        "@radix-ui/react-id": "1.1.4",
+        "@radix-ui/react-menu": "2.2.1",
+        "@radix-ui/react-primitive": "2.2.0",
+        "@radix-ui/react-use-controllable-state": "1.3.0"
+      }
+    },
+    {
+      "name": "@floating-ui/react-dom",
+      "version": "2.1.9",
+      "license": "MIT",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/floating-ui/floating-ui.git",
+        "directory": "packages/react-dom"
+      },
+      "install_scripts": {},
+      "integrity": "sha512-JDjEFGCpImxDCA7JJKviA0M9+RtmJdj0m/NVU5IMgBK+AmZouAQQ7/+2GLH0GXXY0YMw9oXPB8hKdbPYg5QLYg==",
+      "dependencies": {
+        "@floating-ui/dom": "^1.8.0"
+      }
+    },
+    {
+      "name": "@tanstack/react-virtual",
+      "version": "3.14.23",
+      "license": "MIT",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/TanStack/virtual.git",
+        "directory": "packages/react-virtual"
+      },
+      "install_scripts": {},
+      "integrity": "sha512-Oyy58qQwdaQieA+A4WUDtnh9D1rv5FZvGdw8og9Xeyh88V6HH94vMSyV5i9ATIbYNe9t5Ix0WXRo9NOTpHDkYw==",
+      "dependencies": {
+        "@tanstack/virtual-core": "3.19.8"
+      }
+    },
+    {
+      "name": "lucide-react",
+      "version": "0.468.0",
+      "license": "ISC",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/lucide-icons/lucide.git",
+        "directory": "packages/lucide-react"
+      },
+      "install_scripts": {},
+      "integrity": "sha512-6koYRhnM2N0GGZIdXzSeiNwguv1gt/FAjZOiPl76roBi3xKEXa4WmfpxgQwTTL4KipXjefrnf3oV4IsYhi4JFA==",
+      "dependencies": {}
+    },
+    {
+      "name": "react",
+      "version": "19.3.1",
+      "license": "MIT",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/react/react.git",
+        "directory": "packages/react"
+      },
+      "install_scripts": {},
+      "integrity": "sha512-QNhWdt7nrgVWWQG58QuGsAR3jv3Hbe4mb4vz7w2csnHavciZJgda1CPNaldF6eVxv90ud3jUXpKlHL69gO38yw==",
+      "dependencies": {}
+    },
+    {
+      "name": "vite",
+      "version": "8.3.5",
+      "license": "MIT",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/vitejs/vite.git",
+        "directory": "packages/vite"
+      },
+      "install_scripts": {},
+      "integrity": "sha512-z1YpjieJ9g0ebTmQpLBv/oq9E3F9EIlOe+7LahW8SrE3LTiG3udBRUXQOlYXP9b+IC2q2phHeVxj9xGlw34OEQ==",
+      "dependencies": {
+        "lightningcss": "^1.33.0",
+        "picomatch": "^4.0.7",
+        "postcss": "^8.5.30",
+        "rolldown": "~1.2.14",
+        "tinyglobby": "^0.2.17"
+      }
+    }
+  ],
+  "secret_scan": {
+    "passed": true,
+    "checked_payloads": 6999
+  },
+  "curated_assets": [
+    {
+      "name": "chat.png",
+      "sha256": "b569219708496a66b609cac681269530735a5369d298f81ab735d069544d939b",
+      "bytes": 357974
+    },
+    {
+      "name": "search.png",
+      "sha256": "9437490ea91d5fdff24e06b57de44d98174513b98c0207c737e7e23f5e3084f1",
+      "bytes": 303253
+    },
+    {
+      "name": "history.png",
+      "sha256": "52cf1858cff6a6d5419d8bbde31b1e08b296caa32153c19410b16eb26cc600a6",
+      "bytes": 331468
+    },
+    {
+      "name": "text-canvas.png",
+      "sha256": "e34c5afc5d9dbbe5746efab7423030bb5740abbbc0309280f46d6fe4c56cac01",
+      "bytes": 311560
+    },
+    {
+      "name": "settings.png",
+      "sha256": "a4bf85816fb206688047a337eb674651907156da29701e31e86ea8c6a07dcbcf",
+      "bytes": 468509
+    },
+    {
+      "name": "command-palette.png",
+      "sha256": "37fabd6266e7b271ce72c6ad4f024098ac225d544c0612555a133284d2da6c35",
+      "bytes": 144922
+    },
+    {
+      "name": "media-drop.png",
+      "sha256": "8111fd0afe8bbdadffe7dd3fd9e84d6f9e2791c9b3c46cb908c1cf4727807ad5",
+      "bytes": 175584
+    },
+    {
+      "name": "media-clipboard.png",
+      "sha256": "b45811059125dd7a639f81729c7b78aad5083e9bf4f1f8f537c73caecddd3b16",
+      "bytes": 209940
+    },
+    {
+      "name": "media-viewer.png",
+      "sha256": "03d136aac0bab7c72181fcd51d2242477772afde5876dafa43ae9e8b3a8eb021",
+      "bytes": 94153
+    },
+    {
+      "name": "media-original.png",
+      "sha256": "8716793b4daa40bdf327da4f8f2aaaeba5d9856f270be24cdbea77b23b7aac79",
+      "bytes": 20342
+    },
+    {
+      "name": "media-attached.png",
+      "sha256": "87ff5fc23a9ed74224114b9b3956ff3988f9eb822f812a8c194014b22aab4fca",
+      "bytes": 168320
+    },
+    {
+      "name": "graph-qt-200.png",
+      "sha256": "aa563522dd04a00b1aa450b108ad556427783c48e44be889fdb8d01b85ec0dac",
+      "bytes": 275084
+    },
+    {
+      "name": "crypto-overview.png",
+      "sha256": "6565047af73e4c9c0f112250b7b98bf88384fe0e0aee8f4a095f6e4c2218ab7a",
+      "bytes": 283010
+    },
+    {
+      "name": "transaction-selected.png",
+      "sha256": "d7d4bca4339ea50f8ef6f9b411360e44574053b34af7d6b7eacef5cca54e5dbf",
+      "bytes": 304938
+    },
+    {
+      "name": "semantic-far18.png",
+      "sha256": "a8564497b3386fec0551c955660b7c64bbba67da6400a977361403a37fdbfaf7",
+      "bytes": 261172
+    },
+    {
+      "name": "socmint-profiles.png",
+      "sha256": "915b3c219b7247411efcaff321a050097fd75bd80f9793ef57918d5731a52353",
+      "bytes": 211770
+    },
+    {
+      "name": "fresh-ton-live.png",
+      "sha256": "4a323266dcf48c594c98f8fc86dfe8b54b99d9df0e462dd622340af33c82d591",
+      "bytes": 348987
+    },
+    {
+      "name": "fresh-btc-live.png",
+      "sha256": "60e6cccd5d5e3f5ecd123657d2f471e605fc0d1baeecc4cd1f900a086fe40d43",
+      "bytes": 237764
+    },
+    {
+      "name": "fresh-maigret-live.png",
+      "sha256": "cc120a12d523c62802d3c3d9597defbd463609d9e406e755a06b4422e3956b86",
+      "bytes": 254856
+    },
+    {
+      "name": "crypto-windowed150.png",
+      "sha256": "f340d46a7bb1e9b398c40b8268347db2f9b94f11c9e7f24bb621feaa4dd2e8ae",
+      "bytes": 332891
+    },
+    {
+      "name": "crypto-pan-motion.gif",
+      "sha256": "eb0e7cdde55a406ef234c221365134392f593564658e5b0e5f037f15b9a98685",
+      "bytes": 1459086
+    }
+  ],
+  "frozen-effects-full": {
+    "origin": "frozen-EXE",
+    "exe_sha256": "6a9e9224ea474acbec80ab58d4178148a7fe0529c016b8e03c0f67a9bbc83230",
+    "effects": "full",
+    "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+    "passed": true,
+    "owned_processes_left": 0,
+    "cases": [
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 5000,
+        "edges": 4999,
+        "open_and_expand_seconds": 2.83,
+        "paint_ms": {
+          "count": 37,
+          "median": 13.4,
+          "p95": 28.9,
+          "p99": 29.1,
+          "max": 29.7
+        },
+        "event_to_paint_ms": {
+          "count": 15,
+          "median": 19.1,
+          "p95": 28.9,
+          "p99": 28.9,
+          "max": 39.5
+        },
+        "active_intervals_ms": {
+          "count": 11,
+          "median": 81.4,
+          "p95": 96.9,
+          "p99": 96.9,
+          "max": 97.2
+        },
+        "renderer": {
+          "paintMs": "22.800000071525574",
+          "drawnNodes": "5000",
+          "onScreenNodes": "6",
+          "modelEdges": "4999",
+          "drawnImages": "0",
+          "zoom": "1"
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 75.0,
+            "rss_bytes_sum": 1039568896.0,
+            "private_commit_bytes_sum": 1196210176.0,
+            "cpu_percent_one_core": 150.62099028020924,
+            "cpu_percent_machine": 12.55174919001744,
+            "monitor_seconds": 0.00886235001962632
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 2.3464720521370817,
+            "gpu_engine_percent_max": 2.3464720521370817,
+            "gpu_dedicated_bytes": 726253568.0,
+            "gpu_shared_bytes": 50212864.0
+          }
+        }
+      }
+    ]
+  },
+  "frozen-effects-reduced": {
+    "origin": "frozen-EXE",
+    "exe_sha256": "6a9e9224ea474acbec80ab58d4178148a7fe0529c016b8e03c0f67a9bbc83230",
+    "effects": "reduced",
+    "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+    "passed": true,
+    "owned_processes_left": 0,
+    "cases": [
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 5000,
+        "edges": 4999,
+        "open_and_expand_seconds": 2.899,
+        "paint_ms": {
+          "count": 37,
+          "median": 10.9,
+          "p95": 26.5,
+          "p99": 26.7,
+          "max": 36.7
+        },
+        "event_to_paint_ms": {
+          "count": 14,
+          "median": 11.05,
+          "p95": 34.2,
+          "p99": 34.2,
+          "max": 144.6
+        },
+        "active_intervals_ms": {
+          "count": 13,
+          "median": 46.1,
+          "p95": 96.6,
+          "p99": 96.6,
+          "max": 99.2
+        },
+        "renderer": {
+          "paintMs": "19.799999952316284",
+          "drawnNodes": "5000",
+          "onScreenNodes": "6",
+          "modelEdges": "4999",
+          "drawnImages": "0",
+          "zoom": "1"
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 74.0,
+            "rss_bytes_sum": 1047437312.0,
+            "private_commit_bytes_sum": 1204850688.0,
+            "cpu_percent_one_core": 155.80306563423443,
+            "cpu_percent_machine": 12.983588802852868,
+            "monitor_seconds": 0.009570750058628619
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 2.2267031306479463,
+            "gpu_engine_percent_max": 2.2267031306479463,
+            "gpu_dedicated_bytes": 826699776.0,
+            "gpu_shared_bytes": 49967104.0
+          }
+        }
+      }
+    ]
+  },
+  "frozen-effects-off": {
+    "origin": "frozen-EXE",
+    "exe_sha256": "6a9e9224ea474acbec80ab58d4178148a7fe0529c016b8e03c0f67a9bbc83230",
+    "effects": "off",
+    "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+    "passed": true,
+    "owned_processes_left": 0,
+    "cases": [
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 5000,
+        "edges": 4999,
+        "open_and_expand_seconds": 2.781,
+        "paint_ms": {
+          "count": 40,
+          "median": 12.15,
+          "p95": 25.9,
+          "p99": 34.7,
+          "max": 44.2
+        },
+        "event_to_paint_ms": {
+          "count": 15,
+          "median": 14.1,
+          "p95": 34.4,
+          "p99": 34.4,
+          "max": 44.4
+        },
+        "active_intervals_ms": {
+          "count": 12,
+          "median": 30.7,
+          "p95": 74.4,
+          "p99": 74.4,
+          "max": 83
+        },
+        "renderer": {
+          "paintMs": "34.60000002384186",
+          "drawnNodes": "5000",
+          "onScreenNodes": "6",
+          "modelEdges": "4999",
+          "drawnImages": "0",
+          "zoom": "1"
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 74.0,
+            "rss_bytes_sum": 1018052608.0,
+            "private_commit_bytes_sum": 1179285504.0,
+            "cpu_percent_one_core": 160.2842644150188,
+            "cpu_percent_machine": 13.357022034584901,
+            "monitor_seconds": 0.008855050022248179
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 2.4826540693497825,
+            "gpu_engine_percent_max": 2.4826540693497825,
+            "gpu_dedicated_bytes": 843526144.0,
+            "gpu_shared_bytes": 50847744.0
+          }
+        }
+      }
+    ]
+  },
+  "native-picker": {
+    "passed": true,
+    "origin": "frozen-Windows-native-system-file-picker",
+    "exe_sha256": "6a9e9224ea474acbec80ab58d4178148a7fe0529c016b8e03c0f67a9bbc83230",
+    "checks": {
+      "native_picker_import_exact_bytes": true,
+      "cyrillic_filename_preserved": true,
+      "dimensions_preserved": true
+    },
+    "capture": {
+      "name": "media-picker.png",
+      "sha256": "0f2ad14e9c1b9cd12c9fa95b7e8c65c142178f0b5f3e31ad4751ac74f75ed8e1"
+    },
+    "temporary_profile_removed": true
+  },
+  "whole-app-performance": {
+    "tested_at_utc": "2026-11-05T12:56:31.186733+00:00",
+    "mode": "exe",
+    "group": "app",
+    "exe_sha256": "6a9e9224ea474acbec80ab58d4178148a7fe0529c016b8e03c0f67a9bbc83230",
+    "method": "Only image-verified Granger process trees; steady-state trials after warmup; no global GPU flags or system changes",
+    "memory_notes": "RSS sums include shared pages; private commit is not private working set",
+    "cpu_notes": "100% one-core means one logical CPU; machine percentage also provided",
+    "repeats": 1,
+    "seconds_per_trial": 4,
+    "passed": true,
+    "checks": [
+      {
+        "name": "all_observed_owned_processes_exited",
+        "passed": true
+      }
+    ],
+    "scenarios": [
+      {
+        "name": "closed",
+        "median_of_trials": {
+          "process_count": 0.0,
+          "thread_count": 0.0,
+          "rss_bytes_sum": 0.0,
+          "private_commit_bytes_sum": 0.0,
+          "cpu_percent_one_core": 0.0,
+          "cpu_percent_machine": 0.0,
+          "monitor_seconds": 0.007030600041616708
+        }
+      },
+      {
+        "name": "launcher_only",
+        "median_of_trials": {
+          "process_count": 3.0,
+          "thread_count": 70.0,
+          "rss_bytes_sum": 375693312.0,
+          "private_commit_bytes_sum": 217038848.0,
+          "cpu_percent_one_core": 5.417482804026536,
+          "cpu_percent_machine": 0.4514569003355447,
+          "monitor_seconds": 0.008980899932794273
+        }
+      },
+      {
+        "name": "desktop_pet_only",
+        "median_of_trials": {
+          "process_count": 3.0,
+          "thread_count": 58.0,
+          "rss_bytes_sum": 427679744.0,
+          "private_commit_bytes_sum": 245399552.0,
+          "cpu_percent_one_core": 9.291186301716568,
+          "cpu_percent_machine": 0.7742655251430474,
+          "monitor_seconds": 0.008554449945222586
+        }
+      },
+      {
+        "name": "main_visible_idle",
+        "median_of_trials": {
+          "process_count": 3.0,
+          "thread_count": 71.0,
+          "rss_bytes_sum": 510375936.0,
+          "private_commit_bytes_sum": 384729088.0,
+          "cpu_percent_one_core": 13.135033955482026,
+          "cpu_percent_machine": 1.0945861629568354,
+          "monitor_seconds": 0.009389950020704418
+        }
+      },
+      {
+        "name": "main_minimized_idle",
+        "median_of_trials": {
+          "process_count": 3.0,
+          "thread_count": 71.0,
+          "rss_bytes_sum": 512651264.0,
+          "private_commit_bytes_sum": 385589248.0,
+          "cpu_percent_one_core": 9.291551522887993,
+          "cpu_percent_machine": 0.774295960240666,
+          "monitor_seconds": 0.00913034996483475
+        }
+      },
+      {
+        "name": "main_inactive_own_launcher",
+        "median_of_trials": {
+          "process_count": 6.0,
+          "thread_count": 142.0,
+          "rss_bytes_sum": 886661120.0,
+          "private_commit_bytes_sum": 582983680.0,
+          "cpu_percent_one_core": 11.596119892900935,
+          "cpu_percent_machine": 0.9663433244084113,
+          "monitor_seconds": 0.00975994998589158
+        }
+      },
+      {
+        "name": "main_closed_pet_alive",
+        "median_of_trials": {
+          "process_count": 3.0,
+          "thread_count": 71.0,
+          "rss_bytes_sum": 507850752.0,
+          "private_commit_bytes_sum": 362577920.0,
+          "cpu_percent_one_core": 10.842215735579083,
+          "cpu_percent_machine": 0.9035179779649236,
+          "monitor_seconds": 0.008367199974600226
+        }
+      },
+      {
+        "name": "after_full_exit",
+        "median_of_trials": {
+          "process_count": 0.0,
+          "thread_count": 0.0,
+          "rss_bytes_sum": 0.0,
+          "private_commit_bytes_sum": 0.0,
+          "cpu_percent_one_core": 0.0,
+          "cpu_percent_machine": 0.0,
+          "monitor_seconds": 0.006510149978566915
+        }
+      }
+    ]
+  },
+  "publication_secret_scan": {
+    "at_utc": "2026-11-05T12:59:32.965320+00:00",
+    "passed": true,
+    "checked_payloads": 7027,
+    "git_history_checked": true
+  }
+}
