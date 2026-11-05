@@ -228,6 +228,10 @@ class AttachmentStore:
             record = {"id": identifier, "name": _filename(filename), "mime": _MIMES[image.format],
                       "format": image.format, "bytes": len(data), "width": image.width,
                       "height": image.height, "sha256": digest, "preview": _preview(image), "dhash": _dhash(image)}
+            try:
+                record["orientation"] = int(image.getexif().get(274, 1))
+            except (TypeError, ValueError, OSError, SyntaxError):
+                record["orientation"] = 1
             _cancelled(cancel_event)
             if not duplicate:
                 metadata = json.dumps(record, ensure_ascii=False, separators=(",", ":")).encode("utf-8")

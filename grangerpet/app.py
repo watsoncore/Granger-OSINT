@@ -232,13 +232,21 @@ def main(argv: list[str] | None = None) -> int:
                     if path.parent!=root or not path.is_file() or path.stat().st_size>10_000_000:return {'ok':False}
                     content={'name':name,'base64':base64.b64encode(path.read_bytes()).decode('ascii')}
                     QTimer.singleShot(0,lambda:surface.bridge.request('qa','attachment_import',json.dumps(content)))
+                elif payload.get('action')=='qa_media_input' and qa_vault_active:
+                    params=payload.get('payload',{})
+                    name=params.get('name','') if isinstance(params,dict) else ''
+                    if not isinstance(name,str) or not re.fullmatch(r'[a-zA-Z0-9_-]{1,60}\.png',name):return {'ok':False}
+                    root=Path(pet._trace_path).parent.resolve();path=(root/name).resolve()
+                    if path.parent!=root or not path.is_file() or path.stat().st_size>2_000_000:return {'ok':False}
+                    from .qa_input import deliver_media
+                    QTimer.singleShot(0,lambda:deliver_media(surface,path,params))
                 elif payload.get('action')=='graph_scroll' and qa_vault_active:
                     surface.page().runJavaScript("document.querySelector('.investigation-tabs')?.scrollIntoView({block:'center'})")
                 elif payload.get('action')=='geoint_scroll' and qa_vault_active:
                     selector={'header':'.geoint-view > header','controls':'.geo-compare-toolbar','map':'.geo-map-wrap','gallery':'.geo-original','compare':'.geo-comparison'}.get(payload.get('payload',{}).get('section'))
                     if selector:surface.page().runJavaScript("document.querySelector("+json.dumps(selector)+")?.scrollIntoView({block:'start'})")
                 elif payload.get('action')=='dom':
-                    script="""JSON.stringify({text:document.body.innerText.slice(0,18000),title:document.title,theme:document.documentElement.dataset.theme,background:getComputedStyle(document.body).backgroundColor,buttons:[...document.querySelectorAll('button')].map(b=>({text:b.innerText,label:b.getAttribute('aria-label'),disabled:b.disabled})),headings:[...document.querySelectorAll('h1,h2,h3')].map(h=>h.innerText),tables:document.querySelectorAll('.markdown table').length,messages:document.querySelectorAll('[data-message-id]').length,overflow:document.documentElement.scrollWidth>innerWidth+2,width:innerWidth,height:innerHeight,font:{loaded:document.fonts.check('15px Manrope','Гермиона Ёжик'),family:getComputedStyle(document.body).fontFamily,size:getComputedStyle(document.body).fontSize},dock:(()=>{let r=document.getElementById('hermione-dock')?.getBoundingClientRect();return r?{x:r.x,y:r.y,width:r.width,height:r.height}:null})()})"""
+                    script="""JSON.stringify({text:document.body.innerText.slice(0,18000),title:document.title,theme:document.documentElement.dataset.theme,effects:document.documentElement.dataset.effects,background:getComputedStyle(document.body).backgroundColor,buttons:[...document.querySelectorAll('button')].map(b=>({text:b.innerText,label:b.getAttribute('aria-label'),disabled:b.disabled})),headings:[...document.querySelectorAll('h1,h2,h3')].map(h=>h.innerText),tables:document.querySelectorAll('.markdown table').length,messages:document.querySelectorAll('[data-message-id]').length,overflow:document.documentElement.scrollWidth>innerWidth+2,width:innerWidth,height:innerHeight,font:{loaded:document.fonts.check('15px Manrope','Гермиона Ёжик'),family:getComputedStyle(document.body).fontFamily,size:getComputedStyle(document.body).fontSize},dock:(()=>{let r=document.getElementById('hermione-dock')?.getBoundingClientRect();return r?{x:r.x,y:r.y,width:r.width,height:r.height}:null})()})"""
                     # Fixed read-only inspection, never arbitrary script from IPC.
                     script=script.replace('text:document.body', "elements:[...document.querySelectorAll('button,input,select,summary,[role=tab],[role=separator]')].map(b=>{let r=b.getBoundingClientRect();return {text:(b.innerText||'').slice(0,120),label:b.getAttribute('aria-label'),type:b.type,checked:b.checked,value:b.value,x:r.x,y:r.y,width:r.width,height:r.height}}),graph:(()=>{let g=document.querySelector('.investigation-workspace'),c=document.querySelector('.investigation-graph-canvas'),r=c?.getBoundingClientRect();return g?{...g.dataset,images:[...g.querySelectorAll('.graph-node-media img')].map(i=>({loaded:i.complete&&i.naturalWidth>0,source_is_local:i.src.startsWith('data:image/jpeg;base64,')})),canvas:c?{...c.dataset,x:r.x,y:r.y,width:r.width,height:r.height}:null}:null})(),text:document.body")
                     script=script.replace('text:document.body', "geo:(()=>{let g=document.querySelector('.geoint-view');return g?{images:[...g.querySelectorAll('img')].map(i=>({loaded:i.complete&&i.naturalWidth>0,source_is_local:i.src.startsWith('data:image/'),alt:i.alt})),map:!!g.querySelector('.leaflet-map-pane'),tiles:g.querySelectorAll('.leaflet-tile-loaded').length,attribution:g.querySelector('.leaflet-control-attribution')?.textContent,comparison:!!g.querySelector('.geo-comparison'),overlays:g.querySelectorAll('.geo-match-overlay').length}:null})(),text:document.body")
@@ -320,13 +328,21 @@ def main(argv: list[str] | None = None) -> int:
                 return {"ok": True}
             if command == 'qa_window_mode' and pet is not None and args.interaction_qa and pet._trace_path:
                 mode = payload.get('mode')
+                size = payload.get('size')
+                if mode=='size' and (not qa_vault_active or not isinstance(size,list) or len(size)!=2
+                        or type(size[0]) is not int or type(size[1]) is not int
+                        or not 480<=size[0]<=2560 or not 350<=size[1]<=1440):
+                    return {'ok':False}
                 def set_mode():
                     if mode == 'maximized': pet.panel.showMaximized()
                     elif mode == 'fullscreen': pet.panel.toggle_fullscreen()
                     elif mode == 'windowed':
                         if pet.panel.isFullScreen(): pet.panel.toggle_fullscreen()
                         pet.panel.showNormal()
-                if mode not in ('maximized', 'fullscreen', 'windowed'): return {'ok': False}
+                    elif mode == 'size':
+                        pet.panel.showNormal()
+                        pet.panel.resize(*size)
+                if mode not in ('maximized', 'fullscreen', 'windowed', 'size'): return {'ok': False}
                 QTimer.singleShot(0, set_mode)
                 return {'ok': True}
             if command == 'qa_canvas' and pet is not None and args.interaction_qa and pet._trace_path:

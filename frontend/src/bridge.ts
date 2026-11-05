@@ -47,7 +47,7 @@ export function request(action: string, payload: Record<string, unknown> = {}): 
   const id = `ui-${++nextId}`
   return new Promise((resolve, reject) => {
     // Native export/approval dialogs may stay open for as long as the user needs.
-    const timeout = ['canvas_export', 'tool_run', 'credentials_edit', 'settings_path', 'vault_manage', 'attachment_choose',
+    const timeout = action==='research_canvas_media_prepare'&&payload.mode==='picker'||['canvas_export', 'tool_run', 'credentials_edit', 'settings_path', 'vault_manage', 'attachment_choose',
       'research_canvas_export', 'research_canvas_import', 'research_canvas_attach', 'research_canvas_tool'].includes(action) ? undefined : setTimeout(() => {
       pending.delete(id); reject(new Error('Приложение не ответило. Повторите действие.'))
     }, 30000)

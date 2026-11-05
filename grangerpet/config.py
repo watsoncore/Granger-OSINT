@@ -71,6 +71,7 @@ class Settings:
     notifications_investigation: bool = True
     notifications_errors: bool = True
     reduced_motion: bool = False
+    ui_effects: str = "full"
 
     def __post_init__(self):
         try:
@@ -86,6 +87,8 @@ class Settings:
         values = dict(values)
         if values.get("ui_theme") in ("dark", "black", "light", "mono"):
             settings.ui_theme = values["ui_theme"]
+        if values.get("ui_effects") in ("full", "reduced", "off"):
+            settings.ui_effects = values["ui_effects"]
         if values.get('research_mode') in ('quick','standard','deep'):
             settings.research_mode=values['research_mode']
         from urllib.parse import urlsplit

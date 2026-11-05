@@ -411,6 +411,19 @@ def apply(doc,operation,args):
     ids=args.get('ids',[])
     if not isinstance(ids,list) or not set(ids)<=set(nodes)|set(instances):raise CanvasError('Выбран неизвестный узел.')
     if operation=='node':add_node(doc,args)
+    elif operation=='detach_image':
+        node=nodes.get(canonical(args.get('entity_id')))
+        if not node:raise CanvasError('Объект не найден.')
+        attachments=node['attributes'].get('image_attachments')
+        if not isinstance(attachments,list):raise CanvasError('У объекта нет визуальных вложений.')
+        node['attributes']['image_attachments']=[item for item in attachments
+            if not isinstance(item,dict) or item.get('id')!=args.get('attachment_id')]
+    elif operation=='image_fit':
+        node=nodes.get(canonical(args.get('entity_id')))
+        mode=args.get('mode')
+        if not node or node['type']!='image' or mode not in ('contain','cover'):
+            raise CanvasError('Выберите изображение и режим его отображения.')
+        node['attributes']['image_fit']=mode
     elif operation=='rename':doc.update(title=text(args.get('title'),200),description=text(args.get('description',''),10000))
     elif operation=='annotate':
         identifier=args.get('entity_id')

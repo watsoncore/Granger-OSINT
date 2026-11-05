@@ -26,7 +26,7 @@ def fake_commands(monkeypatch, *, failure=None):
         else:
             name=Path(arguments[0]).name
             if failure=='interrupt':raise KeyboardInterrupt()
-            flag='--report' if name in ('qa_clean_release.py','qa_v4_investigation.py','qa_v5_acceptance.py') else '--output'
+            flag='--report' if name in ('qa_clean_release.py','qa_v4_investigation.py','qa_v5_acceptance.py','qa_v6_media.py') else '--output'
             report=Path(arguments[arguments.index(flag)+1])
             data={'passed':name!=failure,'modules':[1], 'assets':[1], 'checks':[1]}
             if name=='qa_clean_release.py':
@@ -43,6 +43,14 @@ def test_failed_live_node_acceptance_cannot_promote_candidate(tmp_path,monkeypat
     with pytest.raises(release.BuildError):release.release(root,verify_investigation_live=True)
     assert (root/'dist'/release.BINARY).read_bytes()==b'old working executable'
     assert list(root.glob(release.STAGE_PREFIX+'*'))==[]
+
+
+def test_failed_media_acceptance_preserves_installed_application(tmp_path,monkeypatch):
+    root=project(tmp_path,monkeypatch);fake_commands(monkeypatch,failure='qa_v6_media.py')
+    with pytest.raises(release.BuildError):
+        release.release(root,run_media_v6=True)
+    assert (root/'dist'/release.BINARY).read_bytes()==b'old working executable'
+    assert not list(root.glob(release.STAGE_PREFIX+'*'))
 
 
 def test_graph_receipt_for_another_exe_cannot_promote(tmp_path,monkeypatch):

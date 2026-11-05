@@ -241,7 +241,7 @@ export function hitNode(nodes:GraphEntity[],positions:Record<string,GraphPoint>,
 }
 export function hitRelation(edges:GraphRelation[],positions:Record<string,GraphPoint>,view:GraphViewport,x:number,y:number,nodes:GraphEntity[]=[],mode:'tree'|'graph'='graph') {
   let best:GraphRelation|undefined,distance=7
-  for(const {edge,points}of routeEdges(edges,positions,view,nodes,mode))for(let i=1;i<points.length;i++){
+  for(const {edge,points}of routeEdges(edges,positions,view,nodes,mode,{left:x-7,right:x+7,top:y-7,bottom:y+7}))for(let i=1;i<points.length;i++){
     const a=points[i-1],b=points[i],dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/(dx*dx+dy*dy||1)))
     const d=Math.hypot(x-a.x-t*dx,y-a.y-t*dy);if(d<distance){distance=d;best=edge}
   }

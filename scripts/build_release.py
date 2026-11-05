@@ -169,9 +169,26 @@ def verify_graph_v5(root, candidate, stage, observations, captures, environment)
     return native
 
 
+def verify_media_v6(root, candidate, stage, captures, environment):
+    report = stage/'media-v6.json'
+    captures = (captures or stage/'media-v6-captures').resolve()
+    if captures.is_relative_to((root/'dist').resolve()):
+        raise BuildError('Media captures must be outside dist.')
+    run_checked(['scripts/qa_v6_media.py','--exe',str(candidate),'--report',str(report),
+                 '--screenshots',str(captures)],root=root,environment=environment)
+    native = read_passed(report)
+    with candidate.open('rb') as image:
+        candidate_hash = hashlib.file_digest(image,'sha256').hexdigest()
+    if (native.get('exe_sha256') != candidate_hash or native.get('origin') != 'frozen-Windows-EXE'
+            or not native.get('temporary_profile_removed')):
+        raise BuildError('Media V6 receipt did not verify the candidate and profile cleanup.')
+    return native
+
+
 def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing_external_tools: bool = False,
             verify_investigation_live: bool = False, graph_v5_observations: Path | None = None,
-            graph_v5_captures: Path | None = None) -> dict:
+            graph_v5_captures: Path | None = None, run_media_v6: bool = False,
+            media_v6_captures: Path | None = None) -> dict:
     root = root.resolve()
     if not (root/'Granger-OSINT.spec').is_file():raise BuildError('Existing Granger-OSINT project not found.')
     extras = dist_entries(root,allow_legacy=allow_legacy_dist)
@@ -210,6 +227,8 @@ def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing
             run_checked(['scripts/qa_v4_investigation.py','--exe',str(candidate),'--report',str(report),
                 '--screenshots',str(root/'docs/validation/master-fix-v4')],root=root,environment=environment)
             checks['investigation_live']=read_passed(report)
+        if run_media_v6:
+            checks['media_v6']=verify_media_v6(root,candidate,stage,media_v6_captures,environment)
         if graph_v5_observations:
             checks['graph_v5']=verify_graph_v5(root,candidate,stage,graph_v5_observations,graph_v5_captures,environment)
         # Long native/live checks must not promote an EXE made from sources
@@ -232,6 +251,7 @@ def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing
         'native_checks':len(checks['native'].get('checks',[])),
         'investigation_live':checks.get('investigation_live'),
         'graph_v5':checks.get('graph_v5'),
+        'media_v6':checks.get('media_v6'),
         'external_tools':checks['native'].get('external_tools',{}),
         'external_tools_policy':expected_policy,
         'temporary_stage_removed':not stage.exists(),'legacy_entries_require_cleanup':extras}
@@ -243,16 +263,20 @@ def main() -> int:
     parser.add_argument('--verify-investigation-live',action='store_true',help='Before promotion, actually create username/wallet and run Maigret/Gansar from native UI')
     parser.add_argument('--verify-graph-v5',type=Path,help='Private directory containing real public observation receipts for native Graph V5 acceptance')
     parser.add_argument('--graph-v5-captures',type=Path,help='Optional own-window captures outside dist')
+    parser.add_argument('--verify-media-v6',action='store_true',help='Require native Windows media and navigation checks before promotion')
+    parser.add_argument('--media-v6-captures',type=Path,help='Optional V6 own-window captures outside dist')
     parser.add_argument('--report',type=Path,help='Optional small summary outside dist; all raw QA/work files are automatically removed')
     parser.add_argument('--allow-missing-external-tools',action='store_true',
         help='Explicit source-only CI: require external tool registration and report actual availability; do not require ignored Gansar/Maigret runtimes. Default local release remains strict.')
     args = parser.parse_args()
     if args.report and args.report.resolve().is_relative_to((ROOT/'dist').resolve()):parser.error('Build reports must be outside dist.')
     if args.graph_v5_captures and not args.verify_graph_v5:parser.error('--graph-v5-captures requires --verify-graph-v5.')
+    if args.media_v6_captures and not args.verify_media_v6:parser.error('--media-v6-captures requires --verify-media-v6.')
     try:
         result = release(allow_legacy_dist=args.allow_legacy_dist,allow_missing_external_tools=args.allow_missing_external_tools,
                          verify_investigation_live=args.verify_investigation_live,graph_v5_observations=args.verify_graph_v5,
-                         graph_v5_captures=args.graph_v5_captures)
+                         graph_v5_captures=args.graph_v5_captures,run_media_v6=args.verify_media_v6,
+                         media_v6_captures=args.media_v6_captures)
     except (OSError,ValueError,BuildError,subprocess.CalledProcessError) as error:
         print('Build/install failed: '+str(error),file=sys.stderr);return 1
     payload = json.dumps(result,ensure_ascii=False,indent=2)+'\n'

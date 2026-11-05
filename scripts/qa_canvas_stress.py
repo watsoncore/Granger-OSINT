@@ -85,6 +85,7 @@ def main():
     p.add_argument('--counts',type=int,nargs='+',default=[50,100,500,1000,5000])
     p.add_argument('--observed-result',type=Path,help='Existing real source result.json; copied evidence, no new network requests')
     p.add_argument('--observed-only',action='store_true',help='Only the separately supplied observation dataset')
+    p.add_argument('--effects',choices=('full','reduced','off'),default='full')
     args=p.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Use a fresh receipt directory')
     out.mkdir(parents=True);namespace=uuid.uuid4().hex
@@ -99,7 +100,8 @@ def main():
     from perf_process_metrics import ProcessSampler,summarize
     app=QApplication.instance() or QApplication([])
     profile=out/'appdata/GrangerPet';profile.mkdir(parents=True)
-    (profile/'settings.json').write_text(json.dumps(Settings(source_root=str(ROOT),cursor_reaction=False,reduced_motion=True).to_dict()),encoding='utf-8')
+    (profile/'settings.json').write_text(json.dumps(Settings(source_root=str(ROOT),cursor_reaction=False,reduced_motion=True,
+        ui_effects=args.effects).to_dict()),encoding='utf-8')
     store=CanvasStore(InvestigationJournal(profile/'investigations'));cases=[]
     from PIL import Image
     pixels=io.BytesIO();Image.new('RGB',(64,64),'#497077').save(pixels,'PNG')
@@ -114,6 +116,7 @@ def main():
         start=time.perf_counter();saved=store.save(d,0)
         cases.append({'id':saved['id'],**provenance,'encrypted_seed_write_ms':round((time.perf_counter()-start)*1000,2)})
     report={'origin':'frozen-EXE' if args.exe else 'native-source','data_origin':'synthetic_fixture_and_separate_provided_observations' if args.observed_result else 'synthetic_fixture','exe_sha256':hashlib.sha256(args.exe.read_bytes()).hexdigest() if args.exe else None,'cases':[],'checks':[],
+        'effects':args.effects,
         'metric_semantics':'Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.'}
     def save():(out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     def wait(fn,seconds=60):
@@ -163,9 +166,11 @@ def main():
         raise TimeoutError('Canvas metric observation superseded or unavailable')
     try:
         argv=([str(args.exe.resolve())] if args.exe else [sys.executable,str(ROOT/'main.py')])+['--pet','--interaction-qa']
+        started=time.perf_counter()
         with (out/'process.log').open('wb') as stream:process=subprocess.Popen(argv,cwd=ROOT,env=os.environ.copy(),stdout=stream,stderr=subprocess.STDOUT)
         owned=wait(state,80)['pid'];wait(lambda:state()['desktop']['ready']);monitor.sample([process.pid])
         command('show_workspace',{'route':'search'});action('window',{'mode':'maximize'});click('Моё полотно')
+        report['startup_to_canvas_seconds']=round(time.perf_counter()-started,3)
         for index,case in enumerate(cases):
             report['stage']={'case':case['underlying_nodes'],'phase':'open'};save()
             if index:wait(lambda:metrics().get('queue_pending',0)==0 and not snapshot().get('research_canvas',{}).get('busy'))
@@ -191,7 +196,11 @@ def main():
             final=metrics()['canvas'];frame=json.loads(final.get('frameMetrics','{}'))
             case['renderer']={k:final.get(k) for k in ('paintMs','drawnNodes','onScreenNodes','modelEdges','drawnImages','zoom')}
             for key,values in frame.items():
-                if values:case[key]={'count':len(values),'median':round(statistics.median(values),3),'p95':round(sorted(values)[max(0,int(len(values)*.95)-1)],3),'max':round(max(values),3)}
+                if values:
+                    ordered=sorted(values)
+                    case[key]={'count':len(values),'median':round(statistics.median(values),3),
+                        'p95':round(ordered[max(0,int(len(values)*.95)-1)],3),
+                        'p99':round(ordered[max(0,int(len(values)*.99)-1)],3),'max':round(ordered[-1],3)}
             intervals=frame.get('active_intervals_ms',[])
             case['active_interval_reciprocal_fps']=round(1000/statistics.median(intervals),2) if intervals else None
             case['resources']=summarize(samples)

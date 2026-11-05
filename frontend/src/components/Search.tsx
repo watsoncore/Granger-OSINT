@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 import { ArrowUpRight, ChevronDown, Copy, LoaderCircle, RotateCcw, Search as SearchIcon, Square } from 'lucide-react'
 import { act } from '../bridge'
 import type { DesktopState, Source } from '../types'
@@ -13,7 +13,7 @@ import { ResearchCanvas } from './ResearchCanvas'
 import {SearchableSelect} from './SearchableSelect'
 import {MaigretFields} from './MaigretFields'
 import {GansarFields,useCryptoTarget} from './GansarFields'
-import {DensityControl} from './WorkspaceDensity'
+import type {SearchDestination} from './WorkspaceNavigation'
 
 const searchPhases: Record<string, string> = {
   queued: 'Подготовка поиска', preparing: 'Подготовка поиска', starting: 'Запуск инструмента',
@@ -36,13 +36,21 @@ export function resultSource(result: Record<string, unknown>): Source {
     details: detail, limitations: Array.isArray(result.limitations) ? result.limitations.map(String) : undefined,
   }
 }
-export function SearchWorkspace({ state, query, setQuery, onSource }: { state: DesktopState; query: string; setQuery(value: string): void; onSource(source: Source): void }) {
+export function SearchWorkspace({state,query,setQuery,onSource,destination,onDestinationHandled}:{
+  state:DesktopState;query:string;setQuery(value:string):void;onSource(source:Source):void
+  destination?:SearchDestination;onDestinationHandled?(destination:SearchDestination):void
+}) {
   const hasInvestigation=!!(state.search.investigation_id||state.investigation.id)
   const hasResearchContext=hasInvestigation||state.search.results.length>0
   const [formExpanded,setFormExpanded]=useState(()=>!hasResearchContext)
   const formId=useId()
   useEffect(()=>{if(hasResearchContext)setFormExpanded(false)},[hasResearchContext,state.search.investigation_id,state.investigation.id])
-  const [workspace,setWorkspace]=useState<'results'|'canvas'|'catalog'|'activity'>('results')
+  const [workspace,setWorkspace]=useState<'results'|'canvas'|'catalog'|'activity'>(destination?.panel||'results')
+  useEffect(()=>{
+    if(!destination)return
+    setWorkspace(destination.panel)
+    if(destination.panel==='catalog')onDestinationHandled?.(destination)
+  },[destination,onDestinationHandled])
   const [kind, setKind] = useState('')
   const [tool, setTool] = useState('')
   const [publicSearchStatus, setPublicSearchStatus] = useState('')
@@ -72,12 +80,12 @@ export function SearchWorkspace({ state, query, setQuery, onSource }: { state: D
       } catch (error) { setArgumentError(error instanceof Error ? error.message : 'Проверьте параметры инструмента.');setFormExpanded(true) }
     } else {const value=query.trim()||(repeat?state.search.query.trim():'');if(value){void act(tool ? 'tool_run' : 'search_run', tool ? { tool, query:value } : { query:value, kind: kind || state.search.kind || undefined });if(hasResearchContext)setFormExpanded(false)}}
   }
-  const results = state.search.results.map(resultSource)
+  const results = useMemo(()=>state.search.results.map(resultSource),[state.search.results])
   const canRepeat=isStructured?!!selected?.available&&!!Object.values(argumentsDraft).some(value=>!!value.trim()):!!(query.trim()||state.search.query.trim())
   const sourceIds = results.map(item => item.evidence_id).filter(Boolean).slice(0, 20)
   return <div className="workspace-scroll"><div className={`page-content search-workspace ${hasResearchContext?'has-research-context':''}`}>
     {!hasResearchContext&&<div className="search-workspace-heading"><div><span className="eyebrow">ОТКРЫТЫЕ ИСТОЧНИКИ</span><h1>Расследование</h1></div></div>}
-    <div className="search-navigation"><nav className="search-primary-tabs" aria-label="Рабочая область поиска">{Object.entries({results:'Поиск и результаты',canvas:'Моё полотно',catalog:'Инструменты',activity:'Ход работы'}).map(([id,label])=><button key={id} aria-pressed={workspace===id} onClick={()=>setWorkspace(id as typeof workspace)}>{label}{id==='results'&&results.length>0&&<span>{results.length}</span>}{id==='activity'&&isBusy&&<LoaderCircle size={12} className="spin"/>}</button>)}</nav><DensityControl/></div>
+    <div className="search-navigation"><nav className="search-primary-tabs" aria-label="Рабочая область поиска">{Object.entries({results:'Поиск и результаты',canvas:'Моё полотно',catalog:'Инструменты',activity:'Ход работы'}).map(([id,label])=><button key={id} aria-pressed={workspace===id} onClick={()=>setWorkspace(id as typeof workspace)}>{label}{id==='results'&&results.length>0&&<span>{results.length}</span>}{id==='activity'&&isBusy&&<LoaderCircle size={12} className="spin"/>}</button>)}</nav></div>
     <div hidden={workspace!=='results'} className="search-primary-pane">
       <section className={`search-query-panel ${formExpanded?'is-open':'is-collapsed'}`} aria-label="Параметры поиска">
       {hasResearchContext&&<div className="search-query-summary"><button type="button" className="search-query-toggle" aria-label={formExpanded?'Свернуть параметры поиска':'Изменить запрос'} aria-expanded={formExpanded} aria-controls={formId} onClick={()=>{if(!formExpanded&&!query.trim()&&state.search.query)setQuery(state.search.query);setFormExpanded(value=>!value)}}><SearchIcon size={15}/><span><strong>{selected?toolName(selected.id,selected.displayName||selected.name):'Поиск по открытым источникам'}</strong><small>{query.trim()||state.search.query||state.investigation_graph?.goal||'Новый запрос'}</small></span><span className="search-query-toggle-caption">{formExpanded?'Свернуть параметры':'Изменить запрос'}</span><ChevronDown size={14}/></button>{isBusy?<Button size="sm" type="button" variant="danger" onClick={()=>void act(state.busy?'chat_stop':'search_stop')}><Square size={13}/>Остановить</Button>:<Button size="sm" type="button" variant="ghost" aria-label="Повторить поиск" disabled={!canRepeat} onClick={()=>run(true)}><RotateCcw size={13}/><span>Повторить</span></Button>}</div>}
@@ -96,7 +104,7 @@ export function SearchWorkspace({ state, query, setQuery, onSource }: { state: D
       {!hasInvestigation&&results.length>0?<section className="search-results"><div className="section-heading"><h2>Результаты<span className="count">{results.length}</span></h2><div><IconButton label="Копировать результаты" onClick={()=>void act('copy',{text:results.map(item=>`${item.title}\n${item.url}\n${item.excerpt||''}`).join('\n\n')})}><Copy size={15}/></IconButton><Button variant="secondary" size="sm" disabled={!sourceIds.length||state.busy||!state.connection.canSend} onClick={()=>void act('search_analyze',{evidence_ids:sourceIds})}>Гермионе<ArrowUpRight size={15}/></Button></div></div><div className="result-grid">{results.map((source,index)=><SourceCard source={source} onSelect={onSource} key={source.evidence_id||`${source.url}-${index}`}/>)}</div></section>:!hasInvestigation&&!!state.search.query&&!isBusy&&!state.search.error&&!status&&<div className="no-results"><SearchIcon size={22}/><strong>По этому запросу результатов нет</strong><p>Попробуйте другой запрос или доступный инструмент.</p></div>}
       {!hasInvestigation&&!results.length&&!state.search.query&&!isBusy&&<div className="search-start"><SearchIcon size={23}/><h2>Начните с публичного объекта</h2><p>Результаты, связи и основания появятся здесь. Ручная работа доступна в «Моём полотне».</p><Button variant="secondary" size="sm" onClick={()=>setWorkspace('canvas')}>Открыть полотно</Button></div>}
     </div>
-    <div hidden={workspace!=='canvas'} className="search-primary-pane"><ResearchCanvas state={state} onSource={onSource} active={workspace==='canvas'}/></div>
+    <div hidden={workspace!=='canvas'} className="search-primary-pane"><ResearchCanvas state={state} onSource={onSource} active={workspace==='canvas'} destination={destination?.panel==='canvas'?destination:undefined} onDestinationHandled={onDestinationHandled}/></div>
     <div hidden={workspace!=='catalog'} className="search-primary-pane"><ToolCatalog tools={state.tools} checking={state.toolsChecking} selected={tool} busy={isBusy} onSelect={item=>{setTool(item.id);setWorkspace('results');setFormExpanded(true);if(!item.manifest?.input_schema)setTimeout(()=>document.getElementById('osint-query')?.focus(),0)}} onSettings={()=>void act('route',{route:'settings',category:'tools'})}/><div className="search-workspace-actions"><Button variant="ghost" size="sm" onClick={()=>void act('route',{route:'settings',category:'tools'})}>Настройки источников<ArrowUpRight size={13}/></Button><Button variant="ghost" size="sm" disabled={isBusy} onClick={()=>void act('search_dorks',{query})}>Операторы Google<ArrowUpRight size={13}/></Button><Button variant="ghost" size="sm" disabled={!query.trim()||isBusy} onClick={()=>void openAvito()}>Искать на Avito<ArrowUpRight size={13}/></Button></div>{publicSearchStatus&&<p className="notice-inline" role="status">{publicSearchStatus}</p>}</div>
     <div hidden={workspace!=='activity'} className="search-primary-pane"><ActivityBlock activity={state.activity} busy={false}/>{!state.activity.length&&<p className="field-hint">Инструменты ещё не запускались.</p>}</div>
   </div></div>

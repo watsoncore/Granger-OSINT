@@ -99,6 +99,7 @@ class DesktopSurface(QWebEngineView):
         self._renderer_visible = False
         self.setObjectName('DesktopSurface')
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
+        self.setAcceptDrops(True)
         self.root=frontend_directory()
         if not (self.root/'index.html').is_file():
             raise RuntimeError('Сначала соберите интерфейс: npm ci и npm run build в frontend/.')
@@ -124,6 +125,11 @@ class DesktopSurface(QWebEngineView):
         theme_script.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentCreation)
         theme_script.setWorldId(QWebEngineScript.ScriptWorldId.MainWorld)
         theme_script.setSourceCode("globalThis.__GRANGER_THEME__="+json.dumps(selected)+";(()=>{const apply=()=>{if(!document.documentElement)return false;document.documentElement.dataset.theme=globalThis.__GRANGER_THEME__;return true};if(!apply()){const o=new MutationObserver(()=>{if(apply())o.disconnect()});o.observe(document,{childList:true})}})();")
+        effects=getattr(host.settings,'ui_effects','full')
+        if effects in ('reduced','off'):
+            theme_script.setSourceCode(theme_script.sourceCode()+';globalThis.__GRANGER_EFFECTS__='+json.dumps(effects)+';')
+        if '--interaction-qa' in sys.argv:
+            theme_script.setSourceCode(theme_script.sourceCode()+';globalThis.__GRANGER_QA_GRAPH__=true;')
         self.trusted_page.scripts().insert(theme_script)
         settings=self.settings()
         for attribute in (QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls,
@@ -152,6 +158,59 @@ class DesktopSurface(QWebEngineView):
     def _load_finished(self,ok):
         self.load_ok=bool(ok)
         self._sync_visibility()
+
+    def _graph_drop_path(self,event):
+        if self.bridge.route!='search' or not event.mimeData().hasUrls():
+            return None
+        from pathlib import PureWindowsPath
+        urls=event.mimeData().urls()
+        if len(urls)!=1 or not urls[0].isLocalFile():
+            return None
+        path=urls[0].toLocalFile()
+        if PureWindowsPath(path).suffix.lower() not in ('.png','.jpg','.jpeg','.webp'):
+            return None
+        return path
+
+    def _graph_drop_feedback(self,phase,point=None,token=None):
+        if phase=='hover':
+            import time
+            now=time.monotonic()
+            if now-getattr(self,'_last_graph_drop_feedback',0)<.016:
+                return
+            self._last_graph_drop_feedback=now
+        position=[point.x(),point.y()] if point is not None else [0,0]
+        args=json.dumps([phase,*position,self.width(),self.height(),token],ensure_ascii=True)
+        self.trusted_page.runJavaScript('globalThis.grangerGraphFileDrop?.(...'+args+')')
+
+    def dragEnterEvent(self,event):
+        if self._graph_drop_path(event):
+            event.acceptProposedAction()
+            self._graph_drop_feedback('hover',event.position())
+        else:
+            super().dragEnterEvent(event)
+
+    def dragMoveEvent(self,event):
+        if self._graph_drop_path(event):
+            event.acceptProposedAction()
+            self._graph_drop_feedback('hover',event.position())
+        else:
+            super().dragMoveEvent(event)
+
+    def dragLeaveEvent(self,event):
+        if self.bridge.route=='search':
+            self._graph_drop_feedback('leave')
+        super().dragLeaveEvent(event)
+
+    def dropEvent(self,event):
+        path=self._graph_drop_path(event)
+        if not path:
+            return super().dropEvent(event)
+        import time
+        import uuid
+        token=uuid.uuid4().hex
+        self.bridge._canvas_native_drop=(token,path,time.monotonic()+10)
+        event.acceptProposedAction()
+        self._graph_drop_feedback('drop',event.position(),token)
 
     def eventFilter(self,watched,event):
         if watched is self.host and event.type() in (QEvent.Type.Show,QEvent.Type.Hide,QEvent.Type.WindowStateChange):

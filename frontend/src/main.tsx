@@ -5,6 +5,7 @@ import './styles.css'
 import './typography.css'
 import './themes.css'
 import './workbench.css'
+import './dark-glass.css'
 import { restoreTheme } from './themes'
 
 restoreTheme()

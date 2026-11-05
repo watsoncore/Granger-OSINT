@@ -1,13 +1,20 @@
-import { forwardRef,useEffect,useImperativeHandle,useMemo,useRef,useState } from 'react'
+import { forwardRef,useEffect,useImperativeHandle,useMemo,useRef } from 'react'
 import type { GraphEntity,GraphPoint,GraphRelation,GraphViewport } from '../types'
 import { entityLabel,fitViewport,readableViewport,hitNode,hitRelation,nodeBox,relationLabels,shortLabel,zoomAt } from '../graph-model'
-import { routeEdges } from '../graph-geometry'
+import { CardIndex,routeEdges } from '../graph-geometry'
 import {cardBadge,cardRows,cardTitle,cardVariant,cardVariants,withCardPresentation,type CardMode,type CardSize} from '../graph-cards'
 import {GraphCamera} from '../graph-camera'
 import {formatGraphAmount} from '../graph-money'
 import {semanticGraph} from '../graph-semantic'
+import {mediaThumbnail,visualMedia,type MediaReference} from '../canvas-media'
 
-export interface GraphCanvasHandle { fit():void; zoom(factor:number):void; center(id:string):void }
+declare global {interface Window {
+  __GRANGER_QA_GRAPH__?:boolean
+  grangerGraphFileDrop?(phase:'hover'|'leave'|'drop',x:number,y:number,nativeWidth:number,nativeHeight:number,token?:string):void
+}}
+const metricsEnabled=()=>window.__GRANGER_QA_GRAPH__===true||import.meta.env.MODE==='test'
+
+export interface GraphCanvasHandle { fit():void; zoom(factor:number):void; center(id:string):void; insertPoint?(size:CardSize):GraphPoint }
 interface Props {
   nodes:GraphEntity[];edges:GraphRelation[];positions:Record<string,GraphPoint>;viewport:GraphViewport;scopeKey?:string
   selected:string;second:string;selectedEdge:string;root:string;theme?:unknown;mode?:'tree'|'graph'
@@ -19,26 +26,36 @@ interface Props {
   onContext?(id:string,position:GraphPoint):void
   cardSizes?:Record<string,CardSize>;cardMode?:CardMode
   onCardResize?(id:string,size:CardSize):void;onOpenMedia?(node:GraphEntity):void;onExpand?(id:string):void
+  onDropImage?(file:File,position:GraphPoint):void
+  onNativeDrop?(token:string,position:GraphPoint):void
+  loadImage?(node:GraphEntity,media:MediaReference):Promise<string>
 }
 export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function InvestigationCanvas(props,forwarded) {
   const presented=useMemo(()=>withCardPresentation(props.nodes,props.cardSizes,props.cardMode),[props.nodes,props.cardSizes,props.cardMode])
   const canvas=useRef<HTMLCanvasElement>(null),latest=useRef(props);latest.current={...props,nodes:presented}
-  const points=useRef(props.positions),viewport=useRef(props.viewport)
+  const points=useRef({...props.positions}),viewport=useRef(props.viewport)
   const camera=useRef(new GraphCamera(props.viewport)),pendingPoints=useRef<Record<string,GraphPoint>>({})
   const cameraFrames=useRef<{time:number;x:number;y:number;scale:number;event:string}[]>([]),lastCameraFrame=useRef('')
   const farClusters=useRef<{id:string;members:string[];x:number;y:number;width:number;height:number}[]>([])
   const semanticCache=useRef<{nodes:GraphEntity[];edges:GraphRelation[];positions:Record<string,GraphPoint>;scale:number;protected:string;value:ReturnType<typeof semanticGraph>}|undefined>(undefined)
-  const [size,setSize]=useState({width:800,height:440})
-  const sizeRef=useRef(size);sizeRef.current=size
+  const spatial=useRef<{nodes:GraphEntity[];positions:Record<string,GraphPoint>;index:CardIndex}|undefined>(undefined)
+  const textWidths=useRef(new Map<string,number>())
+  const sizeRef=useRef({width:800,height:440})
+  const visible=useRef(true)
   const frame=useRef<number|undefined>(undefined),wheelTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined)
-  const thumbnails=useRef(new Map<string,HTMLImageElement>())
+  const thumbnails=useRef(new Map<string,HTMLImageElement|null>())
+  const pendingThumbnails=useRef(new Set<string>())
+  const dropPoint=useRef<GraphPoint|undefined>(undefined)
   const drag=useRef<{id?:string;startX:number;startY:number;point?:GraphPoint;view:GraphViewport;moved:boolean}|undefined>(undefined)
+  const lastMediaClick=useRef<{id:string;x:number;y:number;at:number}|undefined>(undefined)
   const linking=useRef<string|undefined>(undefined),marquee=useRef<{x:number;y:number;endX:number;endY:number}|undefined>(undefined)
   const mini=useRef<{x:number;y:number;w:number;h:number;minX:number;minY:number;scale:number}|undefined>(undefined)
+  const miniGeometry=useRef<{nodes:GraphEntity[];positions:Record<string,GraphPoint>;minX:number;minY:number;width:number;height:number;scale:number;marks:Path2D;groups:Path2D}|undefined>(undefined)
   const moving=useRef<Record<string,GraphPoint>>({})
   const hovered=useRef(''),resizing=useRef<{id:string;x:number;y:number;size:CardSize}|undefined>(undefined),resizeSizes=useRef<Record<string,CardSize>>({})
   const paints=useRef<number[]>([]),intervals=useRef<number[]>([]),latencies=useRef<number[]>([]),lastPaint=useRef(0),lastInput=useRef(0)
   function recordCamera(event:string){
+    if(!metricsEnabled())return
     const v=viewport.current,key=`${v.x}|${v.y}|${v.scale}`
     if(key===lastCameraFrame.current&&event==='frame')return
     lastCameraFrame.current=key
@@ -64,33 +81,131 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
   }
   function nodeAt(point:{x:number;y:number}){
     const view=viewport.current,cache=semanticCache.current
+    const area={left:point.x,top:point.y,right:point.x,bottom:point.y}
     if(view.scale<.38&&cache?.scale===view.scale&&cache.positions===points.current){
-      const node=hitNode(cache.value.nodes,cache.value.positions,view,point.x,point.y)
+      const node=hitNode(cardIndex(cache.value.nodes,cache.value.positions).query(view,area),cache.value.positions,view,point.x,point.y)
       return node?.attributes.semantic_cluster?undefined:node
     }
-    return hitNode(latest.current.nodes,points.current,view,point.x,point.y)
+    return hitNode(cardIndex(latest.current.nodes,points.current).query(view,area,moving.current),points.current,view,point.x,point.y)
+  }
+  function cardIndex(nodes:GraphEntity[],positions:Record<string,GraphPoint>){
+    const cached=spatial.current
+    if(cached?.nodes===nodes&&cached.positions===positions)return cached.index
+    const index=new CardIndex(nodes,positions)
+    spatial.current={nodes,positions,index}
+    return index
+  }
+  function thumbnail(node:GraphEntity,media:MediaReference,visible:Set<string>){
+    const cache=thumbnails.current,key=media.id
+    if(cache.has(key)){
+      const picture=cache.get(key)
+      cache.delete(key);cache.set(key,picture||null)
+      return picture
+    }
+    const pending=pendingThumbnails.current,embedded=mediaThumbnail(media),load=latest.current.loadImage
+    if(pending.has(key)||pending.size>=2||!embedded&&(!load||media.kind!=='local_attachment'))return
+    if(cache.size>=64){
+      const discard=[...cache.keys()].find(id=>!visible.has(id))
+      if(!discard)return
+      cache.delete(discard)
+    }
+    pending.add(key)
+    const source=embedded?Promise.resolve(embedded):load!(node,media)
+    void source.then(async src=>{
+      if(!src)return null
+      const picture=new Image();picture.src=src
+      await picture.decode()
+      return picture
+    }).catch(()=>null).then(picture=>{
+      pending.delete(key)
+      if(canvas.current){
+        while(cache.size>=64)cache.delete(cache.keys().next().value!)
+        cache.set(key,picture);requestDraw()
+      }
+    })
+  }
+  function drawMinimap(ctx:CanvasRenderingContext2D,nodes:GraphEntity[],positions:Record<string,GraphPoint>,view:GraphViewport,width:number,height:number,colors:{panel:string;border:string;muted:string;accent:string}){
+    mini.current=undefined
+    if(nodes.length<4||width<620||height<340||typeof Path2D==='undefined')return
+    const w=128,h=76
+    let geometry=miniGeometry.current
+    if(!geometry||geometry.nodes!==nodes||geometry.positions!==positions){
+      let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity
+      for(const node of nodes){
+        const point=positions[node.id];if(!point)continue
+        const box=nodeBox(node,1)
+        minX=Math.min(minX,point.x-box.width/2);minY=Math.min(minY,point.y-box.height/2)
+        maxX=Math.max(maxX,point.x+box.width/2);maxY=Math.max(maxY,point.y+box.height/2)
+      }
+      if(!Number.isFinite(minX))return
+      const worldWidth=maxX-minX+32,worldHeight=maxY-minY+32,scale=Math.min(w/worldWidth,h/worldHeight)
+      minX-=16+(w/scale-worldWidth)/2;minY-=16+(h/scale-worldHeight)/2
+      const marks=new Path2D(),groups=new Path2D()
+      for(const node of nodes){
+        const point=positions[node.id];if(!point)continue
+        const x=(point.x-minX)*scale,y=(point.y-minY)*scale
+        if(node.type==='entity_group')groups.rect(x-2,y-2,4,4)
+        else marks.rect(x-1,y-1,2,2)
+      }
+      geometry={nodes,positions,minX,minY,width:worldWidth,height:worldHeight,scale,marks,groups}
+      miniGeometry.current=geometry
+    }
+    if(width/view.scale>=geometry.width&&height/view.scale>=geometry.height&&
+      -view.x/view.scale<=geometry.minX&&-view.y/view.scale<=geometry.minY)return
+    const x=width-w-12,y=height-h-12,{minX,minY,scale}=geometry
+    mini.current={x,y,w,h,minX,minY,scale}
+    ctx.save();ctx.translate(x,y);ctx.fillStyle=colors.panel;ctx.fillRect(0,0,w,h)
+    ctx.beginPath();ctx.rect(0,0,w,h);ctx.clip()
+    ctx.fillStyle=colors.muted;ctx.globalAlpha=.6;ctx.fill(geometry.marks)
+    ctx.fillStyle=colors.accent;ctx.fill(geometry.groups);ctx.globalAlpha=1
+    for(const id of [latest.current.root,latest.current.selected]){
+      const point=positions[id]
+      if(point)ctx.fillRect((point.x-minX)*scale-2,(point.y-minY)*scale-2,4,4)
+    }
+    ctx.strokeStyle=colors.accent;ctx.lineWidth=1
+    ctx.strokeRect((-view.x/view.scale-minX)*scale,(-view.y/view.scale-minY)*scale,width/view.scale*scale,height/view.scale*scale)
+    ctx.restore();ctx.strokeStyle=colors.border;ctx.lineWidth=1;ctx.strokeRect(x,y,w,h)
   }
   function draw() {
     frame.current=undefined
     const element=canvas.current,ctx=element?.getContext('2d');if(!element||!ctx)return
-    const started=performance.now(),{width,height}=sizeRef.current,original=latest.current,v=viewport.current,dpr=Math.min(devicePixelRatio||1,2),protectedIds=new Set([original.root,original.selected,original.second,...(original.selection||[])])
-    const selectedEdge=original.edges.find(edge=>edge.id===original.selectedEdge);if(selectedEdge){protectedIds.add(selectedEdge.from_id);protectedIds.add(selectedEdge.to_id)}
-    const protectedKey=[...protectedIds].sort().join('|'),cached=semanticCache.current
-    if(!cached||cached.nodes!==original.nodes||cached.edges!==original.edges||cached.positions!==points.current||cached.scale!==v.scale||cached.protected!==protectedKey)semanticCache.current={nodes:original.nodes,edges:original.edges,positions:points.current,scale:v.scale,protected:protectedKey,value:semanticGraph(original.nodes,original.edges,points.current,v.scale,protectedIds)}
-    const semantic=semanticCache.current!.value,p={...original,nodes:semantic.nodes,edges:semantic.edges},positions=semantic.positions
+    const qa=metricsEnabled()
+    const started=qa?performance.now():0,{width,height}=sizeRef.current,original=latest.current,v=viewport.current,dpr=Math.min(devicePixelRatio||1,2)
+    if(v.scale<.38){
+      const protectedIds=new Set([original.root,original.selected,original.second,...(original.selection||[])])
+      const selectedEdge=original.selectedEdge?original.edges.find(edge=>edge.id===original.selectedEdge):undefined
+      if(selectedEdge){protectedIds.add(selectedEdge.from_id);protectedIds.add(selectedEdge.to_id)}
+      const protectedKey=[...protectedIds].sort().join('|'),cached=semanticCache.current
+      if(!cached||cached.nodes!==original.nodes||cached.edges!==original.edges||cached.positions!==points.current||cached.scale!==v.scale||cached.protected!==protectedKey){
+        semanticCache.current={nodes:original.nodes,edges:original.edges,positions:points.current,scale:v.scale,protected:protectedKey,
+          value:semanticGraph(original.nodes,original.edges,points.current,v.scale,protectedIds)}
+      }
+    }else semanticCache.current=undefined
+    const semantic=semanticCache.current?.value
+    const p=semantic?{...original,nodes:semantic.nodes,edges:semantic.edges}:original,positions=semantic?.positions||points.current
     if(element.width!==Math.round(width*dpr)||element.height!==Math.round(height*dpr)){element.width=Math.round(width*dpr);element.height=Math.round(height*dpr)}
     ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height)
     const style=getComputedStyle(element),color=(name:string)=>style.getPropertyValue(name).trim()
     const text=color('--text'),muted=color('--muted'),accent=color('--accent'),border=color('--border'),panel=color('--panel'),raised=color('--panel-raised'),warning=color('--warning'),danger=color('--danger')
     const screen=(id:string)=>{const point=positions[id];return point?{x:point.x*v.scale+v.x,y:point.y*v.scale+v.y}:null}
-    const onScreen=(point:{x:number;y:number},margin=160)=>point.x>=-margin&&point.x<=width+margin&&point.y>=-margin&&point.y<=height+margin
-    const fitText=(value:string,space:number)=>{let low=0,high=value.length;while(low<high){const mid=Math.ceil((low+high)/2);if(ctx.measureText(value.slice(0,mid)).width<=space)low=mid;else high=mid-1}return low}
-    const clipped=(value:string,space:number)=>{if(space<12)return '';if(ctx.measureText(value).width<=space)return value;const tail=value.length>10?value.slice(-7):'',suffix='…'+tail,available=space-ctx.measureText(suffix).width;return available<=0?'…':value.slice(0,fitText(value.slice(0,value.length-tail.length),available))+suffix}
-    const cards=p.nodes.flatMap(original=>{const node=resizeSizes.current[original.id]?{...original,attributes:{...original.attributes,_card_size:resizeSizes.current[original.id]}}:original,point=screen(node.id),box=nodeBox(node,v.scale);return point&&onScreen(point,Math.max(box.width,box.height)/2+24)?[{node,point,box}]:[]})
-    const clusterMembers=new Map(semantic.clusters.map(cluster=>[cluster.id,cluster.members]))
+    const measure=(value:string)=>{
+      const key=ctx.font+'|'+value,cache=textWidths.current,known=cache.get(key)
+      if(known!==undefined)return known
+      const measured=ctx.measureText(value).width
+      if(cache.size>=4096)cache.delete(cache.keys().next().value!)
+      cache.set(key,measured);return measured
+    }
+    const fitText=(value:string,space:number)=>{if(measure(value)<=space)return value.length;let low=0,high=value.length;while(low<high){const mid=Math.ceil((low+high)/2);if(measure(value.slice(0,mid))<=space)low=mid;else high=mid-1}return low}
+    const clipped=(value:string,space:number)=>{if(space<12)return '';if(measure(value)<=space)return value;const tail=value.length>10?value.slice(-7):'',suffix='…'+tail,available=space-measure(suffix);return available<=0?'…':value.slice(0,fitText(value.slice(0,value.length-tail.length),available))+suffix}
+    const candidates=cardIndex(p.nodes,positions).query(v,{left:0,top:0,right:width,bottom:height},moving.current)
+    const cards=candidates.flatMap(original=>{
+      const node=resizeSizes.current[original.id]?{...original,attributes:{...original.attributes,_card_size:resizeSizes.current[original.id]}}:original
+      const point=screen(node.id),box=nodeBox(node,v.scale),mx=box.width/2+24,my=box.height/2+24
+      return point&&point.x>=-mx&&point.x<=width+mx&&point.y>=-my&&point.y<=height+my?[{node,point,box}]:[]
+    })
+    const clusterMembers=new Map(semantic?.clusters.map(cluster=>[cluster.id,cluster.members]))
     farClusters.current=cards.filter(card=>clusterMembers.has(card.node.id)).map(card=>({id:card.node.id,members:clusterMembers.get(card.node.id)!,...card.point,...card.box}))
-    const visibleMedia=new Set(cards.map(c=>String((c.node.attributes.media as Record<string,unknown>|undefined)?.id||'')))
-    if(thumbnails.current.size>80)for(const key of thumbnails.current.keys()){if(thumbnails.current.size<=64)break;if(!visibleMedia.has(key))thumbnails.current.delete(key)}
+    const visibleMedia=new Set(cards.flatMap(card=>{const media=visualMedia(card.node);return media?[media.id]:[]}))
     if(p.mode!=='tree'&&v.scale>.45){
       const clusters=new Map<string,typeof cards>()
       for(const card of cards){if(card.node.id===p.root||!card.node.attributes.parent_group_id)continue;const key=String(card.node.attributes.parent_group_id),rows=clusters.get(key)||[];rows.push(card);clusters.set(key,rows)}
@@ -148,7 +263,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
         ctx.fillText(clipped(title,box.width-35),x+29,point.y+4)
         if(variant==='group'){ctx.font='10px Manrope, sans-serif';ctx.fillStyle=muted;ctx.fillText(`${node.attributes.member_count??'—'} · раскрыть`,x+29,point.y+17)}
         drawnLabels++
-        if(qaNodes.length<30)qaNodes.push({id:node.id,x:point.x,y:point.y,width:box.width,height:box.height,label:shortLabel(node)})
+        if(qa&&qaNodes.length<30)qaNodes.push({id:node.id,x:point.x,y:point.y,width:box.width,height:box.height,label:shortLabel(node)})
         continue
       }
       if(v.scale>.55){
@@ -161,17 +276,21 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       ctx.beginPath();ctx.arc(x+box.width-11,y+11,3,0,Math.PI*2);ctx.fill()
       if(typeof node.attributes.analyst_color==='string'&&/^#[0-9a-f]{6}$/i.test(node.attributes.analyst_color)){ctx.fillStyle=node.attributes.analyst_color;ctx.fillRect(x+1,y+8,3,box.height-16)}
       {
-        const font=Math.max(9,Math.min(16,13*v.scale)),padding=Math.max(6,12*v.scale),media=node.attributes.media as Record<string,unknown>|undefined,compact=p.cardMode==='compact'||p.cardMode==='auto'&&v.scale<.7||v.scale<.45
+        const font=Math.max(9,Math.min(16,13*v.scale)),padding=Math.max(6,12*v.scale),media=visualMedia(node),compact=p.cardMode==='compact'||p.cardMode==='auto'&&v.scale<.7||v.scale<.45
         let left=x+padding,space=box.width-padding*2
-        if(media&&box.width>105){const key=String(media.id),preview=media.thumbnail
-          if(typeof preview==='string'&&/^data:image\/(?:jpeg|png|webp);base64,/.test(preview)&&!thumbnails.current.has(key)&&thumbnails.current.size<64){
-            const picture=new Image();thumbnails.current.set(key,picture);picture.onload=requestDraw;picture.src=preview
-          }
-          const picture=thumbnails.current.get(key)
+        if(media&&box.width>105){
+          const picture=thumbnail(node,media,visibleMedia)
           if(picture?.complete&&picture.naturalWidth&&box.width>105){
-            const mediaCard=variant==='media',w=mediaCard?space:Math.min(42*v.scale,box.height-padding*2),h=mediaCard?Math.max(24,box.height-padding*2-font*3.5):w,top=mediaCard?y+padding:y+(box.height-h)/2,ratio=Math.min(w/picture.naturalWidth,h/picture.naturalHeight)
+            const mediaCard=variant==='media',w=mediaCard?space:Math.min(42*v.scale,box.height-padding*2),h=mediaCard?Math.max(24,box.height-padding*2-font*3.5):w,top=mediaCard?y+padding:y+(box.height-h)/2
+            const cover=mediaCard&&node.attributes.image_fit==='cover'
+            const ratio=cover?Math.max(w/picture.naturalWidth,h/picture.naturalHeight):Math.min(w/picture.naturalWidth,h/picture.naturalHeight)
             ctx.save();ctx.beginPath();ctx.roundRect(left,top,w,h,4);ctx.clip();ctx.fillStyle=raised;ctx.fillRect(left,top,w,h)
             ctx.drawImage(picture,left+(w-picture.naturalWidth*ratio)/2,top+(h-picture.naturalHeight*ratio)/2,picture.naturalWidth*ratio,picture.naturalHeight*ratio);ctx.restore();if(!mediaCard){left+=w+8;space-=w+8}drawnImages++
+          }else if(variant==='media'){
+            const h=Math.max(24,box.height-padding*2-font*3.5)
+            ctx.fillStyle=raised;ctx.beginPath();ctx.roundRect(left,y+padding,space,h,5);ctx.fill()
+            ctx.fillStyle=muted;ctx.font='11px Manrope, sans-serif'
+            ctx.fillText(thumbnails.current.has(media.id)?'Изображение недоступно':'Предпросмотр…',left+8,y+padding+h/2)
           }
         }
         const mediaCard=variant==='media',badge=cardBadge(node),headingY=mediaCard?y+box.height-padding-font*2.1:y+padding+font*.75
@@ -190,17 +309,17 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       if(positions[node.id]?.pinned){ctx.fillStyle=accent;ctx.fillRect(x+box.width-8,y+4,4,4)}
       if(p.onConnect&&v.scale>.55&&(selected||hovered.current===node.id||linking.current===node.id)){for(const sign of [-1,1]){ctx.fillStyle=panel;ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(point.x+sign*box.width/2,point.y,4,0,Math.PI*2);ctx.fill();ctx.stroke()}}
       if(p.onCardResize&&selected&&variant==='media'&&v.scale>.55){ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+box.width-13,y+box.height-4);ctx.lineTo(x+box.width-4,y+box.height-13);ctx.moveTo(x+box.width-8,y+box.height-4);ctx.lineTo(x+box.width-4,y+box.height-8);ctx.stroke()}
-      if(qaNodes.length<30)qaNodes.push({id:node.id,x:point.x,y:point.y,width:box.width,height:box.height,label:shortLabel(node)})
+      if(qa&&qaNodes.length<30)qaNodes.push({id:node.id,x:point.x,y:point.y,width:box.width,height:box.height,label:shortLabel(node)})
+    }
+    if(dropPoint.current){
+      const point=dropPoint.current
+      ctx.fillStyle=raised;ctx.strokeStyle=accent;ctx.lineWidth=2
+      ctx.setLineDash([6,4]);ctx.beginPath();ctx.roundRect(point.x-62,point.y-38,124,76,9);ctx.fill();ctx.stroke();ctx.setLineDash([])
+      ctx.font='600 12px Manrope, sans-serif';ctx.fillStyle=text;ctx.fillText('Добавить фото',point.x-45,point.y+4)
     }
     if(marquee.current){const r=marquee.current;ctx.strokeStyle=accent;ctx.setLineDash([4,3]);ctx.strokeRect(r.x,r.y,r.endX-r.x,r.endY-r.y);ctx.setLineDash([])}
-    if(p.nodes.length>3&&width>420){
-      const values=p.nodes.flatMap(n=>positions[n.id]?[positions[n.id]]:[])
-      if(values.length){const minX=Math.min(...values.map(p=>p.x))-150,minY=Math.min(...values.map(p=>p.y))-70,maxX=Math.max(...values.map(p=>p.x))+150,maxY=Math.max(...values.map(p=>p.y))+70,w=164,h=94,x=width-w-12,y=height-h-12,s=Math.min(w/(maxX-minX),h/(maxY-minY))
-        mini.current={x,y,w,h,minX,minY,scale:s};ctx.fillStyle=panel;ctx.strokeStyle=border;ctx.globalAlpha=.92;ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h);ctx.globalAlpha=1;ctx.fillStyle=muted
-        for(const n of p.nodes){const point=positions[n.id];if(point)ctx.fillRect(x+(point.x-minX)*s-2,y+(point.y-minY)*s-1,4,2)}
-        ctx.strokeStyle=accent;ctx.strokeRect(x+(-v.x/v.scale-minX)*s,y+(-v.y/v.scale-minY)*s,Math.min(w,width/v.scale*s),Math.min(h,height/v.scale*s))
-      }
-    }else mini.current=undefined
+    drawMinimap(ctx,p.nodes,positions,v,width,height,{panel,border,muted,accent})
+    if(!qa)return
     element.dataset.drawnLabels=String(drawnLabels);element.dataset.drawnImages=String(drawnImages)
     element.dataset.qaNodes=JSON.stringify(qaNodes)
     element.dataset.qaEdges=JSON.stringify(routes.slice(0,20).map(({edge,points})=>({id:edge.id,...points[Math.floor(points.length*.6)]})))
@@ -216,10 +335,10 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     if(paints.current.length%5===0||!drag.current)element.dataset.frameMetrics=JSON.stringify({paint_ms:paints.current,active_intervals_ms:intervals.current,event_to_paint_ms:latencies.current})
     recordCamera('frame')
   }
-  function requestDraw(){if(frame.current===undefined)frame.current=requestAnimationFrame(draw)}
+  function requestDraw(){if(visible.current&&frame.current===undefined)frame.current=requestAnimationFrame(draw)}
   useEffect(()=>{
     camera.current=new GraphCamera(props.viewport);viewport.current=camera.current.value
-    points.current=props.positions;pendingPoints.current={};drag.current=undefined;moving.current={};cameraFrames.current=[];recordCamera('scope');requestDraw()
+    points.current={...props.positions};pendingPoints.current={};drag.current=undefined;lastMediaClick.current=undefined;moving.current={};cameraFrames.current=[];recordCamera('scope');requestDraw()
   },[props.scopeKey??props.root])
   useEffect(()=>{
     const incoming={...props.positions}
@@ -232,16 +351,86 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
   useEffect(()=>{if(!resizing.current)resizeSizes.current={};requestDraw()},[presented,props.edges,props.selected,props.second,props.selection,props.selectedEdge,props.theme])
   useEffect(()=> {
     const element=canvas.current;if(!element)return
-    const observer=new ResizeObserver(entries=>{const rect=entries[0].contentRect;if(rect.width&&rect.height){const next={width:rect.width,height:rect.height};setSize(next);sizeRef.current=next;latest.current.onResize(next.width,next.height);requestDraw()}})
+    const observer=new ResizeObserver(entries=>{
+      const rect=entries[0].contentRect
+      visible.current=rect.width>0&&rect.height>0
+      if(visible.current){
+        sizeRef.current={width:rect.width,height:rect.height}
+        latest.current.onResize(rect.width,rect.height);requestDraw()
+      }
+    })
     observer.observe(element)
     const wheel=(event:WheelEvent)=>{event.preventDefault();camera.current.active=true;lastInput.current=performance.now();const rect=element.getBoundingClientRect();moveViewport(zoomAt(viewport.current,event.clientX-rect.left,event.clientY-rect.top,Math.exp(-event.deltaY*.0015)));clearTimeout(wheelTimer.current);wheelTimer.current=setTimeout(()=>{camera.current.active=false;commitViewport()},140)}
     element.addEventListener('wheel',wheel,{passive:false})
     return()=>{observer.disconnect();element.removeEventListener('wheel',wheel);if(frame.current!==undefined)cancelAnimationFrame(frame.current);clearTimeout(wheelTimer.current)}
   },[])
-  useImperativeHandle(forwarded,()=>({fit,zoom(factor){commitViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,factor))},center(id){const p=points.current[id];if(p)commitViewport({x:sizeRef.current.width/2-p.x,y:sizeRef.current.height/2-p.y,scale:1})}}),[])
+  useEffect(()=>{
+    let active=true
+    void document.fonts?.ready.then(()=>{if(active){textWidths.current.clear();requestDraw()}})
+    return()=>{active=false}
+  },[])
+  useEffect(()=>{
+    if(!props.onNativeDrop)return
+    const receive:NonNullable<Window['grangerGraphFileDrop']>=(phase,x,y,nativeWidth,nativeHeight,token)=>{
+      const element=canvas.current
+      const px=x*innerWidth/Math.max(1,nativeWidth),py=y*innerHeight/Math.max(1,nativeHeight)
+      if(!element||phase==='leave'||document.elementFromPoint(px,py)!==element){
+        dropPoint.current=undefined;requestDraw();return
+      }
+      const rect=element.getBoundingClientRect(),point={x:px-rect.left,y:py-rect.top},view=viewport.current
+      dropPoint.current=phase==='hover'?point:undefined;requestDraw()
+      if(phase==='drop'&&token)latest.current.onNativeDrop?.(token,{x:(point.x-view.x)/view.scale,y:(point.y-view.y)/view.scale})
+    }
+    window.grangerGraphFileDrop=receive
+    return()=>{if(window.grangerGraphFileDrop===receive)delete window.grangerGraphFileDrop}
+  },[!!props.onNativeDrop])
+  useImperativeHandle(forwarded,()=>({
+    fit,
+    zoom(factor){commitViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,factor))},
+    center(id){const p=points.current[id];if(p)commitViewport({x:sizeRef.current.width/2-p.x,y:sizeRef.current.height/2-p.y,scale:1})},
+    insertPoint(size){
+      const v=viewport.current,{width,height}=sizeRef.current
+      const nodes=latest.current.nodes,positions=points.current
+      const halfWidth=size.width*v.scale/2,halfHeight=size.height*v.scale/2
+      const visible=cardIndex(nodes,positions).query(v,{left:0,top:0,right:width,bottom:height})
+        .flatMap(node=>{
+          const point=positions[node.id];if(!point)return []
+          return [{x:point.x*v.scale+v.x,y:point.y*v.scale+v.y,box:nodeBox(node,v.scale)}]
+        })
+      const insetX=Math.min(width/2,halfWidth+18),insetY=Math.min(height/2,halfHeight+18)
+      let point={x:width/2,y:height/2},score=Infinity
+      for(const row of [.5,.25,.75,0,1])for(const col of [.5,.25,.75,0,1]){
+        const x=insetX+col*(width-2*insetX),y=insetY+row*(height-2*insetY)
+        const overlap=visible.reduce((sum,item)=>{
+          const dx=Math.min(x+halfWidth,item.x+item.box.width/2+8)-Math.max(x-halfWidth,item.x-item.box.width/2-8)
+          const dy=Math.min(y+halfHeight,item.y+item.box.height/2+8)-Math.max(y-halfHeight,item.y-item.box.height/2-8)
+          return sum+Math.max(0,dx)*Math.max(0,dy)
+        },0)
+        if(overlap<score){score=overlap;point={x,y}}
+      }
+      return {x:(point.x-v.x)/v.scale,y:(point.y-v.y)/v.scale}
+    },
+  }),[])
   const local=(event:{clientX:number;clientY:number})=>{const rect=canvas.current!.getBoundingClientRect();return{x:event.clientX-rect.left,y:event.clientY-rect.top}}
   return <canvas ref={canvas} className="investigation-graph-canvas" role="application" aria-label="Интерактивный граф расследования" tabIndex={0}
-    onDoubleClick={event=>{const r=event.currentTarget.getBoundingClientRect(),point={x:event.clientX-r.left,y:event.clientY-r.top};if(zoomCluster(point))return;const v=viewport.current,node=nodeAt(point);if(node){if(node.attributes.media)latest.current.onOpenMedia?.(node);else latest.current.onExpand?.(node.id)}else latest.current.onCreate?.({x:(point.x-v.x)/v.scale,y:(point.y-v.y)/v.scale})}}
+    onDragOver={event=>{
+      if(!latest.current.onDropImage||!event.dataTransfer.types.includes('Files'))return
+      event.preventDefault();event.dataTransfer.dropEffect='copy';dropPoint.current=local(event);requestDraw()
+    }}
+    onDragLeave={()=>{if(dropPoint.current){dropPoint.current=undefined;requestDraw()}}}
+    onDrop={event=>{
+      const file=event.dataTransfer.files[0]
+      if(!file||!latest.current.onDropImage)return
+      event.preventDefault();dropPoint.current=undefined;requestDraw()
+      const p=local(event),v=viewport.current
+      latest.current.onDropImage(file,{x:(p.x-v.x)/v.scale,y:(p.y-v.y)/v.scale})
+    }}
+    onDoubleClick={event=>{
+      const point=local(event);if(zoomCluster(point))return
+      const v=viewport.current,node=nodeAt(point)
+      if(node){if(!visualMedia(node))latest.current.onExpand?.(node.id)}
+      else latest.current.onCreate?.({x:(point.x-v.x)/v.scale,y:(point.y-v.y)/v.scale})
+    }}
     onContextMenu={event=>{event.preventDefault();const p=local(event);if(zoomCluster(p))return;const v=viewport.current,node=nodeAt(p);latest.current.onContext?.(node?.id||'',{x:(p.x-v.x)/v.scale,y:(p.y-v.y)/v.scale})}}
     onPointerDown={event=>{
       if(event.button!==0)return
@@ -273,7 +462,10 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       const dx=point.x-current.startX,dy=point.y-current.startY;if(Math.hypot(dx,dy)<3&&!current.moved)return
       lastInput.current=performance.now()
       current.moved=true
-      if(current.id&&current.point){const updated={...points.current};for(const [id,p]of Object.entries(moving.current))updated[id]={x:p.x+dx/current.view.scale,y:p.y+dy/current.view.scale,pinned:true};points.current=updated}
+      if(current.id&&current.point){
+        for(const [id,p]of Object.entries(moving.current))points.current[id]={x:p.x+dx/current.view.scale,y:p.y+dy/current.view.scale,pinned:true}
+        if(viewport.current.scale<.38)semanticCache.current=undefined
+      }
       else moveViewport({...current.view,x:current.view.x+dx,y:current.view.y+dy})
       requestDraw()
     }}
@@ -283,9 +475,29 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       if(linking.current){const target=hitNode(p.nodes,points.current,v,point.x,point.y),from=linking.current;linking.current=undefined;if(target&&target.id!==from)p.onConnect?.(from,target.id)}
       if(marquee.current){const r=marquee.current;marquee.current=undefined;p.onSelection?.(p.nodes.filter(n=>{const pos=points.current[n.id];if(!pos)return false;const x=pos.x*v.scale+v.x,y=pos.y*v.scale+v.y;return x>=Math.min(r.x,r.endX)&&x<=Math.max(r.x,r.endX)&&y>=Math.min(r.y,r.endY)&&y<=Math.max(r.y,r.endY)}).map(n=>n.id));requestDraw()}
       const current=drag.current;drag.current=undefined;camera.current.active=false;event.currentTarget.releasePointerCapture?.(event.pointerId)
-      if(current?.moved){if(current.id){for(const id of Object.keys(moving.current))pendingPoints.current[id]={...points.current[id]};p.onCommitPositions({...points.current})}else commitViewport()}
+      if(current?.moved){if(current.id){
+        const updates=Object.fromEntries(Object.keys(moving.current).map(id=>[id,points.current[id]]))
+        Object.assign(pendingPoints.current,updates);spatial.current=undefined;semanticCache.current=undefined;miniGeometry.current=undefined
+        p.onCommitPositions(updates)
+      }else commitViewport()}
+      if(current?.id&&!current.moved){
+        const node=nodeAt(point),previous=lastMediaClick.current,at=performance.now()
+        if(node?.id===current.id&&visualMedia(node)){
+          if(previous?.id===node.id&&at-previous.at<420&&Math.hypot(previous.x-point.x,previous.y-point.y)<8){
+            lastMediaClick.current=undefined;p.onOpenMedia?.(node)
+          }else lastMediaClick.current={id:node.id,...point,at}
+        }else lastMediaClick.current=undefined
+      }else lastMediaClick.current=undefined
+      moving.current={}
     }}
     onPointerLeave={()=>{if(!drag.current){hovered.current='';requestDraw()}}}
-    onPointerCancel={()=>{const current=drag.current;drag.current=undefined;camera.current.active=false;if(current?.moved&&!current.id)commitViewport();marquee.current=undefined;linking.current=undefined;resizing.current=undefined;resizeSizes.current={};requestDraw()}}
+    onPointerCancel={()=>{
+      const current=drag.current;drag.current=undefined;camera.current.active=false
+      if(current?.moved){
+        if(current.id){Object.assign(points.current,moving.current);spatial.current=undefined;semanticCache.current=undefined;miniGeometry.current=undefined}
+        else commitViewport()
+      }
+      moving.current={};marquee.current=undefined;linking.current=undefined;resizing.current=undefined;resizeSizes.current={};requestDraw()
+    }}
     onKeyDown={event=>{const key=event.key;if(['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(key)){event.preventDefault();if(key==='Home')fit();else if(key==='+'||key==='='||key==='-')commitViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,key==='-'?.8:1.25));else commitViewport({...viewport.current,x:viewport.current.x+(key==='ArrowLeft'?40:key==='ArrowRight'?-40:0),y:viewport.current.y+(key==='ArrowUp'?40:key==='ArrowDown'?-40:0)})}}}/>
 })

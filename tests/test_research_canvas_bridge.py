@@ -34,6 +34,44 @@ def test_qt_actual_canvas_editor_undo_redo_and_reopen_do_not_change_chat(bridge)
     assert bridge.host.chat_widget.messages==messages
 
 
+def test_canvas_image_positions_dedup_and_link_detach_preserve_original_and_evidence(bridge):
+    from io import BytesIO
+    from PIL import Image
+    from grangerpet.canvas_media import media_node
+    from grangerpet.research_canvas import merge_evidence
+
+    action(bridge,'new',title='Media')
+    controller=bridge._research_canvas
+    document=controller.document
+    row=normalize_evidence({'id':'media-profile','type':'profile','platform':'github',
+        'url':'https://github.com/octocat','title':'octocat','status':'source_reported'},'github_profile','octocat')
+    merge_evidence(document,[row])
+    controller._commit(document)
+    profile=next(node for node in controller.document['entities'] if node['type']=='public_profile')
+    media=BytesIO()
+    Image.new('RGB',(320,180),'#47617a').save(media,'PNG')
+    source=media.getvalue()
+    stored=bridge._images().import_bytes(source,'Фото.png')
+    first=action(bridge,'attach',attachment_id=stored['id'],position={'x':320.5,'y':-25})['document']
+    saved_evidence=controller.store.load(first['id'])['evidence']
+    picture=next(node for node in first['entities'] if node['type']=='image')
+    assert first['view']['positions'][picture['id']]=={'x':320.5,'y':-25,'pinned':True}
+    assert picture['id'] in first['view']['manual_position_ids']
+    assert 'thumbnail' not in picture['attributes']['media']
+    action(bridge,'attach',attachment_id=stored['id'],entity_id=profile['id'])
+    linked=action(bridge,'attach',attachment_id=stored['id'],entity_id=profile['id'])['document']
+    owner=next(node for node in linked['entities'] if node['id']==profile['id'])
+    assert [reference['id'] for reference in owner['attributes']['image_attachments']]==[stored['id']]
+    scope={'canvas_id':linked['id'],'entity_id':profile['id'],'attachment_id':stored['id']}
+    assert media_node(bridge,scope)[1]==stored['id']
+    detached=action(bridge,'edit',operation='detach_image',arguments={'entity_id':profile['id'],'attachment_id':stored['id']})['document']
+    assert controller.store.load(detached['id'])['evidence']==saved_evidence
+    assert bridge._images().read_bytes(stored['id'])==source
+    import pytest
+    with pytest.raises(ValueError,match='не прикреплено'):
+        media_node(bridge,scope)
+
+
 def test_preview_requires_explicit_selected_server_evidence_and_preserves_source_open(bridge):
     created=action(bridge,'new',title='Preview');doc_id=created['document']['id']
     row=normalize_evidence({'id':'qa-profile','type':'profile','platform':'github','title':'octocat',

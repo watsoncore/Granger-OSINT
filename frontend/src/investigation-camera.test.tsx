@@ -32,6 +32,20 @@ describe('canvas asynchronous updates while interacting',()=>{
     expect(canvas.dataset.panX).toBe('-80')
     expect(JSON.parse(canvas.dataset.qaCameraFrames!).some((frame:{x:number;event:string})=>frame.x===-80&&frame.event==='commit')).toBe(true)
   })
+  it('opens media on two ordinary pointer clicks while preserving the saved coordinates',()=>{
+    const photo={...node,type:'image',attributes:{media:{id:'fixture',width:800,height:600}}}
+    const saved={root:{x:240,y:180}},onOpenMedia=vi.fn(),onCreate=vi.fn()
+    render(<InvestigationCanvas {...base} nodes={[photo]} positions={saved} onOpenMedia={onOpenMedia} onCreate={onCreate}/>)
+    flush()
+    const canvas=screen.getByRole('application')
+    for(let index=0;index<2;index++){
+      fireEvent.pointerDown(canvas,{button:0,clientX:240,clientY:180})
+      fireEvent.pointerUp(canvas,{button:0,clientX:240,clientY:180})
+    }
+    expect(onOpenMedia).toHaveBeenCalledOnce()
+    expect(onCreate).not.toHaveBeenCalled()
+    expect(saved).toEqual({root:{x:240,y:180}})
+  })
   it('preserves a local node drag through old position ACKs and accepts its saved position',()=>{
     const committed=vi.fn(),{rerender}=render(<InvestigationCanvas {...base} onCommitPositions={committed}/>);flush()
     const canvas=screen.getByRole('application')

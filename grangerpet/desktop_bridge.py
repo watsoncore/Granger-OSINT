@@ -37,7 +37,7 @@ from .ui_jobs import UiJob
 SETTINGS_FIELDS = frozenset(('ui_theme','geoint_nominatim_url','geoint_overpass_url','size','fps','cursor_reaction','agent_steps','agent_calls','agent_timeout',
     'agent_tokens','agent_page_limit','agent_page_depth','agent_parallel','agent_tool_timeout',
     'agent_request_timeout','agent_synthesis_tokens','agent_synthesis_timeout','agent_no_progress_rounds','agent_download_mb','agent_auto_continue','agent_budget_behavior','notifications_enabled',
-    'notifications_animate','notifications_reply','notifications_investigation','notifications_errors','reduced_motion',
+    'notifications_animate','notifications_reply','notifications_investigation','notifications_errors','reduced_motion','ui_effects',
     'ai_provider','deepseek_model','ollama_url','ollama_model','api_cx','source_root','runtime_python',
     'telegram_api_id','instagram_username','request_limit','search_timeout','enable_snoop','nuclei_enabled','research_mode'))
 ROUTES = frozenset(('chat','search','history','canvas','settings'))
@@ -544,8 +544,11 @@ class DesktopBridge(QObject):
 
     @Slot(str,str,str)
     def request(self, identifier, action, payload_json):
-        maximum=29_000_000 if action=='attachment_import' else MAX_PAYLOAD
-        if not isinstance(identifier,str) or len(identifier)>100 or len(payload_json)>maximum:
+        maximum=29_000_000 if action in ('attachment_import','research_canvas_media_prepare') else MAX_PAYLOAD
+        if not isinstance(identifier,str) or len(identifier)>100:
+            return
+        if len(payload_json)>maximum:
+            self.response.emit(identifier,self._json({'ok':False,'error':'Размер запроса превышает допустимый предел.','code':'payload_too_large'}))
             return
         try:
             payload = json.loads(payload_json)
@@ -620,7 +623,7 @@ class DesktopBridge(QObject):
         if action=='crypto_target_resolve':
             from .crypto_targets import resolve_crypto_target,CHAIN_OPTIONS
             return {**resolve_crypto_target(payload.get('value'),payload.get('chain','auto')),'chains':list(CHAIN_OPTIONS)}
-        if action in ('canvas_media_view','canvas_media_open'):
+        if action in ('canvas_media_view','canvas_media_open','canvas_media_thumbnail'):
             if portable_enabled() and not portable_unlocked():raise ValueError('Сначала разблокируйте хранилище.')
             from .canvas_media import request_media
             return request_media(self,action,payload)
@@ -836,7 +839,8 @@ class DesktopBridge(QObject):
         for job in (*self._geo_jobs.values(),*self._tile_jobs.values()):job.cancel();job.deleteLater()
         self._geo_jobs={};self._tile_jobs={};self._geo_views={};self._map_tiles={}
         jobs=(self._manual_job,self._balance_job,self._models_job,self._tools_job,self._visual_job,self._graph_job,self._media_job,
-              getattr(self,'_attachment_job',None),self._research_canvas.job if self._research_canvas else None,
+              getattr(self,'_attachment_job',None),getattr(self,'_canvas_import_job',None),*getattr(self,'_canvas_media_jobs',()),
+              self._research_canvas.job if self._research_canvas else None,
               self._research_canvas.media_job if self._research_canvas else None,*self._settling_manual_jobs)
         if ((chat and chat.busy) or getattr(self.host,'_busy',False) or any(jobs)
                 or bool(getattr(connections,'_jobs',[]))):
@@ -885,6 +889,7 @@ class DesktopBridge(QObject):
         self._history_key=self._sources_fingerprint=self._usage_cache_key=None
         self._history_cache=[];self._source_cache={};self._raw_sources={};self._sources_view=[];self._search_sources_view=[]
         self._attachment_store=None;self._attachments=[];self._attachment_error=''
+        self._canvas_native_drop=None
         self._manual_registry=None;self._tools=[]
         self._graph_generation+=1;self._graph_data={'state':'idle'};self._graph_records=[];self._investigation_choices=[]
         if chat:
@@ -1514,6 +1519,8 @@ class DesktopBridge(QObject):
         get_manager().close()
         for job in (self._tools_job,self._balance_job,self._models_job,self._attachment_job,self._visual_job,self._graph_job,self._media_job,self._source_job):
             if job: job.cancel();job.deleteLater()
+        for job in (*getattr(self,'_canvas_media_jobs',()),getattr(self,'_canvas_import_job',None)):
+            if job:job.cancel();job.deleteLater()
         self._tools_job=None;self._balance_job=None
         if self._manual_job:
             getattr(self._manual_job,'tool_cancelled',self._manual_job.cancelled).set()

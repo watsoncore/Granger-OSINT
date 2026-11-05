@@ -120,6 +120,9 @@ class ResearchCanvasBridge:
 
     def action(self,action,payload):
         op=action.removeprefix('research_canvas_');bridge=self.bridge
+        if op=='media_prepare':
+            from .canvas_media import prepare_attachment
+            return prepare_attachment(bridge,payload)
         if op in ('queue_recovery','queue_read','queue_clear'):
             from .canvas_pending import PendingCanvasStore
             pending=PendingCanvasStore(self.store)
@@ -237,8 +240,8 @@ class ResearchCanvasBridge:
                 return work(lambda:self._import(filename))
             attachment=payload.get('attachment_id')
             if attachment:
-                image=bridge._images().get(attachment)
-                return work(lambda:self._image(image))
+                store=bridge._images()
+                return work(lambda:self._image(store.get(attachment),payload))
             filename,_=QFileDialog.getOpenFileName(bridge.host,'Изображение на полотно','','Изображения (*.png *.jpg *.jpeg *.webp)')
             if not filename:return None
             def image_task():
@@ -341,15 +344,44 @@ class ResearchCanvasBridge:
         self.document=None;self.undo=[];self.redo=[]
         return self._commit(value)
 
-    def _image(self,image):
+    def _image(self,image,payload=None):
         if not self.document:raise CanvasError('Откройте расследование.')
-        from .research_canvas import add_node
+        from .canvas_media import ATTACHMENT_FIELDS, linked_images
+        from .research_canvas import add_node, point
+        payload=payload or {}
         value=deepcopy(self.document)
-        identifier=add_node(value,{'type':'image','label':image['name']})
-        node=next(n for n in value['entities'] if n['id']==identifier)
-        node['attributes'].update(attachment_id=image['id'],original_image=True,media={
-            **{key:image.get(key) for key in ('width','height','bytes','mime','sha256')},
-            'id':image['id'],'kind':'local_attachment','state':'ready','thumbnail':self.bridge._images().small_preview(image['id'])})
+        media={key:image[key] for key in ATTACHMENT_FIELDS if key in image}
+        media.update(kind='local_attachment',state='ready')
+        orientation=image.get('orientation')
+        if orientation in (5,6,7,8):
+            media['width'],media['height']=media['height'],media['width']
+        source=payload.get('provenance')
+        if isinstance(source,dict):
+            from .agent_browser import public_url
+            for key in ('source_url','final_url'):
+                if source.get(key):
+                    url=public_url(source[key])
+                    if not url.startswith('https://'):raise CanvasError('Источнику изображения требуется HTTPS.')
+                    media[key]=url
+            evidence=source.get('evidence_id')
+            if evidence and any(record['evidence_id']==evidence for record in value['evidence']):
+                media['evidence_id']=evidence
+        target=payload.get('entity_id')
+        if target:
+            target=value['view'].get('instances',{}).get(target,{}).get('entity_id',target)
+            node=next((n for n in value['entities'] if n['id']==target),None)
+            if not node:raise CanvasError('Объект для прикрепления изображения отсутствует.')
+            attachments=linked_images(node['attributes'])
+            if not any(row['id']==image['id'] for row in attachments):
+                if len(attachments)>=20:raise CanvasError('К одному объекту можно прикрепить до 20 изображений.')
+                node['attributes']['image_attachments']=[*attachments,media]
+        else:
+            position=payload.get('position')
+            if position is not None:position={**point(position),'pinned':True}
+            identifier=add_node(value,{'type':'image','label':image['name'],'position':position})
+            node=next(n for n in value['entities'] if n['id']==identifier)
+            node['attributes'].update(attachment_id=image['id'],original_image=True,media=media)
+            if position is not None:value['view'].setdefault('manual_position_ids',[]).append(identifier)
         return self._commit(value)
 
     def close(self):

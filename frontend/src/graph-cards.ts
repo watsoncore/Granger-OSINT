@@ -3,6 +3,13 @@ import type {GraphEntity} from './types'
 export type CardMode='auto'|'compact'|'standard'|'expanded'
 export type CardVariant='identity'|'username'|'social'|'organization'|'domain'|'ip'|'wallet'|'transaction'|'contract'|'media'|'geo'|'document'|'note'|'hypothesis'|'evidence'|'group'|'custom'
 export interface CardSize {width:number;height:number}
+export function mediaCardSize(width:unknown,height:unknown):CardSize {
+  const w=Number(width)||4,h=Number(height)||3
+  const aspect=Math.max(.34,Math.min(3.8,w/h))
+  const maximum=Math.max(210,Math.min(430,w))
+  const cardWidth=Math.round(Math.max(210,Math.min(maximum,318*Math.sqrt(aspect))))
+  return {width:cardWidth,height:Math.round(Math.max(170,Math.min(460,(cardWidth-24)/aspect+62)))}
+}
 export const cardVariants:Record<string,{label:string;symbol:string}>={username:{label:'Никнейм',symbol:'#'},identity:{label:'Личность',symbol:'◎'},social:{label:'Профиль',symbol:'@'},organization:{label:'Организация',symbol:'▥'},domain:{label:'Домен',symbol:'⊕'},ip:{label:'Инфраструктура',symbol:'⌘'},wallet:{label:'Кошелёк',symbol:'◈'},transaction:{label:'Транзакция',symbol:'⇄'},contract:{label:'Контракт',symbol:'◇'},media:{label:'Изображение',symbol:'▧'},geo:{label:'География',symbol:'⌖'},document:{label:'Документ',symbol:'▤'},note:{label:'Заметка',symbol:'✎'},hypothesis:{label:'Гипотеза',symbol:'?'},evidence:{label:'Источник',symbol:'↗'},group:{label:'Группа',symbol:'⊞'},custom:{label:'Объект',symbol:'◆'}}
 export function cardVariant(node:GraphEntity):CardVariant {
   const type=String(node.attributes.display_type||node.type)
@@ -29,8 +36,8 @@ export function cardSize(node:GraphEntity):CardSize {
   if(custom&&Number.isFinite(custom.width)&&Number.isFinite(custom.height))return {width:Math.max(160,Math.min(720,Number(custom.width))),height:Math.max(72,Math.min(640,Number(custom.height)))}
   const mode=node.attributes._card_mode as CardMode|undefined
   if(variant==='media'){
-    const media=node.attributes.media as Record<string,unknown>|undefined,w=Number(media?.width)||4,h=Number(media?.height)||3
-    return {width:288,height:Math.max(172,Math.min(310,248*h/w+62))}
+    const media=node.attributes.media as Record<string,unknown>|undefined
+    return mediaCardSize(media?.width,media?.height)
   }
   if(mode==='compact')return {width:216,height:72}
   const root=node.attributes.is_root===true
