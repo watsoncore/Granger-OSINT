@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 import uuid
 import zlib
+from urllib.parse import urlsplit
 
 from .agent_evidence import utc_now, validate_saved_evidence
 from .credentials import CredentialsStore, CredentialError, protected_path
@@ -36,7 +37,7 @@ TYPES = tuple(dict.fromkeys((*ENTITY_TYPES, *MANUAL_TYPES)))
 STATUSES = ('verified','source_reported','inferred','unverified','contradicted')
 LAYOUTS = ('manual','hierarchical','radial','types','communities','timeline',
            'wallet','flow','counterparties','paths')
-GRAPH_MODES = ('wallet','flow','counterparties','transactions','paths','socmint','manual')
+GRAPH_MODES = ('wallet','flow','counterparties','transactions','paths','socmint','manual','assets')
 CARD_MODES = ('auto','compact','standard','expanded')
 
 
@@ -58,9 +59,9 @@ def point(value):
     return deepcopy(value)
 
 
-def card_size(value):
+def card_size(value,*,group=False):
     if not isinstance(value,dict) or set(value)!={'width','height'}:raise CanvasError('Некорректный размер карточки.')
-    for key,minimum,maximum in (('width',160,720),('height',72,640)):
+    for key,minimum,maximum in (('width',160,2400 if group else 720),('height',72,1800 if group else 640)):
         number=value.get(key)
         if type(number) not in (int,float) or not math.isfinite(number) or not minimum<=number<=maximum:
             raise CanvasError('Размер карточки вне допустимых границ.')
@@ -157,7 +158,9 @@ def validate(value):
         raise CanvasError('Неизвестная раскрытая связь.')
     sizes=view.get('card_sizes',{})
     if not isinstance(sizes,dict) or len(sizes)>5000 or not set(sizes)<=view_ids:raise CanvasError('Размер неизвестной карточки.')
-    for size in sizes.values():card_size(size)
+    group_ids={n['id'] for n in nodes if n['type']=='entity_group'}
+    group_ids.update(i for i,v in instances.items() if v['entity_id'] in group_ids)
+    for identifier,size in sizes.items():card_size(size,group=identifier in group_ids)
     view_ui(view.get('ui',{}))
     annotations=value.get('annotations',{})
     if not isinstance(annotations,dict) or not set(annotations)<=view_ids|relation_ids:raise CanvasError('Некорректная аннотация.')
@@ -286,6 +289,14 @@ def add_node(doc,args):
     from .crypto_targets import resolve_crypto_target
     machine_value=text(args.get('value') or label,2000).strip()
     attrs.update(value=machine_value,original_identifier=machine_value,requested_type=requested_kind)
+    if kind=='organization':
+        from .entity_forms import organization
+        try:company=organization(args.get('company') or {'identifier':machine_value})
+        except ValueError as error:raise CanvasError(str(error)) from None
+        attrs.update(company)
+        # A name is a search candidate, never a canonical legal identity.
+        if company['identifier_type'] not in ('name','website'):
+            key=company['jurisdiction']+'|'+company['identifier_type']+'|'+company['identifier']
     target=route(machine_value)
     crypto=kind in ('blockchain_address','contract','nft','collection','token')
     if crypto:
@@ -305,15 +316,20 @@ def add_node(doc,args):
         expected={'email':('email',),'phone':('phone',),'domain':('domain',),
             'infrastructure_asset':('infrastructure_asset','network_range','autonomous_system'),
             'coordinate':('geographic_coordinates',),
-            'public_profile':('public_profile','social_profile','github_profile','public_channel_or_profile','steam_profile'),
-            'social_profile':('public_profile','social_profile','github_profile','public_channel_or_profile','steam_profile'),
+            'public_profile':('public_profile','social_profile','github_profile','public_channel_or_profile','steam_profile','website'),
+            'social_profile':('public_profile','social_profile','github_profile','public_channel_or_profile','steam_profile','website'),
             'website':('website','public_profile','social_profile','public_channel_or_profile','github_repository')}
         if kind in expected and target.entity_type in expected[kind]:
             key=target.canonical_url if kind in ('public_profile','social_profile','website') else target.identifier
             key=key or target.identifier
             attrs.update(target.properties or {},value=target.identifier,url=target.canonical_url,platform=target.platform)
             if kind=='infrastructure_asset':attrs.update(address=target.identifier,asset_type='ip' if target.entity_type=='infrastructure_asset' else target.entity_type)
-            if kind in ('public_profile','social_profile'):attrs['username']=target.properties.get('username') or target.identifier
+            if kind in ('public_profile','social_profile'):
+                attrs['profile_url_verified']=False
+                if target.entity_type!='website':attrs['username']=target.properties.get('username') or target.identifier
+        elif kind in expected:raise CanvasError('Значение не соответствует выбранному типу объекта.')
+    elif kind in ('email','phone','domain','infrastructure_asset','coordinate','public_profile','social_profile','website'):
+        raise CanvasError('Введите корректное значение для выбранного типа объекта.')
     if kind not in TYPES:doc['custom_types'][kind]=kind
     identifier=_id(kind,key)
     if identifier not in {n['id'] for n in doc['entities']}:
@@ -321,7 +337,7 @@ def add_node(doc,args):
               'source':['Analyst'],'verification_status':'inferred' if kind=='hypothesis' else 'unverified'}
         if kind=='analyst_note':node['attributes']['markdown']=text(args.get('markdown',''),20000)
         doc['entities'].append(node)
-        doc['annotations'][identifier]={'label':label}
+        doc['annotations'][identifier]={'label':label,**({'markdown':text(args['markdown'],20000)} if args.get('markdown') else {})}
         proposed=args.get('position')
         if proposed is None:
             index=len(doc['entities'])-1
@@ -445,9 +461,21 @@ def apply(doc,operation,args):
                 annotation=doc['annotations'].pop(previous['id'],None)
                 if annotation:doc['annotations'].setdefault(identifier,annotation)
                 doc['view']['expanded_relations']=[identifier if old==previous['id'] else old for old in doc['view'].get('expanded_relations',[])]
-        edge={'id':identifier,'from_id':a,'to_id':b,'relation_type':kind,'direction':'directed','evidence_ids':[],
-              'source_urls':[],'verification_status':args.get('status','unverified'),'origin':'analyst',
-              'claim_kind':'analyst_assertion','attributes':{'observed_at':utc_now(),'visual_from_id':visual_a,'visual_to_id':visual_b},'provenance':[]}
+        direction=args.get('direction','directed')
+        if direction not in ('directed','undirected','bidirectional'):raise CanvasError('Неизвестное направление связи.')
+        evidence_ids=args.get('evidence_ids',[])
+        if not isinstance(evidence_ids,list) or not all(isinstance(i,str) for i in evidence_ids) or not set(evidence_ids)<={e['evidence_id'] for e in doc['evidence']}:raise CanvasError('Основание отсутствует в этом расследовании.')
+        source=text(args.get('source_url',''),3000)
+        parsed=urlsplit(source)
+        if source and (parsed.scheme not in ('http','https') or not parsed.hostname or parsed.username or parsed.password):raise CanvasError('Укажите публичную HTTP(S)-ссылку без пароля.')
+        color=args.get('color','#d2b383');stroke=args.get('stroke','dashed');width=args.get('width',1.6);confidence=args.get('confidence')
+        if not isinstance(color,str) or not re.fullmatch(r'#[0-9a-fA-F]{6}',color) or stroke not in ('solid','dashed','dotted'):raise CanvasError('Некорректное оформление связи.')
+        if isinstance(width,bool) or not isinstance(width,(int,float)) or not math.isfinite(width) or not .5<=width<=6:raise CanvasError('Толщина связи должна быть от 0,5 до 6.')
+        if confidence is not None and (isinstance(confidence,bool) or not isinstance(confidence,(int,float)) or not math.isfinite(confidence) or not 0<=confidence<=100):raise CanvasError('Уверенность аналитика должна быть от 0 до 100.')
+        edge={'id':identifier,'from_id':a,'to_id':b,'relation_type':kind,'direction':direction,'evidence_ids':list(dict.fromkeys(evidence_ids)),
+              'source_urls':[source] if source else [],'verification_status':args.get('status','unverified'),'origin':'analyst',
+              'claim_kind':'analyst_assertion','attributes':{'observed_at':utc_now(),'visual_from_id':visual_a,'visual_to_id':visual_b,
+                'color':color,'stroke':stroke,'width':width,'analyst_confidence':confidence,'analyst_note':text(args.get('note',''),10000)},'provenance':[]}
         if edge['verification_status'] not in ('unverified','inferred','contradicted'):raise CanvasError('Ручное утверждение не становится доказанным фактом.')
         if identifier not in {e['id'] for e in doc['relations']}:doc['relations'].append(edge)
     elif operation in ('positions','layout'):
@@ -500,10 +528,18 @@ def apply(doc,operation,args):
     elif operation=='card_size':
         identifier=args.get('id')
         if identifier not in nodes and identifier not in instances:raise CanvasError('Карточка не найдена.')
-        doc['view'].setdefault('card_sizes',{})[identifier]=card_size({key:args.get(key) for key in ('width','height')})
+        doc['view'].setdefault('card_sizes',{})[identifier]=card_size({key:args.get(key) for key in ('width','height')},group=nodes[canonical(identifier)]['type']=='entity_group')
     elif operation=='group':
+        if not ids:raise CanvasError('Выберите объекты для группы.')
         parent=add_node(doc,{'type':'entity_group','label':args.get('label','Группа')})
         next(n for n in doc['entities'] if n['id']==parent)['attributes']['member_count']=len(ids)
+        visible_positions={**doc['view']['positions'],**{i:v['position'] for i,v in instances.items()}}
+        member_points=[visible_positions[i] for i in ids if i in visible_positions]
+        if member_points:
+            left=min(p['x'] for p in member_points)-180;right=max(p['x'] for p in member_points)+180
+            top=min(p['y'] for p in member_points)-125;bottom=max(p['y'] for p in member_points)+125
+            doc['view']['positions'][parent]={'x':(left+right)/2,'y':(top+bottom)/2}
+            doc['view'].setdefault('card_sizes',{})[parent]={'width':min(2400,max(240,right-left)),'height':min(1800,max(160,bottom-top))}
         for identifier in ids:
             if identifier in instances:instances[identifier]['parent_group_id']=parent
             elif identifier!=parent:nodes[identifier]['attributes']['parent_group_id']=parent

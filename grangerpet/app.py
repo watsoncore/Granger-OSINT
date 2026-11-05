@@ -218,7 +218,8 @@ def main(argv: list[str] | None = None) -> int:
                 if payload.get('action')=='save_state':
                     name=payload.get('name','state')
                     if not isinstance(name,str) or not re.fullmatch(r'[a-zA-Z0-9_-]{1,60}',name): return {'ok':False}
-                    (Path(pet._trace_path).parent/(name+'.json')).write_text(surface.bridge._json(surface.bridge.snapshot()),encoding='utf-8')
+                    from .qa_input import save_snapshot
+                    save_snapshot(Path(pet._trace_path).parent/(name+'.json'),surface.bridge._json(surface.bridge.snapshot()))
                 elif payload.get('action')=='input' and qa_vault_active:
                     from .qa_input import deliver
                     QTimer.singleShot(0,lambda:deliver(surface,payload.get('payload',{})))

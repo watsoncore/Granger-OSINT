@@ -23,6 +23,7 @@ const pending = new Map<string, Pending>()
 let nextId = 0
 let frame: ReturnType<typeof setTimeout> | undefined
 let nextState: DesktopState | undefined
+let resynchronizing=false
 
 function publish(update: Partial<ViewState>) {
   snapshot = { ...snapshot, ...update }
@@ -37,7 +38,10 @@ function receiveState(raw: string) {
       if (nextState) publish({ state: nextState, connected: true })
       nextState = undefined
     }, 50)
-  } catch { publish({ notice: 'Приложение прислало некорректные данные. Повторите действие.' }) }
+  } catch {
+    publish({ notice: 'Не удалось применить обновление. Восстанавливаем актуальное состояние.' })
+    if(desktop&&!resynchronizing){resynchronizing=true;void request('snapshot').finally(()=>{resynchronizing=false}).catch(()=>{})}
+  }
 }
 export function notify(message: string) { publish({ notice: message }) }
 export function dismissNotice() { publish({ notice: '' }) }

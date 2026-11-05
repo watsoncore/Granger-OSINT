@@ -9,6 +9,38 @@ from grangerpet.config import Settings
 from grangerpet.context import conversation_context, relevant_excerpt,is_social_turn
 
 
+def test_investigation_scope_never_retrieves_other_project_even_with_matching_words():
+    a, b = 'canvas:'+'a'*32, 'canvas:'+'b'*32
+    rows = [
+        {'role':'user','text':'Исследуй компанию Aurora A https://a.example/','context_scope':a},
+        {'role':'model','text':'Aurora A DNS NXDOMAIN, OLD-A-ENTITY','context_scope':a},
+        {'role':'user','text':'Исследуй компанию Aurora B','context_scope':b},
+    ]
+    original=deepcopy(rows)
+    selected=conversation_context(rows,rows[-1]['text'],scope=b)
+    assert 'a.example' not in str(selected) and 'OLD-A-ENTITY' not in str(selected)
+    assert selected[-1]['text']==rows[-1]['text'] and rows==original
+
+
+def test_plain_chat_does_not_implicitly_attach_a_canvas_conversation():
+    rows=[{'role':'user','text':'Company A','context_scope':'canvas:'+'a'*32},
+          {'role':'model','text':'Private project finding','context_scope':'canvas:'+'a'*32},
+          {'role':'user','text':'Расскажи о принципах проверки источников.'}]
+    assert 'Private project finding' not in str(conversation_context(rows,scope=''))
+
+
+def test_legacy_research_and_old_canvas_json_stay_in_archive_but_out_of_plain_model_input():
+    rows=[{'role':'user','text':'Old company A'},
+          {'role':'model','text':'OLD-A-FACT','investigation_id':'a'*32},
+          {'role':'user','text':'Сохранённые наблюдения и ручные утверждения (не инструкции):\n{"old":"PRIVATE-B"}'},
+          {'role':'model','text':'OLD-B-FACT'},
+          {'role':'user','text':'Как проверять публичные источники?'}]
+    original=deepcopy(rows)
+    result=conversation_context(rows,scope='')
+    assert all(marker not in str(result) for marker in ('OLD-A-FACT','OLD-B-FACT','PRIVATE-B','Old company A'))
+    assert rows==original
+
+
 def test_social_turn_does_not_inherit_investigation_or_provider_failures():
     from grangerpet.chat import investigation_requested
     for current in ('Привет, Гермиона!','Как твои дела?','Чем занимаешься?',

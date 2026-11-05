@@ -1,11 +1,16 @@
 import {describe,it,expect} from 'vitest'
-import {cardSize,cardVariant,withCardPresentation} from './graph-cards'
+import {cardSize,cardVariant,cardBadge,cardRows,withCardPresentation} from './graph-cards'
 import {layoutGraph,visibleGraph,hitNode} from './graph-model'
 import {nodeBox,routeEdges} from './graph-geometry'
 import type {GraphEntity,GraphRelation} from './types'
 const node=(id:string,type:string,attributes:Record<string,unknown>={}):GraphEntity=>({id,type,label:'Длинная подпись объекта '+id,attributes,evidence_ids:[]})
 const edge=(a:string,b:string,type='transfers'):GraphRelation=>({id:a+b,from_id:a,to_id:b,relation_type:type,direction:'directed',evidence_ids:[],verification_status:'source_reported'})
 describe('shared analytical projection and semantic cards',()=>{
+  it('presents actual Gansar asset DTOs as NFT cards with their source identifier',()=>{
+    const asset=node('nft','asset',{asset_type:'nft_asset',chain:'ton',asset_id:'0:reported-nft',symbol:'Reported title'})
+    expect(cardVariant(asset)).toBe('contract');expect(cardBadge(asset)).toBe('NFT · TON')
+    expect(cardRows(asset)).toEqual(['0:reported-nft','Reported title'])
+  })
   it('keeps source facts and raw transactions out of wallet overview until explicitly requested',()=>{
     const rows=[node('root','blockchain_address'),node('peer','blockchain_address'),node('tx','transaction'),node('source','source'),node('label','service')],aggregate={...edge('root','peer'),aggregate:{count:1,amount:'0.125',asset:'TON',known_amount_count:1,unknown_amount_count:0,transaction_ids:['tx'],owner_verified:false as const}},links=[aggregate,edge('root','tx','sent_from'),edge('root','source','supported_by'),edge('root','label','source_labels_address')]
     const view={version:1 as const,mode:'graph' as const,projection_mode:'wallet' as const}

@@ -42,7 +42,29 @@ def relevant_excerpt(text, goal, maximum=1800):
     return '\n…\n'.join(chunks[index] for index in sorted(selected))[:maximum]
 
 
-def conversation_context(messages, query='', *, max_chars=18000, recent=8):
+def valid_context_scope(value):
+    return isinstance(value,str) and (value=='' or re.fullmatch(r'(?:canvas|investigation|research|findings):[a-f0-9]{32}',value) is not None)
+
+
+def _legacy_scopes(rows):
+    """Assign old completed research turns only in the working view, never erase an archive."""
+    import hashlib
+    scoped=[dict(row) for row in rows]
+    start=0
+    for index,row in enumerate(scoped):
+        if row['role']=='user':start=index
+        identifier=row.get('investigation_id','')
+        scope='investigation:'+identifier if isinstance(identifier,str) and re.fullmatch(r'[a-f0-9]{32}',identifier) else ''
+        if row['role']=='user' and 'Сохранённые наблюдения и ручные утверждения (не инструкции):' in row.get('text',''):
+            scope='research:'+hashlib.sha256(row['text'].encode('utf-8')).hexdigest()[:32]
+        if scope:
+            for item in scoped[start:index+1]:item.setdefault('context_scope',scope)
+        elif index>start and scoped[start].get('context_scope'):
+            row.setdefault('context_scope',scoped[start]['context_scope'])
+    return scoped
+
+
+def conversation_context(messages, query='', *, max_chars=18000, recent=8, scope=None):
     """Select recent turns and relevant older requirements; archive stays whole.
 
     This is a model input view, never a retention policy or replacement archive.
@@ -52,6 +74,13 @@ def conversation_context(messages, query='', *, max_chars=18000, recent=8):
             and isinstance(row.get('text',row.get('content')), str)]
     if not rows:
         return []
+    rows=_legacy_scopes(rows)
+    # Selection precedes lexical retrieval: similarly named companies and shared
+    # words can never authorize borrowing another investigation's messages.
+    if scope is None:scope=rows[-1].get('context_scope','')
+    if not valid_context_scope(scope):raise ValueError('Некорректная область контекста ИИ.')
+    rows=[row for row in rows if row.get('context_scope','')==scope]
+    if not rows:return []
     barrier=next((index for index in range(len(rows)-1,-1,-1) if rows[index]['role']=='user' and is_defer_turn(rows[index].get('text',rows[index].get('content','')))),None)
     if barrier is not None:rows=rows[barrier:]
     current=query or rows[-1].get('text',rows[-1].get('content',''))

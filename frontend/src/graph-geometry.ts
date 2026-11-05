@@ -16,11 +16,13 @@ export class CardIndex {
   private cells=new Map<string,number[]>()
   private order=new Map<string,number>()
   private readonly cellSize=400
+  private margin=360
   constructor(private nodes:GraphEntity[],positions:Record<string,GraphPoint>){
     nodes.forEach((node,index)=>{
       this.order.set(node.id,index)
       const position=positions[node.id]
       if(!position)return
+      const size=cardSize(node);this.margin=Math.max(this.margin,size.width/2,size.height/2)
       const key=this.cell(position.x)+','+this.cell(position.y)
       const bucket=this.cells.get(key)
       if(bucket)bucket.push(index)
@@ -29,7 +31,7 @@ export class CardIndex {
   }
   private cell(value:number){return Math.floor(value/this.cellSize)}
   query(view:GraphViewport,rect:Rect,moving:Record<string,GraphPoint>={}){
-    const margin=Math.max(360,75/view.scale)+26/view.scale
+    const margin=Math.max(this.margin,75/view.scale)+26/view.scale
     const left=this.cell((rect.left-view.x)/view.scale-margin),right=this.cell((rect.right-view.x)/view.scale+margin)
     const top=this.cell((rect.top-view.y)/view.scale-margin),bottom=this.cell((rect.bottom-view.y)/view.scale+margin)
     if((right-left+1)*(bottom-top+1)>=this.nodes.length)return this.nodes

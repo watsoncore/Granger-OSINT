@@ -127,6 +127,7 @@ def main():
             time.sleep(.2)
         raise TimeoutError('Own stress QA deadline')
     owned=None;process=None;monitor=ProcessSampler(args.exe)
+    if not args.exe:monitor.source_images.add(str(Path(sys._base_executable).resolve()).casefold())
     def state():
         r=send_command('pet','status',timeout=8000)
         if r and owned and r.get('pid')!=owned:raise RuntimeError('Unrelated instance')
@@ -138,8 +139,12 @@ def main():
             raise RuntimeError('Own IPC command failed: '+name+'/'+str((payload or {}).get('action')))
     def action(name,payload=None):command('qa_desktop',{'action':name,'payload':payload or {}});time.sleep(.15)
     def snapshot():
-        command('qa_desktop',{'action':'save_state','name':'current-state'})
-        return json.loads((out/'current-state.json').read_text(encoding='utf-8'))
+        name='state_'+uuid.uuid4().hex;path=out/(name+'.json')
+        command('qa_desktop',{'action':'save_state','name':name})
+        try:return json.loads(path.read_text(encoding='utf-8'))
+        finally:
+            try:path.unlink(missing_ok=True)
+            except PermissionError:pass
     def dom():action('dom');return state()['desktop'].get('dom',{})
     def click(label):
         def find():
@@ -168,7 +173,7 @@ def main():
         argv=([str(args.exe.resolve())] if args.exe else [sys.executable,str(ROOT/'main.py')])+['--pet','--interaction-qa']
         started=time.perf_counter()
         with (out/'process.log').open('wb') as stream:process=subprocess.Popen(argv,cwd=ROOT,env=os.environ.copy(),stdout=stream,stderr=subprocess.STDOUT)
-        owned=wait(state,80)['pid'];wait(lambda:state()['desktop']['ready']);monitor.sample([process.pid])
+        owned=wait(state,80)['pid'];wait(lambda:state()['desktop']['ready']);monitor.sample([process.pid],source_main_pids=([owned] if not args.exe else []))
         command('show_workspace',{'route':'search'});action('window',{'mode':'maximize'});click('Моё полотно')
         report['startup_to_canvas_seconds']=round(time.perf_counter()-started,3)
         for index,case in enumerate(cases):
@@ -190,7 +195,7 @@ def main():
             for i in range(12):
                 at=[c['x']+c['width']*.45,c['y']+c['height']*.42]
                 action('input',{'kind':'drag','at':at,'to':[at[0]+(34 if i%2==0 else -34),at[1]+12]})
-                samples.append(monitor.sample([process.pid]))
+                samples.append(monitor.sample([process.pid],source_main_pids=([owned] if not args.exe else [])))
             for delta in (-120,120,-120,120):action('input',{'kind':'wheel','at':[c['x']+c['width']/2,c['y']+c['height']/2],'delta':delta})
             wait(lambda:metrics().get('queue_pending',0)==0 and not snapshot().get('research_canvas',{}).get('busy'))
             final=metrics()['canvas'];frame=json.loads(final.get('frameMetrics','{}'))
@@ -206,7 +211,7 @@ def main():
             case['resources']=summarize(samples)
             if synthetic and target==1000:
                 report['stage']['phase']='search-layouts';save()
-                click('Поиск на полотне');action('input',{'kind':'text','text':'person 0'})
+                click('Настроить полотно');click('Поиск на полотне');action('input',{'kind':'text','text':'person 0'})
                 wait(lambda:1<=int(metrics()['canvas']['drawnNodes'])<10)
                 click('Поиск на полотне');action('input',{'kind':'key','key':'all','ctrl':True});action('input',{'kind':'key','key':'backspace'})
                 wait(lambda:int(metrics()['canvas']['drawnNodes'])==target)
@@ -260,7 +265,7 @@ def main():
             process.wait(timeout=30)
         if process:
             report['parent_exit_code']=process.poll()
-            time.sleep(.3);report['owned_processes_left']=monitor.sample([process.pid])['process_count']
+            time.sleep(.3);report['owned_processes_left']=monitor.sample([process.pid],source_main_pids=([owned] if owned and not args.exe else []))['process_count']
             if report['owned_processes_left']:report.update(passed=False,error='Owned QA processes remain after exit')
             save()
         monitor.close()

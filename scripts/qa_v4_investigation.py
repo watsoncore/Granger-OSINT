@@ -21,7 +21,10 @@ class Session(NativeSession):
   self.owned_pid=wait_for(self.status,90)['pid'];wait_for(lambda:self.status().get('desktop',{}).get('ready'),60);self.show_workspace()
  def find(self,label,*,role=None):
   d=self.dom()
-  return next((e for e in d.get('elements',[]) if e['width']>0 and ((e.get('role')==role and e.get('text','').startswith(label)) if role else (e.get('label')==label or e.get('text')==label))),None),d
+  elements=[e for e in d.get('elements',[]) if e['width']>0]
+  if role:found=next((e for e in elements if e.get('role')==role and e.get('text','').startswith(label)),None)
+  else:found=next((e for e in elements if e.get('label')==label),None) or next((e for e in elements if e.get('text')==label),None)
+  return found,d
  def click(self,label,*,role=None):
   for attempt in range(28):
    e,d=self.find(label,role=role)
@@ -48,7 +51,12 @@ class Session(NativeSession):
    except QaFailure:
     self.action('input',{'kind':'key','key':'escape'})
   else:raise QaFailure('picker_did_not_open_'+label)
-  if search:self.fill('Найти: '+label,search)
+  if search:
+   self.fill('Найти: '+label,search)
+   # Radix repositions its portal after filtering; observe the settled item
+   # rather than clicking coordinates from the previous menu height.
+   wait_for(lambda:e if (e:=self.find(option,role='menuitemradio')[0]) and e.get('hit',True) else None,8)
+   time.sleep(.2)
   self.click(option,role='menuitemradio')
   wait_for(lambda:e if (e:=self.find(label)[0]) and option in e['text'] else None,8)
  def canvas(self):return self.snapshot().get('research_canvas',{})

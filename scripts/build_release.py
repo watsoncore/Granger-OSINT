@@ -188,12 +188,16 @@ def verify_media_v6(root, candidate, stage, captures, environment):
 def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing_external_tools: bool = False,
             verify_investigation_live: bool = False, graph_v5_observations: Path | None = None,
             graph_v5_captures: Path | None = None, run_media_v6: bool = False,
-            media_v6_captures: Path | None = None) -> dict:
+            media_v6_captures: Path | None = None,run_workspace_v7:bool=False,
+            workspace_v7_captures:Path|None=None,stage_only:Path|None=None) -> dict:
     root = root.resolve()
     if not (root/'Granger-OSINT.spec').is_file():raise BuildError('Existing Granger-OSINT project not found.')
     extras = dist_entries(root,allow_legacy=allow_legacy_dist)
     canonical = root/'dist'/BINARY
-    assert_not_running(canonical)
+    if stage_only:
+        stage_only=stage_only.resolve()
+        if stage_only.is_relative_to((root/'dist').resolve()) or stage_only.name!=BINARY or stage_only.exists():raise BuildError('Use a new private candidate path outside dist.')
+    else:assert_not_running(canonical)
     if graph_v5_observations:
         graph_v5_observations = graph_v5_observations.resolve(strict=True)
         if allow_missing_external_tools or not graph_v5_observations.is_dir():
@@ -229,6 +233,14 @@ def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing
             checks['investigation_live']=read_passed(report)
         if run_media_v6:
             checks['media_v6']=verify_media_v6(root,candidate,stage,media_v6_captures,environment)
+        if run_workspace_v7:
+            report=stage/'workspace-v7.json';captures=(workspace_v7_captures or stage/'workspace-v7-captures').resolve()
+            if captures.is_relative_to((root/'dist').resolve()):raise BuildError('Workspace captures must be outside dist.')
+            run_checked(['scripts/qa_workspace_v7.py','--exe',str(candidate),'--report',str(report),'--screenshots',str(captures)],root=root,environment=environment)
+            native=read_passed(report)
+            if native.get('origin')!='frozen-Windows-EXE' or native.get('exe_sha256')!=hashlib.sha256(candidate.read_bytes()).hexdigest() or not native.get('temporary_profile_removed'):
+                raise BuildError('Workspace V7 receipt did not verify this candidate and profile cleanup.')
+            checks['workspace_v7']=native
         if graph_v5_observations:
             checks['graph_v5']=verify_graph_v5(root,candidate,stage,graph_v5_observations,graph_v5_captures,environment)
         # Long native/live checks must not promote an EXE made from sources
@@ -239,19 +251,23 @@ def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing
             checks[name]=read_passed(report)
         digest = hashlib.sha256(candidate.read_bytes()).hexdigest();size = candidate.stat().st_size
         # A user may open the old app while the isolated QA runs: recheck now.
-        dist_entries(root,allow_legacy=allow_legacy_dist);assert_not_running(canonical)
-        canonical.parent.mkdir(exist_ok=True)
-        os.replace(candidate,canonical)
-        if hashlib.sha256(canonical.read_bytes()).hexdigest() != digest:
+        dist_entries(root,allow_legacy=allow_legacy_dist)
+        if not stage_only:assert_not_running(canonical)
+        destination=stage_only or canonical
+        destination.parent.mkdir(parents=True,exist_ok=True)
+        os.replace(candidate,destination)
+        if hashlib.sha256(destination.read_bytes()).hexdigest() != digest:
             raise BuildError('Installed digest does not match the verified candidate.')
     if not extras:dist_entries(root)
-    return {'passed':True,'canonical_path':'dist/'+BINARY,'bytes':size,'sha256':digest,
+    return {'passed':True,'installed':not bool(stage_only),
+        **({'candidate_path':str(stage_only)} if stage_only else {'canonical_path':'dist/'+BINARY}),'bytes':size,'sha256':digest,
         'frozen_modules':len(checks['sources'].get('modules',[])),
         'resource_checks':len(checks['resources'].get('assets',[])),
         'native_checks':len(checks['native'].get('checks',[])),
         'investigation_live':checks.get('investigation_live'),
         'graph_v5':checks.get('graph_v5'),
         'media_v6':checks.get('media_v6'),
+        'workspace_v7':checks.get('workspace_v7'),
         'external_tools':checks['native'].get('external_tools',{}),
         'external_tools_policy':expected_policy,
         'temporary_stage_removed':not stage.exists(),'legacy_entries_require_cleanup':extras}
@@ -265,6 +281,9 @@ def main() -> int:
     parser.add_argument('--graph-v5-captures',type=Path,help='Optional own-window captures outside dist')
     parser.add_argument('--verify-media-v6',action='store_true',help='Require native Windows media and navigation checks before promotion')
     parser.add_argument('--media-v6-captures',type=Path,help='Optional V6 own-window captures outside dist')
+    parser.add_argument('--verify-workspace-v7',action='store_true',help='Require real typed forms, port connections, group gestures, original media and restart in the Windows candidate')
+    parser.add_argument('--workspace-v7-captures',type=Path,help='Optional V7 own-window captures outside dist')
+    parser.add_argument('--stage-only',type=Path,help='Verify a new private candidate without replacing the installed EXE')
     parser.add_argument('--report',type=Path,help='Optional small summary outside dist; all raw QA/work files are automatically removed')
     parser.add_argument('--allow-missing-external-tools',action='store_true',
         help='Explicit source-only CI: require external tool registration and report actual availability; do not require ignored Gansar/Maigret runtimes. Default local release remains strict.')
@@ -272,11 +291,13 @@ def main() -> int:
     if args.report and args.report.resolve().is_relative_to((ROOT/'dist').resolve()):parser.error('Build reports must be outside dist.')
     if args.graph_v5_captures and not args.verify_graph_v5:parser.error('--graph-v5-captures requires --verify-graph-v5.')
     if args.media_v6_captures and not args.verify_media_v6:parser.error('--media-v6-captures requires --verify-media-v6.')
+    if args.workspace_v7_captures and not args.verify_workspace_v7:parser.error('--workspace-v7-captures requires --verify-workspace-v7.')
     try:
         result = release(allow_legacy_dist=args.allow_legacy_dist,allow_missing_external_tools=args.allow_missing_external_tools,
                          verify_investigation_live=args.verify_investigation_live,graph_v5_observations=args.verify_graph_v5,
                          graph_v5_captures=args.graph_v5_captures,run_media_v6=args.verify_media_v6,
-                         media_v6_captures=args.media_v6_captures)
+                         media_v6_captures=args.media_v6_captures,run_workspace_v7=args.verify_workspace_v7,
+                         workspace_v7_captures=args.workspace_v7_captures,stage_only=args.stage_only)
     except (OSError,ValueError,BuildError,subprocess.CalledProcessError) as error:
         print('Build/install failed: '+str(error),file=sys.stderr);return 1
     payload = json.dumps(result,ensure_ascii=False,indent=2)+'\n'

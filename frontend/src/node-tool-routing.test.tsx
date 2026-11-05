@@ -11,12 +11,13 @@ vi.mock('./components/InvestigationCanvas',()=>({InvestigationCanvas:({nodes,onS
 const username:GraphEntity={id:'username',type:'username',label:'Моя подпись',attributes:{username:'solvnox',value:'solvnox'},evidence_ids:[]}
 const wallet:GraphEntity={id:'wallet',type:'blockchain_address',label:'dsdsd',attributes:{address:'0:'+'a'.repeat(64),value:'0:'+'a'.repeat(64),chain:'ton'},evidence_ids:[]}
 const document:ResearchDocument={id:'a'.repeat(32),schema:'granger-investigation/1',revision:1,title:'Routing',description:'',entities:[username,wallet],relations:[],evidence:[],annotations:{},custom_types:{},view:{positions:{username:{x:0,y:0},wallet:{x:400,y:0}},viewport:{x:0,y:0,scale:1},hidden:[],removed:[],collapsed:[],layout:'manual'}}
+const openActions=async(user:ReturnType<typeof userEvent.setup>)=>{await user.click(screen.getByRole('button',{name:'Исследовать'}));const summary=screen.getByText('Отдельные и дополнительные инструменты');if(!summary.parentElement?.hasAttribute('open'))await user.click(summary)}
 const tools:DesktopState['tools']=[{id:'username_maigret',name:'Maigret',available:true,state:'ready',description:'',inputTypes:['username'],manifest:{input_schema:{type:'object',properties:{username:{type:'string'},mode:{type:'string',enum:['quick','standard','full','custom']}},required:['username']}}},{id:'blockchain_gansar',name:'Gansar',available:true,state:'ready',description:'',inputTypes:['blockchain'],manifest:{input_schema:{type:'object',properties:{address:{type:'string'},chain:{type:'string',enum:['auto','ton']},operation:{type:'string',enum:['profile','balances']}},required:['address']}}},{id:'network_rdap',name:'RDAP',available:true,state:'ready',description:'',inputTypes:['ip']}]
 describe('typed node tool selection',()=>{
  it('keeps configured tool parameters when presentation media finishes loading',async()=>{
   vi.mocked(act).mockImplementation(async(action)=>action==='research_canvas_capability'?{tools:[{id:'username_maigret',compatible:true,available:true,arguments:{username:'solvnox'}}]}:true)
   const user=userEvent.setup(),state={...emptyState,tools,research_canvas:{state:'ready',document,types:[],choices:[]}}
-  const view=render(<ResearchCanvas active onSource={()=>{}} state={state}/>);await user.click(screen.getByRole('button',{name:'Select username'}));await user.click(screen.getByRole('button',{name:'Действия'}));await waitFor(()=>expect(screen.getByRole('button',{name:'Инструмент узла'})).not.toBeDisabled())
+  const view=render(<ResearchCanvas active onSource={()=>{}} state={state}/>);await user.click(screen.getByRole('button',{name:'Select username'}));await openActions(user);await waitFor(()=>expect(screen.getByRole('button',{name:'Инструмент узла'})).not.toBeDisabled())
   await user.click(screen.getByRole('button',{name:'Инструмент узла'}));await user.click(screen.getByRole('menuitemradio',{name:'Maigret'}))
   await user.click(screen.getByRole('button',{name:'Режим Maigret'}));await user.click(screen.getByRole('menuitemradio',{name:/Полный/}))
   view.rerender(<ResearchCanvas active onSource={()=>{}} state={{...state,research_canvas:{...state.research_canvas,document:{...document,revision:2,entities:[{...username,attributes:{...username.attributes,media:{state:'ready'}}},wallet]}}}}/>)
@@ -26,7 +27,7 @@ describe('typed node tool selection',()=>{
   let available=false
   vi.mocked(act).mockImplementation(async(action)=>action==='research_canvas_capability'?{tools:[{id:'username_maigret',compatible:true,available,arguments:{username:'solvnox'}}]}:true)
   const user=userEvent.setup(),state={...emptyState,tools:tools.map(t=>({...t,available:false})),research_canvas:{state:'ready',document,types:[],choices:[]}}
-  const view=render(<ResearchCanvas active onSource={()=>{}} state={state}/>);await user.click(screen.getByRole('button',{name:'Select username'}));await user.click(screen.getByRole('button',{name:'Действия'}))
+  const view=render(<ResearchCanvas active onSource={()=>{}} state={state}/>);await user.click(screen.getByRole('button',{name:'Select username'}));await openActions(user)
   await waitFor(()=>expect(act).toHaveBeenCalledWith('research_canvas_capability',expect.anything()))
   available=true;view.rerender(<ResearchCanvas active onSource={()=>{}} state={{...state,tools}}/>)
   await waitFor(()=>expect(screen.getByRole('button',{name:'Инструмент узла'})).not.toBeDisabled())
@@ -45,7 +46,7 @@ describe('typed node tool selection',()=>{
   })
   const user=userEvent.setup()
   render(<ResearchCanvas active onSource={()=>{}} state={{...emptyState,tools,research_canvas:{state:'ready',document,types:[],choices:[]}}}/>)
-  await user.click(screen.getByRole('button',{name:'Select username'}));await user.click(screen.getByRole('button',{name:'Действия'}))
+  await user.click(screen.getByRole('button',{name:'Select username'}));await openActions(user)
   await waitFor(()=>expect(screen.getByRole('button',{name:'Инструмент узла'})).not.toBeDisabled())
   expect(screen.getByRole('button',{name:'Выполнить → просмотр'})).toBeDisabled()
   await user.click(screen.getByRole('button',{name:'Инструмент узла'}));expect(screen.getByRole('menuitemradio',{name:'RDAP'})).toHaveAttribute('data-disabled')

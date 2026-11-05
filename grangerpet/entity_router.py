@@ -71,7 +71,7 @@ def route(value):
     if '@' in value and not value.startswith('@') and '://' not in value:
         try:
             email = normalize_email(value)
-            return Target('email', email, properties={'domain': email.rsplit('@', 1)[1]}, tools=('mail_dns', 'email_holehe'))
+            return Target('email', email, properties={'domain': email.rsplit('@', 1)[1]}, tools=('email_research', 'mail_dns', 'email_holehe'))
         except ValueError:
             return None
     if value.startswith(('+', '00')) and re.fullmatch(r'[+\d ()-]{8,27}', value):
@@ -145,16 +145,55 @@ def route(value):
             pass
     if re.fullmatch(r'@?[\w.-]{1,64}', value, re.UNICODE):
         return Target('username', value.lstrip('@'), properties={'identity_verified': False, 'interpretation': 'candidate'},
-            tools=('username_maigret', 'username_blackbird', 'username_social_analyzer', 'github_profile', 'x_profile'))
+            tools=('username_maigret', 'github_profile', 'x_profile'))
     if value.lower().startswith(('организация:', 'organization:')):
         return Target('organization', value.split(':', 1)[1].strip(), properties={'identity_verified': False}, tools=('web_search',))
     return None
+
+
+def company_target(text):
+    if not re.search(r'(?iu)компани|организаци|юрлиц|\bcompany\b|\bБИН\b|\bИНН\b|\bОГРН\b|\bLEI\b',text):return None
+    if re.search(r'(?iu)(?:провер|проверить|анализ|запрос).{0,15}(?:\bDNS\b|\bMX\b|\bRDAP\b|\bWHOIS\b)',text):return None
+    from .entity_forms import organization
+    country=next((code for code,pattern in (
+        ('KZ',r'(?iu)казахстан|\bKZ\b'),('RU',r'(?iu)росси|\bRU\b'),
+        ('GB',r'(?iu)великобрит|британ|\bUK\b|\bGB\b'),('US',r'(?iu)\bСША\b|\bUSA?\b')) if re.search(pattern,text)),'OTHER')
+    method='name';identifier=''
+    for field,pattern in (('bin',r'(?iu)\bБИН\s*[:№-]?\s*(\d{12})\b'),('inn',r'(?iu)\bИНН\s*[:№-]?\s*(\d{10})\b'),
+                          ('ogrn',r'(?iu)\bОГРН\s*[:№-]?\s*(\d{13})\b'),('lei',r'(?iu)\bLEI\s*[:№-]?\s*([A-Z0-9]{20})\b'),
+                          ('cik',r'(?iu)\bCIK\s*[:№-]?\s*(\d{1,10})\b')):
+        found=re.search(pattern,text)
+        if found:
+            method,identifier=field,found[1]
+            if country=='OTHER':country={'bin':'KZ','inn':'RU','ogrn':'RU','cik':'US'}.get(field,'OTHER')
+            break
+    if not identifier:
+        quoted=re.search(r'[«“"]([^»”"\n]{2,200})[»”"]',text)
+        name=re.search(r'(?iu)(?:компани[яюи]|организаци[яюи]|юрлицо|\bcompany)\s*:?\s+([^\n;?!]{1,250})',text)
+        identifier=quoted[1] if quoted else name[1] if name else ''
+        identifier=re.split(r'(?iu)\s+(?:в\s+(?:Казахстане|России|Великобритании|США)|по\s+(?:названию|регистрац)|юрисдикц)',identifier)[0].strip(' .,:')
+    if not identifier:return None
+    try:properties=organization({'jurisdiction':country,'identifier_type':method,'identifier':identifier})
+    except ValueError:return None
+    return Target('organization',properties['identifier'],country,properties=properties,tools=('company_research',))
+
+
+def canonical_target(value):
+    if not isinstance(value,dict):return None
+    if value.get('entity_type')=='organization':
+        from .entity_forms import organization
+        try:properties=organization({**value.get('properties',{}),'identifier':value.get('identifier')})
+        except (TypeError,ValueError):return None
+        return Target('organization',properties['identifier'],properties['jurisdiction'],properties=properties,tools=('company_research',))
+    return route(value.get('canonical_url') or value.get('identifier',''))
 
 
 def route_goal(text, attachments=()):
     """Only literal identifiers from the human goal or scoped attachments."""
     if not isinstance(text, str):
         return []
+    corporate=company_target(text)
+    if corporate:return [corporate]
     values = [text.strip()] if len(text) <= 2000 else []
     values += [value.rstrip('.,;:!?\"\')') for value in re.findall(r'https?://[^\s<>]+', text)]
     values += re.findall(r'(?<![\w])(?:-?\d:[a-fA-F0-9]{64}|[A-Za-z0-9_-]{48}|0x[a-fA-F0-9]{40})(?![\w])', text)

@@ -156,6 +156,18 @@ from .tool_bindings import FIND_SCHEMA as _FIND_SCHEMA
 _SPECS += (ToolSpec('capabilities_find','registry','evidence','query',
     'Найти реальные операции по названию, категории или задаче; вернуть готовность и включить до 8 подходящих операций в tools следующего шага. Не выполняет поиск людей/сайтов. Для отсутствующей в текущем tools операции сначала используй этот каталог; доступность сети подтверждается только настоящим запуском.',
     input_schema=_FIND_SCHEMA,execution_mode='LOCAL_PYTHON',category='web'),)
+from .research_workflows import COMPANY_SCHEMA as _COMPANY_SCHEMA,QUERY_SCHEMA as _RESEARCH_QUERY_SCHEMA,EMAIL_SCHEMA as _EMAIL_RESEARCH_SCHEMA
+from .source_registry_v2 import SOURCES as _RESEARCH_SOURCES
+_SPECS += (ToolSpec('company_research','research_v7','company','query',
+    'Исследовать компанию по названию или регистрационному идентификатору и юрисдикции. Официальные корпоративные источники, кандидаты и ограничения покрытия. Не заменяет компанию DNS-проверкой.',
+    input_schema=_COMPANY_SCHEMA,execution_mode='OFFICIAL_API',category='company'),)
+_SPECS += (ToolSpec('email_research','research_v7','email','email',
+    'Исследовать email: локальный синтаксис, DNS-политики домена, кандидаты из индекса публичного email GitHub и точные публичные упоминания Hacker News. Не проверяет существование ящика, не запускает регистрацию или recovery.',
+    input_schema=_EMAIL_RESEARCH_SCHEMA,execution_mode='OFFICIAL_API',category='email'),)
+_SPECS += tuple(ToolSpec(row.id,'research_v7','company' if row.category=='company' else 'document','query',
+    row.name+' — документированный источник. Возвращает только полученные записи и их происхождение.',
+    input_schema=_COMPANY_SCHEMA if row.category=='company' else _RESEARCH_QUERY_SCHEMA,
+    execution_mode='OFFICIAL_API',documentation_url=row.documentation,category=row.category) for row in _RESEARCH_SOURCES.values())
 _BY_NAME={spec.name:spec for spec in _SPECS}
 _AUTH = {"telegram": ("telegram_api_hash", "telegram_session"), "vk": ("vk_token",), "instagram": ("instagram_session",)}
 _BASE_OPTIONS = ("source_root", "tools_root", "runtime_python", "telegram_api_id", "instagram_username", "google_cx", "api_cx", "enable_snoop", "profile_sites")
@@ -249,6 +261,8 @@ class ToolRegistry:
             if name in ('telegram_public','vk_public','tiktok_public_profile') or spec.argument == 'url' and target.canonical_url:
                 value = target.canonical_url
             args = {spec.argument: value}
+            if target.entity_type=='organization':
+                args.update(jurisdiction=target.properties.get('jurisdiction','OTHER'),identifier_type=target.properties.get('identifier_type','name'))
             if target.properties.get('blockchain_operation'):args['operation']=target.properties['blockchain_operation']
             if name=='blockchain_gansar':
                 from .crypto_targets import resolve_crypto_target
@@ -563,6 +577,11 @@ class ToolRegistry:
         elif spec.source=='public19':
             from .integrations19.public_tools import readiness
             base.update(readiness(spec.name,self.settings))
+        elif spec.source=='research_v7':
+            descriptor=_RESEARCH_SOURCES.get(spec.name)
+            configured=not descriptor or not descriptor.auth_key or bool(self._secret(descriptor.auth_key))
+            base.update(available=configured,state='ready_local' if configured else 'auth_required',
+                reason='Локальный адаптер готов. Реальный ответ и покрытие проверяются при выполнении.' if configured else 'Добавьте собственный официальный API-ключ этого источника в настройках.')
         elif spec.source=='graph':
             base.update(available=True,state='ready',reason='Локальные связи только из уже сохранённых evidence; сеть и внешние ключи не используются.')
         elif spec.source == "evidence_get":
@@ -1014,11 +1033,14 @@ class ToolRegistry:
                     and outcome.get('status') in ('partial','cancelled','timeout'))
             status = str(outcome.get("status", "error"))
             if outcome.get('from_saved_data') is True:envelope['from_saved_data']=True
-            if spec.source in ('blockchain','network_public','vk_public_page','maigret') and isinstance(outcome.get('source_diagnostics'),(dict,list)):
+            if spec.source in ('blockchain','network_public','vk_public_page','maigret','research_v7','public_sources') and isinstance(outcome.get('source_diagnostics'),(dict,list)):
                 if spec.source=='maigret':
                     from .agent_evidence import safe_maigret_diagnostics
                     envelope['source_diagnostics']=safe_maigret_diagnostics(outcome['source_diagnostics'],self._redactions)
                 else:envelope['source_diagnostics']=redact(outcome['source_diagnostics'],self._redactions)
+            if spec.source in ('research_v7','public_sources') and isinstance(outcome.get('source_attempts'),list):
+                envelope['source_attempts']=[{key:row[key] for key in ('source','status','count','returned_records','error_code','from_saved_data') if key in row}
+                    for row in outcome['source_attempts'][:12] if isinstance(row,dict)]
                 envelope['from_saved_data']=outcome.get('from_saved_data') is True
             if spec.source=='network_public':
                 envelope['operation']=outcome.get('operation',spec.name)
@@ -1211,6 +1233,11 @@ class ToolRegistry:
             data['request_arguments']=args
             title='Сущности и связи сохранённых свидетельств';url=''
             description=f"Сущностей: {data['total_entities']}; связей: {data['total_relations']}. Это отношения источников, не установленная общая личность."
+        elif spec.source=='research_v7':
+            from .research_workflows import company_research,execute_source,email_research
+            if spec.name=='email_research':return email_research(args,cancel_event=cancelled,deadline=deadline,settings=self.settings)
+            kwargs={'cancel_event':cancelled,'deadline':deadline,'secret_getter':self._secret}
+            return company_research(args,**kwargs) if spec.name=='company_research' else execute_source(spec.name,args,**kwargs)
         elif spec.source=='public19':
             from .integrations19.public_tools import execute
             return execute(spec.name,args,cancel_event=cancelled,deadline=deadline,settings=self.settings,approved=approved)

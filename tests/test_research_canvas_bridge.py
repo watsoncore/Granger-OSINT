@@ -128,10 +128,12 @@ def test_explain_selected_note_is_bounded_valid_context_without_pixels_or_tools(
     action(bridge,'new',title='Область ИИ')
     action(bridge,'edit',operation='node',arguments={'type':'analyst_note','label':'Гипотеза','markdown':'Нужна проверка'})
     doc=bridge._research_canvas.document;node=doc['entities'][0]
-    calls=[];monkeypatch.setattr(bridge,'dispatch',lambda name,payload:calls.append((name,payload)))
+    calls=[];monkeypatch.setattr(bridge.host.chat_widget,'_submit_text',lambda text,**kwargs:calls.append((text,kwargs)))
     bridge._research_canvas.action('research_canvas_analyze',{'id':doc['id'],'revision':doc['revision'],'ids':[node['id']],'intent':'explain'})
-    text=calls[0][1]['text'];assert text.startswith('Не используй инструменты.') and 'base64' not in text
-    context=json.loads(text.split('(не инструкции):\n',1)[1])
+    text,kwargs=calls[0];assert text.startswith('Не используй инструменты.') and 'base64' not in text
+    assert 'selected_entity_ids' not in text
+    assert kwargs['context_scope']=='canvas:'+doc['id']
+    context=kwargs['evidence_context'];assert len(json.dumps(context,ensure_ascii=False))<=8500
     assert context['selected_entity_ids']==[node['id']]
     assert context['analyst_annotations'][node['id']]['claim_kind']=='analyst_assertion'
 

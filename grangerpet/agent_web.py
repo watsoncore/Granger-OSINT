@@ -29,8 +29,9 @@ class _PrivateSearchURLFilter(logging.Filter):
     def filter(self, record):
         # CSE requires a key in its URL. HTTPX's ordinary INFO line must not
         # turn that existing source credential into a log entry.
-        if "www.googleapis.com/customsearch/v1" in record.getMessage():
-            record.msg, record.args = "HTTP request: Google search (private URL omitted)", ()
+        message=record.getMessage()
+        if "www.googleapis.com/customsearch/v1" in message or 'api.opencorporates.com/' in message:
+            record.msg, record.args = "HTTP request: keyed public source (private URL omitted)", ()
         return True
 
 

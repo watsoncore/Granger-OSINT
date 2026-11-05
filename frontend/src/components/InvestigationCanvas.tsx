@@ -1,7 +1,9 @@
 import { forwardRef,useEffect,useImperativeHandle,useMemo,useRef } from 'react'
 import type { GraphEntity,GraphPoint,GraphRelation,GraphViewport } from '../types'
 import { entityLabel,fitViewport,readableViewport,hitNode,hitRelation,nodeBox,relationLabels,shortLabel,zoomAt } from '../graph-model'
-import { CardIndex,routeEdges } from '../graph-geometry'
+import { CardIndex } from '../graph-geometry'
+import {EdgeRouteIndex} from '../graph-route-index'
+import {GraphGpuLayer,type GpuLine} from '../graph-gpu'
 import {cardBadge,cardRows,cardTitle,cardVariant,cardVariants,withCardPresentation,type CardMode,type CardSize} from '../graph-cards'
 import {GraphCamera} from '../graph-camera'
 import {formatGraphAmount} from '../graph-money'
@@ -14,7 +16,7 @@ declare global {interface Window {
 }}
 const metricsEnabled=()=>window.__GRANGER_QA_GRAPH__===true||import.meta.env.MODE==='test'
 
-export interface GraphCanvasHandle { fit():void; zoom(factor:number):void; center(id:string):void; insertPoint?(size:CardSize):GraphPoint }
+export interface GraphCanvasHandle { fit(ids?:string[]):void; zoom(factor:number):void; center(id:string):void; insertPoint?(size:CardSize):GraphPoint }
 interface Props {
   nodes:GraphEntity[];edges:GraphRelation[];positions:Record<string,GraphPoint>;viewport:GraphViewport;scopeKey?:string
   selected:string;second:string;selectedEdge:string;root:string;theme?:unknown;mode?:'tree'|'graph'
@@ -33,6 +35,9 @@ interface Props {
 export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function InvestigationCanvas(props,forwarded) {
   const presented=useMemo(()=>withCardPresentation(props.nodes,props.cardSizes,props.cardMode),[props.nodes,props.cardSizes,props.cardMode])
   const canvas=useRef<HTMLCanvasElement>(null),latest=useRef(props);latest.current={...props,nodes:presented}
+  const gpuCanvas=useRef<HTMLCanvasElement>(null),gpu=useRef<GraphGpuLayer|undefined>(undefined)
+  const geometry=useRef<EdgeRouteIndex|undefined>(undefined),uploaded=useRef<{index:EdgeRouteIndex;key:string}|undefined>(undefined)
+  const edgeColors=useRef(new Map<string,[number,number,number,number]>())
   const points=useRef({...props.positions}),viewport=useRef(props.viewport)
   const camera=useRef(new GraphCamera(props.viewport)),pendingPoints=useRef<Record<string,GraphPoint>>({})
   const cameraFrames=useRef<{time:number;x:number;y:number;scale:number;event:string}[]>([]),lastCameraFrame=useRef('')
@@ -48,6 +53,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
   const dropPoint=useRef<GraphPoint|undefined>(undefined)
   const drag=useRef<{id?:string;startX:number;startY:number;point?:GraphPoint;view:GraphViewport;moved:boolean}|undefined>(undefined)
   const lastMediaClick=useRef<{id:string;x:number;y:number;at:number}|undefined>(undefined)
+  const linkPoint=useRef<{x:number;y:number}|undefined>(undefined)
   const linking=useRef<string|undefined>(undefined),marquee=useRef<{x:number;y:number;endX:number;endY:number}|undefined>(undefined)
   const mini=useRef<{x:number;y:number;w:number;h:number;minX:number;minY:number;scale:number}|undefined>(undefined)
   const miniGeometry=useRef<{nodes:GraphEntity[];positions:Record<string,GraphPoint>;minX:number;minY:number;width:number;height:number;scale:number;marks:Path2D;groups:Path2D}|undefined>(undefined)
@@ -67,8 +73,9 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
   function commitViewport(next=viewport.current){
     viewport.current=camera.current.commit(next);recordCamera('commit');requestDraw();latest.current.onViewport({...viewport.current})
   }
-  function fit(){
-    const nodes=latest.current.nodes
+  function fit(ids?:string[]){
+    const subset=ids?.length?new Set(ids):undefined
+    const nodes=latest.current.nodes.filter(node=>!subset||subset.has(node.id))
     const visiblePositions=Object.fromEntries(nodes.filter(node=>points.current[node.id]).map(node=>[node.id,points.current[node.id]]))
     commitViewport(fitViewport(visiblePositions,sizeRef.current.width,sizeRef.current.height,nodes))
   }
@@ -217,18 +224,51 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       }
     }
     const routeNodes=resizing.current?p.nodes.map(node=>resizeSizes.current[node.id]?{...node,attributes:{...node.attributes,_card_size:resizeSizes.current[node.id]}}:node):p.nodes
-    const routes=routeEdges(p.edges,positions,v,routeNodes,p.mode,{left:-20,top:-20,right:width+20,bottom:height+20})
+    let cachedRoutes=geometry.current
+    if(!cachedRoutes||cachedRoutes.edges!==p.edges||cachedRoutes.nodes!==routeNodes||cachedRoutes.scale!==v.scale||cachedRoutes.mode!==(p.mode||'graph')){
+      cachedRoutes=new EdgeRouteIndex(p.edges,routeNodes,positions,v.scale,p.mode);geometry.current=cachedRoutes
+    }else if(cachedRoutes.positions!==positions)cachedRoutes.updatePositions(positions)
+    const worldRoutes=cachedRoutes.query(v,{left:-20,top:-20,right:width+20,bottom:height+20},moving.current)
+    const routes=worldRoutes.map(row=>({edge:row.edge,points:row.points.map(point=>({x:point.x*v.scale+v.x,y:point.y*v.scale+v.y}))}))
+    const rgba=(value:string,alpha:number):[number,number,number,number]=>{
+      const known=edgeColors.current.get(value)
+      if(known)return [known[0],known[1],known[2],alpha]
+      const probe=document.createElement('canvas');probe.width=probe.height=1;const context=probe.getContext('2d')!;context.fillStyle=value;context.fillRect(0,0,1,1);const bytes=context.getImageData(0,0,1,1).data
+      const result:[number,number,number,number]=[bytes[0]/255,bytes[1]/255,bytes[2]/255,alpha];edgeColors.current.set(value,result);return result
+    }
+    const layer=gpu.current
+    let gpuRendered=false
+    if(layer?.available&&p.edges.length>=120){
+      const key=[cachedRoutes.generation,p.selected,p.selectedEdge,accent,border,muted,danger,warning,...worldRoutes.map(row=>row.edge.id)].join('|')
+      if(uploaded.current?.index!==cachedRoutes||uploaded.current.key!==key||drag.current?.moved||resizing.current){
+        const lines:GpuLine[]=worldRoutes.map(({edge,points})=>{
+          const selected=edge.id===p.selectedEdge,related=edge.from_id===p.selected||edge.to_id===p.selected,manual=edge.claim_kind==='analyst_assertion'
+          const incoming=edge.to_id===p.root&&edge.from_id!==p.root,outgoing=edge.from_id===p.root&&edge.to_id!==p.root
+          const flow=edge.aggregate&&(incoming||outgoing)?incoming?'#68aab4':'#cfaa73':null
+          const custom=manual&&/^#[0-9a-f]{6}$/i.test(String(edge.attributes?.color))?String(edge.attributes?.color):null
+          const color=selected?accent:custom|| (edge.verification_status==='contradicted'?danger:edge.verification_status==='inferred'?warning:flow||(related?muted:border))
+          return {points,color:rgba(color,p.selected&&!related&&!selected ? .25 : selected?1:.65),width:selected?2.4:manual?Number(edge.attributes?.width)||1.6:edge.aggregate?1.6:1,
+            dashed:manual?edge.attributes?.stroke!=='solid':['inferred','unverified'].includes(edge.verification_status),dotted:manual&&edge.attributes?.stroke==='dotted',arrowStart:edge.direction==='bidirectional',arrowEnd:edge.direction!=='undirected'}
+        })
+        layer.setLines(lines,{x:-v.x/v.scale,y:-v.y/v.scale});uploaded.current={index:cachedRoutes,key}
+      }
+      gpuRendered=layer.render(v,width,height,dpr)
+    }
+    if(qa)element.dataset.renderer=gpuRendered?'webgl2-edges-canvas-cards':'canvas2d'
     const occupied=cards.map(({point,box})=>({x:point.x-box.width/2-4,y:point.y-box.height/2-4,w:box.width+8,h:box.height+8}))
     for(const {edge,points}of routes){
       const selected=edge.id===p.selectedEdge,related=edge.from_id===p.selected||edge.to_id===p.selected
       const incoming=edge.to_id===p.root&&edge.from_id!==p.root,outgoing=edge.from_id===p.root&&edge.to_id!==p.root
       const flowColor=edge.aggregate&&(incoming||outgoing)?incoming?'#68aab4':'#cfaa73':null
-      ctx.strokeStyle=selected?accent:edge.verification_status==='contradicted'?danger:edge.verification_status==='inferred'?warning:flowColor|| (related?muted:border)
-      ctx.lineWidth=selected?2.4:edge.aggregate?1.6:1;ctx.globalAlpha=p.selected&&!related&&!selected ? .25 : selected ? 1 : .65
-      ctx.setLineDash(['inferred','unverified'].includes(edge.verification_status)?[5,5]:[])
-      ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);points.slice(1).forEach(point=>ctx.lineTo(point.x,point.y));ctx.stroke();ctx.setLineDash([])
+      const manual=edge.claim_kind==='analyst_assertion',customColor=manual&&typeof edge.attributes?.color==='string'&&/^#[0-9a-f]{6}$/i.test(edge.attributes.color)?edge.attributes.color:null
+      ctx.strokeStyle=selected?accent:customColor|| (edge.verification_status==='contradicted'?danger:edge.verification_status==='inferred'?warning:flowColor|| (related?muted:border))
+      ctx.lineWidth=selected?2.4:manual?Number(edge.attributes?.width)||1.6:edge.aggregate?1.6:1;ctx.globalAlpha=p.selected&&!related&&!selected ? .25 : selected ? 1 : .65
+      ctx.setLineDash(manual?edge.attributes?.stroke==='solid'?[]:edge.attributes?.stroke==='dotted'?[1,4]:[6,5]:['inferred','unverified'].includes(edge.verification_status)?[5,5]:[])
+      if(!gpuRendered){ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);points.slice(1).forEach(point=>ctx.lineTo(point.x,point.y));ctx.stroke();ctx.setLineDash([])
       if(edge.direction!=='undirected'){const end=points.at(-1)!,prior=points.at(-2)!,angle=Math.atan2(end.y-prior.y,end.x-prior.x)
-        ctx.fillStyle=selected?accent:flowColor||muted;ctx.beginPath();ctx.moveTo(end.x,end.y);ctx.lineTo(end.x-Math.cos(angle-.45)*8,end.y-Math.sin(angle-.45)*8);ctx.lineTo(end.x-Math.cos(angle+.45)*8,end.y-Math.sin(angle+.45)*8);ctx.closePath();ctx.fill()}
+        ctx.fillStyle=selected?accent:customColor||flowColor||muted;ctx.beginPath();ctx.moveTo(end.x,end.y);ctx.lineTo(end.x-Math.cos(angle-.45)*8,end.y-Math.sin(angle-.45)*8);ctx.lineTo(end.x-Math.cos(angle+.45)*8,end.y-Math.sin(angle+.45)*8);ctx.closePath();ctx.fill()}
+      if(edge.direction==='bidirectional'){const end=points[0],prior=points[1],angle=Math.atan2(end.y-prior.y,end.x-prior.x);ctx.fillStyle=customColor||muted;ctx.beginPath();ctx.moveTo(end.x,end.y);ctx.lineTo(end.x-Math.cos(angle-.45)*8,end.y-Math.sin(angle-.45)*8);ctx.lineTo(end.x-Math.cos(angle+.45)*8,end.y-Math.sin(angle+.45)*8);ctx.closePath();ctx.fill()}
+      }
       ctx.globalAlpha=1
       if(selected||v.scale>.45&&p.nodes.length<=45&&(edge.aggregate||related)){
         const asset=edge.aggregate?.asset_label||edge.aggregate?.asset||'',label=edge.aggregate?`${edge.aggregate.count} · ${formatGraphAmount(edge.aggregate.amount)} ${asset.length>12?'актив':asset}`:relationLabels[edge.relation_type]||edge.relation_type
@@ -246,13 +286,23 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     const qaNodes:{id:string;x:number;y:number;width:number;height:number;label:string}[]=[]
     const selectedIds=new Set([p.selected,p.second,...(p.selection||[])])
     let drawnLabels=0,drawnImages=0
-    for(const {node,point,box}of cards){
+    for(const {node,point,box}of [...cards].sort((a,b)=>Number(a.node.type!=='entity_group')-Number(b.node.type!=='entity_group'))){
       const selected=selectedIds.has(node.id),root=node.id===p.root,x=point.x-box.width/2,y=point.y-box.height/2
-      ctx.fillStyle=selected?raised:panel;ctx.strokeStyle=selected||root?accent:node.verification_status==='inferred'?warning:border;ctx.lineWidth=selected||root?1.8:1
+      const group=node.type==='entity_group'&&!node.attributes._collapsed
+      ctx.fillStyle=group?'transparent':selected?raised:panel;ctx.strokeStyle=selected||root?accent:node.verification_status==='inferred'?warning:border;ctx.lineWidth=selected||root?1.8:1
       const variant=cardVariant(node),corner=variant==='social'?16:variant==='note'?3:variant==='group'?12:8
       if(variant==='hypothesis')ctx.setLineDash([4,3])
-      ctx.beginPath();ctx.roundRect(x,y,box.width,box.height,Math.min(corner,box.height/4));ctx.fill();ctx.stroke()
+      if(selected){ctx.shadowColor=accent;ctx.shadowBlur=18}
+      ctx.beginPath();ctx.roundRect(x,y,box.width,box.height,Math.min(corner,box.height/4));ctx.fill();ctx.stroke();ctx.shadowBlur=0
       ctx.setLineDash([])
+      if(group&&v.scale>=.38){
+        ctx.font=`600 ${Math.max(12,14*v.scale)}px Manrope, sans-serif`;ctx.fillStyle=selected?accent:text
+        ctx.fillText(clipped(`${node.label} · ${node.attributes.member_count??'группа'}`,box.width-30),x+14,y+24)
+        if(p.onCardResize&&selected&&v.scale>.55){ctx.strokeStyle=accent;ctx.beginPath();ctx.moveTo(x+box.width-16,y+box.height-5);ctx.lineTo(x+box.width-5,y+box.height-16);ctx.stroke()}
+        if(p.onConnect&&v.scale>.55&&(selected||hovered.current===node.id)){for(const sign of [-1,1]){ctx.fillStyle=panel;ctx.strokeStyle=accent;ctx.beginPath();ctx.arc(point.x+sign*box.width/2,point.y,4,0,Math.PI*2);ctx.fill();ctx.stroke()}}
+        drawnLabels++;if(qa&&qaNodes.length<30)qaNodes.push({id:node.id,x:point.x,y:point.y,width:box.width,height:box.height,label:shortLabel(node)})
+        continue
+      }
       if(v.scale<.38){
         // Far zoom represents an object with a readable symbol and label,
         // rather than shrinking a detailed card into an empty rectangle.
@@ -308,9 +358,17 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       }
       if(positions[node.id]?.pinned){ctx.fillStyle=accent;ctx.fillRect(x+box.width-8,y+4,4,4)}
       if(p.onConnect&&v.scale>.55&&(selected||hovered.current===node.id||linking.current===node.id)){for(const sign of [-1,1]){ctx.fillStyle=panel;ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(point.x+sign*box.width/2,point.y,4,0,Math.PI*2);ctx.fill();ctx.stroke()}}
-      if(p.onCardResize&&selected&&variant==='media'&&v.scale>.55){ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+box.width-13,y+box.height-4);ctx.lineTo(x+box.width-4,y+box.height-13);ctx.moveTo(x+box.width-8,y+box.height-4);ctx.lineTo(x+box.width-4,y+box.height-8);ctx.stroke()}
+      if(p.onCardResize&&selected&&['media','group'].includes(variant)&&v.scale>.55){ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+box.width-13,y+box.height-4);ctx.lineTo(x+box.width-4,y+box.height-13);ctx.moveTo(x+box.width-8,y+box.height-4);ctx.lineTo(x+box.width-4,y+box.height-8);ctx.stroke()}
       if(qa&&qaNodes.length<30)qaNodes.push({id:node.id,x:point.x,y:point.y,width:box.width,height:box.height,label:shortLabel(node)})
     }
+    // Selection handles remain above overlapping unselected cards.
+    if(p.onCardResize&&v.scale>.55)for(const {node,point,box}of cards){
+      if(!selectedIds.has(node.id)||!['media','group'].includes(cardVariant(node)))continue
+      const x=point.x+box.width/2,y=point.y+box.height/2
+      ctx.fillStyle=panel;ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(x-13,y-13,18,18,4);ctx.fill();ctx.stroke()
+      ctx.beginPath();ctx.moveTo(x-8,y);ctx.lineTo(x,y-8);ctx.stroke()
+    }
+    if(linking.current&&linkPoint.current){const at=screen(linking.current);if(at){ctx.strokeStyle=accent;ctx.lineWidth=2;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(at.x,at.y);ctx.lineTo(linkPoint.current.x,linkPoint.current.y);ctx.stroke();ctx.setLineDash([])}}
     if(dropPoint.current){
       const point=dropPoint.current
       ctx.fillStyle=raised;ctx.strokeStyle=accent;ctx.lineWidth=2
@@ -336,6 +394,12 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     recordCamera('frame')
   }
   function requestDraw(){if(visible.current&&frame.current===undefined)frame.current=requestAnimationFrame(draw)}
+  useEffect(()=>{
+    const element=gpuCanvas.current
+    if(!element||props.edges.length<120)return
+    const layer=new GraphGpuLayer(element,()=>{uploaded.current=undefined;requestDraw()});gpu.current=layer;requestDraw()
+    return()=>{layer.dispose();gpu.current=undefined;uploaded.current=undefined}
+  },[props.edges.length>=120])
   useEffect(()=>{
     camera.current=new GraphCamera(props.viewport);viewport.current=camera.current.value
     points.current={...props.positions};pendingPoints.current={};drag.current=undefined;lastMediaClick.current=undefined;moving.current={};cameraFrames.current=[];recordCamera('scope');requestDraw()
@@ -412,7 +476,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     },
   }),[])
   const local=(event:{clientX:number;clientY:number})=>{const rect=canvas.current!.getBoundingClientRect();return{x:event.clientX-rect.left,y:event.clientY-rect.top}}
-  return <canvas ref={canvas} className="investigation-graph-canvas" role="application" aria-label="Интерактивный граф расследования" tabIndex={0}
+  return <div className="graph-render-stack"><canvas ref={gpuCanvas} className="graph-gpu-edges" aria-hidden="true"/><canvas ref={canvas} className="investigation-graph-canvas" role="application" aria-label="Интерактивный граф расследования" tabIndex={0}
     onDragOver={event=>{
       if(!latest.current.onDropImage||!event.dataTransfer.types.includes('Files'))return
       event.preventDefault();event.dataTransfer.dropEffect='copy';dropPoint.current=local(event);requestDraw()
@@ -439,9 +503,18 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       const m=mini.current
       if(m&&point.x>=m.x&&point.x<=m.x+m.w&&point.y>=m.y&&point.y<=m.y+m.h){commitViewport({...v,x:sizeRef.current.width/2-((point.x-m.x)/m.scale+m.minX)*v.scale,y:sizeRef.current.height/2-((point.y-m.y)/m.scale+m.minY)*v.scale});return}
       if(zoomCluster(point))return
+      if(p.onCardResize&&v.scale>.55){
+        const selected=new Set([p.selected,...(p.selection||[])])
+        for(const node of p.nodes){
+          if(!selected.has(node.id)||!['media','group'].includes(cardVariant(node)))continue
+          const at=points.current[node.id];if(!at)continue
+          const box=nodeBox(node,v.scale),x=at.x*v.scale+v.x+box.width/2,y=at.y*v.scale+v.y+box.height/2
+          if(Math.abs(point.x-x)<=16&&Math.abs(point.y-y)<=16){resizing.current={id:node.id,x:point.x,y:point.y,size:{width:box.width/v.scale,height:box.height/v.scale}};return}
+        }
+      }
       if(p.onConnect&&v.scale>.55){const port=p.nodes.find(n=>{if(n.id!==p.selected&&n.id!==hovered.current&&!p.selection?.includes(n.id))return false;const pos=points.current[n.id];if(!pos)return false;const box=nodeBox(n,v.scale);return Math.abs(point.y-(pos.y*v.scale+v.y))<10&&Math.abs(Math.abs(point.x-(pos.x*v.scale+v.x))-box.width/2)<10});if(port){linking.current=port.id;requestDraw();return}}
       const node=nodeAt(point)
-      if(node&&p.onCardResize&&(node.id===p.selected||p.selection?.includes(node.id))&&cardVariant(node)==='media'){const box=nodeBox(node,v.scale),at=points.current[node.id];if(point.x>at.x*v.scale+v.x+box.width/2-18&&point.y>at.y*v.scale+v.y+box.height/2-18){resizing.current={id:node.id,x:point.x,y:point.y,size:{width:box.width/v.scale,height:box.height/v.scale}};return}}
+      if(node&&p.onCardResize&&(node.id===p.selected||p.selection?.includes(node.id))&&['media','group'].includes(cardVariant(node))){const box=nodeBox(node,v.scale),at=points.current[node.id];if(point.x>at.x*v.scale+v.x+box.width/2-18&&point.y>at.y*v.scale+v.y+box.height/2-18){resizing.current={id:node.id,x:point.x,y:point.y,size:{width:box.width/v.scale,height:box.height/v.scale}};return}}
       if(event.shiftKey&&!node&&p.onSelection){marquee.current={x:point.x,y:point.y,endX:point.x,endY:point.y};return}
       drag.current={id:node?.id,startX:point.x,startY:point.y,point:node?{...points.current[node.id]}:undefined,view:{...v},moved:false}
       camera.current.active=true
@@ -456,7 +529,8 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     }}
     onPointerMove={event=>{
       const point=local(event)
-      if(resizing.current){const r=resizing.current;resizeSizes.current[r.id]={width:Math.max(160,Math.min(720,r.size.width+(point.x-r.x)/viewport.current.scale)),height:Math.max(120,Math.min(640,r.size.height+(point.y-r.y)/viewport.current.scale))};lastInput.current=performance.now();requestDraw();return}
+      if(linking.current){linkPoint.current=point;requestDraw();return}
+      if(resizing.current){const r=resizing.current;resizeSizes.current[r.id]={width:Math.max(160,Math.min(latest.current.nodes.find(n=>n.id===r.id)?.type==='entity_group'?2400:720,r.size.width+(point.x-r.x)/viewport.current.scale)),height:Math.max(120,Math.min(latest.current.nodes.find(n=>n.id===r.id)?.type==='entity_group'?1800:640,r.size.height+(point.y-r.y)/viewport.current.scale))};lastInput.current=performance.now();requestDraw();return}
       if(marquee.current){marquee.current.endX=point.x;marquee.current.endY=point.y;requestDraw();return}
       const current=drag.current;if(!current){const node=nodeAt(point),id=node?.id||'';if(hovered.current!==id){hovered.current=id;requestDraw()}event.currentTarget.style.cursor=node?'grab':'default';return}
       const dx=point.x-current.startX,dy=point.y-current.startY;if(Math.hypot(dx,dy)<3&&!current.moved)return
@@ -472,12 +546,12 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     onPointerUp={event=>{
       const point=local(event),p=latest.current,v=viewport.current
       if(resizing.current){const r=resizing.current;resizing.current=undefined;if(resizeSizes.current[r.id])p.onCardResize?.(r.id,resizeSizes.current[r.id]);requestDraw()}
-      if(linking.current){const target=hitNode(p.nodes,points.current,v,point.x,point.y),from=linking.current;linking.current=undefined;if(target&&target.id!==from)p.onConnect?.(from,target.id)}
+      if(linking.current){const target=hitNode(p.nodes,points.current,v,point.x,point.y),from=linking.current;linking.current=undefined;linkPoint.current=undefined;requestDraw();if(target&&target.id!==from)p.onConnect?.(from,target.id)}
       if(marquee.current){const r=marquee.current;marquee.current=undefined;p.onSelection?.(p.nodes.filter(n=>{const pos=points.current[n.id];if(!pos)return false;const x=pos.x*v.scale+v.x,y=pos.y*v.scale+v.y;return x>=Math.min(r.x,r.endX)&&x<=Math.max(r.x,r.endX)&&y>=Math.min(r.y,r.endY)&&y<=Math.max(r.y,r.endY)}).map(n=>n.id));requestDraw()}
       const current=drag.current;drag.current=undefined;camera.current.active=false;event.currentTarget.releasePointerCapture?.(event.pointerId)
       if(current?.moved){if(current.id){
         const updates=Object.fromEntries(Object.keys(moving.current).map(id=>[id,points.current[id]]))
-        Object.assign(pendingPoints.current,updates);spatial.current=undefined;semanticCache.current=undefined;miniGeometry.current=undefined
+        Object.assign(pendingPoints.current,updates);spatial.current=undefined;geometry.current?.updatePositions(points.current);semanticCache.current=undefined;miniGeometry.current=undefined
         p.onCommitPositions(updates)
       }else commitViewport()}
       if(current?.id&&!current.moved){
@@ -494,10 +568,10 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     onPointerCancel={()=>{
       const current=drag.current;drag.current=undefined;camera.current.active=false
       if(current?.moved){
-        if(current.id){Object.assign(points.current,moving.current);spatial.current=undefined;semanticCache.current=undefined;miniGeometry.current=undefined}
+        if(current.id){Object.assign(points.current,moving.current);spatial.current=undefined;geometry.current?.updatePositions(points.current);semanticCache.current=undefined;miniGeometry.current=undefined}
         else commitViewport()
       }
       moving.current={};marquee.current=undefined;linking.current=undefined;resizing.current=undefined;resizeSizes.current={};requestDraw()
     }}
-    onKeyDown={event=>{const key=event.key;if(['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(key)){event.preventDefault();if(key==='Home')fit();else if(key==='+'||key==='='||key==='-')commitViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,key==='-'?.8:1.25));else commitViewport({...viewport.current,x:viewport.current.x+(key==='ArrowLeft'?40:key==='ArrowRight'?-40:0),y:viewport.current.y+(key==='ArrowUp'?40:key==='ArrowDown'?-40:0)})}}}/>
+    onKeyDown={event=>{const key=event.key;if(['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(key)){event.preventDefault();if(key==='Home')fit();else if(key==='+'||key==='='||key==='-')commitViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,key==='-'?.8:1.25));else commitViewport({...viewport.current,x:viewport.current.x+(key==='ArrowLeft'?40:key==='ArrowRight'?-40:0),y:viewport.current.y+(key==='ArrowUp'?40:key==='ArrowDown'?-40:0)})}}}/></div>
 })

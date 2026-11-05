@@ -37,20 +37,22 @@ export interface GraphView {
   expanded?:string[]; expanded_relations?:string[]; collapsed?:string[]; query?:string
   filters?: {types?:string[];statuses?:Verification[];sources?:string[];include_background?:boolean;show_sources?:boolean;show_transactions?:boolean;peer_ids?:string[];profile_ids?:string[]}
   card_sizes?:Record<string,{width:number;height:number}>;card_mode?:'auto'|'compact'|'standard'|'expanded'
-  projection_mode?:'wallet'|'flow'|'counterparties'|'transactions'|'paths'|'socmint'|'manual';inspector_tab?:'details'|'evidence'|'actions'
+  projection_mode?:'wallet'|'flow'|'counterparties'|'transactions'|'paths'|'socmint'|'manual'|'assets';inspector_tab?:'details'|'evidence'|'actions'
 }
 export interface GraphFinding { evidence_id:string; title:string; description:string; url:string; status:string; relevance?:Source['relevance'] }
 export interface ResearchDocument {
   schema:'granger-investigation/1';id:string;revision:number;title:string;description:string
   entities:GraphEntity[];relations:GraphRelation[];evidence:Source[]
   annotations:Record<string,{label?:string;markdown?:string;color?:string}>
-    view:{positions:Record<string,GraphPoint>;instances?:Record<string,{entity_id:string;position:GraphPoint;parent_group_id?:string}>;viewport:GraphViewport;hidden:string[];removed:string[];collapsed:string[];layout:string;query?:string;card_sizes?:Record<string,{width:number;height:number}>;ui?:{inspector_tab?:'details'|'evidence'|'actions';inspector_width?:number;inspector_open?:boolean;card_mode?:'auto'|'compact'|'standard'|'expanded';crypto_root_id?:string;username_root_id?:string;initial_layout?:''|'wallet'|'hierarchical';graph_mode?:'wallet'|'flow'|'counterparties'|'transactions'|'paths'|'socmint'|'manual'};expanded?:string[];expanded_relations?:string[];manual_positions?:Record<string,GraphPoint>;manual_position_ids?:string[];layout_positions?:Record<string,Record<string,GraphPoint>>;layout_viewports?:Record<string,GraphViewport>}
+    view:{positions:Record<string,GraphPoint>;instances?:Record<string,{entity_id:string;position:GraphPoint;parent_group_id?:string}>;viewport:GraphViewport;hidden:string[];removed:string[];collapsed:string[];layout:string;query?:string;card_sizes?:Record<string,{width:number;height:number}>;ui?:{inspector_tab?:'details'|'evidence'|'actions';inspector_width?:number;inspector_open?:boolean;card_mode?:'auto'|'compact'|'standard'|'expanded';crypto_root_id?:string;username_root_id?:string;initial_layout?:''|'wallet'|'hierarchical';graph_mode?:'wallet'|'flow'|'counterparties'|'transactions'|'paths'|'socmint'|'manual'|'assets'};expanded?:string[];expanded_relations?:string[];manual_positions?:Record<string,GraphPoint>;manual_position_ids?:string[];layout_positions?:Record<string,Record<string,GraphPoint>>;layout_viewports?:Record<string,GraphViewport>}
   custom_types:Record<string,string>;recovered_revision?:boolean;execution_summary?:{tool:string;status:string;limitations?:string[]}[]
 }
 export interface ResearchCanvasState {
+  company_jurisdictions?:{id:string;label:string;identifiers:Record<string,string>}[]
+  insertion?:{canvas_id:string;preview_token:string;insertion_id:string;added_node_ids:string[];added_nodes:number;added_relations:number;selected_records:number;existing_records:number;unprojected_records:number;limitations:string[]}
   state:string;busy?:boolean;error?:string;document?:ResearchDocument;types:string[]
   choices:{id:string;title:string;revision:number}[];can_undo?:boolean;can_redo?:boolean
-    preview?:{token:string;canvas_id:string;node_id:string;tool:string;status:string;limitations:string[];results:Source[];running?:boolean;error?:string;error_code?:string}
+    preview?:{token:string;canvas_id:string;node_id:string;tool:string;operation?:string;status:string;limitations:string[];results:Source[];running?:boolean;error?:string;error_code?:string}
 }
 export interface InvestigationGraph {
   state:'idle'|'loading'|'ready'|'empty'|'locked'|'cancelled'|'error'; investigation_id?:string; goal?:string; status?:string
@@ -117,6 +119,7 @@ export interface Activity {
   details?: Record<string, unknown>
 }
 export interface Tool {
+  source_contract?:{name:string;host:string;region:string[];license:string;parser_version:string;formats:string[];authentication:string;status:string;health:{status:string;result_count?:number;checked_at?:string}}|null
   manifest?: { access_mode?: string; execution_mode?: string; input_schema?: InputSchema | null; capabilities?: string[]; accepted_inputs?: string[]; [key: string]: unknown }
   implemented?: boolean
   readiness_status?: string
@@ -189,6 +192,7 @@ export interface DesktopState {
   errors?: { id: string; message: string; code: string; count: number }[]
   investigation_graph?:InvestigationGraph
   research_canvas?:ResearchCanvasState
+  context_diagnostic?:{scope?:string;conversation_id?:string;operation?:string;message_count?:number;context_chars?:number;selected_entity_ids?:string[];selected_evidence_ids?:string[]}
   investigation_choices?:{id:string;title:string;status:string;updated_at?:string}[]
   visual_models?: {
     state: string; installed: boolean; available: boolean; download_bytes?: number | null; disk_recommended_bytes?: number | null
@@ -289,6 +293,17 @@ export function parseState(raw: string | Partial<DesktopState>, previous = empty
   const value = typeof raw === 'string' ? JSON.parse(raw) as Partial<DesktopState> & { patch?: boolean; message_updates?: { index: number; message: Message }[]; message_count?: number } : raw
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Некорректное состояние приложения')
   const object = (row: unknown): row is Record<string, unknown> => !!row && typeof row === 'object' && !Array.isArray(row)
+  const delta=(value as Record<string,unknown>).research_canvas_delta
+  if(delta!==undefined){
+    if(!object(delta)||!object(delta.state)||!object(delta.document)||!object(delta.view)||!object(delta.positions))throw new Error('Некорректное обновление полотна')
+    const current=previous.research_canvas,doc=current?.document
+    if(!current||!doc||doc.id!==delta.canvas_id||doc.revision!==delta.base_revision)throw new Error('Версия полотна изменилась; требуется полный снимок')
+    const without=(row:Record<string,unknown>,keys:unknown)=>{if(!Array.isArray(keys)||keys.some(k=>typeof k!=='string'))throw new Error('Некорректные удалённые поля');const next={...row};for(const key of keys)delete next[key];return next}
+    const positions=Object.keys(delta.positions).length||(delta.positions_removed as string[]||[]).length?{...without(doc.view.positions,delta.positions_removed),...delta.positions}:doc.view.positions
+    const view={...without(doc.view as unknown as Record<string,unknown>,delta.view_removed),...delta.view,positions}
+    value.research_canvas={...without(current as unknown as Record<string,unknown>,delta.state_removed),...delta.state,document:{...without(doc as unknown as Record<string,unknown>,delta.document_removed),...delta.document,view}} as unknown as ResearchCanvasState
+    delete (value as Record<string,unknown>).research_canvas_delta
+  }
   // The bridge is a data boundary, including historical state loaded by Python.
   // Reject corrupt rows before React components dereference their properties.
   for (const key of ['connection', 'search', 'canvas', 'launcher', 'hermione', 'window', 'settings', 'investigation', 'usage', 'investigation_graph'] as const) {

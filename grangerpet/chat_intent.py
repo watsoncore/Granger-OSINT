@@ -1,6 +1,7 @@
 """Conversation-scoped read-only research intent; no network or permission grants."""
 from dataclasses import dataclass
 import re
+import uuid
 from .context import is_social_turn,is_defer_turn
 from .entity_router import route,route_goal
 
@@ -17,9 +18,10 @@ def explicit_research(text):
 class SessionIntent:
     conversation_id:str=''
     target:dict|None=None
+    scope_id:str=''
 
     def reset(self,conversation_id=''):
-        self.conversation_id=conversation_id;self.target=None
+        self.conversation_id=conversation_id;self.target=None;self.scope_id=''
 
     def restore(self,messages,conversation_id):
         self.reset(conversation_id)
@@ -28,7 +30,11 @@ class SessionIntent:
             text=row.get('text','')
             if is_defer_turn(text):return
             targets=concrete_targets(text)
-            if targets:self.target=targets[0].to_dict();return
+            if targets:
+                self.target=targets[0].to_dict()
+                from .context import valid_context_scope
+                self.scope_id=row.get('context_scope','') if valid_context_scope(row.get('context_scope','')) else ''
+                return
             images=row.get('attachments',[])
             if isinstance(images,list):
                 for image in images:
@@ -37,10 +43,13 @@ class SessionIntent:
 
     def decide(self,text,conversation_id,*,no_tools=False,images=()):
         if self.conversation_id!=conversation_id:self.reset(conversation_id)
-        if is_defer_turn(text):self.target=None;return {'kind':'defer','entity_context':None}
+        if is_defer_turn(text):self.target=None;self.scope_id='';return {'kind':'defer','entity_context':None,'context_scope':''}
         if is_social_turn(text) and not images:return {'kind':'social','entity_context':None}
         targets=concrete_targets(text)
-        if targets:self.target=targets[0].to_dict()
+        if targets:
+            target=targets[0].to_dict()
+            if not self.target or target['id']!=self.target.get('id'):self.scope_id='research:'+uuid.uuid4().hex
+            self.target=target
         elif isinstance(images,(list,tuple)):
             for image in images:
                 target=route(image.get('id','')) if isinstance(image,dict) else None
@@ -56,5 +65,7 @@ class SessionIntent:
             if self.target.get('platform') in ('vk','tiktok'):scoped |= bool(re.search(r'(?iu)сч[её]тчик|подписчик|биограф|дата.{0,15}создан|никнейм|аватар|публикаци|пост',text))
             if kind=='image':scoped |= bool(re.search(r'(?iu)где|место|локаци|координат|фото|изображени|геометри|рельеф|сравни|geoint|geoclip|waypoint',text))
         research=bool(images or explicit_research(text) or scoped)
+        if research and not self.scope_id:self.scope_id='research:'+uuid.uuid4().hex
         context={'conversation_id':conversation_id,'target':self.target} if research and scoped else None
-        return {'kind':'research' if research else 'conversation','entity_context':context}
+        return {'kind':'research' if research else 'conversation','entity_context':context,
+                'context_scope':self.scope_id if research else ''}

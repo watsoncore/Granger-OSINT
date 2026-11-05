@@ -47,6 +47,9 @@ class ChatArchive:
                     if key == 'messages' and isinstance(row.get('id'), str) and len(row['id']) <= 64:
                         item['id'] = row['id']
                     if key == 'messages':
+                        from .context import valid_context_scope
+                        scope=row.get('context_scope','')
+                        if scope and valid_context_scope(scope):item['context_scope']=scope
                         if isinstance(row.get('attachments'),list):
                             item['attachments']=[{k:v for k,v in image.items() if k in ('id','name','mime','format','bytes','width','height','sha256')}
                                 for image in row['attachments'][:4] if isinstance(image,dict) and re.fullmatch(r'img_[a-f0-9]{64}',str(image.get('id','')))]

@@ -95,7 +95,15 @@ class NativeSession:
 
     def status(self):
         from grangerpet.ipc import send_command
+        started=time.monotonic()
         row = send_command('pet', 'status', timeout=1500)
+        if not row and self.owned_pid is not None:
+            # Read-only cold WebEngine status may overlap the first window
+            # publication. Bound recovery and expose its duration; never retry
+            # an unknown-outcome mutation or accept a different process.
+            self.status_timeouts=getattr(self,'status_timeouts',0)+1
+            row=send_command('pet','status',timeout=3000)
+            if row:self.status_recovery_ms=max(getattr(self,'status_recovery_ms',0),(time.monotonic()-started)*1000)
         if row:
             pid = row.get('pid')
             if type(pid) is not int or pid <= 0 or process_image(pid) != self.executable:
@@ -121,8 +129,15 @@ class NativeSession:
         time.sleep(.2)
 
     def snapshot(self):
-        self.command('qa_desktop', {'action': 'save_state', 'name': 'state'})
-        return json.loads((self.directory / 'state.json').read_text(encoding='utf-8'))
+        # Windows can keep a just-scanned large JSON file open without write
+        # sharing. Never overwrite an earlier observation during live workers.
+        name='state_'+uuid.uuid4().hex
+        path=self.directory/(name+'.json')
+        self.command('qa_desktop', {'action': 'save_state', 'name': name})
+        try:return json.loads(path.read_text(encoding='utf-8'))
+        finally:
+            try:path.unlink(missing_ok=True)
+            except PermissionError:pass  # The owned temporary directory cleans up.
 
     def dom(self):
         self.action('dom')
@@ -314,6 +329,9 @@ def acceptance(executable: Path, directory: Path, check, *, allow_missing_extern
         logs = list((profile / 'logs').glob('*.log'))
         check('fresh_runtime_logs_without_python_traceback', bool(logs) and not any('Traceback (most recent call last)' in path.read_text(encoding='utf-8', errors='replace') for path in logs))
     finally:
+        if tool_report is not None:tool_report['ipc_observations']={
+            'status_timeouts':getattr(session,'status_timeouts',0),
+            'max_status_recovery_ms':round(getattr(session,'status_recovery_ms',0),3)}
         session.stop()
     # Keep the Qt application alive until all IPC sockets have been destroyed.
     application.processEvents()

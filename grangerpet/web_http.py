@@ -40,7 +40,7 @@ async def fetch_public(url,*,method='GET',form=None,approved_post=False,cancel_e
     factory=client_factory or httpx.AsyncClient;resolve=resolver or resolve_public
     jars=cookies if cookies is not None else {}
     accepted=allowed_types or ('text/html','application/xhtml+xml','text/plain','application/json','application/ld+json',
-        'application/xml','text/xml','application/rss+xml','application/atom+xml')
+        'application/xml','text/xml','application/rss+xml','application/atom+xml','text/csv','application/csv','text/tab-separated-values','application/pdf')
     async def check():
         if cancel_event and cancel_event.is_set():raise PageReadError('cancelled','cancelled')
         if time.monotonic()>=end:raise PageReadError('timeout','timeout')

@@ -16,7 +16,7 @@ ENTITY_TYPES=('username','public_profile','organization','domain','email','publi
     'geographic_candidate','coordinate','repository','infrastructure_asset','blockchain_address','transaction','service',
     'root_entity','telegram_channel','social_profile','github_profile','github_repository','website','source','asset','web3_identity','entity_group',
     'geoip_estimate','registry_contact','registry_maintainer','registry_registry_authority','registry_registry_contact','registry_registry_reference',
-    'steam_inventory','inventory_category','inventory_item')
+    'steam_inventory','inventory_category','inventory_item','company_registration','public_document','person')
 
 
 def verification(value):
@@ -163,7 +163,22 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                     if key in details and details[key] is not None and not isinstance(details[key],str)),None)
         if wrong:bad_fields+=1;continue
         current=None
-        if kind in ('steam_item','steam_inventory') and isinstance(details.get('steamid64'),str):
+        if kind in ('company_registration','company_candidate'):
+            identity=details.get('canonical_identifier') or url
+            if not isinstance(identity,str) or not identity:bad_fields+=1;continue
+            attrs={key:deepcopy(details[key]) for key in ('legal_name','country','jurisdiction','registration_number','registry','status','lei','cik','candidate_status') if key in details}
+            current=node('organization',identity,details.get('legal_name') or label,record,
+                **attrs,url=url,identity_match_verified=False,registration_source_reported=True)
+            number=details.get('registration_number') or details.get('lei')
+            if number:
+                registration=node('company_registration',identity+'|registration',str(number),record,
+                    registration_number=number,registry=details.get('registry') or details.get('source_id'),country=details.get('country'),url=url)
+                edge(current,registration,'source_reports_registration',record,'source_reported',identity_match_verified=False)
+        elif kind in ('company_filing','public_document'):
+            current=node('public_document',url or str(record.get('id')),label,record,url=url,
+                document_type=details.get('publication_type') or ('filing' if kind=='company_filing' else 'publication'),
+                source_id=details.get('source_id'),doi=details.get('doi'),accession=details.get('accession'))
+        elif kind in ('steam_item','steam_inventory') and isinstance(details.get('steamid64'),str):
             owner_url=details.get('canonical_url') or 'https://steamcommunity.com/profiles/'+details['steamid64']
             owner=url_node(owner_url,record,reference=False)
             scope=details['steamid64']+'|'+str(details.get('appid'))+'|'+str(details.get('contextid'))

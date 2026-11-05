@@ -125,7 +125,9 @@ def test_streamed_findings_keep_token_merge_by_evidence_id_and_survive_final_err
     assert preview['token']==token and preview['status']=='error' and preview['running'] is False
     assert preview['error_code']=='source_timeout' and preview['error']=='Provider timed out'
     assert {row['evidence_id'] for row in preview['results']}=={first['evidence_id'],second['evidence_id']}
-    assert len(value.preview['records'])==2 and len(value.bridge._raw_sources)==2
+    assert len(value.preview['records'])==2
+    assert value.source_record(first['evidence_id'])==first and value.source_record(second['evidence_id'])==second
+    assert value.bridge._raw_sources=={}  # Canvas sources do not accumulate in global chat state.
     assert value.document['entities']==[] and value.document['evidence']==[]  # insert remains explicit
 
 

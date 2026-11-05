@@ -1,5 +1,6 @@
 import { nodeBox,routeEdges } from './graph-geometry'
 import {hierarchy} from './graph-hierarchy'
+// Registration and document records remain distinct from legal entities.
 export {nodeBox} from './graph-geometry'
 import type { GraphEntity, GraphPoint, GraphRelation, GraphView, GraphViewport } from './types'
 
@@ -21,6 +22,8 @@ Object.assign(relationLabels, {
 })
 Object.assign(typeLabels,{steam_inventory:'Инвентарь игры',inventory_category:'Категория инвентаря',inventory_item:'Предмет Steam'})
 Object.assign(typeLabels,{geoip_estimate:'Оценка GeoIP',registry_maintainer:'Maintainer',registry_registry_authority:'Администратор реестра',registry_registry_contact:'Контакт реестра',registry_registry_reference:'Объект реестра'})
+typeLabels.company_registration='Регистрация компании'
+typeLabels.public_document='Публичный документ'
 export const entityLabel = (node:GraphEntity) => node.type==='infrastructure_asset'?({ip:'IP-адрес',cidr:'BGP-префикс',asn:'Автономная система',registered_range:'Диапазон реестра'}[String(node.attributes.asset_type)]||'Инфраструктура'):typeLabels[entityType(node)] || node.type
 export function shortLabel(node:GraphEntity) {
   if (node.type==='public_post' && typeof node.attributes.url==='string') {
@@ -133,6 +136,11 @@ export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:stri
   const expandedTransactions=new Set(edges.filter(edge=>view.expanded_relations?.includes(edge.id)).flatMap(edge=>edge.aggregate?.transaction_ids||[]))
   const drillPeers=new Set(edges.filter(edge=>view.expanded_relations?.includes(edge.id)).flatMap(edge=>[edge.from_id,edge.to_id]))
   const direct=new Set([root]);for(const edge of edges)if(edge.aggregate||['transfers','source_reports_counterparty'].includes(edge.relation_type)){if(edge.from_id===root)direct.add(edge.to_id);if(edge.to_id===root)direct.add(edge.from_id)}
+  // Inventory is a separate observed branch. Repeated NFT enrichment must not
+  // disappear behind a projection which previously admitted only money flows.
+  const inventory=new Set<string>()
+  for(const edge of edges)if(edge.from_id===root&&edge.relation_type==='source_reports_asset')inventory.add(edge.to_id)
+  for(const edge of edges)if(inventory.has(edge.from_id)&&['source_reports_collection','has_contract_observation'].includes(edge.relation_type))inventory.add(edge.to_id)
   let path:Set<string>|undefined
   if(mode==='paths'&&view.selected_id&&view.selected_id!==root){
     const adjacent=new Map<string,string[]>();for(const edge of edges){if(['supported_by','published_on_domain'].includes(edge.relation_type))continue;for(const [a,b]of [[edge.from_id,edge.to_id],[edge.to_id,edge.from_id]]){const row=adjacent.get(a)||[];row.push(b);adjacent.set(a,row)}}
@@ -143,11 +151,13 @@ export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:stri
     for(const other of (adjacent.get(view.selected_id)||[]).slice(0,12))path.add(other)
   }
   const projected=nodes.filter(node=>{
+    if((mode==='wallet'||mode==='assets')&&inventory.has(node.id))return true
     if(node.id===root||node.id===view.selected_id||expandedTransactions.has(node.id)||drillPeers.has(node.id))return true
     if(view.filters?.peer_ids&&node.type==='blockchain_address'&&!view.filters.peer_ids.includes(node.id))return false
     if(view.filters?.show_sources&&['source','service'].includes(node.type))return true
     if(view.filters?.types?.includes(node.type))return true
     if(path)return path.has(node.id)
+    if(mode==='assets')return node.id===root
     if(mode==='counterparties')return direct.has(node.id)&&node.type==='blockchain_address'
     if(mode==='transactions')return ['blockchain_address','transaction','contract'].includes(node.type)
     if(mode==='flow')return ['blockchain_address','contract','token'].includes(node.type)
@@ -235,7 +245,7 @@ export function hitNode(nodes:GraphEntity[],positions:Record<string,GraphPoint>,
   for(let i=nodes.length-1;i>=0;i--){const node=nodes[i]
     const point=positions[node.id];if(!point)continue
     const box=nodeBox(node,view.scale),dx=Math.abs(point.x*view.scale+view.x-x),dy=Math.abs(point.y*view.scale+view.y-y)
-    if(dx<=box.width/2+3&&dy<=box.height/2+3)return node
+    if(dx<=box.width/2+3&&dy<=box.height/2+3){if(node.type==='entity_group'&&!node.attributes._collapsed&&dy<box.height/2-26&&dx<box.width/2-12)continue;return node}
   }
   return undefined
 }

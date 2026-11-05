@@ -520,8 +520,16 @@ class PublicPageReader:
             client_factory=self._client_factory,cookies=self._cookies,rate_interval=self.rate_interval,user_agent=self.user_agent,
             before_request=lambda target:self._check_robots(target,cancel_event,deadline))
         final=fetched['final_url'];content_type=fetched['content_type']
-        text=_decode(fetched['body'],content_type)
-        if 'html' in content_type:
+        text='' if 'application/pdf' in content_type else _decode(fetched['body'],content_type)
+        if 'application/pdf' in content_type:
+            from .web_scraping import parse_pdf
+            try:data=await asyncio.to_thread(parse_pdf,fetched['body'],final,cancel_event=cancel_event,max_text=MAX_TEXT)
+            except ValueError as error:raise PageReadError(str(error),'cancelled' if str(error)=='cancelled' else 'unavailable') from None
+        elif any(mime in content_type for mime in ('text/csv','application/csv','text/tab-separated-values')):
+            from .web_scraping import parse_csv
+            try:data=parse_csv(text,final,MAX_TEXT)
+            except ValueError:raise PageReadError('invalid_csv') from None
+        elif 'html' in content_type:
             blocked=content_block(text)
             if blocked:raise PageReadError(blocked,'auth_required' if blocked=='login_form' else 'unavailable')
             parser=PageParser(final);parser.feed(text);data=parser.extracted()
@@ -562,6 +570,8 @@ class PublicPageReader:
         else:
             data={'title':urlsplit(final).hostname,'text':text[:MAX_TEXT],'headings':[],'metadata':{},'tables':[],
                 'json_ld':[],'links':[],'javascript_shell':False,'structured_data':{}}
+        from .web_scraping import parser_contract
+        data['parser_contract']=parser_contract(content_type)
         data.update(http_status=fetched['status'],body_sha256=hashlib.sha256(fetched['body']).hexdigest(),
                     response_bytes=len(fetched['body']),request_method=fetched['method'])
         return final,data,fetched['redirects'],content_type
@@ -657,7 +667,7 @@ class PublicPageReader:
                      'structured_data':data.get('structured_data',{}),'extraction_status':parsed_status,'scrape_result':scrape.to_dict(),
                      'body_sha256':data['body_sha256'],'response_bytes':data['response_bytes'],'http_status':data['http_status'],
                      'crawl_depth':origin['depth'],'parent_url':origin['parent_url'],'redirects':redirects,
-                     'retrieved_at':when,'content_type':content_type,
+                     'retrieved_at':when,'content_type':content_type,'parser_contract':data['parser_contract'],
                      'verification':'Содержимое получено публичным запросом и разобрано указанным методом; это наблюдение источника, не доказательство личности или установленный факт.'}
             if data.get('render_attempt'):details['render_attempt']=data['render_attempt']
             envelope.update(status='partial' if parsed_status in ('javascript_required','empty_content') else 'complete',results=[{'id':final,'title':data['title'] or urlsplit(final).hostname,'type':'web',

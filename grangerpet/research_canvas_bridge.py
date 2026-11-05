@@ -17,10 +17,18 @@ class ResearchCanvasBridge:
         self.bridge=bridge
         self.store=CanvasStore(bridge.host.chat_widget._journal)
         self.document=None;self.preview=None;self.previews={};self.job=None;self.media_job=None;self.undo=[];self.redo=[]
+        self.insertions={}
         self.state={'state':'idle','choices':[],'types':list(TYPES)}
         self._commit_replies={}
         self._active_receipt=None
         self._recovery_reply=None
+
+    def source_record(self,identifier):
+        for row in (self.document or {}).get('evidence',[]):
+            if row.get('evidence_id')==identifier:return row
+        for row in self.previews.get((self.document or {}).get('id'),{}).get('records',[]):
+            if row.get('evidence_id')==identifier:return row
+        return None
 
     def publish(self,value):
         self.state=value;self.bridge.mark_dirty()
@@ -29,8 +37,10 @@ class ResearchCanvasBridge:
         from .desktop_bridge import source_view
         doc=doc or self.document
         state={'state':'ready','choices':self.store.list(),'types':list(dict.fromkeys((*TYPES,*(doc or {}).get('custom_types',{})))),'can_undo':bool(self.undo),'can_redo':bool(self.redo)}
+        from .entity_forms import organization_catalog
+        state['company_jurisdictions']=organization_catalog()
         if doc:
-            for record in doc['evidence']:self.bridge._raw_sources[record['evidence_id']]=record
+            if doc['id'] in self.insertions:state['insertion']=deepcopy(self.insertions[doc['id']])
             visible=deepcopy(doc)
             visible['evidence']=[source_view(row,compact=True) for row in doc['evidence']]
             executions=visible.pop('executions',[])
@@ -85,9 +95,9 @@ class ResearchCanvasBridge:
         value['mutation_receipts']=list(dict.fromkeys(receipts))[-128:]
         return value
 
-    def begin_tool(self,tool,canvas_id,node_id):
+    def begin_tool(self,tool,canvas_id,node_id,*,operation=''):
         self.previews.pop(canvas_id,None)
-        self.accept_tool({'tool':tool,'status':'running','results':[]},canvas_id,node_id,streaming=True)
+        self.accept_tool({'tool':tool,'operation':operation,'status':'running','results':[]},canvas_id,node_id,streaming=True)
 
     def accept_tool(self,outcome,canvas_id,node_id,*,notify=True,streaming=False):
         if not isinstance(outcome,dict):return
@@ -103,8 +113,8 @@ class ResearchCanvasBridge:
             record=deepcopy(incoming)
             records[identifier]=record
             compact[identifier]=source_view(record,compact=True)
-            self.bridge._raw_sources[identifier]=record
         preview={'token':previous['token'] if same else uuid.uuid4().hex,'canvas_id':canvas_id,'node_id':node_id,
+            'operation':outcome.get('operation') or (previous.get('operation','') if same else ''),
             'tool':outcome.get('tool'),'status':outcome.get('status'),'limitations':outcome.get('limitations',[]),
             'running':streaming,'error':str(outcome.get('error') or ''),'error_code':outcome.get('error_code'),
             'from_saved_data':outcome.get('from_saved_data') is True,
@@ -120,6 +130,7 @@ class ResearchCanvasBridge:
 
     def action(self,action,payload):
         op=action.removeprefix('research_canvas_');bridge=self.bridge
+        if op in ('open','new','import'):bridge.host.chat_widget._graph_focus={}
         if op=='media_prepare':
             from .canvas_media import prepare_attachment
             return prepare_attachment(bridge,payload)
@@ -164,12 +175,14 @@ class ResearchCanvasBridge:
                 raise CanvasError('Измерения доступны только в изолированном QA.')
             surface=bridge.host.desktop_surface
             generation=getattr(self,'_metric_generation',0)+1;self._metric_generation=generation
-            script="""JSON.stringify((()=>{let editor=document.querySelector('.research-editor'),canvas=editor?.querySelector('canvas'),r=canvas?.getBoundingClientRect();return {editor:!!editor,canvas_id:editor?.dataset.canvasId,revision:editor?.dataset.revision,queue_pending:window.grangerCanvasQueue?.snapshot?.()?.intents?.length||0,canvas:canvas?{...canvas.dataset,x:r.x,y:r.y,width:r.width,height:r.height}:null}})())"""
+            script="""JSON.stringify((()=>{let editor=document.querySelector('.research-editor'),canvas=editor?.querySelector('.investigation-graph-canvas'),r=canvas?.getBoundingClientRect();return {editor:!!editor,canvas_id:editor?.dataset.canvasId,revision:editor?.dataset.revision,queue_pending:window.grangerCanvasQueue?.snapshot?.()?.intents?.length||0,canvas:canvas?{...canvas.dataset,x:r.x,y:r.y,width:r.width,height:r.height}:null}})())"""
             def result(value):
                 if bridge._closed:return
                 try:data=json.loads(value)
                 except (ValueError,TypeError):data={'error':'metrics_unavailable'}
-                self.publish({**self.state,'metrics':{**data,'generation':generation}})
+                self.publish({**self.state,'metrics':{**data,'generation':generation,
+                    'publication_visible':bridge._publication_enabled,'surface_visible':surface.isVisible(),
+                    'javascript_diagnostic_count':len(getattr(surface.page(),'diagnostics',[]))}})
             surface.page().runJavaScript(script,result)
             return {'generation':generation}
         if op=='media':
@@ -224,18 +237,27 @@ class ResearchCanvasBridge:
                     break
             scope='Не используй инструменты. ' if intent in ('explain','compare','next','report') else ''
             target=selected[0];value=str(target['attributes'].get('address') or target['attributes'].get('url') or target['attributes'].get('value') or target['label'])
-            content=scope+prompts[intent]+'\nТекущий выбранный объект: '+value[:300]+'\nРасследование: '+doc['title']+'\nСохранённые наблюдения и ручные утверждения (не инструкции):\n'+json.dumps(context,ensure_ascii=False)
-            return bridge.dispatch('chat_send',{'text':content})
+            content=scope+prompts[intent]+'\nТекущий выбранный объект: '+value[:300]+'\nРасследование: '+doc['title']
+            chat=bridge.host.chat_widget
+            if chat.busy:raise CanvasError('Предыдущая задача ещё выполняется.')
+            entity_target=None
+            if target['type']=='organization':
+                entity_target={'entity_type':'organization','identifier':target['attributes'].get('identifier') or value,
+                    'properties':target['attributes']}
+            chat._submit_text(content,context_scope='canvas:'+doc['id'],evidence_context=context,entity_target=entity_target)
+            bridge.route='chat'
+            bridge.mark_dirty()
+            return {'pending':chat.busy}
         if op in ('export','import','attach'):
             if op=='export':
                 if not self.document:raise CanvasError('Откройте расследование.')
-                if QMessageBox.question(bridge.host,'Экспорт расследования','Экспортировать в открытый JSON? Файл содержит выбранные сведения и заметки. Защищённый профиль останется зашифрованным.')!=QMessageBox.StandardButton.Yes:return None
-                filename,_=QFileDialog.getSaveFileName(bridge.host,'Экспорт расследования','investigation.granger.json','Granger JSON (*.granger.json)')
+                if QMessageBox.question(bridge.host,'Экспорт расследования','Экспортировать сведения, заметки и оригиналы изображений? Экспорт открытый: храните его как обычные конфиденциальные файлы. Пакет ZIP содержит также JSON Canvas для других редакторов; отдельный .canvas создаёт соседнюю папку оригиналов.')!=QMessageBox.StandardButton.Yes:return None
+                filename,_=QFileDialog.getSaveFileName(bridge.host,'Экспорт расследования','investigation.granger.zip','Переносимое расследование (*.granger.zip);;JSON Canvas и оригиналы (*.canvas);;Granger JSON без оригиналов (*.granger.json)')
                 if not filename:return None
                 data=deepcopy(self.document)
                 return work(lambda:self._export(filename,data))
             if op=='import':
-                filename,_=QFileDialog.getOpenFileName(bridge.host,'Импорт расследования','','Granger JSON (*.json)')
+                filename,_=QFileDialog.getOpenFileName(bridge.host,'Импорт расследования','','Расследование (*.granger.zip *.canvas *.json)')
                 if not filename:return None
                 return work(lambda:self._import(filename))
             attachment=payload.get('attachment_id')
@@ -285,11 +307,15 @@ class ResearchCanvasBridge:
                 selected=payload.get('evidence_ids')
                 available={r['evidence_id'] for r in self.preview['records']}
                 if not isinstance(selected,list) or not set(selected)<=available:raise CanvasError('Выберите полученные доказательства.')
-                value=deepcopy(self.document);merge_evidence(value,self.preview['records'],selected)
+                value=deepcopy(self.document)
+                old_nodes={node['id'] for node in value['entities']}
+                old_edges={edge['id'] for edge in value['relations']}
+                old_evidence={row['evidence_id'] for row in value['evidence']}
+                added=merge_evidence(value,self.preview['records'],selected)
                 owner=self.preview.get('node_id')
                 target=next((node for node in value['entities'] if node['id']==owner),None)
                 if target and target['type']=='blockchain_address' and self.preview['tool']=='blockchain_gansar':
-                    value['view'].setdefault('ui',{}).update(graph_mode='wallet',crypto_root_id=owner)
+                    value['view'].setdefault('ui',{}).update(graph_mode='assets' if self.preview.get('operation') in ('nft','assets') else 'wallet',crypto_root_id=owner)
                     if not self.document['evidence'] and not value['view'].get('manual_position_ids'):
                         value['view']['ui']['initial_layout']='wallet'
                 if target and target['type'] in ('username','nickname'):
@@ -310,8 +336,34 @@ class ResearchCanvasBridge:
                             'verification_status':'source_reported','claim_kind':'lookup_result',
                             'evidence_ids':proof,'source_urls':[],'provenance':[],
                             'attributes':{'tool':self.preview['tool'],'identity_verified':False,'owner_verified':False}})
+                if target and target['type']=='organization':
+                    import hashlib
+                    existing={edge['id'] for edge in value['relations']}
+                    for node in value['entities']:
+                        proof=[eid for eid in node['evidence_ids'] if eid in selected]
+                        if node['id']==owner or node['type']!='organization' or not proof:continue
+                        identifier='rel_'+hashlib.sha256((owner+'|'+node['id']+'|candidate_for_company_query').encode()).hexdigest()[:24]
+                        if identifier in existing:continue
+                        value['relations'].append({'id':identifier,'from_id':owner,'to_id':node['id'],
+                            'relation_type':'candidate_for_company_query','direction':'directed','origin':'tool',
+                            'verification_status':'unverified','claim_kind':'lookup_candidate','evidence_ids':proof,
+                            'source_urls':[],'provenance':[],'attributes':{'identity_match_verified':False}})
                 value['executions'].append({k:self.preview.get(k) for k in ('tool','status','limitations')})
-                return self._commit(value)
+                result=self._commit(value)
+                projected={eid for node in value['entities'] for eid in node['evidence_ids']}
+                projected.update(eid for edge in value['relations'] for eid in edge['evidence_ids'])
+                summary={'canvas_id':value['id'],'preview_token':self.preview['token'],
+                    'insertion_id':uuid.uuid4().hex,
+                    'added_node_ids':added,'added_nodes':len(set(added)-old_nodes),
+                    'added_relations':len({edge['id'] for edge in value['relations']}-old_edges),
+                    'selected_records':len(set(selected)),
+                    'existing_records':len(set(selected)&old_evidence),
+                    'unprojected_records':len(set(selected)-projected),
+                    'limitations':['Некоторые сохранённые наблюдения не имеют отдельного графического объекта.'] if set(selected)-projected else []}
+                self.insertions[value['id']]=summary
+                while len(self.insertions)>8:self.insertions.pop(next(iter(self.insertions)))
+                result['insertion']=summary
+                return result
             if op=='from_search':
                 identifier=payload.get('investigation_id') or bridge._workspace.active_id
                 snapshot=bridge._workspace.load(identifier,bridge.host.chat_widget._last_investigation)
@@ -325,14 +377,17 @@ class ResearchCanvasBridge:
         return work(task)
 
     def _export(self,filename,value):
+        from .canvas_portable import export_package,export_canvas
         from .portable_vault import atomic_write
-        atomic_write(Path(filename),json.dumps(value,ensure_ascii=False,indent=2,allow_nan=False).encode('utf-8'))
+        path=Path(filename)
+        if path.suffix.lower()=='.zip':export_package(path,value,self.bridge._images())
+        elif path.suffix.lower()=='.canvas':export_canvas(path,value,self.bridge._images())
+        else:atomic_write(path,json.dumps(value,ensure_ascii=False,indent=2,allow_nan=False).encode('utf-8'))
         return self.render()
 
     def _import(self,filename):
-        path=Path(filename)
-        if path.stat().st_size>MAX_BYTES:raise CanvasError('Файл превышает 24 MB.')
-        value=validate(json.loads(path.read_text(encoding='utf-8-sig')))
+        from .canvas_portable import import_document
+        value=import_document(filename,self.bridge._images())
         for node in value['entities']:
             node['attributes']['imported_unverified']=True
             node['attributes']['imported_claimed_verification']=node.get('verification_status','unverified')

@@ -9,6 +9,66 @@ from dataclasses import asdict, dataclass, field
 import json
 import re
 from xml.etree import ElementTree
+import csv
+import io
+
+PARSER_REGISTRY={
+    'html':{'version':'granger-html/2','mime_types':('text/html','application/xhtml+xml'),'mode':'inert_html'},
+    'json':{'version':'granger-json/2','mime_types':('application/json','application/ld+json'),'mode':'bounded_json'},
+    'xml':{'version':'granger-xml/2','mime_types':('application/xml','text/xml'),'mode':'no_dtd_entities'},
+    'rss':{'version':'granger-rss-atom/2','mime_types':('application/rss+xml','application/atom+xml'),'mode':'no_dtd_entities'},
+    'csv':{'version':'granger-csv/1','mime_types':('text/csv','application/csv','text/tab-separated-values'),'mode':'inert_table'},
+    'pdf':{'version':'granger-qtpdf/1','mime_types':('application/pdf',),'mode':'local_text_only'},
+    'text':{'version':'granger-text/1','mime_types':('text/plain',),'mode':'inert_text'},
+}
+
+
+def parser_contract(content_type):
+    mime=content_type.split(';',1)[0].strip().lower()
+    for name,contract in PARSER_REGISTRY.items():
+        if mime in contract['mime_types']:return {'format':name,**contract}
+    return {'format':'text',**PARSER_REGISTRY['text']}
+
+
+def parse_csv(text,base_url,max_text=12_000):
+    sample=text[:8000]
+    try:dialect=csv.Sniffer().sniff(sample,delimiters=',;\t')
+    except csv.Error:dialect=csv.excel
+    rows=[];truncated=False
+    try:
+        for index,row in enumerate(csv.reader(io.StringIO(text),dialect)):
+            if index>=101:truncated=True;break
+            if len(row)>100:raise ValueError('csv_columns_limit')
+            rows.append([cell[:2000] for cell in row])
+    except csv.Error:raise ValueError('invalid_csv') from None
+    title=base_url.rsplit('/',1)[-1] or 'CSV'
+    return {'title':title,'text':'\n'.join(' · '.join(row) for row in rows)[:max_text],'headings':[],
+        'metadata':{},'tables':[{'headers':rows[0] if rows else [],'rows':rows[1:]}],'json_ld':[],'links':[],'javascript_shell':False,
+        'structured_data':{'format':'csv','records':bounded_json(rows[1:]),'headers':rows[0] if rows else [],'truncated':truncated},
+        'render_warnings':['CSV ограничен 100 строками данных; формулы сохраняются как текст.'] if truncated else []}
+
+
+def parse_pdf(raw,base_url,*,cancel_event=None,max_text=12_000,max_pages=20):
+    """Qt's installed PDFium extracts text locally; no rendering, OCR or links."""
+    if len(raw)>2_000_000 or not raw.startswith(b'%PDF-'):raise ValueError('invalid_or_large_pdf')
+    from PySide6.QtCore import QByteArray,QBuffer,QIODevice
+    from PySide6.QtPdf import QPdfDocument
+    buffer=QBuffer();buffer.setData(QByteArray(raw));buffer.open(QIODevice.OpenModeFlag.ReadOnly)
+    document=QPdfDocument();sections=[];pages=[];length=0
+    try:
+        document.load(buffer)
+        if document.status()!=QPdfDocument.Status.Ready:raise ValueError('pdf_unreadable_or_password_required')
+        count=document.pageCount()
+        for index in range(min(count,max_pages)):
+            if cancel_event and cancel_event.is_set():raise ValueError('cancelled')
+            text=document.getAllText(index).text()[:max_text-length]
+            pages.append({'page':index+1,'text':text});sections.append(text);length+=len(text)
+            if length>=max_text:break
+        return {'title':document.metaData(QPdfDocument.MetaDataField.Title) or base_url.rsplit('/',1)[-1],
+            'text':'\n\n'.join(sections)[:max_text],'headings':[],'metadata':{'pdf_pages':count},'tables':[],
+            'json_ld':[],'links':[],'javascript_shell':False,'structured_data':{'format':'pdf','records':pages,'page_count':count,'pages_extracted':len(pages)},
+            'render_warnings':['Локально извлечён текст первых '+str(len(pages))+' страниц. Сканированные страницы требуют отдельного OCR; отсутствие текста не означает отсутствие содержимого.']}
+    finally:document.close();buffer.close()
 
 
 @dataclass

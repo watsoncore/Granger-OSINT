@@ -1,9 +1,26 @@
 """Bounded input events for the application's own isolated release-QA window."""
 import math
+import os
+from pathlib import Path
+import tempfile
 from PySide6.QtCore import QMimeData, QPoint, QPointF, QTimer, Qt, QUrl
-from PySide6.QtGui import QDragEnterEvent, QDropEvent, QImage, QWheelEvent
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QImage, QWheelEvent,QInputMethodEvent
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
+
+
+def save_snapshot(path, text):
+    """Publish a complete QA observation without truncating the reader's file."""
+    path=Path(path)
+    temporary=None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',dir=path.parent,
+                prefix=path.stem+'-',suffix='.tmp',delete=False) as stream:
+            temporary=Path(stream.name)
+            stream.write(text)
+        os.replace(temporary,path)
+    finally:
+        if temporary is not None:temporary.unlink(missing_ok=True)
 
 
 def deliver(surface,payload):
@@ -35,8 +52,10 @@ def deliver(surface,payload):
         QApplication.sendEvent(widget,event)
     elif action=='text':
         text=payload.get('text','')
-        if not isinstance(text,str) or len(text)>200 or not text.isascii():raise ValueError('QA typing expects bounded ASCII')
-        QTest.keyClicks(widget,text)
+        if not isinstance(text,str) or len(text)>200 or any(ord(c)<32 for c in text):raise ValueError('QA typing expects bounded printable text')
+        if text.isascii():QTest.keyClicks(widget,text)
+        else:
+            event=QInputMethodEvent();event.setCommitString(text);QApplication.sendEvent(widget,event)
     else:
         keys={'escape':Qt.Key.Key_Escape,'home':Qt.Key.Key_Home,'enter':Qt.Key.Key_Return,'all':Qt.Key.Key_A,'backspace':Qt.Key.Key_Backspace,
             'up':Qt.Key.Key_Up,'down':Qt.Key.Key_Down,'left':Qt.Key.Key_Left,'right':Qt.Key.Key_Right,'k':Qt.Key.Key_K}

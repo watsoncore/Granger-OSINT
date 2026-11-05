@@ -9,18 +9,32 @@ vi.mock('./components/InvestigationCanvas',()=>({InvestigationCanvas:({nodes,onS
 
 const document:ResearchDocument={schema:'granger-investigation/1',id:'a'.repeat(32),revision:4,title:'Мой проект',description:'',entities:[],relations:[],evidence:[],annotations:{},custom_types:{},view:{positions:{},viewport:{x:0,y:0,scale:1},layout:'manual',hidden:[],removed:[],collapsed:[]}}
 describe('Search analyst canvas controls',()=>{
+  it('keeps expanded manual group members visible and collapses only when requested',()=>{
+    const group:GraphEntity={id:'group',type:'entity_group',label:'Область',attributes:{origin:'analyst'},evidence_ids:[]}
+    const members:GraphEntity[]=['a','b'].map(id=>({id,type:'analyst_note',label:id,attributes:{origin:'analyst',parent_group_id:'group'},evidence_ids:[]}))
+    const doc={...document,id:'c'.repeat(32),entities:[...members,group]},state={...emptyState,research_canvas:{state:'ready',types:[],choices:[],document:doc}}
+    const view=render(<ResearchCanvas state={state} onSource={()=>{}} active/>);
+    expect(screen.getByRole('button',{name:'Select a'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Select b'})).toBeInTheDocument()
+    view.rerender(<ResearchCanvas state={{...state,research_canvas:{...state.research_canvas,document:{...doc,view:{...doc.view,collapsed:['group']}}}}} onSource={()=>{}} active/>);
+    expect(screen.queryByRole('button',{name:'Select a'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Select b'})).not.toBeInTheDocument();expect(screen.getByRole('button',{name:'Select group'})).toBeInTheDocument()
+  })
   it('retains the separate automatic Search and requires explicit insertion from a partial preview',()=>{
     const state={...emptyState,research_canvas:{state:'ready',types:['analyst_note','domain'],choices:[],document,preview:{token:'receipt-token',canvas_id:document.id,node_id:'',tool:'network_rdap',status:'partial',limitations:['source timeout'],results:[{evidence_id:'ev_'+'a'.repeat(20),title:'Retained partial record',url:'https://example.org',status:'source_reported',kind:'adapter' as const}]}}}
     render(<ResearchCanvas state={state} onSource={()=>{}}/>);fireEvent.click(screen.getByRole('button',{name:'Мои расследования'}))
+    fireEvent.click(screen.getByRole('button',{name:'Результаты для добавления'}))
     expect(screen.getByText('source timeout')).toBeInTheDocument();expect(vi.mocked(act).mock.calls.some(c=>c[0]==='research_canvas_insert')).toBe(false)
     fireEvent.click(screen.getByRole('button',{name:'Добавить выбранные (1)'}))
     expect(act).toHaveBeenCalledWith('research_canvas_insert',{id:document.id,revision:4,token:'receipt-token',evidence_ids:['ev_'+'a'.repeat(20)]})
   })
-  it('sends a Russian manual note as an analyst node rather than fabricated evidence',()=>{
+  it('sends a Russian manual note as an analyst node rather than fabricated evidence',async()=>{
+    const user=userEvent.setup()
     render(<ResearchCanvas state={{...emptyState,research_canvas:{state:'ready',types:['analyst_note'],choices:[],document}}} onSource={()=>{}}/>);
-    fireEvent.click(screen.getByRole('button',{name:'Мои расследования'}));fireEvent.change(screen.getByLabelText('Заметка узла'),{target:{value:'**Гипотеза** — требует проверки'}})
-    fireEvent.click(screen.getByRole('button',{name:'Сохранить заметку'}))
-    expect(act).toHaveBeenCalledWith('research_canvas_edit',expect.objectContaining({operation:'node',arguments:expect.objectContaining({type:'analyst_note',markdown:'**Гипотеза** — требует проверки'})}))
+    fireEvent.click(screen.getByRole('button',{name:'Мои расследования'}))
+    fireEvent.click(screen.getByRole('button',{name:'Новый объект'}));await user.click(screen.getByRole('button',{name:'Тип нового узла'}));await user.click(screen.getByRole('menuitemradio',{name:'Заметка'}))
+    fireEvent.change(screen.getByLabelText('Название заметки'),{target:{value:'Проверить гипотезу'}})
+    fireEvent.change(screen.getByLabelText('Текст новой заметки'),{target:{value:'**Гипотеза** — требует проверки'}})
+    fireEvent.click(screen.getByRole('button',{name:'Добавить объект'}))
+    await waitFor(()=>expect(act).toHaveBeenCalledWith('research_canvas_edit',expect.objectContaining({operation:'node',arguments:expect.objectContaining({type:'analyst_note',markdown:'**Гипотеза** — требует проверки'})})))
   })
   it('runs a string tool on the canonical value after a user changes the visible label',async()=>{
     const user=userEvent.setup()
@@ -28,7 +42,7 @@ describe('Search analyst canvas controls',()=>{
     const id='ent_'+'b'.repeat(24),doc={...document,entities:[{id,type:'infrastructure_asset',label:'Исследуемый сервер',attributes:{value:'66.249.67.41'},evidence_ids:[]}],view:{...document.view,positions:{[id]:{x:0,y:0}}}}
     render(<ResearchCanvas state={{...emptyState,tools:[{id:'network_rdap',name:'RDAP',available:true,description:'Registry lookup',inputTypes:['ip'],state:'ready'}],research_canvas:{state:'ready',types:[],choices:[],document:doc}}} onSource={()=>{}}/>)
     fireEvent.click(screen.getByRole('button',{name:'Мои расследования'}));fireEvent.click(screen.getByRole('button',{name:'Select '+id}))
-    fireEvent.change(screen.getByLabelText('Название узла'),{target:{value:'Моя аннотация'}})
+    fireEvent.click(screen.getByRole('button',{name:'Сведения'}));fireEvent.change(screen.getByLabelText('Название узла'),{target:{value:'Моя аннотация'}})
     fireEvent.click(screen.getByRole('button',{name:'Действия'}))
     await waitFor(()=>expect(screen.getByRole('button',{name:'Инструмент узла'})).not.toBeDisabled())
     await user.click(screen.getByRole('button',{name:'Инструмент узла'}));await user.click(screen.getByRole('menuitemradio',{name:/RDAP/}))
@@ -38,7 +52,7 @@ describe('Search analyst canvas controls',()=>{
   it('retains unsaved note drafts across revisions and switching the selected node',()=>{
     const nodes:GraphEntity[]=['first','second'].map(id=>({id,type:'analyst_note',label:id,attributes:{},evidence_ids:[]})),doc={...document,id:'d'.repeat(32),entities:nodes},state={...emptyState,research_canvas:{state:'ready',types:[],choices:[],document:doc}}
     const view=render(<ResearchCanvas state={state} onSource={()=>{}} active/>);fireEvent.click(screen.getByRole('button',{name:'Select first'}))
-    fireEvent.change(screen.getByLabelText('Заметка узла'),{target:{value:'Несохранённая русская гипотеза'}})
+    fireEvent.click(screen.getByRole('button',{name:'Сведения'}));fireEvent.change(screen.getByLabelText('Заметка узла'),{target:{value:'Несохранённая русская гипотеза'}})
     view.rerender(<ResearchCanvas state={{...state,research_canvas:{...state.research_canvas,document:{...doc,revision:5}}}} onSource={()=>{}} active/>)
     expect(screen.getByLabelText('Заметка узла')).toHaveValue('Несохранённая русская гипотеза')
     fireEvent.click(screen.getByRole('button',{name:'Select second'}));fireEvent.change(screen.getByLabelText('Заметка узла'),{target:{value:'Вторая заметка'}});fireEvent.click(screen.getByRole('button',{name:'Select first'}))

@@ -7,6 +7,16 @@ const node=(id:string,type='website'):GraphEntity=>({id,type,label:id,attributes
 const edge=(a:string,b:string,id=a+b):GraphRelation=>({id,from_id:a,to_id:b,relation_type:'publishes_link',direction:'directed',evidence_ids:[],verification_status:'verified'})
 const view:GraphView={version:1}
 describe('investigation graph transformations',()=>{
+  it('keeps saved wallet NFT inventory and collection visible after a second operation',()=>{
+    const nodes=[node('wallet','blockchain_address'),{...node('nft','asset'),attributes:{asset_type:'nft_asset'}},
+      {...node('collection','asset'),attributes:{asset_type:'nft_collection'}},node('unrelated','asset')]
+    const edges=[{...edge('wallet','nft'),relation_type:'source_reports_asset'},
+      {...edge('nft','collection'),relation_type:'source_reports_collection'}]
+    const result=visibleGraph(nodes,edges,'wallet',{version:1,projection_mode:'wallet'})
+    expect(result.nodes.map(n=>n.id)).toEqual(['wallet','nft','collection'])
+    expect(result.edges).toHaveLength(2)
+    expect(nodes).toHaveLength(4)
+  })
   it('keeps filters distinct from an empty selection and excludes unsupported background',()=>{
     const nodes=[node('root'),node('a'),{...node('b'),relevance:{level:'background',score:0}},node('source','source')]
     expect(visibleGraph(nodes,[],'root',view).nodes.map(n=>n.id)).toEqual(['root','a'])

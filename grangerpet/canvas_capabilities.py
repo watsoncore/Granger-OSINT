@@ -6,7 +6,7 @@ from .crypto_targets import node_gansar_capability,CHAIN_OPTIONS
 _KINDS={'username':{'username'},'nickname':{'username'},'email':{'email'},'phone':{'phone'},
     'ip':{'ip'},'domain':{'domain','web'},'website':{'web'},'image':{'image'},
     'blockchain_address':{'blockchain'},'contract':{'blockchain'},'nft_asset':{'blockchain'},
-    'nft':{'blockchain'},'collection':{'blockchain'},'organization':{'dork'},'coordinate':{'coordinates'}}
+    'nft':{'blockchain'},'collection':{'blockchain'},'organization':{'company','dork'},'document':{'document'},'coordinate':{'coordinates'}}
 
 def target_value(node,spec):
     attrs=node.get('attributes',{});kind=node.get('type');kinds=set(_KINDS.get(kind,set()))
@@ -70,6 +70,7 @@ def capabilities(node,chain='auto',availability=None):
                 if spec.name=='map_panoramax':
                     latitude,longitude=map(float,value.split(','));arguments={'latitude':latitude,'longitude':longitude}
                 else:arguments={spec.argument:value}
+                if spec.kind=='company':arguments.update(jurisdiction=node.get('attributes',{}).get('jurisdiction','OTHER'),identifier_type=node.get('attributes',{}).get('identifier_type','name'))
         state=states.get(spec.name,{});available=state.get('available')
         if compatible and available is False:
             status='temporarily_unavailable' if state.get('state') in ('timeout','error','rate_limited','blocked') else 'runtime_unavailable'

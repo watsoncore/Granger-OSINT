@@ -55,3 +55,6 @@ portable-data/
 # Auto-cleaned owned build/QA stages; never release directories or user profiles.
 /.granger-build-*/
 /.granger-qa-*/
+/.granger-v7-qa-*/
+/.granger-live-v7-*/
+/.granger-soak-v7-*/

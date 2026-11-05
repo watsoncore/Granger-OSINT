@@ -9,6 +9,9 @@ from .credentials import CredentialError, get_secret, set_secret, portable_enabl
 
 
 SERVICES = {
+    'companies_house': ('Companies House — официальный реестр', (('companies_house_api_key','API-ключ'),)),
+    'opencorporates': ('OpenCorporates — собственный API-доступ', (('opencorporates_api_key','API-ключ'),)),
+    'opensanctions': ('OpenSanctions — собственный API-доступ', (('opensanctions_api_key','API-ключ'),)),
     'virustotal': ('VirusTotal — отчёты SHA-256', (('virustotal_api_key', 'API-ключ'),)),
     'deepseek': ('DeepSeek — ключ шлюза', (('deepseek_api_key', 'API-ключ'),)),
     'google': ('Google Search API', (('google_api_key', 'API-ключ'),)),

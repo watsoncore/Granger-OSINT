@@ -73,6 +73,12 @@ def manifest(spec):
     elif spec.execution_mode in ('LOCAL_PYTHON','LOCAL_MODEL'):mode='LOCAL_CLI'
     auth={'telegram':('telegram_api_hash','telegram_session'),'vk':('vk_token',),
           'hash_virustotal':('virustotal_api_key',),'instagram':('instagram_session',)}.get(spec.source,())
+    if spec.source=='research_v7':
+        from .source_registry_v2 import SOURCES as research_sources
+        source=research_sources.get(spec.name)
+        auth=(source.auth_key,) if source and source.auth_key else ()
+        mode='OFFICIAL_API'
+        if source:url=source.documentation
     category=('geoint' if spec.kind in ('image','coordinates') else 'threat_intelligence' if spec.kind=='hash' or spec.source=='threat_feodo'
               else 'infrastructure' if spec.kind in ('domain','ip','repository') else 'archives' if spec.source=='wayback'
               else 'blockchain' if spec.kind=='blockchain' else 'web' if spec.kind in ('web','dork','evidence') else 'socmint')
@@ -107,7 +113,8 @@ def technical_state(row):
 
 def relevant_names(specs, task, records=()):
     """A compact candidate set, without granting any additional execution rights."""
-    if not task: return {s.name for s in specs}
+    legacy={'username_blackbird','username_social_analyzer','username_snoop'}
+    if not task: return {s.name for s in specs}-legacy
     text=task.casefold()
     kinds={'dork','web','evidence'}
     if re.search(r'браузер|browser|динамич|\bDOM\b|кнопк|форм[ауы]|прокру|страниц|открой',task,re.I):kinds.add('browser')
@@ -139,6 +146,7 @@ def relevant_names(specs, task, records=()):
     if re.search(r'github|репозитор|repository',text): kinds.add('repository')
     if re.search(r'sha.?256|х[еэ]ш|hash|virustotal',text): kinds.add('hash')
     selected = {s.name for s in specs if s.kind in kinds}
+    if not re.search(r'blackbird|social.?analyzer|snoop|дополнительн.{0,30}(?:провер|инструмент)|расширенн.{0,25}поиск',text):selected.difference_update(legacy)
     selected.update(('web_search', 'web_read', 'web_archive', 'evidence_get', 'evidence_graph'))
     for target in targets:
         selected.update(target.tools)

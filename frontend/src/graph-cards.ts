@@ -20,7 +20,7 @@ export function cardVariant(node:GraphEntity):CardVariant {
   if(/organization|registry_maintainer|registry_registry_authority/.test(type))return 'organization'
   if(node.type==='blockchain_address')return 'wallet'
   if(node.type==='transaction')return 'transaction'
-  if(/contract|nft|token|collection/.test(type))return 'contract'
+  if(/contract|nft|token|collection/.test(type)||node.type==='asset')return 'contract'
   if(node.type==='entity_group'||/inventory_category|steam_inventory/.test(type))return 'group'
   if(/coordinate|geographic|geoip/.test(type))return 'geo'
   if(/domain|website/.test(type))return 'domain'
@@ -32,8 +32,9 @@ export function cardVariant(node:GraphEntity):CardVariant {
   return 'custom'
 }
 export function cardSize(node:GraphEntity):CardSize {
+  if(node.attributes._collapsed)return {width:240,height:100}
   const variant=cardVariant(node),custom=node.attributes._card_size as Partial<CardSize>|undefined
-  if(custom&&Number.isFinite(custom.width)&&Number.isFinite(custom.height))return {width:Math.max(160,Math.min(720,Number(custom.width))),height:Math.max(72,Math.min(640,Number(custom.height)))}
+  if(custom&&Number.isFinite(custom.width)&&Number.isFinite(custom.height))return {width:Math.max(160,Math.min(variant==='group'?2400:720,Number(custom.width))),height:Math.max(72,Math.min(variant==='group'?1800:640,Number(custom.height)))}
   const mode=node.attributes._card_mode as CardMode|undefined
   if(variant==='media'){
     const media=node.attributes.media as Record<string,unknown>|undefined
@@ -69,12 +70,14 @@ export function cardRows(node:GraphEntity):string[]{
   if(variant==='ip')return [text(a.value||a.address||a.cidr||a.asn),text(a.organization||a.country||a.network_name)]
   if(variant==='social')return [text(a.username?`@${a.username}`:a.url),text(a.platform||a.description)]
   if(variant==='domain')return [text(a.url||a.domain),text(a.registrar||a.description)]
-  if(variant==='contract')return [text(a.address||a.contract||a.contract_address),text(a.symbol||a.standard||a.chain)]
+  if(variant==='contract')return [text(a.asset_id||a.token_id||a.address||a.contract||a.contract_address),text(a.collection_name||a.collection||a.standard||a.symbol||a.chain)]
   return [text(a.description||a.url||a.value||a.scene_description),text(a.organization||a.published_at)]
 }
 export function cardBadge(node:GraphEntity){
   const variant=cardVariant(node)
   if(variant==='username')return 'Никнейм'
+  if(/nft/.test(String(node.attributes.asset_type||node.type)))return 'NFT · '+String(node.attributes.chain||'сеть не указана').toUpperCase()
+  if(node.type==='collection')return 'Коллекция · '+String(node.attributes.chain||'сеть не указана').toUpperCase()
   if(variant==='wallet'||variant==='transaction'||variant==='contract')return String(node.attributes.chain||'Сеть не указана').toUpperCase()
   if(variant==='social')return String(node.attributes.platform||node.attributes.display_type||'Публичный профиль').replace(/_/g,' ')
   return cardVariants[variant].label

@@ -76,6 +76,26 @@ def test_investigation_runs_inside_existing_worker_and_publishes_provenance(widg
     assert list(chat._journal.directory.glob('*.json'))
 
 
+def test_canvas_request_isolates_actual_model_input_and_keeps_json_out_of_visible_chat(widget,monkeypatch):
+    app,chat=widget;captured=[]
+    class ScopedClient(Client):
+        def stream_chat(self,model,messages,**kwargs):
+            captured.append(deepcopy(messages))
+            return 'Тестовый ответ о компании B.'
+    monkeypatch.setattr('grangerpet.chat.DeepSeekClient',ScopedClient)
+    chat._context_scope='canvas:'+'a'*32
+    chat._append('user','Компания A: https://a.example/ OLD-A-ENTITY')
+    chat._append('model','Старое DNS-наблюдение компании A')
+    chat._submit_text('Без инструментов: объясни компанию B.',context_scope='canvas:'+'b'*32,
+        evidence_context={'sources':[{'evidence_id':'ev_'+'b'*20,'url':'https://b.example/','excerpt':'B only'}]})
+    wait(app,lambda:not chat.busy)
+    assert captured
+    payload=json.dumps(captured,ensure_ascii=False)
+    assert 'b.example' in payload and 'a.example' not in payload and 'OLD-A-ENTITY' not in payload
+    assert 'evidence_id' not in chat.messages[-2]['text']
+    assert chat.messages[-1]['context_scope']=='canvas:'+'b'*32
+
+
 def test_sensitive_tool_prompts_and_refusal_does_not_call_adapter(widget):
     app,chat=widget;Registry.approval=True
     chat.input.setPlainText('Проверь публичную запись fixture');chat.send_message()

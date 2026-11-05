@@ -41,7 +41,7 @@ SETTINGS_FIELDS = frozenset(('ui_theme','geoint_nominatim_url','geoint_overpass_
     'ai_provider','deepseek_model','ollama_url','ollama_model','api_cx','source_root','runtime_python',
     'telegram_api_id','instagram_username','request_limit','search_timeout','enable_snoop','nuclei_enabled','research_mode'))
 ROUTES = frozenset(('chat','search','history','canvas','settings'))
-TOOL_NAMES={'web_search':'Веб-поиск','web_read':'Чтение страниц','username_maigret':'Maigret',
+TOOL_NAMES={'email_research':'Исследовать email','company_research':'Исследовать компанию','company_gleif':'GLEIF · LEI','company_sec':'SEC EDGAR','company_companies_house':'Companies House','company_opencorporates':'OpenCorporates','company_opensanctions':'OpenSanctions · кандидаты','publication_crossref':'Crossref · публикации','software_osv':'OSV · запись об уязвимости','web_search':'Веб-поиск','web_read':'Чтение страниц','username_maigret':'Maigret',
     'username_blackbird':'Blackbird','username_social_analyzer':'Social Analyzer','username_snoop':'Snoop',
     'email_holehe':'Holehe','phone_metadata':'PhoneInfoga','blockchain_gansar':'Gansar',
     'web_archive':'Веб-архив','telegram_public':'Telegram','vk_public':'VK','instagram_public':'Instagram',
@@ -410,6 +410,7 @@ class DesktopBridge(QObject):
             self._workspace.active_id=current_id
             self._workspace.manual=None
         ai = self.host.ai_state.committed_snapshot()
+        base['context_diagnostic']=dict(getattr(chat,'_context_diagnostic',{}))
         base.update(attachments=[dict(row) for row in self._attachments],attachment_busy=self._attachment_job is not None,attachment_error=self._attachment_error)
         sources = self._sources()
         by_id = {s['evidence_id']:s for s in sources}
@@ -534,6 +535,11 @@ class DesktopBridge(QObject):
                 updates = [{'index':i,'message':row} for i,row in enumerate(messages) if row!=self._last_messages[i]]
                 if updates: changes.update(message_updates=updates,message_count=len(messages))
             self._last_messages = messages
+        if not force and 'research_canvas' in changes:
+            from .canvas_state_patch import canvas_delta
+            delta=canvas_delta(self._last.get('research_canvas'),changes['research_canvas'])
+            if delta is not None:
+                changes.pop('research_canvas');changes['research_canvas_delta']=delta
         self._last = state
         if changes:
             changes['patch'] = not force
@@ -767,15 +773,20 @@ class DesktopBridge(QObject):
         elif action=='tool_run': self._run_tool(payload)
         elif action=='source_open':
             self._sources()
-            if payload.get('evidence_id') not in self._raw_sources: raise ValueError('Источник не найден.')
-            return source_view(self._raw_sources[payload['evidence_id']])
+            identifier=payload.get('evidence_id')
+            record=(self._research_canvas.source_record(identifier) if self._research_canvas else None) or self._raw_sources.get(identifier)
+            if not record:raise ValueError('Источник не найден в текущем расследовании.')
+            return source_view(record)
         elif action=='search_analyze':
             self._sources()
             ids = payload.get('evidence_ids',[])
             if not isinstance(ids,list) or not 1<=len(ids)<=20: raise ValueError('Выберите 1–20 находок.')
-            records = [self._raw_sources[i] for i in ids if i in self._raw_sources]
+            records = [(self._research_canvas.source_record(i) if self._research_canvas else None) or self._raw_sources.get(i) for i in ids]
+            records=[row for row in records if row]
             if len(records)!=len(ids): raise ValueError('Одна из находок недоступна.')
-            chat.analyze_selected(records); self.route='chat'
+            canvas=self._research_canvas
+            scope='canvas:'+canvas.document['id'] if canvas and canvas.document and all(canvas.source_record(i) for i in ids) else None
+            chat.analyze_selected(records,context_scope=scope); self.route='chat'
         elif action=='settings_save': self._save_settings(payload.get('values'))
         elif action=='credentials_edit': return self._edit_credentials(payload.get('service'))
         elif action=='connection_test': self.host.settings_dialog.connections.check_connection()
@@ -1059,9 +1070,10 @@ class DesktopBridge(QObject):
 
     @staticmethod
     def _tool_view(row):
+        from .source_registry_v2 import describe
         return {'id':row['name'],'name':TOOL_NAMES.get(row['name'],row['name']),'description':row['description'],
             'inputTypes':[row['kind']],'available':row['available'],'state':row['state'],'reason':row['reason'],
-            'diagnostic':row.get('diagnostic',{}),'last_execution':row.get('last_execution'),
+            'diagnostic':row.get('diagnostic',{}),'last_execution':row.get('last_execution'),'source_contract':describe(row['name'],row['available']),
             'lastChecked':row.get('diagnostic',{}).get('checked_at'),
             'sensitive':row.get('requires_approval',False),'implemented':True,
             'manifest':row.get('manifest'),'readiness_status':row.get('readiness_status'),
@@ -1124,7 +1136,7 @@ class DesktopBridge(QObject):
             'inputType':spec.kind,'summary':'Запрос пользователя'}]
         self._manual_canvas_target=canvas_target
         self._manual_canvas_records={};self._manual_canvas_flush=False
-        if canvas_target and self._research_canvas:self._research_canvas.begin_tool(spec.name,*canvas_target)
+        if canvas_target and self._research_canvas:self._research_canvas.begin_tool(spec.name,*canvas_target,operation=arguments.get('operation',''))
         self.host.search_state.emit('working')
         stop_event=threading.Event();self._manual_generation+=1;generation=self._manual_generation
         conversation_id=self.host.chat_widget.conversation_id
@@ -1163,7 +1175,7 @@ class DesktopBridge(QObject):
                 self._manual_activity[0]['progress']=coverage
                 self.host.checked_label.setText(f"Maigret: {coverage.get('checked',0)}/{coverage.get('scheduled',0)} · найдено {coverage.get('found',0)} · пропущено {coverage.get('skipped',0)}")
             elif isinstance(diagnostic,dict):
-                self.host.checked_label.setText(f"Коллекторы Gansar: {diagnostic.get('providers_attempted',0)} · HTTP-запросы: {diagnostic.get('http_requests') if diagnostic.get('http_requests') is not None else 'неизвестно'}")
+                self.host.checked_label.setText(f"Источников: {diagnostic.get('providers_attempted',0)} · HTTP-запросы: {diagnostic.get('http_requests') if diagnostic.get('http_requests') is not None else 'неизвестно'}")
             else:self.host.checked_label.setText('Адаптеров выполнено: 1')
             if isinstance(outcome,dict):
                 if canvas_target and self._research_canvas:
@@ -1391,7 +1403,7 @@ class DesktopBridge(QObject):
             from .graph_context import selection_context
             nodes={row['id']:row for row in self._graph_data['entities']};edges={row['id']:row for row in self._graph_data['relations']}
             requested={entity} if entity else {edges[relation]['from_id'],edges[relation]['to_id']} if relation else set()
-            if requested:self.host.chat_widget._graph_focus={'investigation_id':identifier,'context':selection_context(nodes,edges,requested,relation,self._graph_records)}
+            if requested:self.host.chat_widget._graph_focus={'investigation_id':identifier,'conversation_id':self.host.chat_widget.conversation_id,'context':selection_context(nodes,edges,requested,relation,self._graph_records)}
             if entity:self._load_node_media(identifier,entity)
             return self._graph_selection
         if action=='investigation_graph_analyze':

@@ -1244,14 +1244,16 @@ class AgentRunner:
                     raise AIError('Не указана цель расследования.', code='invalid_request')
                 self._record, self._state = new_investigation(self._safe(goal), conversation_id)
                 if entity_context is not None:
-                    from .entity_router import route
+                    from .entity_router import canonical_target
                     if not isinstance(entity_context,dict) or entity_context.get('conversation_id')!=conversation_id:
                         raise AIError('Контекст объекта относится к другой беседе.',code='invalid_request')
                     target=entity_context.get('target')
-                    target=route((target.get('canonical_url') or target.get('identifier')) if isinstance(target,dict) else '')
+                    target=canonical_target(target)
                     if not target or target.entity_type=='username':raise AIError('Некорректный объект текущего запроса.',code='invalid_request')
                     self._record['active_target']=target.to_dict()
                     self._record['current_focus']=goal+'\nОбъект текущего запроса: '+(target.canonical_url or target.identifier)
+                    if target.entity_type=='organization':
+                        self._record['current_focus']=goal+'\nКомпания: '+target.identifier+'\nЮрисдикция: '+target.platform
             for key, expected in (('messages', list), ('context_memory', list), ('pending_calls', list),
                                   ('pending_outcomes', dict), ('call_cache', dict), ('seen_call_ids', list),
                                   ('failures', list), ('completed_steps', list), ('tried_queries', list),
