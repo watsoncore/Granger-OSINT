@@ -45,16 +45,16 @@ def evidence_digest(records):
     return hashlib.sha256(json.dumps(records,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode('utf-8')).hexdigest()
 
 
-def observed_document(path):
+def observed_document(path,tool='blockchain_gansar'):
     """Reuse a supplied receipt without claiming this script made live requests."""
     from copy import deepcopy
     from grangerpet.agent_evidence import validate_saved_evidence
     from grangerpet.evidence_graph import build
-    from grangerpet.research_canvas import new_document,validate
+    from grangerpet.research_canvas import new_document,validate,add_node
     path=Path(path).resolve();raw=path.read_bytes()
     if len(raw)>24_000_000:raise ValueError('Observed receipt exceeds bounded QA input')
     receipt=json.loads(raw.decode('utf-8'))
-    if (not isinstance(receipt,dict) or receipt.get('tool')!='blockchain_gansar'
+    if (tool not in ('blockchain_gansar','username_maigret') or not isinstance(receipt,dict) or receipt.get('tool')!=tool
             or receipt.get('mock') is True or receipt.get('status') not in ('complete','partial')):
         raise ValueError('Expected a successful/partial saved Gansar result, never a synthetic/mock receipt')
     records=receipt.get('results')
@@ -65,6 +65,16 @@ def observed_document(path):
     d.update(entities=graph['entities'],relations=graph['relations'],evidence=deepcopy(records))
     d['view']['ui']={'graph_mode':'wallet','card_mode':'auto','inspector_open':False}
     root=graph.get('root_id')
+    if tool=='username_maigret':
+        d['title']='OBSERVED Maigret · public profiles'
+        root=add_node(d,{'type':'username','label':receipt['query'],'value':receipt['query']})
+        for node in graph['entities']:
+            if node['type']!='public_profile':continue
+            d['relations'].append({'id':'rel_'+hashlib.sha256((root+'|'+node['id']).encode()).hexdigest()[:24],
+                'from_id':root,'to_id':node['id'],'relation_type':'returned_for_query','direction':'directed',
+                'evidence_ids':node['evidence_ids'],'verification_status':'source_reported','origin':'tool',
+                'attributes':{'tool':tool,'identity_verified':False},'source_urls':[]})
+        d['view']['ui'].update(graph_mode='socmint',username_root_id=root)
     for i,node in enumerate(d['entities']):
         d['view']['positions'][node['id']]={'x':i%12*340,'y':i//12*180}
     if root:d['view']['positions'][root]={'x':0,'y':0}
@@ -84,6 +94,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--exe',type=Path);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--counts',type=int,nargs='+',default=[50,100,500,1000,5000])
     p.add_argument('--observed-result',type=Path,help='Existing real source result.json; copied evidence, no new network requests')
+    p.add_argument('--observed-profiles',type=Path,help='Separate actual Maigret receipt; never counted as new HTTP requests')
     p.add_argument('--observed-only',action='store_true',help='Only the separately supplied observation dataset')
     p.add_argument('--effects',choices=('full','reduced','off'),default='full')
     args=p.parse_args();out=args.output.resolve()
@@ -106,13 +117,14 @@ def main():
     from PIL import Image
     pixels=io.BytesIO();Image.new('RGB',(64,64),'#497077').save(pixels,'PNG')
     thumbnail='data:image/png;base64,'+base64.b64encode(pixels.getvalue()).decode('ascii')
-    if args.observed_only and not args.observed_result:raise ValueError('--observed-only requires --observed-result')
+    if args.observed_only and not (args.observed_result or args.observed_profiles):raise ValueError('--observed-only requires observed input')
     for count in ([] if args.observed_only else args.counts):
         d=synthetic_document(count,thumbnail)
         start=time.perf_counter();saved=store.save(d,0)
         cases.append({'id':saved['id'],'data_origin':'synthetic_fixture','underlying_nodes':count,'edges':count-1,'encrypted_seed_write_ms':round((time.perf_counter()-start)*1000,2)})
-    if args.observed_result:
-        d,provenance=observed_document(args.observed_result)
+    for path,tool in ((args.observed_result,'blockchain_gansar'),(args.observed_profiles,'username_maigret')):
+        if not path:continue
+        d,provenance=observed_document(path,tool)
         start=time.perf_counter();saved=store.save(d,0)
         cases.append({'id':saved['id'],**provenance,'encrypted_seed_write_ms':round((time.perf_counter()-start)*1000,2)})
     report={'origin':'frozen-EXE' if args.exe else 'native-source','data_origin':'synthetic_fixture_and_separate_provided_observations' if args.observed_result else 'synthetic_fixture','exe_sha256':hashlib.sha256(args.exe.read_bytes()).hexdigest() if args.exe else None,'cases':[],'checks':[],

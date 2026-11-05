@@ -61,3 +61,17 @@ def test_inapplicable_observation_receipt_is_rejected(tmp_path,patch):
 
 def test_invalid_stress_sizes_are_rejected():
     with pytest.raises(ValueError):stress.synthetic_document(123,'fixture')
+
+
+def test_separate_maigret_workload_preserves_public_profile_evidence(tmp_path):
+    rows=[normalize_evidence({'id':'offline-profile-fixture','type':'profile','platform':'GitHub',
+        'url':'https://github.com/offline-fixture','title':'Offline fixture',
+        'details':{'username':'offline-fixture','profile_url':'https://github.com/offline-fixture'}},'username_maigret','offline-fixture')]
+    path=tmp_path/'profiles-fixture.json'
+    path.write_text(json.dumps({'tool':'username_maigret','status':'partial','query':'offline-fixture','results':rows}),encoding='utf-8')
+    with pytest.raises(ValueError):stress.observed_document(path)
+    doc,proof=stress.observed_document(path,'username_maigret')
+    assert doc['evidence']==rows and doc['view']['ui']['graph_mode']=='socmint'
+    assert proof['source_tool']=='username_maigret' and proof['network_calls_by_stress_script']==0
+    links=[edge for edge in doc['relations'] if edge['relation_type']=='returned_for_query']
+    assert links and all(edge['attributes']['identity_verified'] is False for edge in links)

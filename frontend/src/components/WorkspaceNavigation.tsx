@@ -21,7 +21,7 @@ export function WorkspaceNavigation({state,route,compact,onRoute,onCompact,onSea
   const cases=state.research_canvas?.choices?.slice(0,4)||[]
   return <aside className={'sidebar'+(compact?' sidebar-compact':'')}>
     <div className="sidebar-top">
-      <div className="navigation-identity"><LayoutGrid size={17}/><span>РАБОЧАЯ СРЕДА</span></div>
+      <div className="navigation-identity"><LayoutGrid size={17}/><span>Рабочая среда</span></div>
       <IconButton label={compact?'Развернуть навигацию':'Свернуть навигацию'} className="collapse-sidebar" onClick={onCompact}>
         {compact?<PanelLeftOpen size={16}/>:<PanelLeftClose size={16}/>}
       </IconButton>
@@ -32,7 +32,7 @@ export function WorkspaceNavigation({state,route,compact,onRoute,onCompact,onSea
           aria-label={item.label} onClick={()=>onRoute(item.id)} title={item.label}><item.icon size={18}/><span>{item.label}</span></button>)}
     </nav>
     <div className="sidebar-cases">
-      <div className="sidebar-section-label"><span>РАССЛЕДОВАНИЯ</span><IconButton label="Новое расследование" onClick={()=>onSearch({panel:'canvas',create:true})}><Plus size={16}/></IconButton></div>
+      <div className="sidebar-section-label"><span>Расследования</span><IconButton label="Новое расследование" onClick={()=>onSearch({panel:'canvas',create:true})}><Plus size={16}/></IconButton></div>
       <button className="nav-item sidebar-open-cases" aria-label="Открыть мои расследования" title="Мои расследования"
         onClick={()=>onSearch({panel:'canvas'})}><FolderOpen size={17}/><span>Мои расследования</span></button>
       {cases.map(item=><button className="sidebar-case" key={item.id} title={item.title} onClick={()=>onSearch({panel:'canvas',id:item.id})}>

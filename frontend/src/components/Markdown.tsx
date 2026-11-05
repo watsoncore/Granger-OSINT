@@ -21,7 +21,7 @@ export function plainText(children: ReactNode): string {
 function CodeBlock({ children }: { children?: ReactNode }) {
   const [copied, setCopied] = useState(false)
   const value = plainText(children).replace(/\n$/, '')
-  return <div className="code-block"><div className="code-toolbar"><span>КОД</span><IconButton label={copied ? 'Скопировано' : 'Копировать код'} onClick={() => { void act('copy', { text: value }).then(result => { if (result !== null) { setCopied(true); setTimeout(() => setCopied(false), 1800) } }) }}>{copied ? <Check size={14}/> : <Copy size={14}/>}</IconButton></div><pre>{children}</pre></div>
+  return <div className="code-block"><div className="code-toolbar"><span>Код</span><IconButton label={copied ? 'Скопировано' : 'Копировать код'} onClick={() => { void act('copy', { text: value }).then(result => { if (result !== null) { setCopied(true); setTimeout(() => setCopied(false), 1800) } }) }}>{copied ? <Check size={14}/> : <Copy size={14}/>}</IconButton></div><pre>{children}</pre></div>
 }
 export const Markdown = memo(function Markdown({ text, onSource }: { text: string; onSource?(id: string): void }) {
   return <div className="markdown"><ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml urlTransform={safeUrl} components={{

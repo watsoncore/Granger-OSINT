@@ -84,7 +84,7 @@ export function SearchWorkspace({state,query,setQuery,onSource,destination,onDes
   const canRepeat=isStructured?!!selected?.available&&!!Object.values(argumentsDraft).some(value=>!!value.trim()):!!(query.trim()||state.search.query.trim())
   const sourceIds = results.map(item => item.evidence_id).filter(Boolean).slice(0, 20)
   return <div className="workspace-scroll"><div className={`page-content search-workspace ${hasResearchContext?'has-research-context':''}`}>
-    {!hasResearchContext&&<div className="search-workspace-heading"><div><span className="eyebrow">ОТКРЫТЫЕ ИСТОЧНИКИ</span><h1>Расследование</h1></div></div>}
+    {!hasResearchContext&&<div className="search-workspace-heading"><div><span className="eyebrow">Открытые источники</span><h1>Расследование</h1></div></div>}
     <div className="search-navigation"><nav className="search-primary-tabs" aria-label="Рабочая область поиска">{Object.entries({results:'Поиск и результаты',canvas:'Моё полотно',catalog:'Инструменты',activity:'Ход работы'}).map(([id,label])=><button key={id} aria-pressed={workspace===id} onClick={()=>setWorkspace(id as typeof workspace)}>{label}{id==='results'&&results.length>0&&<span>{results.length}</span>}{id==='activity'&&isBusy&&<LoaderCircle size={12} className="spin"/>}</button>)}</nav></div>
     <div hidden={workspace!=='results'} className="search-primary-pane">
       <section className={`search-query-panel ${formExpanded?'is-open':'is-collapsed'}`} aria-label="Параметры поиска">
