@@ -35,22 +35,22 @@ export interface GraphView {
   layout_mode?:'semantic'|'manual'|'hierarchical'|'radial'|'types'|'communities'|'timeline'|'wallet'|'flow'|'counterparties'|'paths';manual_positions?:Record<string,GraphPoint>
   viewport?:GraphViewport; tree_viewport?:GraphViewport; selected_id?:string; selected_relation?:string
   expanded?:string[]; expanded_relations?:string[]; collapsed?:string[]; query?:string
-  filters?: {types?:string[];statuses?:Verification[];sources?:string[];include_background?:boolean;show_sources?:boolean;show_transactions?:boolean}
+  filters?: {types?:string[];statuses?:Verification[];sources?:string[];include_background?:boolean;show_sources?:boolean;show_transactions?:boolean;peer_ids?:string[];profile_ids?:string[]}
   card_sizes?:Record<string,{width:number;height:number}>;card_mode?:'auto'|'compact'|'standard'|'expanded'
-  projection_mode?:'wallet'|'flow'|'counterparties'|'transactions'|'paths'|'manual';inspector_tab?:'details'|'evidence'|'actions'
+  projection_mode?:'wallet'|'flow'|'counterparties'|'transactions'|'paths'|'socmint'|'manual';inspector_tab?:'details'|'evidence'|'actions'
 }
 export interface GraphFinding { evidence_id:string; title:string; description:string; url:string; status:string; relevance?:Source['relevance'] }
 export interface ResearchDocument {
   schema:'granger-investigation/1';id:string;revision:number;title:string;description:string
   entities:GraphEntity[];relations:GraphRelation[];evidence:Source[]
   annotations:Record<string,{label?:string;markdown?:string;color?:string}>
-  view:{positions:Record<string,GraphPoint>;instances?:Record<string,{entity_id:string;position:GraphPoint;parent_group_id?:string}>;viewport:GraphViewport;hidden:string[];removed:string[];collapsed:string[];layout:string;query?:string;card_sizes?:Record<string,{width:number;height:number}>;ui?:{inspector_tab?:'details'|'evidence'|'actions';inspector_width?:number;inspector_open?:boolean;card_mode?:'auto'|'compact'|'standard'|'expanded';crypto_root_id?:string;graph_mode?:'wallet'|'flow'|'counterparties'|'transactions'|'paths'|'manual'};expanded?:string[];expanded_relations?:string[]}
-  custom_types:Record<string,string>;recovered_revision?:boolean
+    view:{positions:Record<string,GraphPoint>;instances?:Record<string,{entity_id:string;position:GraphPoint;parent_group_id?:string}>;viewport:GraphViewport;hidden:string[];removed:string[];collapsed:string[];layout:string;query?:string;card_sizes?:Record<string,{width:number;height:number}>;ui?:{inspector_tab?:'details'|'evidence'|'actions';inspector_width?:number;inspector_open?:boolean;card_mode?:'auto'|'compact'|'standard'|'expanded';crypto_root_id?:string;username_root_id?:string;initial_layout?:''|'wallet'|'hierarchical';graph_mode?:'wallet'|'flow'|'counterparties'|'transactions'|'paths'|'socmint'|'manual'};expanded?:string[];expanded_relations?:string[];manual_positions?:Record<string,GraphPoint>;manual_position_ids?:string[];layout_positions?:Record<string,Record<string,GraphPoint>>;layout_viewports?:Record<string,GraphViewport>}
+  custom_types:Record<string,string>;recovered_revision?:boolean;execution_summary?:{tool:string;status:string;limitations?:string[]}[]
 }
 export interface ResearchCanvasState {
   state:string;busy?:boolean;error?:string;document?:ResearchDocument;types:string[]
   choices:{id:string;title:string;revision:number}[];can_undo?:boolean;can_redo?:boolean
-  preview?:{token:string;canvas_id:string;node_id:string;tool:string;status:string;limitations:string[];results:Source[]}
+    preview?:{token:string;canvas_id:string;node_id:string;tool:string;status:string;limitations:string[];results:Source[];running?:boolean;error?:string;error_code?:string}
 }
 export interface InvestigationGraph {
   state:'idle'|'loading'|'ready'|'empty'|'locked'|'cancelled'|'error'; investigation_id?:string; goal?:string; status?:string

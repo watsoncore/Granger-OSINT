@@ -26,7 +26,7 @@ def fake_commands(monkeypatch, *, failure=None):
         else:
             name=Path(arguments[0]).name
             if failure=='interrupt':raise KeyboardInterrupt()
-            flag='--report' if name in ('qa_clean_release.py','qa_v4_investigation.py') else '--output'
+            flag='--report' if name in ('qa_clean_release.py','qa_v4_investigation.py','qa_v5_acceptance.py') else '--output'
             report=Path(arguments[arguments.index(flag)+1])
             data={'passed':name!=failure,'modules':[1], 'assets':[1], 'checks':[1]}
             if name=='qa_clean_release.py':
@@ -43,6 +43,22 @@ def test_failed_live_node_acceptance_cannot_promote_candidate(tmp_path,monkeypat
     with pytest.raises(release.BuildError):release.release(root,verify_investigation_live=True)
     assert (root/'dist'/release.BINARY).read_bytes()==b'old working executable'
     assert list(root.glob(release.STAGE_PREFIX+'*'))==[]
+
+
+def test_graph_receipt_for_another_exe_cannot_promote(tmp_path,monkeypatch):
+    root=project(tmp_path,monkeypatch);fake_commands(monkeypatch)
+    previous=release.run_checked
+    def stale_receipt(arguments,**kwargs):
+        previous(arguments,**kwargs)
+        if arguments[0]=='scripts/qa_v5_acceptance.py':
+            report=Path(arguments[arguments.index('--report')+1])
+            report.write_text(json.dumps({'passed':True,'exe_sha256':'stale','origin':'frozen-Windows-EXE',
+                'fresh_network_requested':True,'temporary_profile_removed':True}),encoding='utf-8')
+    monkeypatch.setattr(release,'run_checked',stale_receipt)
+    with pytest.raises(release.BuildError,match='candidate and required live scope'):
+        release.release(root,graph_v5_observations=root)
+    assert (root/'dist'/release.BINARY).read_bytes()==b'old working executable'
+    assert not list(root.glob(release.STAGE_PREFIX+'*'))
 
 
 @pytest.mark.parametrize('failure',['build','verify_frozen_sources.py','verify_frozen_assets.py','qa_clean_release.py','interrupt'])

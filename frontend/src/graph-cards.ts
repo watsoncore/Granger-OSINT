@@ -48,7 +48,8 @@ const text=(value:unknown)=>value===undefined||value===null?'':Array.isArray(val
 export function cardRows(node:GraphEntity):string[]{
   const a=node.attributes,variant=cardVariant(node)
   if(variant==='wallet'){
-    const rows=[text(a.address||a.canonical_address||node.label),`${a.transaction_count??'—'} операций · ${a.counterparty_count??'—'} контрагентов`]
+    const rows=[text(a.address||a.canonical_address||node.label)]
+    if(a.transaction_count!=null||a.counterparty_count!=null)rows.push(`По источнику: ${a.transaction_count??'—'} оп. · ${a.counterparty_count??'—'} контр.`)
     if(Array.isArray(a.flow_summaries)){const flow=a.flow_summaries[0] as {direction:string;amount:string|null;asset:string}|undefined;if(flow)rows.push(`${flow.direction==='to_target'?'Получено':'Отправлено'} ${flow.amount??'?'} ${flow.asset}`)}
     return rows
   }

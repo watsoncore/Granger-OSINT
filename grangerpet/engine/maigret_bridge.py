@@ -139,6 +139,11 @@ def verified_transport(checking):
     from aiohttp.resolver import ThreadedResolver
 
     original = checking.SimpleAiohttpChecker
+    # Loading the Windows trust store is synchronous. Repeating it for every
+    # site blocks Maigret's event loop even while network concurrency is bound.
+    # The context is immutable after creation and retains certificate/hostname
+    # verification; sessions, cookies and DNS validation remain per checker.
+    tls_context = ssl.create_default_context()
 
     class PublicResolver(ThreadedResolver):
         async def resolve(self, host, port=0, family=0):
@@ -169,7 +174,7 @@ def verified_transport(checking):
                     public_https_url(urljoin(str(params.url), params.response.headers.get("Location", "")))
                 trace.on_request_start.append(on_start)
                 trace.on_request_redirect.append(on_redirect)
-                connector = aiohttp.TCPConnector(ssl=ssl.create_default_context(), resolver=PublicResolver(), limit=1)
+                connector = aiohttp.TCPConnector(ssl=tls_context, resolver=PublicResolver(), limit=1)
                 async with aiohttp.ClientSession(connector=connector, trust_env=False,
                         cookie_jar=self.cookie_jar if self.cookie_jar else None, trace_configs=[trace],
                         response_class=BoundedResponse) as session:
@@ -289,6 +294,7 @@ def run_adapter(root, query, options):
     observations = [{"site": n, "status": "skipped", "reason": r} for n, r in skipped.items()]
     counts = Counter({key: 0 for key in ("found", "not_found", "unknown", "blocked", "unavailable", "errors")})
     started, last_emit = time.monotonic(), [0.0]
+    termination = {}
     completed, results, raw = set(), [], {}
     callback = options.get("_emit")
     coverage = {**identity, "mode": config["mode"], "selected": len(selected), "scheduled": len(sites),
@@ -358,6 +364,7 @@ def run_adapter(root, query, options):
                     await asyncio.wait({task}, timeout=min(.1, max(.01, deadline - time.monotonic())))
                     flush()
                     if time.monotonic() >= deadline and not task.done():
+                        termination.update(code='maigret_time_budget', reason='Достигнут выбранный лимит времени Maigret.')
                         task.cancel()
                         try:
                             await task
@@ -370,6 +377,7 @@ def run_adapter(root, query, options):
                 flush()
                 return "complete"
             except asyncio.CancelledError:
+                termination.update(code='maigret_cancelled', reason='Проверка Maigret отменена; полученные находки сохранены.')
                 task.cancel()
                 try:
                     await task
@@ -377,7 +385,12 @@ def run_adapter(root, query, options):
                     pass
                 flush()
                 return "cancelled"
-            except Exception:
+            except Exception as error:
+                # Exception text can contain URLs, response data or credentials.
+                # Its class and a static code explain failure without leaking it.
+                name=type(error).__name__
+                termination.update(code='maigret_engine_exception', exception_type=name if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]{0,79}',name) else 'Exception',
+                    reason='Оригинальный движок Maigret завершился с исключением; полученные находки сохранены.')
                 flush()
                 return "error"
     status = asyncio.run(execute())
@@ -391,6 +404,7 @@ def run_adapter(root, query, options):
     coverage["phase"] = status
     emit_progress(True)
     diagnostics = {"coverage": dict(coverage), "site_checks": observations, "configuration": config,
+        "termination": termination,
         "original_defaults": {k: defaults.get(k) for k in ("top_sites_count", "max_connections", "timeout", "info_extracting", "recursive_search")},
         "resumption": {"native_durable_resume": False,
             "remaining_sites": [n for n in sites if n not in completed],
@@ -398,5 +412,7 @@ def run_adapter(root, query, options):
         "policy": {"tls_verified": True, "public_https_only": True, "bypass": False, "recursive_search": False,
                    "enrichment_requests": False, "auto_update": False}}
     return {"source": "maigret", "status": status, "results": results, "checked": coverage["checked"],
+        **({'error_code':termination['code']} if termination else {}),
         "source_diagnostics": diagnostics,
-        "message": f"Maigret {identity['engine_version']} · {config['mode']}: проверено {len(completed)}/{len(sites)}, найдено {len(results)}, пропущено {coverage['skipped']}, осталось {coverage['pending']}."}
+        "message": f"Maigret {identity['engine_version']} · {config['mode']}: проверено {len(completed)}/{len(sites)}, найдено {len(results)}, пропущено {coverage['skipped']}, осталось {coverage['pending']}."+
+            (' '+termination['reason']+(' Тип: '+termination['exception_type']+'.' if termination.get('exception_type') else '') if termination else '')}

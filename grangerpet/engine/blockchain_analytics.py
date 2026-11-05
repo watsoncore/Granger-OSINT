@@ -6,6 +6,7 @@ This module also runs in the isolated vendor interpreter without Qt.
 """
 from collections import Counter
 from datetime import datetime, timezone
+from copy import deepcopy
 from decimal import Decimal, InvalidOperation, localcontext
 import base64
 import binascii
@@ -16,6 +17,11 @@ EVM = frozenset(('eth', 'ethereum', 'bsc', 'polygon', 'arbitrum', 'optimism', 'a
 NATIVE = {'ton':'TON','btc':'BTC','bitcoin':'BTC','eth':'ETH','ethereum':'ETH','bsc':'BNB',
     'polygon':'POL','arbitrum':'ETH','optimism':'ETH','avalanche':'AVAX','tron':'TRX',
     'trx':'TRX','solana':'SOL','sol':'SOL','dogecoin':'DOGE','doge':'DOGE'}
+
+
+def canonical_chain(value):
+    name=str(value or '').lower()
+    return {'bitcoin':'btc','ethereum':'eth','trx':'tron','sol':'solana','dogecoin':'doge'}.get(name,name)
 
 
 def _bitcoin_witness(value):
@@ -88,7 +94,7 @@ def decimal_amount(value):
 
 def asset_identity(row,chain='',scope=''):
     """A ticker is not a contract. Unidentified token amounts stay separate."""
-    network=str(row.get('chain') or chain).lower()
+    network=canonical_chain(row.get('chain') or chain)
     semantics=row.get('event_semantics') or row.get('raw') or {}
     if not isinstance(semantics,dict):semantics={}
     asset=str(row.get('asset') or 'unknown')
@@ -102,6 +108,8 @@ def asset_identity(row,chain='',scope=''):
     if asset=='unknown' and decimal_amount(row.get('amount_decimal',row.get('amount'))) is None:
         return network+'|unknown',None,'asset_unknown'
     reference=row.get('event_id') or row.get('tx_hash') or row.get('evidence_id') or row.get('id') or scope
+    action=row.get('action_index',semantics.get('action_index'))
+    if action is not None:reference=str(reference)+'|action:'+str(action)
     fingerprint=hashlib.sha256(str(reference).encode()).hexdigest()[:16]
     return network+'|unidentified|'+asset+'|'+fingerprint,None,'contract_unknown_not_aggregated'
 
@@ -121,13 +129,57 @@ def _date(value):
         return None
 
 
+def transaction_identity(row,chain='',scope=''):
+    """An observed movement is scoped by network, event/action and endpoints.
+
+    Amount is deliberately not an identity component: two providers reporting
+    different amounts for the same movement are conflicting observations, not
+    two payments. UTXO rows without endpoints remain unresolved observations.
+    """
+    network=canonical_chain(row.get('chain') or chain)
+    semantics=row.get('event_semantics') or row.get('raw') or {}
+    if not isinstance(semantics,dict):semantics={}
+    reference=row.get('event_id') or semantics.get('event_id') or row.get('tx_hash') or row.get('evidence_id') or row.get('id') or scope
+    action=row.get('action_index',semantics.get('action_index'))
+    return (network,str(reference),str(action) if action is not None else '',
+        canonical_address(network,row.get('from_address')),canonical_address(network,row.get('to_address')),
+        asset_identity(row,network,scope)[0])
+
+
+def coalesce_transactions(transactions,chain=''):
+    """Coalesce provider copies without discarding their evidence references."""
+    rows={};invalid=0;duplicates=0
+    for index,row in enumerate(transactions):
+        if not isinstance(row,dict):invalid+=1;continue
+        identity=transaction_identity(row,chain,scope='unidentified:'+str(index))
+        amount=decimal_amount(row.get('amount_decimal',row.get('amount')))
+        failed=row.get('success') is False or row.get('status') in ('failed','reverted','aborted')
+        if identity not in rows:
+            value=deepcopy(row);value['chain']=identity[0]
+            value['observation_evidence_ids']=[];value['observation_source_urls']=[]
+            rows[identity]={'row':value,'amounts':set(),'failure_states':set()}
+        else:duplicates+=1
+        entry=rows[identity];entry['amounts'].add(amount);entry['failure_states'].add(failed)
+        for source,target in ((row.get('evidence_id'),'observation_evidence_ids'),(row.get('url'),'observation_source_urls')):
+            if source and source not in entry['row'][target]:entry['row'][target].append(source)
+    output=[]
+    for entry in rows.values():
+        value=entry['row'];amounts={amount for amount in entry['amounts'] if amount is not None}
+        # Missing amount in a duplicate is absence, not contradictory evidence.
+        value['amount_conflict']=len(amounts)>1
+        value['amount_decimal']=format(next(iter(amounts)),'f') if len(amounts)==1 else None
+        value['status_conflict']=len(entry['failure_states'])>1
+        if value['status_conflict']:value['status']='conflicting_observations'
+        output.append(value)
+    return output,{'invalid':invalid,'duplicate_observations':duplicates}
+
+
 def analyze_transactions(transactions, target, chain=''):
-    seen, transfers, excluded = set(), [], Counter()
-    for row in transactions:
-        if not isinstance(row, dict):
-            excluded['invalid'] += 1
-            continue
-        network = str(row.get('chain') or chain).lower()
+    transfers, excluded = [], Counter()
+    observations,counts=coalesce_transactions(transactions,chain)
+    excluded.update({key:count for key,count in counts.items() if count})
+    for row in observations:
+        network = canonical_chain(row.get('chain') or chain)
         first = canonical_address(network, row.get('from_address'))
         second = canonical_address(network, row.get('to_address'))
         owner = canonical_address(network, target)
@@ -139,14 +191,9 @@ def analyze_transactions(transactions, target, chain=''):
         amount = decimal_amount(row.get('amount_decimal', row.get('amount')))
         stamp = _date(row.get('timestamp'))
         event = row.get('event_id') or semantics.get('event_id')
-        # An action index distinguishes token actions sharing one tx hash.
-        reference = event or (str(row.get('tx_hash'))+'|'+str(semantics.get('action_index', '')) if row.get('tx_hash') else row.get('evidence_id') or row.get('id'))
-        key = (network, str(reference), first, second, asset_key, amount)
-        if reference and key in seen:
-            excluded['duplicate_observations'] += 1
+        if row.get('status_conflict'):
+            excluded['conflicting_status_observations']+=1
             continue
-        if reference:
-            seen.add(key)
         failed = row.get('success') is False or row.get('status') in ('failed', 'reverted', 'aborted')
         if failed:
             excluded['failed_events'] += 1
@@ -160,6 +207,8 @@ def analyze_transactions(transactions, target, chain=''):
             'contract': contract, 'asset_identity_status':identity_status,'amount': amount, 'timestamp': stamp, 'event_id': event,
             'tx_hash': row.get('tx_hash'), 'source': row.get('source'), 'source_url': row.get('url') or '',
             'evidence_id': row.get('evidence_id')})
+        transfers[-1].update(amount_conflict=row.get('amount_conflict',False),
+            observation_evidence_ids=row['observation_evidence_ids'],observation_source_urls=row['observation_source_urls'])
     assets, peers, periods,repeat_groups,hours = {}, {}, Counter(),{},Counter()
     directions = Counter(row['direction'] for row in transfers)
     for row in transfers:
@@ -167,8 +216,9 @@ def analyze_transactions(transactions, target, chain=''):
         group = assets.setdefault(key, {'chain': row['chain'], 'asset': row['asset'], 'contract': row['contract'],
             'asset_key': key,'identity_status':row['asset_identity_status'], 'incoming': Decimal(0), 'outgoing': Decimal(0), 'known_amounts': 0,
             'amount_coverage':{direction:{'known_events':0,'unknown_events':0} for direction in ('incoming','outgoing','self','unresolved')},
-            'unknown_amounts': 0, 'event_count': 0})
+            'unknown_amounts': 0, 'event_count': 0,'amount_conflict_events':0})
         group['event_count'] += 1
+        group['amount_conflict_events']+=bool(row.get('amount_conflict'))
         group['amount_coverage'][row['direction']]['unknown_events' if row['amount'] is None else 'known_events']+=1
         if row['amount'] is None:
             group['unknown_amounts'] += 1
@@ -200,10 +250,9 @@ def analyze_transactions(transactions, target, chain=''):
             if row['timestamp']:
                 peer['first_seen'] = min(peer['first_seen'] or row['timestamp'], row['timestamp'])
                 peer['last_seen'] = max(peer['last_seen'] or row['timestamp'], row['timestamp'])
-            for field in ('evidence_id', 'source_url'):
-                values = peer['evidence_ids' if field == 'evidence_id' else 'source_urls']
-                if row[field] and row[field] not in values:
-                    values.append(row[field])
+            for field in ('evidence_ids', 'source_urls'):
+                for value in row['observation_'+field]:
+                    if value not in peer[field]:peer[field].append(value)
             if row['amount'] is not None:
                 repeat_groups.setdefault((row['chain'],row['counterparty'],row['direction'],key,row['amount']),[]).append(row)
     largest = {}

@@ -1117,6 +1117,9 @@ class DesktopBridge(QObject):
         self.host._set_phase('searching')
         self._manual_activity=[{'id':spec.name,'tool':TOOL_NAMES.get(spec.name,spec.name),'status':'running',
             'inputType':spec.kind,'summary':'Запрос пользователя'}]
+        self._manual_canvas_target=canvas_target
+        self._manual_canvas_records={};self._manual_canvas_flush=False
+        if canvas_target and self._research_canvas:self._research_canvas.begin_tool(spec.name,*canvas_target)
         self.host.search_state.emit('working')
         stop_event=threading.Event();self._manual_generation+=1;generation=self._manual_generation
         conversation_id=self.host.chat_widget.conversation_id
@@ -1186,7 +1189,23 @@ class DesktopBridge(QObject):
     def _manual_progressed(self,value):
         generation,event=value
         if self._closed or generation!=self._manual_generation or not self._manual_job:return
-        if not isinstance(event,dict) or event.get('type')!='progress':return
+        if not isinstance(event,dict):return
+        if event.get('type')=='evidence':
+            target=getattr(self,'_manual_canvas_target',None)
+            if target and self._research_canvas and event.get('records'):
+                self._manual_canvas_records.update({row['evidence_id']:row for row in event['records']})
+                if not self._manual_canvas_flush:
+                    self._manual_canvas_flush=True
+                    job=self._manual_job;tool=event.get('tool')
+                    def flush():
+                        if self._closed or generation!=self._manual_generation:return
+                        self._manual_canvas_flush=False
+                        records=list(self._manual_canvas_records.values());self._manual_canvas_records={}
+                        if records and self._manual_job is job:
+                            self._research_canvas.accept_tool({'tool':tool,'status':'running','results':records},*target,streaming=True)
+                    QTimer.singleShot(80,flush)
+            return
+        if event.get('type')!='progress':return
         progress=event.get('progress')
         if not isinstance(progress,dict) or not self._manual_activity:return
         self._manual_activity[0]['progress']=progress

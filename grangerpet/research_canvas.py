@@ -36,7 +36,7 @@ TYPES = tuple(dict.fromkeys((*ENTITY_TYPES, *MANUAL_TYPES)))
 STATUSES = ('verified','source_reported','inferred','unverified','contradicted')
 LAYOUTS = ('manual','hierarchical','radial','types','communities','timeline',
            'wallet','flow','counterparties','paths')
-GRAPH_MODES = ('wallet','flow','counterparties','transactions','paths','manual')
+GRAPH_MODES = ('wallet','flow','counterparties','transactions','paths','socmint','manual')
 CARD_MODES = ('auto','compact','standard','expanded')
 
 
@@ -68,7 +68,7 @@ def card_size(value):
 
 
 def view_ui(value):
-    if not isinstance(value,dict) or set(value)-{'inspector_tab','inspector_width','inspector_open','card_mode','graph_mode','crypto_root_id'}:
+    if not isinstance(value,dict) or set(value)-{'inspector_tab','inspector_width','inspector_open','card_mode','graph_mode','crypto_root_id','username_root_id','initial_layout'}:
         raise CanvasError('Неизвестные настройки представления.')
     if 'inspector_tab' in value and value['inspector_tab'] not in ('details','evidence','actions'):raise CanvasError('Неизвестная вкладка инспектора.')
     if 'inspector_width' in value:
@@ -78,6 +78,8 @@ def view_ui(value):
     if 'card_mode' in value and value['card_mode'] not in CARD_MODES:raise CanvasError('Неизвестный режим карточек.')
     if 'graph_mode' in value and value['graph_mode'] not in GRAPH_MODES:raise CanvasError('Неизвестный режим графа.')
     if 'crypto_root_id' in value and not re.fullmatch(r'ent_[a-f0-9]{24}',str(value['crypto_root_id'])):raise CanvasError('Некорректная цель криптографа.')
+    if 'username_root_id' in value and not re.fullmatch(r'ent_[a-f0-9]{24}',str(value['username_root_id'])):raise CanvasError('Некорректная цель социального графа.')
+    if 'initial_layout' in value and value['initial_layout'] not in ('','wallet','hierarchical'):raise CanvasError('Некорректная начальная раскладка.')
     return deepcopy(value)
 
 
@@ -134,6 +136,17 @@ def validate(value):
             if identifier not in ids and key=='positions':raise CanvasError('Позиция неизвестного узла.')
             point(p)
     if view.get('layout','manual') not in LAYOUTS:raise CanvasError('Неизвестная раскладка.')
+    for field in ('layout_positions','layout_viewports'):
+        snapshots=view.get(field,{})
+        if not isinstance(snapshots,dict) or not set(snapshots)<=set(LAYOUTS):raise CanvasError('Некорректный снимок раскладки.')
+        for snapshot in snapshots.values():
+            if field=='layout_viewports':viewport(snapshot)
+            else:
+                if not isinstance(snapshot,dict) or len(snapshot)>5000:raise CanvasError('Некорректный снимок позиций.')
+                for p in snapshot.values():point(p)
+    manual_ids=view.get('manual_position_ids',[])
+    if not isinstance(manual_ids,list) or any(not isinstance(identifier,str) or identifier not in view_ids for identifier in manual_ids):
+        raise CanvasError('Некорректные ручные позиции.')
     if 'viewport' in view:viewport(view['viewport'])
     if 'query' in view:text(view['query'],2000)
     for key in ('hidden','removed','collapsed','expanded'):
@@ -430,11 +443,19 @@ def apply(doc,operation,args):
         if operation=='layout':
             mode=args.get('mode')
             if mode not in LAYOUTS:raise CanvasError('Неизвестная раскладка.')
+            previous_mode=doc['view'].get('layout','manual')
+            doc['view'].setdefault('layout_positions',{})[previous_mode]={**deepcopy(doc['view']['positions']),**{i:deepcopy(v['position']) for i,v in instances.items()}}
+            doc['view'].setdefault('layout_viewports',{})[previous_mode]=deepcopy(doc['view']['viewport'])
             if doc['view'].get('layout')=='manual':doc['view']['manual_positions']={**deepcopy(doc['view']['positions']),**{i:deepcopy(v['position']) for i,v in instances.items()}}
-            if mode=='manual':supplied={key:value for key,value in doc['view'].get('manual_positions',{}).items() if key in nodes or key in instances}
+            saved=doc['view'].get('layout_positions',{}).get(mode)
+            if (args.get('reuse_saved') is True and saved is not None) or mode=='manual':
+                supplied={key:value for key,value in (saved if saved is not None else doc['view'].get('manual_positions',{})).items() if key in nodes or key in instances}
+                if mode in doc['view'].get('layout_viewports',{}):doc['view']['viewport']=deepcopy(doc['view']['layout_viewports'][mode])
             doc['view']['layout']=mode
+            doc['view'].setdefault('ui',{})['initial_layout']=''
         else:
             supplied={key:point(value) for key,value in supplied.items()}
+            doc['view']['manual_position_ids']=list(dict.fromkeys(doc['view'].get('manual_position_ids',[])+list(supplied)))
             before={**doc['view']['positions'],**{i:v['position'] for i,v in instances.items()}}
             parents={i:n['attributes'].get('parent_group_id') for i,n in nodes.items()}
             parents.update({i:v.get('parent_group_id') for i,v in instances.items()})
@@ -492,6 +513,9 @@ def apply(doc,operation,args):
             doc['annotations']={k:v for k,v in doc['annotations'].items() if k in {n['id'] for n in doc['entities']}|{e['id'] for e in doc['relations']}|set(instances)}
             for key in ('card_sizes','manual_positions'):
                 doc['view'][key]={i:v for i,v in doc['view'].get(key,{}).items() if i not in ids}
+            doc['view']['manual_position_ids']=[i for i in doc['view'].get('manual_position_ids',[]) if i not in ids]
+            for snapshot in doc['view'].get('layout_positions',{}).values():
+                for i in ids:snapshot.pop(i,None)
             doc['view']['expanded']=[i for i in doc['view'].get('expanded',[]) if i not in ids]
             doc['view']['expanded_relations']=[i for i in doc['view'].get('expanded_relations',[]) if i in {e['id'] for e in doc['relations']}]
         for key in ('hidden','removed','collapsed'):

@@ -138,12 +138,49 @@ def read_passed(path: Path) -> dict:
     return result
 
 
-def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing_external_tools: bool = False, verify_investigation_live: bool = False) -> dict:
+def verify_graph_v5(root, candidate, stage, observations, captures, environment):
+    report = stage/'graph-v5.json'
+    captures = (captures or stage/'graph-v5-captures').resolve()
+    if captures.is_relative_to((root/'dist').resolve()):
+        raise BuildError('Graph captures must be outside dist.')
+    run_checked(['scripts/qa_v5_acceptance.py','--exe',str(candidate),'--observed-dir',str(observations),
+                 '--report',str(report),'--screenshots',str(captures)],root=root,environment=environment)
+    native = read_passed(report)
+    with candidate.open('rb') as image:
+        candidate_hash = hashlib.file_digest(image,'sha256').hexdigest()
+    if (native.get('exe_sha256') != candidate_hash or native.get('origin') != 'frozen-Windows-EXE'
+            or not native.get('fresh_network_requested') or not native.get('temporary_profile_removed')):
+        raise BuildError('Graph V5 receipt did not verify the candidate and required live scope.')
+    stress = stage/'graph-v5-stress'
+    run_checked(['scripts/qa_canvas_stress.py','--exe',str(candidate),'--output',str(stress),
+                 '--observed-result',str(observations/'ton-observed-private.json')],root=root,environment=environment)
+    measurements = read_passed(stress/'report.json')
+    if measurements.get('exe_sha256') != candidate_hash or measurements.get('owned_processes_left') != 0:
+        raise BuildError('Graph V5 stress receipt did not match the candidate or clean up its processes.')
+    cases = measurements.get('cases',[])
+    synthetic_sizes = {case['underlying_nodes'] for case in cases if case['data_origin']=='synthetic_fixture'}
+    if synthetic_sizes != {50,100,500,1000,5000} or not any(case['data_origin']=='provided_observed_result' for case in cases):
+        raise BuildError('Graph V5 stress receipt is missing a required workload.')
+    metrics = ('data_origin','underlying_nodes','edges','open_and_expand_seconds','paint_ms',
+               'event_to_paint_ms','active_intervals_ms','resources','renderer')
+    native['performance'] = {'metric_semantics':measurements['metric_semantics'],
+                             'cases':[{key:case[key] for key in metrics if key in case}
+                                      for case in cases]}
+    return native
+
+
+def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing_external_tools: bool = False,
+            verify_investigation_live: bool = False, graph_v5_observations: Path | None = None,
+            graph_v5_captures: Path | None = None) -> dict:
     root = root.resolve()
     if not (root/'Granger-OSINT.spec').is_file():raise BuildError('Existing Granger-OSINT project not found.')
     extras = dist_entries(root,allow_legacy=allow_legacy_dist)
     canonical = root/'dist'/BINARY
     assert_not_running(canonical)
+    if graph_v5_observations:
+        graph_v5_observations = graph_v5_observations.resolve(strict=True)
+        if allow_missing_external_tools or not graph_v5_observations.is_dir():
+            raise BuildError('Graph V5 acceptance needs real observation receipts and installed external tools.')
     with owned_stage(root) as stage:
         environment = {**os.environ,STAGE_ENV:str(stage),'PYTHONDONTWRITEBYTECODE':'1',
                        'PYINSTALLER_CONFIG_DIR':str(stage/'cache')}
@@ -173,6 +210,8 @@ def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing
             run_checked(['scripts/qa_v4_investigation.py','--exe',str(candidate),'--report',str(report),
                 '--screenshots',str(root/'docs/validation/master-fix-v4')],root=root,environment=environment)
             checks['investigation_live']=read_passed(report)
+        if graph_v5_observations:
+            checks['graph_v5']=verify_graph_v5(root,candidate,stage,graph_v5_observations,graph_v5_captures,environment)
         # Long native/live checks must not promote an EXE made from sources
         # changed by another editor while QA was running.
         for script,name in [('verify_frozen_sources.py','sources'),('verify_frozen_assets.py','resources')]:
@@ -192,6 +231,7 @@ def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing
         'resource_checks':len(checks['resources'].get('assets',[])),
         'native_checks':len(checks['native'].get('checks',[])),
         'investigation_live':checks.get('investigation_live'),
+        'graph_v5':checks.get('graph_v5'),
         'external_tools':checks['native'].get('external_tools',{}),
         'external_tools_policy':expected_policy,
         'temporary_stage_removed':not stage.exists(),'legacy_entries_require_cleanup':extras}
@@ -201,13 +241,18 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--allow-legacy-dist',action='store_true',help='One-time migration: existing extra entries remain for explicit review/cleanup; none are created or deleted')
     parser.add_argument('--verify-investigation-live',action='store_true',help='Before promotion, actually create username/wallet and run Maigret/Gansar from native UI')
+    parser.add_argument('--verify-graph-v5',type=Path,help='Private directory containing real public observation receipts for native Graph V5 acceptance')
+    parser.add_argument('--graph-v5-captures',type=Path,help='Optional own-window captures outside dist')
     parser.add_argument('--report',type=Path,help='Optional small summary outside dist; all raw QA/work files are automatically removed')
     parser.add_argument('--allow-missing-external-tools',action='store_true',
         help='Explicit source-only CI: require external tool registration and report actual availability; do not require ignored Gansar/Maigret runtimes. Default local release remains strict.')
     args = parser.parse_args()
     if args.report and args.report.resolve().is_relative_to((ROOT/'dist').resolve()):parser.error('Build reports must be outside dist.')
+    if args.graph_v5_captures and not args.verify_graph_v5:parser.error('--graph-v5-captures requires --verify-graph-v5.')
     try:
-        result = release(allow_legacy_dist=args.allow_legacy_dist,allow_missing_external_tools=args.allow_missing_external_tools,verify_investigation_live=args.verify_investigation_live)
+        result = release(allow_legacy_dist=args.allow_legacy_dist,allow_missing_external_tools=args.allow_missing_external_tools,
+                         verify_investigation_live=args.verify_investigation_live,graph_v5_observations=args.verify_graph_v5,
+                         graph_v5_captures=args.graph_v5_captures)
     except (OSError,ValueError,BuildError,subprocess.CalledProcessError) as error:
         print('Build/install failed: '+str(error),file=sys.stderr);return 1
     payload = json.dumps(result,ensure_ascii=False,indent=2)+'\n'

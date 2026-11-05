@@ -33,10 +33,15 @@ class ResearchCanvasBridge:
             for record in doc['evidence']:self.bridge._raw_sources[record['evidence_id']]=record
             visible=deepcopy(doc)
             visible['evidence']=[source_view(row,compact=True) for row in doc['evidence']]
-            visible.pop('executions',None)
+            executions=visible.pop('executions',[])
+            visible['execution_summary']=[
+                {key:entry[key] for key in ('tool','status','limitations') if key in entry}
+                for entry in (executions[-30:] if isinstance(executions,list) else []) if isinstance(entry,dict)
+            ]
             state['document']=visible
-        if self.preview:
-            state['preview']={k:v for k,v in self.preview.items() if k!='records'}
+        preview=self.previews.get(doc['id']) if doc else None
+        if preview:
+            state['preview']={k:v for k,v in preview.items() if k!='records'}
         return state
 
     def work(self,task,*,receipt=None):
@@ -80,20 +85,37 @@ class ResearchCanvasBridge:
         value['mutation_receipts']=list(dict.fromkeys(receipts))[-128:]
         return value
 
-    def accept_tool(self,outcome,canvas_id,node_id,*,notify=True):
+    def begin_tool(self,tool,canvas_id,node_id):
+        self.previews.pop(canvas_id,None)
+        self.accept_tool({'tool':tool,'status':'running','results':[]},canvas_id,node_id,streaming=True)
+
+    def accept_tool(self,outcome,canvas_id,node_id,*,notify=True,streaming=False):
         if not isinstance(outcome,dict):return
         from .desktop_bridge import source_view
-        records=deepcopy(outcome.get('results',[]))
-        self.preview={'token':uuid.uuid4().hex,'canvas_id':canvas_id,'node_id':node_id,
+        previous=self.previews.get(canvas_id)
+        same=bool(previous and previous.get('node_id')==node_id and previous.get('tool')==outcome.get('tool') and previous.get('running'))
+        records={row['evidence_id']:row for row in (previous['records'] if same else [])}
+        compact={row['evidence_id']:row for row in (previous['results'] if same else [])}
+        for incoming in outcome.get('results',[]):
+            identifier=incoming['evidence_id']
+            if identifier in compact and records[identifier]==incoming:
+                continue
+            record=deepcopy(incoming)
+            records[identifier]=record
+            compact[identifier]=source_view(record,compact=True)
+            self.bridge._raw_sources[identifier]=record
+        preview={'token':previous['token'] if same else uuid.uuid4().hex,'canvas_id':canvas_id,'node_id':node_id,
             'tool':outcome.get('tool'),'status':outcome.get('status'),'limitations':outcome.get('limitations',[]),
+            'running':streaming,'error':str(outcome.get('error') or ''),'error_code':outcome.get('error_code'),
             'from_saved_data':outcome.get('from_saved_data') is True,
             'request_counts':{k:outcome.get('source_diagnostics',{}).get(k) for k in ('providers_attempted','http_requests','http_statuses')}
                 if isinstance(outcome.get('source_diagnostics'),dict) else {},
-            'records':records,'results':[source_view(row,compact=True) for row in records]}
-        self.previews[canvas_id]=self.preview
+            'records':list(records.values()),'results':list(compact.values())}
+        self.previews[canvas_id]=preview
         while len(self.previews)>8:self.previews.pop(next(iter(self.previews)))
         if self.document and self.document['id']==canvas_id:
-            self.state={**self.state,'preview':{k:v for k,v in self.preview.items() if k!='records'}}
+            self.preview=preview
+            self.state={**self.state,'preview':{k:v for k,v in preview.items() if k!='records'}}
         if notify:self.bridge.mark_dirty()
 
     def action(self,action,payload):
@@ -265,7 +287,12 @@ class ResearchCanvasBridge:
                 target=next((node for node in value['entities'] if node['id']==owner),None)
                 if target and target['type']=='blockchain_address' and self.preview['tool']=='blockchain_gansar':
                     value['view'].setdefault('ui',{}).update(graph_mode='wallet',crypto_root_id=owner)
+                    if not self.document['evidence'] and not value['view'].get('manual_position_ids'):
+                        value['view']['ui']['initial_layout']='wallet'
                 if target and target['type'] in ('username','nickname'):
+                    value['view'].setdefault('ui',{}).update(graph_mode='socmint',username_root_id=owner)
+                    if not self.document['evidence'] and not value['view'].get('manual_position_ids'):
+                        value['view']['ui']['initial_layout']='hierarchical'
                     # These accounts were returned for this identifier; this
                     # relation never asserts a shared person or account owner.
                     import hashlib

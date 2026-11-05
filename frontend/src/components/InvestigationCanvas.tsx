@@ -1,12 +1,15 @@
 import { forwardRef,useEffect,useImperativeHandle,useMemo,useRef,useState } from 'react'
 import type { GraphEntity,GraphPoint,GraphRelation,GraphViewport } from '../types'
-import { entityLabel,readableViewport,hitNode,hitRelation,nodeBox,relationLabels,shortLabel,zoomAt } from '../graph-model'
+import { entityLabel,fitViewport,readableViewport,hitNode,hitRelation,nodeBox,relationLabels,shortLabel,zoomAt } from '../graph-model'
 import { routeEdges } from '../graph-geometry'
 import {cardBadge,cardRows,cardTitle,cardVariant,cardVariants,withCardPresentation,type CardMode,type CardSize} from '../graph-cards'
+import {GraphCamera} from '../graph-camera'
+import {formatGraphAmount} from '../graph-money'
+import {semanticGraph} from '../graph-semantic'
 
 export interface GraphCanvasHandle { fit():void; zoom(factor:number):void; center(id:string):void }
 interface Props {
-  nodes:GraphEntity[];edges:GraphRelation[];positions:Record<string,GraphPoint>;viewport:GraphViewport
+  nodes:GraphEntity[];edges:GraphRelation[];positions:Record<string,GraphPoint>;viewport:GraphViewport;scopeKey?:string
   selected:string;second:string;selectedEdge:string;root:string;theme?:unknown;mode?:'tree'|'graph'
   onSelect(id:string,second:boolean):void;onEdge(id:string):void
   onCommitPositions(value:Record<string,GraphPoint>):void;onViewport(value:GraphViewport):void
@@ -21,6 +24,10 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
   const presented=useMemo(()=>withCardPresentation(props.nodes,props.cardSizes,props.cardMode),[props.nodes,props.cardSizes,props.cardMode])
   const canvas=useRef<HTMLCanvasElement>(null),latest=useRef(props);latest.current={...props,nodes:presented}
   const points=useRef(props.positions),viewport=useRef(props.viewport)
+  const camera=useRef(new GraphCamera(props.viewport)),pendingPoints=useRef<Record<string,GraphPoint>>({})
+  const cameraFrames=useRef<{time:number;x:number;y:number;scale:number;event:string}[]>([]),lastCameraFrame=useRef('')
+  const farClusters=useRef<{id:string;members:string[];x:number;y:number;width:number;height:number}[]>([])
+  const semanticCache=useRef<{nodes:GraphEntity[];edges:GraphRelation[];positions:Record<string,GraphPoint>;scale:number;protected:string;value:ReturnType<typeof semanticGraph>}|undefined>(undefined)
   const [size,setSize]=useState({width:800,height:440})
   const sizeRef=useRef(size);sizeRef.current=size
   const frame=useRef<number|undefined>(undefined),wheelTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined)
@@ -31,10 +38,46 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
   const moving=useRef<Record<string,GraphPoint>>({})
   const hovered=useRef(''),resizing=useRef<{id:string;x:number;y:number;size:CardSize}|undefined>(undefined),resizeSizes=useRef<Record<string,CardSize>>({})
   const paints=useRef<number[]>([]),intervals=useRef<number[]>([]),latencies=useRef<number[]>([]),lastPaint=useRef(0),lastInput=useRef(0)
+  function recordCamera(event:string){
+    const v=viewport.current,key=`${v.x}|${v.y}|${v.scale}`
+    if(key===lastCameraFrame.current&&event==='frame')return
+    lastCameraFrame.current=key
+    cameraFrames.current.push({time:performance.now(),...v,event})
+    if(cameraFrames.current.length>120)cameraFrames.current.shift()
+    if(canvas.current)canvas.current.dataset.qaCameraFrames=JSON.stringify(cameraFrames.current)
+  }
+  function moveViewport(next:GraphViewport){camera.current.move(next);viewport.current=camera.current.value;requestDraw()}
+  function commitViewport(next=viewport.current){
+    viewport.current=camera.current.commit(next);recordCamera('commit');requestDraw();latest.current.onViewport({...viewport.current})
+  }
+  function fit(){
+    const nodes=latest.current.nodes
+    const visiblePositions=Object.fromEntries(nodes.filter(node=>points.current[node.id]).map(node=>[node.id,points.current[node.id]]))
+    commitViewport(fitViewport(visiblePositions,sizeRef.current.width,sizeRef.current.height,nodes))
+  }
+  function zoomCluster(point:{x:number;y:number}){
+    if(viewport.current.scale>=.38)return false
+    const cluster=farClusters.current.find(row=>Math.abs(point.x-row.x)<=row.width/2&&Math.abs(point.y-row.y)<=row.height/2)
+    if(!cluster)return false
+    const ids=new Set(cluster.members),nodes=latest.current.nodes.filter(node=>ids.has(node.id)),positions=Object.fromEntries(cluster.members.filter(id=>points.current[id]).map(id=>[id,points.current[id]]))
+    commitViewport(readableViewport(positions,sizeRef.current.width,sizeRef.current.height,cluster.members[0],latest.current.mode||'graph',nodes));return true
+  }
+  function nodeAt(point:{x:number;y:number}){
+    const view=viewport.current,cache=semanticCache.current
+    if(view.scale<.38&&cache?.scale===view.scale&&cache.positions===points.current){
+      const node=hitNode(cache.value.nodes,cache.value.positions,view,point.x,point.y)
+      return node?.attributes.semantic_cluster?undefined:node
+    }
+    return hitNode(latest.current.nodes,points.current,view,point.x,point.y)
+  }
   function draw() {
     frame.current=undefined
     const element=canvas.current,ctx=element?.getContext('2d');if(!element||!ctx)return
-    const started=performance.now(),{width,height}=sizeRef.current,p=latest.current,v=viewport.current,positions=points.current,dpr=Math.min(devicePixelRatio||1,2)
+    const started=performance.now(),{width,height}=sizeRef.current,original=latest.current,v=viewport.current,dpr=Math.min(devicePixelRatio||1,2),protectedIds=new Set([original.root,original.selected,original.second,...(original.selection||[])])
+    const selectedEdge=original.edges.find(edge=>edge.id===original.selectedEdge);if(selectedEdge){protectedIds.add(selectedEdge.from_id);protectedIds.add(selectedEdge.to_id)}
+    const protectedKey=[...protectedIds].sort().join('|'),cached=semanticCache.current
+    if(!cached||cached.nodes!==original.nodes||cached.edges!==original.edges||cached.positions!==points.current||cached.scale!==v.scale||cached.protected!==protectedKey)semanticCache.current={nodes:original.nodes,edges:original.edges,positions:points.current,scale:v.scale,protected:protectedKey,value:semanticGraph(original.nodes,original.edges,points.current,v.scale,protectedIds)}
+    const semantic=semanticCache.current!.value,p={...original,nodes:semantic.nodes,edges:semantic.edges},positions=semantic.positions
     if(element.width!==Math.round(width*dpr)||element.height!==Math.round(height*dpr)){element.width=Math.round(width*dpr);element.height=Math.round(height*dpr)}
     ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height)
     const style=getComputedStyle(element),color=(name:string)=>style.getPropertyValue(name).trim()
@@ -44,6 +87,8 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     const fitText=(value:string,space:number)=>{let low=0,high=value.length;while(low<high){const mid=Math.ceil((low+high)/2);if(ctx.measureText(value.slice(0,mid)).width<=space)low=mid;else high=mid-1}return low}
     const clipped=(value:string,space:number)=>{if(space<12)return '';if(ctx.measureText(value).width<=space)return value;const tail=value.length>10?value.slice(-7):'',suffix='…'+tail,available=space-ctx.measureText(suffix).width;return available<=0?'…':value.slice(0,fitText(value.slice(0,value.length-tail.length),available))+suffix}
     const cards=p.nodes.flatMap(original=>{const node=resizeSizes.current[original.id]?{...original,attributes:{...original.attributes,_card_size:resizeSizes.current[original.id]}}:original,point=screen(node.id),box=nodeBox(node,v.scale);return point&&onScreen(point,Math.max(box.width,box.height)/2+24)?[{node,point,box}]:[]})
+    const clusterMembers=new Map(semantic.clusters.map(cluster=>[cluster.id,cluster.members]))
+    farClusters.current=cards.filter(card=>clusterMembers.has(card.node.id)).map(card=>({id:card.node.id,members:clusterMembers.get(card.node.id)!,...card.point,...card.box}))
     const visibleMedia=new Set(cards.map(c=>String((c.node.attributes.media as Record<string,unknown>|undefined)?.id||'')))
     if(thumbnails.current.size>80)for(const key of thumbnails.current.keys()){if(thumbnails.current.size<=64)break;if(!visibleMedia.has(key))thumbnails.current.delete(key)}
     if(p.mode!=='tree'&&v.scale>.45){
@@ -61,19 +106,25 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     const occupied=cards.map(({point,box})=>({x:point.x-box.width/2-4,y:point.y-box.height/2-4,w:box.width+8,h:box.height+8}))
     for(const {edge,points}of routes){
       const selected=edge.id===p.selectedEdge,related=edge.from_id===p.selected||edge.to_id===p.selected
-      ctx.strokeStyle=selected?accent:edge.verification_status==='contradicted'?danger:edge.verification_status==='inferred'?warning:related?muted:border
+      const incoming=edge.to_id===p.root&&edge.from_id!==p.root,outgoing=edge.from_id===p.root&&edge.to_id!==p.root
+      const flowColor=edge.aggregate&&(incoming||outgoing)?incoming?'#68aab4':'#cfaa73':null
+      ctx.strokeStyle=selected?accent:edge.verification_status==='contradicted'?danger:edge.verification_status==='inferred'?warning:flowColor|| (related?muted:border)
       ctx.lineWidth=selected?2.4:edge.aggregate?1.6:1;ctx.globalAlpha=p.selected&&!related&&!selected ? .25 : selected ? 1 : .65
       ctx.setLineDash(['inferred','unverified'].includes(edge.verification_status)?[5,5]:[])
       ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);points.slice(1).forEach(point=>ctx.lineTo(point.x,point.y));ctx.stroke();ctx.setLineDash([])
       if(edge.direction!=='undirected'){const end=points.at(-1)!,prior=points.at(-2)!,angle=Math.atan2(end.y-prior.y,end.x-prior.x)
-        ctx.fillStyle=selected?accent:muted;ctx.beginPath();ctx.moveTo(end.x,end.y);ctx.lineTo(end.x-Math.cos(angle-.45)*8,end.y-Math.sin(angle-.45)*8);ctx.lineTo(end.x-Math.cos(angle+.45)*8,end.y-Math.sin(angle+.45)*8);ctx.closePath();ctx.fill()}
+        ctx.fillStyle=selected?accent:flowColor||muted;ctx.beginPath();ctx.moveTo(end.x,end.y);ctx.lineTo(end.x-Math.cos(angle-.45)*8,end.y-Math.sin(angle-.45)*8);ctx.lineTo(end.x-Math.cos(angle+.45)*8,end.y-Math.sin(angle+.45)*8);ctx.closePath();ctx.fill()}
       ctx.globalAlpha=1
       if(selected||v.scale>.45&&p.nodes.length<=45&&(edge.aggregate||related)){
-        const asset=edge.aggregate?.asset_label||edge.aggregate?.asset||'',label=edge.aggregate?`${edge.aggregate.count} · ${edge.aggregate.amount??'?'} ${asset.length>12?'актив':asset}`:relationLabels[edge.relation_type]||edge.relation_type
+        const asset=edge.aggregate?.asset_label||edge.aggregate?.asset||'',label=edge.aggregate?`${edge.aggregate.count} · ${formatGraphAmount(edge.aggregate.amount)} ${asset.length>12?'актив':asset}`:relationLabels[edge.relation_type]||edge.relation_type
         ctx.font='11px Manrope, sans-serif';const caption=clipped(label,190),w=ctx.measureText(caption).width+12
-        for(const fraction of [.5,.32,.68]){const point=points[Math.round((points.length-1)*fraction)],box={x:point.x-w/2,y:point.y-10,w,h:21}
+        for(const fraction of [.5,.32,.68]){
+          const progress=(points.length-1)*fraction,segment=Math.floor(progress),offset=progress-segment
+          const a=points[segment],b=points[segment+1]
+          const point={x:a.x+(b.x-a.x)*offset,y:a.y+(b.y-a.y)*offset}
+          const box={x:point.x-w/2,y:point.y-10,w,h:21}
           if(occupied.some(other=>box.x<other.x+other.w&&box.x+box.w>other.x&&box.y<other.y+other.h&&box.y+box.h>other.y))continue
-          occupied.push(box);ctx.fillStyle=panel;ctx.fillRect(box.x,box.y,box.w,box.h);ctx.fillStyle=selected?accent:muted;ctx.fillText(caption,box.x+6,box.y+14);break
+          occupied.push(box);ctx.fillStyle=panel;ctx.fillRect(box.x,box.y,box.w,box.h);ctx.fillStyle=selected?accent:flowColor||text;ctx.fillText(caption,box.x+6,box.y+14);break
         }
       }
     }
@@ -87,7 +138,19 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       if(variant==='hypothesis')ctx.setLineDash([4,3])
       ctx.beginPath();ctx.roundRect(x,y,box.width,box.height,Math.min(corner,box.height/4));ctx.fill();ctx.stroke()
       ctx.setLineDash([])
-      if(box.width<58||box.height<28){ctx.fillStyle=selected?accent:muted;ctx.fillRect(x+2,y+2,Math.max(1,Math.min(3,box.width-4)),Math.max(1,box.height-4));continue}
+      if(v.scale<.38){
+        // Far zoom represents an object with a readable symbol and label,
+        // rather than shrinking a detailed card into an empty rectangle.
+        const title=shortLabel(node),font=root||selected?12:11
+        ctx.fillStyle=selected||root?accent:muted;ctx.font=`700 16px Manrope, sans-serif`
+        ctx.fillText(cardVariants[variant].symbol,x+7,point.y+5)
+        ctx.font=`600 ${font}px Manrope, sans-serif`;ctx.fillStyle=text
+        ctx.fillText(clipped(title,box.width-35),x+29,point.y+4)
+        if(variant==='group'){ctx.font='10px Manrope, sans-serif';ctx.fillStyle=muted;ctx.fillText(`${node.attributes.member_count??'—'} · раскрыть`,x+29,point.y+17)}
+        drawnLabels++
+        if(qaNodes.length<30)qaNodes.push({id:node.id,x:point.x,y:point.y,width:box.width,height:box.height,label:shortLabel(node)})
+        continue
+      }
       if(v.scale>.55){
         if(['wallet','transaction','contract','social','organization'].includes(variant)){ctx.save();ctx.beginPath();ctx.roundRect(x+1,y+1,box.width-2,box.height-2,Math.min(corner,box.height/4));ctx.clip();ctx.fillStyle=raised;ctx.fillRect(x+1,y+1,box.width-2,Math.min(27*v.scale,box.height/3));ctx.restore()}
         if(variant==='note'){ctx.strokeStyle=border;ctx.lineWidth=.7;for(let line=y+box.height*.6;line<y+box.height-10;line+=15*v.scale){ctx.beginPath();ctx.moveTo(x+10,line);ctx.lineTo(x+box.width-12,line);ctx.stroke()}}
@@ -142,39 +205,57 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     element.dataset.qaNodes=JSON.stringify(qaNodes)
     element.dataset.qaEdges=JSON.stringify(routes.slice(0,20).map(({edge,points})=>({id:edge.id,...points[Math.floor(points.length*.6)]})))
     element.dataset.zoom=String(v.scale);element.dataset.panX=String(v.x);element.dataset.panY=String(v.y)
+    element.dataset.semanticZoom=v.scale<.38?'far':v.scale<.75?'medium':'close'
+    element.dataset.qaFarClusters=JSON.stringify(farClusters.current.slice(0,30).map(cluster=>({...cluster,count:cluster.members.length,members:cluster.members.slice(0,64)})))
+    element.dataset.modelNodes=String(original.nodes.length)
     element.dataset.drawnNodes=String(p.nodes.length);element.dataset.drawnEdges=String(routes.length);element.dataset.paintMs=String(performance.now()-started)
     element.dataset.modelEdges=String(p.edges.length);element.dataset.onScreenNodes=String(cards.length)
     const now=performance.now();paints.current.push(now-started);if(lastPaint.current&&now-lastPaint.current<100)intervals.current.push(now-lastPaint.current)
     if(lastInput.current){latencies.current.push(now-lastInput.current);lastInput.current=0}lastPaint.current=now
     for(const array of [paints.current,intervals.current,latencies.current])if(array.length>240)array.splice(0,array.length-240)
     if(paints.current.length%5===0||!drag.current)element.dataset.frameMetrics=JSON.stringify({paint_ms:paints.current,active_intervals_ms:intervals.current,event_to_paint_ms:latencies.current})
+    recordCamera('frame')
   }
   function requestDraw(){if(frame.current===undefined)frame.current=requestAnimationFrame(draw)}
-  useEffect(()=>{points.current=props.positions;viewport.current=props.viewport;resizeSizes.current={};requestDraw()},[props.positions,props.viewport,presented,props.edges,props.selected,props.second,props.selection,props.selectedEdge,props.theme])
+  useEffect(()=>{
+    camera.current=new GraphCamera(props.viewport);viewport.current=camera.current.value
+    points.current=props.positions;pendingPoints.current={};drag.current=undefined;moving.current={};cameraFrames.current=[];recordCamera('scope');requestDraw()
+  },[props.scopeKey??props.root])
+  useEffect(()=>{
+    const incoming={...props.positions}
+    for(const [id,point]of Object.entries(pendingPoints.current))if(incoming[id]&&Math.abs(incoming[id].x-point.x)<.01&&Math.abs(incoming[id].y-point.y)<.01)delete pendingPoints.current[id]
+    Object.assign(incoming,pendingPoints.current)
+    if(drag.current?.id)for(const id of Object.keys(moving.current))if(points.current[id])incoming[id]=points.current[id]
+    points.current=incoming;requestDraw()
+  },[props.positions])
+  useEffect(()=>{camera.current.receive(props.viewport);viewport.current=camera.current.value;recordCamera('ack');requestDraw()},[props.viewport])
+  useEffect(()=>{if(!resizing.current)resizeSizes.current={};requestDraw()},[presented,props.edges,props.selected,props.second,props.selection,props.selectedEdge,props.theme])
   useEffect(()=> {
     const element=canvas.current;if(!element)return
     const observer=new ResizeObserver(entries=>{const rect=entries[0].contentRect;if(rect.width&&rect.height){const next={width:rect.width,height:rect.height};setSize(next);sizeRef.current=next;latest.current.onResize(next.width,next.height);requestDraw()}})
     observer.observe(element)
-    const wheel=(event:WheelEvent)=>{event.preventDefault();const rect=element.getBoundingClientRect();viewport.current=zoomAt(viewport.current,event.clientX-rect.left,event.clientY-rect.top,Math.exp(-event.deltaY*.0015));requestDraw();clearTimeout(wheelTimer.current);wheelTimer.current=setTimeout(()=>latest.current.onViewport({...viewport.current}),100)}
+    const wheel=(event:WheelEvent)=>{event.preventDefault();camera.current.active=true;lastInput.current=performance.now();const rect=element.getBoundingClientRect();moveViewport(zoomAt(viewport.current,event.clientX-rect.left,event.clientY-rect.top,Math.exp(-event.deltaY*.0015)));clearTimeout(wheelTimer.current);wheelTimer.current=setTimeout(()=>{camera.current.active=false;commitViewport()},140)}
     element.addEventListener('wheel',wheel,{passive:false})
     return()=>{observer.disconnect();element.removeEventListener('wheel',wheel);if(frame.current!==undefined)cancelAnimationFrame(frame.current);clearTimeout(wheelTimer.current)}
   },[])
-  useImperativeHandle(forwarded,()=>({fit(){latest.current.onViewport(readableViewport(Object.fromEntries(latest.current.nodes.filter(n=>points.current[n.id]).map(n=>[n.id,points.current[n.id]])),sizeRef.current.width,sizeRef.current.height,latest.current.root,latest.current.mode||'graph',latest.current.nodes))},zoom(factor){latest.current.onViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,factor))},center(id){const p=points.current[id];if(p)latest.current.onViewport({x:sizeRef.current.width/2-p.x,y:sizeRef.current.height/2-p.y,scale:1})}}),[])
+  useImperativeHandle(forwarded,()=>({fit,zoom(factor){commitViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,factor))},center(id){const p=points.current[id];if(p)commitViewport({x:sizeRef.current.width/2-p.x,y:sizeRef.current.height/2-p.y,scale:1})}}),[])
   const local=(event:{clientX:number;clientY:number})=>{const rect=canvas.current!.getBoundingClientRect();return{x:event.clientX-rect.left,y:event.clientY-rect.top}}
   return <canvas ref={canvas} className="investigation-graph-canvas" role="application" aria-label="Интерактивный граф расследования" tabIndex={0}
-    onDoubleClick={event=>{const r=event.currentTarget.getBoundingClientRect(),v=viewport.current,node=hitNode(latest.current.nodes,points.current,v,event.clientX-r.left,event.clientY-r.top);if(node){if(node.attributes.media)latest.current.onOpenMedia?.(node);else latest.current.onExpand?.(node.id)}else latest.current.onCreate?.({x:(event.clientX-r.left-v.x)/v.scale,y:(event.clientY-r.top-v.y)/v.scale})}}
-    onContextMenu={event=>{event.preventDefault();const p=local(event),v=viewport.current,node=hitNode(latest.current.nodes,points.current,v,p.x,p.y);latest.current.onContext?.(node?.id||'',{x:(p.x-v.x)/v.scale,y:(p.y-v.y)/v.scale})}}
+    onDoubleClick={event=>{const r=event.currentTarget.getBoundingClientRect(),point={x:event.clientX-r.left,y:event.clientY-r.top};if(zoomCluster(point))return;const v=viewport.current,node=nodeAt(point);if(node){if(node.attributes.media)latest.current.onOpenMedia?.(node);else latest.current.onExpand?.(node.id)}else latest.current.onCreate?.({x:(point.x-v.x)/v.scale,y:(point.y-v.y)/v.scale})}}
+    onContextMenu={event=>{event.preventDefault();const p=local(event);if(zoomCluster(p))return;const v=viewport.current,node=nodeAt(p);latest.current.onContext?.(node?.id||'',{x:(p.x-v.x)/v.scale,y:(p.y-v.y)/v.scale})}}
     onPointerDown={event=>{
       if(event.button!==0)return
       const point=local(event),v=viewport.current,p=latest.current
       canvas.current?.focus();event.currentTarget.setPointerCapture?.(event.pointerId)
       const m=mini.current
-      if(m&&point.x>=m.x&&point.x<=m.x+m.w&&point.y>=m.y&&point.y<=m.y+m.h){latest.current.onViewport({...v,x:sizeRef.current.width/2-((point.x-m.x)/m.scale+m.minX)*v.scale,y:sizeRef.current.height/2-((point.y-m.y)/m.scale+m.minY)*v.scale});return}
+      if(m&&point.x>=m.x&&point.x<=m.x+m.w&&point.y>=m.y&&point.y<=m.y+m.h){commitViewport({...v,x:sizeRef.current.width/2-((point.x-m.x)/m.scale+m.minX)*v.scale,y:sizeRef.current.height/2-((point.y-m.y)/m.scale+m.minY)*v.scale});return}
+      if(zoomCluster(point))return
       if(p.onConnect&&v.scale>.55){const port=p.nodes.find(n=>{if(n.id!==p.selected&&n.id!==hovered.current&&!p.selection?.includes(n.id))return false;const pos=points.current[n.id];if(!pos)return false;const box=nodeBox(n,v.scale);return Math.abs(point.y-(pos.y*v.scale+v.y))<10&&Math.abs(Math.abs(point.x-(pos.x*v.scale+v.x))-box.width/2)<10});if(port){linking.current=port.id;requestDraw();return}}
-      const node=hitNode(p.nodes,points.current,v,point.x,point.y)
+      const node=nodeAt(point)
       if(node&&p.onCardResize&&(node.id===p.selected||p.selection?.includes(node.id))&&cardVariant(node)==='media'){const box=nodeBox(node,v.scale),at=points.current[node.id];if(point.x>at.x*v.scale+v.x+box.width/2-18&&point.y>at.y*v.scale+v.y+box.height/2-18){resizing.current={id:node.id,x:point.x,y:point.y,size:{width:box.width/v.scale,height:box.height/v.scale}};return}}
       if(event.shiftKey&&!node&&p.onSelection){marquee.current={x:point.x,y:point.y,endX:point.x,endY:point.y};return}
       drag.current={id:node?.id,startX:point.x,startY:point.y,point:node?{...points.current[node.id]}:undefined,view:{...v},moved:false}
+      camera.current.active=true
       moving.current={}
       if(node){
         const ids=new Set(p.selection?.includes(node.id)?p.selection:[node.id])
@@ -188,12 +269,12 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       const point=local(event)
       if(resizing.current){const r=resizing.current;resizeSizes.current[r.id]={width:Math.max(160,Math.min(720,r.size.width+(point.x-r.x)/viewport.current.scale)),height:Math.max(120,Math.min(640,r.size.height+(point.y-r.y)/viewport.current.scale))};lastInput.current=performance.now();requestDraw();return}
       if(marquee.current){marquee.current.endX=point.x;marquee.current.endY=point.y;requestDraw();return}
-      const current=drag.current;if(!current){const node=hitNode(latest.current.nodes,points.current,viewport.current,point.x,point.y),id=node?.id||'';if(hovered.current!==id){hovered.current=id;requestDraw()}event.currentTarget.style.cursor=node?'grab':'default';return}
+      const current=drag.current;if(!current){const node=nodeAt(point),id=node?.id||'';if(hovered.current!==id){hovered.current=id;requestDraw()}event.currentTarget.style.cursor=node?'grab':'default';return}
       const dx=point.x-current.startX,dy=point.y-current.startY;if(Math.hypot(dx,dy)<3&&!current.moved)return
       lastInput.current=performance.now()
       current.moved=true
       if(current.id&&current.point){const updated={...points.current};for(const [id,p]of Object.entries(moving.current))updated[id]={x:p.x+dx/current.view.scale,y:p.y+dy/current.view.scale,pinned:true};points.current=updated}
-      else viewport.current={...current.view,x:current.view.x+dx,y:current.view.y+dy}
+      else moveViewport({...current.view,x:current.view.x+dx,y:current.view.y+dy})
       requestDraw()
     }}
     onPointerUp={event=>{
@@ -201,10 +282,10 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       if(resizing.current){const r=resizing.current;resizing.current=undefined;if(resizeSizes.current[r.id])p.onCardResize?.(r.id,resizeSizes.current[r.id]);requestDraw()}
       if(linking.current){const target=hitNode(p.nodes,points.current,v,point.x,point.y),from=linking.current;linking.current=undefined;if(target&&target.id!==from)p.onConnect?.(from,target.id)}
       if(marquee.current){const r=marquee.current;marquee.current=undefined;p.onSelection?.(p.nodes.filter(n=>{const pos=points.current[n.id];if(!pos)return false;const x=pos.x*v.scale+v.x,y=pos.y*v.scale+v.y;return x>=Math.min(r.x,r.endX)&&x<=Math.max(r.x,r.endX)&&y>=Math.min(r.y,r.endY)&&y<=Math.max(r.y,r.endY)}).map(n=>n.id));requestDraw()}
-      const current=drag.current;drag.current=undefined;event.currentTarget.releasePointerCapture?.(event.pointerId)
-      if(current?.moved){if(current.id)p.onCommitPositions({...points.current});else p.onViewport({...viewport.current})}
+      const current=drag.current;drag.current=undefined;camera.current.active=false;event.currentTarget.releasePointerCapture?.(event.pointerId)
+      if(current?.moved){if(current.id){for(const id of Object.keys(moving.current))pendingPoints.current[id]={...points.current[id]};p.onCommitPositions({...points.current})}else commitViewport()}
     }}
     onPointerLeave={()=>{if(!drag.current){hovered.current='';requestDraw()}}}
-    onPointerCancel={()=>{drag.current=undefined;marquee.current=undefined;linking.current=undefined;resizing.current=undefined;resizeSizes.current={};requestDraw()}}
-    onKeyDown={event=>{const key=event.key;if(['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(key)){event.preventDefault();if(key==='Home')latest.current.onViewport(readableViewport(Object.fromEntries(latest.current.nodes.filter(n=>points.current[n.id]).map(n=>[n.id,points.current[n.id]])),sizeRef.current.width,sizeRef.current.height,latest.current.root,latest.current.mode||'graph',latest.current.nodes));else if(key==='+'||key==='='||key==='-')latest.current.onViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,key==='-'?.8:1.25));else latest.current.onViewport({...viewport.current,x:viewport.current.x+(key==='ArrowLeft'?40:key==='ArrowRight'?-40:0),y:viewport.current.y+(key==='ArrowUp'?40:key==='ArrowDown'?-40:0)})}}}/>
+    onPointerCancel={()=>{const current=drag.current;drag.current=undefined;camera.current.active=false;if(current?.moved&&!current.id)commitViewport();marquee.current=undefined;linking.current=undefined;resizing.current=undefined;resizeSizes.current={};requestDraw()}}
+    onKeyDown={event=>{const key=event.key;if(['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(key)){event.preventDefault();if(key==='Home')fit();else if(key==='+'||key==='='||key==='-')commitViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,key==='-'?.8:1.25));else commitViewport({...viewport.current,x:viewport.current.x+(key==='ArrowLeft'?40:key==='ArrowRight'?-40:0),y:viewport.current.y+(key==='ArrowUp'?40:key==='ArrowDown'?-40:0)})}}}/>
 })

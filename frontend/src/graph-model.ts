@@ -122,8 +122,16 @@ function visibleGraphBase(nodes:GraphEntity[],edges:GraphRelation[],root:string,
 }
 export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:string,view:GraphView,limit=220){
   const mode=view.projection_mode
+  if(mode==='socmint'){
+    const profiles=socmintProfiles(nodes,edges,root).filter(node=>!view.filters?.profile_ids||view.filters.profile_ids.includes(node.id)||view.selected_id===node.id),ids=new Set([root,...profiles.map(node=>node.id)])
+    if(view.selected_id&&nodes.some(node=>node.id===view.selected_id&&ids.has(node.id)))ids.add(view.selected_id)
+    if(view.filters?.show_sources)for(const edge of edges)if(ids.has(edge.from_id)&&['supported_by','published_on_domain','uses_public_identifier'].includes(edge.relation_type))ids.add(edge.to_id)
+    const result=visibleGraphBase(nodes.filter(node=>ids.has(node.id)),edges.filter(edge=>ids.has(edge.from_id)&&ids.has(edge.to_id)),root,{...view,filters:{...view.filters,include_background:true}},limit)
+    return {...result,hiddenNodes:nodes.length-result.nodes.length}
+  }
   if(!mode||mode==='manual'||!nodes.some(node=>node.type==='blockchain_address'))return visibleGraphBase(nodes,edges,root,view,limit)
   const expandedTransactions=new Set(edges.filter(edge=>view.expanded_relations?.includes(edge.id)).flatMap(edge=>edge.aggregate?.transaction_ids||[]))
+  const drillPeers=new Set(edges.filter(edge=>view.expanded_relations?.includes(edge.id)).flatMap(edge=>[edge.from_id,edge.to_id]))
   const direct=new Set([root]);for(const edge of edges)if(edge.aggregate||['transfers','source_reports_counterparty'].includes(edge.relation_type)){if(edge.from_id===root)direct.add(edge.to_id);if(edge.to_id===root)direct.add(edge.from_id)}
   let path:Set<string>|undefined
   if(mode==='paths'&&view.selected_id&&view.selected_id!==root){
@@ -135,18 +143,73 @@ export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:stri
     for(const other of (adjacent.get(view.selected_id)||[]).slice(0,12))path.add(other)
   }
   const projected=nodes.filter(node=>{
-    if(node.id===root||node.id===view.selected_id||expandedTransactions.has(node.id))return true
+    if(node.id===root||node.id===view.selected_id||expandedTransactions.has(node.id)||drillPeers.has(node.id))return true
+    if(view.filters?.peer_ids&&node.type==='blockchain_address'&&!view.filters.peer_ids.includes(node.id))return false
     if(view.filters?.show_sources&&['source','service'].includes(node.type))return true
     if(view.filters?.types?.includes(node.type))return true
     if(path)return path.has(node.id)
     if(mode==='counterparties')return direct.has(node.id)&&node.type==='blockchain_address'
     if(mode==='transactions')return ['blockchain_address','transaction','contract'].includes(node.type)
     if(mode==='flow')return ['blockchain_address','contract','token'].includes(node.type)
+    // Overview is the researched wallet's actual neighborhood, not every
+    // wallet from every imported observation. Expanded peers expose their
+    // additional counterparties without mutating or discarding raw evidence.
+    if(['wallet','counterparties'].includes(mode))return direct.has(node.id)||!!view.expanded?.some(id=>edges.some(edge=>(edge.aggregate||edge.relation_type==='source_reports_counterparty')&&((edge.from_id===id&&edge.to_id===node.id)||(edge.to_id===id&&edge.from_id===node.id))))
     return ['blockchain_address','contract','token','entity_group','analyst_note','hypothesis'].includes(node.type)
   })
   const ids=new Set(projected.map(node=>node.id)),relations=edges.filter(edge=>ids.has(edge.from_id)&&ids.has(edge.to_id)&&(mode!=='flow'||edge.aggregate||['transfers','sent_from','sent_to'].includes(edge.relation_type)||edge.id===view.selected_relation))
   const result=visibleGraphBase(projected,relations,root,{...view,filters:{...view.filters,show_transactions:mode==='transactions'||view.filters?.show_transactions}},limit)
   return {...result,hiddenNodes:nodes.length-result.nodes.length}
+}
+
+export interface FinancialFlow {
+  id:string;peer_id:string;direction:'incoming'|'outgoing'|'self';amount:string|null;asset:string;asset_key:string
+  count:number;unknown_amount_count:number;first_seen:string|null;last_seen:string|null
+  transaction_ids:string[];evidence_ids:string[];source_urls:string[]
+}
+export interface WalletCounterparty {
+  id:string;label:string;address:string;chain:string;flows:FinancialFlow[];transaction_ids:string[]
+  evidence_ids:string[];source_urls:string[];first_seen:string|null;last_seen:string|null
+  source_claim_count:number|null;direction_unknown:boolean
+}
+const strings=(values:unknown[])=>[...new Set(values.filter((value):value is string=>typeof value==='string'&&!!value))]
+const numberCount=(value:unknown)=>typeof value==='number'&&Number.isInteger(value)&&value>=0?value:null
+function dated(values:unknown[],first:boolean){const list=strings(values).filter(value=>!Number.isNaN(Date.parse(value))).sort((a,b)=>Date.parse(a)-Date.parse(b));return (first?list[0]:list.at(-1))||null}
+export function walletSummary(nodes:GraphEntity[],edges:GraphRelation[],root:string){
+  const byId=new Map(nodes.map(node=>[node.id,node])),owner=byId.get(root),counterparties=new Map<string,WalletCounterparty>(),transactions=new Set<string>(),assets=new Set<string>()
+  const peer=(identifier:string)=>{
+    const node=byId.get(identifier)
+    if(!node||node.type!=='blockchain_address')return
+    if(!counterparties.has(identifier))counterparties.set(identifier,{id:identifier,label:node.label,address:String(node.attributes.address||node.attributes.value||node.label),chain:String(node.attributes.chain||''),flows:[],transaction_ids:[],evidence_ids:[],source_urls:[],first_seen:null,last_seen:null,source_claim_count:null,direction_unknown:false})
+    return counterparties.get(identifier)!
+  }
+  for(const edge of edges){
+    if(edge.from_id!==root&&edge.to_id!==root)continue
+    const other=edge.from_id===root?edge.to_id:edge.from_id,row=peer(other)
+    if(!row)continue
+    if(edge.aggregate){
+      const value=edge.aggregate,direction=edge.from_id===edge.to_id?'self':edge.from_id===root?'outgoing':'incoming'
+      const flow:FinancialFlow={id:edge.id,peer_id:other,direction,amount:value.amount,asset:value.asset_label||value.asset,asset_key:value.asset_key||String(owner?.attributes.chain||'')+'|'+value.asset,count:value.count,unknown_amount_count:value.unknown_amount_count,first_seen:value.first_seen||null,last_seen:value.last_seen||null,transaction_ids:value.transaction_ids,evidence_ids:edge.evidence_ids,source_urls:edge.source_urls||[]}
+      row.flows.push(flow);value.transaction_ids.forEach(id=>transactions.add(id));assets.add(flow.asset)
+    }else if(edge.relation_type==='source_reports_counterparty'){
+      const count=numberCount(edge.attributes?.count)
+      if(count!==null)row.source_claim_count=Math.max(row.source_claim_count||0,count)
+      row.direction_unknown=true
+    }else continue
+    row.evidence_ids=strings([...row.evidence_ids,...edge.evidence_ids]);row.source_urls=strings([...row.source_urls,...(edge.source_urls||[])])
+    row.transaction_ids=strings(row.flows.flatMap(flow=>flow.transaction_ids))
+    row.first_seen=dated([row.first_seen,edge.aggregate?.first_seen,edge.attributes?.first_seen],true)
+    row.last_seen=dated([row.last_seen,edge.aggregate?.last_seen,edge.attributes?.last_seen],false)
+  }
+  // A source-reported peer without a resolved transfer remains a peer, with
+  // direction explicitly unknown; UTXO totals never become pairwise amounts.
+  const all=[...counterparties.values()].filter(row=>row.flows.length||row.direction_unknown),rows=all.filter(row=>row.id!==root).sort((a,b)=>b.transaction_ids.length-a.transaction_ids.length||(b.source_claim_count||0)-(a.source_claim_count||0)||a.address.localeCompare(b.address))
+  return {root_id:root,address:String(owner?.attributes.address||owner?.attributes.value||owner?.label||''),chain:String(owner?.attributes.chain||''),counterparties:rows,self_flows:all.find(row=>row.id===root)?.flows||[],counterparty_count:rows.length,observed_transaction_count:transactions.size,source_reported_transaction_count:numberCount(owner?.attributes.transaction_count),assets:[...assets].sort(),first_seen:dated([owner?.attributes.first_seen,...all.map(row=>row.first_seen)],true),last_seen:dated([owner?.attributes.last_seen,...all.map(row=>row.last_seen)],false),coverage:'observed_sample_only' as const}
+}
+export function counterpartySummary(nodes:GraphEntity[],edges:GraphRelation[],root:string,peer:string){return walletSummary(nodes,edges,root).counterparties.find(row=>row.id===peer)}
+export function socmintProfiles(nodes:GraphEntity[],edges:GraphRelation[],root:string){
+  const owner=nodes.find(node=>node.id===root),linked=new Set(edges.filter(edge=>edge.from_id===root&&['returned_for_query','investigates'].includes(edge.relation_type)).map(edge=>edge.to_id)),proof=new Set(owner?.evidence_ids||[])
+  return nodes.filter(node=>['public_profile','social_profile','github_profile','telegram_channel'].includes(node.type)&&(!node.attributes.reference_only)&&(linked.has(node.id)||node.evidence_ids.some(id=>proof.has(id))||owner?.type==='root_entity')).sort((a,b)=>String(a.attributes.platform||'').localeCompare(String(b.attributes.platform||''))||a.label.localeCompare(b.label))
 }
 export {layoutGraph} from './graph-layout'
 export function fitViewport(points:Record<string,GraphPoint>,width:number,height:number,nodes?:GraphEntity[]):GraphViewport {

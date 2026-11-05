@@ -3,7 +3,9 @@ import {cardSize} from './graph-cards'
 
 export function nodeBox(node:GraphEntity,scale:number){
   const size=cardSize(node)
-  return {width:size.width*scale,height:size.height*scale}
+  // A distant object is a semantic glyph, not an unreadable thumbnail of its
+  // detailed card. Rendering, hit-testing, routing and culling share its bounds.
+  return scale<.38?{width:Math.max(110,size.width*scale),height:Math.max(42,size.height*scale)}:{width:size.width*scale,height:size.height*scale}
 }
 interface Point {x:number;y:number}
 export interface EdgeRoute {edge:GraphRelation;points:Point[]}
@@ -15,7 +17,7 @@ export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPo
   const screen=(id:string)=>{const point=positions[id];return point?{x:point.x*view.scale+view.x,y:point.y*view.scale+view.y}:null}
   const border=(id:string,center:Point,towards:Point)=>{
     const node=byId.get(id),box=node?nodeBox(node,view.scale):{width:16,height:16}
-    const dx=towards.x-center.x,dy=towards.y-center.y,t=1/Math.max(Math.abs(dx)/(box.width/2+4),Math.abs(dy)/(box.height/2+4),.0001)
+    const dx=towards.x-center.x,dy=towards.y-center.y,t=Math.min(1,1/Math.max(Math.abs(dx)/(box.width/2+4),Math.abs(dy)/(box.height/2+4),.0001))
     return {x:center.x+dx*t,y:center.y+dy*t}
   }
   const result:EdgeRoute[]=[]

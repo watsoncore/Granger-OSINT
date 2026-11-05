@@ -1052,7 +1052,10 @@ class ToolRegistry:
             envelope.update(status='partial' if records else 'error', error_code=error.code,
                 error_info=error.diagnostic(), error='Источник вернул данные неверного формата; они не приняты за факты.')
         except Exception:
-            envelope.update(status="error", error="Источник не выполнил запрос. Проверьте его доступность и настройки.")
+            if spec.source=='maigret':
+                envelope.update(status="partial" if records else "error", error_code='tool_execution_failed',
+                    error="Maigret не завершил проверку. Полученные находки сохранены; проверьте диагностику источника.")
+            else:envelope.update(status="error", error="Источник не выполнил запрос. Проверьте его доступность и настройки.")
         if cancelled.is_set():
             envelope["status"] = "cancelled" if cancel_event and cancel_event.is_set() else "timeout"
         envelope["results"] = list(records.values())

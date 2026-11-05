@@ -41,9 +41,10 @@ describe('independent branching tree and constrained network',()=>{
     expect(expanded.nodes).toHaveLength(1002);expect(expanded.edges).toHaveLength(1001)
     expect(rows).toHaveLength(1002)
   })
-  it('scales card geometry with zoom instead of keeping overlapping minimum-size boxes',()=>{
+  it('uses readable semantic hit bounds at far zoom and normal proportional cards nearby',()=>{
     const full=nodeBox(n('item'),1),box=nodeBox(n('item'),.17)
-    expect(box.width).toBeCloseTo(full.width*.17);expect(box.height).toBeCloseTo(full.height*.17)
+    expect(box).toEqual({width:110,height:42})
+    expect(nodeBox(n('item'),.5)).toEqual({width:full.width*.5,height:full.height*.5})
   })
   it('retains branching hierarchy after expansion instead of appending a grid of new cards',()=>{
     const rows=['root','a','b','a1','a2','b1'].map(id=>n(id)),links=[e('root','a'),e('root','b'),e('a','a1'),e('a','a2'),e('b','b1')]

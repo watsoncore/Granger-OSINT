@@ -114,6 +114,21 @@ def test_original_partial_output_survives_internal_deadline(monkeypatch):
     assert result["status"] == "timeout" and len(result["results"]) == 1
     assert result["source_diagnostics"]["coverage"]["pending"] == 2
     assert result["source_diagnostics"]["resumption"]["native_durable_resume"] is False
+    assert result['error_code']=='maigret_time_budget'
+
+
+@pytest.mark.parametrize('found',[True,False])
+def test_engine_exception_has_safe_diagnostic_and_keeps_received_findings(monkeypatch,found):
+    async def original(username,sites,logger,**kwargs):
+        if found:kwargs['output_container']['0']={'status':check(),'url_user':'https://example.com/0','http_status':200}
+        raise RuntimeError('private-url-or-api-key-must-never-be-returned')
+    fake_engine(monkeypatch,original,3)
+    result=bridge.run_adapter(Path('unused'),{'text':'fixture','timeout':3},{'maigret':{'mode':'full'}})
+    assert result['status']==('partial' if found else 'error')
+    assert len(result['results'])==int(found)
+    assert result['error_code']=='maigret_engine_exception'
+    assert result['source_diagnostics']['termination']['exception_type']=='RuntimeError'
+    assert 'private-url-or-api-key' not in json.dumps(result)
 
 
 def test_transport_enforces_verified_tls_no_environment_proxy_and_public_redirects(monkeypatch):
@@ -139,6 +154,11 @@ def test_transport_enforces_verified_tls_no_environment_proxy_and_public_redirec
         monkeypatch.setitem(sys.modules, "aiohttp", aiohttp)
         monkeypatch.setitem(sys.modules, "aiohttp.resolver", resolver_module)
     captured = {}
+    real_context=ssl.create_default_context
+    contexts=[]
+    def make_context():
+        context=real_context();contexts.append(context);return context
+    monkeypatch.setattr(ssl,'create_default_context',make_context)
     class Base:
         cookie_jar = None
         url = "https://example.com/test"
@@ -163,7 +183,9 @@ def test_transport_enforces_verified_tls_no_environment_proxy_and_public_redirec
     async def run():
         with bridge.verified_transport(checking) as Checker:
             assert await Checker().check() == ("Привет", 200, None)
+            assert await Checker().check() == ("Привет", 200, None)
             config = captured["connector_config"]
+            assert contexts==[config['ssl']]
             assert config["ssl"].verify_mode == ssl.CERT_REQUIRED and config["ssl"].check_hostname is True
             assert captured["trust_env"] is False
             trace = captured["trace_configs"][0]
@@ -226,3 +248,19 @@ def test_owned_worker_retains_complete_stream_and_coverage_on_stop(tmp_path, mon
     diag = result["source_diagnostics"]
     assert diag["coverage"]["found"] == 1 and diag["site_checks"][0]["site"] == "one"
     assert diag["resumption"]["remaining_sites"] == ["two"]
+
+
+@pytest.mark.parametrize('terminal_frame',[False,True])
+def test_worker_failure_cannot_erase_already_streamed_maigret_findings(tmp_path,monkeypatch,terminal_frame):
+    (tmp_path/'maigret-main').mkdir()
+    worker=tmp_path/'worker.py'
+    row={'id':'one','type':'profile','title':'Один','platform':'fixture','url':'https://example.com/one'}
+    events=[{'event':'result','result':row}]
+    if terminal_frame:events.append({'event':'final','outcome':{'status':'error','error_code':'adapter_error','results':[]}})
+    worker.write_text('import json,sys\njson.loads(sys.stdin.readline())\n'+
+        '\n'.join('print('+repr(json.dumps(event,ensure_ascii=False))+',flush=True)' for event in events)+'\n',encoding='utf-8')
+    monkeypatch.setattr(runtime,'__file__',str(tmp_path/'runtime.py'))
+    result=runtime.run_worker('maigret',{'text':'fixture','timeout':3},
+        {'tools_root':str(tmp_path),'runtime_python':sys.executable},threading.Event())
+    assert result['status']=='partial' and result['results']==[row]
+    assert result['error_code']==('adapter_error' if terminal_frame else 'worker_missing_final')

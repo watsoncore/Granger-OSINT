@@ -262,9 +262,9 @@ def _run_worker(source, query, options, cancelled, event=None):
         process.stdin.close()
         while True:
             if cancelled.is_set():
-                return {"source": source, "status": "cancelled", "results": partial, **retained_state('cancelled'),"message": "Поиск отменён."}
+                return {"source": source, "status": "cancelled", "results": partial, **retained_state('cancelled'),"error_code":"source_cancelled","message": "Поиск отменён. Полученные наблюдения сохранены."}
             if time.monotonic() >= deadline:
-                return {"source": source, "status": "timeout", "results": partial, **retained_state('timeout'),"message": "Источник превысил время ожидания."}
+                return {"source": source, "status": "timeout", "results": partial, **retained_state('timeout'),"error_code":"worker_time_budget","message": "Источник превысил время ожидания. Полученные наблюдения сохранены."}
             try:
                 item = lines.get(timeout=0.06)
             except queue.Empty:
@@ -298,12 +298,13 @@ def _run_worker(source, query, options, cancelled, event=None):
                     if isinstance(check,dict) and isinstance(check.get('site'),str):
                         maigret_checks[check['site']]=check
             elif item.get("event") == "transport_error":
-                return {"source": source, "status": "partial" if partial else "error", "results": partial, **retained_state('transport_error'),"message": "Источник превысил допустимый объём ответа."}
+                return {"source": source, "status": "partial" if partial else "error", "results": partial, **retained_state('transport_error'),"error_code":"worker_response_limit","message": "Источник превысил допустимый объём ответа. Полученные наблюдения сохранены."}
             elif event:
                 event(item)
         if not isinstance(outcome, dict):
             code = process.poll()
-            return {"source": source, "status": "error", "results": partial, **retained_state('error'),
+            return {"source": source, "status": "partial" if source=='maigret' and partial else "error", "results": partial, **retained_state('error'),
+                    "error_code":"worker_missing_final",
                     "exit_code": code, "stderr_bytes": stderr_count[0],
                     "message": "Локальный источник завершился без структурированного ответа; проверьте его зависимости." + (f" Код: {code}." if code is not None else "")}
         try:
@@ -324,10 +325,23 @@ def _run_worker(source, query, options, cancelled, event=None):
                 outcome['results']=partial
                 if expected != len(partial):
                     outcome['status']='partial'
+                    outcome['error_code']='maigret_incomplete_stream'
                     outcome['message']='Получен неполный поток Maigret; сохранены все принятые наблюдения.'
+            elif partial:
+                # Worker-level exceptions can produce an empty final frame after
+                # legitimate finding frames. Never let that frame erase them.
+                by_id={row.get('id',str(index)):row for index,row in enumerate(partial)}
+                for index,row in enumerate(outcome.get('results',[])):
+                    by_id[row.get('id',str(len(partial)+index))]=row
+                outcome['results']=list(by_id.values())
+                if outcome.get('status')=='error':outcome['status']='partial'
+            coverage=diagnostics.get('coverage')
+            if isinstance(coverage,dict) and coverage.get('phase')=='running':
+                coverage.update(phase=outcome.get('status','error'),complete=False)
         outcome["stderr_bytes"] = stderr_count[0]
         if code not in (0, None) and outcome.get("status") in {"complete", "ready", "empty"}:
             outcome["status"] = "partial" if outcome.get("results") else "error"
+            outcome["error_code"] = 'worker_process_exit'
             outcome["message"] = "Источник завершился с ошибкой процесса. Полученные наблюдения сохранены." if outcome.get("results") else "Источник завершился с ошибкой процесса. Проверьте его зависимости."
         return outcome
     finally:

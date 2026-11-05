@@ -176,13 +176,9 @@ def main():
             report['stage']['phase']='expand';save()
             # Progressive expansion remains bounded, and all original members stay saved.
             target=case['underlying_nodes'];synthetic=case['data_origin']=='synthetic_fixture'
-            if synthetic:
-                for _ in range((target+99)//100+2):
-                    drawn=int((metrics().get('canvas') or {}).get('drawnNodes',0))
-                    if drawn>=target:break
-                    click('Раскрыть ещё 100')
-                    wait(lambda:int((metrics().get('canvas') or {}).get('drawnNodes',0))>drawn)
-                else:raise AssertionError('Bounded progressive expansion did not reach saved node count')
+            if synthetic and int(metrics()['canvas'].get('modelNodes',0))<target:
+                click('Показать все на полотне')
+                wait(lambda:int(metrics()['canvas'].get('modelNodes',0))==target)
             current=metrics();c=current['canvas'];case['open_and_expand_seconds']=round(time.perf_counter()-start,3)
             report['stage']['phase']='gestures';save()
             samples=[]

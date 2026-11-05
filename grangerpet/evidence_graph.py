@@ -8,7 +8,7 @@ import hashlib
 import ipaddress
 import math
 import re
-from decimal import Decimal, InvalidOperation, localcontext
+from decimal import Decimal, localcontext
 from urllib.parse import urlsplit
 from .engine.models import canonical_url
 
@@ -130,6 +130,18 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
         return node('website',target.canonical_url or url,label or target.canonical_url or url,record,
             url=target.canonical_url or url,reference_only=reference,technical=technical_url(url))
     cap=5000 if full else 500
+    from .engine.blockchain_analytics import canonical_chain,transaction_identity,coalesce_transactions
+    # Only ambiguous transaction identifiers need an action/movement suffix;
+    # ordinary persisted graph IDs remain stable across the V5 upgrade.
+    movement_keys={}
+    for observed in records[:cap]:
+        if not isinstance(observed,dict) or observed.get('type')!='transaction':continue
+        from .agent_evidence import current_observation
+        observed=current_observation(observed);data=observed.get('details') or {}
+        if not isinstance(data,dict):continue
+        network=canonical_chain(data.get('chain') or observed.get('platform'))
+        reference=data.get('event_id') or data.get('tx_hash') or observed.get('id')
+        movement_keys.setdefault((network,str(reference)),set()).add(transaction_identity(data,network,observed.get('evidence_id')))
     for record in records[:cap]:
         if cancel_event and cancel_event.is_set():raise InterruptedError('Graph cancelled')
         if not isinstance(record,dict) or not str(record.get('evidence_id','')).startswith('ev_') or record.get('type')=='evidence_graph':continue
@@ -184,7 +196,9 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             current=node('public_profile',canonical,label,record,url=canonical,identity_verified=False,platform='telegram' if host=='t.me' else 'github' if host=='github.com' else platform,display_type=display,reference_only=False)
             if current:nodes[current]['label']=str(details.get('display_name') or label)[:300]
             username=details.get('login') or details.get('username') or details.get('screen_name')
+            if current:nodes[current]['attributes'].update(observed_status=record.get('status'),observed_at=(record.get('provenance') or {}).get('obtained_at'))
             if isinstance(username,str) and username:
+                if current:nodes[current]['attributes']['username']=username
                 scoped=node('username',platform+'|'+username,username,record,platform=platform)
                 edge(current,scoped,'uses_public_identifier',record)
             company=details.get('company')
@@ -345,7 +359,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                 owner=node('blockchain_address',chain+'|'+_wallet(chain,wallet),wallet,record,chain=chain,address=wallet,owner_verified=False)
                 edge(owner,current,'has_public_web3_record',record,'source_reported',owner_verified=False)
         elif kind=='blockchain_counterparty':
-            chain=details.get('chain') or '';address=details.get('address')
+            chain=canonical_chain(details.get('chain'));address=details.get('address')
             if address:
                 canonical=_wallet(chain,address)
                 current=node('blockchain_address',chain+'|'+canonical,address,record,chain=chain,address=canonical,owner_verified=False)
@@ -377,10 +391,14 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                         claims=attrs.setdefault('source_count_claims',[])
                         if claim not in claims and len(claims)<100:claims.append(claim)
         elif kind=='transaction':
-            chain=details.get('chain') or platform;tx=details.get('tx_hash') or record.get('id')
+            chain=canonical_chain(details.get('chain') or platform);tx=details.get('tx_hash') or record.get('id')
             event=details.get('event_id') or tx
-            current=node('transaction',chain+'|'+str(event),str(tx),record,chain=chain,url=url,tx_hash=tx,
-                amount=details.get('amount_decimal',details.get('amount')),asset=details.get('asset'),timestamp=details.get('timestamp'))
+            identity=transaction_identity(details,chain,record.get('evidence_id'))
+            key=chain+'|'+str(event)
+            if len(movement_keys.get((chain,str(event)),()))>1:key+='|movement:'+hashlib.sha256(repr(identity).encode()).hexdigest()[:16]
+            current=node('transaction',key,str(tx),record,chain=chain,url=url,tx_hash=tx,event_id=details.get('event_id'),
+                amount=details.get('amount_decimal',details.get('amount')),asset=details.get('asset'),timestamp=details.get('timestamp'),
+                from_address=details.get('from_address'),to_address=details.get('to_address'),status=details.get('status'),success=details.get('success'))
             wallets={}
             for field,relation in [('from_address','sent_from'),('to_address','sent_to')]:
                 address=details.get(field)
@@ -395,17 +413,9 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                 asset_key,contract,identity_status=asset_identity(details,chain,record.get('evidence_id'))
                 key=(wallets['from_address'],wallets['to_address'],asset_key)
                 group=transfers.setdefault(key,{'records':[],'transactions':{},'amount':Decimal(0),'known':0,'unknown':0,
-                    'asset':asset,'contract':contract,'identity_status':identity_status,'dates':[]})
-                if str(event) not in group['transactions'] and details.get('success') is not False and details.get('status') not in ('failed','reverted','aborted'):
-                    group['transactions'][str(event)]=current
-                    if stamp:=_date(details.get('timestamp')):group['dates'].append(stamp)
-                    try:
-                        amount=Decimal(str(details.get('amount_decimal',details.get('amount'))))
-                        if not amount.is_finite() or amount<0 or amount.adjusted()>60 or amount.adjusted()<-60:raise ValueError()
-                    except (InvalidOperation,ValueError):group['unknown']+=1
-                    else:
-                        with localcontext() as context:context.prec=160;group['amount']+=amount
-                        group['known']+=1
+                    'asset':asset,'contract':contract,'identity_status':identity_status,'dates':[],'movements':[],'all_transaction_ids':{}})
+                group['all_transaction_ids'][identity]=current
+                group['movements'].append({**details,'evidence_id':record.get('evidence_id'),'url':record.get('url')})
                 group['records'].append(record)
         elif kind=='label' and details.get('address') and details.get('label'):
             chain=details.get('chain') or platform
@@ -507,6 +517,24 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
     wallet_events={};wallet_peers={};wallet_assets={}
     for (a,b,asset_key),group in transfers.items():
         if cancel_event and cancel_event.is_set():raise InterruptedError('Graph cancelled')
+        from .engine.blockchain_analytics import decimal_amount,_date
+        movements,_=coalesce_transactions(group['movements'])
+        conflicts=0
+        for movement in movements:
+            identity=transaction_identity(movement)
+            identifier=group['all_transaction_ids'][identity]
+            attrs=nodes[identifier]['attributes']
+            attrs.update(amount=movement['amount_decimal'],amount_conflict=movement['amount_conflict'],status_conflict=movement['status_conflict'])
+            if movement['status_conflict']:attrs['status']='conflicting_observations'
+            if movement['status_conflict'] or movement.get('success') is False or movement.get('status') in ('failed','reverted','aborted'):continue
+            group['transactions'][identity]=identifier
+            conflicts+=bool(movement['amount_conflict'])
+            if stamp:=_date(movement.get('timestamp')):group['dates'].append(stamp)
+            amount=decimal_amount(movement['amount_decimal'])
+            if amount is None:group['unknown']+=1
+            else:
+                with localcontext() as context:context.prec=160;group['amount']+=amount
+                group['known']+=1
         if not group['transactions']:continue
         for wallet,peer in ((a,b),(b,a)):
             wallet_events.setdefault(wallet,set()).update(group['transactions'].values())
@@ -518,6 +546,7 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                 'amount':format(group['amount'],'f') if group['known'] else None,'asset':group['asset'],'asset_key':asset_key,
                 'contract':group['contract'],'identity_status':group['identity_status'],
                 'known_amount_count':group['known'],'unknown_amount_count':group['unknown'],
+                'amount_conflict_count':conflicts,
                 'first_seen':min(group['dates']) if group['dates'] else None,'last_seen':max(group['dates']) if group['dates'] else None,
                 'transaction_ids':list(group['transactions'].values()),'coverage':'observed_transactions_only','owner_verified':False}
     for wallet,events in wallet_events.items():

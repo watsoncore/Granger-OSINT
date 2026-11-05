@@ -61,6 +61,20 @@ def test_maigret_all57_findings_and_coverage_survive_registry_without20_result_c
     assert query.timeout > 90 and context.options["maigret"]["mode"] == "full"
 
 
+def test_maigret_exception_after_live_evidence_is_partial_and_diagnostic_not_empty_error():
+    class FailingMaigret:
+        id='maigret'
+        def run(self,query,context):
+            context.event({'event':'result','result':finding(0)})
+            raise RuntimeError('private vendor exception text')
+    reg=registry(FailingMaigret());events=[]
+    result=reg.execute('username_maigret',{'username':'solvnox','mode':'full'},on_event=events.append)
+    assert result['status']=='partial' and result['result_count']==1
+    assert result['error_code']=='tool_execution_failed'
+    assert len(reg.evidence.records())==1 and any(event['type']=='evidence' for event in events)
+    assert 'private vendor exception' not in str(result)
+
+
 def test_mode_time_budget_is_honored_and_manifest_does_not_offer_legacy_limit():
     adapter = Maigret()
     reg = registry(adapter)
