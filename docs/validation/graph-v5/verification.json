@@ -1,0 +1,1102 @@
+{
+  "code_commit": "cba43483ecc8fb534af9a7e53fff2d3833233723",
+  "branch": "granger/chibi-reconstruction",
+  "exe": {
+    "canonical_path": "dist/Granger-OSINT.exe",
+    "bytes": 279403725,
+    "sha256": "348ad9a72b3022e7443d5712c4904e4b3e85675fa386e8346267be05f5b3cbdb",
+    "frozen_modules": 163,
+    "resource_checks": 239
+  },
+  "tests": {
+    "backend_full": "2025 passed, 1 skipped, 32 subtests in 371.34 s",
+    "backend_full_scope": "Before late preview cache, harness and release gate changes",
+    "backend_late_scoped": "36 passed",
+    "frontend": "203 passed in 34 files",
+    "native_acceptance_checks": 33,
+    "canonical_smoke_checks": 22
+  },
+  "protected_file_hashes_matched": {
+    "profile": 409,
+    "resources": 202,
+    "pet_runtime": 2,
+    "assets": 92
+  },
+  "temporary_build_removed": true,
+  "single_canonical_executable": true,
+  "secret_scan": {
+    "passed": true,
+    "checked_payloads": 6926
+  },
+  "observed_inputs": {
+    "crypto": [
+      {
+        "file": "ton-observed-private.json",
+        "sha256": "4d2a5739025881ffa25913e610ba3308eb984804e581e2895e680260ca225f3f",
+        "records": 236,
+        "source_status": "partial",
+        "data_origin": "reused_real_public_observations",
+        "network_calls_for_reuse": 0
+      },
+      {
+        "file": "gansar-eth-live-raw.json",
+        "sha256": "243b38c9b055083b7bf125b3119dcc2a82d615e683a39f95f2c8d5a6f60569ab",
+        "records": 234,
+        "source_status": "partial",
+        "data_origin": "reused_real_public_observations",
+        "network_calls_for_reuse": 0
+      },
+      {
+        "file": "gansar-solana-live-raw.json",
+        "sha256": "1ac51f670f22b237272ba52ea25a44f9b6d5b1da8001e68ea7ada81b971bbce7",
+        "records": 2000,
+        "source_status": "partial",
+        "data_origin": "reused_real_public_observations",
+        "network_calls_for_reuse": 0
+      }
+    ],
+    "socmint": {
+      "file": "maigret-socmint-observed-live-raw.json",
+      "sha256": "8fc511b253934098eb1b57a08a1e1b4da5aba0544cf5d9199e288cf9d0eb7d67",
+      "records": 26,
+      "source_status": "partial",
+      "data_origin": "reused_real_public_observations",
+      "network_calls_for_reuse": 0
+    }
+  },
+  "observed_counts": {
+    "crypto_nodes": 1621,
+    "crypto_edges": 3241,
+    "crypto_evidence": 846,
+    "socmint_profiles": 26,
+    "socmint_raw_nodes": 105
+  },
+  "checks": [
+    {
+      "name": "observed_crypto600_root_visible_readable",
+      "passed": true
+    },
+    {
+      "name": "counterparty_page_has_accessible_rows",
+      "passed": true
+    },
+    {
+      "name": "real_counterparty_pagination_changes_objects",
+      "passed": true
+    },
+    {
+      "name": "counterparty_page_preserves_durable_layout_revision",
+      "passed": true
+    },
+    {
+      "name": "full_address_filter_preserves_saved_camera_and_positions",
+      "passed": true
+    },
+    {
+      "name": "full_address_index_search_and_selection",
+      "passed": true
+    },
+    {
+      "name": "selected_flow_exposes_original_transactions",
+      "passed": true
+    },
+    {
+      "name": "transaction_inspector_has_exact_hash_sender_recipient",
+      "passed": true
+    },
+    {
+      "name": "transaction_and_root_have_separate_visible_cards",
+      "passed": true
+    },
+    {
+      "name": "transaction_source_links_preserve_original_evidence",
+      "passed": true
+    },
+    {
+      "name": "native_flow_collapse_removes_only_presentation",
+      "passed": true
+    },
+    {
+      "name": "far18_percent_uses_named_semantic_marks",
+      "passed": true
+    },
+    {
+      "name": "far_cluster_click_zooms_to_original_members",
+      "passed": true
+    },
+    {
+      "name": "near_zoom_shows_full_cards",
+      "passed": true
+    },
+    {
+      "name": "native_pan_camera_no_snapback",
+      "passed": true
+    },
+    {
+      "name": "native_node_drag_persisted_in_manual_layout",
+      "passed": true
+    },
+    {
+      "name": "native_manual_wallet_manual_preserves_positions_camera",
+      "passed": true
+    },
+    {
+      "name": "native_layout_flow",
+      "passed": true
+    },
+    {
+      "name": "native_layout_radial",
+      "passed": true
+    },
+    {
+      "name": "native_layout_communities",
+      "passed": true
+    },
+    {
+      "name": "native_layout_timeline",
+      "passed": true
+    },
+    {
+      "name": "native_layout_wallet",
+      "passed": true
+    },
+    {
+      "name": "socmint_root_profiles_without_technical_multiplication",
+      "passed": true
+    },
+    {
+      "name": "socmint_public_profile_pages",
+      "passed": true
+    },
+    {
+      "name": "socmint_profile_url_and_identity_caution",
+      "passed": true
+    },
+    {
+      "name": "real_restart_preserves_observed_evidence_positions_types",
+      "passed": true
+    },
+    {
+      "name": "fresh_ton_native_worker_parse_insert_readable",
+      "passed": true
+    },
+    {
+      "name": "fresh_btc_native_worker_parse_insert_readable",
+      "passed": true
+    },
+    {
+      "name": "fresh_maigret_streamed_findings_before_completion",
+      "passed": true
+    },
+    {
+      "name": "fresh_maigret_native_profiles_inserted",
+      "passed": true
+    },
+    {
+      "name": "qt_scale_125_root_readable",
+      "passed": true
+    },
+    {
+      "name": "qt_scale_150_root_readable",
+      "passed": true
+    },
+    {
+      "name": "native_density_changes_index_geometry",
+      "passed": true
+    }
+  ],
+  "fresh_ton": {
+    "status": "partial",
+    "records": 236,
+    "raw_evidence_count": 236,
+    "request_counts": {
+      "providers_attempted": 10,
+      "http_requests": 45,
+      "http_statuses": {
+        "200": 35,
+        "404": 1,
+        "429": 1,
+        "502": 1,
+        "500": 3
+      }
+    },
+    "worker_and_insert_seconds": 46.14
+  },
+  "fresh_btc": {
+    "status": "partial",
+    "records": 107,
+    "raw_evidence_count": 107,
+    "request_counts": {
+      "providers_attempted": 3,
+      "http_requests": 12,
+      "http_statuses": {
+        "502": 1,
+        "200": 7,
+        "400": 1
+      }
+    },
+    "worker_and_insert_seconds": 24.11
+  },
+  "fresh_maigret": {
+    "status": "partial",
+    "records": 25,
+    "sites_requested": 26,
+    "progress_seen": true,
+    "findings_while_worker_running": true
+  },
+  "engine_source_live": {
+    "tests": {
+      "maigret_registry": {
+        "passed": 32,
+        "seconds": 11.35
+      },
+      "crypto_dossier_owned_worker": {
+        "passed": 67,
+        "seconds": 3.72
+      }
+    },
+    "tls_setup": {
+      "kind": "local synchronous TLS trust-store setup microbenchmark",
+      "network_requests": 0,
+      "sample_count": 24,
+      "fresh_context_seconds": 0.22782370005734265,
+      "single_context_seconds": 0.009101099916733801,
+      "fresh_per_context_ms": 9.492654169055944,
+      "tls_verified": true,
+      "scope_limit": "Measures context construction only, not end-to-end network speedup; concurrency remains12 for Standard/Full."
+    },
+    "socmint": {
+      "profiles": 26,
+      "full_checked": 1592,
+      "full_scheduled": 6434,
+      "additional_custom_checks": 1000,
+      "completed_full": false,
+      "native_durable_resume": false,
+      "partial": true,
+      "mocked": false,
+      "origin": "actual production source workers; final frozen EXE not tested by this receipt"
+    },
+    "gansar": [
+      {
+        "chain": "doge",
+        "status": "partial",
+        "result_count": 67,
+        "elapsed_seconds": 19.554,
+        "http_requests": 33,
+        "http_statuses": {
+          "200": 31,
+          "402": 2
+        },
+        "temporary_profile_removed": true
+      },
+      {
+        "chain": "tron",
+        "status": "partial",
+        "result_count": 137,
+        "elapsed_seconds": 12.471,
+        "http_requests": 11,
+        "http_statuses": {
+          "200": 11
+        },
+        "temporary_profile_removed": true
+      },
+      {
+        "chain": "solana",
+        "status": "partial",
+        "result_count": 2000,
+        "elapsed_seconds": 10.192,
+        "http_requests": 15,
+        "http_statuses": {
+          "200": 14,
+          "429": 1
+        },
+        "temporary_profile_removed": true
+      },
+      {
+        "chain": "eth",
+        "status": "partial",
+        "result_count": 234,
+        "elapsed_seconds": 14.199,
+        "http_requests": 27,
+        "http_statuses": {
+          "200": 22,
+          "402": 1,
+          "500": 1
+        },
+        "temporary_profile_removed": true
+      },
+      {
+        "chain": "bsc",
+        "status": "partial",
+        "result_count": 33,
+        "elapsed_seconds": 8.181,
+        "http_requests": 37,
+        "http_statuses": {
+          "200": 36,
+          "403": 1
+        },
+        "temporary_profile_removed": true
+      },
+      {
+        "chain": "polygon",
+        "status": "partial",
+        "result_count": 19,
+        "elapsed_seconds": 15.698,
+        "http_requests": 11,
+        "http_statuses": {
+          "200": 11
+        },
+        "temporary_profile_removed": true
+      },
+      {
+        "chain": "arbitrum",
+        "status": "partial",
+        "result_count": 19,
+        "elapsed_seconds": 3.708,
+        "http_requests": 11,
+        "http_statuses": {
+          "200": 10,
+          "403": 1
+        },
+        "temporary_profile_removed": true
+      },
+      {
+        "chain": "optimism",
+        "status": "partial",
+        "result_count": 91,
+        "elapsed_seconds": 13.742,
+        "http_requests": 14,
+        "http_statuses": {
+          "403": 4,
+          "200": 9
+        },
+        "temporary_profile_removed": true
+      },
+      {
+        "chain": "avalanche",
+        "status": "partial",
+        "result_count": 19,
+        "elapsed_seconds": 3.783,
+        "http_requests": 10,
+        "http_statuses": {
+          "200": 10
+        },
+        "temporary_profile_removed": true
+      }
+    ]
+  },
+  "motion": {
+    "passed": true,
+    "camera_observations": 10,
+    "stable_scale": true,
+    "backward_jumps": 0,
+    "largest_backward_jump_px": 0,
+    "expected_pan_px": [
+      108,
+      60
+    ],
+    "actual_pan_px": [
+      108.0,
+      60.0
+    ],
+    "endpoint_error_px": 0.0,
+    "settled_ack_error_px": 0.0,
+    "failure_code": null,
+    "origin": "actual owned QWidget snapshots + renderer rAF telemetry",
+    "recording_semantics": "Discrete native frames after six Qt drag gestures, each eight mouse moves at12ms; GIF timing reflects snapshot times. No continuous FPS claim.",
+    "native_drag_segments": 6,
+    "native_pointer_moves": 48,
+    "native_snapshots": 7,
+    "recording_duration_seconds": 5.3787,
+    "camera_frames": [
+      {
+        "x": 487.8984375,
+        "y": 275.59375,
+        "scale": 0.9975466314031181,
+        "event": "ack",
+        "at_ms": 0.0
+      },
+      {
+        "x": 505.8984375,
+        "y": 285.59375,
+        "scale": 0.9975466314031181,
+        "event": "commit",
+        "at_ms": 183.8
+      },
+      {
+        "x": 505.8984375,
+        "y": 285.59375,
+        "scale": 0.9975466314031181,
+        "event": "ack",
+        "at_ms": 537.5
+      },
+      {
+        "x": 523.8984375,
+        "y": 295.59375,
+        "scale": 0.9975466314031181,
+        "event": "commit",
+        "at_ms": 1118.2
+      },
+      {
+        "x": 541.8984375,
+        "y": 305.59375,
+        "scale": 0.9975466314031181,
+        "event": "commit",
+        "at_ms": 2273.0
+      },
+      {
+        "x": 541.8984375,
+        "y": 305.59375,
+        "scale": 0.9975466314031181,
+        "event": "ack",
+        "at_ms": 2995.5
+      },
+      {
+        "x": 559.8984375,
+        "y": 315.59375,
+        "scale": 0.9975466314031181,
+        "event": "commit",
+        "at_ms": 3380.5
+      },
+      {
+        "x": 577.8984375,
+        "y": 325.59375,
+        "scale": 0.9975466314031181,
+        "event": "commit",
+        "at_ms": 4383.4
+      },
+      {
+        "x": 595.8984375,
+        "y": 335.59375,
+        "scale": 0.9975466314031181,
+        "event": "commit",
+        "at_ms": 4808.0
+      },
+      {
+        "x": 595.8984375,
+        "y": 335.59375,
+        "scale": 0.9975466314031181,
+        "event": "ack",
+        "at_ms": 5419.3
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "crypto-pan-motion-start.png",
+        "sha256": "0c265352aefc4a1890d68fbf5ac3d8c90a48ce08e3ab84105810fcf480838d70"
+      },
+      {
+        "name": "crypto-pan-motion-middle.png",
+        "sha256": "0ea362daf16b0ac15aa6fe41e9192132851685029974bf7f8a698f5d778bb113"
+      },
+      {
+        "name": "crypto-pan-motion-end.png",
+        "sha256": "600efc2902bb49caaf5da42db511955209540133ea5a3ad369fde9b8a2df4d3f"
+      },
+      {
+        "name": "crypto-pan-motion.gif",
+        "sha256": "f0c69f405dbd76214ae17b84ca75db738ed820a8ef8139f4637ca29a7cd0e9c6"
+      }
+    ],
+    "zoom_out_steps_to_clear_pan_path": 0
+  },
+  "dpi_cases": [
+    {
+      "requested_qt_scale": 1,
+      "observed_native_dpr": 1.25,
+      "canvas_width": 1280.800048828125,
+      "canvas_height": 551.2000122070312,
+      "system_settings_changed": false
+    },
+    {
+      "requested_qt_scale": 1.25,
+      "observed_native_dpr": 1.5625,
+      "canvas_width": 669.8800048828125,
+      "canvas_height": 390.0799865722656,
+      "system_settings_changed": false,
+      "windowed_canvas": {
+        "width": 588.4400024414062,
+        "height": 353.7599792480469
+      }
+    },
+    {
+      "requested_qt_scale": 1.5,
+      "observed_native_dpr": 1.875,
+      "canvas_width": 492.86669921875,
+      "canvas_height": 285.6000061035156,
+      "system_settings_changed": false,
+      "windowed_canvas": {
+        "width": 452.86669921875,
+        "height": 301.6000061035156
+      }
+    }
+  ],
+  "density": {
+    "compact_index_input_css_px": 142.40000915527344,
+    "comfortable_index_input_css_px": 196.40000915527344
+  },
+  "performance": {
+    "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+    "cases": [
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 50,
+        "edges": 49,
+        "open_and_expand_seconds": 1.009,
+        "paint_ms": {
+          "count": 36,
+          "median": 3.0,
+          "p95": 7.5,
+          "max": 13.1
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 6.2,
+          "p95": 10.5,
+          "max": 15.6
+        },
+        "active_intervals_ms": {
+          "count": 14,
+          "median": 19.95,
+          "p95": 74.3,
+          "max": 81.9
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 9.0,
+            "thread_count": 98.0,
+            "rss_bytes_sum": 671313920.0,
+            "private_commit_bytes_sum": 793001984.0,
+            "cpu_percent_one_core": 206.58363301942703,
+            "cpu_percent_machine": 17.215302751618918,
+            "monitor_seconds": 0.00951254996471107
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 7.202492191699456,
+            "gpu_engine_percent_max": 7.180643163904916,
+            "gpu_dedicated_bytes": 935153664.0,
+            "gpu_shared_bytes": 45309952.0
+          }
+        },
+        "renderer": {
+          "paintMs": "4.200000047683716",
+          "drawnNodes": "50",
+          "onScreenNodes": "9",
+          "modelEdges": "49",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 100,
+        "edges": 99,
+        "open_and_expand_seconds": 0.716,
+        "paint_ms": {
+          "count": 35,
+          "median": 3.2,
+          "p95": 4.8,
+          "max": 6.1
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 5.5,
+          "p95": 7.6,
+          "max": 14.1
+        },
+        "active_intervals_ms": {
+          "count": 13,
+          "median": 14.3,
+          "p95": 19.6,
+          "max": 20.1
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 72.0,
+            "rss_bytes_sum": 654987264.0,
+            "private_commit_bytes_sum": 824619008.0,
+            "cpu_percent_one_core": 58.699129320482136,
+            "cpu_percent_machine": 4.891594110040177,
+            "monitor_seconds": 0.00808060000417754
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 7.216555562370546,
+            "gpu_engine_percent_max": 7.216555562370546,
+            "gpu_dedicated_bytes": 1355005952.0,
+            "gpu_shared_bytes": 52207616.0
+          }
+        },
+        "renderer": {
+          "paintMs": "2.600000023841858",
+          "drawnNodes": "100",
+          "onScreenNodes": "9",
+          "modelEdges": "99",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 500,
+        "edges": 499,
+        "open_and_expand_seconds": 1.247,
+        "paint_ms": {
+          "count": 44,
+          "median": 4.75,
+          "p95": 6,
+          "max": 7
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 7.4,
+          "p95": 13.5,
+          "max": 13.9
+        },
+        "active_intervals_ms": {
+          "count": 20,
+          "median": 16.25,
+          "p95": 30,
+          "max": 33.7
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 72.0,
+            "rss_bytes_sum": 778801152.0,
+            "private_commit_bytes_sum": 970768384.0,
+            "cpu_percent_one_core": 87.73174781930976,
+            "cpu_percent_machine": 7.31097898494248,
+            "monitor_seconds": 0.007791400013957173
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 8.58331369711117,
+            "gpu_engine_percent_max": 8.58331369711117,
+            "gpu_dedicated_bytes": 1824874496.0,
+            "gpu_shared_bytes": 60600320.0
+          }
+        },
+        "renderer": {
+          "paintMs": "4.5",
+          "drawnNodes": "500",
+          "onScreenNodes": "9",
+          "modelEdges": "499",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 1000,
+        "edges": 999,
+        "open_and_expand_seconds": 1.308,
+        "paint_ms": {
+          "count": 45,
+          "median": 6.6,
+          "p95": 8,
+          "max": 9.2
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 8.75,
+          "p95": 10.5,
+          "max": 11.6
+        },
+        "active_intervals_ms": {
+          "count": 20,
+          "median": 28.8,
+          "p95": 44.6,
+          "max": 48.9
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 72.0,
+            "rss_bytes_sum": 1003341824.0,
+            "private_commit_bytes_sum": 1215602688.0,
+            "cpu_percent_one_core": 136.78767226745967,
+            "cpu_percent_machine": 11.398972688954974,
+            "monitor_seconds": 0.008037149964366108
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 6.681420411030118,
+            "gpu_engine_percent_max": 6.681420411030118,
+            "gpu_dedicated_bytes": 2266853376.0,
+            "gpu_shared_bytes": 60616704.0
+          }
+        },
+        "renderer": {
+          "paintMs": "6.799999952316284",
+          "drawnNodes": "1000",
+          "onScreenNodes": "9",
+          "modelEdges": "999",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "synthetic_fixture",
+        "underlying_nodes": 5000,
+        "edges": 4999,
+        "open_and_expand_seconds": 2.336,
+        "paint_ms": {
+          "count": 42,
+          "median": 21.9,
+          "p95": 26.3,
+          "max": 30.8
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 28.8,
+          "p95": 37.5,
+          "max": 81.2
+        },
+        "active_intervals_ms": {
+          "count": 14,
+          "median": 47.45,
+          "p95": 71.1,
+          "max": 74.2
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 79.0,
+            "rss_bytes_sum": 1060952064.0,
+            "private_commit_bytes_sum": 1556262912.0,
+            "cpu_percent_one_core": 144.74128956843873,
+            "cpu_percent_machine": 12.061774130703226,
+            "monitor_seconds": 0.008312400022987276
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 3.18996363777119,
+            "gpu_engine_percent_max": 3.18996363777119,
+            "gpu_dedicated_bytes": 4073484288.0,
+            "gpu_shared_bytes": 58597376.0
+          }
+        },
+        "renderer": {
+          "paintMs": "19.699999928474426",
+          "drawnNodes": "5000",
+          "onScreenNodes": "9",
+          "modelEdges": "4999",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      },
+      {
+        "data_origin": "provided_observed_result",
+        "underlying_nodes": 424,
+        "edges": 885,
+        "open_and_expand_seconds": 1.056,
+        "paint_ms": {
+          "count": 32,
+          "median": 1.1,
+          "p95": 1.9,
+          "max": 4.5
+        },
+        "event_to_paint_ms": {
+          "count": 16,
+          "median": 3.7,
+          "p95": 6.3,
+          "max": 10.2
+        },
+        "active_intervals_ms": {
+          "count": 11,
+          "median": 58.6,
+          "p95": 87.3,
+          "max": 88.3
+        },
+        "resources": {
+          "samples": 12,
+          "medians": {
+            "process_count": 3.0,
+            "thread_count": 79.0,
+            "rss_bytes_sum": 1075339264.0,
+            "private_commit_bytes_sum": 1528057856.0,
+            "cpu_percent_one_core": 113.67354018352623,
+            "cpu_percent_machine": 9.472795015293851,
+            "monitor_seconds": 0.008041599998250604
+          },
+          "gpu_medians": {
+            "gpu_engine_percent_sum": 2.839090996833796,
+            "gpu_engine_percent_max": 2.839090996833796,
+            "gpu_dedicated_bytes": 4272463872.0,
+            "gpu_shared_bytes": 58597376.0
+          }
+        },
+        "renderer": {
+          "paintMs": "1.399999976158142",
+          "drawnNodes": "9",
+          "onScreenNodes": "2",
+          "modelEdges": "9",
+          "drawnImages": "0",
+          "zoom": "1"
+        }
+      }
+    ]
+  },
+  "preview_benchmark": {
+    "before": {
+      "origin": "Actual public Gansar TON observations, source method replay",
+      "fixture_sha256": "4d2a5739025881ffa25913e610ba3308eb984804e581e2895e680260ca225f3f",
+      "record_count": 236,
+      "method": "ResearchCanvasBridge.accept_tool with a count-only mark_dirty and no Qt app. Warm import, five runs per batch size. Production 80 ms scheduling is represented by fixed-size batches to isolate compaction cost.",
+      "limitations": "No worker/network, Qt signal delivery, IPC serialization or rendering time measured. Not a native responsiveness measurement.",
+      "results": [
+        {
+          "batch_size": 1,
+          "samples": 5,
+          "median_wall_ms": 5629.17,
+          "median_cpu_ms": 5609.38,
+          "median_peak_update_ms": 49.11,
+          "wall_range_ms": [
+            5460.01,
+            6694.46
+          ],
+          "notifications": 236,
+          "compact_calls": 27966,
+          "speedup_vs_per_row": 1.0
+        },
+        {
+          "batch_size": 8,
+          "samples": 5,
+          "median_wall_ms": 745.82,
+          "median_cpu_ms": 750.0,
+          "median_peak_update_ms": 48.25,
+          "wall_range_ms": [
+            745.33,
+            1072.11
+          ],
+          "notifications": 30,
+          "compact_calls": 3716,
+          "speedup_vs_per_row": 7.55
+        },
+        {
+          "batch_size": 16,
+          "samples": 5,
+          "median_wall_ms": 379.95,
+          "median_cpu_ms": 390.62,
+          "median_peak_update_ms": 47.55,
+          "wall_range_ms": [
+            372.42,
+            439.31
+          ],
+          "notifications": 15,
+          "compact_calls": 1916,
+          "speedup_vs_per_row": 14.82
+        },
+        {
+          "batch_size": 32,
+          "samples": 5,
+          "median_wall_ms": 227.81,
+          "median_cpu_ms": 234.38,
+          "median_peak_update_ms": 49.26,
+          "wall_range_ms": [
+            224.31,
+            274.6
+          ],
+          "notifications": 8,
+          "compact_calls": 1132,
+          "speedup_vs_per_row": 24.71
+        },
+        {
+          "batch_size": 64,
+          "samples": 5,
+          "median_wall_ms": 131.86,
+          "median_cpu_ms": 125.0,
+          "median_peak_update_ms": 48.11,
+          "wall_range_ms": [
+            124.17,
+            134.08
+          ],
+          "notifications": 4,
+          "compact_calls": 620,
+          "speedup_vs_per_row": 42.69
+        },
+        {
+          "batch_size": 236,
+          "samples": 5,
+          "median_wall_ms": 52.83,
+          "median_cpu_ms": 46.88,
+          "median_peak_update_ms": 52.83,
+          "wall_range_ms": [
+            51.5,
+            54.39
+          ],
+          "notifications": 1,
+          "compact_calls": 236,
+          "speedup_vs_per_row": 106.54
+        }
+      ]
+    },
+    "after": {
+      "origin": "Actual public Gansar TON observations, source method replay",
+      "fixture_sha256": "4d2a5739025881ffa25913e610ba3308eb984804e581e2895e680260ca225f3f",
+      "record_count": 236,
+      "method": "ResearchCanvasBridge.accept_tool with a count-only mark_dirty and no Qt app. Warm import, five runs per batch size. Production 80 ms scheduling is represented by fixed-size batches to isolate compaction cost.",
+      "limitations": "No worker/network, Qt signal delivery, IPC serialization or rendering time measured. Not a native responsiveness measurement.",
+      "results": [
+        {
+          "batch_size": 1,
+          "samples": 5,
+          "median_wall_ms": 58.72,
+          "median_cpu_ms": 62.5,
+          "median_peak_update_ms": 0.68,
+          "wall_range_ms": [
+            57.52,
+            59.25
+          ],
+          "notifications": 236,
+          "compact_calls": 236,
+          "speedup_vs_per_row": 1.0
+        },
+        {
+          "batch_size": 8,
+          "samples": 5,
+          "median_wall_ms": 52.57,
+          "median_cpu_ms": 62.5,
+          "median_peak_update_ms": 2.03,
+          "wall_range_ms": [
+            52.21,
+            53.44
+          ],
+          "notifications": 30,
+          "compact_calls": 236,
+          "speedup_vs_per_row": 1.12
+        },
+        {
+          "batch_size": 16,
+          "samples": 5,
+          "median_wall_ms": 52.77,
+          "median_cpu_ms": 46.88,
+          "median_peak_update_ms": 3.92,
+          "wall_range_ms": [
+            52.28,
+            55.87
+          ],
+          "notifications": 15,
+          "compact_calls": 236,
+          "speedup_vs_per_row": 1.11
+        },
+        {
+          "batch_size": 32,
+          "samples": 5,
+          "median_wall_ms": 52.19,
+          "median_cpu_ms": 62.5,
+          "median_peak_update_ms": 7.2,
+          "wall_range_ms": [
+            51.94,
+            53.01
+          ],
+          "notifications": 8,
+          "compact_calls": 236,
+          "speedup_vs_per_row": 1.13
+        },
+        {
+          "batch_size": 64,
+          "samples": 5,
+          "median_wall_ms": 51.77,
+          "median_cpu_ms": 46.88,
+          "median_peak_update_ms": 14.3,
+          "wall_range_ms": [
+            51.65,
+            52.83
+          ],
+          "notifications": 4,
+          "compact_calls": 236,
+          "speedup_vs_per_row": 1.13
+        },
+        {
+          "batch_size": 236,
+          "samples": 5,
+          "median_wall_ms": 51.96,
+          "median_cpu_ms": 46.88,
+          "median_peak_update_ms": 51.96,
+          "wall_range_ms": [
+            51.32,
+            54.72
+          ],
+          "notifications": 1,
+          "compact_calls": 236,
+          "speedup_vs_per_row": 1.13
+        }
+      ]
+    }
+  },
+  "curated_assets": [
+    {
+      "name": "counterparty-selected.png",
+      "sha256": "e5d029a05acc2352a82fc3ed1a528a54f77a8abb036a0e58d502e4d318365eb0",
+      "bytes": 197300
+    },
+    {
+      "name": "crypto-overview.png",
+      "sha256": "c6bc6c3fd3ff0fbdd8e91e06b01b71090751a3cf5ca6174f46aee0b707f90580",
+      "bytes": 222566
+    },
+    {
+      "name": "crypto-pan-motion.gif",
+      "sha256": "f0c69f405dbd76214ae17b84ca75db738ed820a8ef8139f4637ca29a7cd0e9c6",
+      "bytes": 1027343
+    },
+    {
+      "name": "crypto-windowed150.png",
+      "sha256": "3ad32209ed94407438a51e4d9851bc4e1fa07bb49435e8e0cb0ff6faf819c44e",
+      "bytes": 229751
+    },
+    {
+      "name": "flow-drill.png",
+      "sha256": "c86c4dd984d3dd3168c49de5b1e667adf0be46b19a7391257a5959361dd53608",
+      "bytes": 172841
+    },
+    {
+      "name": "fresh-btc-live.png",
+      "sha256": "6584cabe9123f245ef9f06329424eca272aa07285dfc591e60ca8a3fcc3a48e4",
+      "bytes": 162634
+    },
+    {
+      "name": "fresh-maigret-live.png",
+      "sha256": "4a9d622e12298623a6af0ef4203a8ed84e7fef9562b73cbcc7dbccb7eb1aa21d",
+      "bytes": 182817
+    },
+    {
+      "name": "fresh-ton-live.png",
+      "sha256": "6867e03ecbfe5ea5ea23320ec07a0f365a32a0e6175fc7eed6847183b1eb4f5b",
+      "bytes": 273157
+    },
+    {
+      "name": "semantic-far18.png",
+      "sha256": "e8c1470e786376fe63debe5f887c599b11a39543e644b9635c9a6cbeeb16afcb",
+      "bytes": 196772
+    },
+    {
+      "name": "semantic-near.png",
+      "sha256": "553aa129ce8c3328f178ea17b468827ac9f3bd151c32b4e7251780a4be8e3ce5",
+      "bytes": 282911
+    },
+    {
+      "name": "socmint-profiles.png",
+      "sha256": "2d9fb0666c2b295a15d0c311abb6c2bfea22e1224d6a3ab538ccfd59b443f6a1",
+      "bytes": 151813
+    },
+    {
+      "name": "transaction-selected.png",
+      "sha256": "dff6de6b23acc1d7c46dbfc3a3d095fefac1f6aa57a8da15b4c48f9a47628530",
+      "bytes": 219720
+    },
+    {
+      "name": "v4-far-before.png",
+      "sha256": "a1b13e42d27ee0a6248773d1571163b8b21e7fe0692ac7a5ae30d9f1084341fb",
+      "bytes": 128254
+    }
+  ],
+  "ipc_status_observations": {
+    "timed_out_requests": 0,
+    "longest_successful_recovery_ms": 0
+  }
+}
