@@ -1,7 +1,7 @@
 import {act,fireEvent,render,screen} from '@testing-library/react'
 import {beforeEach,afterEach,describe,it,expect,vi} from 'vitest'
 import {InvestigationCanvas} from './components/InvestigationCanvas'
-import type {GraphEntity,GraphPoint,GraphViewport} from './types'
+import type {GraphEntity,GraphPoint,GraphRelation,GraphViewport} from './types'
 
 const node:GraphEntity={id:'root',type:'blockchain_address',label:'UQ fixture wallet',attributes:{chain:'ton'},evidence_ids:[]}
 let callbacks:Map<number,FrameRequestCallback>,nextFrame:number
@@ -20,6 +20,14 @@ afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals()})
 describe('canvas asynchronous updates while interacting',()=>{
   const initial:GraphViewport={x:0,y:0,scale:1},positions:Record<string,GraphPoint>={root:{x:200,y:150}}
   const base={scopeKey:'document1',nodes:[node],edges:[],positions,viewport:initial,root:'root',selected:'',second:'',selectedEdge:'',onSelect:vi.fn(),onEdge:vi.fn(),onCommitPositions:vi.fn(),onViewport:vi.fn(),onResize:vi.fn()}
+  it('does not allocate a WebGL context for a large graph outside the viewport',()=>{
+    const nodes=[node,{...node,id:'peer'}]
+    const edges:GraphRelation[]=Array.from({length:120},(_,i)=>({id:String(i),from_id:'root',to_id:'peer',
+      relation_type:'references',direction:'directed',verification_status:'unverified',evidence_ids:[]}))
+    render(<InvestigationCanvas {...base} nodes={nodes} edges={edges} positions={{root:{x:20000,y:20000},peer:{x:20700,y:20000}}}/>);flush()
+    expect(HTMLCanvasElement.prototype.getContext).not.toHaveBeenCalledWith('webgl2',expect.anything())
+    expect(screen.getByRole('application').dataset.renderer).toBe('canvas2d')
+  })
   it('does not let selection or evidence renders rewind an unacknowledged camera command',()=>{
     const {rerender}=render(<InvestigationCanvas {...base}/>);flush()
     const canvas=screen.getByRole('application')

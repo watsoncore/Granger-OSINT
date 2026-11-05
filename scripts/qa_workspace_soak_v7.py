@@ -78,8 +78,17 @@ def run(exe,report_path,*,seconds=1200,interval=30,source=False,keep_awake=False
                             'renderer':canvas.get('renderer'),'seconds':round(time.monotonic()-switch_started,3)})
                         cycle+=1;last=time.monotonic()-started
                     sample=sampler.sample(source_main_pids=[session.owned_pid] if source else [],root_pids=[] if source else [session.process.pid,session.owned_pid])
+                    by_role={}
+                    for process in sample['processes']:
+                        commit=process['private_commit_bytes']
+                        if commit is None:continue
+                        if process['pid']==session.owned_pid:role='app'
+                        elif process['pid']==session.process.pid:role='launcher_parent'
+                        elif Path(process['image'] or '').name.casefold()=='qtwebengineprocess.exe':role='webengine'
+                        else:role='worker'
+                        by_role[role]=by_role.get(role,0)+commit
                     result['samples'].append({k:v for k,v in sample.items() if k not in ('processes','rejected_roots')}
-                        |{'elapsed_seconds':round(time.monotonic()-started,3),'nodes':50 if cycle%2 else 5000,'switches':cycle})
+                        |{'elapsed_seconds':round(time.monotonic()-started,3),'nodes':50 if cycle%2 else 5000,'switches':cycle,'private_commit_by_role':by_role})
                     save();time.sleep(min(5,max(.01,seconds-(time.monotonic()-started))))
                 result.update(elapsed_seconds=round(time.monotonic()-started,3),switches=cycle)
                 comparisons=[]

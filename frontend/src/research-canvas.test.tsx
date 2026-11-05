@@ -9,6 +9,18 @@ vi.mock('./components/InvestigationCanvas',()=>({InvestigationCanvas:({nodes,onS
 
 const document:ResearchDocument={schema:'granger-investigation/1',id:'a'.repeat(32),revision:4,title:'Мой проект',description:'',entities:[],relations:[],evidence:[],annotations:{},custom_types:{},view:{positions:{},viewport:{x:0,y:0,scale:1},layout:'manual',hidden:[],removed:[],collapsed:[]}}
 describe('Search analyst canvas controls',()=>{
+  it('reuses the renderer surface when changing documents and drops the old selection',()=>{
+    const node=(id:string):GraphEntity=>({id,type:'analyst_note',label:id,attributes:{},evidence_ids:[]})
+    const first={...document,entities:[node('first')]},second={...document,id:'b'.repeat(32),entities:[node('second')]}
+    const state={...emptyState,research_canvas:{state:'ready',types:[],choices:[],document:first}}
+    const view=render(<ResearchCanvas state={state} onSource={()=>{}} active/>)
+    const surface=screen.getByTestId('renderer')
+    fireEvent.click(screen.getByRole('button',{name:'Select first'}))
+    view.rerender(<ResearchCanvas state={{...state,research_canvas:{...state.research_canvas,document:second}}} onSource={()=>{}} active/>)
+    expect(screen.getByTestId('renderer')).toBe(surface)
+    expect(screen.getByRole('button',{name:'Select second'})).toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Select first'})).not.toBeInTheDocument()
+  })
   it('keeps expanded manual group members visible and collapses only when requested',()=>{
     const group:GraphEntity={id:'group',type:'entity_group',label:'Область',attributes:{origin:'analyst'},evidence_ids:[]}
     const members:GraphEntity[]=['a','b'].map(id=>({id,type:'analyst_note',label:id,attributes:{origin:'analyst',parent_group_id:'group'},evidence_ids:[]}))

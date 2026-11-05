@@ -1,4 +1,4 @@
-import { forwardRef,useEffect,useImperativeHandle,useMemo,useRef } from 'react'
+import { forwardRef,useEffect,useImperativeHandle,useLayoutEffect,useMemo,useRef } from 'react'
 import type { GraphEntity,GraphPoint,GraphRelation,GraphViewport } from '../types'
 import { entityLabel,fitViewport,readableViewport,hitNode,hitRelation,nodeBox,relationLabels,shortLabel,zoomAt } from '../graph-model'
 import { CardIndex } from '../graph-geometry'
@@ -125,7 +125,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       return picture
     }).catch(()=>null).then(picture=>{
       pending.delete(key)
-      if(canvas.current){
+      if(canvas.current&&cache===thumbnails.current){
         while(cache.size>=64)cache.delete(cache.keys().next().value!)
         cache.set(key,picture);requestDraw()
       }
@@ -237,6 +237,11 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       if(known)return [known[0],known[1],known[2],alpha]
       const probe=document.createElement('canvas');probe.width=probe.height=1;const context=probe.getContext('2d')!;context.fillStyle=value;context.fillRect(0,0,1,1);const bytes=context.getImageData(0,0,1,1).data
       const result:[number,number,number,number]=[bytes[0]/255,bytes[1]/255,bytes[2]/255,alpha];edgeColors.current.set(value,result);return result
+    }
+    // Opening a large document at a sparse zoom does not require a GL
+    // context. The same surface can reuse one context on denser views.
+    if(worldRoutes.length>=120&&!gpu.current&&gpuCanvas.current){
+      gpu.current=new GraphGpuLayer(gpuCanvas.current,()=>{uploaded.current=undefined;requestDraw()})
     }
     const layer=gpu.current
     let gpuRendered=false
@@ -402,15 +407,18 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     recordCamera('frame')
   }
   function requestDraw(){if(visible.current&&frame.current===undefined)frame.current=requestAnimationFrame(draw)}
-  useEffect(()=>{
-    const element=gpuCanvas.current
-    if(!element||props.edges.length<120)return
-    const layer=new GraphGpuLayer(element,()=>{uploaded.current=undefined;requestDraw()});gpu.current=layer;requestDraw()
-    return()=>{layer.dispose();gpu.current=undefined;uploaded.current=undefined}
-  },[props.edges.length>=120])
-  useEffect(()=>{
+  useEffect(()=>()=>{gpu.current?.dispose();gpu.current=undefined;uploaded.current=undefined},[])
+  useLayoutEffect(()=>{
     camera.current=new GraphCamera(props.viewport);viewport.current=camera.current.value
-    points.current={...props.positions};pendingPoints.current={};drag.current=undefined;lastMediaClick.current=undefined;moving.current={};cameraFrames.current=[];recordCamera('scope');requestDraw()
+    points.current={...props.positions};pendingPoints.current={};moving.current={}
+    drag.current=undefined;resizing.current=undefined;resizeSizes.current={};marquee.current=undefined
+    linking.current=undefined;linkPoint.current=undefined;dropPoint.current=undefined;lastMediaClick.current=undefined;hovered.current=''
+    clearTimeout(wheelTimer.current)
+    spatial.current=undefined;semanticCache.current=undefined;miniGeometry.current=undefined
+    geometry.current=undefined;uploaded.current=undefined
+    thumbnails.current=new Map();pendingThumbnails.current=new Set();textWidths.current.clear()
+    paints.current=[];intervals.current=[];latencies.current=[];lastInput.current=0;lastPaint.current=0
+    cameraFrames.current=[];lastCameraFrame.current='';recordCamera('scope');requestDraw()
   },[props.scopeKey??props.root])
   useEffect(()=>{
     const incoming={...props.positions}
