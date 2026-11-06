@@ -22,6 +22,10 @@ from .portable_vault import atomic_write
 class CanvasError(ValueError):
     code='analyst_canvas_invalid_operation'
 
+    def __init__(self,message,*,code=None):
+        super().__init__(message)
+        if code:self.code=code
+
 
 class CanvasConflict(CanvasError):
     code='analyst_canvas_revision_conflict'
@@ -47,7 +51,7 @@ def encoded(value):
 
 
 def text(value, limit=2000):
-    if not isinstance(value, str) or len(value)>limit: raise CanvasError('Некорректный текст полотна.')
+    if not isinstance(value, str) or len(value)>limit: raise CanvasError('Некорректный текст графа.')
     return value
 
 
@@ -134,7 +138,7 @@ def validate(value):
         text(edge.get('relation_type'),100)
         if not isinstance(edge.get('evidence_ids'),list) or not set(edge['evidence_ids'])<=evs:raise CanvasError('Отсутствует evidence связи.')
     view=value.get('view')
-    if not isinstance(view,dict) or not isinstance(view.get('positions'),dict):raise CanvasError('Нет представления полотна.')
+    if not isinstance(view,dict) or not isinstance(view.get('positions'),dict):raise CanvasError('Нет представления графа.')
     instances=view.get('instances',{})
     if not isinstance(instances,dict) or len(instances)+len(ids)>5000:raise CanvasError('Слишком много визуальных экземпляров.')
     for identifier,instance in instances.items():
@@ -326,6 +330,11 @@ def add_node(doc,args):
         # An explicitly chosen identifier is not an observed platform account.
         if not re.fullmatch(r'@?[\w.-]{1,64}',machine_value,re.UNICODE):raise CanvasError('Введите никнейм без URL и пробелов.')
         key=machine_value.removeprefix('@');attrs.update(value=key,username=key)
+    elif kind=='phone':
+        from .engine.router import normalize_phone
+        try:key=normalize_phone(machine_value)
+        except ValueError as error:raise CanvasError(str(error)) from None
+        attrs.update(value=key,phone=key)
     elif target:
         expected={'email':('email',),'phone':('phone',),'domain':('domain',),
             'infrastructure_asset':('infrastructure_asset','network_range','autonomous_system'),
@@ -442,11 +451,10 @@ def record_canvas_event(doc, kind, ids=(), count=0, tool=''):
     doc['activity']=[*doc.get('activity',[])[-119:],item]
 
 
-def position_added_profiles(doc, owner, added):
+def position_added_profiles(doc, owner, added, *, kinds=('public_profile','social_profile','github_profile','telegram_channel')):
     """Fill nearby open slots without moving existing analyst placements."""
     pending = set(added)
-    profiles = [node for node in doc['entities'] if node['id'] in pending and node['type'] in
-                ('public_profile','social_profile','github_profile','telegram_channel')]
+    profiles = [node for node in doc['entities'] if node['id'] in pending and node['type'] in kinds]
     if not profiles:
         return
     positions = doc['view']['positions']
@@ -637,5 +645,5 @@ def apply(doc,operation,args):
             instances[new_id]={'entity_id':canonical(identifier),'position':{'x':old['x']+40,'y':old['y']+40}}
             if identifier in doc['annotations']:doc['annotations'][new_id]=deepcopy(doc['annotations'][identifier])
             if identifier in doc['view'].get('card_sizes',{}):doc['view']['card_sizes'][new_id]=deepcopy(doc['view']['card_sizes'][identifier])
-    else:raise CanvasError('Неизвестная операция полотна.')
+    else:raise CanvasError('Неизвестная операция графа.')
     return validate(doc)

@@ -873,6 +873,7 @@ class DesktopBridge(QObject):
         if operation in ('create','lock') and chat and not chat._save_archive(): raise ValueError(chat.archive_error)
         if operation=='lock':
             if self._research_canvas:
+                self._research_canvas.media_previews.clear()
                 self._research_canvas.document=None;self._research_canvas.preview=None
                 self._research_canvas.previews={}
                 self._research_canvas.undo=[];self._research_canvas.redo=[]

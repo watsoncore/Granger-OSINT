@@ -19,6 +19,7 @@ declare global {interface Window {
 const metricsEnabled=()=>window.__GRANGER_QA_GRAPH__===true||import.meta.env.MODE==='test'
 
 const resizableCards=new Set(['media','group','note'])
+const imageActivationTypes=new Set(['image','nft','nft_asset','asset','inventory_item'])
 
 export interface GraphCanvasHandle { fit(ids?:string[]):void; zoom(factor:number):void; center(id:string):void; insertPoint?(size:CardSize):GraphPoint }
 interface Props {
@@ -33,6 +34,7 @@ interface Props {
   onContext?(id:string,position:GraphPoint):void
   cardSizes?:Record<string,CardSize>;cardMode?:CardMode
   onCardResize?(id:string,size:CardSize):void;onOpenMedia?(node:GraphEntity):void;onExpand?(id:string):void
+  onActivate?(node:GraphEntity):void
   onDropImage?(file:File,position:GraphPoint):void
   onNativeDrop?(token:string,position:GraphPoint):void
   loadImage?(node:GraphEntity,media:MediaReference):Promise<string>
@@ -219,7 +221,11 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     const text=color('--text'),muted=color('--muted'),accent=color('--accent'),border=color('--border'),panel=color('--panel'),raised=color('--panel-raised'),warning=color('--warning'),danger=color('--danger')
     const nodeAccent=color('--user-node')||accent,edgeAccent=color('--user-edge')||accent,hoverAccent=color('--user-hover')||accent
     const effects=document.documentElement.dataset.effects,glow=Math.max(0,Math.min(36,Number(color('--user-glow'))||0))
-    const glowRadius=effects==='off'?0:effects==='reduced'?Math.min(4,glow):glow
+    const glowRadius=effects==='off'?0:effects==='reduced'?Math.min(2,glow/3):glow/3
+    const selectionBorder=Math.max(1,Math.min(3,Number(color('--user-selection-border'))||1))
+    const hoverGlow=effects==='off'?0:Math.min(6,(Number(color('--user-hover-glow'))||0)/3)
+    const edgeHighlight=Math.max(0,Math.min(100,Number(color('--user-edge-highlight'))||0))/100
+    const selectedEdgeWidth=1.2+edgeHighlight
     const radius=Number.parseFloat(color('--user-card-radius'))||0
     const screen=(id:string)=>{const point=positions[id];return point?{x:point.x*v.scale+v.x,y:point.y*v.scale+v.y}:null}
     const measure=(value:string)=>{
@@ -285,7 +291,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
           const flow=edge.aggregate&&(incoming||outgoing)?incoming?'#68aab4':'#cfaa73':null
           const custom=manual&&/^#[0-9a-f]{6}$/i.test(String(edge.attributes?.color))?String(edge.attributes?.color):null
           const color=selected?edgeAccent:custom|| (edge.verification_status==='contradicted'?danger:edge.verification_status==='inferred'?warning:flow||(related?muted:border))
-          return {points,color:rgba(color,p.selected&&!related&&!selected ? .25 : selected?1:.65),width:selected?2.4:manual?Number(edge.attributes?.width)||1.6:edge.aggregate?1.6:1,
+          return {points,color:rgba(color,p.selected&&!related&&!selected ? .25 : selected?.7+edgeHighlight*.3:.65),width:selected?selectedEdgeWidth:manual?Number(edge.attributes?.width)||1.6:edge.aggregate?1.6:1,
             dashed:manual?edge.attributes?.stroke!=='solid':['inferred','unverified'].includes(edge.verification_status),dotted:manual&&edge.attributes?.stroke==='dotted',arrowStart:edge.direction==='bidirectional',arrowEnd:edge.direction!=='undirected'}
         })
         layer.setLines(lines,{x:-v.x/v.scale,y:-v.y/v.scale});uploaded.current={index:cachedRoutes,key}
@@ -304,7 +310,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       const flowColor=edge.aggregate&&(incoming||outgoing)?incoming?'#68aab4':'#cfaa73':null
       const manual=edge.claim_kind==='analyst_assertion',customColor=manual&&typeof edge.attributes?.color==='string'&&/^#[0-9a-f]{6}$/i.test(edge.attributes.color)?edge.attributes.color:null
       ctx.strokeStyle=selected?edgeAccent:customColor|| (edge.verification_status==='contradicted'?danger:edge.verification_status==='inferred'?warning:flowColor|| (related?muted:border))
-      ctx.lineWidth=selected?2.4:manual?Number(edge.attributes?.width)||1.6:edge.aggregate?1.6:1;ctx.globalAlpha=p.selected&&!related&&!selected ? .25 : selected ? 1 : .65
+      ctx.lineWidth=selected?selectedEdgeWidth:manual?Number(edge.attributes?.width)||1.6:edge.aggregate?1.6:1;ctx.globalAlpha=p.selected&&!related&&!selected ? .25 : selected ? .7+edgeHighlight*.3 : .65
       ctx.setLineDash(manual?edge.attributes?.stroke==='solid'?[]:edge.attributes?.stroke==='dotted'?[1,4]:[6,5]:['inferred','unverified'].includes(edge.verification_status)?[5,5]:[])
       if(!gpuRendered){ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);points.slice(1).forEach(point=>ctx.lineTo(point.x,point.y));ctx.stroke();ctx.setLineDash([])
       if(edge.direction!=='undirected'){const end=points.at(-1)!,prior=points.at(-2)!,angle=Math.atan2(end.y-prior.y,end.x-prior.x)
@@ -335,10 +341,14 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       ctx.globalAlpha=p.selected&&!selected&&!root&&!hover&&!highlighted.current.has(node.id)&&!selectedIds.has(String(node.attributes.parent_group_id||'')) ? .63 : 1
       ctx.fillStyle=group?'transparent':selected||hover?raised:panel
       ctx.strokeStyle=selected?nodeAccent:root?accent:hover?hoverAccent:node.verification_status==='inferred'?warning:border
-      ctx.lineWidth=selected||root?2:1
+      ctx.lineWidth=selected?selectionBorder:root?1.3:1
       const variant=cardVariant(node),corner=radius*(variant==='social'?1.22:variant==='note' ? .45 : 1)
-      if(variant==='hypothesis')ctx.setLineDash([4,3])
-      if(selected&&glowRadius>0&&(selectedIds.size<=8||p.selected===node.id)){ctx.shadowColor=nodeAccent;ctx.shadowBlur=glowRadius}
+      if(variant==='hypothesis'||selected&&selectedIds.size>1)ctx.setLineDash([4,3])
+      if(selected&&glowRadius>0&&(selectedIds.size<=8||p.selected===node.id)||hover&&hoverGlow>0){
+        const tint=rgba(selected?nodeAccent:hoverAccent,.22)
+        ctx.shadowColor=`rgba(${Math.round(tint[0]*255)},${Math.round(tint[1]*255)},${Math.round(tint[2]*255)},0.22)`
+        ctx.shadowBlur=selected?glowRadius:hoverGlow
+      }
       ctx.beginPath();ctx.roundRect(x,y,box.width,box.height,Math.min(corner,box.height/4));ctx.fill();ctx.stroke();ctx.shadowBlur=0
       ctx.setLineDash([])
       if(group&&v.scale>=.38){
@@ -572,7 +582,12 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     onDoubleClick={event=>{
       const point=local(event);if(zoomCluster(point))return
       const v=viewport.current,node=nodeAt(point)
-      if(node){if(!visualMedia(node))latest.current.onExpand?.(node.id)}
+      if(node){
+        if(!imageActivationTypes.has(node.type)||!visualMedia(node)){
+          if(latest.current.onActivate)latest.current.onActivate(node)
+          else latest.current.onExpand?.(node.id)
+        }
+      }
       else latest.current.onCreate?.({x:(point.x-v.x)/v.scale,y:(point.y-v.y)/v.scale})
     }}
     onContextMenu={event=>{event.preventDefault();const p=local(event);if(zoomCluster(p))return;const v=viewport.current,node=nodeAt(p);latest.current.onContext?.(node?.id||'',{x:(p.x-v.x)/v.scale,y:(p.y-v.y)/v.scale})}}
@@ -637,7 +652,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       else if(current&&!current.id){const edge=hitRelation(p.edges,points.current,v,point.x,point.y,p.nodes,p.mode);if(edge)p.onEdge(edge.id)}
       if(current?.id&&!current.moved){
         const node=nodeAt(point),previous=lastMediaClick.current,at=performance.now()
-        if(node?.id===current.id&&visualMedia(node)){
+        if(node?.id===current.id&&imageActivationTypes.has(node.type)&&visualMedia(node)){
           if(previous?.id===node.id&&at-previous.at<420&&Math.hypot(previous.x-point.x,previous.y-point.y)<8){
             lastMediaClick.current=undefined;p.onOpenMedia?.(node)
           }else lastMediaClick.current={id:node.id,...point,at}

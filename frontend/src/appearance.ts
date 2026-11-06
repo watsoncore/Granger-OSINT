@@ -6,7 +6,8 @@ export const wallpaperSources = {
   depth: 'Violet Depth', black: 'Minimal Black', grid: 'Subtle Grid', solid: 'Pure Color',
   gradient: 'Градиент', image: 'Личное изображение',
 } as const
-export const fits = {cover:'Заполнить',contain:'Вписать',center:'По центру',stretch:'Растянуть',tile:'Мозаика'} as const
+export const fits = {cover:'Заполнить',contain:'Вписать',center:'По центру',stretch:'Растянуть',tile:'Мозаика',original:'Оригинальный размер · 100%'} as const
+export const wallpaperQualities = {auto:'Автоматическое',high:'Высокое',original:'Оригинальное'} as const
 export const edgeStyles = {straight:'Прямые',curved:'Дуги',orthogonal:'Под углом',bezier:'Плавные Безье'} as const
 export const colorFields = {
   accent:'Основной акцент', node:'Выбранная карточка', edge:'Выбранная связь',
@@ -15,11 +16,13 @@ export const colorFields = {
 export type ColorField = keyof typeof colorFields
 export type Wallpaper = {
   source: keyof typeof wallpaperSources; image: string; fit: keyof typeof fits; anchor: 'screen' | 'world';
+  quality: keyof typeof wallpaperQualities;
   x: number; y: number; scale: number; dim: number; blur: number; opacity: number; color: string; end: string;
 }
 export type AppearancePreset = {
   theme: ThemeId; colors: Partial<Record<ColorField,string>>;
   glow: number; border: number; cardRadius: number; panelRadius: number; surface: number;
+  selectionBorder: number; hoverGlow: number; edgeHighlight: number;
   frost: number; reflection: number; shadow: number; density: 'compact' | 'comfortable';
   edges: keyof typeof edgeStyles; effects: 'full' | 'reduced' | 'off'; reducedMotion: boolean; wallpaper: Wallpaper;
 }
@@ -28,7 +31,7 @@ export type Appearance = AppearancePreset & {
 }
 
 export const defaultWallpaper: Wallpaper = {
-  source:'theme', image:'', fit:'cover', anchor:'screen', x:50, y:50, scale:100, dim:65,
+  source:'theme', image:'', fit:'cover', quality:'auto', anchor:'screen', x:50, y:50, scale:100, dim:65,
   blur:0, opacity:100, color:'#11171f', end:'#242335',
 }
 export const themeAccents: Record<ThemeId,string> = {
@@ -38,8 +41,9 @@ export const themeAccents: Record<ThemeId,string> = {
 
 export function defaults(theme: ThemeId = 'dark'): Appearance {
   return {
-    theme, colors:{}, glow:theme==='silver'?4:12, border:75, cardRadius:12, panelRadius:16,
-    surface:96, frost:8, reflection:10, shadow:22, density:'comfortable', edges:'curved',
+    theme, colors:{}, glow:theme==='silver'?3:5, border:75, cardRadius:12, panelRadius:16,
+    selectionBorder:1, hoverGlow:0, edgeHighlight:55,
+    surface:98, frost:4, reflection:3, shadow:16, density:'comfortable', edges:'curved',
     effects:'full', reducedMotion:false, wallpaper:{...defaultWallpaper}, overrides:{}, presets:{}, hidePrivate:true,
   }
 }
@@ -78,6 +82,8 @@ export function applyAppearance(appearance: AppearancePreset, remember = true) {
     '--user-accent':accent, '--user-node':colorFor(appearance,'node'), '--user-edge':colorFor(appearance,'edge'),
     '--user-hover':colorFor(appearance,'hover'), '--user-nav':colorFor(appearance,'nav'), '--user-button':button,
     '--user-button-text':contrast(button), '--user-glow':String(appearance.glow),
+    '--user-selection-border':String(appearance.selectionBorder), '--user-hover-glow':String(appearance.hoverGlow),
+    '--user-edge-highlight':String(appearance.edgeHighlight),
     '--user-card-radius':appearance.cardRadius+'px', '--user-panel-radius':appearance.panelRadius+'px',
     '--user-border':appearance.border+'%', '--user-surface':appearance.surface+'%',
     '--user-frost':appearance.frost+'px', '--user-reflection':appearance.reflection+'%',

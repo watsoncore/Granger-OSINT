@@ -1011,8 +1011,12 @@ class ToolRegistry:
                 from .agent_web import lookup_domain, lookup_ip
                 outcome = (lookup_domain if spec.source == "domain_lookup" else lookup_ip)(value, cancel_event=cancelled, deadline=deadline)
             elif spec.source in _PUBLIC_SOURCES:
-                from .public_sources import execute
-                outcome=execute(spec.source,value,limit=limit,cancel_event=cancelled,deadline=deadline,agent_model=getattr(self.settings,'deepseek_model',''))
+                if spec.source=='github_profile':
+                    from .github_enrichment import execute
+                    outcome=execute(value,limit=limit,cancel_event=cancelled,deadline=deadline,agent_model=getattr(self.settings,'deepseek_model',''))
+                else:
+                    from .public_sources import execute
+                    outcome=execute(spec.source,value,limit=limit,cancel_event=cancelled,deadline=deadline,agent_model=getattr(self.settings,'deepseek_model',''))
             elif spec.source in ('github_repository','threat_feodo','hash_virustotal'):
                 from .public_integrations import execute
                 outcome=execute(spec.source,value,secret=self._secret('virustotal_api_key') if spec.source=='hash_virustotal' else '',

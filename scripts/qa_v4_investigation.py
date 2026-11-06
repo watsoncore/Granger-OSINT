@@ -7,7 +7,7 @@ from __future__ import annotations
 import argparse,hashlib,json,os,subprocess,sys,tempfile,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
-from scripts.qa_clean_release import NativeSession,isolated_environment,wait_for,process_image,QaFailure,validate_report_path
+from scripts.qa_clean_release import NativeSession,isolated_environment,wait_for,process_image,QaFailure,validate_report_path,research_labels
 TON='UQCMUP3GW7s5i0dYOKgDc0b-mr6X0JhwopbQ30YUbzTdZKPd'
 class Session(NativeSession):
  def __init__(self,executable,directory,source=False):
@@ -22,8 +22,9 @@ class Session(NativeSession):
  def find(self,label,*,role=None):
   d=self.dom()
   elements=[e for e in d.get('elements',[]) if e['width']>0]
-  if role:found=next((e for e in elements if e.get('role')==role and e.get('text','').startswith(label)),None)
-  else:found=next((e for e in elements if e.get('label')==label),None) or next((e for e in elements if e.get('text')==label),None)
+  labels=research_labels(label)
+  if role:found=next((e for e in elements if e.get('role')==role and any(e.get('text','').startswith(value) for value in labels)),None)
+  else:found=next((e for e in elements if e.get('label') in labels),None) or next((e for e in elements if e.get('text') in labels),None)
   return found,d
  def click(self,label,*,role=None):
   for attempt in range(28):

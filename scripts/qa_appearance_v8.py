@@ -38,6 +38,15 @@ class AppearanceSession(V7Session):
         return element, dom
 
     def select_option(self, label, index):
+        target=self.find(label)[0]
+        if target and target.get('type')!='select-one':
+            self.click(label)
+            def options():
+                return [entry for entry in self.dom().get('elements',[])
+                        if entry.get('role')=='menuitemradio' and entry.get('width',0)>0]
+            rows=wait_for(options,8)
+            self.click(rows[index]['text'],role='menuitemradio')
+            return
         self.click(label)
         self.action('input', {'kind': 'key', 'key': 'home'})
         for _ in range(index):

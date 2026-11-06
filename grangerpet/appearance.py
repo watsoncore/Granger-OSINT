@@ -7,7 +7,7 @@ IMAGE_ID = re.compile(r'img_[0-9a-f]{64}')
 CANVAS_ID = re.compile(r'[a-f0-9]{32}')
 THEMES = ('dark', 'black', 'light', 'mono', 'azure', 'crimson', 'violet', 'silver', 'amber', 'custom')
 WALLPAPERS = ('theme', 'graphite', 'mist', 'smoke', 'depth', 'black', 'grid', 'solid', 'gradient', 'image')
-FITS = ('cover', 'contain', 'center', 'stretch', 'tile')
+FITS = ('cover', 'contain', 'center', 'stretch', 'tile', 'original')
 EDGE_STYLES = ('straight', 'curved', 'orthogonal', 'bezier')
 MAX_PREFERENCES = 48_000
 
@@ -31,6 +31,7 @@ def wallpaper(value):
         'source': _enum(data.get('source'), WALLPAPERS, 'theme'),
         'image': image if isinstance(image, str) and IMAGE_ID.fullmatch(image) else '',
         'fit': _enum(data.get('fit'), FITS, 'cover'),
+        'quality': _enum(data.get('quality'), ('auto', 'high', 'original'), 'auto'),
         'anchor': _enum(data.get('anchor'), ('screen', 'world'), 'screen'),
         'x': _integer(data.get('x'), 0, 100, 50),
         'y': _integer(data.get('y'), 0, 100, 50),
@@ -51,14 +52,17 @@ def _preset(value):
         'theme': _enum(data.get('theme'), THEMES, 'dark'),
         'colors': {key: color for key in ('accent', 'node', 'edge', 'hover', 'nav', 'button')
                    if (color := _color(colors.get(key)))},
-        'glow': _integer(data.get('glow'), 0, 36, 12),
+        'glow': _integer(data.get('glow'), 0, 36, 5),
+        'selectionBorder': _integer(data.get('selectionBorder'), 1, 3, 1),
+        'hoverGlow': _integer(data.get('hoverGlow'), 0, 16, 0),
+        'edgeHighlight': _integer(data.get('edgeHighlight'), 0, 100, 55),
         'border': _integer(data.get('border'), 30, 100, 75),
         'cardRadius': _integer(data.get('cardRadius'), 0, 24, 12),
         'panelRadius': _integer(data.get('panelRadius'), 0, 30, 16),
-        'surface': _integer(data.get('surface'), 75, 100, 96),
-        'frost': _integer(data.get('frost'), 0, 18, 8),
-        'reflection': _integer(data.get('reflection'), 0, 40, 10),
-        'shadow': _integer(data.get('shadow'), 0, 50, 22),
+        'surface': _integer(data.get('surface'), 75, 100, 98),
+        'frost': _integer(data.get('frost'), 0, 18, 4),
+        'reflection': _integer(data.get('reflection'), 0, 40, 3),
+        'shadow': _integer(data.get('shadow'), 0, 50, 16),
         'density': _enum(data.get('density'), ('compact', 'comfortable'), 'comfortable'),
         'edges': _enum(data.get('edges'), EDGE_STYLES, 'curved'),
         'effects': _enum(data.get('effects'), ('full', 'reduced', 'off'), 'full'),

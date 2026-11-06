@@ -14,6 +14,7 @@ import hashlib
 import io
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -23,6 +24,13 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+
+def research_labels(label):
+    words={'полотно':'граф','полотна':'графа','полотну':'графу','полотном':'графом','полотне':'графе','полотен':'графов'}
+    modern=label.replace('Моё полотно','Мой граф').replace('Рабочее полотно','Рабочий граф')
+    modern=re.sub(r'\b[Пп]олотн[а-я]*\b',
+        lambda match:words.get(match[0].lower(),match[0]).capitalize() if match[0][0].isupper() else words.get(match[0],match[0]),modern)
+    return (label,modern)
 
 
 class QaFailure(RuntimeError):
@@ -147,7 +155,7 @@ class NativeSession:
         def control():
             dom = self.dom()
             return next((row for row in dom.get('elements', [])
-                if label in (row.get('label'), row.get('text')) and row['width'] > 0
+                if any(value in (row.get('label'), row.get('text')) for value in research_labels(label)) and row['width'] > 0
                 and 0 < row['y'] < dom['height'] - 25), None)
         row = wait_for(control)
         self.action('input', {'kind': 'click', 'at': [row['x'] + row['width'] / 2, row['y'] + min(16, row['height'] / 2)]})

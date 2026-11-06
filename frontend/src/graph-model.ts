@@ -10,6 +10,8 @@ export const verificationLabels: Record<string,string> = { verified:'Наблю�
 export const relationLabels: Record<string,string> = { groups_observations:'Группа наблюдений',group_contains:'Включает объект',reference_for_candidate:'Эталон для гипотезы',locally_compared_with:'Сопоставлены локально',source_reports_asset:'Источник сообщает об активе',publishes_link:'Публикует ссылку',repository_namespace:'Namespace GitHub',supported_by:'Основание',published_on_domain:'Опубликовано на домене',uses_public_identifier:'Использует идентификатор',profile_mentions_organization:'Упоминает организацию',source_attributes_authorship:'Источник указывает автора',sent_from:'Отправитель',sent_to:'Получатель',transfers:'Операции',source_labels_address:'Метка источника',metadata_reports_coordinate:'GPS из метаданных',has_geographic_hypothesis:'Гипотеза модели',reference_source_reports_coordinate:'Координаты эталона',historically_published_contact:'Исторический контакт',investigates:'Объект исследования',returned_for_query:'Результат по запросу',uses_email_domain:'Домен email',map_source_reports_location:'Географический объект' }
 export const entityType = (node:GraphEntity) => String(node.attributes?.display_type || node.type)
 Object.assign(relationLabels, {
+  public_organization_membership:'Публичное членство GitHub',
+  profile_publishes_url:'Сайт из профиля',has_public_release:'Публичный релиз',
   source_reports_counterparty:'Контрагент по данным источника',
   has_public_inventory:'Опубликован инвентарь',contains_inventory_category:'Категория предметов',
   matched_parent_registration:'Родительский объект RDAP',overlaps_registered_range:'Частичное покрытие RDAP',

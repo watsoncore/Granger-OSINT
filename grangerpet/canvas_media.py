@@ -230,7 +230,10 @@ def request_media(bridge,action,payload):
         return metadata, pixels
     jobs=getattr(bridge,'_canvas_media_jobs',set());bridge._canvas_media_jobs=jobs
     if len(jobs)>=4:raise ValueError('Дождитесь загрузки изображения.')
-    job=UiJob(read,bridge)
+    def safe_read():
+        try:return read()
+        except (ValueError, OSError):return None
+    job=UiJob(safe_read,bridge)
     jobs.add(job)
     def done(value,error):
         jobs.discard(job)

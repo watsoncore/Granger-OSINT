@@ -1,3 +1,4 @@
+import {Details,Summary} from './ui'
 import type { Source } from '../types'
 
 const scalar=(value:unknown)=>typeof value==='string'||typeof value==='number'?String(value):typeof value==='boolean'?(value?'Да':'Нет'):'Не предоставлено'
@@ -15,6 +16,6 @@ export function PublicProfile({source}:{source:Source}) {
     <dl className="details-list">{fields.map(([label,value])=><div key={String(label)}><dt>{String(label)}</dt><dd>{scalar(value)}</dd></div>)}</dl>
     {tiktok&&data.counters==null&&<p className="muted">Счётчики не предоставлены этим ответом. Это не нулевые значения.</p>}
     {tiktok&&<p className="muted">Время video ID не является датой создания аккаунта.</p>}
-    <details className="technical-details"><summary>JSON полученных полей</summary><pre>{JSON.stringify(data,null,2)}</pre></details>
+    <Details className="technical-details"><Summary>JSON полученных полей</Summary><pre>{JSON.stringify(data,null,2)}</pre></Details>
   </section>
 }

@@ -156,7 +156,7 @@ def import_canvas(path,store,*,_core_only=False):
         for part in parts.parts:
             current=current/part
             if current.is_symlink():raise CanvasError('Ссылки на внешние оригиналы не импортируются.')
-        if not candidate.resolve().is_relative_to(root):raise CanvasError('Файл вне каталога полотна.')
+        if not candidate.resolve().is_relative_to(root):raise CanvasError('Файл вне каталога графа.')
         size=candidate.stat().st_size;total+=size
         if size>MAX_ATTACHMENT or total>MAX_PACKAGE:raise CanvasError('Вложения превышают лимит импорта.')
         return candidate.read_bytes()

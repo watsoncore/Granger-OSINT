@@ -5,6 +5,7 @@ from .crypto_targets import node_gansar_capability,CHAIN_OPTIONS
 
 _KINDS={'username':{'username'},'nickname':{'username'},'email':{'email'},'phone':{'phone'},
     'ip':{'ip'},'domain':{'domain','web'},'website':{'web'},'image':{'image'},
+    'repository':{'repository','web'},'github_repository':{'repository','web'},
     'blockchain_address':{'blockchain'},'contract':{'blockchain'},'nft_asset':{'blockchain'},
     'nft':{'blockchain'},'collection':{'blockchain'},'organization':{'company','dork'},'document':{'document'},'coordinate':{'coordinates'}}
 
@@ -20,6 +21,16 @@ def target_value(node,spec):
         value=attrs.get('coordinates') or attrs.get('value')
     elif spec.kind=='image':value=attrs.get('attachment_id')
     elif spec.kind=='web':value=attrs.get('url') or ('https://'+str(attrs.get('value')) if kind=='domain' and attrs.get('value') else None)
+    elif spec.kind in ('username','repository') and spec.name in ('github_profile','github_repository'):
+        from .entity_router import route
+        url=attrs.get('url')
+        target=route(url) if isinstance(url,str) else None
+        expected='github_profile' if spec.name=='github_profile' else 'github_repository'
+        if target and target.entity_type==expected and target.platform=='github':
+            value=target.identifier
+        elif url or kind not in ('username','nickname'):
+            return None,'unsupported_entity','Выберите точный GitHub-профиль или репозиторий подходящего типа.'
+        else:value=attrs.get('username') or attrs.get('value')
     elif spec.kind=='username':value=attrs.get('username') or (attrs.get('value') if kind in ('username','nickname') or not attrs.get('url') else None)
     else:value=attrs.get(spec.argument) or attrs.get('value') or attrs.get('address')
     if not isinstance(value,str) or not value.strip():return None,'invalid_target','У объекта нет машинного идентификатора для этого инструмента.'

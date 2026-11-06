@@ -299,9 +299,9 @@ export function parseState(raw: string | Partial<DesktopState>, previous = empty
   const object = (row: unknown): row is Record<string, unknown> => !!row && typeof row === 'object' && !Array.isArray(row)
   const delta=(value as Record<string,unknown>).research_canvas_delta
   if(delta!==undefined){
-    if(!object(delta)||!object(delta.state)||!object(delta.document)||!object(delta.view)||!object(delta.positions))throw new Error('Некорректное обновление полотна')
+    if(!object(delta)||!object(delta.state)||!object(delta.document)||!object(delta.view)||!object(delta.positions))throw new Error('Некорректное обновление графа')
     const current=previous.research_canvas,doc=current?.document
-    if(!current||!doc||doc.id!==delta.canvas_id||doc.revision!==delta.base_revision)throw new Error('Версия полотна изменилась; требуется полный снимок')
+    if(!current||!doc||doc.id!==delta.canvas_id||doc.revision!==delta.base_revision)throw new Error('Версия графа изменилась; требуется полный снимок')
     const without=(row:Record<string,unknown>,keys:unknown)=>{if(!Array.isArray(keys)||keys.some(k=>typeof k!=='string'))throw new Error('Некорректные удалённые поля');const next={...row};for(const key of keys)delete next[key];return next}
     const positions=Object.keys(delta.positions).length||(delta.positions_removed as string[]||[]).length?{...without(doc.view.positions,delta.positions_removed),...delta.positions}:doc.view.positions
     const view={...without(doc.view as unknown as Record<string,unknown>,delta.view_removed),...delta.view,positions}
@@ -343,13 +343,13 @@ export function parseState(raw: string | Partial<DesktopState>, previous = empty
   }
   const research=value.research_canvas
   if(research){
-    if(!object(research)||typeof research.state!=='string'||!Array.isArray(research.types)||!Array.isArray(research.choices))throw new Error('Некорректное полотно')
+    if(!object(research)||typeof research.state!=='string'||!Array.isArray(research.types)||!Array.isArray(research.choices))throw new Error('Некорректный граф')
     const doc=research.document
     if(doc){
       if(!object(doc)||doc.schema!=='granger-investigation/1'||typeof doc.id!=='string'||!Number.isInteger(doc.revision)||typeof doc.title!=='string'||!Array.isArray(doc.entities)||doc.entities.length>5000||!Array.isArray(doc.relations)||doc.relations.length>20000||!Array.isArray(doc.evidence)||!object(doc.view)||!object(doc.view.positions)||!object(doc.annotations))throw new Error('Некорректное расследование')
       const ids=new Set<string>()
-      for(const n of doc.entities){if(!object(n)||typeof n.id!=='string'||ids.has(n.id)||typeof n.label!=='string'||!object(n.attributes)||!Array.isArray(n.evidence_ids))throw new Error('Некорректный объект полотна');ids.add(n.id)}
-      for(const e of doc.relations)if(!object(e)||!ids.has(e.from_id)||!ids.has(e.to_id)||typeof e.relation_type!=='string'||!Array.isArray(e.evidence_ids))throw new Error('Некорректная связь полотна')
+      for(const n of doc.entities){if(!object(n)||typeof n.id!=='string'||ids.has(n.id)||typeof n.label!=='string'||!object(n.attributes)||!Array.isArray(n.evidence_ids))throw new Error('Некорректный объект графа');ids.add(n.id)}
+      for(const e of doc.relations)if(!object(e)||!ids.has(e.from_id)||!ids.has(e.to_id)||typeof e.relation_type!=='string'||!Array.isArray(e.evidence_ids))throw new Error('Некорректная связь графа')
     }
   }
   const patch = value as Partial<DesktopState> & { message_updates?: { index: number; message: Message }[]; message_count?: number }

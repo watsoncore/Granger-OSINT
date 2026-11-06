@@ -1,5 +1,6 @@
 """Qt adapter for analyst canvases; all storage/projection work stays off the UI thread."""
 from copy import deepcopy
+from collections import OrderedDict
 import json
 import uuid
 import os
@@ -23,6 +24,7 @@ class ResearchCanvasBridge:
         self._commit_replies={}
         self._active_receipt=None
         self._recovery_reply=None
+        self.media_previews=OrderedDict()
 
     def source_record(self,identifier):
         for row in (self.document or {}).get('evidence',[]):
@@ -43,6 +45,11 @@ class ResearchCanvasBridge:
         if doc:
             if doc['id'] in self.insertions:state['insertion']=deepcopy(self.insertions[doc['id']])
             visible=deepcopy(doc)
+            if self.media_previews:
+                for node in visible['entities']:
+                    reference=node['attributes'].get('media') or {}
+                    cached=self.media_previews.get((doc['id'],node['id'],reference.get('id')))
+                    if cached:node['attributes']['media']=deepcopy(cached)
             visible['evidence']=[source_view(row,compact=True) for row in doc['evidence']]
             executions=visible.pop('executions',[])
             visible['execution_summary']=[
@@ -56,13 +63,14 @@ class ResearchCanvasBridge:
         return state
 
     def work(self,task,*,receipt=None):
-        if self.job:raise CanvasError('Дождитесь сохранения полотна.')
+        if self.job:raise CanvasError('Дождитесь сохранения графа.',code='canvas_busy')
         self.publish({**self.state,'busy':True,'error':''})
         deferred=DeferredReply() if receipt else None
         def execute():
             self._active_receipt=receipt
             try:return task()
             except CanvasConflict as error:return {'_canvas_conflict':{'error':str(error),'code':error.code,'revision':error.revision}}
+            except CanvasError as error:return {'_canvas_conflict':{'error':str(error),'code':'canvas_validation_failed'}}
             finally:self._active_receipt=None
         job=UiJob(execute,self.bridge);self.job=job
         def done(value,error):
@@ -176,7 +184,7 @@ class ResearchCanvasBridge:
                 raise CanvasError('Измерения доступны только в изолированном QA.')
             surface=bridge.host.desktop_surface
             generation=getattr(self,'_metric_generation',0)+1;self._metric_generation=generation
-            script="""JSON.stringify((()=>{let editor=document.querySelector('.research-editor'),canvas=editor?.querySelector('.investigation-graph-canvas'),r=canvas?.getBoundingClientRect();return {editor:!!editor,canvas_id:editor?.dataset.canvasId,revision:editor?.dataset.revision,queue_pending:window.grangerCanvasQueue?.snapshot?.()?.intents?.length||0,canvas:canvas?{...canvas.dataset,x:r.x,y:r.y,width:r.width,height:r.height}:null}})())"""
+            script="""JSON.stringify((()=>{let editor=document.querySelector('.research-editor'),canvas=editor?.querySelector('.investigation-graph-canvas'),r=canvas?.getBoundingClientRect();return {editor:!!editor,canvas_id:editor?.dataset.canvasId,revision:editor?.dataset.revision,queue_pending:window.grangerCanvasQueue?.snapshot?.()?.intents?.length||0,canvas:canvas?{...canvas.dataset,x:r.x,y:r.y,width:r.width,height:r.height,dpr:devicePixelRatio}:null,wallpaper:(()=>{let layer=editor?.querySelector('.wallpaper-layer[data-wallpaper=image]'),art=layer?.querySelector('.wallpaper-art');if(!layer||!art)return null;let b=layer.getBoundingClientRect(),style=getComputedStyle(art);return {...layer.dataset,width:b.width,height:b.height,fit:style.backgroundSize,position:style.backgroundPosition,transform:style.transform,dpr:devicePixelRatio}})()}})())"""
             def result(value):
                 if bridge._closed:return
                 try:data=json.loads(value)
@@ -201,9 +209,9 @@ class ResearchCanvasBridge:
             return self._result_action(op,payload)
         if op=='screenshot':
             return self._screenshot(payload)
-        if self.job:raise CanvasError('Дождитесь окончания сохранения полотна.')
+        if self.job:raise CanvasError('Дождитесь окончания сохранения графа.',code='canvas_busy')
         if op in ('tool','analyze','attach','export') and (not self.document or payload.get('id')!=self.document['id'] or payload.get('revision')!=self.document['revision']):
-            raise CanvasConflict('Полотно или его версия изменились. Загрузите актуальную версию перед повторением.',revision=(self.document or {}).get('revision'))
+            raise CanvasConflict('Граф или его версия изменились. Загрузите актуальную версию перед повторением.',revision=(self.document or {}).get('revision'))
         if op=='tool':
             if not self.document:raise CanvasError('Откройте расследование.')
             selected_id=payload.get('entity_id')
@@ -269,7 +277,7 @@ class ResearchCanvasBridge:
             if attachment:
                 store=bridge._images()
                 return work(lambda:self._image(store.get(attachment),payload))
-            filename,_=QFileDialog.getOpenFileName(bridge.host,'Изображение на полотно','','Изображения (*.png *.jpg *.jpeg *.webp)')
+            filename,_=QFileDialog.getOpenFileName(bridge.host,'Изображение на граф','','Изображения (*.png *.jpg *.jpeg *.webp)')
             if not filename:return None
             def image_task():
                 path=Path(filename)
@@ -279,7 +287,7 @@ class ResearchCanvasBridge:
         expected=payload.get('revision')
         if op not in ('list','open','new'):
             if not self.document or payload.get('id')!=self.document['id'] or expected!=self.document['revision']:
-                raise CanvasConflict('Версия полотна изменилась. Действие сохранено в очереди; загрузите актуальную версию перед повторением.',revision=(self.document or {}).get('revision'))
+                raise CanvasConflict('Версия графа изменилась. Действие сохранено в очереди; загрузите актуальную версию перед повторением.',revision=(self.document or {}).get('revision'))
         def task():
             if op=='list':return self.render()
             if op=='new':
@@ -320,7 +328,7 @@ class ResearchCanvasBridge:
                 return self.render()
             if op=='insert':
                 if not self.preview or self.preview['token']!=payload.get('token') or self.preview['canvas_id']!=self.document['id']:
-                    raise CanvasError('Результат относится к другому полотну или устарел.')
+                    raise CanvasError('Результат относится к другому графу или устарел.')
                 selected=payload.get('evidence_ids')
                 available={r['evidence_id'] for r in self.preview['records']}
                 if not isinstance(selected,list) or not set(selected)<=available:raise CanvasError('Выберите полученные доказательства.')
@@ -367,6 +375,8 @@ class ResearchCanvasBridge:
                             'relation_type':'candidate_for_company_query','direction':'directed','origin':'tool',
                             'verification_status':'unverified','claim_kind':'lookup_candidate','evidence_ids':proof,
                             'source_urls':[],'provenance':[],'attributes':{'identity_match_verified':False}})
+                if target and target['type'] in ('public_profile','github_profile','social_profile') and self.preview['tool']=='github_profile':
+                    position_added_profiles(value,owner,added,kinds=('repository','organization','website','public_post'))
                 value['executions'].append({k:self.preview.get(k) for k in ('tool','status','limitations')})
                 record_canvas_event(value,'findings',added or ([owner] if owner else []),len(set(selected)),self.preview['tool'])
                 result=self._commit(value)
@@ -468,11 +478,11 @@ class ResearchCanvasBridge:
 
     def _screenshot(self,payload):
         if set(payload)!={'id'} or payload['id']!=(self.document or {}).get('id'):
-            raise CanvasError('Откройте полотно для снимка.')
+            raise CanvasError('Откройте граф для снимка.')
         surface=self.bridge.host.desktop_surface
         if not surface.isVisible():
-            raise CanvasError('Откройте видимое полотно для снимка.')
-        filename,_=QFileDialog.getSaveFileName(self.bridge.host,'Сохранить снимок полотна','investigation.png','PNG (*.png)')
+            raise CanvasError('Откройте видимый граф для снимка.')
+        filename,_=QFileDialog.getSaveFileName(self.bridge.host,'Сохранить снимок графа','investigation.png','PNG (*.png)')
         if not filename:
             return None
         from PySide6.QtCore import QTimer
@@ -497,7 +507,7 @@ class ResearchCanvasBridge:
                 reply.resolve(result,error)
 
         def capture(ready):
-            failure={'code':'canvas_screenshot_failed','error':'Не удалось безопасно сохранить снимок полотна.'}
+            failure={'code':'canvas_screenshot_failed','error':'Не удалось безопасно сохранить снимок графа.'}
             if not ready:
                 finish(None,failure);return
 
@@ -588,6 +598,7 @@ class ResearchCanvasBridge:
         return self._commit(value)
 
     def close(self):
+        self.media_previews.clear()
         if self.job:self.job.cancel()
         if self.media_job:self.media_job.cancel()
         if self.result_job:self.result_job.cancel()
@@ -607,9 +618,19 @@ class ResearchCanvasBridge:
         def done(value,error):
             self.media_job=None
             if not bridge._closed and self.document and self.document['id']==canvas_id:
-                updated=value if isinstance(value,dict) else {**reference,'state':'unavailable'}
-                for n in self.document['entities']:
-                    if n['id']==identifier and (n['attributes'].get('media') or {}).get('id')==reference.get('id'):n['attributes']['media']=updated
+                fetched=value if isinstance(value,dict) else {'state':'unavailable'}
+                updated={**reference,**{key:fetched[key] for key in
+                    ('state','thumbnail','width','height','mime','bytes','sha256','error') if key in fetched}}
+                current=next((node for node in self.document['entities'] if node['id']==identifier),None)
+                if not current or (current['attributes'].get('media') or {}).get('id')!=reference.get('id'):
+                    job.deleteLater()
+                    return
+                key=(canvas_id,identifier,reference.get('id'))
+                self.media_previews[key]=updated
+                self.media_previews.move_to_end(key)
+                while len(self.media_previews)>1 and (len(self.media_previews)>24 or
+                    sum(len(item.get('thumbnail','')) for item in self.media_previews.values())>8_000_000):
+                    self.media_previews.popitem(last=False)
                 # Preview cache is presentation state, not a new source fact or
                 # an undo step. It never rewrites evidence or a saved revision.
                 displayed=deepcopy(self.state.get('document',{}))

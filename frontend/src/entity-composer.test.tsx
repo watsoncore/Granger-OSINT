@@ -1,4 +1,4 @@
-import {render,screen,fireEvent,waitFor} from '@testing-library/react'
+import {render,screen,fireEvent,waitFor,act as reactAct} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {describe,it,expect,vi} from 'vitest'
 import {EntityComposer,type CompanyJurisdiction} from './components/EntityComposer'
@@ -7,6 +7,20 @@ const jurisdictions:CompanyJurisdiction[]=[{id:'KZ',label:'Казахстан',i
   {id:'RU',label:'Россия',identifiers:{name:'Название',inn:'ИНН юридического лица',ogrn:'ОГРН'}}]
 
 describe('typed object creation',()=>{
+  it('keeps newer typing intact when a previous object receives a late acknowledgement',async()=>{
+    let acknowledge!:(value:unknown)=>void
+    const create=vi.fn(()=>new Promise(resolve=>{acknowledge=resolve}))
+    const user=userEvent.setup()
+    render(<EntityComposer onCreate={create}/>)
+    const input=screen.getByLabelText('Имя или подпись')
+    fireEvent.change(input,{target:{value:'Первый объект'}})
+    await user.click(screen.getByRole('button',{name:'Добавить объект'}))
+    fireEvent.change(input,{target:{value:'Следующий черновик'}})
+    await user.click(screen.getByRole('button',{name:'Добавить объект'}))
+    expect(create).toHaveBeenCalledTimes(1)
+    await reactAct(async()=>{acknowledge(true)})
+    expect(input).toHaveValue('Следующий черновик')
+  })
   it('shows jurisdiction-specific company fields without username or machine identifier',async()=>{
     const user=userEvent.setup(),create=vi.fn().mockResolvedValue(true)
     render(<EntityComposer jurisdictions={jurisdictions} onCreate={create}/>);

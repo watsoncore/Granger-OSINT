@@ -43,7 +43,7 @@ describe('real search explanations', () => {
     expect(screen.getByRole('button',{name:'Повторить поиск'})).toBeEnabled()
     fireEvent.click(screen.getByRole('button',{name:'Изменить запрос'}))
     expect(screen.getByLabelText('Что исследуем?')).toBeVisible()
-    expect(screen.getByRole('button',{name:'Моё полотно'})).toHaveAttribute('aria-pressed','false')
+    expect(screen.getByRole('button',{name:'Мой граф'})).toHaveAttribute('aria-pressed','false')
   })
   it('opens the existing Google operators constructor with the current draft', () => {
     search({})

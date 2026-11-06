@@ -62,18 +62,18 @@ export function CommandPalette({open,state,onClose,onRoute,onSearch,onAppearance
   const field=useRef<HTMLInputElement>(null)
   const graphCommands: [CanvasCommand,string][] = [
     ['add','Добавить объект'],['connect','Связать выбранное'],['profiles','Найти публичный профиль'],
-    ['controls','Настройки полотна'],['center','Центрировать граф'],['results','Открыть находки'],
+    ['controls','Настройки графа'],['center','Центрировать граф'],['results','Открыть находки'],
     ['evidence','Показать основания'],['focus','Фокус на выбранном'],['activity','История расследования'],
   ]
   useEffect(()=>{if(open){setQuery('');setActive(0)}},[open])
   const actions=[
     ...navigation.map(item=>({key:item.id,label:item.label,group:'Раздел',icon:item.icon,run:()=>onRoute(item.id)})),
-    {key:'cases',label:'Мои расследования',group:'Полотно',icon:FolderOpen,run:()=>onSearch({panel:'canvas'})},
-    {key:'new-case',label:'Новое расследование',group:'Полотно',icon:Plus,run:()=>onSearch({panel:'canvas',create:true})},
+    {key:'cases',label:'Мои расследования',group:'Граф',icon:FolderOpen,run:()=>onSearch({panel:'canvas'})},
+    {key:'new-case',label:'Новое расследование',group:'Граф',icon:Plus,run:()=>onSearch({panel:'canvas',create:true})},
     {key:'tools',label:'Каталог инструментов',group:'OSINT',icon:Wrench,run:()=>onSearch({panel:'catalog'})},
     ...(onAppearance?[{key:'appearance',label:'Оформление, тема и обои',group:'Настройки',icon:Settings2,run:onAppearance}]:[]),
     ...(state.research_canvas?.document?graphCommands.map(([command,label])=>({
-      key:command,label,group:'Полотно',icon:LayoutGrid,run:()=>onSearch({panel:'canvas',command}),
+      key:command,label,group:'Граф',icon:LayoutGrid,run:()=>onSearch({panel:'canvas',command}),
     })):[]),
     ...(state.research_canvas?.choices||[]).map(item=>({key:item.id,label:item.title,group:'Расследование',icon:FolderOpen,run:()=>onSearch({panel:'canvas',id:item.id})})),
   ]

@@ -47,7 +47,10 @@
   --border-soft:color-mix(in srgb,var(--border) var(--user-border,75%),transparent);
   --appearance-surface:color-mix(in srgb,var(--panel) var(--user-surface,96%),transparent);
   --appearance-shadow:0 12px 26px color-mix(in srgb,#000 var(--user-shadow,22%),transparent);
-  --appearance-reflection:inset 0 1px color-mix(in srgb,var(--text) var(--user-reflection,10%),transparent);
+  --appearance-reflection:inset 0 1px color-mix(in srgb,var(--text) calc(var(--user-reflection,3%) * .45),transparent);
+  --glass-shine:color-mix(in srgb,var(--text) calc(var(--user-reflection,3%) * .45),transparent);
+  --glass-face:var(--panel);
+  --selection-glow:0 0 4px color-mix(in srgb,var(--accent) 7%,transparent);
 }
 :root[data-effects=reduced] { --user-frost-actual:0px; }
 :root[data-effects=off] { --user-frost-actual:0px; --appearance-shadow:none; --appearance-reflection:none; }
@@ -92,7 +95,7 @@
 .appearance-sample {position:relative;display:grid;gap:5px;padding:14px 16px;background:var(--panel);border:1px solid var(--border);
   border-radius:var(--user-card-radius,12px);font-size:var(--type-small);min-width:0}
 .appearance-sample:first-of-type,.appearance-preview>div.appearance-sample:first-of-type {border-color:var(--user-node,var(--accent))}
-.appearance-sample:has(small) {border-color:var(--user-node,var(--accent));box-shadow:0 0 calc(var(--user-glow,12)*1px) color-mix(in srgb,var(--user-node,var(--accent)) 35%,transparent)}
+.appearance-sample:has(small) {border-color:var(--user-node,var(--accent));box-shadow:0 0 calc(var(--user-glow,5)*.33px) color-mix(in srgb,var(--user-node,var(--accent)) 18%,transparent)}
 [data-effects=off] .appearance-sample {box-shadow:none}
 .appearance-sample>span,.appearance-sample small {color:var(--muted);font-size:var(--type-meta)}
 .appearance-sample-edge {position:relative;width:36px;flex:none;height:2px;background:var(--user-edge,var(--accent))}

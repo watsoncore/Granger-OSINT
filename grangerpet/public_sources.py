@@ -22,6 +22,10 @@ SOURCES = {
  'github_profile':('GitHub · публичный профиль','username','https://docs.github.com/en/rest/users/users#get-a-user'),
  'github_users':('GitHub · поиск профилей','dork','https://docs.github.com/en/rest/search/search#search-users'),
  'github_repositories':('GitHub · поиск репозиториев','dork','https://docs.github.com/en/rest/search/search#search-repositories'),
+ 'github_user_repositories':('GitHub · репозитории профиля','username','https://docs.github.com/en/rest/repos/repos#list-repositories-for-a-user'),
+ 'github_organizations':('GitHub · публичные организации','username','https://docs.github.com/en/rest/orgs/orgs#list-organizations-for-a-user'),
+ 'github_languages':('GitHub · языки репозитория','repository','https://docs.github.com/en/rest/repos/repos#list-repository-languages'),
+ 'github_releases':('GitHub · публичные релизы','repository','https://docs.github.com/en/rest/releases/releases#list-releases'),
  'hn_search':('Hacker News · публикации','dork','https://hn.algolia.com/api'),
  'hn_profile':('Hacker News · публичный профиль','username','https://github.com/HackerNews/API#users'),
  'openlibrary_search':('Open Library · публикации','dork','https://openlibrary.org/dev/docs/api/search'),
@@ -42,8 +46,11 @@ def validate(source,value):
     if source not in SOURCES or not isinstance(value,str):raise ValueError('Unknown source/input')
     value=value.strip()
     if not value or len(value)>300 or any(ord(c)<32 for c in value):raise ValueError('Invalid query')
-    if source=='github_profile' and not re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?',value):
+    if source in ('github_profile','github_user_repositories','github_organizations') and not re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?',value):
         raise ValueError('Invalid GitHub username')
+    if source in ('github_languages','github_releases'):
+        from .public_integrations import validate as validate_repository
+        value=validate_repository('github_repository',value)
     if source=='hn_profile' and not re.fullmatch(r'[A-Za-z0-9_-]{2,32}',value):raise ValueError('Invalid HN username')
     if source.startswith('github_') and len(value)>256:raise ValueError('GitHub query too long')
     return value
@@ -75,6 +82,12 @@ def _check(cancel,deadline):
 def _endpoint(source,value,limit):
     escaped=quote(value,safe='')
     if source=='github_profile':return 'https://api.github.com/users/'+escaped,{},'api.github.com'
+    if source in ('github_user_repositories','github_organizations'):
+        suffix='repos' if source=='github_user_repositories' else 'orgs'
+        return 'https://api.github.com/users/'+escaped+'/'+suffix,{'per_page':limit,**({'type':'owner','sort':'updated'} if suffix=='repos' else {})},'api.github.com'
+    if source in ('github_languages','github_releases'):
+        suffix='languages' if source=='github_languages' else 'releases'
+        return 'https://api.github.com/repos/'+quote(value,safe='/')+'/'+suffix,({'per_page':limit} if suffix=='releases' else {}),'api.github.com'
     if source in ('github_users','github_repositories'):
         return 'https://api.github.com/search/'+('users' if source=='github_users' else 'repositories'),{'q':value,'per_page':limit},'api.github.com'
     if source=='hn_profile':return 'https://hacker-news.firebaseio.com/v0/user/'+escaped+'.json',{},'hacker-news.firebaseio.com'
@@ -88,6 +101,12 @@ def _mapping(source,data,query,limit,endpoint):
     """Explicit source schemas: malformed containers never mean empty success."""
     if source=='github_profile':
         if not isinstance(data,dict) or not isinstance(data.get('login'),str) or not isinstance(data.get('id'),int):raise ValueError()
+        items=[data]
+    elif source in ('github_user_repositories','github_organizations','github_releases'):
+        if not isinstance(data,list):raise ValueError()
+        items=data
+    elif source=='github_languages':
+        if not isinstance(data,dict) or any(not isinstance(k,str) or type(v) is not int or v<0 for k,v in data.items()):raise ValueError()
         items=[data]
     elif source in ('github_users','github_repositories'):
         if not isinstance(data,dict) or not isinstance(data.get('items'),list) or type(data.get('total_count')) is not int:raise ValueError()
@@ -120,14 +139,34 @@ def _mapping(source,data,query,limit,endpoint):
             login=item.get('login')
             if not isinstance(login,str) or not re.fullmatch(r'[A-Za-z0-9-]{1,39}',login) or type(item.get('id')) is not int:raise ValueError()
             url='https://github.com/'+quote(login,safe='');title=login;kind='profile'
-            fields={k:item[k] for k in ('id','login','type','name','bio','company','location','public_repos','followers','following','created_at','updated_at','avatar_url') if k in item}
+            fields={k:item[k] for k in ('id','login','type','name','bio','blog','email','company','location','public_repos','followers','following','created_at','updated_at','avatar_url') if k in item}
             description=plain(item.get('bio') or item.get('name') or 'Публичная запись GitHub; совпадение имени не устанавливает владельца других профилей.')
-        elif source=='github_repositories':
+        elif source in ('github_repositories','github_user_repositories'):
             name=item.get('full_name')
             if not isinstance(name,str) or not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+',name) or item.get('private') is not False:raise ValueError()
             url='https://github.com/'+quote(name,safe='/');title=name;kind='repository'
-            fields={k:item[k] for k in ('full_name','description','language','stargazers_count','forks_count','created_at','updated_at','pushed_at') if k in item}
+            fields={k:item[k] for k in ('full_name','description','language','license','homepage','default_branch','fork','stargazers_count','forks_count','created_at','updated_at','pushed_at') if k in item}
+            fields['owner_login']=name.split('/')[0]
             description=plain(item.get('description')) or 'Публичные метаданные репозитория.'
+        elif source=='github_languages':
+            url='https://github.com/'+quote(query,safe='/');title=query;kind='repository'
+            fields={'full_name':query,'languages':item}
+            description='Языки публичного репозитория. Значения API отражают размер кода в байтах.'
+        elif source=='github_organizations':
+            login=validate('github_profile',item.get('login'))
+            if type(item.get('id')) is not int:raise ValueError()
+            url='https://github.com/'+login;title=login;kind='github_organization'
+            fields={'login':login,'profile_login':query,'avatar_url':item.get('avatar_url'),'description':plain(item.get('description'))}
+            description=fields['description'] or 'Публичное членство, возвращённое GitHub API.'
+        elif source=='github_releases':
+            tag=item.get('tag_name')
+            url=item.get('html_url')
+            if (not isinstance(tag,str) or not tag or item.get('draft') is not False
+                    or not isinstance(url,str) or not url.startswith('https://github.com/'+query+'/releases/')):raise ValueError()
+            title=plain(item.get('name') or tag,300);kind='publication'
+            fields={'repository_url':'https://github.com/'+query,
+                    **{k:item[k] for k in ('tag_name','name','published_at','created_at','prerelease') if k in item}}
+            description=plain(item.get('body')) or 'Публичный релиз GitHub.'
         elif source=='hn_profile':
             url='https://news.ycombinator.com/user?id='+quote(query,safe='');title=query;kind='profile'
             fields={k:item[k] for k in ('id','created','karma') if k in item};fields['submitted_count']=len(item.get('submitted',[])) if isinstance(item.get('submitted'),list) else None

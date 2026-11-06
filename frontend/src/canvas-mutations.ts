@@ -15,6 +15,7 @@ export class CanvasMutations {
   private queue:Intent[]=[]
   private running=false
   private failed:Error & {code?:string}|undefined
+  private validationError=''
   private current:CanvasDocument|undefined
   private awaitingId:string|undefined
   private revisions=new Map<string,number>()
@@ -25,6 +26,7 @@ export class CanvasMutations {
   private draftProviders=new Set<DraftProvider>()
   private shutdownDrafts:Array<Omit<Intent,'waiters'>>=[]
   private shutdownAcknowledged=new Set<string>()
+  private recoveredIntents=new WeakSet<Intent>()
   constructor(private transport:Transport){}
   subscribe=(listener:()=>void)=>{this.listeners.add(listener);return()=>{this.listeners.delete(listener)}}
   getSnapshot=()=>this.snapshot
@@ -50,11 +52,12 @@ export class CanvasMutations {
   restore=(draft:PendingDraft)=>{
     if(this.queue.length||!Array.isArray(draft.intents)||!draft.intents.length)return false
     this.queue=draft.intents.map(intent=>({...intent,waiters:[]}))
+    for(const intent of this.queue)this.recoveredIntents.add(intent)
     if(draft.current)this.observe(draft.current)
     this.failed=Object.assign(new Error('Восстановлены несохранённые действия. Загрузите актуальную версию и повторите после проверки.'),{code:'canvas_recovered'})
     this.publish();return true
   }
-  private publish(){this.snapshot={pending:this.queue.length,error:this.failed?.message||''};this.listeners.forEach(f=>f())}
+  private publish(){this.snapshot={pending:this.queue.length,error:this.failed?.message||this.validationError};this.listeners.forEach(f=>f())}
   observe(doc?:CanvasDocument){
     if(!doc)return
     this.revisions.set(doc.id,Math.max(doc.revision,this.revisions.get(doc.id)||0))
@@ -63,11 +66,18 @@ export class CanvasMutations {
     if(this.awaitingId===doc.id)this.awaitingId=undefined
     this.current={id:doc.id,revision:this.revisions.get(doc.id)!}
   }
-  send=(op:string,payload:Record<string,unknown>={}):Promise<unknown>=>{
+  send=(op:string,payload:Record<string,unknown>={},options:{rejectValidation?:boolean}={}):Promise<unknown>=>{
     if(!this.accepting)return Promise.resolve(null)
     const target=unbound.has(op)?undefined:String(payload.id||this.current?.id||'')
     if(!unbound.has(op)&&!target)return Promise.resolve(null)
-    return new Promise(resolve=>{
+    this.validationError=''
+    return new Promise((resolve,reject)=>{
+      const settle=(value:unknown)=>{
+        if(value instanceof Error){
+          if(options.rejectValidation)reject(value)
+          else resolve(null)
+        }else resolve(value)
+      }
       const last=this.queue.at(-1)
       // Merge only unsent position/view deltas, never text, evidence, tools or undo.
       const mergeable=op==='edit'&&['positions','view'].includes(String(payload.operation))
@@ -79,12 +89,12 @@ export class CanvasMutations {
         if(key==='view'&&(prev?.view?.ui||next?.view?.ui))merged.ui={...(prev?.view?.ui as object),...(next?.view?.ui as object)}
         if(key==='view'&&(prev?.view?.card_sizes||next?.view?.card_sizes))merged.card_sizes={...(prev?.view?.card_sizes as object),...(next?.view?.card_sizes as object)}
         last.payload={...last.payload,arguments:{...prev,...next,[key]:merged}}
-        last.waiters.push(resolve)
-      }else this.queue.push({op,payload:{...payload},target,token:token(),waiters:[resolve]})
+        last.waiters.push(settle)
+      }else this.queue.push({op,payload:{...payload},target,token:token(),waiters:[settle]})
       this.publish();void this.drain()
     })
   }
-  edit=(operation:string,args:Record<string,unknown>)=>this.send('edit',{operation,arguments:args})
+  edit=(operation:string,args:Record<string,unknown>,options:{rejectValidation?:boolean}={})=>this.send('edit',{operation,arguments:args},options)
   private async drain(){
     if(this.running||this.failed)return
     this.running=true
@@ -102,7 +112,16 @@ export class CanvasMutations {
         }
         if(this.prepared)this.shutdownAcknowledged.add(intent.token)
         this.queue.shift();intent.waiters.forEach(f=>f(value));this.publish()
-      }catch(error){this.failed=error instanceof Error?error:new Error('Не удалось сохранить изменение.');this.publish()}
+      }catch(error){
+        const failure=error instanceof Error?error:new Error('Не удалось сохранить изменение.')
+        if(['canvas_validation_failed','invalid_request','analyst_canvas_invalid_operation','payload_too_large']
+          .includes((failure as Error&{code?:string}).code||'')&&!this.recoveredIntents.has(intent)){
+          this.queue.shift()
+          this.validationError=failure.message
+          intent.waiters.forEach(settle=>settle(failure))
+        }else this.failed=failure
+        this.publish()
+      }
     }
     this.running=false
   }

@@ -4,6 +4,30 @@ import {CanvasEditorDrafts} from './canvas-editor-drafts'
 const tick=()=>new Promise(resolve=>setTimeout(resolve,0))
 const doc='a'.repeat(32),other='b'.repeat(32)
 describe('acknowledged canvas intents',()=>{
+  it('releases a rejected typed form while preserving uncertain writes for explicit retry',async()=>{
+    const transport=vi.fn().mockRejectedValueOnce(Object.assign(new Error('Укажите международный телефон'),{code:'canvas_validation_failed'}))
+      .mockResolvedValueOnce({canvas_id:doc,revision:2})
+    const queue=new CanvasMutations(transport);queue.observe({id:doc,revision:1})
+    await expect(queue.edit('node',{type:'phone',value:'77001234567'},{rejectValidation:true}))
+      .rejects.toThrow('Укажите международный телефон')
+    expect(queue.getSnapshot()).toEqual({pending:0,error:'Укажите международный телефон'})
+    expect(queue.exportPending().intents).toEqual([])
+    await queue.edit('node',{type:'phone',value:'+77001234567'},{rejectValidation:true})
+    expect(queue.getSnapshot()).toEqual({pending:0,error:''})
+    expect(transport.mock.calls[1][1].revision).toBe(1)
+  })
+  it('keeps a restored invalid draft until the owner explicitly discards it',async()=>{
+    const transport=vi.fn().mockResolvedValueOnce({canvas_id:doc,revision:1})
+      .mockRejectedValueOnce(Object.assign(new Error('Проверьте старый черновик'),{code:'canvas_validation_failed'}))
+    const queue=new CanvasMutations(transport)
+    const intent={op:'edit',target:doc,token:'c'.repeat(32),payload:{operation:'node',arguments:{type:'phone',value:'77001234567'}}}
+    queue.restore({current:{id:doc,revision:1},intents:[intent]})
+    await queue.retry();await tick()
+    expect(queue.getSnapshot().pending).toBe(1)
+    expect(queue.exportPending().intents[0].payload).toEqual(intent.payload)
+    queue.discard()
+    expect(queue.getSnapshot().pending).toBe(0)
+  })
   it('captures unsaved editor text only on shutdown and restores it inert until an explicit owner-aware retry',async()=>{
     const drafts=new CanvasEditorDrafts(),transport=vi.fn(),provider=vi.fn(drafts.intentions)
     drafts.set(doc+'|ent_note',{label:'Подпись',note:'Несохранённая русская гипотеза 漢',dirty:true})

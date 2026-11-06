@@ -1,3 +1,4 @@
+import {Select} from './ui'
 import type { InputSchema } from '../types'
 import './structured-tools.css'
 
@@ -76,7 +77,7 @@ export function StructuredToolFields({ schema, draft, onChange, disabled }: { sc
     const value = draft[name] || ''
     const id = `tool-parameter-${name}`
     return <label className={`structured-tool-field ${complex ? 'is-complex' : ''}`} key={name} htmlFor={id}><span>{label}{required && <span aria-hidden="true"> *</span>}</span>
-      {field.enum || field.type === 'boolean' ? <select id={id} aria-label={label} value={value} required={required} disabled={disabled} onChange={event => onChange(name, event.target.value)}><option value="">{required ? 'Выберите значение' : 'Не задано'}</option>{(field.enum || [true, false]).map(option => <option key={String(option)} value={String(option)}>{String(option)}</option>)}</select>
+      {field.enum || field.type === 'boolean' ? <Select id={id} aria-label={label} value={value} required={required} disabled={disabled} onValueChange={selectedValue=>onChange(name, selectedValue)}><option value="">{required ? 'Выберите значение' : 'Не задано'}</option>{(field.enum || [true, false]).map(option => <option key={String(option)} value={String(option)}>{String(option)}</option>)}</Select>
         : complex ? <textarea id={id} aria-label={label} rows={3} value={value} required={required} disabled={disabled} spellCheck={false} placeholder={name === 'titles' ? '["Chief Executive Officer", "Senior Engineer"]' : name === 'bounds' ? '[-180, -60, 180, 85]' : field.type === 'array' ? '[]' : '{}'} onChange={event => onChange(name, event.target.value)}/>
         : <input id={id} aria-label={label} type={field.type === 'number' || field.type === 'integer' ? 'number' : 'text'} step={field.type === 'integer' ? 1 : 'any'} min={field.minimum} max={field.maximum} maxLength={field.maxLength} value={value} required={required} disabled={disabled} spellCheck={false} placeholder={name === 'datetime_utc' ? '2024-02-29T13:59:59Z' : undefined} onChange={event => onChange(name, event.target.value)}/>}
       {field.description && <small>{field.description}</small>}{complex && <small>JSON{field.minItems != null || field.maxItems != null ? ` · элементов ${field.minItems ?? 0}–${field.maxItems ?? '…'}` : ''}</small>}

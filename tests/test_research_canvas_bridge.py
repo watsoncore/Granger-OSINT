@@ -21,6 +21,25 @@ def action(bridge,op,**payload):
         'revision':document['revision'] if document else 0,**payload})
     return wait(bridge)
 
+def test_public_media_preview_stays_outside_durable_graph_revisions(bridge):
+    action(bridge,'new',title='Transient preview')
+    action(bridge,'edit',operation='node',arguments={
+        'type':'public_profile','value':'https://github.com/octocat','label':'Профиль'})
+    controller=bridge._research_canvas
+    node=controller.document['entities'][0]
+    node['attributes']['media']={'id':'media_fixture','kind':'public_avatar','state':'pending'}
+    controller._commit(controller.document)
+    key=(controller.document['id'],node['id'],'media_fixture')
+    controller.media_previews[key]={'id':'media_fixture','kind':'public_avatar','state':'ready',
+                                  'thumbnail':'data:image/jpeg;base64,dGVzdA=='}
+    visible=controller.render()['document']['entities'][0]['attributes']['media']
+    assert visible['state']=='ready'
+    assert controller.document['entities'][0]['attributes']['media']['state']=='pending'
+    changed=action(bridge,'edit',operation='view',arguments={'view':{'ui':{'inspector_open':True}}})
+    persisted=controller.store.load(changed['document']['id'])
+    assert persisted['entities'][0]['attributes']['media']=={'id':'media_fixture','kind':'public_avatar','state':'pending'}
+    assert changed['document']['entities'][0]['attributes']['media']['state']=='ready'
+
 
 def test_qt_actual_canvas_editor_undo_redo_and_reopen_do_not_change_chat(bridge):
     messages=list(bridge.host.chat_widget.messages)

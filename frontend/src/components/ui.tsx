@@ -1,4 +1,5 @@
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { Children, forwardRef, isValidElement, useState, type ButtonHTMLAttributes, type DetailsHTMLAttributes,
+  type HTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import * as Dropdown from '@radix-ui/react-dropdown-menu'
@@ -7,6 +8,54 @@ import * as Collapsible from '@radix-ui/react-collapsible'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { clsx } from 'clsx'
 import { ChevronDown, Check, MoreHorizontal } from 'lucide-react'
+import {SearchableSelect, type SelectOption} from './SearchableSelect'
+
+function textContent(children:ReactNode):string {
+  return Children.toArray(children).map(child=>isValidElement<{children?:ReactNode}>(child)
+    ?textContent(child.props.children):String(child)).join('')
+}
+
+function selectOptions(children:ReactNode, group?:string, disabled=false):SelectOption[] {
+  return Children.toArray(children).flatMap(child=>{
+    if(!isValidElement<{value?:string|number;label?:string;disabled?:boolean;children?:ReactNode}>(child))return []
+    const props=child.props
+    if(child.type==='option')return [{
+      value:String(props.value??textContent(props.children)),label:props.label||textContent(props.children),
+      group,disabled:disabled||props.disabled,
+    }]
+    return selectOptions(props.children,child.type==='optgroup'?props.label:group,disabled||!!props.disabled)
+  })
+}
+
+export function Select({value,defaultValue,children,onValueChange,disabled,className,id,...props}:{
+  value?:string|number;defaultValue?:string|number;children:ReactNode;onValueChange(value:string):void;
+  disabled?:boolean;className?:string;id?:string;'aria-label'?:string;title?:string;name?:string;
+  autoFocus?:boolean;required?:boolean;
+}) {
+  const options=selectOptions(children)
+  const [local,setLocal]=useState(String(defaultValue??options[0]?.value??''))
+  const selected=value===undefined?local:String(value)
+  return <SearchableSelect id={id} label={props['aria-label']} value={selected} options={options}
+    disabled={disabled} className={className} autoFocus={props.autoFocus} required={props.required}
+    onChange={next=>{setLocal(next);onValueChange(next)}}/>
+}
+
+export function Checkbox({indeterminate=false,readOnly,onChange,...props}:
+  InputHTMLAttributes<HTMLInputElement>&{indeterminate?:boolean}) {
+  return <input {...props} type="checkbox" readOnly={readOnly}
+    ref={node=>{if(node)node.indeterminate=indeterminate}}
+    aria-checked={indeterminate?'mixed':props.checked}
+    onClick={event=>{if(readOnly)event.preventDefault();props.onClick?.(event)}}
+    onChange={event=>{if(!readOnly)onChange?.(event)}}/>
+}
+
+export const Details=forwardRef<HTMLDetailsElement,DetailsHTMLAttributes<HTMLDetailsElement>>(
+  function Details({className='',children,...props},ref){
+    return <details {...props} ref={ref} className={'disclosure-details '+className}>{children}</details>
+  })
+export function Summary({children,...props}:HTMLAttributes<HTMLElement>){
+  return <summary {...props}><ChevronDown aria-hidden="true" size={16}/><span>{children}</span></summary>
+}
 
 // Button composition adapted from shadcn/ui, MIT, Copyright(c)2023 shadcn.
 const buttonVariants = cva('button', { variants: {

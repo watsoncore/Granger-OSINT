@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AISettings, SourceSettings, balancePresentation } from './components/ConnectionSettings'
@@ -21,7 +22,7 @@ describe('unified secure settings', () => {
   it('keeps provider and model ordinary fields inside React and saves before checking', async () => {
     const value = (key: string, fallback: string | number | boolean = '') => key === 'ai_provider' ? 'deepseek' : fallback
     render(<Tooltip.Provider><AISettings {...common} value={value} state={emptyState}/></Tooltip.Provider>)
-    expect(screen.getByRole('combobox')).toHaveValue('deepseek')
+    expect(screen.getByRole('button',{name:'Провайдер ИИ'})).toHaveTextContent('DeepSeek')
     expect(screen.getByRole('textbox', { name: 'Модель' })).toHaveValue('deepseek-v4-flash')
     expect(screen.queryByRole('button', { name: 'Обновить список моделей' })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Проверить подключение' }))
@@ -99,9 +100,11 @@ describe('real tool readiness presentation', () => {
     expect(screen.getByText('Не найден Python-пакет maigret')).toBeInTheDocument()
     expect(screen.getByText('Укажите Python с установленным maigret.')).toBeInTheDocument()
   })
-  it('filters tools by actual readiness instead of manufacturing ready sources', () => {
+  it('filters tools by actual readiness instead of manufacturing ready sources', async () => {
     render(<Tooltip.Provider><ToolCatalog tools={[{ id: 'web_read', name: 'web_read', description: 'Чтение', inputTypes: ['url'], available: true, state: 'ready' }, { id: 'vk_public', name: 'vk_public', description: 'VK', inputTypes: ['vk'], available: false, state: 'auth_required' }]}/></Tooltip.Provider>)
-    fireEvent.change(screen.getByRole('combobox', { name: 'Фильтр доступности' }), { target: { value: 'ready' } })
+    const user=userEvent.setup()
+    await user.click(screen.getByRole('button', { name: 'Фильтр доступности' }))
+    await user.click(screen.getByRole('menuitemradio', { name: 'Готовы к работе' }))
     expect(screen.getByRole('heading', { name: 'Чтение страницы' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'VK' })).toBeNull()
     expect(within(screen.getByRole('heading', { name: /Инструментарий/ })).getByText('1 локально готовы · 2 адаптеров')).toBeInTheDocument()

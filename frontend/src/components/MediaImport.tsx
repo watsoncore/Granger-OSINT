@@ -17,7 +17,7 @@ export function MediaImport({open,target,busy,error,onClose,onImport}:{
           <ImagePlus size={22}/>
           <div>
             <Dialog.Title>{target?'Прикрепить изображение':'Добавить изображение'}</Dialog.Title>
-            <Dialog.Description>{target||'Новая карточка на полотне'}</Dialog.Description>
+            <Dialog.Description>{target||'Новая карточка на графе'}</Dialog.Description>
           </div>
           <Dialog.Close asChild><Button variant="ghost" size="icon" aria-label="Закрыть импорт"><X size={18}/></Button></Dialog.Close>
         </div>
@@ -31,7 +31,7 @@ export function MediaImport({open,target,busy,error,onClose,onImport}:{
         </form>
         {busy&&<p role="status">Проверка и сохранение оригинала…</p>}
         {error&&<p role="alert" className="notice-inline notice-error">{error}</p>}
-        <p className="field-hint">JPEG, PNG и WebP до 20 МиБ. Можно перетащить файл прямо на полотно.</p>
+        <p className="field-hint">JPEG, PNG и WebP до 20 МиБ. Можно перетащить файл прямо на граф.</p>
       </Dialog.Content>
     </Dialog.Portal>
   </Dialog.Root>

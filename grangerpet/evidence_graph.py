@@ -163,7 +163,14 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                     if key in details and details[key] is not None and not isinstance(details[key],str)),None)
         if wrong:bad_fields+=1;continue
         current=None
-        if kind in ('company_registration','company_candidate'):
+        if kind=='github_organization':
+            current=node('organization',canonical_url(url),label,record,url=canonical_url(url),
+                         platform='github',login=details.get('login'),reference_only=False)
+            login=details.get('profile_login')
+            if isinstance(login,str):
+                owner=url_node('https://github.com/'+login,record,reference=True,label=login)
+                edge(owner,current,'public_organization_membership',record,observed_field='users/{username}/orgs')
+        elif kind in ('company_registration','company_candidate'):
             identity=details.get('canonical_identifier') or url
             if not isinstance(identity,str) or not identity:bad_fields+=1;continue
             attrs={key:deepcopy(details[key]) for key in ('legal_name','country','jurisdiction','registration_number','registry','status','lei','cik','candidate_status') if key in details}
@@ -212,6 +219,15 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
             if current:nodes[current]['label']=str(details.get('display_name') or label)[:300]
             username=details.get('login') or details.get('username') or details.get('screen_name')
             if current:nodes[current]['attributes'].update(observed_status=record.get('status'),observed_at=(record.get('provenance') or {}).get('obtained_at'))
+            if current and host=='github.com':
+                nodes[current]['attributes'].update({key:deepcopy(details[key]) for key in
+                    ('login','name','bio','blog','public_repos','followers','following','created_at','updated_at') if key in details})
+                website=details.get('blog')
+                if isinstance(website,str) and website.strip():
+                    website=canonical_url(website if '://' in website else 'https://'+website)
+                    if website:
+                        linked=url_node(website,record,reference=False)
+                        edge(current,linked,'profile_publishes_url',record,'self_reported',observed_field='blog')
             if isinstance(username,str) and username:
                 if current:nodes[current]['attributes']['username']=username
                 scoped=node('username',platform+'|'+username,username,record,platform=platform)
@@ -229,11 +245,20 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                     if friend!=current:edge(current,friend,'public_friend_link',record,'source_reported',observed_field='friends[]')
         elif kind in ('post','publication') and url:
             current=node('public_post',url,label,record,url=url,published_at=details.get('created_at') or details.get('date_utc'),author=details.get('author'))
+            repository_url=details.get('repository_url')
+            if isinstance(repository_url,str) and details.get('source_id')=='github_releases':
+                repository=url_node(repository_url,record,reference=True)
+                edge(repository,current,'has_public_release',record,observed_field='repos/{owner}/{repo}/releases')
             author=details.get('author')
             if isinstance(author,str) and author and author not in ('[deleted]','[removed]'):
                 author_node=node('username',platform+'|'+author,author,record,platform=platform)
                 edge(current,author_node,'source_attributes_authorship',record)
-        elif kind=='repository' and url:current=node('repository',canonical_url(url),label,record,url=canonical_url(url),reference_only=False,display_type='github_repository' if host=='github.com' else 'repository')
+        elif kind=='repository' and url:
+            current=node('repository',canonical_url(url),label,record,url=canonical_url(url),reference_only=False,
+                         display_type='github_repository' if host=='github.com' else 'repository',
+                         platform='github' if host=='github.com' else platform,
+                         **{key:deepcopy(details[key]) for key in ('full_name','description','language','license','languages',
+                            'default_branch','stargazers_count','forks_count','created_at','updated_at','pushed_at','owner_login') if key in details})
         elif kind=='geoint_candidate':
             lat,lon=details.get('latitude'),details.get('longitude');attachment=details.get('attachment_id')
             if isinstance(attachment,str) and type(lat) in (int,float) and type(lon) in (int,float) and math.isfinite(lat+lon) and abs(lat)<=90 and abs(lon)<=180:

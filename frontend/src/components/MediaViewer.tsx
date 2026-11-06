@@ -1,3 +1,4 @@
+import {Details,Summary} from './ui'
 import {useEffect,useRef,useState} from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import {ChevronLeft,ChevronRight,Expand,ExternalLink,Minus,Plus,RotateCcw,X} from 'lucide-react'
@@ -107,10 +108,10 @@ export function MediaViewer({node,context,onClose,onEvidence}:{node:GraphEntity|
           {error&&preview&&<p role="alert">{error}</p>}
           <p className="monospace">{detail.original_reference||media?.source_url||media?.url||'Защищённое локальное вложение'}</p>
           {media?.evidence_id&&onEvidence&&<Button variant="ghost" size="sm" onClick={()=>onEvidence(media.evidence_id!)}>Показать основание</Button>}
-          {detail.sha256&&<details><summary>Целостность и метаданные</summary>
+          {detail.sha256&&<Details><Summary>Целостность и метаданные</Summary>
             <p className="monospace">SHA-256 {detail.sha256}</p>
             {detail.exif&&<dl>{Object.entries(detail.exif).map(([key,value])=><div key={key}><dt>{key}</dt><dd>{String(value)}</dd></div>)}</dl>}
-          </details>}
+          </Details>}
         </footer>
       </Dialog.Content>
     </Dialog.Portal>

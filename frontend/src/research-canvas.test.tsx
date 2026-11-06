@@ -73,7 +73,7 @@ describe('Search analyst canvas controls',()=>{
   it('keeps a mixed manual project visible when a wallet is not the investigation root',()=>{
     const nodes:GraphEntity[]=[{id:'manualroot',type:'analyst_note',label:'Мой план',attributes:{},evidence_ids:[]},{id:'wallet',type:'blockchain_address',label:'TON wallet',attributes:{chain:'ton'},evidence_ids:[]},{id:'domain',type:'domain',label:'example.org',attributes:{},evidence_ids:[]}],doc={...document,id:'e'.repeat(32),entities:nodes}
     render(<ResearchCanvas state={{...emptyState,research_canvas:{state:'ready',types:[],choices:[],document:doc}}} onSource={()=>{}} active/>)
-    expect(screen.getByRole('button',{name:'Select manualroot'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Select domain'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Представление полотна'})).toHaveTextContent('Все объекты')
+    expect(screen.getByRole('button',{name:'Select manualroot'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Select domain'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Представление графа'})).toHaveTextContent('Все объекты')
   })
 })
 

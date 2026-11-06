@@ -5,12 +5,19 @@ const infrastructureTypes = new Set(['domain','website','ip','ip_address','infra
 const infrastructureRelations = new Set(['published_on_domain','uses_email_domain','resolves_to','belongs_to_asn','dns_resolves_to','platform_infrastructure'])
 const evidenceTypes = new Set(['source','document','observation','claim','hypothesis','analyst_note'])
 const evidenceRelations = new Set(['supported_by','groups_observations','reference_for_candidate','contradicts','cites'])
+const enrichmentRelations = new Set(['repository_namespace','public_organization_membership','profile_publishes_url','has_public_release'])
 
 export function identityProjection(nodes: GraphEntity[], edges: GraphRelation[], root: string,
   mode: 'socmint'|'infrastructure'|'evidence', profiles: GraphEntity[]) {
   const profileIds=new Set(profiles.filter(node=>!node.attributes.visual_instance_of).map(node=>node.id))
   const ids=new Set([root,...profileIds])
   if(mode==='socmint') {
+    for(let depth=0;depth<2;depth++){
+      for(const edge of edges)if(enrichmentRelations.has(edge.relation_type)&&(ids.has(edge.from_id)||ids.has(edge.to_id))){
+        ids.add(edge.from_id)
+        ids.add(edge.to_id)
+      }
+    }
     const groups=new Map(nodes.filter(node=>node.type==='entity_group').map(node=>[node.id,node]))
     for(const node of nodes) {
       if(!ids.has(node.id))continue
@@ -23,7 +30,7 @@ export function identityProjection(nodes: GraphEntity[], edges: GraphRelation[],
     for(const group of groups.values())if(group.attributes.origin==='analyst'&&group.attributes._collapsed)ids.add(group.id)
     const relevant=edges.filter(edge=>ids.has(edge.from_id)&&ids.has(edge.to_id)&&
       (edge.origin==='analyst'||edge.relation_type==='group_contains'||edge.relation_type==='returned_for_query'||
-        edge.relation_type==='investigates'||edge.verification_status==='verified'))
+        edge.relation_type==='investigates'||enrichmentRelations.has(edge.relation_type)||edge.verification_status==='verified'))
     return {nodes:nodes.filter(node=>ids.has(node.id)).map(node=>node.id===root&&['username','nickname'].includes(node.type)
       ?{...node,attributes:{...node.attributes,_profile_count:profileIds.size}}:node),edges:relevant}
   }

@@ -1,3 +1,4 @@
+import {Select,Details,Summary} from './ui'
 import {useEffect,useRef,useState} from 'react'
 import type {GraphEntity,GraphRelation,Source} from '../types'
 import {Button} from './ui'
@@ -18,15 +19,15 @@ export function RelationComposer({from,to,relation,evidence,defaultColor='#89caf
     <section ref={dialog} role="dialog" aria-modal="true" aria-label={relation?'Изменить связь':'Новая связь'} className="relation-composer">
       <header><h3>{relation?'Изменить связь':'Новая связь'}</h3><Button variant="ghost" aria-label="Закрыть связь" onClick={onClose}>×</Button></header>
       <p className="relation-endpoints"><strong>{from.label}</strong><span>→</span><strong>{to.label}</strong></p>
-      <label>Что связывает объекты<select autoFocus aria-label="Вид связи" value={kind in kinds?kind:'custom'} onChange={event=>setKind(event.target.value)}>{Object.entries(kinds).map(([id,label])=><option value={id} key={id}>{label}</option>)}</select></label>
+      <label>Что связывает объекты<Select autoFocus aria-label="Вид связи" value={kind in kinds?kind:'custom'} onValueChange={selectedValue=>setKind(selectedValue)}>{Object.entries(kinds).map(([id,label])=><option value={id} key={id}>{label}</option>)}</Select></label>
       {(kind==='custom'||!(kind in kinds))&&<label>Описание связи<input aria-label="Своя связь" value={kind==='custom'?custom:kind} maxLength={100} onChange={event=>{setKind('custom');setCustom(event.target.value)}}/></label>}
-      <div className="relation-fields"><label>Направление<select aria-label="Направление связи" value={direction} onChange={event=>setDirection(event.target.value)}><option value="directed">От первого ко второму →</option><option value="undirected">Без направления —</option><option value="bidirectional">В обе стороны ↔</option></select></label>
-        <label>Линия<select aria-label="Стиль связи" value={stroke} onChange={event=>setStroke(event.target.value)}><option value="solid">Сплошная</option><option value="dashed">Штриховая</option><option value="dotted">Точечная</option></select></label>
+      <div className="relation-fields"><label>Направление<Select aria-label="Направление связи" value={direction} onValueChange={selectedValue=>setDirection(selectedValue)}><option value="directed">От первого ко второму →</option><option value="undirected">Без направления —</option><option value="bidirectional">В обе стороны ↔</option></Select></label>
+        <label>Линия<Select aria-label="Стиль связи" value={stroke} onValueChange={selectedValue=>setStroke(selectedValue)}><option value="solid">Сплошная</option><option value="dashed">Штриховая</option><option value="dotted">Точечная</option></Select></label>
         <label>Цвет<input aria-label="Цвет связи" type="color" value={color} onChange={event=>setColor(event.target.value)}/></label><label>Толщина<input aria-label="Толщина связи" type="number" min={0.5} max={6} step={0.5} value={width} onChange={event=>setWidth(Number(event.target.value))}/></label></div>
       <label>Уверенность аналитика, 0–100<input aria-label="Уверенность аналитика" type="number" min={0} max={100} value={confidence} onChange={event=>setConfidence(event.target.value)} placeholder="Не оценена"/></label>
       <small>Субъективная оценка. Ручная связь остаётся гипотезой и не становится подтверждённым фактом.</small>
       <label>Ссылка на основание<input aria-label="Источник связи" type="url" placeholder="https://…" value={source} onChange={event=>setSource(event.target.value)}/></label>
-      {!!evidence.length&&<details><summary>Наблюдения в расследовании ({evidence.length})</summary><div className="relation-evidence">{evidence.map(row=><label key={row.evidence_id}><input type="checkbox" checked={ids.includes(row.evidence_id)} onChange={event=>setIds(event.target.checked?[...ids,row.evidence_id]:ids.filter(id=>id!==row.evidence_id))}/>{row.title}</label>)}</div></details>}
+      {!!evidence.length&&<Details><Summary>Наблюдения в расследовании ({evidence.length})</Summary><div className="relation-evidence">{evidence.map(row=><label key={row.evidence_id}><input type="checkbox" checked={ids.includes(row.evidence_id)} onChange={event=>setIds(event.target.checked?[...ids,row.evidence_id]:ids.filter(id=>id!==row.evidence_id))}/>{row.title}</label>)}</div></Details>}
       <label>Комментарий<textarea aria-label="Комментарий к связи" value={note} onChange={event=>setNote(event.target.value)} maxLength={10000}/></label>
       {error&&<p role="alert">{error}</p>}<footer><Button variant="ghost" disabled={busy} onClick={onClose}>Отмена</Button><Button disabled={busy||kind==='custom'&&!custom.trim()} onClick={()=>void save()}>{busy?'Сохранение…':'Сохранить связь'}</Button></footer>
     </section>
