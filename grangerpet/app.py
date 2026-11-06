@@ -189,6 +189,7 @@ def main(argv: list[str] | None = None) -> int:
                                     'last_response':surface.qa_last_response,
                                     'url':surface.url().toString(),'diagnostics':surface.trusted_page.diagnostics,
                                     'route':surface.bridge.route,'dom':getattr(surface,'qa_dom',{})}
+                                result['desktop']['native_escape_enabled']=bool(getattr(pet.panel,'_escape_shortcut',None) and pet.panel._escape_shortcut.isEnabled())
                 return result
             if command == "stop":
                 if pet is not None:

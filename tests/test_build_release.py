@@ -10,11 +10,15 @@ from scripts import build_release as release
 def project(tmp_path,monkeypatch):
     (tmp_path/'Granger-OSINT.spec').write_text('fixture',encoding='utf-8')
     (tmp_path/'dist').mkdir();(tmp_path/'dist'/release.BINARY).write_bytes(b'old working executable')
+    (tmp_path/'frontend'/'src').mkdir(parents=True)
+    (tmp_path/'frontend'/'src'/'main.tsx').write_text('fixture',encoding='utf-8')
     monkeypatch.setattr(release,'running_images',lambda:[])
     return tmp_path
 
 
 def fake_commands(monkeypatch, *, failure=None):
+    monkeypatch.setattr(release,'build_frontend',lambda root,environment:
+                        {'rebuilt':True,'input_sha256':release.frontend_input_digest(root)})
     def run(arguments, *, root, environment):
         stage=Path(environment[release.STAGE_ENV])
         assert stage.parent==root and stage.name.startswith(release.STAGE_PREFIX)
@@ -85,6 +89,30 @@ def test_success_installs_verified_binary_and_leaves_one_dist_file(tmp_path,monk
     assert (root/'dist'/release.BINARY).read_bytes()==b'new verified executable'
     assert [p.name for p in (root/'dist').iterdir()]==[release.BINARY]
     assert not list(root.glob(release.STAGE_PREFIX+'*'))
+    assert result['frontend_build']['rebuilt']
+
+
+def test_frontend_source_edit_after_build_cannot_promote_stale_bundle(tmp_path,monkeypatch):
+    root=project(tmp_path,monkeypatch);fake_commands(monkeypatch)
+    previous=release.run_checked
+    def changed(arguments,**kwargs):
+        previous(arguments,**kwargs)
+        if arguments[0]=='scripts/qa_clean_release.py':
+            (root/'frontend/src/main.tsx').write_text('changed',encoding='utf-8')
+    monkeypatch.setattr(release,'run_checked',changed)
+    with pytest.raises(release.BuildError,match='Frontend inputs changed'):
+        release.release(root)
+    assert (root/'dist'/release.BINARY).read_bytes()==b'old working executable'
+
+
+def test_frontend_compiler_runs_current_project_before_packaging(tmp_path,monkeypatch):
+    root=project(tmp_path,monkeypatch);calls=[]
+    monkeypatch.setattr(release.shutil,'which',lambda name:'npm-fixture')
+    monkeypatch.setattr(release.subprocess,'run',lambda args,**kwargs:calls.append((args,kwargs)))
+    result=release.build_frontend(root,{'PYTHONUTF8':'1'})
+    assert calls[0][0]==['npm-fixture','--prefix',str(root/'frontend'),'run','build']
+    assert calls[0][1]['check'] and calls[0][1]['cwd']==root
+    assert result=={'rebuilt':True,'input_sha256':release.frontend_input_digest(root)}
 
 
 def test_running_canonical_or_app_opened_during_qa_is_never_replaced(tmp_path,monkeypatch):

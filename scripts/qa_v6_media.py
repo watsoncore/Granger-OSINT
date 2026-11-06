@@ -176,7 +176,7 @@ def run(exe, report, shots, source=False):
                       reopened['entities']==saved['entities'] and reopened['view']['positions']==saved['view']['positions']
                       and reopened['view']['card_sizes']==saved['view']['card_sizes']
                       and originals.read_bytes(node['attributes']['attachment_id'])==original)
-                session.select(remote['id']);session.click('Открыть изображение '+remote['label'])
+                session.select(remote['id']);session.click('Сведения');session.click('Открыть изображение '+remote['label'])
                 wait_for(lambda:'Целостность и метаданные' in session.dom()['text'],15)
                 check('reopened_remote_uses_saved_attachment',session.document()['id']==owner)
                 session.click('Закрыть изображение')

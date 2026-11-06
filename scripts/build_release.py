@@ -29,6 +29,32 @@ class BuildError(RuntimeError):
     pass
 
 
+def frontend_input_digest(root: Path) -> str:
+    frontend = root / 'frontend'
+    paths = [p for folder in ('src', 'public') for p in (frontend / folder).rglob('*') if p.is_file()]
+    paths += [p for p in frontend.iterdir() if p.is_file() and
+              (p.name in ('package.json', 'package-lock.json', 'index.html') or
+               p.name.startswith(('tsconfig', 'vite.config')))]
+    digest = hashlib.sha256()
+    for path in sorted(paths):
+        digest.update(path.relative_to(frontend).as_posix().encode('utf-8') + b'\0')
+        digest.update(hashlib.sha256(path.read_bytes()).digest())
+    return digest.hexdigest()
+
+
+def build_frontend(root: Path, environment: dict) -> dict:
+    """Never package an existing dist bundle without rebuilding current sources."""
+    before = frontend_input_digest(root)
+    npm = shutil.which('npm.cmd' if sys.platform == 'win32' else 'npm')
+    if not npm:
+        raise BuildError('npm is required to build the current frontend; no installation is attempted.')
+    subprocess.run([npm, '--prefix', str(root / 'frontend'), 'run', 'build'],
+                   cwd=root, env=environment, check=True)
+    if frontend_input_digest(root) != before:
+        raise BuildError('Frontend inputs changed during compilation; rebuild before packaging.')
+    return {'rebuilt': True, 'input_sha256': before}
+
+
 def reparse(path: Path) -> bool:
     try:
         return bool(path.lstat().st_file_attributes & 0x400)
@@ -206,6 +232,7 @@ def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing
         environment = {**os.environ,STAGE_ENV:str(stage),'PYTHONDONTWRITEBYTECODE':'1',
                        'PYTHONUTF8':'1','PYTHONIOENCODING':'utf-8',
                        'PYINSTALLER_CONFIG_DIR':str(stage/'cache')}
+        frontend_build = build_frontend(root, environment)
         run_checked(['-m','PyInstaller','--noconfirm','--clean','--distpath',str(stage/'dist'),
             '--workpath',str(stage/'work'),'Granger-OSINT.spec'],root=root,environment=environment)
         candidate = contained(stage/'dist'/BINARY,root)
@@ -252,6 +279,8 @@ def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing
             checks[name]=read_passed(report)
         digest = hashlib.sha256(candidate.read_bytes()).hexdigest();size = candidate.stat().st_size
         # A user may open the old app while the isolated QA runs: recheck now.
+        if frontend_input_digest(root) != frontend_build['input_sha256']:
+            raise BuildError('Frontend inputs changed after compilation; the candidate cannot be promoted.')
         dist_entries(root,allow_legacy=allow_legacy_dist)
         if not stage_only:assert_not_running(canonical)
         destination=stage_only or canonical
@@ -265,6 +294,7 @@ def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing
         'frozen_modules':len(checks['sources'].get('modules',[])),
         'resource_checks':len(checks['resources'].get('assets',[])),
         'native_checks':len(checks['native'].get('checks',[])),
+        'frontend_build':frontend_build,
         'investigation_live':checks.get('investigation_live'),
         'graph_v5':checks.get('graph_v5'),
         'media_v6':checks.get('media_v6'),
