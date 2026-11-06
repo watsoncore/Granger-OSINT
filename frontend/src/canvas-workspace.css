@@ -1,5 +1,5 @@
 /* Floating workspace chrome. The stage always owns the whole rectangle. */
-.dialog-overlay{z-index:200}.dialog{z-index:201}.toast{z-index:220}
+.dialog-overlay{z-index:200}.dialog,.media-viewer{z-index:201}.toast{z-index:220}
 .research-editor.canvas-first.is-expanded>.research-preview.results-drawer{max-height:calc(100% - 145px);overflow:hidden;flex-shrink:0}
 .research-editor.canvas-first>.research-preview.results-drawer.is-open>header{flex-shrink:0}
 .graph-render-stack{position:relative;width:100%;height:100%;min-height:0;flex:1;overflow:hidden}.graph-render-stack>.graph-gpu-edges{position:absolute!important;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}.graph-render-stack>.investigation-graph-canvas{position:absolute;inset:0;z-index:1;width:100%;height:100%;background:transparent!important}

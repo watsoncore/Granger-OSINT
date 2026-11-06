@@ -20,7 +20,7 @@ PATH_LABEL = 'Путь на диске или публичный HTTPS-адре�
 
 
 def run(exe, report, shots, source=False):
-    from PIL import Image, ImageDraw
+    from PIL import Image, ImageDraw, ImageStat
     from PySide6.QtCore import QCoreApplication
     from grangerpet.agent_evidence import normalize_evidence
     from grangerpet.agent_journal import InvestigationJournal
@@ -78,8 +78,7 @@ def run(exe, report, shots, source=False):
                 def complete():
                     try:
                         with Image.open(path) as capture:
-                            capture.verify()
-                        return True
+                            return min(capture.size)>200 and max(ImageStat.Stat(capture.convert('RGB')).stddev)>5
                     except (OSError,ValueError):return False
                 wait_for(complete, 10)
                 target = shots/(label+'.png')
@@ -165,7 +164,7 @@ def run(exe, report, shots, source=False):
                 session.select(identifier);bounds=session.visible_node(identifier);frame=session.metrics()['canvas']
                 session.action('input',{'kind':'double_click','at':[frame['x']+bounds['x'],frame['y']+bounds['y']]})
                 check('native_double_click_opens_full_viewer',bool(wait_for(
-                    lambda:button if (button:=session.find('Оригинал')[0]) and not button['disabled'] else None,12)))
+                    lambda:button if (button:=session.find('Оригинал')[0]) and not button['disabled'] and button.get('hit',True) else None,12)))
                 capture('media-viewer')
                 session.click('Оригинал');capture('media-original','-original-0.png')
                 session.stop()

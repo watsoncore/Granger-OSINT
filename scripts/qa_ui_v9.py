@@ -53,13 +53,20 @@ def run(exe: Path, output: Path):
                 # Hermione also exists in the main sidebar. Use the settings
                 # category beyond the first navigation column, then real input.
                 def find():
-                    rows = [e for e in session.dom().get('elements', []) if e.get('text') == label
-                            and e.get('width', 0) > 0 and e.get('x', 0) > 170 and e.get('hit')]
-                    return min(rows, key=lambda e: e['x']) if rows else None
-                element = wait_for(find, 8)
-                session.action('input', {'kind': 'click', 'at': [element['x'] + element['width']/2,
-                                                              element['y'] + min(16, element['height']/2)]})
-                session.idle()
+                    rows = [e for e in session.dom().get('elements', []) if (e.get('text') == label or e.get('label') == label)
+                            and e.get('width', 0) > 0 and e.get('hit')]
+                    return max(rows, key=lambda e: e['x']) if rows else None
+                for attempt in range(3):
+                    element = wait_for(find, 8)
+                    session.action('input', {'kind': 'click', 'at': [element['x'] + element['width']/2,
+                                                                  element['y'] + min(16, element['height']/2)]})
+                    try:
+                        wait_for(lambda: label in session.dom().get('headings', []), 3)
+                        session.idle()
+                        return
+                    except QaFailure:
+                        if attempt == 2:
+                            raise
 
             def capture(label):
                 session.command('qa_snapshot', {'name': label})
