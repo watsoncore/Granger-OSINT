@@ -1,0 +1,1338 @@
+{
+  "at_utc": "2026-11-06T17:06:24.474449+00:00",
+  "source_commit": "a4ef6a725eab9dd34a6dc6372e6f8bde8d3a41c3",
+  "baseline": {
+    "commit": "6837d980438e982a2548dc48c7e169bc4b51a68e",
+    "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+    "wallpaper": {
+      "original_size": [
+        3840,
+        2160
+      ],
+      "render_size": [
+        1920,
+        1080
+      ],
+      "aspect_ratio_preserved": true,
+      "original_bytes_preserved": true,
+      "mean_absolute_channel_error_against_lossless_resize": 0.7584601658950617,
+      "render_format": "WEBP"
+    }
+  },
+  "build": {
+    "passed": true,
+    "bytes": 279650368,
+    "sha256": "78e3b1d1b8b44c99593892df3e773e1e5a7f05353e6c0d3f280b52e6eb025c23",
+    "frozen_modules": 171,
+    "resource_checks": 239,
+    "native_checks": 22,
+    "frontend_build": {
+      "rebuilt": true,
+      "input_sha256": "174892ec2216a15ee7bdc9646adfd9562d3a5c44efd3abe109e3b0b923c0d82d"
+    },
+    "temporary_stage_removed": true,
+    "external_tools_policy": "strict-local-availability"
+  },
+  "native": {
+    "ui": {
+      "passed": true,
+      "origin": "frozen-Windows-EXE",
+      "exe_sha256": "78e3b1d1b8b44c99593892df3e773e1e5a7f05353e6c0d3f280b52e6eb025c23",
+      "checks": [
+        {
+          "name": "settings_0_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_1_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_2_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_3_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_4_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_5_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_6_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "custom_select_escape_restores_without_change",
+          "passed": true
+        },
+        {
+          "name": "custom_select_search_and_keyboard_commit",
+          "passed": true
+        },
+        {
+          "name": "fullscreen_escape_closes_menu_before_window",
+          "passed": true
+        },
+        {
+          "name": "fullscreen_escape_without_menu_exits",
+          "passed": true
+        },
+        {
+          "name": "narrow_settings_no_horizontal_overflow",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true,
+      "categories": [
+        {
+          "name": "ИИ и провайдеры",
+          "viewport": [
+            1536,
+            816
+          ],
+          "native_selects": 0,
+          "checkboxes": 0,
+          "custom_checkbox_appearance": true,
+          "svg_disclosures": 0,
+          "themed_scroll_ancestors": 3,
+          "scrollbar_colors": [
+            "rgb(102, 131, 156) rgba(0, 0, 0, 0)"
+          ],
+          "overflow": false,
+          "font": {
+            "loaded": true,
+            "family": "Manrope, \"Segoe UI\", sans-serif",
+            "size": "15px"
+          }
+        },
+        {
+          "name": "Расследования",
+          "viewport": [
+            1536,
+            816
+          ],
+          "native_selects": 0,
+          "checkboxes": 0,
+          "custom_checkbox_appearance": true,
+          "svg_disclosures": 0,
+          "themed_scroll_ancestors": 10,
+          "scrollbar_colors": [
+            "rgb(102, 131, 156) rgba(0, 0, 0, 0)"
+          ],
+          "overflow": false,
+          "font": {
+            "loaded": true,
+            "family": "Manrope, \"Segoe UI\", sans-serif",
+            "size": "15px"
+          }
+        },
+        {
+          "name": "Инструменты",
+          "viewport": [
+            1536,
+            816
+          ],
+          "native_selects": 0,
+          "checkboxes": 2,
+          "custom_checkbox_appearance": true,
+          "svg_disclosures": 0,
+          "themed_scroll_ancestors": 19,
+          "scrollbar_colors": [
+            "rgb(102, 131, 156) rgba(0, 0, 0, 0)"
+          ],
+          "overflow": false,
+          "font": {
+            "loaded": true,
+            "family": "Manrope, \"Segoe UI\", sans-serif",
+            "size": "15px"
+          }
+        },
+        {
+          "name": "Оформление",
+          "viewport": [
+            1536,
+            816
+          ],
+          "native_selects": 0,
+          "checkboxes": 0,
+          "custom_checkbox_appearance": true,
+          "svg_disclosures": 0,
+          "themed_scroll_ancestors": 16,
+          "scrollbar_colors": [
+            "rgb(102, 131, 156) rgba(0, 0, 0, 0)"
+          ],
+          "overflow": false,
+          "font": {
+            "loaded": true,
+            "family": "Manrope, \"Segoe UI\", sans-serif",
+            "size": "15px"
+          }
+        },
+        {
+          "name": "Гермиона",
+          "viewport": [
+            1536,
+            816
+          ],
+          "native_selects": 0,
+          "checkboxes": 0,
+          "custom_checkbox_appearance": true,
+          "svg_disclosures": 0,
+          "themed_scroll_ancestors": 0,
+          "scrollbar_colors": [],
+          "overflow": false,
+          "font": {
+            "loaded": true,
+            "family": "Manrope, \"Segoe UI\", sans-serif",
+            "size": "15px"
+          }
+        },
+        {
+          "name": "Уведомления",
+          "viewport": [
+            1536,
+            816
+          ],
+          "native_selects": 0,
+          "checkboxes": 0,
+          "custom_checkbox_appearance": true,
+          "svg_disclosures": 0,
+          "themed_scroll_ancestors": 0,
+          "scrollbar_colors": [],
+          "overflow": false,
+          "font": {
+            "loaded": true,
+            "family": "Manrope, \"Segoe UI\", sans-serif",
+            "size": "15px"
+          }
+        },
+        {
+          "name": "Данные",
+          "viewport": [
+            1536,
+            816
+          ],
+          "native_selects": 0,
+          "checkboxes": 0,
+          "custom_checkbox_appearance": true,
+          "svg_disclosures": 0,
+          "themed_scroll_ancestors": 0,
+          "scrollbar_colors": [],
+          "overflow": false,
+          "font": {
+            "loaded": true,
+            "family": "Manrope, \"Segoe UI\", sans-serif",
+            "size": "15px"
+          }
+        }
+      ]
+    },
+    "regressions": {
+      "passed": true,
+      "origin": "frozen-Windows-EXE",
+      "exe_sha256": "78e3b1d1b8b44c99593892df3e773e1e5a7f05353e6c0d3f280b52e6eb025c23",
+      "checks": [
+        {
+          "name": "github_double_click_keeps_process_and_graph",
+          "passed": true
+        },
+        {
+          "name": "github_double_click_has_no_bridge_error",
+          "passed": true
+        },
+        {
+          "name": "profile_double_click_opens_details_instead_of_avatar_viewer",
+          "passed": true
+        },
+        {
+          "name": "corrected_phone_saves_after_validation_failure",
+          "passed": true
+        },
+        {
+          "name": "phone_validation_does_not_block_mutation_queue",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true,
+      "invalid_phone_queue_pending": 0,
+      "double_click_queue_pending": 0,
+      "fresh_Maigret_requests": 0,
+      "data_origin": "replay_of_saved_public_Maigret_observations"
+    },
+    "workspace": {
+      "passed": true,
+      "origin": "frozen-Windows-EXE",
+      "exe_sha256": "78e3b1d1b8b44c99593892df3e773e1e5a7f05353e6c0d3f280b52e6eb025c23",
+      "checks": [
+        {
+          "name": "canvas_first_default_panels_closed",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Человек",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Компания / организация",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Никнейм",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Email",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Телефон",
+          "passed": true
+        },
+        {
+          "name": "typed_form_IP-адрес",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Домен",
+          "passed": true
+        },
+        {
+          "name": "typed_form_URL",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Профиль",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Криптокошелёк",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Транзакция",
+          "passed": true
+        },
+        {
+          "name": "typed_form_NFT",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Токен",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Контракт",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Коллекция",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Документ",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Географическая точка",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Заметка",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Гипотеза",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Произвольный объект",
+          "passed": true
+        },
+        {
+          "name": "twenty_manual_objects_without_fabricated_evidence",
+          "passed": true
+        },
+        {
+          "name": "native_port_drag_and_relation_metadata",
+          "passed": true
+        },
+        {
+          "name": "native_relation_undo_redo",
+          "passed": true
+        },
+        {
+          "name": "expanded_group_keeps_members_and_relation_visible",
+          "passed": true
+        },
+        {
+          "name": "native_group_drag_preserves_descendant_offsets",
+          "passed": true
+        },
+        {
+          "name": "native_group_resize",
+          "passed": true
+        },
+        {
+          "name": "native_group_collapse",
+          "passed": true
+        },
+        {
+          "name": "native_group_expand",
+          "passed": true
+        },
+        {
+          "name": "native_image_import_preserves_original",
+          "passed": true
+        },
+        {
+          "name": "restart_preserves_manual_composition",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true
+    },
+    "media": {
+      "passed": true,
+      "origin": "frozen-Windows-EXE",
+      "exe_sha256": "78e3b1d1b8b44c99593892df3e773e1e5a7f05353e6c0d3f280b52e6eb025c23",
+      "checks": [
+        {
+          "name": "native_route_Гермиона",
+          "passed": true
+        },
+        {
+          "name": "native_route_Поиск",
+          "passed": true
+        },
+        {
+          "name": "native_route_История",
+          "passed": true
+        },
+        {
+          "name": "native_route_Canvas",
+          "passed": true
+        },
+        {
+          "name": "native_route_Настройки",
+          "passed": true
+        },
+        {
+          "name": "command_palette_native_keyboard",
+          "passed": true
+        },
+        {
+          "name": "qt_drop_exact_world_position_and_bytes",
+          "passed": true
+        },
+        {
+          "name": "stored_media_has_no_inline_thumbnail",
+          "passed": true
+        },
+        {
+          "name": "media_resize_saved",
+          "passed": true
+        },
+        {
+          "name": "windows_clipboard_ctrl_v_imports_bitmap",
+          "passed": true
+        },
+        {
+          "name": "local_path_import",
+          "passed": true
+        },
+        {
+          "name": "https_import_pins_verified_original",
+          "passed": true
+        },
+        {
+          "name": "native_double_click_opens_full_viewer",
+          "passed": true
+        },
+        {
+          "name": "restart_preserves_media_positions_sizes_and_originals",
+          "passed": true
+        },
+        {
+          "name": "reopened_remote_uses_saved_attachment",
+          "passed": true
+        },
+        {
+          "name": "attachment_dedup_and_evidence_preserved",
+          "passed": true
+        },
+        {
+          "name": "detach_preserves_evidence_and_encrypted_original",
+          "passed": true
+        },
+        {
+          "name": "responsive_window_1366",
+          "passed": true
+        },
+        {
+          "name": "responsive_window_1600",
+          "passed": true
+        },
+        {
+          "name": "responsive_window_1920",
+          "passed": true
+        },
+        {
+          "name": "responsive_window_2560",
+          "passed": true
+        },
+        {
+          "name": "effects_mode_reduced",
+          "passed": true
+        },
+        {
+          "name": "effects_mode_off",
+          "passed": true
+        },
+        {
+          "name": "effects_mode_full",
+          "passed": true
+        },
+        {
+          "name": "qt_scale_200_canvas_readable",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true,
+      "viewports": [
+        {
+          "requested_qt_logical": [
+            1366,
+            768
+          ],
+          "web_view": [
+            1366,
+            768
+          ],
+          "native_dpr": 1.25
+        },
+        {
+          "requested_qt_logical": [
+            1600,
+            900
+          ],
+          "web_view": [
+            1600,
+            900
+          ],
+          "native_dpr": 1.25
+        },
+        {
+          "requested_qt_logical": [
+            1920,
+            1080
+          ],
+          "web_view": [
+            1920,
+            1080
+          ],
+          "native_dpr": 1.25
+        },
+        {
+          "requested_qt_logical": [
+            2560,
+            1440
+          ],
+          "web_view": [
+            2560,
+            1440
+          ],
+          "native_dpr": 1.25
+        }
+      ],
+      "qt_scale_200": {
+        "observed_native_dpr": 2.5,
+        "canvas": [
+          768,
+          408
+        ]
+      },
+      "startup_owned_workspace_seconds": 13.317,
+      "navigation_observed_seconds": {
+        "Гермиона": 0.619,
+        "Поиск": 0.617,
+        "История": 0.619,
+        "Canvas": 0.616,
+        "Настройки": 0.616
+      }
+    },
+    "github": {
+      "passed": true,
+      "origin": "frozen-Windows-EXE",
+      "exe_sha256": "78e3b1d1b8b44c99593892df3e773e1e5a7f05353e6c0d3f280b52e6eb025c23",
+      "checks": [
+        {
+          "name": "profile_activation_preserves_graph_and_opens_details",
+          "passed": true
+        },
+        {
+          "name": "profile_activation_preserves_graph_and_opens_details",
+          "passed": true
+        },
+        {
+          "name": "profile_activation_preserves_graph_and_opens_details",
+          "passed": true
+        },
+        {
+          "name": "github_returned_real_observations",
+          "passed": true
+        },
+        {
+          "name": "github_insert_preserves_previous_evidence",
+          "passed": true
+        },
+        {
+          "name": "github_repository_saved",
+          "passed": true
+        },
+        {
+          "name": "github_repository_visible_in_identity_projection",
+          "passed": true
+        },
+        {
+          "name": "profile_activation_preserves_graph_and_opens_details",
+          "passed": true
+        },
+        {
+          "name": "github_findings_survive_restart",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true,
+      "github_found_in_fresh_maigret": true,
+      "restart_differences": {},
+      "executions": [
+        {
+          "tool": "username_maigret",
+          "status": "partial",
+          "limitations": [
+            "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+          ],
+          "error_code": "tool_execution_failed",
+          "request_counts": {},
+          "records": 3
+        },
+        {
+          "tool": "github_profile",
+          "status": "complete",
+          "limitations": [
+            "Ограниченный поиск в указанном публичном источнике, не глобальный индекс и не доказательство общей личности.",
+            "Публичная выборка: до пяти репозиториев, десяти организаций и языки/релизы первых двух репозиториев. Отсутствие записи не доказывает отсутствия других проектов или скрытого членства.",
+            "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+          ],
+          "error_code": null,
+          "request_counts": {},
+          "records": 3
+        }
+      ]
+    },
+    "wallpaper": {
+      "passed": true,
+      "origin": "frozen-Windows-EXE",
+      "exe_sha256": "78e3b1d1b8b44c99593892df3e773e1e5a7f05353e6c0d3f280b52e6eb025c23",
+      "temporary_profile_removed": true,
+      "data_origin": "generated_geometry_fixtures",
+      "wallpaper_did_not_create_graph_entities": true,
+      "cases": [
+        {
+          "name": "contain-1366x900",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            192,
+            192
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "16bea3a128a544e416602b12274a9262a34536f3a45438e311fa8078ed518cbb",
+          "passed": true
+        },
+        {
+          "name": "cover-windowed",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "cover",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            225,
+            225
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "91bc9f4e67e5de9881974106e8a8b3ea44b1caa43a5c27a8c38158c71b2855ad",
+          "passed": true
+        },
+        {
+          "name": "cover-fullscreen",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1536,
+            "height": 864,
+            "fit": "cover",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            216,
+            216
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "bd5507d1a1a036212ae507b6d1c35a2a98f4c3f236168f5361ef2d21ab868cfa",
+          "passed": true
+        },
+        {
+          "name": "original-windowed",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "3840px 2160px",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            541,
+            540
+          ],
+          "circle_aspect_error": 0.0018518518518517713,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "f18176916656ccbf7d4e618a8b8dc9004e7a687bb87531a773bd2a982bc06a94",
+          "passed": true
+        },
+        {
+          "name": "original-fullscreen",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1536,
+            "height": 864,
+            "fit": "3840px 2160px",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            541,
+            541
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "ad697017da78b1aa1b540b1c2eed12c555494d19d6db3ed7ce7509999a212852",
+          "passed": true
+        },
+        {
+          "name": "contain-windowed",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            192,
+            192
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "16bea3a128a544e416602b12274a9262a34536f3a45438e311fa8078ed518cbb",
+          "passed": true
+        },
+        {
+          "name": "contain-fullscreen",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1536,
+            "height": 864,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            216,
+            216
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "bd5507d1a1a036212ae507b6d1c35a2a98f4c3f236168f5361ef2d21ab868cfa",
+          "passed": true
+        },
+        {
+          "name": "auto-dpr125",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "auto",
+            "original": "false",
+            "renderWidth": "1920",
+            "renderHeight": "1080",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            192,
+            192
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "9b20b708de72013149569d4768db149b80aec9680f4b66d806fee141a70c6dfd",
+          "passed": true
+        },
+        {
+          "name": "high-dpr125",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "high",
+            "original": "false",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            192,
+            192
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "f8b3fd367a8c6a625d29fae329a4f30dfbf08ab25ddaf36f0b4f93b8db4f8ab2",
+          "passed": true
+        },
+        {
+          "name": "4x3",
+          "wallpaper": "4x3",
+          "format_geometry": [
+            1200,
+            900
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "1200",
+            "renderHeight": "900",
+            "sourceWidth": "1200",
+            "sourceHeight": "900",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            225,
+            226
+          ],
+          "circle_aspect_error": 0.004424778761061954,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "ce9db0edca1ad86ba90a5bc214e1dafa4d714ce1e0bb4dc48f869f9cbb82a4e0",
+          "passed": true
+        },
+        {
+          "name": "square",
+          "wallpaper": "square",
+          "format_geometry": [
+            1000,
+            1000
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "1000",
+            "renderHeight": "1000",
+            "sourceWidth": "1000",
+            "sourceHeight": "1000",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            226,
+            226
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "15faabded85e9703c9c5173a9ab05dc8a8527a87e1fa14b0f70a4d8646090861",
+          "passed": true
+        },
+        {
+          "name": "portrait",
+          "wallpaper": "portrait",
+          "format_geometry": [
+            900,
+            1400
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "900",
+            "renderHeight": "1400",
+            "sourceWidth": "900",
+            "sourceHeight": "1400",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            145,
+            145
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "640cb74df10e83e6c7f90cc30beb1b1828a772a3cc395481d53f484f0e7a8ce0",
+          "passed": true
+        },
+        {
+          "name": "exif-rotated",
+          "wallpaper": "exif-rotated",
+          "format_geometry": [
+            1200,
+            900
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "1200",
+            "renderHeight": "900",
+            "sourceWidth": "1200",
+            "sourceHeight": "900",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            225,
+            226
+          ],
+          "circle_aspect_error": 0.004424778761061954,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "c2f65a65852fcb7c8d613654fafefe2d5d49a271c7d74950ac28e2142494a6be",
+          "passed": true
+        },
+        {
+          "name": "4k-texture",
+          "wallpaper": "4k-texture",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            192,
+            193
+          ],
+          "circle_aspect_error": 0.005181347150259086,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "47ccbd15b9fdb5bba4768b21e0edac33801db934d67bbf18ab8e01508d950011",
+          "passed": true
+        },
+        {
+          "name": "dpr150-1280",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "auto",
+            "original": "false",
+            "renderWidth": "2560",
+            "renderHeight": "1440",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1280.0001220703125,
+            "height": 800.0000610351562,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.875
+          },
+          "circle_pixels": [
+            270,
+            270
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "4ec5c7d9987e8a9b5694fbfa039d76965355eacc5480baf3ec60c97af457d9eb",
+          "passed": true
+        },
+        {
+          "name": "dpr150-1920",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "auto",
+            "original": "false",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1920.0001220703125,
+            "height": 1080,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.875
+          },
+          "circle_pixels": [
+            405,
+            406
+          ],
+          "circle_aspect_error": 0.0024630541871921707,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "efd94296bb9a0166d11c7bb23f3569645c9cc4f6ddac75296ab40d94cadfca89",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "install": {
+    "passed": true,
+    "installed": true,
+    "path": "dist/Granger-OSINT.exe",
+    "sha256": "78e3b1d1b8b44c99593892df3e773e1e5a7f05353e6c0d3f280b52e6eb025c23",
+    "bytes": 279650368,
+    "previous_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+    "dist_entries": [
+      "Granger-OSINT.exe"
+    ],
+    "canonical_native_checks": 22,
+    "temporary_stage_removed": true,
+    "static_checked": {
+      "resources": 202,
+      "pet_runtime": 2,
+      "assets": 92,
+      "external_tool_source": 508,
+      "configuration": 5
+    },
+    "static_changed": {
+      "resources": 0,
+      "pet_runtime": 0,
+      "assets": 0,
+      "external_tool_source": 0,
+      "configuration": 0
+    },
+    "profile_around_install": {
+      "files_before": 1079,
+      "files_after": 1079,
+      "added": 0,
+      "missing": 0,
+      "changed": 0
+    }
+  },
+  "tests": {
+    "python_full_before_final_css_and_window_refinements": {
+      "passed": 2117,
+      "skipped": 1,
+      "subtests": 32,
+      "skip_reason": "Ollama is not running; no installation or downloads attempted"
+    },
+    "frontend": {
+      "passed": 234,
+      "failed": 0,
+      "test_workers": 2
+    },
+    "release_path_targeted": {
+      "passed": 37
+    },
+    "window_escape_targeted": {
+      "passed": 4
+    }
+  },
+  "security": {
+    "passed": true,
+    "exe_sha256": "78e3b1d1b8b44c99593892df3e773e1e5a7f05353e6c0d3f280b52e6eb025c23",
+    "checked_payloads": 7415,
+    "git_history_checked": true,
+    "failures": []
+  },
+  "captures": [
+    {
+      "name": "settings-controls.png",
+      "sha256": "889f60aaa814e9a9f12050dcda7cd99d1ba55c146a313a0c4b4d44a8efd56815",
+      "pixels": [
+        1920,
+        1020
+      ],
+      "origin": "unmodified own native EXE window, isolated QA data"
+    },
+    {
+      "name": "settings-narrow.png",
+      "sha256": "6e1d23317fce2b49b3ec5197d30a3fb0890d02a517ef94cf1912b7779cfad677",
+      "pixels": [
+        1313,
+        900
+      ],
+      "origin": "unmodified own native EXE window, isolated QA data"
+    },
+    {
+      "name": "phone-correction.png",
+      "sha256": "d52b8d4307daf655ecbff19be7d76b28c7f2af29857b837e81012d2f33cfe5b0",
+      "pixels": [
+        1920,
+        1020
+      ],
+      "origin": "unmodified own native EXE window, isolated QA data"
+    },
+    {
+      "name": "media-viewer.png",
+      "sha256": "8f809e3ac3ceba7b7545e6e76931f0ef1d024aa23c49fb7cffa0d7f6a964c050",
+      "pixels": [
+        1920,
+        1020
+      ],
+      "origin": "unmodified own native EXE window, isolated QA data"
+    },
+    {
+      "name": "maigret-gallery.png",
+      "sha256": "21ff8fba7e200ad64bab21dc218bf28293a14dbb72cd7258f5f84690977ca2ec",
+      "pixels": [
+        1920,
+        1020
+      ],
+      "origin": "unmodified own native EXE window, isolated QA data"
+    },
+    {
+      "name": "github-results-table.png",
+      "sha256": "f7b653cd16b519ce36c704114b5b205a6fe3410757bc11a87a3e92a0ee1026db",
+      "pixels": [
+        1920,
+        1020
+      ],
+      "origin": "unmodified own native EXE window, isolated QA data"
+    },
+    {
+      "name": "github-repository.png",
+      "sha256": "ab7f438cd621358780af9f31c72e54b96333f9141f21d0005a183cc9d4ae9fc3",
+      "pixels": [
+        1920,
+        1020
+      ],
+      "origin": "unmodified own native EXE window, isolated QA data"
+    },
+    {
+      "name": "github-clean-mode.png",
+      "sha256": "24a55ab6de280e2067b51621e809636afe2d3f8f48d5c23067cc7576646572b5",
+      "pixels": [
+        1920,
+        1020
+      ],
+      "origin": "unmodified own native EXE window, isolated QA data"
+    },
+    {
+      "name": "wallpaper-contain.png",
+      "sha256": "16bea3a128a544e416602b12274a9262a34536f3a45438e311fa8078ed518cbb",
+      "pixels": [
+        1708,
+        1125
+      ],
+      "origin": "unmodified own native EXE window, isolated QA data"
+    },
+    {
+      "name": "wallpaper-original.png",
+      "sha256": "ad697017da78b1aa1b540b1c2eed12c555494d19d6db3ed7ce7509999a212852",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "origin": "unmodified own native EXE window, isolated QA data"
+    }
+  ],
+  "limitations": [
+    "Public GitHub sampling is bounded; private or hidden membership is not inferred.",
+    "Organizations and releases with no real observations are not claimed as live findings; controlled HTTP fixtures test those mappings.",
+    "Wallpaper geometry uses generated fixtures, not the owner personal photograph.",
+    "Performance active-interval reciprocal excludes long gaps and is not whole-session FPS; RSS includes shared pages.",
+    "A previous real-profile change around 19:31 remains unattributed and is preserved separately; install profile comparison is a separate time window."
+  ],
+  "passed": true
+}

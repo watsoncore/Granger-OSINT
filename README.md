@@ -1,6 +1,21 @@
 # Granger-OSINT 3.1
 
-## Visual Reconstruction V8 — оформление и Identity View
+## Visual Refinement V9 — текущая сборка
+
+Windows EXE находится в `dist/Granger-OSINT.exe`. Исправлены восстановление
+после ошибки номера, активация профиля двойным кликом, GitHub enrichment и
+добавление его результатов в граф. Общие компоненты настроек, галереи и
+таблиц приведены к теме приложения. Обои поддерживают Original/100% и
+качество Auto/High/Original с учётом viewport и DPR.
+
+Проверены настоящий EXE, живой GitHub, сохранность после перезапуска,
+16 случаев геометрии обоев и графы до 5000 объектов. Постоянные 60 FPS
+не заявляются. Персонаж и его исходные ассеты сохранены.
+[Отчёт V9 и ограничения](docs/VISUAL_REFINEMENT_V9.md) ·
+[Проверки и контрольные суммы](docs/validation/visual-v9/verification.json) ·
+[Инвентарь компонентов](docs/UI_COMPONENT_INVENTORY_V9.md)
+
+## Visual Reconstruction V8 — предыдущая сборка
 
 Текущая сборка Windows запускается из `dist/Granger-OSINT.exe`.
 

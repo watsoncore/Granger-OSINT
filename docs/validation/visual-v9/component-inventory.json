@@ -1,0 +1,243 @@
+{
+  "scope": "static production TSX declarations, not runtime element counts",
+  "tags": {
+    "Select": {
+      "count": 31,
+      "files": [
+        {
+          "file": "frontend/src/components/AppearanceEditor.tsx",
+          "declarations": 11
+        },
+        {
+          "file": "frontend/src/components/CanvasFocus.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/ConnectionSettings.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/InvestigationWorkspace.tsx",
+          "declarations": 4
+        },
+        {
+          "file": "frontend/src/components/Launcher.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/RelationComposer.tsx",
+          "declarations": 3
+        },
+        {
+          "file": "frontend/src/components/ResearchCanvas.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/ResearchResults.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/Settings.tsx",
+          "declarations": 3
+        },
+        {
+          "file": "frontend/src/components/Sources.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/SteamInventory.tsx",
+          "declarations": 2
+        },
+        {
+          "file": "frontend/src/components/StructuredToolFields.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/ToolCatalog.tsx",
+          "declarations": 1
+        }
+      ]
+    },
+    "Details": {
+      "count": 31,
+      "files": [
+        {
+          "file": "frontend/src/components/Chat.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/ConnectionSettings.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/EntityComposer.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/GansarFields.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/GeoInvestigation.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/InvestigationOverview.tsx",
+          "declarations": 3
+        },
+        {
+          "file": "frontend/src/components/InvestigationWorkspace.tsx",
+          "declarations": 4
+        },
+        {
+          "file": "frontend/src/components/LocalObservation.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/MaigretFields.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/MediaViewer.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/PublicProfile.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/RelationComposer.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/ResearchCanvas.tsx",
+          "declarations": 7
+        },
+        {
+          "file": "frontend/src/components/ResearchResults.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/Search.tsx",
+          "declarations": 2
+        },
+        {
+          "file": "frontend/src/components/Sources.tsx",
+          "declarations": 3
+        },
+        {
+          "file": "frontend/src/components/ToolCatalog.tsx",
+          "declarations": 1
+        }
+      ]
+    },
+    "Summary": {
+      "count": 31,
+      "files": [
+        {
+          "file": "frontend/src/components/Chat.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/ConnectionSettings.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/EntityComposer.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/GansarFields.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/GeoInvestigation.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/InvestigationOverview.tsx",
+          "declarations": 3
+        },
+        {
+          "file": "frontend/src/components/InvestigationWorkspace.tsx",
+          "declarations": 4
+        },
+        {
+          "file": "frontend/src/components/LocalObservation.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/MaigretFields.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/MediaViewer.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/PublicProfile.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/RelationComposer.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/ResearchCanvas.tsx",
+          "declarations": 7
+        },
+        {
+          "file": "frontend/src/components/ResearchResults.tsx",
+          "declarations": 1
+        },
+        {
+          "file": "frontend/src/components/Search.tsx",
+          "declarations": 2
+        },
+        {
+          "file": "frontend/src/components/Sources.tsx",
+          "declarations": 3
+        },
+        {
+          "file": "frontend/src/components/ToolCatalog.tsx",
+          "declarations": 1
+        }
+      ]
+    },
+    "Checkbox": {
+      "count": 2,
+      "files": [
+        {
+          "file": "frontend/src/components/ResultsTable.tsx",
+          "declarations": 2
+        }
+      ]
+    },
+    "select": {
+      "count": 0,
+      "files": []
+    },
+    "details": {
+      "count": 1,
+      "files": [
+        {
+          "file": "frontend/src/components/ui.tsx",
+          "declarations": 1
+        }
+      ]
+    },
+    "summary": {
+      "count": 1,
+      "files": [
+        {
+          "file": "frontend/src/components/ui.tsx",
+          "declarations": 1
+        }
+      ]
+    },
+    "datalist": {
+      "count": 0,
+      "files": []
+    }
+  }
+}
