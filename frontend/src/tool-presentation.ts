@@ -15,6 +15,7 @@ const names: Record<string, string> = {
   google: 'Google', google_dork: 'Операторы Google', blockchain: 'Блокчейн', ton: 'TON',
 }
 const states: Record<string, string> = {
+  source_reported:'Сообщено источником',
   ready_local:'Локально готов',live_verified:'Проверен запросом',configuration_required:'Нужна настройка',authentication_required:'Нужна авторизация',catalog_only:'Кандидат каталога',temporarily_unavailable:'Временно недоступен',
   ready: 'Готов', available: 'Готов', installed: 'Готов', checking: 'Проверяется', unverified: 'Ещё не проверен', configured_unverified: 'Настроен, доступ не проверен',
   auth_required: 'Нужна авторизация', needs_auth: 'Нужна авторизация', missing_credentials: 'Нужна авторизация',

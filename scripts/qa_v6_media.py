@@ -205,7 +205,7 @@ def run(exe, report, shots, source=False):
                 os.environ['QT_SCALE_FACTOR']='2'
                 session.start(2)
                 session.action('route',{'route':'search'});session.click('Моё полотно');session.open_document(owner)
-                session.click('Вписать полотно');session.idle()
+                session.click('Показать всё');session.idle()
                 frame=session.metrics()['canvas']
                 result['qt_scale_200']={'observed_native_dpr':session.status().get('dpr'),'canvas':[frame['width'],frame['height']]}
                 check('qt_scale_200_canvas_readable',int(frame['drawnLabels'])>0 and bool(session.visible_node(identifier)))

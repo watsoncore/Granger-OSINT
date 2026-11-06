@@ -101,7 +101,7 @@ export function ResearchResults({preview,evidenceIds,onSource,onInsert,control,o
           {row.url&&<small title={row.url}>{row.url}</small>}
           {mode==='timeline'&&<time dateTime={row.obtained_at}>{new Date(observationTime(row)).toLocaleString('ru-RU')}</time>}
         </div>
-        {!['found','complete','completed'].includes(row.status)&&<Badge>{executionLabel(row.status)}</Badge>}
+        {!['found','detected','complete','completed','success','done','source_reported','read'].includes(row.status)&&<Badge>{executionLabel(row.status)}</Badge>}
       </article>)}</div>
       {!rows.length&&<p className="field-hint">{mode==='timeline'?'Нет наблюдений с датой.':'По текущему фильтру нет записей.'}</p>}
       <footer><Button size="sm" variant="ghost" aria-label="Предыдущая страница результатов" disabled={!currentPage} onClick={()=>setPage(currentPage-1)}><ChevronLeft size={14}/></Button>

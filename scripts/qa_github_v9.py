@@ -103,6 +103,7 @@ def run(exe,output,*,source=False):
                 choose(username,'Найти публичные профили')
                 session.pick('Режим Maigret','Быстрый','quick')
                 preview=execute('username_maigret')
+                session.click('Галерея')
                 capture('maigret-gallery')
                 insert(preview)
                 github=next((node for node in session.document()['entities'] if node['type']=='public_profile'
@@ -121,6 +122,7 @@ def run(exe,output,*,source=False):
                 first=store.load(session.document()['id'])
                 preview=execute('github_profile',double_click=github['id'])
                 check('github_returned_real_observations',preview['status'] in ('complete','partial') and bool(preview['results']))
+                session.click('Таблица')
                 capture('github-table')
                 insert(preview)
                 saved=store.load(session.document()['id'])
@@ -132,7 +134,8 @@ def run(exe,output,*,source=False):
                       int(session.metrics()['canvas']['modelNodes'])>=len([node for node in saved['entities'] if node['type']=='public_profile'])+2)
                 session.select(repositories[0]['id'])
                 capture('github-repository-in-graph')
-                session.click('Чистый режим');capture('github-clean-mode');session.click('Полный набор')
+                session.click('Закрыть редактор')
+                session.click('Чистое расследование');capture('github-clean-mode');session.click('Полный набор')
                 final=deepcopy(saved);identifier=saved['id']
                 session.stop();session.start(1);session.click('Поиск');session.click('Мой граф')
                 session.open_document(identifier);session.select(github['id']);activation(github['id'])

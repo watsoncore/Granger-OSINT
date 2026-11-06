@@ -104,6 +104,7 @@ export function cardRows(node:GraphEntity):string[]{
 export function cardBadge(node:GraphEntity){
   const variant=cardVariant(node)
   if(variant==='username')return 'Никнейм'
+  if(node.type==='repository')return 'Репозиторий'
   if(/nft/.test(String(node.attributes.asset_type||node.type)))return 'NFT · '+String(node.attributes.chain||'сеть не указана').toUpperCase()
   if(node.type==='collection')return 'Коллекция · '+String(node.attributes.chain||'сеть не указана').toUpperCase()
   if(variant==='wallet'||variant==='transaction'||variant==='contract')return String(node.attributes.chain||'Сеть не указана').toUpperCase()

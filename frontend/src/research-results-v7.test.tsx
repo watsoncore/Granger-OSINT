@@ -5,6 +5,15 @@ import type {ResearchCanvasState,Source} from './types'
 const row=(n:number):Source=>({evidence_id:'ev_'+String(n).padStart(20,'0'),title:'Запись '+n,url:'https://example.org/'+n,status:'source_reported',kind:'adapter'})
 const preview:NonNullable<ResearchCanvasState['preview']>={token:'token',canvas_id:'a'.repeat(32),node_id:'',tool:'blockchain_gansar',status:'running',running:true,limitations:[],results:[]}
 describe('streamed evidence selection',()=>{
+ it('keeps source warnings but omits redundant positive badges in a Maigret gallery',()=>{
+  render(<ResearchResults evidenceIds={[]} onSource={()=>{}} onInsert={vi.fn()}
+    preview={{...preview,tool:'username_maigret',results:[{...row(1),status:'detected'},row(2),{...row(3),status:'partial'}]}}/>)
+  fireEvent.click(screen.getByRole('button',{name:'Результаты для добавления'}))
+  expect(screen.queryByText('Есть находки')).toBeNull()
+  expect(screen.queryByText('Сообщено источником')).toBeNull()
+  expect(screen.getByText('Частичный результат')).toBeInTheDocument()
+  expect(screen.getByLabelText('Добавить: Запись 1')).toBeChecked()
+ })
  it('selects arriving records after the initial empty preview without inserting automatically',async()=>{
   const insert=vi.fn().mockResolvedValue(true),props={evidenceIds:[],onSource:()=>{},onInsert:insert}
   const view=render(<ResearchResults {...props} preview={preview}/>);
