@@ -45,7 +45,7 @@ class AppearanceSession(V7Session):
         self.action('input', {'kind': 'key', 'key': 'enter'})
 
 
-def run(exe, output, *, source=False):
+def run(exe, output, *, source=False, restore_fixture=False, record=False):
     from PIL import Image, ImageDraw
     from PySide6.QtCore import QCoreApplication
     from grangerpet.agent_journal import InvestigationJournal
@@ -58,7 +58,7 @@ def run(exe, output, *, source=False):
     output.mkdir(parents=True, exist_ok=False)
     report_path = output / 'report.json'
     marker = output / 'dialog-request.json'
-    result = {'origin': 'native-source' if source else 'frozen-Windows-EXE', 'checks': [], 'captures': [], 'passed': False}
+    result = {'origin': 'native-source' if source else 'frozen-Windows-EXE', 'checks': [], 'captures': [], 'passed': False, 'restored_fixture': restore_fixture}
     if not source:
         with exe.open('rb') as stream:
             result['exe_sha256'] = file_digest(stream, 'sha256').hexdigest()
@@ -123,8 +123,9 @@ def run(exe, output, *, source=False):
                 session.click('Оформление')
 
             def canvas(identifier):
-                session.click('Поиск')
-                session.click('Моё полотно')
+                if not session.find('Встроить')[0] and not session.find('Развернуть')[0]:
+                    session.click('Поиск')
+                    session.click('Моё полотно')
                 session.open_document(identifier)
 
             def prompt(kind, path):
@@ -134,88 +135,136 @@ def run(exe, output, *, source=False):
             def close_marker():
                 marker.unlink(missing_ok=True)
 
+            def record_gestures():
+                for name, dx, dy in (('pan', 65, 24), ('pan-return', -65, -24)):
+                    view = session.metrics()['canvas']
+                    start = [view['x'] + view['width'] * .48, view['y'] + view['height'] * .79]
+                    session.action('input', {'kind':'drag','at':start,'to':[start[0] + dx, start[1] + dy]})
+                    session.idle()
+                    snapshot('demo-' + name)
+                view = session.metrics()['canvas']
+                center = [view['x'] + view['width'] / 2, view['y'] + view['height'] / 2]
+                session.action('input', {'kind':'wheel','at':center,'delta':120})
+                session.idle()
+                snapshot('demo-zoom')
+                session.click('Показать всё')
+                session.idle()
+                start = session.point(node_ids[0], header=True)
+                session.action('input', {'kind':'drag','at':start,'to':[start[0] + 35, start[1] + 38]})
+                session.idle()
+                snapshot('demo-drag')
+                session.select(node_ids[1])
+                snapshot('demo-selection')
+
             try:
-                session.start(0)
-                appearance()
-                session.click('Тема: Midnight Azure')
-                check('theme_preview_does_not_save', not prefs() and session.dom().get('theme')=='azure')
-                session.click('Отмена')
-                check('theme_cancel_keeps_saved_preferences', not prefs() and session.dom().get('theme')=='dark')
-                session.click('Тема: Midnight Azure')
-                session.click('Применить')
-                wait_for(lambda: prefs().get('theme') == 'azure', 15)
-                snapshot('theme-editor-azure')
-                session.click('Гермиона')
-                snapshot('main-azure')
-                appearance()
-                session.click('Тема: Crimson Noir')
-                session.click('Применить')
-                wait_for(lambda: prefs().get('theme') == 'crimson', 15)
-                session.click('Гермиона')
-                snapshot('main-crimson')
-                appearance()
-                session.click('Цвета, свечение и поверхности', role='button')
-                session.fill('Выбранная карточка HEX', '#43d9bd')
-                session.fill('Выбранная связь HEX', '#95adff')
-                session.select_option('Режим свечения', 0)
-                session.click('Применить')
-                wait_for(lambda: prefs().get('colors', {}).get('node') == '#43d9bd', 15)
-                check('custom_selection_colors_and_glow_persist', prefs()['colors']['edge'] == '#95adff' and prefs()['glow'] == 0)
-                session.click('Обои полотна', role='button')
-                session.click('Выбрать изображение')
-                prompt('choose-wallpaper', fixture)
-                wait_for(lambda: session.find('Убрать изображение')[0], 210)
-                close_marker()
-                session.select_option('Расположение', 1)
-                session.click('Размытие')
-                session.action('input', {'kind':'key','key':'home'})
-                for _ in range(6):
-                    session.action('input', {'kind':'key','key':'right'})
-                snapshot('wallpaper-editor')
-                session.click('Применить')
-                wallpaper = wait_for(lambda: prefs().get('wallpaper') if prefs().get('wallpaper', {}).get('image') else None, 18)
-                check('native_wallpaper_picker_stores_original_encrypted', images.read_bytes(wallpaper['image']) == wallpaper_bytes
-                      and wallpaper_bytes not in next((profile / 'wallpapers').glob('*.gpi')).read_bytes())
-                check('wallpaper_adjustments_persist', wallpaper['fit'] == 'contain' and wallpaper['blur'] == 6)
-                check('wallpaper_is_not_graph_entity', len(store.load(first['id'])['entities']) == 5)
-                session.select_option('Где использовать', 1)
-                scope = session.find('Где использовать')[0]['value']
-                session.select_option('Фон полотна', 5)
-                session.click('Применить')
-                wait_for(lambda: prefs().get('overrides', {}).get(scope, {}).get('source') == 'black', 15)
-                check('investigation_override_separate_from_global', len(prefs()['overrides']) == 1 and prefs()['wallpaper']['image'] == wallpaper['image'])
-                target = first['id'] if scope != first['id'] else second['id']
-                canvas(target)
-                time.sleep(1)
-                snapshot('canvas-with-wallpaper')
-                session.click('Проект')
-                session.click('Снимок полотна')
-                png = output / 'private-wallpaper-masked.png'
-                prompt('save-masked-screenshot', png)
-                wait_for(lambda: png.is_file() and png.stat().st_size, 210)
-                close_marker()
-                with Image.open(png) as hidden, Image.open(output / 'canvas-with-wallpaper.png') as visible:
-                    def teal_area(image):
-                        pixels=image.convert('RGB')
-                        return sum(g>r+12 and b>r+8 and g>40 for x in range(0,pixels.width,16)
-                                   for y in range(0,pixels.height,16) for r,g,b in (pixels.getpixel((x,y)),))
-                    check('wallpaper_pixels_excluded_from_app_screenshot',teal_area(visible)>teal_area(hidden)+80)
-                if not session.find('Снимок полотна')[0]:
+                if restore_fixture:
+                    from grangerpet.appearance import normalize_appearance
+                    image = images.import_bytes(wallpaper_bytes, 'Синтетические обои QA')
+                    scope = second['id']
+                    base = settings.load()
+                    base.workspace_appearance = normalize_appearance(json.dumps({
+                        'theme':'crimson','colors':{'node':'#43d9bd','edge':'#95adff'},'glow':0,'reducedMotion':True,
+                        'wallpaper':{'source':'image','image':image['id'],'fit':'contain','blur':6},
+                        'overrides':{scope:{'source':'black'}},
+                    }))
+                    settings.save(base)
+                    wallpaper = prefs()['wallpaper']
+                    session.start(0)
+                    canvas(first['id'])
+                    wait_for(lambda: session.dom().get('theme')=='crimson',15)
+                    snapshot('restored-wallpaper')
+                    if record:
+                        if session.find('Встроить')[0]:
+                            session.click('Встроить')
+                        appearance()
+                        session.click('Тема: Midnight Azure')
+                        snapshot('demo-azure-preview')
+                        session.click('Отмена')
+                        snapshot('demo-crimson-restored')
+                else:
+                    session.start(0)
+                    appearance()
+                    session.click('Тема: Midnight Azure')
+                    check('theme_preview_does_not_save', not prefs() and session.dom().get('theme')=='azure')
+                    session.click('Отмена')
+                    check('theme_cancel_keeps_saved_preferences', not prefs() and session.dom().get('theme')=='dark')
+                    session.click('Тема: Midnight Azure')
+                    session.click('Применить')
+                    wait_for(lambda: prefs().get('theme') == 'azure', 15)
+                    snapshot('theme-editor-azure')
+                    session.click('Гермиона')
+                    snapshot('main-azure')
+                    appearance()
+                    session.click('Тема: Crimson Noir')
+                    session.click('Применить')
+                    wait_for(lambda: prefs().get('theme') == 'crimson', 15)
+                    session.click('Гермиона')
+                    snapshot('main-crimson')
+                    appearance()
+                    session.click('Цвета, свечение и поверхности', role='button')
+                    session.fill('Выбранная карточка HEX', '#43d9bd')
+                    session.fill('Выбранная связь HEX', '#95adff')
+                    session.select_option('Режим свечения', 0)
+                    session.click('Применить')
+                    wait_for(lambda: prefs().get('colors', {}).get('node') == '#43d9bd', 15)
+                    check('custom_selection_colors_and_glow_persist', prefs()['colors']['edge'] == '#95adff' and prefs()['glow'] == 0)
+                    session.click('Обои полотна', role='button')
+                    session.click('Выбрать изображение')
+                    prompt('choose-wallpaper', fixture)
+                    wait_for(lambda: session.find('Убрать изображение')[0], 210)
+                    close_marker()
+                    session.select_option('Расположение', 1)
+                    session.click('Размытие')
+                    session.action('input', {'kind':'key','key':'home'})
+                    for _ in range(6):
+                        session.action('input', {'kind':'key','key':'right'})
+                    snapshot('wallpaper-editor')
+                    session.click('Применить')
+                    wallpaper = wait_for(lambda: prefs().get('wallpaper') if prefs().get('wallpaper', {}).get('image') else None, 18)
+                    check('native_wallpaper_picker_stores_original_encrypted', images.read_bytes(wallpaper['image']) == wallpaper_bytes
+                          and wallpaper_bytes not in next((profile / 'wallpapers').glob('*.gpi')).read_bytes())
+                    check('wallpaper_adjustments_persist', wallpaper['fit'] == 'contain' and wallpaper['blur'] == 6)
+                    check('wallpaper_is_not_graph_entity', len(store.load(first['id'])['entities']) == 5)
+                    session.select_option('Где использовать', 1)
+                    scope = session.find('Где использовать')[0]['value']
+                    session.select_option('Фон полотна', 5)
+                    session.click('Применить')
+                    wait_for(lambda: prefs().get('overrides', {}).get(scope, {}).get('source') == 'black', 15)
+                    check('investigation_override_separate_from_global', len(prefs()['overrides']) == 1 and prefs()['wallpaper']['image'] == wallpaper['image'])
+                    target = first['id'] if scope != first['id'] else second['id']
+                    canvas(target)
+                    time.sleep(1)
+                    snapshot('canvas-with-wallpaper')
                     session.click('Проект')
-                session.click('Экспорт')
-                package = output / 'investigation.granger.zip'
-                prompt('save-private-free-package', package)
-                wait_for(lambda: package.is_file() and package.stat().st_size, 210)
-                close_marker()
-                with zipfile.ZipFile(package) as archive:
-                    check('wallpaper_and_local_history_excluded_from_portable_export', all(
-                        wallpaper_bytes not in archive.read(name) and wallpaper['image'].encode() not in archive.read(name)
-                        and b'"activity"' not in archive.read(name) for name in archive.namelist()))
+                    session.click('Снимок полотна')
+                    png = output / 'private-wallpaper-masked.png'
+                    prompt('save-masked-screenshot', png)
+                    wait_for(lambda: png.is_file() and png.stat().st_size, 210)
+                    close_marker()
+                    with Image.open(png) as hidden, Image.open(output / 'canvas-with-wallpaper.png') as visible:
+                        def teal_area(image):
+                            pixels=image.convert('RGB')
+                            return sum(g>r+12 and b>r+8 and g>40 for x in range(0,pixels.width,16)
+                                       for y in range(0,pixels.height,16) for r,g,b in (pixels.getpixel((x,y)),))
+                        check('wallpaper_pixels_excluded_from_app_screenshot',teal_area(visible)>teal_area(hidden)+80)
+                    if not session.find('Снимок полотна')[0]:
+                        session.click('Проект')
+                    session.click('Экспорт')
+                    package = output / 'investigation.granger.zip'
+                    prompt('save-private-free-package', package)
+                    wait_for(lambda: package.is_file() and package.stat().st_size, 210)
+                    close_marker()
+                    with zipfile.ZipFile(package) as archive:
+                        check('wallpaper_and_local_history_excluded_from_portable_export', all(
+                            wallpaper_bytes not in archive.read(name) and wallpaper['image'].encode() not in archive.read(name)
+                            and b'"activity"' not in archive.read(name) for name in archive.namelist()))
                 canvas(scope)
                 snapshot('canvas-black-override')
                 canvas(first['id'])
                 session.click('Показать всё')
                 session.idle()
+                if record:
+                    record_gestures()
                 session.select(node_ids[0])
                 session.click('Фокус')
                 def count():
@@ -273,8 +322,12 @@ if __name__ == '__main__':
     parser.add_argument('--exe', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--source', action='store_true')
+    parser.add_argument('--restore-fixture', action='store_true',help='Repeat focus and restart with a seeded encrypted test image after separate dialog acceptance')
+    parser.add_argument('--record', action='store_true', help='Capture an additional native interaction sequence')
     args = parser.parse_args()
     output = args.output.resolve()
+    if args.record and not args.restore_fixture:
+        parser.error('--record requires --restore-fixture.')
     if output.is_relative_to((ROOT / 'dist').resolve()):
         parser.error('QA artifacts must stay outside dist.')
-    run(args.exe.resolve(), output, source=args.source)
+    run(args.exe.resolve(), output, source=args.source, restore_fixture=args.restore_fixture, record=args.record)

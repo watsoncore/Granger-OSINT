@@ -1,0 +1,98 @@
+{
+  "screenshots_are_original_bytes": true,
+  "wallpaper_fixture_is_generated": true,
+  "media": [
+    {
+      "name": "main-azure.png",
+      "sha256": "48b44d47c29cb2a9980ef9ebe6bcb7d0342a3babdc0fe8c4e618eb86dd6622c9",
+      "bytes": 396604
+    },
+    {
+      "name": "main-crimson.png",
+      "sha256": "47f1c433d4b936e64bee41b3a31818ac1af032a341153f31928ef330bc444fa5",
+      "bytes": 386706
+    },
+    {
+      "name": "appearance-editor.png",
+      "sha256": "e89cd5948656ffaa8a0841e63949d85a071de9ea25e2967f24547e75ba9240d6",
+      "bytes": 490354
+    },
+    {
+      "name": "wallpaper-editor.png",
+      "sha256": "64fd22e8c0835d7fce65d8b8ec845aad1aae39caeaaeef18bc67ec0f7f56fa50",
+      "bytes": 345568
+    },
+    {
+      "name": "canvas-wallpaper.png",
+      "sha256": "47e7f05a8d95396be7bb748fbcd55922b813b5822e16ae83056d9b423501f3c5",
+      "bytes": 228615
+    },
+    {
+      "name": "canvas-no-wallpaper.png",
+      "sha256": "131036cc1f6c3ffe242f34612fb0fe59d664824d2da734bae609f3f2a5812349",
+      "bytes": 498343
+    },
+    {
+      "name": "identity-hub.png",
+      "sha256": "fbd593b894a8dbc0a22d9dfc5a9e2f5d5547df272bca45852a8d4f3cd7d29a5d",
+      "bytes": 686966
+    },
+    {
+      "name": "profile-selected.png",
+      "sha256": "eaa8da610db1f69c4a94627cd874fe4803ce104dcc140c80ef52fb1538b48abd",
+      "bytes": 621817
+    },
+    {
+      "name": "focus.png",
+      "sha256": "0c2749e472c3dda8c376edf88b905444fd3009c1b48f68e4a4f7373fc145b25e",
+      "bytes": 272226
+    },
+    {
+      "name": "fullscreen-clean.png",
+      "sha256": "b6c9274be58239bc3b3d67accb3837777238233be355267aaf3dfceb162af40f",
+      "bytes": 222857
+    },
+    {
+      "name": "wallet.png",
+      "sha256": "9730e7586be2c2ab4ed65e67208393add00d11bbc05dc0faace17cd4389779db",
+      "bytes": 766451
+    },
+    {
+      "name": "nft-artwork.png",
+      "sha256": "9fb82a205e17ad96f2ff592c69eb4485288a91c76764d8b73dee82f766ace74e",
+      "bytes": 684156
+    },
+    {
+      "name": "image-card.png",
+      "sha256": "e4226d224d27df656a0dcabfb7beadf1d7e763073c1a26f2b727047c0aa8eb91",
+      "bytes": 598194
+    },
+    {
+      "name": "results-gallery.png",
+      "sha256": "1e4451019b144b7b7c588bc3287dd29c155b450f9bca1f07190d8b084afcaf95",
+      "bytes": 597770
+    },
+    {
+      "name": "reduced-effects.png",
+      "sha256": "3d5967f7074607688b0e14bc85dacc6cc1f3983600cc2062d94db89fc48e8938",
+      "bytes": 335206
+    },
+    {
+      "name": "graph-v7-before.png",
+      "sha256": "ea39710fb3916461815e2a862d5ae2cb8eb60cb8bd527a7f82049cea44926f8e",
+      "bytes": 961639
+    },
+    {
+      "name": "graph-v8-after.png",
+      "sha256": "80b87648fbec1c6479ad0dcdca190bf72ca1cf6f369ca07e56b6e1a877f6f8ec",
+      "bytes": 894878
+    },
+    {
+      "name": "native-sequence.gif",
+      "kind": "ordered native application snapshots",
+      "frames": 11,
+      "sha256": "42688372b37f4a5507a18b2d1a754818f713e04b74330ff6eda9a846a858f30e",
+      "bytes": 1128674
+    }
+  ]
+}

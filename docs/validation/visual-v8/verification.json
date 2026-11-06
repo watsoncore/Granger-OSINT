@@ -1,0 +1,2327 @@
+{
+  "schema": "granger-visual-v8/1",
+  "recorded_at_utc": "2026-11-06T11:08:42.589247+00:00",
+  "code_commit": "c7b440b28d9004afecf87770ad006057e20f1810",
+  "branch": "main",
+  "build": {
+    "passed": true,
+    "bytes": 279635267,
+    "sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+    "frozen_modules": 170,
+    "resource_checks": 239,
+    "native_checks": 22,
+    "external_tools_policy": "strict-local-availability"
+  },
+  "unit_tests": {
+    "python_passed": 2098,
+    "python_skipped": 2,
+    "python_subtests": 32,
+    "frontend_passed": 222,
+    "frontend_files": 39
+  },
+  "native_v7_regression": {
+    "origin": "frozen-Windows-EXE",
+    "passed": true,
+    "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+    "checks": [
+      {
+        "name": "canvas_first_default_panels_closed",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Человек",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Компания / организация",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Никнейм",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Email",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Телефон",
+        "passed": true
+      },
+      {
+        "name": "typed_form_IP-адрес",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Домен",
+        "passed": true
+      },
+      {
+        "name": "typed_form_URL",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Профиль",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Криптокошелёк",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Транзакция",
+        "passed": true
+      },
+      {
+        "name": "typed_form_NFT",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Токен",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Контракт",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Коллекция",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Документ",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Географическая точка",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Заметка",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Гипотеза",
+        "passed": true
+      },
+      {
+        "name": "typed_form_Произвольный объект",
+        "passed": true
+      },
+      {
+        "name": "twenty_manual_objects_without_fabricated_evidence",
+        "passed": true
+      },
+      {
+        "name": "native_port_drag_and_relation_metadata",
+        "passed": true
+      },
+      {
+        "name": "native_relation_undo_redo",
+        "passed": true
+      },
+      {
+        "name": "expanded_group_keeps_members_and_relation_visible",
+        "passed": true
+      },
+      {
+        "name": "native_group_drag_preserves_descendant_offsets",
+        "passed": true
+      },
+      {
+        "name": "native_group_resize",
+        "passed": true
+      },
+      {
+        "name": "native_group_collapse",
+        "passed": true
+      },
+      {
+        "name": "native_group_expand",
+        "passed": true
+      },
+      {
+        "name": "native_image_import_preserves_original",
+        "passed": true
+      },
+      {
+        "name": "restart_preserves_manual_composition",
+        "passed": true
+      }
+    ],
+    "temporary_profile_removed": true
+  },
+  "native_v8": {
+    "appearance-dialogs": {
+      "origin": "frozen-Windows-EXE",
+      "passed": false,
+      "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+      "checks": [
+        {
+          "name": "theme_preview_does_not_save",
+          "passed": true
+        },
+        {
+          "name": "theme_cancel_keeps_saved_preferences",
+          "passed": true
+        },
+        {
+          "name": "custom_selection_colors_and_glow_persist",
+          "passed": true
+        },
+        {
+          "name": "native_wallpaper_picker_stores_original_encrypted",
+          "passed": true
+        },
+        {
+          "name": "wallpaper_adjustments_persist",
+          "passed": true
+        },
+        {
+          "name": "wallpaper_is_not_graph_entity",
+          "passed": true
+        },
+        {
+          "name": "investigation_override_separate_from_global",
+          "passed": true
+        },
+        {
+          "name": "wallpaper_pixels_excluded_from_app_screenshot",
+          "passed": true
+        },
+        {
+          "name": "wallpaper_and_local_history_excluded_from_portable_export",
+          "passed": true
+        }
+      ],
+      "error": "control_not_reached_Поиск",
+      "error_type": "QaFailure",
+      "harness_navigation_failed_after_nine_completed_checks": true,
+      "continuation": "appearance-restoration"
+    },
+    "appearance-restoration": {
+      "origin": "frozen-Windows-EXE",
+      "passed": true,
+      "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+      "checks": [
+        {
+          "name": "focus_depth_1_uses_actual_neighbors",
+          "passed": true
+        },
+        {
+          "name": "focus_depth_2_uses_actual_neighbors",
+          "passed": true
+        },
+        {
+          "name": "focus_depth_3_uses_actual_neighbors",
+          "passed": true
+        },
+        {
+          "name": "history_has_saved_action_with_node",
+          "passed": true
+        },
+        {
+          "name": "clean_inspector_leaves_canvas_geometry",
+          "passed": true
+        },
+        {
+          "name": "canvas_uses_custom_node_edge_and_zero_glow",
+          "passed": true
+        },
+        {
+          "name": "restart_keeps_preferences_original_and_graph",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true
+    },
+    "native-demo": {
+      "origin": "frozen-Windows-EXE",
+      "passed": true,
+      "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+      "checks": [
+        {
+          "name": "focus_depth_1_uses_actual_neighbors",
+          "passed": true
+        },
+        {
+          "name": "focus_depth_2_uses_actual_neighbors",
+          "passed": true
+        },
+        {
+          "name": "focus_depth_3_uses_actual_neighbors",
+          "passed": true
+        },
+        {
+          "name": "history_has_saved_action_with_node",
+          "passed": true
+        },
+        {
+          "name": "clean_inspector_leaves_canvas_geometry",
+          "passed": true
+        },
+        {
+          "name": "canvas_uses_custom_node_edge_and_zero_glow",
+          "passed": true
+        },
+        {
+          "name": "restart_keeps_preferences_original_and_graph",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true
+    },
+    "live-tools": {
+      "origin": "frozen-Windows-EXE",
+      "passed": true,
+      "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+      "checks": [
+        {
+          "name": "username_maigret_default_preview_is_new_and_honest",
+          "passed": true
+        },
+        {
+          "name": "live_maigret_has_observed_profiles",
+          "passed": true
+        },
+        {
+          "name": "maigret_inserted_profiles",
+          "passed": true
+        },
+        {
+          "name": "identity_hub_contains_only_nickname_and_observed_profiles",
+          "passed": true
+        },
+        {
+          "name": "projection_switch_preserves_raw_evidence_and_relations",
+          "passed": true
+        },
+        {
+          "name": "email_research_default_preview_is_new_and_honest",
+          "passed": true
+        },
+        {
+          "name": "email_evidence_does_not_verify_mailbox",
+          "passed": true
+        },
+        {
+          "name": "company_research_default_preview_is_new_and_honest",
+          "passed": true
+        },
+        {
+          "name": "company_source_is_registry_not_dns",
+          "passed": true
+        },
+        {
+          "name": "company_candidates_remain_separate",
+          "passed": true
+        },
+        {
+          "name": "blockchain_gansar_profile_preview_is_new_and_honest",
+          "passed": true
+        },
+        {
+          "name": "live_gansar_profile_saved",
+          "passed": true
+        },
+        {
+          "name": "blockchain_gansar_nft_preview_is_new_and_honest",
+          "passed": true
+        },
+        {
+          "name": "nft_run_keeps_previous_evidence",
+          "passed": true
+        },
+        {
+          "name": "nft_insertion_uses_actual_counts_and_visible_projection",
+          "passed": true
+        },
+        {
+          "name": "saved_nft_entities_present",
+          "passed": true
+        },
+        {
+          "name": "live_results_survive_restart",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true,
+      "identity_counts": {
+        "profiles": 9,
+        "root_nodes": 1,
+        "model_nodes": 10,
+        "visible_images": 1
+      },
+      "nft_observed": true,
+      "executions": [
+        {
+          "tool": "username_maigret",
+          "operation": "",
+          "status": "partial",
+          "records": 9,
+          "elapsed_seconds": 83.142,
+          "insertion": {
+            "canvas_id": "8e92aca87a10434bb22fd99b9363db22",
+            "preview_token": "c65b46571d2c49c29e6e04362d5f3d68",
+            "insertion_id": "56dc6f0e029b493aa53aa360f82c85a3",
+            "added_nodes": 36,
+            "added_relations": 36,
+            "selected_records": 9,
+            "existing_records": 0,
+            "unprojected_records": 0,
+            "limitations": []
+          }
+        },
+        {
+          "tool": "email_research",
+          "operation": "",
+          "status": "complete",
+          "records": 6,
+          "elapsed_seconds": 6.463,
+          "insertion": {
+            "canvas_id": "1c7f2b4c6f204748baba301a3bcef412",
+            "preview_token": "7c2d6d01e8c843b79bacecac8cd181a7",
+            "insertion_id": "3de9547f64284358934c9dd4795f5c92",
+            "added_nodes": 19,
+            "added_relations": 17,
+            "selected_records": 6,
+            "existing_records": 0,
+            "unprojected_records": 0,
+            "limitations": []
+          }
+        },
+        {
+          "tool": "company_research",
+          "operation": "",
+          "status": "complete",
+          "records": 3,
+          "elapsed_seconds": 2.09,
+          "insertion": {
+            "canvas_id": "4b199b0f7ecf44dead1b90859459825b",
+            "preview_token": "0faa28fabea344068ff2772c3758f4e3",
+            "insertion_id": "528c1db7fa5048fa95e534adb6e08688",
+            "added_nodes": 10,
+            "added_relations": 12,
+            "selected_records": 3,
+            "existing_records": 0,
+            "unprojected_records": 0,
+            "limitations": []
+          }
+        },
+        {
+          "tool": "blockchain_gansar",
+          "operation": "profile",
+          "status": "partial",
+          "records": 236,
+          "elapsed_seconds": 42.442,
+          "insertion": {
+            "canvas_id": "58c33df155fb4926978266c33e2e0c4f",
+            "preview_token": "31e417016e8a4d42b7811fa12164c1ad",
+            "insertion_id": "d1d38e2e900f4250889bd20e91213579",
+            "added_nodes": 422,
+            "added_relations": 858,
+            "selected_records": 236,
+            "existing_records": 0,
+            "unprojected_records": 7,
+            "limitations": [
+              "Некоторые сохранённые наблюдения не имеют отдельного графического объекта."
+            ]
+          }
+        },
+        {
+          "tool": "blockchain_gansar",
+          "operation": "nft",
+          "status": "partial",
+          "records": 9,
+          "elapsed_seconds": 81.832,
+          "insertion": {
+            "canvas_id": "58c33df155fb4926978266c33e2e0c4f",
+            "preview_token": "8c3c14a02a9c41debedcfdbd38ef1ab2",
+            "insertion_id": "855b807b82dc4dc89aba804d9583454f",
+            "added_nodes": 0,
+            "added_relations": 0,
+            "selected_records": 9,
+            "existing_records": 8,
+            "unprojected_records": 3,
+            "limitations": [
+              "Некоторые сохранённые наблюдения не имеют отдельного графического объекта."
+            ]
+          }
+        }
+      ]
+    },
+    "deepseek-scoping": {
+      "origin": "frozen-Windows-EXE",
+      "passed": true,
+      "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+      "checks": [
+        {
+          "name": "isolated_windows_vault_round_trip",
+          "passed": true
+        },
+        {
+          "name": "gateway_connection_in_frozen_ui",
+          "passed": true
+        },
+        {
+          "name": "only_current_canvas_context_A",
+          "passed": true
+        },
+        {
+          "name": "gateway_mentions_current_without_other_A",
+          "passed": true
+        },
+        {
+          "name": "visible_prompt_has_no_context_json_A",
+          "passed": true
+        },
+        {
+          "name": "only_current_canvas_context_B",
+          "passed": true
+        },
+        {
+          "name": "gateway_mentions_current_without_other_B",
+          "passed": true
+        },
+        {
+          "name": "visible_prompt_has_no_context_json_B",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true,
+      "temporary_credential_removed": true,
+      "gateway_available": true
+    },
+    "canonical-smoke": {
+      "origin": "actual-frozen-Windows-Qt-WebEngine",
+      "schema": "granger-clean-release-qa/1",
+      "passed": true,
+      "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+      "checks": [
+        {
+          "name": "fresh_launcher_and_pet_restricted_path_smoke",
+          "passed": true
+        },
+        {
+          "name": "exact_spawned_pid_and_executable_path",
+          "passed": true
+        },
+        {
+          "name": "native_frontend_ready_and_load_ok",
+          "passed": true
+        },
+        {
+          "name": "grangerpet_visible_and_initialized",
+          "passed": true
+        },
+        {
+          "name": "native_navigation_search",
+          "passed": true
+        },
+        {
+          "name": "native_navigation_history",
+          "passed": true
+        },
+        {
+          "name": "native_navigation_canvas",
+          "passed": true
+        },
+        {
+          "name": "native_navigation_chat",
+          "passed": true
+        },
+        {
+          "name": "native_navigation_settings",
+          "passed": true
+        },
+        {
+          "name": "saved_utf8_text_canvas_opened",
+          "passed": true
+        },
+        {
+          "name": "gansar_maigret_and_image_tool_registered",
+          "passed": true
+        },
+        {
+          "name": "gansar_and_maigret_locally_available",
+          "passed": true
+        },
+        {
+          "name": "saved_synthetic_investigation_graph_actually_drawn",
+          "passed": true
+        },
+        {
+          "name": "saved_manual_canvas_actually_drawn",
+          "passed": true
+        },
+        {
+          "name": "real_image_import_preserves_digest",
+          "passed": true
+        },
+        {
+          "name": "real_media_card_pixels_drawn",
+          "passed": true
+        },
+        {
+          "name": "actual_native_original_viewer_opened",
+          "passed": true
+        },
+        {
+          "name": "real_local_image_metadata_tool_completed",
+          "passed": true
+        },
+        {
+          "name": "normal_first_exit_zero",
+          "passed": true
+        },
+        {
+          "name": "restart_preserves_saved_analyst_canvas",
+          "passed": true
+        },
+        {
+          "name": "normal_restart_exit_zero",
+          "passed": true
+        },
+        {
+          "name": "fresh_runtime_logs_without_python_traceback",
+          "passed": true
+        }
+      ],
+      "temporary_data_removed": true
+    }
+  },
+  "performance": {
+    "v7-baseline": {
+      "origin": "frozen-EXE",
+      "exe_sha256": "5a22ddf313c4580fd0862a8c9e336ad5b1d0c6e9875632c0c0c0c7843825a073",
+      "passed": true,
+      "effects": "full",
+      "startup_to_canvas_seconds": 15.699,
+      "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+      "parent_exit_code": 0,
+      "owned_processes_left": 0,
+      "cases": [
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 50,
+          "edges": 49,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "2.600000023841858",
+            "drawnNodes": "50",
+            "onScreenNodes": "12",
+            "modelNodes": "50",
+            "modelEdges": "49",
+            "drawnImages": "3",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 32,
+            "median": 3.8,
+            "p95": 5.7,
+            "p99": 9.6,
+            "max": 16.2
+          },
+          "active_intervals_ms": {
+            "count": 12,
+            "median": 21.55,
+            "p95": 76.5,
+            "p99": 76.5,
+            "max": 83.8
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 9.55,
+            "p95": 16.8,
+            "p99": 16.8,
+            "max": 18.7
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 9.0,
+              "thread_count": 102.0,
+              "rss_bytes_sum": 640491520,
+              "private_commit_bytes_sum": 767320064,
+              "cpu_percent_one_core": 190.52686424840914,
+              "cpu_percent_machine": 15.877238687367427,
+              "monitor_seconds": 0.011181149980984628
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 8.449295882088773,
+              "gpu_engine_percent_max": 8.449295882088773,
+              "gpu_dedicated_bytes": 643698688.0,
+              "gpu_shared_bytes": 46686208.0
+            }
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 100,
+          "edges": 99,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "2.9000000953674316",
+            "drawnNodes": "100",
+            "onScreenNodes": "13",
+            "modelNodes": "100",
+            "modelEdges": "99",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 32,
+            "median": 3.4,
+            "p95": 4.9,
+            "p99": 5.2,
+            "max": 5.6
+          },
+          "active_intervals_ms": {
+            "count": 14,
+            "median": 16.05,
+            "p95": 72,
+            "p99": 72,
+            "max": 84.9
+          },
+          "event_to_paint_ms": {
+            "count": 17,
+            "median": 6,
+            "p95": 12.9,
+            "p99": 12.9,
+            "max": 13.8
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 73.0,
+              "rss_bytes_sum": 632518656.0,
+              "private_commit_bytes_sum": 1167912960.0,
+              "cpu_percent_one_core": 58.72719548277632,
+              "cpu_percent_machine": 4.893932956898026,
+              "monitor_seconds": 0.008066600013989955
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 8.23405990568531,
+              "gpu_engine_percent_max": 8.23405990568531,
+              "gpu_dedicated_bytes": 1297784832.0,
+              "gpu_shared_bytes": 50618368.0
+            }
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 500,
+          "edges": 499,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "3.4000000953674316",
+            "drawnNodes": "500",
+            "onScreenNodes": "13",
+            "modelNodes": "500",
+            "modelEdges": "499",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 38,
+            "median": 4.45,
+            "p95": 8,
+            "p99": 9.3,
+            "max": 9.4
+          },
+          "active_intervals_ms": {
+            "count": 28,
+            "median": 66.0,
+            "p95": 96,
+            "p99": 96.7,
+            "max": 97.3
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 7.45,
+            "p95": 10.8,
+            "p99": 10.8,
+            "max": 13.9
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 73.0,
+              "rss_bytes_sum": 708524032.0,
+              "private_commit_bytes_sum": 1110949888.0,
+              "cpu_percent_one_core": 107.53540502023097,
+              "cpu_percent_machine": 8.961283751685913,
+              "monitor_seconds": 0.008244399970863014
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 8.727142034935326,
+              "gpu_engine_percent_max": 8.727142034935326,
+              "gpu_dedicated_bytes": 1523617792.0,
+              "gpu_shared_bytes": 50601984.0
+            }
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 1000,
+          "edges": 999,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "3.399999976158142",
+            "drawnNodes": "1000",
+            "onScreenNodes": "13",
+            "modelNodes": "1000",
+            "modelEdges": "999",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 35,
+            "median": 5.6,
+            "p95": 11.3,
+            "p99": 13.1,
+            "max": 14.2
+          },
+          "active_intervals_ms": {
+            "count": 17,
+            "median": 50.9,
+            "p95": 68.7,
+            "p99": 68.7,
+            "max": 73.9
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 7.8,
+            "p95": 12.9,
+            "p99": 12.9,
+            "max": 14.3
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 74.0,
+              "rss_bytes_sum": 793339904.0,
+              "private_commit_bytes_sum": 929669120.0,
+              "cpu_percent_one_core": 141.81607916060352,
+              "cpu_percent_machine": 11.818006596716959,
+              "monitor_seconds": 0.00812734995270148
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 8.803991582436499,
+              "gpu_engine_percent_max": 8.803991582436499,
+              "gpu_dedicated_bytes": 1644810240.0,
+              "gpu_shared_bytes": 47206400.0
+            }
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 5000,
+          "edges": 4999,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "17.600000023841858",
+            "drawnNodes": "5000",
+            "onScreenNodes": "13",
+            "modelNodes": "5000",
+            "modelEdges": "4999",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 27,
+            "median": 4.8,
+            "p95": 39.9,
+            "p99": 47.1,
+            "max": 57.9
+          },
+          "active_intervals_ms": {
+            "count": 8,
+            "median": 68.9,
+            "p95": 84.3,
+            "p99": 84.3,
+            "max": 95.6
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 15.65,
+            "p95": 24.8,
+            "p99": 24.8,
+            "max": 52.8
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 77.0,
+              "rss_bytes_sum": 1117788160.0,
+              "private_commit_bytes_sum": 1748176896.0,
+              "cpu_percent_one_core": 80.75113382930618,
+              "cpu_percent_machine": 6.729261152442181,
+              "monitor_seconds": 0.008082500018645078
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 4.405139985016256,
+              "gpu_engine_percent_max": 4.33092829115294,
+              "gpu_dedicated_bytes": 3580325888.0,
+              "gpu_shared_bytes": 49061888.0
+            }
+          },
+          "fit_overview": {
+            "renderer": "webgl2-edges-canvas-cards",
+            "paintMs": "17.5",
+            "drawnNodes": "38",
+            "onScreenNodes": "36",
+            "modelNodes": "5000",
+            "modelEdges": "204",
+            "drawnEdges": "204",
+            "zoom": "0.014919403223871044"
+          }
+        },
+        {
+          "data_origin": "provided_observed_result",
+          "underlying_nodes": 424,
+          "edges": 885,
+          "source_tool": "blockchain_gansar",
+          "source_status": "partial",
+          "evidence_count": 236,
+          "network_calls_by_stress_script": 0,
+          "underlying_transactions": 200,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "1.5",
+            "drawnNodes": "20",
+            "onScreenNodes": "2",
+            "modelNodes": "20",
+            "modelEdges": "24",
+            "drawnImages": "0",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 27,
+            "median": 1.4,
+            "p95": 3,
+            "p99": 3.6,
+            "max": 9.8
+          },
+          "active_intervals_ms": {
+            "count": 7,
+            "median": 57,
+            "p95": 72.2,
+            "p99": 72.2,
+            "max": 89.9
+          },
+          "event_to_paint_ms": {
+            "count": 15,
+            "median": 4.1,
+            "p95": 5,
+            "p99": 5,
+            "max": 5.5
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 79.0,
+              "rss_bytes_sum": 1131321344.0,
+              "private_commit_bytes_sum": 1316093952.0,
+              "cpu_percent_one_core": 116.18930790074296,
+              "cpu_percent_machine": 9.682442325061913,
+              "monitor_seconds": 0.008122549974359572
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 3.3073157142588725,
+              "gpu_engine_percent_max": 3.303561842380903,
+              "gpu_dedicated_bytes": 3466305536.0,
+              "gpu_shared_bytes": 62664704.0
+            }
+          }
+        },
+        {
+          "data_origin": "provided_observed_result",
+          "underlying_nodes": 14,
+          "edges": 12,
+          "source_tool": "username_maigret",
+          "source_status": "partial",
+          "evidence_count": 3,
+          "network_calls_by_stress_script": 0,
+          "underlying_transactions": 0,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "0.7000000476837158",
+            "drawnNodes": "4",
+            "onScreenNodes": "2",
+            "modelNodes": "4",
+            "modelEdges": "3",
+            "drawnImages": "0",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 27,
+            "median": 0.6,
+            "p95": 0.7,
+            "p99": 1.7,
+            "max": 1.7
+          },
+          "active_intervals_ms": {
+            "count": 9,
+            "median": 9.2,
+            "p95": 18.3,
+            "p99": 18.3,
+            "max": 27.2
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 3.2,
+            "p95": 3.5,
+            "p99": 3.5,
+            "max": 3.5
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 78.0,
+              "rss_bytes_sum": 1066672128.0,
+              "private_commit_bytes_sum": 1190436864.0,
+              "cpu_percent_one_core": 73.18478833760723,
+              "cpu_percent_machine": 6.098732361467269,
+              "monitor_seconds": 0.008132149989251047
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 6.508143039550286,
+              "gpu_engine_percent_max": 6.508143039550286,
+              "gpu_dedicated_bytes": 3759579136.0,
+              "gpu_shared_bytes": 34963456.0
+            }
+          }
+        }
+      ],
+      "checks": [
+        {
+          "name": "native_search_retains_bounded_neighbor_context_and_restores_1000",
+          "passed": true
+        },
+        {
+          "name": "native_six_layouts_restore_manual_positions",
+          "passed": true
+        },
+        {
+          "name": "provided_observation_evidence_unchanged",
+          "passed": true
+        },
+        {
+          "name": "provided_observation_evidence_unchanged",
+          "passed": true
+        }
+      ]
+    },
+    "perf-baseline": {
+      "origin": "frozen-EXE",
+      "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+      "passed": true,
+      "effects": "full",
+      "wallpaper": {
+        "enabled": false,
+        "blur_px": 0,
+        "glow": null
+      },
+      "startup_to_canvas_seconds": 25.314,
+      "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+      "parent_exit_code": 0,
+      "owned_processes_left": 0,
+      "cases": [
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 50,
+          "edges": 49,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "2.600000023841858",
+            "drawnNodes": "50",
+            "onScreenNodes": "12",
+            "modelNodes": "50",
+            "modelEdges": "49",
+            "drawnImages": "3",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 32,
+            "median": 3.0,
+            "p95": 4.9,
+            "p99": 5.8,
+            "max": 14.2
+          },
+          "active_intervals_ms": {
+            "count": 14,
+            "median": 17.3,
+            "p95": 51.1,
+            "p99": 51.1,
+            "max": 91.2
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 6.55,
+            "p95": 13.9,
+            "p99": 13.9,
+            "max": 14.6
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 9.0,
+              "thread_count": 100.5,
+              "rss_bytes_sum": 694493184.0,
+              "private_commit_bytes_sum": 848599040.0,
+              "cpu_percent_one_core": 234.9017906236558,
+              "cpu_percent_machine": 19.575149218637986,
+              "monitor_seconds": 0.010435550007969141
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 7.98812952564813,
+              "gpu_engine_percent_max": 7.98812952564813,
+              "gpu_dedicated_bytes": 749043712.0,
+              "gpu_shared_bytes": 49848320.0
+            }
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 100,
+          "edges": 99,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "3",
+            "drawnNodes": "100",
+            "onScreenNodes": "13",
+            "modelNodes": "100",
+            "modelEdges": "99",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 32,
+            "median": 3.25,
+            "p95": 4.7,
+            "p99": 5.1,
+            "max": 5.4
+          },
+          "active_intervals_ms": {
+            "count": 13,
+            "median": 16.2,
+            "p95": 17.9,
+            "p99": 17.9,
+            "max": 20.5
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 5.95,
+            "p95": 6.8,
+            "p99": 6.8,
+            "max": 7.5
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 72.0,
+              "rss_bytes_sum": 646678528.0,
+              "private_commit_bytes_sum": 1248845824.0,
+              "cpu_percent_one_core": 63.57026122478628,
+              "cpu_percent_machine": 5.29752176873219,
+              "monitor_seconds": 0.008169349981471896
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 8.674635568606812,
+              "gpu_engine_percent_max": 8.674635568606812,
+              "gpu_dedicated_bytes": 1469313024.0,
+              "gpu_shared_bytes": 52207616.0
+            }
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 500,
+          "edges": 499,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "3.399999976158142",
+            "drawnNodes": "500",
+            "onScreenNodes": "13",
+            "modelNodes": "500",
+            "modelEdges": "499",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 34,
+            "median": 3.7,
+            "p95": 6.6,
+            "p99": 7.8,
+            "max": 8.2
+          },
+          "active_intervals_ms": {
+            "count": 24,
+            "median": 73.9,
+            "p95": 84.6,
+            "p99": 88.2,
+            "max": 93
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 6.5,
+            "p95": 9.9,
+            "p99": 9.9,
+            "max": 10.2
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 72.0,
+              "rss_bytes_sum": 723855360.0,
+              "private_commit_bytes_sum": 1283201024.0,
+              "cpu_percent_one_core": 122.194711306154,
+              "cpu_percent_machine": 10.182892608846167,
+              "monitor_seconds": 0.00818290002644062
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 8.953317004185037,
+              "gpu_engine_percent_max": 8.953317004185037,
+              "gpu_dedicated_bytes": 1852801024.0,
+              "gpu_shared_bytes": 56418304.0
+            }
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 1000,
+          "edges": 999,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "3.6999999284744263",
+            "drawnNodes": "1000",
+            "onScreenNodes": "13",
+            "modelNodes": "1000",
+            "modelEdges": "999",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 35,
+            "median": 4.2,
+            "p95": 8.1,
+            "p99": 9.7,
+            "max": 10.5
+          },
+          "active_intervals_ms": {
+            "count": 18,
+            "median": 22.0,
+            "p95": 53.5,
+            "p99": 53.5,
+            "max": 84.9
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 6.95,
+            "p95": 7.4,
+            "p99": 7.4,
+            "max": 11
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 73.0,
+              "rss_bytes_sum": 813281280.0,
+              "private_commit_bytes_sum": 1558927360.0,
+              "cpu_percent_one_core": 136.8202982344797,
+              "cpu_percent_machine": 11.401691519539977,
+              "monitor_seconds": 0.008228849968872964
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 8.35250224759061,
+              "gpu_engine_percent_max": 8.35250224759061,
+              "gpu_dedicated_bytes": 2187296768.0,
+              "gpu_shared_bytes": 58748928.0
+            }
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 5000,
+          "edges": 4999,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "3.399999976158142",
+            "drawnNodes": "5000",
+            "onScreenNodes": "13",
+            "modelNodes": "5000",
+            "modelEdges": "4999",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 31,
+            "median": 4.6,
+            "p95": 24,
+            "p99": 33.3,
+            "max": 55.1
+          },
+          "active_intervals_ms": {
+            "count": 9,
+            "median": 23.9,
+            "p95": 81.3,
+            "p99": 81.3,
+            "max": 89.4
+          },
+          "event_to_paint_ms": {
+            "count": 17,
+            "median": 10.5,
+            "p95": 16.1,
+            "p99": 16.1,
+            "max": 33.1
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 75.0,
+              "rss_bytes_sum": 1153095680.0,
+              "private_commit_bytes_sum": 2050498560.0,
+              "cpu_percent_one_core": 128.7722366327663,
+              "cpu_percent_machine": 10.731019719397192,
+              "monitor_seconds": 0.008062549983151257
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 4.796670547388194,
+              "gpu_engine_percent_max": 4.796670547388194,
+              "gpu_dedicated_bytes": 4057321472.0,
+              "gpu_shared_bytes": 59310080.0
+            }
+          },
+          "fit_overview": {
+            "renderer": "webgl2-edges-canvas-cards",
+            "paintMs": "17.100000023841858",
+            "drawnNodes": "38",
+            "onScreenNodes": "35",
+            "modelNodes": "5000",
+            "modelEdges": "204",
+            "drawnEdges": "197",
+            "zoom": "0.014919403223871044"
+          }
+        },
+        {
+          "data_origin": "provided_observed_result",
+          "underlying_nodes": 424,
+          "edges": 885,
+          "source_tool": "blockchain_gansar",
+          "source_status": "partial",
+          "evidence_count": 236,
+          "network_calls_by_stress_script": 0,
+          "underlying_transactions": 200,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "1.899999976158142",
+            "drawnNodes": "20",
+            "onScreenNodes": "2",
+            "modelNodes": "20",
+            "modelEdges": "24",
+            "drawnImages": "0",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 28,
+            "median": 1.5,
+            "p95": 2.1,
+            "p99": 3.6,
+            "max": 7.2
+          },
+          "active_intervals_ms": {
+            "count": 7,
+            "median": 59.2,
+            "p95": 83.7,
+            "p99": 83.7,
+            "max": 85
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 4.0,
+            "p95": 5,
+            "p99": 5,
+            "max": 15.5
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 81.0,
+              "rss_bytes_sum": 1174667264.0,
+              "private_commit_bytes_sum": 1849542656.0,
+              "cpu_percent_one_core": 136.00129531403735,
+              "cpu_percent_machine": 11.33344127616978,
+              "monitor_seconds": 0.008153049973770976
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 3.1920593544719926,
+              "gpu_engine_percent_max": 3.188387342240315,
+              "gpu_dedicated_bytes": 4050968576.0,
+              "gpu_shared_bytes": 67698688.0
+            }
+          }
+        },
+        {
+          "data_origin": "provided_observed_result",
+          "underlying_nodes": 14,
+          "edges": 12,
+          "source_tool": "username_maigret",
+          "source_status": "partial",
+          "evidence_count": 3,
+          "network_calls_by_stress_script": 0,
+          "underlying_transactions": 0,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "0.6000000238418579",
+            "drawnNodes": "4",
+            "onScreenNodes": "2",
+            "modelNodes": "4",
+            "modelEdges": "3",
+            "drawnImages": "0",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 29,
+            "median": 0.6,
+            "p95": 0.8,
+            "p99": 2.5,
+            "max": 2.8
+          },
+          "active_intervals_ms": {
+            "count": 11,
+            "median": 11.8,
+            "p95": 18.3,
+            "p99": 18.3,
+            "max": 20.1
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 3.5,
+            "p95": 11.3,
+            "p99": 11.3,
+            "max": 12.3
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 77.0,
+              "rss_bytes_sum": 1169088512.0,
+              "private_commit_bytes_sum": 1422219264.0,
+              "cpu_percent_one_core": 58.63369849036073,
+              "cpu_percent_machine": 4.8861415408633935,
+              "monitor_seconds": 0.00865259999409318
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 6.90236940390088,
+              "gpu_engine_percent_max": 6.90236940390088,
+              "gpu_dedicated_bytes": 4145901568.0,
+              "gpu_shared_bytes": 67698688.0
+            }
+          }
+        }
+      ],
+      "checks": [
+        {
+          "name": "native_search_retains_bounded_neighbor_context_and_restores_1000",
+          "passed": true
+        },
+        {
+          "name": "native_six_layouts_restore_manual_positions",
+          "passed": true
+        },
+        {
+          "name": "provided_observation_evidence_unchanged",
+          "passed": true
+        },
+        {
+          "name": "provided_observation_evidence_unchanged",
+          "passed": true
+        }
+      ]
+    },
+    "perf-static": {
+      "origin": "frozen-EXE",
+      "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+      "passed": true,
+      "effects": "full",
+      "wallpaper": {
+        "enabled": true,
+        "blur_px": 0,
+        "glow": 0
+      },
+      "startup_to_canvas_seconds": 11.763,
+      "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+      "parent_exit_code": 0,
+      "owned_processes_left": 0,
+      "cases": [
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 50,
+          "edges": 49,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "2.4000000953674316",
+            "drawnNodes": "50",
+            "onScreenNodes": "12",
+            "modelNodes": "50",
+            "modelEdges": "49",
+            "drawnImages": "3",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 30,
+            "median": 2.9,
+            "p95": 5,
+            "p99": 5.4,
+            "max": 11.9
+          },
+          "active_intervals_ms": {
+            "count": 11,
+            "median": 15.2,
+            "p95": 21.4,
+            "p99": 21.4,
+            "max": 29.5
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 6.5,
+            "p95": 9.3,
+            "p99": 9.3,
+            "max": 12.2
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 9.0,
+              "thread_count": 101.0,
+              "rss_bytes_sum": 723009536,
+              "private_commit_bytes_sum": 850907136,
+              "cpu_percent_one_core": 231.7136242916169,
+              "cpu_percent_machine": 19.309468690968075,
+              "monitor_seconds": 0.010425949993077666
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 8.308507039214721,
+              "gpu_engine_percent_max": 8.308507039214721,
+              "gpu_dedicated_bytes": 751276032.0,
+              "gpu_shared_bytes": 48750592.0
+            }
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 5000,
+          "edges": 4999,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "8",
+            "drawnNodes": "5000",
+            "onScreenNodes": "13",
+            "modelNodes": "5000",
+            "modelEdges": "4999",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 27,
+            "median": 5.6,
+            "p95": 27,
+            "p99": 31.9,
+            "max": 38.1
+          },
+          "active_intervals_ms": {
+            "count": 9,
+            "median": 40.8,
+            "p95": 66.7,
+            "p99": 66.7,
+            "max": 80.7
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 12.25,
+            "p95": 16.8,
+            "p99": 16.8,
+            "max": 36.9
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 73.0,
+              "rss_bytes_sum": 885485568.0,
+              "private_commit_bytes_sum": 1232404480.0,
+              "cpu_percent_one_core": 136.32453398440566,
+              "cpu_percent_machine": 11.360377832033805,
+              "monitor_seconds": 0.008399999991524965
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 3.0714628305964995,
+              "gpu_engine_percent_max": 3.0714628305964995,
+              "gpu_dedicated_bytes": 1178443776.0,
+              "gpu_shared_bytes": 64499712.0
+            }
+          },
+          "fit_overview": {
+            "renderer": "webgl2-edges-canvas-cards",
+            "paintMs": "66.40000009536743",
+            "drawnNodes": "38",
+            "onScreenNodes": "35",
+            "modelNodes": "5000",
+            "modelEdges": "204",
+            "drawnEdges": "197",
+            "zoom": "0.014919403223871044"
+          }
+        }
+      ],
+      "checks": []
+    },
+    "perf-blurred": {
+      "origin": "frozen-EXE",
+      "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+      "passed": true,
+      "effects": "full",
+      "wallpaper": {
+        "enabled": true,
+        "blur_px": 12,
+        "glow": 0
+      },
+      "startup_to_canvas_seconds": 11.684,
+      "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+      "parent_exit_code": 0,
+      "owned_processes_left": 0,
+      "cases": [
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 50,
+          "edges": 49,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "2.399999976158142",
+            "drawnNodes": "50",
+            "onScreenNodes": "12",
+            "modelNodes": "50",
+            "modelEdges": "49",
+            "drawnImages": "3",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 32,
+            "median": 3.0,
+            "p95": 4.6,
+            "p99": 7.2,
+            "max": 12
+          },
+          "active_intervals_ms": {
+            "count": 14,
+            "median": 17.2,
+            "p95": 48.5,
+            "p99": 48.5,
+            "max": 88.5
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 7.0,
+            "p95": 10.2,
+            "p99": 10.2,
+            "max": 12.3
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 9.0,
+              "thread_count": 101.0,
+              "rss_bytes_sum": 710666240.0,
+              "private_commit_bytes_sum": 823203840.0,
+              "cpu_percent_one_core": 240.51332341998335,
+              "cpu_percent_machine": 20.042776951665278,
+              "monitor_seconds": 0.010564199998043478
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 8.055484931670597,
+              "gpu_engine_percent_max": 8.055484931670597,
+              "gpu_dedicated_bytes": 731795456.0,
+              "gpu_shared_bytes": 48984064.0
+            }
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 5000,
+          "edges": 4999,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "7.899999976158142",
+            "drawnNodes": "5000",
+            "onScreenNodes": "13",
+            "modelNodes": "5000",
+            "modelEdges": "4999",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 27,
+            "median": 4.7,
+            "p95": 27.2,
+            "p99": 32,
+            "max": 37.9
+          },
+          "active_intervals_ms": {
+            "count": 10,
+            "median": 52.55,
+            "p95": 79.6,
+            "p99": 79.6,
+            "max": 83.8
+          },
+          "event_to_paint_ms": {
+            "count": 15,
+            "median": 10.2,
+            "p95": 36.8,
+            "p99": 36.8,
+            "max": 165.4
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 73.0,
+              "rss_bytes_sum": 880873472.0,
+              "private_commit_bytes_sum": 1210431488.0,
+              "cpu_percent_one_core": 130.6908119441272,
+              "cpu_percent_machine": 10.890900995343934,
+              "monitor_seconds": 0.008259549969807267
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 3.1091723194162375,
+              "gpu_engine_percent_max": 3.1091723194162375,
+              "gpu_dedicated_bytes": 1172901888.0,
+              "gpu_shared_bytes": 66027520.0
+            }
+          },
+          "fit_overview": {
+            "renderer": "webgl2-edges-canvas-cards",
+            "paintMs": "64.20000004768372",
+            "drawnNodes": "38",
+            "onScreenNodes": "35",
+            "modelNodes": "5000",
+            "modelEdges": "204",
+            "drawnEdges": "197",
+            "zoom": "0.014919403223871044"
+          }
+        }
+      ],
+      "checks": []
+    },
+    "perf-glow": {
+      "origin": "frozen-EXE",
+      "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+      "passed": true,
+      "effects": "full",
+      "wallpaper": {
+        "enabled": true,
+        "blur_px": 12,
+        "glow": 24
+      },
+      "startup_to_canvas_seconds": 12.086,
+      "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+      "parent_exit_code": 0,
+      "owned_processes_left": 0,
+      "cases": [
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 50,
+          "edges": 49,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "2.399999976158142",
+            "drawnNodes": "50",
+            "onScreenNodes": "12",
+            "modelNodes": "50",
+            "modelEdges": "49",
+            "drawnImages": "3",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 34,
+            "median": 2.9,
+            "p95": 4.6,
+            "p99": 6.5,
+            "max": 11.4
+          },
+          "active_intervals_ms": {
+            "count": 14,
+            "median": 19.95,
+            "p95": 53,
+            "p99": 53,
+            "max": 54.4
+          },
+          "event_to_paint_ms": {
+            "count": 17,
+            "median": 6.8,
+            "p95": 11.5,
+            "p99": 11.5,
+            "max": 11.7
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 9.0,
+              "thread_count": 98.0,
+              "rss_bytes_sum": 704522240.0,
+              "private_commit_bytes_sum": 822863872.0,
+              "cpu_percent_one_core": 234.2876719479474,
+              "cpu_percent_machine": 19.523972662328948,
+              "monitor_seconds": 0.010592799982987344
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 8.587541339798026,
+              "gpu_engine_percent_max": 8.587541339798026,
+              "gpu_dedicated_bytes": 747962368.0,
+              "gpu_shared_bytes": 49799168.0
+            }
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 5000,
+          "edges": 4999,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "3.600000023841858",
+            "drawnNodes": "5000",
+            "onScreenNodes": "13",
+            "modelNodes": "5000",
+            "modelEdges": "4999",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 31,
+            "median": 4.6,
+            "p95": 29.6,
+            "p99": 31.5,
+            "max": 38.3
+          },
+          "active_intervals_ms": {
+            "count": 10,
+            "median": 48.6,
+            "p95": 76.5,
+            "p99": 76.5,
+            "max": 91
+          },
+          "event_to_paint_ms": {
+            "count": 15,
+            "median": 10.9,
+            "p95": 15.1,
+            "p99": 15.1,
+            "max": 39.6
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 73.0,
+              "rss_bytes_sum": 911921152.0,
+              "private_commit_bytes_sum": 1437585408.0,
+              "cpu_percent_one_core": 122.60370127084113,
+              "cpu_percent_machine": 10.216975105903428,
+              "monitor_seconds": 0.008639799954835325
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 3.122730692229097,
+              "gpu_engine_percent_max": 3.122730692229097,
+              "gpu_dedicated_bytes": 1392459776.0,
+              "gpu_shared_bytes": 56107008.0
+            }
+          },
+          "fit_overview": {
+            "renderer": "webgl2-edges-canvas-cards",
+            "paintMs": "68.39999997615814",
+            "drawnNodes": "38",
+            "onScreenNodes": "35",
+            "modelNodes": "5000",
+            "modelEdges": "204",
+            "drawnEdges": "197",
+            "zoom": "0.014919403223871044"
+          }
+        }
+      ],
+      "checks": []
+    },
+    "perf-reduced": {
+      "origin": "frozen-EXE",
+      "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+      "passed": true,
+      "effects": "reduced",
+      "wallpaper": {
+        "enabled": true,
+        "blur_px": 12,
+        "glow": 24
+      },
+      "startup_to_canvas_seconds": 12.809,
+      "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+      "parent_exit_code": 0,
+      "owned_processes_left": 0,
+      "cases": [
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 50,
+          "edges": 49,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "4.399999976158142",
+            "drawnNodes": "50",
+            "onScreenNodes": "12",
+            "modelNodes": "50",
+            "modelEdges": "49",
+            "drawnImages": "3",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 32,
+            "median": 3.0,
+            "p95": 5,
+            "p99": 5.2,
+            "max": 11.4
+          },
+          "active_intervals_ms": {
+            "count": 13,
+            "median": 15.8,
+            "p95": 28.5,
+            "p99": 28.5,
+            "max": 40.7
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 6.95,
+            "p95": 11.7,
+            "p99": 11.7,
+            "max": 11.9
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 9.0,
+              "thread_count": 99.0,
+              "rss_bytes_sum": 719919104.0,
+              "private_commit_bytes_sum": 824866816.0,
+              "cpu_percent_one_core": 263.96786549221406,
+              "cpu_percent_machine": 21.99732212435117,
+              "monitor_seconds": 0.010601849993690848
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 7.7814068989041,
+              "gpu_engine_percent_max": 7.7814068989041,
+              "gpu_dedicated_bytes": 755318784.0,
+              "gpu_shared_bytes": 52977664.0
+            }
+          }
+        },
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 5000,
+          "edges": 4999,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "8.299999952316284",
+            "drawnNodes": "5000",
+            "onScreenNodes": "13",
+            "modelNodes": "5000",
+            "modelEdges": "4999",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 28,
+            "median": 5.85,
+            "p95": 32,
+            "p99": 32.6,
+            "max": 38.5
+          },
+          "active_intervals_ms": {
+            "count": 11,
+            "median": 47.5,
+            "p95": 65.7,
+            "p99": 65.7,
+            "max": 76.5
+          },
+          "event_to_paint_ms": {
+            "count": 17,
+            "median": 10.1,
+            "p95": 146.9,
+            "p99": 146.9,
+            "max": 215.2
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 3.0,
+              "thread_count": 74.0,
+              "rss_bytes_sum": 929091584.0,
+              "private_commit_bytes_sum": 1626068992.0,
+              "cpu_percent_one_core": 124.70204813445895,
+              "cpu_percent_machine": 10.391837344538246,
+              "monitor_seconds": 0.008258449961431324
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 3.3005386270100727,
+              "gpu_engine_percent_max": 3.3005386270100727,
+              "gpu_dedicated_bytes": 1571938304.0,
+              "gpu_shared_bytes": 56401920.0
+            }
+          },
+          "fit_overview": {
+            "renderer": "webgl2-edges-canvas-cards",
+            "paintMs": "67.80000007152557",
+            "drawnNodes": "38",
+            "onScreenNodes": "35",
+            "modelNodes": "5000",
+            "modelEdges": "204",
+            "drawnEdges": "197",
+            "zoom": "0.014919403223871044"
+          }
+        }
+      ],
+      "checks": []
+    },
+    "repeat5000-v7": {
+      "origin": "frozen-EXE",
+      "exe_sha256": "5a22ddf313c4580fd0862a8c9e336ad5b1d0c6e9875632c0c0c0c7843825a073",
+      "passed": true,
+      "effects": "full",
+      "wallpaper": {
+        "enabled": false,
+        "blur_px": 0,
+        "glow": null
+      },
+      "startup_to_canvas_seconds": 11.476,
+      "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+      "parent_exit_code": 0,
+      "owned_processes_left": 0,
+      "cases": [
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 5000,
+          "edges": 4999,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "3.3000000715255737",
+            "drawnNodes": "5000",
+            "onScreenNodes": "13",
+            "modelNodes": "5000",
+            "modelEdges": "4999",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 31,
+            "median": 7.3,
+            "p95": 32.2,
+            "p99": 50.2,
+            "max": 51.3
+          },
+          "active_intervals_ms": {
+            "count": 10,
+            "median": 26.4,
+            "p95": 75.4,
+            "p99": 75.4,
+            "max": 83
+          },
+          "event_to_paint_ms": {
+            "count": 17,
+            "median": 26,
+            "p95": 35.8,
+            "p99": 35.8,
+            "max": 51.5
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 6.0,
+              "thread_count": 89.0,
+              "rss_bytes_sum": 857534464,
+              "private_commit_bytes_sum": 1315282944,
+              "cpu_percent_one_core": 217.72646098567492,
+              "cpu_percent_machine": 18.143871748806244,
+              "monitor_seconds": 0.01098020002245903
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 3.4057207245381624,
+              "gpu_engine_percent_max": 3.4057207245381624,
+              "gpu_dedicated_bytes": 950484992.0,
+              "gpu_shared_bytes": 46698496.0
+            }
+          },
+          "fit_overview": {
+            "renderer": "webgl2-edges-canvas-cards",
+            "paintMs": "3",
+            "drawnNodes": "38",
+            "onScreenNodes": "36",
+            "modelNodes": "5000",
+            "modelEdges": "204",
+            "drawnEdges": "204",
+            "zoom": "0.014919403223871044"
+          }
+        }
+      ],
+      "checks": []
+    },
+    "repeat5000-v8": {
+      "origin": "frozen-EXE",
+      "exe_sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+      "passed": true,
+      "effects": "full",
+      "wallpaper": {
+        "enabled": false,
+        "blur_px": 0,
+        "glow": null
+      },
+      "startup_to_canvas_seconds": 12.322,
+      "metric_semantics": "Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.",
+      "parent_exit_code": 0,
+      "owned_processes_left": 0,
+      "cases": [
+        {
+          "data_origin": "synthetic_fixture",
+          "underlying_nodes": 5000,
+          "edges": 4999,
+          "renderer": {
+            "renderer": "canvas2d",
+            "paintMs": "3.399999976158142",
+            "drawnNodes": "5000",
+            "onScreenNodes": "13",
+            "modelNodes": "5000",
+            "modelEdges": "4999",
+            "drawnImages": "4",
+            "zoom": "1"
+          },
+          "paint_ms": {
+            "count": 30,
+            "median": 6.25,
+            "p95": 16.2,
+            "p99": 33.9,
+            "max": 35.8
+          },
+          "active_intervals_ms": {
+            "count": 9,
+            "median": 42.6,
+            "p95": 63.2,
+            "p99": 63.2,
+            "max": 88.7
+          },
+          "event_to_paint_ms": {
+            "count": 16,
+            "median": 15.95,
+            "p95": 19.6,
+            "p99": 19.6,
+            "max": 46.7
+          },
+          "resources": {
+            "samples": 12,
+            "medians": {
+              "process_count": 9.0,
+              "thread_count": 101.0,
+              "rss_bytes_sum": 877338624.0,
+              "private_commit_bytes_sum": 1327038464.0,
+              "cpu_percent_one_core": 263.27012291554473,
+              "cpu_percent_machine": 21.939176909628728,
+              "monitor_seconds": 0.011478050029836595
+            },
+            "gpu_medians": {
+              "gpu_engine_percent_sum": 3.516864079844673,
+              "gpu_engine_percent_max": 3.516864079844673,
+              "gpu_dedicated_bytes": 954109952.0,
+              "gpu_shared_bytes": 58515456.0
+            }
+          },
+          "fit_overview": {
+            "renderer": "webgl2-edges-canvas-cards",
+            "paintMs": "90",
+            "drawnNodes": "38",
+            "onScreenNodes": "35",
+            "modelNodes": "5000",
+            "modelEdges": "204",
+            "drawnEdges": "197",
+            "zoom": "0.014919403223871044"
+          }
+        }
+      ],
+      "checks": []
+    }
+  },
+  "preservation_and_install": {
+    "installed": true,
+    "passed": true,
+    "path": "dist/Granger-OSINT.exe",
+    "sha256": "5d21195b416dbc7aec99db8abd50c6cf56159c6e185399f2c734d6c8e778e91c",
+    "bytes": 279635267,
+    "previous_sha256": "5a22ddf313c4580fd0862a8c9e336ad5b1d0c6e9875632c0c0c0c7843825a073",
+    "dist_entries": [
+      "Granger-OSINT.exe"
+    ],
+    "canonical_native_checks": 22,
+    "temporary_stage_removed": true,
+    "static_checked": {
+      "resources": 202,
+      "pet_runtime": 2,
+      "assets": 92,
+      "external_tool_source": 508,
+      "configuration": 5
+    },
+    "static_changed": {
+      "resources": 0,
+      "pet_runtime": 0,
+      "assets": 0,
+      "external_tool_source": 0,
+      "configuration": 0
+    },
+    "profile_around_install": {
+      "files_before": 845,
+      "files_after": 845,
+      "added": 0,
+      "missing": 0,
+      "changed": 0
+    }
+  },
+  "normal_background_pet_exit": {
+    "normal_app_stop_acknowledged": true,
+    "profile_delta_on_normal_exit": {
+      "files_before": 846,
+      "files_after": 845,
+      "added": 0,
+      "missing": 1,
+      "changed": 1
+    }
+  },
+  "github": {
+    "code_commit_push_confirmed": true,
+    "default_branch": "main",
+    "remote_heads": [
+      "main"
+    ],
+    "configured_author_matches_code_commit": true,
+    "configured_email_matches_code_commit": true,
+    "api_status": 403,
+    "api_error": "Your account was suspended",
+    "contributions_eligibility_confirmed": false
+  },
+  "media": {
+    "screenshots_are_original_bytes": true,
+    "wallpaper_fixture_is_generated": true,
+    "media": [
+      {
+        "name": "main-azure.png",
+        "sha256": "48b44d47c29cb2a9980ef9ebe6bcb7d0342a3babdc0fe8c4e618eb86dd6622c9",
+        "bytes": 396604
+      },
+      {
+        "name": "main-crimson.png",
+        "sha256": "47f1c433d4b936e64bee41b3a31818ac1af032a341153f31928ef330bc444fa5",
+        "bytes": 386706
+      },
+      {
+        "name": "appearance-editor.png",
+        "sha256": "e89cd5948656ffaa8a0841e63949d85a071de9ea25e2967f24547e75ba9240d6",
+        "bytes": 490354
+      },
+      {
+        "name": "wallpaper-editor.png",
+        "sha256": "64fd22e8c0835d7fce65d8b8ec845aad1aae39caeaaeef18bc67ec0f7f56fa50",
+        "bytes": 345568
+      },
+      {
+        "name": "canvas-wallpaper.png",
+        "sha256": "47e7f05a8d95396be7bb748fbcd55922b813b5822e16ae83056d9b423501f3c5",
+        "bytes": 228615
+      },
+      {
+        "name": "canvas-no-wallpaper.png",
+        "sha256": "131036cc1f6c3ffe242f34612fb0fe59d664824d2da734bae609f3f2a5812349",
+        "bytes": 498343
+      },
+      {
+        "name": "identity-hub.png",
+        "sha256": "fbd593b894a8dbc0a22d9dfc5a9e2f5d5547df272bca45852a8d4f3cd7d29a5d",
+        "bytes": 686966
+      },
+      {
+        "name": "profile-selected.png",
+        "sha256": "eaa8da610db1f69c4a94627cd874fe4803ce104dcc140c80ef52fb1538b48abd",
+        "bytes": 621817
+      },
+      {
+        "name": "focus.png",
+        "sha256": "0c2749e472c3dda8c376edf88b905444fd3009c1b48f68e4a4f7373fc145b25e",
+        "bytes": 272226
+      },
+      {
+        "name": "fullscreen-clean.png",
+        "sha256": "b6c9274be58239bc3b3d67accb3837777238233be355267aaf3dfceb162af40f",
+        "bytes": 222857
+      },
+      {
+        "name": "wallet.png",
+        "sha256": "9730e7586be2c2ab4ed65e67208393add00d11bbc05dc0faace17cd4389779db",
+        "bytes": 766451
+      },
+      {
+        "name": "nft-artwork.png",
+        "sha256": "9fb82a205e17ad96f2ff592c69eb4485288a91c76764d8b73dee82f766ace74e",
+        "bytes": 684156
+      },
+      {
+        "name": "image-card.png",
+        "sha256": "e4226d224d27df656a0dcabfb7beadf1d7e763073c1a26f2b727047c0aa8eb91",
+        "bytes": 598194
+      },
+      {
+        "name": "results-gallery.png",
+        "sha256": "1e4451019b144b7b7c588bc3287dd29c155b450f9bca1f07190d8b084afcaf95",
+        "bytes": 597770
+      },
+      {
+        "name": "reduced-effects.png",
+        "sha256": "3d5967f7074607688b0e14bc85dacc6cc1f3983600cc2062d94db89fc48e8938",
+        "bytes": 335206
+      },
+      {
+        "name": "graph-v7-before.png",
+        "sha256": "ea39710fb3916461815e2a862d5ae2cb8eb60cb8bd527a7f82049cea44926f8e",
+        "bytes": 961639
+      },
+      {
+        "name": "graph-v8-after.png",
+        "sha256": "80b87648fbec1c6479ad0dcdca190bf72ca1cf6f369ca07e56b6e1a877f6f8ec",
+        "bytes": 894878
+      },
+      {
+        "name": "native-sequence.gif",
+        "kind": "ordered native application snapshots",
+        "frames": 11,
+        "sha256": "42688372b37f4a5507a18b2d1a754818f713e04b74330ff6eda9a846a858f30e",
+        "bytes": 1128674
+      }
+    ]
+  },
+  "security_scan": {
+    "at_utc": "2026-11-06T11:08:52.036772+00:00",
+    "passed": true,
+    "checked_payloads": 7283,
+    "archive_checked": false,
+    "git_history_checked": true,
+    "failures": [],
+    "method": "Exact saved credentials + credential-shaped patterns; tracked source/public receipts, extracted PE resources/application PYZ, Git blobs and optional decompressed ZIP. Values are never printed or saved."
+  }
+}
