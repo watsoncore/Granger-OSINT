@@ -34,7 +34,7 @@ from .product import PRODUCT_NAME, VERSION
 from .ui_jobs import UiJob
 
 
-SETTINGS_FIELDS = frozenset(('ui_theme','geoint_nominatim_url','geoint_overpass_url','size','fps','cursor_reaction','agent_steps','agent_calls','agent_timeout',
+SETTINGS_FIELDS = frozenset(('ui_theme','workspace_appearance','geoint_nominatim_url','geoint_overpass_url','size','fps','cursor_reaction','agent_steps','agent_calls','agent_timeout',
     'agent_tokens','agent_page_limit','agent_page_depth','agent_parallel','agent_tool_timeout',
     'agent_request_timeout','agent_synthesis_tokens','agent_synthesis_timeout','agent_no_progress_rounds','agent_download_mb','agent_auto_continue','agent_budget_behavior','notifications_enabled',
     'notifications_animate','notifications_reply','notifications_investigation','notifications_errors','reduced_motion','ui_effects',
@@ -54,7 +54,7 @@ def source_view(record, limits=(), *, compact=False):
     record=current_observation(record)
     if compact:
         details=record.get('details') if isinstance(record.get('details'),dict) else {}
-        keep=('content_fetched','javascript_shell','reading_method','extraction_status','capability','tool','latitude','longitude','attachment_id','predictions','geojson','metadata','chain','amount_decimal','asset','asset_id','holding_status','ownership_status','ownership_verified','target_address','tx_hash','event_id','image_url','username','source_record')
+        keep=('content_fetched','javascript_shell','reading_method','extraction_status','capability','tool','latitude','longitude','attachment_id','predictions','geojson','metadata','chain','amount_decimal','asset','asset_id','holding_status','ownership_status','ownership_verified','target_address','tx_hash','event_id','image_url','avatar_url','username','source_record')
         record={**{key:value for key,value in record.items() if key not in ('observations','details')},'details':{key:details[key] for key in keep if key in details}}
     value = sanitize_evidence(record)
     details, origin = value.get('details') or {}, value.get('provenance') or {}
@@ -119,6 +119,7 @@ class DesktopBridge(QObject):
         self._attachment_job=None
         self._attachments=[]
         self._attachment_store=None
+        self._wallpapers=None
         self._attachment_error=''
         self._manual_registry = None
         self._manual_activity = []
@@ -577,6 +578,11 @@ class DesktopBridge(QObject):
     def dispatch(self, action, payload):
         if not isinstance(action, str) or not isinstance(payload, dict):
             raise ValueError('Ожидались действие и объект параметров.')
+        if action.startswith('wallpaper_'):
+            from .wallpapers import WallpaperBridge
+            if self._wallpapers is None:
+                self._wallpapers=WallpaperBridge(self)
+            return self._wallpapers.action(action,payload)
         if action == 'error_dismiss':
             if self._errors is not None:
                 self._errors.dismiss(payload.get('id'))
@@ -824,6 +830,8 @@ class DesktopBridge(QObject):
         from .theme import apply_theme
         apply_theme(QApplication.instance(),settings.ui_theme)
         QApplication.instance().setProperty('reduced_motion',getattr(settings,'reduced_motion',False))
+        if 'workspace_appearance' in values and set(values) <= {'workspace_appearance','ui_theme','ui_effects','reduced_motion'}:
+            return
         self.host.settings_dialog.settings_saved.emit(settings)
         self._manual_registry = None
         if self._tools_job:
@@ -851,8 +859,10 @@ class DesktopBridge(QObject):
         self._geo_jobs={};self._tile_jobs={};self._geo_views={};self._map_tiles={}
         jobs=(self._manual_job,self._balance_job,self._models_job,self._tools_job,self._visual_job,self._graph_job,self._media_job,
               getattr(self,'_attachment_job',None),getattr(self,'_canvas_import_job',None),*getattr(self,'_canvas_media_jobs',()),
+              self._wallpapers.job if self._wallpapers else None,
               self._research_canvas.job if self._research_canvas else None,
-              self._research_canvas.media_job if self._research_canvas else None,*self._settling_manual_jobs)
+              self._research_canvas.media_job if self._research_canvas else None,
+              self._research_canvas.result_job if self._research_canvas else None,*self._settling_manual_jobs)
         if ((chat and chat.busy) or getattr(self.host,'_busy',False) or any(jobs)
                 or bool(getattr(connections,'_jobs',[]))):
             raise ValueError('Дождитесь текущих запросов или остановите задачу перед изменением хранилища.')
@@ -900,6 +910,7 @@ class DesktopBridge(QObject):
         self._history_key=self._sources_fingerprint=self._usage_cache_key=None
         self._history_cache=[];self._source_cache={};self._raw_sources={};self._sources_view=[];self._search_sources_view=[]
         self._attachment_store=None;self._attachments=[];self._attachment_error=''
+        if self._wallpapers:self._wallpapers.clear()
         self._canvas_native_drop=None
         self._manual_registry=None;self._tools=[]
         self._graph_generation+=1;self._graph_data={'state':'idle'};self._graph_records=[];self._investigation_choices=[]
@@ -1518,6 +1529,7 @@ class DesktopBridge(QObject):
         if self._closed:return
         self._closed = True
         if self._research_canvas:self._research_canvas.close()
+        if self._wallpapers:self._wallpapers.clear()
         for pending in self._settling_manual_jobs:
             getattr(pending,'tool_cancelled',pending.cancelled).set();pending.cancel()
         self._settling_manual_jobs.clear()

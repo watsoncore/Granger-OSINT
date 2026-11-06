@@ -26,6 +26,7 @@ def resource_path(relative: str) -> Path:
 @dataclass
 class Settings:
     ui_theme: str = "dark"
+    workspace_appearance: str = ""
     geoint_nominatim_url: str = ""
     geoint_overpass_url: str = ""
     size: int = 195
@@ -87,6 +88,9 @@ class Settings:
         values = dict(values)
         if values.get("ui_theme") in ("dark", "black", "light", "mono"):
             settings.ui_theme = values["ui_theme"]
+        if values.get("workspace_appearance"):
+            from .appearance import normalize_appearance
+            settings.workspace_appearance = normalize_appearance(values["workspace_appearance"])
         if values.get("ui_effects") in ("full", "reduced", "off"):
             settings.ui_effects = values["ui_effects"]
         if values.get('research_mode') in ('quick','standard','deep'):

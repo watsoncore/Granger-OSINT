@@ -5,9 +5,9 @@ import { SourceDialog, SourceInspector, isReadSource, sourceLabel } from './comp
 import { SettingsWorkspace } from './components/Settings'
 import { emptyState, type Source } from './types'
 import { applyTheme, restoreTheme, themes } from './themes'
-import { act } from './bridge'
+import { act, request } from './bridge'
 
-vi.mock('./bridge', () => ({ act: vi.fn().mockResolvedValue(true) }))
+vi.mock('./bridge', () => ({ act: vi.fn().mockResolvedValue(true),request:vi.fn().mockResolvedValue(true) }))
 const source = (id: string, values: Partial<Source> = {}): Source => ({ evidence_id: id, title: `Источник ${id}`, url: `https://example.org/${id}`, kind: 'page', status: 'unverified', ...values })
 
 describe('truthful current task source inspector', () => {
@@ -77,7 +77,7 @@ describe('truthful current task source inspector', () => {
 })
 
 describe('appearance and native vault controls', () => {
-  it('restores all four saved themes without network access or page reload', () => {
+  it('restores saved themes without network access or page reload', () => {
     for (const theme of themes) {
       applyTheme(theme.id)
       expect(document.documentElement.dataset.theme).toBe(theme.id)
@@ -87,12 +87,19 @@ describe('appearance and native vault controls', () => {
     }
     expect(applyTheme('unknown')).toBe('dark')
   })
-  it('previews a chosen theme and saves it with the existing settings action', async () => {
+  it('restores the saved appearance on cancel and persists a chosen theme only on apply', async () => {
     render(<Tooltip.Provider><SettingsWorkspace state={{ ...emptyState, settings: { ui_theme: 'dark' } }} category="interface"/></Tooltip.Provider>)
+    fireEvent.click(screen.getByRole('button', { name: 'Тема: Midnight Azure' }))
+    expect(document.documentElement.style.getPropertyValue('--user-node')).toBe('#89caff')
+    fireEvent.click(screen.getByRole('button', { name: 'Отмена' }))
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    expect(request).not.toHaveBeenCalledWith('settings_save',expect.anything())
     fireEvent.click(screen.getByRole('button', { name: 'Тема: Белая' }))
     expect(document.documentElement.dataset.theme).toBe('light')
-    fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }))
-    await waitFor(() => expect(act).toHaveBeenCalledWith('settings_save', { values: { ui_theme: 'light' } }))
+    fireEvent.click(screen.getByRole('button', { name: 'Применить' }))
+    await waitFor(() => expect(request).toHaveBeenCalledWith('settings_save', { values: expect.objectContaining({
+      ui_theme:'light',workspace_appearance:expect.stringContaining('"theme":"light"'),
+    }) }))
   })
   it('opens a native vault dialog without a password input in React', () => {
     render(<Tooltip.Provider><SettingsWorkspace state={emptyState} category="privacy"/></Tooltip.Provider>)

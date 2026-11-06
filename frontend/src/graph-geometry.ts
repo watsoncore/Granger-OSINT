@@ -48,9 +48,10 @@ export class CardIndex {
   }
 }
 export interface EdgeRoute {edge:GraphRelation;points:Point[]}
+export type EdgeStyle = 'straight'|'curved'|'orthogonal'|'bezier'
 const nodeIndexes=new WeakMap<GraphEntity[],Map<string,GraphEntity>>()
 const edgeGroups=new WeakMap<GraphRelation[],Map<string,GraphRelation[]>>()
-export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPoint>,view:GraphViewport,nodes:GraphEntity[]=[],mode:'tree'|'graph'='graph',clip?:Rect):EdgeRoute[]{
+export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPoint>,view:GraphViewport,nodes:GraphEntity[]=[],mode:'tree'|'graph'='graph',clip?:Rect,style:EdgeStyle='curved'):EdgeRoute[]{
   let byId=nodeIndexes.get(nodes);if(!byId){byId=new Map(nodes.map(node=>[node.id,node]));nodeIndexes.set(nodes,byId)}
   let groups=edgeGroups.get(edges);if(!groups){groups=new Map<string,GraphRelation[]>();for(const edge of edges){const key=[edge.from_id,edge.to_id].sort().join('|');const list=groups.get(key)||[];list.push(edge);groups.set(key,list)}edgeGroups.set(edges,groups)}
   const screen=(id:string)=>{const point=positions[id];return point?{x:point.x*view.scale+view.x,y:point.y*view.scale+view.y}:null}
@@ -75,9 +76,10 @@ export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPo
       const node=byId.get(edge.from_id),box=node?nodeBox(node,view.scale):{width:24*unit,height:24*unit},x=a.x+box.width/2+4*unit
       for(let step=0;step<=16;step++){const t=step/16,u=1-t;points.push({x:u*u*u*x+3*u*u*t*(x+90*unit)+3*u*t*t*(x+90*unit)+t*t*t*x,
         y:u*u*u*(a.y-15*unit)+3*u*u*t*(a.y-110*unit)+3*u*t*t*(a.y+110*unit)+t*t*t*(a.y+15*unit)})}
-    }else if(mode==='tree'){
+    }else if(style==='orthogonal'||mode==='tree'&&style==='curved'){
       const start=border(edge.from_id,a,{x:b.x,y:a.y}),end=border(edge.to_id,b,{x:a.x,y:b.y}),middle=(start.x+end.x)/2
-      points.push(start,{x:middle,y:start.y},{x:middle,y:end.y},end)
+      const lane=middle+(index-(list.length-1)/2)*14*unit
+      points.push(start,{x:lane,y:start.y},{x:lane,y:end.y},end)
     }else{
       // One deterministic lane per directed relation/asset; opposing flows remain pickable.
       const direction=edge.from_id<edge.to_id?1:-1,dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1
@@ -85,7 +87,17 @@ export function routeEdges(edges:GraphRelation[],positions:Record<string,GraphPo
       const c={x:(a.x+b.x)/2-dy/d*offset*2*unit,y:(a.y+b.y)/2+dx/d*offset*2*unit}
       const start=border(edge.from_id,a,c),end=border(edge.to_id,b,c)
       const segments=offset===0?2:Math.min(12,Math.max(4,Math.ceil(Math.sqrt(Math.abs(offset))*1.3)))
-      for(let step=0;step<=segments;step++){const t=step/segments,u=1-t;points.push({x:u*u*start.x+2*u*t*c.x+t*t*end.x,y:u*u*start.y+2*u*t*c.y+t*t*end.y})}
+      if(style==='straight')points.push(start,end)
+      else if(style==='bezier'){
+        const bias=Math.min(110*unit,Math.abs(dx)*.35+Math.abs(dy)*.17)
+        const first={x:c.x-dx/d*bias-dy/d*bias*.6,y:c.y-dy/d*bias+dx/d*bias*.6}
+        const second={x:c.x+dx/d*bias+dy/d*bias*.6,y:c.y+dy/d*bias-dx/d*bias*.6}
+        for(let step=0;step<=8;step++){
+          const t=step/8,u=1-t
+          points.push({x:u**3*start.x+3*u*u*t*first.x+3*u*t*t*second.x+t**3*end.x,
+            y:u**3*start.y+3*u*u*t*first.y+3*u*t*t*second.y+t**3*end.y})
+        }
+      }else for(let step=0;step<=segments;step++){const t=step/segments,u=1-t;points.push({x:u*u*start.x+2*u*t*c.x+t*t*end.x,y:u*u*start.y+2*u*t*c.y+t*t*end.y})}
     }
     result.push({edge,points})
   })

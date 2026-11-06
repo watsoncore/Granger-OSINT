@@ -1,5 +1,5 @@
 import type {GraphEntity,GraphPoint,GraphRelation,GraphViewport} from './types'
-import {routeEdges,type EdgeRoute} from './graph-geometry'
+import {routeEdges,type EdgeRoute,type EdgeStyle} from './graph-geometry'
 
 interface Rect {left:number;top:number;right:number;bottom:number}
 interface Entry extends Rect {route:EdgeRoute;order:number}
@@ -26,8 +26,8 @@ export class EdgeRouteIndex {
  private saved=new Map<string,GraphPoint>()
  generation=0
  readonly routes:EdgeRoute[]
- constructor(readonly edges:GraphRelation[],readonly nodes:GraphEntity[],public positions:Record<string,GraphPoint>,readonly scale:number,readonly mode:'tree'|'graph'='graph'){
-  this.routes=routeEdges(edges,positions,{x:0,y:0,scale},nodes,mode).map(row=>({edge:row.edge,points:row.points.map(point=>({x:point.x/scale,y:point.y/scale}))}))
+ constructor(readonly edges:GraphRelation[],readonly nodes:GraphEntity[],public positions:Record<string,GraphPoint>,readonly scale:number,readonly mode:'tree'|'graph'='graph',readonly style:EdgeStyle='curved'){
+  this.routes=routeEdges(edges,positions,{x:0,y:0,scale},nodes,mode,undefined,style).map(row=>({edge:row.edge,points:row.points.map(point=>({x:point.x/scale,y:point.y/scale}))}))
   const entries=this.routes.map((route,order)=>({route,order,left:Math.min(...route.points.map(p=>p.x)),right:Math.max(...route.points.map(p=>p.x)),top:Math.min(...route.points.map(p=>p.y)),bottom:Math.max(...route.points.map(p=>p.y))}))
   this.entries=new Map(entries.map(entry=>[entry.route.edge.id,entry]))
   if(entries.length)this.root=tree(entries)
@@ -42,7 +42,7 @@ export class EdgeRouteIndex {
    this.saved.set(id,{x:p.x,y:p.y});for(const edge of this.incident.get(id)||[])dirty.set(edge.id,edge)
   }
   if(!dirty.size)return
-  for(const route of routeEdges([...dirty.values()],positions,{x:0,y:0,scale:this.scale},this.nodes,this.mode)){
+  for(const route of routeEdges([...dirty.values()],positions,{x:0,y:0,scale:this.scale},this.nodes,this.mode,undefined,this.style)){
    const entry=this.entries.get(route.edge.id);if(!entry)continue
    const points=route.points.map(p=>({x:p.x/this.scale,y:p.y/this.scale}))
    entry.route={edge:route.edge,points};this.routes[entry.order]=entry.route
@@ -59,7 +59,7 @@ export class EdgeRouteIndex {
   if(this.root)visit(this.root)
   const routes=found.sort((a,b)=>a.order-b.order).map(row=>row.route)
   if(movingEdges.size){
-   const dynamic=routeEdges([...movingEdges.values()],this.positions,view,this.nodes,this.mode,rect)
+   const dynamic=routeEdges([...movingEdges.values()],this.positions,view,this.nodes,this.mode,rect,this.style)
    routes.push(...dynamic.map(row=>({edge:row.edge,points:row.points.map(p=>({x:(p.x-view.x)/view.scale,y:(p.y-view.y)/view.scale}))})))
   }
   return routes

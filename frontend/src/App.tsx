@@ -13,7 +13,7 @@ import { SettingsWorkspace } from './components/Settings'
 import { Launcher } from './components/Launcher'
 import { Button, IconButton } from './components/ui'
 import { SourceInspector, SourceDialog } from './components/Sources'
-import { applyEffects, applyTheme } from './themes'
+import { applyAppearance, savedAppearance } from './appearance'
 import { AppIcon } from './icons'
 
 import { WorkspaceNavigation, CommandPalette, type SearchDestination } from './components/WorkspaceNavigation'
@@ -48,15 +48,16 @@ export default function App() {
   const [palette, setPalette] = useState(false)
   const [destination, setDestination] = useState<SearchDestination>()
   const effects=state.settings.ui_effects
-  useEffect(()=>{if(connected)applyEffects(effects)},[connected,effects])
-  useEffect(()=>{document.documentElement.dataset.motion=state.settings.reduced_motion?'reduced':'normal'},[state.settings.reduced_motion])
   useEffect(()=>{
     if(!connected||state.surface!=='main'||state.research_canvas||state.vault?.enabled&&!state.vault.unlocked)return
     const timer=setTimeout(()=>{void request('research_canvas_list').catch(()=>{})},400)
     return()=>clearTimeout(timer)
   },[connected,state.surface,!!state.research_canvas,state.vault?.enabled,state.vault?.unlocked])
   const [dockCollapsed, setDockCollapsed] = useState(() => window.innerWidth < 900)
-  useEffect(() => { if (state.settings.ui_theme !== undefined) applyTheme(state.settings.ui_theme) }, [state.settings.ui_theme])
+  const {ui_theme,ui_effects,reduced_motion,workspace_appearance}=state.settings
+  useEffect(()=>{
+    if(connected)applyAppearance(savedAppearance({ui_theme,ui_effects,reduced_motion,workspace_appearance}))
+  },[connected,ui_theme,ui_effects,reduced_motion,workspace_appearance])
   useEffect(() => {
     const collapse = () => { if (window.innerWidth < 760) setDockCollapsed(true) }
     window.addEventListener('resize', collapse)
@@ -71,6 +72,7 @@ export default function App() {
   useEffect(() => setQuery(state.search.query), [state.search.query])
   useEffect(() => { if (connected) void act('ui_ready', { surface: state.surface }) }, [connected, state.surface])
   const onRoute = useCallback((next: Route) => { setRoute(next); void act('route', { route: next }) }, [])
+  const onAppearance=useCallback(()=>{setRoute('settings');void act('route',{route:'settings',category:'appearance'})},[])
   const onSearch=useCallback((next:SearchDestination)=>{setDestination(next);onRoute('search')},[onRoute])
   const clearDestination=useCallback((handled:SearchDestination)=>setDestination(current=>current===handled?undefined:current),[])
   const onSource = useCallback((next: Source) => setSource(next), [])
@@ -119,13 +121,13 @@ export default function App() {
                 {route==='search'&&<SearchWorkspace state={state} query={query} setQuery={setQuery} onSource={onSource} destination={destination} onDestinationHandled={clearDestination}/>}
                 {route==='history'&&<HistoryWorkspace state={state}/>}
                 {route==='canvas'&&<CanvasWorkspace state={state}/>}
-                {route==='settings'&&<SettingsWorkspace state={state} category={state.settingsCategory}/>}
+                {route==='settings'&&<SettingsWorkspace state={state} category={state.settingsCategory==='appearance'?'interface':state.settingsCategory}/>}
               </section>
             </div>
           </main>
           {!dockCollapsed&&<HermioneDock state={state} onSource={onSource} onRoute={onRoute}/>}
         </div>}
-        {palette&&<CommandPalette open={palette} state={state} onClose={()=>setPalette(false)} onRoute={onRoute} onSearch={onSearch}/>}
+        {palette&&<CommandPalette open={palette} state={state} onClose={()=>setPalette(false)} onRoute={onRoute} onSearch={onSearch} onAppearance={onAppearance}/>}
         <AnimatePresence>{visibleNotice&&<motion.div className="toast" role="alert" initial={{opacity:0,y:6}} animate={{opacity:1,y:0}} exit={{opacity:0}}>
           <span>{visibleNotice}</span>
           <IconButton label="Закрыть сообщение" onClick={()=>{if(notice)dismissNotice();else if(backendError)void act('error_dismiss',{id:backendError.id})}}><X size={15}/></IconButton>

@@ -7,12 +7,13 @@ export function researchLayout(nodes:GraphEntity[],edges:GraphRelation[],root:st
   if(!nodes.length)return {}
   if(!nodes.some(node=>node.id===root))root=nodes[0].id
   if(mode==='paths')return layoutGraph(nodes,edges,root,'tree',saved,false)
-  if(['wallet','flow','counterparties'].includes(mode)){
-    const result:Record<string,GraphPoint>={[root]:saved[root]?.pinned?saved[root]:{x:0,y:0}},incoming=new Set<string>(),outgoing=new Set<string>()
+  if(['wallet','flow','counterparties','identity'].includes(mode)){
+    const result:Record<string,GraphPoint>={[root]:saved[root]?.pinned||mode==='identity'&&saved[root]?saved[root]:{x:0,y:0}},incoming=new Set<string>(),outgoing=new Set<string>()
     for(const edge of edges){if(edge.direction==='undirected'||edge.attributes?.financial_transfer===false||['supported_by','published_on_domain'].includes(edge.relation_type))continue;if(edge.from_id===root)outgoing.add(edge.to_id);if(edge.to_id===root)incoming.add(edge.from_id)}
-    const peers=nodes.filter(n=>n.id!==root).sort((a,b)=>String(a.attributes.chain||'').localeCompare(String(b.attributes.chain||''))||a.label.localeCompare(b.label))
+    const sortKey=mode==='identity'?'platform':'chain'
+    const peers=nodes.filter(n=>n.id!==root).sort((a,b)=>String(a.attributes[sortKey]||'').localeCompare(String(b.attributes[sortKey]||''))||a.label.localeCompare(b.label))
     const width=Math.max(310,...nodes.map(n=>cardSize(n).width+55)),height=Math.max(150,...nodes.map(n=>cardSize(n).height+36))
-    if(mode==='wallet'){
+    if(mode==='wallet'||mode==='identity'){
       // Square shells keep a true centre and grow with sqrt(peers), unlike the
       // former single ring whose diameter grew linearly with every new address.
       const slots:{x:number;y:number}[]=[]

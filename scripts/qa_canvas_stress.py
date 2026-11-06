@@ -97,6 +97,9 @@ def main():
     p.add_argument('--observed-profiles',type=Path,help='Separate actual Maigret receipt; never counted as new HTTP requests')
     p.add_argument('--observed-only',action='store_true',help='Only the separately supplied observation dataset')
     p.add_argument('--effects',choices=('full','reduced','off'),default='full')
+    p.add_argument('--wallpaper',type=Path,help='Generated local QA image for the optional native wallpaper comparison')
+    p.add_argument('--wallpaper-blur',type=int,choices=range(21),default=0)
+    p.add_argument('--glow',type=int,choices=range(37))
     args=p.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Use a fresh receipt directory')
     out.mkdir(parents=True);namespace=uuid.uuid4().hex
@@ -111,8 +114,19 @@ def main():
     from perf_process_metrics import ProcessSampler,summarize
     app=QApplication.instance() or QApplication([])
     profile=out/'appdata/GrangerPet';profile.mkdir(parents=True)
-    (profile/'settings.json').write_text(json.dumps(Settings(source_root=str(ROOT),cursor_reaction=False,reduced_motion=True,
-        ui_effects=args.effects).to_dict()),encoding='utf-8')
+    preferences=Settings(source_root=str(ROOT),cursor_reaction=False,reduced_motion=True,ui_effects=args.effects)
+    if args.wallpaper or args.glow is not None:
+        from grangerpet.appearance import normalize_appearance
+        appearance={'theme':'azure','effects':args.effects,'reducedMotion':True,'glow':args.glow if args.glow is not None else 12}
+        if args.wallpaper:
+            from grangerpet.credentials import open_bytes,seal_bytes
+            from grangerpet.geoint.images import AttachmentStore,MAX_IMAGE_BYTES
+            with args.wallpaper.open('rb') as stream:
+                pixels=stream.read(MAX_IMAGE_BYTES+1)
+            saved=AttachmentStore(profile/'wallpapers',seal=seal_bytes,open_sealed=open_bytes).import_bytes(pixels,'Synthetic QA wallpaper')
+            appearance['wallpaper']={'source':'image','image':saved['id'],'dim':65,'blur':args.wallpaper_blur}
+        preferences.workspace_appearance=normalize_appearance(json.dumps(appearance))
+    (profile/'settings.json').write_text(json.dumps(preferences.to_dict()),encoding='utf-8')
     store=CanvasStore(InvestigationJournal(profile/'investigations'));cases=[]
     from PIL import Image
     pixels=io.BytesIO();Image.new('RGB',(64,64),'#497077').save(pixels,'PNG')
@@ -128,7 +142,7 @@ def main():
         start=time.perf_counter();saved=store.save(d,0)
         cases.append({'id':saved['id'],**provenance,'encrypted_seed_write_ms':round((time.perf_counter()-start)*1000,2)})
     report={'origin':'frozen-EXE' if args.exe else 'native-source','data_origin':'synthetic_fixture_and_separate_provided_observations' if args.observed_result else 'synthetic_fixture','exe_sha256':hashlib.sha256(args.exe.read_bytes()).hexdigest() if args.exe else None,'cases':[],'checks':[],
-        'effects':args.effects,
+        'effects':args.effects,'wallpaper':{'enabled':bool(args.wallpaper),'blur_px':args.wallpaper_blur,'glow':args.glow},
         'metric_semantics':'Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.'}
     def save():(out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     def wait(fn,seconds=60):
@@ -206,6 +220,11 @@ def main():
                 click('Показать все на полотне')
                 wait(lambda:rendered_model_count()==target)
             current=metrics();c=current['canvas'];case['open_and_expand_seconds']=round(time.perf_counter()-start,3)
+            if args.glow:
+                visible=json.loads(c.get('qaNodes','[]'))
+                candidate=next((node for node in visible if 90<node['x']<c['width']-90 and 135<node['y']<c['height']-65),None)
+                if candidate:
+                    action('input',{'kind':'click','at':[c['x']+candidate['x'],c['y']+candidate['y']]})
             report['stage']['phase']='gestures';save()
             samples=[]
             for i in range(12):

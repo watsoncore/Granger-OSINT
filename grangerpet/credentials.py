@@ -221,6 +221,7 @@ class CredentialsStore(WindowsLegacyStore):
                 ("investigations", "*.json", False),
                 ("canvas", "*.md", False), ("canvas", "*.json", False),
                 ("attachments", "*.gpi", True),
+                ("wallpapers", "*.gpi", True),
             ):
                 source_paths.extend((path, protected) for path in (root / subdir).glob(pattern) if path.is_file())
         data_key = os.urandom(32)

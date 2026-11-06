@@ -13,7 +13,8 @@ export const navigation=[
   {id:'settings',label:'Настройки',icon:Settings2},
 ] as const
 
-export type SearchDestination={panel:'canvas'|'catalog';id?:string;create?:boolean}
+export type CanvasCommand='add'|'connect'|'profiles'|'controls'|'center'|'results'|'evidence'|'focus'|'activity'
+export type SearchDestination={panel:'canvas'|'catalog';id?:string;create?:boolean;command?:CanvasCommand}
 
 export function WorkspaceNavigation({state,route,compact,onRoute,onCompact,onSearch}:{
   state:DesktopState;route:Route;compact:boolean;onRoute(route:Route):void;onCompact():void;onSearch(destination:SearchDestination):void
@@ -36,7 +37,9 @@ export function WorkspaceNavigation({state,route,compact,onRoute,onCompact,onSea
       <button className="nav-item sidebar-open-cases" aria-label="Открыть мои расследования" title="Мои расследования"
         onClick={()=>onSearch({panel:'canvas'})}><FolderOpen size={17}/><span>Мои расследования</span></button>
       {cases.map(item=><button className="sidebar-case" key={item.id} title={item.title} onClick={()=>onSearch({panel:'canvas',id:item.id})}>
-        <span className="sidebar-case-dot"/><span>{item.title}</span><ArrowRight size={13}/></button>)}
+        <span className="sidebar-case-dot"/><span className="sidebar-case-caption"><strong>{item.title}</strong>
+          {item.updated_at&&Number.isFinite(Date.parse(item.updated_at))&&<small>{new Date(item.updated_at).toLocaleDateString('ru-RU')}</small>}</span>
+        <ArrowRight size={13}/></button>)}
     </div>
     <div className="sidebar-bottom">
       <Button variant="secondary" className="new-chat" disabled={state.busy} onClick={()=>{onRoute('chat');void act('chat_new')}} aria-label="Новый диалог" title="Новый диалог"><Plus size={16}/><span>Новый диалог</span></Button>
@@ -51,18 +54,27 @@ export function WorkspaceNavigation({state,route,compact,onRoute,onCompact,onSea
   </aside>
 }
 
-export function CommandPalette({open,state,onClose,onRoute,onSearch}:{
-  open:boolean;state:DesktopState;onClose():void;onRoute(route:Route):void;onSearch(destination:SearchDestination):void
+export function CommandPalette({open,state,onClose,onRoute,onSearch,onAppearance}:{
+  open:boolean;state:DesktopState;onClose():void;onRoute(route:Route):void;onSearch(destination:SearchDestination):void;onAppearance?():void
 }){
   const [query,setQuery]=useState(''),[active,setActive]=useState(0)
   const list=useId()
   const field=useRef<HTMLInputElement>(null)
+  const graphCommands: [CanvasCommand,string][] = [
+    ['add','Добавить объект'],['connect','Связать выбранное'],['profiles','Найти публичный профиль'],
+    ['controls','Настройки полотна'],['center','Центрировать граф'],['results','Открыть находки'],
+    ['evidence','Показать основания'],['focus','Фокус на выбранном'],['activity','История расследования'],
+  ]
   useEffect(()=>{if(open){setQuery('');setActive(0)}},[open])
   const actions=[
     ...navigation.map(item=>({key:item.id,label:item.label,group:'Раздел',icon:item.icon,run:()=>onRoute(item.id)})),
     {key:'cases',label:'Мои расследования',group:'Полотно',icon:FolderOpen,run:()=>onSearch({panel:'canvas'})},
     {key:'new-case',label:'Новое расследование',group:'Полотно',icon:Plus,run:()=>onSearch({panel:'canvas',create:true})},
     {key:'tools',label:'Каталог инструментов',group:'OSINT',icon:Wrench,run:()=>onSearch({panel:'catalog'})},
+    ...(onAppearance?[{key:'appearance',label:'Оформление, тема и обои',group:'Настройки',icon:Settings2,run:onAppearance}]:[]),
+    ...(state.research_canvas?.document?graphCommands.map(([command,label])=>({
+      key:command,label,group:'Полотно',icon:LayoutGrid,run:()=>onSearch({panel:'canvas',command}),
+    })):[]),
     ...(state.research_canvas?.choices||[]).map(item=>({key:item.id,label:item.title,group:'Расследование',icon:FolderOpen,run:()=>onSearch({panel:'canvas',id:item.id})})),
   ]
   const terms=query.toLocaleLowerCase().trim().split(/\s+/)

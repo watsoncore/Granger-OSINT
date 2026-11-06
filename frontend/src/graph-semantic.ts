@@ -1,7 +1,11 @@
 import type {GraphEntity,GraphPoint,GraphRelation} from './types'
 import {addGraphAmounts} from './graph-money'
+import {nodeBox} from './graph-geometry'
 
 export interface SemanticCluster {id:string;members:string[]}
+export function semanticBand(scale:number) {
+  return .38*2**Math.ceil(Math.log2(Math.max(scale,.001)/.38))
+}
 
 /** A zoom-only spatial representation. It never edits the analytical model.
  * Cells are anchored in world coordinates, so panning cannot regroup objects.
@@ -9,7 +13,7 @@ export interface SemanticCluster {id:string;members:string[]}
  */
 export function semanticGraph(nodes:GraphEntity[],edges:GraphRelation[],positions:Record<string,GraphPoint>,scale:number,protectedIds:Set<string>){
   if(scale>=.38)return {nodes,edges,positions,clusters:[] as SemanticCluster[]}
-  const band=.38*2**Math.ceil(Math.log2(Math.max(scale,.001)/.38)),cellWidth=154/band,cellHeight=68/band,cells=new Map<string,GraphEntity[]>(),mapped=new Map<string,string>(),display:GraphEntity[]=[],clusters:SemanticCluster[]=[],located={...positions},byId=new Map(nodes.map(node=>[node.id,node]))
+  const band=semanticBand(scale),cellWidth=154/band,cellHeight=68/band,cells=new Map<string,GraphEntity[]>(),mapped=new Map<string,string>(),display:GraphEntity[]=[],clusters:SemanticCluster[]=[],located={...positions},byId=new Map(nodes.map(node=>[node.id,node]))
   for(const node of nodes){const point=positions[node.id];if(!point||protectedIds.has(node.id)){display.push(node);mapped.set(node.id,node.id);continue}
     const key=`${Math.round(point.x/cellWidth)},${Math.round(point.y/cellHeight)}`,rows=cells.get(key)||[];rows.push(node);cells.set(key,rows)
   }
@@ -23,27 +27,40 @@ export function semanticGraph(nodes:GraphEntity[],edges:GraphRelation[],position
   }
   // Keep the root visible before placing the other selected and grouped glyphs.
   // These offsets are local to the far projection.
-  const occupied=new Map<string,GraphPoint[]>(),placed=new Set<string>()
-  const displayIds=new Set(display.map(node=>node.id))
-  const cell=(point:GraphPoint)=>[Math.floor(point.x*scale/120),Math.floor(point.y*scale/48)]
-  function overlaps(point:GraphPoint){
+  // Place against the low end of the zoom band. Zoom within the band keeps
+  // stable world positions and adds clearance without recomputing clusters.
+  const layoutScale=Math.max(.001,band/2),placed=new Set<string>()
+  const displayById=new Map(display.map(node=>[node.id,node]))
+  const boxes=new Map(display.map(node=>[node.id,nodeBox(node,layoutScale)]))
+  const width=Math.max(126,...[...boxes.values()].map(box=>box.width+14))
+  const height=Math.max(54,...[...boxes.values()].map(box=>box.height+10))
+  const cellsByGlyph=new Map<string,{x:number;y:number;width:number;height:number}[]>()
+  const cell=(point:GraphPoint)=>[Math.floor(point.x*layoutScale/width),Math.floor(point.y*layoutScale/height)]
+  function overlaps(point:GraphPoint,box:{width:number;height:number}){
     const [x,y]=cell(point)
     for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){
-      const neighbors=occupied.get(`${x+dx},${y+dy}`)||[]
-      if(neighbors.some(other=>Math.abs(point.x-other.x)*scale<120&&Math.abs(point.y-other.y)*scale<48))return true
+      const near=cellsByGlyph.get(`${x+dx},${y+dy}`)||[]
+      if(near.some(other=>Math.abs(point.x-other.x)*layoutScale<(box.width+other.width)/2+6&&
+          Math.abs(point.y-other.y)*layoutScale<(box.height+other.height)/2+5))return true
     }
     return false
   }
-  for(const id of [...protectedIds,...displayIds]){
-    const base=located[id]
-    if(!base||placed.has(id)||!displayIds.has(id))continue
+  for(const id of [...protectedIds,...displayById.keys()]){
+    const base=located[id],box=boxes.get(id)
+    if(!base||!box||placed.has(id))continue
     let point=base
-    for(let step=1;step<=24&&overlaps(point);step++){
-      point={x:base.x+(step%3-1)*130/scale,y:base.y+Math.ceil(step/3)*54/scale}
+    if(overlaps(base,box)){
+      search:for(let ring=1;ring<=Math.ceil(Math.sqrt(display.length))+2;ring++){
+        for(let dy=-ring;dy<=ring;dy++)for(let dx=-ring;dx<=ring;dx++){
+          if(Math.max(Math.abs(dx),Math.abs(dy))!==ring)continue
+          const next={x:base.x+dx*width/layoutScale,y:base.y+dy*height/layoutScale}
+          if(!overlaps(next,box)){point=next;break search}
+        }
+      }
     }
     located[id]=point;placed.add(id)
-    const key=cell(point).join(','),neighbors=occupied.get(key)||[]
-    neighbors.push(point);occupied.set(key,neighbors)
+    const key=cell(point).join(','),neighbors=cellsByGlyph.get(key)||[]
+    neighbors.push({...point,...box});cellsByGlyph.set(key,neighbors)
   }
   const grouped=new Map<string,GraphRelation[]>(),direct:GraphRelation[]=[]
   for(const edge of edges){const from=mapped.get(edge.from_id),to=mapped.get(edge.to_id);if(!from||!to||from===to)continue

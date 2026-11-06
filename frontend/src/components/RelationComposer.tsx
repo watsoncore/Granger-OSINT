@@ -3,9 +3,9 @@ import type {GraphEntity,GraphRelation,Source} from '../types'
 import {Button} from './ui'
 
 const kinds={potentially_related:'Возможная связь',same_owner_hypothesis:'Предположительно общий владелец',works_for:'Работает в организации',associated_with:'Связан с',references:'Ссылается на',transferred_to:'Перевод средств',custom:'Другая связь'}
-export function RelationComposer({from,to,relation,evidence,onSave,onClose}:{from:GraphEntity;to:GraphEntity;relation?:GraphRelation;evidence:Source[];onSave(args:Record<string,unknown>):Promise<unknown>;onClose():void}){
+export function RelationComposer({from,to,relation,evidence,defaultColor='#89caff',onSave,onClose}:{from:GraphEntity;to:GraphEntity;relation?:GraphRelation;evidence:Source[];defaultColor?:string;onSave(args:Record<string,unknown>):Promise<unknown>;onClose():void}){
   const [kind,setKind]=useState(relation?.relation_type||'potentially_related'),[custom,setCustom]=useState('')
-  const [direction,setDirection]=useState(relation?.direction||'directed'),[color,setColor]=useState(String(relation?.attributes?.color||'#d2b383'))
+  const [direction,setDirection]=useState(relation?.direction||'directed'),[color,setColor]=useState(String(relation?.attributes?.color||defaultColor))
   const [stroke,setStroke]=useState(String(relation?.attributes?.stroke||'dashed')),[width,setWidth]=useState(Number(relation?.attributes?.width)||1.6)
   const [confidence,setConfidence]=useState(String(relation?.attributes?.analyst_confidence??'')),[source,setSource]=useState(relation?.source_urls?.[0]||'')
   const [note,setNote]=useState(String(relation?.attributes?.analyst_note||'')),[ids,setIds]=useState(relation?.evidence_ids||[])

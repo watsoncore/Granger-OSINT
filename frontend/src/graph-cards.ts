@@ -1,7 +1,7 @@
 import type {GraphEntity} from './types'
 
 export type CardMode='auto'|'compact'|'standard'|'expanded'
-export type CardVariant='identity'|'username'|'social'|'organization'|'domain'|'ip'|'wallet'|'transaction'|'contract'|'media'|'geo'|'document'|'note'|'hypothesis'|'evidence'|'group'|'custom'
+export type CardVariant='identity'|'username'|'social'|'organization'|'email'|'domain'|'ip'|'wallet'|'transaction'|'contract'|'media'|'geo'|'document'|'note'|'hypothesis'|'evidence'|'group'|'custom'
 export interface CardSize {width:number;height:number}
 export function mediaCardSize(width:unknown,height:unknown):CardSize {
   const w=Number(width)||4,h=Number(height)||3
@@ -18,6 +18,7 @@ export function cardVariant(node:GraphEntity):CardVariant {
   if(node.type==='person'||type==='identity')return 'identity'
   if(/profile|telegram_channel|username/.test(type))return 'social'
   if(/organization|registry_maintainer|registry_registry_authority/.test(type))return 'organization'
+  if(node.type==='email')return 'email'
   if(node.type==='blockchain_address')return 'wallet'
   if(node.type==='transaction')return 'transaction'
   if(/contract|nft|token|collection/.test(type)||node.type==='asset')return 'contract'
@@ -31,6 +32,19 @@ export function cardVariant(node:GraphEntity):CardVariant {
   if(/document|post|repository/.test(type))return 'document'
   return 'custom'
 }
+cardVariants.email={label:'Email',symbol:'✉'}
+
+const platformMarks:Record<string,string>={
+  github:'GH',telegram:'TG','t.me':'TG',tiktok:'TT',youtube:'YT',substack:'SS',
+  habr:'HB',reddit:'RD',instagram:'IG',x:'X',twitter:'X',linkedin:'IN',steam:'ST',
+}
+export function platformMark(platform:unknown){
+  const label=String(platform||'').trim()
+  return platformMarks[label.toLowerCase()]||label.slice(0,2).toUpperCase()||'@'
+}
+export function hasArtwork(node:GraphEntity){
+  return /nft/.test(String(node.attributes.asset_type||node.type))&&!!node.attributes.media
+}
 export function cardSize(node:GraphEntity):CardSize {
   if(node.attributes._collapsed)return {width:240,height:100}
   const variant=cardVariant(node),custom=node.attributes._card_size as Partial<CardSize>|undefined
@@ -40,7 +54,9 @@ export function cardSize(node:GraphEntity):CardSize {
     const media=node.attributes.media as Record<string,unknown>|undefined
     return mediaCardSize(media?.width,media?.height)
   }
-  if(mode==='compact')return {width:216,height:72}
+  if(mode==='compact')return variant==='social'?{width:230,height:80}:{width:216,height:72}
+  if(hasArtwork(node))return {width:284,height:mode==='expanded'?246:184}
+  if(variant==='social')return {width:282,height:mode==='expanded'?172:124}
   const root=node.attributes.is_root===true
   return {width:root?274:variant==='note'||variant==='document'?252:240,height:mode==='expanded'?166:root?130:variant==='wallet'||variant==='transaction'?114:variant==='note'?138:100}
 }
@@ -68,9 +84,21 @@ export function cardRows(node:GraphEntity):string[]{
   if(variant==='group')return [`${a.member_count??'—'} объектов`,text(a.category||a.description)||'Двойной клик — раскрыть']
   if(variant==='media'){const m=a.media as Record<string,unknown>|undefined;return [m?.width&&m.height?`${m.width} × ${m.height}`:text(a.description),text(m?.kind==='local_attachment'?'Исходное вложение':m?.source_url||m?.url)]}
   if(variant==='ip')return [text(a.value||a.address||a.cidr||a.asn),text(a.organization||a.country||a.network_name)]
-  if(variant==='social')return [text(a.username?`@${a.username}`:a.url),text(a.platform||a.description)]
+  if(variant==='username')return [a._profile_count!=null?`Профилей по запросу · ${a._profile_count}`:'Идентификатор для поиска',text(a.observed_status)].filter(Boolean)
+  if(variant==='social'){
+    const url=text(a.url).replace(/^https?:\/\//i,'')
+    const status=node.verification_status==='contradicted'?'Противоречие':a.observed_status==='restricted'||a.observed_status==='blocked'?'Источник ограничен':
+      node.evidence_ids.length?`Наблюдения · ${node.evidence_ids.length}`:'Требует проверки'
+    return [text(a.username?`@${a.username}`:''),url,status].filter(Boolean)
+  }
+  if(variant==='organization')return [text(a.country||a.jurisdiction),text(a.registration_number||a.registration_id||a.lei||a.identifier),node.evidence_ids.length?`Источники · ${node.evidence_ids.length}`:''].filter(Boolean)
+  if(variant==='email'){
+    const value=text(a.email||a.value||node.label)
+    return [value.includes('@')?value.split('@').at(-1)!:'',node.evidence_ids.length?`Наблюдения · ${node.evidence_ids.length}`:'Публичный поиск'].filter(Boolean)
+  }
   if(variant==='domain')return [text(a.url||a.domain),text(a.registrar||a.description)]
   if(variant==='contract')return [text(a.asset_id||a.token_id||a.address||a.contract||a.contract_address),text(a.collection_name||a.collection||a.standard||a.symbol||a.chain)]
+  if(variant==='document')return [text(a.file_type||a.mime||a.repository_type),text(a.excerpt||a.description||a.url),a.bytes?`${a.bytes} байт`:''].filter(Boolean)
   return [text(a.description||a.url||a.value||a.scene_description),text(a.organization||a.published_at)]
 }
 export function cardBadge(node:GraphEntity){

@@ -36,9 +36,10 @@ MANUAL_TYPES = ('person','analyst_note','hypothesis','custom_entity','document',
 TYPES = tuple(dict.fromkeys((*ENTITY_TYPES, *MANUAL_TYPES)))
 STATUSES = ('verified','source_reported','inferred','unverified','contradicted')
 LAYOUTS = ('manual','hierarchical','radial','types','communities','timeline',
-           'wallet','flow','counterparties','paths')
-GRAPH_MODES = ('wallet','flow','counterparties','transactions','paths','socmint','manual','assets')
+           'wallet','flow','counterparties','paths','identity')
+GRAPH_MODES = ('wallet','flow','counterparties','transactions','paths','socmint','manual','assets','infrastructure','evidence')
 CARD_MODES = ('auto','compact','standard','expanded')
+ACTIVITY_KINDS = ('created','node','link','group','image','rename','findings')
 
 
 def encoded(value):
@@ -80,7 +81,7 @@ def view_ui(value):
     if 'graph_mode' in value and value['graph_mode'] not in GRAPH_MODES:raise CanvasError('Неизвестный режим графа.')
     if 'crypto_root_id' in value and not re.fullmatch(r'ent_[a-f0-9]{24}',str(value['crypto_root_id'])):raise CanvasError('Некорректная цель криптографа.')
     if 'username_root_id' in value and not re.fullmatch(r'ent_[a-f0-9]{24}',str(value['username_root_id'])):raise CanvasError('Некорректная цель социального графа.')
-    if 'initial_layout' in value and value['initial_layout'] not in ('','wallet','hierarchical'):raise CanvasError('Некорректная начальная раскладка.')
+    if 'initial_layout' in value and value['initial_layout'] not in ('','wallet','hierarchical','identity'):raise CanvasError('Некорректная начальная раскладка.')
     return deepcopy(value)
 
 
@@ -97,6 +98,19 @@ def validate(value):
     if not re.fullmatch(r'[a-f0-9]{32}', str(value.get('id',''))): raise CanvasError('Некорректный ID расследования.')
     if type(value.get('revision')) is not int or value['revision']<0: raise CanvasError('Некорректная версия.')
     text(value.get('title'),200);text(value.get('description',''),10000)
+    activity=value.get('activity',[])
+    if not isinstance(activity,list) or len(activity)>120:
+        raise CanvasError('Некорректная история действий.')
+    for item in activity:
+        if (not isinstance(item,dict) or set(item)-{'id','at','kind','ids','count','tool'}
+                or not re.fullmatch(r'[a-f0-9]{32}',str(item.get('id','')))
+                or item.get('kind') not in ACTIVITY_KINDS
+                or not re.fullmatch(r'\d{4}-\d\d-\d\dT[0-9:.+-]{8,30}Z?',str(item.get('at','')))
+                or not isinstance(item.get('ids'),list) or len(item['ids'])>24
+                or any(not re.fullmatch(r'(?:ent|rel)_[a-f0-9]{24}',str(identifier)) for identifier in item['ids'])
+                or type(item.get('count')) is not int or not 0<=item['count']<=5000
+                or not re.fullmatch(r'[a-z0-9_]{0,80}',str(item.get('tool','')))):
+            raise CanvasError('Некорректное событие расследования.')
     nodes=value.get('entities');edges=value.get('relations');evidence=value.get('evidence')
     if not isinstance(nodes,list) or len(nodes)>5000 or not isinstance(edges,list) or len(edges)>20000 or not isinstance(evidence,list) or len(evidence)>5000:
         raise CanvasError('Превышены ограничения расследования: 5000 узлов / 20000 связей / 5000 evidence.')
@@ -418,6 +432,51 @@ def merge_evidence(doc,records,selected=None):
     for index,identifier in enumerate(added):
         doc['view']['positions'][identifier]={'x':(index%5)*310,'y':max((p['y'] for p in doc['view']['positions'].values()),default=-170)+170 if index%5==0 else doc['view']['positions'][added[index-1]]['y']}
     return added
+
+
+def record_canvas_event(doc, kind, ids=(), count=0, tool=''):
+    item={'id':uuid.uuid4().hex,'kind':kind,'at':utc_now(),'ids':list(dict.fromkeys(ids))[:24],
+          'count':min(5000,max(0,count))}
+    if isinstance(tool,str) and re.fullmatch(r'[a-z0-9_]{1,80}',tool):
+        item['tool']=tool
+    doc['activity']=[*doc.get('activity',[])[-119:],item]
+
+
+def position_added_profiles(doc, owner, added):
+    """Fill nearby open slots without moving existing analyst placements."""
+    pending = set(added)
+    profiles = [node for node in doc['entities'] if node['id'] in pending and node['type'] in
+                ('public_profile','social_profile','github_profile','telegram_channel')]
+    if not profiles:
+        return
+    positions = doc['view']['positions']
+    hub = positions.get(owner, {'x': 0, 'y': 0})
+    width, height = 420, 220
+    new_ids = {node['id'] for node in profiles}
+    occupied = set()
+    for identifier, position in positions.items():
+        if identifier in new_ids:
+            continue
+        x = (position['x'] - hub['x']) / width
+        y = (position['y'] - hub['y']) / height
+        occupied.update((column, row) for column in {math.floor(x),math.ceil(x)}
+                        for row in {math.floor(y),math.ceil(y)})
+    occupied.add((0, 0))
+
+    def free_slots():
+        for ring in range(1, 200):
+            for x in range(-ring, ring + 1):
+                for y in (-ring, ring):
+                    if (x, y) not in occupied:
+                        yield x, y
+            for y in range(-ring + 1, ring):
+                for x in (-ring, ring):
+                    if (x, y) not in occupied:
+                        yield x, y
+
+    profiles.sort(key=lambda node: (str(node['attributes'].get('platform','')), node['label'], node['id']))
+    for node, (x, y) in zip(profiles, free_slots()):
+        positions[node['id']] = {'x': hub['x'] + x * width, 'y': hub['y'] + y * height}
 
 
 def apply(doc,operation,args):

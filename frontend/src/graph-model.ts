@@ -1,5 +1,6 @@
 import { nodeBox,routeEdges } from './graph-geometry'
 import {hierarchy} from './graph-hierarchy'
+import {identityProjection,profileTypes} from './graph-identity'
 // Registration and document records remain distinct from legal entities.
 export {nodeBox} from './graph-geometry'
 import type { GraphEntity, GraphPoint, GraphRelation, GraphView, GraphViewport } from './types'
@@ -125,11 +126,11 @@ function visibleGraphBase(nodes:GraphEntity[],edges:GraphRelation[],root:string,
 }
 export function visibleGraph(nodes:GraphEntity[],edges:GraphRelation[],root:string,view:GraphView,limit=220){
   const mode=view.projection_mode
-  if(mode==='socmint'){
-    const profiles=socmintProfiles(nodes,edges,root).filter(node=>!view.filters?.profile_ids||view.filters.profile_ids.includes(node.id)||view.selected_id===node.id),ids=new Set([root,...profiles.map(node=>node.id)])
-    if(view.selected_id&&nodes.some(node=>node.id===view.selected_id&&ids.has(node.id)))ids.add(view.selected_id)
-    if(view.filters?.show_sources)for(const edge of edges)if(ids.has(edge.from_id)&&['supported_by','published_on_domain','uses_public_identifier'].includes(edge.relation_type))ids.add(edge.to_id)
-    const result=visibleGraphBase(nodes.filter(node=>ids.has(node.id)),edges.filter(edge=>ids.has(edge.from_id)&&ids.has(edge.to_id)),root,{...view,filters:{...view.filters,include_background:true}},limit)
+  if(mode==='socmint'||mode==='infrastructure'||mode==='evidence'){
+    const selectedProfiles=view.filters?.profile_ids?new Set(view.filters.profile_ids):null
+    const profiles=socmintProfiles(nodes,edges,root).filter(node=>!selectedProfiles||selectedProfiles.has(node.id)||view.selected_id===node.id)
+    const projected=identityProjection(nodes,edges,root,mode,profiles)
+    const result=visibleGraphBase(projected.nodes,projected.edges,root,{...view,filters:{...view.filters,show_sources:mode!=='socmint',include_background:true}},limit)
     return {...result,hiddenNodes:nodes.length-result.nodes.length}
   }
   if(!mode||mode==='manual'||!nodes.some(node=>node.type==='blockchain_address'))return visibleGraphBase(nodes,edges,root,view,limit)
@@ -219,7 +220,7 @@ export function walletSummary(nodes:GraphEntity[],edges:GraphRelation[],root:str
 export function counterpartySummary(nodes:GraphEntity[],edges:GraphRelation[],root:string,peer:string){return walletSummary(nodes,edges,root).counterparties.find(row=>row.id===peer)}
 export function socmintProfiles(nodes:GraphEntity[],edges:GraphRelation[],root:string){
   const owner=nodes.find(node=>node.id===root),linked=new Set(edges.filter(edge=>edge.from_id===root&&['returned_for_query','investigates'].includes(edge.relation_type)).map(edge=>edge.to_id)),proof=new Set(owner?.evidence_ids||[])
-  return nodes.filter(node=>['public_profile','social_profile','github_profile','telegram_channel'].includes(node.type)&&(!node.attributes.reference_only)&&(linked.has(node.id)||node.evidence_ids.some(id=>proof.has(id))||owner?.type==='root_entity')).sort((a,b)=>String(a.attributes.platform||'').localeCompare(String(b.attributes.platform||''))||a.label.localeCompare(b.label))
+  return nodes.filter(node=>profileTypes.has(node.type)&&!node.attributes.reference_only&&(linked.has(node.id)||node.evidence_ids.some(id=>proof.has(id))||owner?.type==='root_entity')).sort((a,b)=>String(a.attributes.platform||'').localeCompare(String(b.attributes.platform||''))||a.label.localeCompare(b.label))
 }
 export {layoutGraph} from './graph-layout'
 export function fitViewport(points:Record<string,GraphPoint>,width:number,height:number,nodes?:GraphEntity[]):GraphViewport {

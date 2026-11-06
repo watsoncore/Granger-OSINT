@@ -13,7 +13,7 @@ from scripts.qa_clean_release import isolated_environment,wait_for,QaFailure
 from scripts.qa_workspace_v7 import V7Session,TON
 
 
-def run(exe,report_path,shots,*,source=False):
+def run(exe,report_path,shots,*,source=False,workspace_v8=False):
     from PySide6.QtCore import QCoreApplication
     from PIL import Image
     from grangerpet.config import Settings,SettingsStore
@@ -80,9 +80,35 @@ def run(exe,report_path,shots,*,source=False):
                 session.start(0);session.click('Поиск');session.action('tools_refresh');wait_for(lambda:not session.snapshot().get('toolsChecking'),90)
                 session.click('Моё полотно');project('V7 / Публичные профили')
                 username=session.create_v7('Никнейм','Никнейм','solvnox');choose(username,'Найти публичные профили')
-                session.pick('Режим Maigret','Быстрый','quick');preview=execute('username_maigret')
+                session.pick('Режим Maigret','Стандартный' if workspace_v8 else 'Быстрый','Стандартный' if workspace_v8 else 'quick');preview=execute('username_maigret')
                 check('live_maigret_has_observed_profiles',bool(preview['results']))
+                if workspace_v8:capture('results-gallery')
                 insert(preview);check('maigret_inserted_profiles',any(n['type']=='public_profile' for n in session.document()['entities']))
+                if workspace_v8:
+                    identity=store.load(session.document()['id'])
+                    identifier=identity['id']
+                    profile_ids={edge['to_id'] for edge in identity['relations'] if edge['from_id']==username['id']
+                                 and edge['relation_type']=='returned_for_query'}
+                    wait_for(lambda:session.document()['view']['layout']=='identity',25)
+                    wait_for(lambda:int(session.metrics()['canvas'].get('modelNodes',0))==len(profile_ids)+1,25)
+                    check('identity_hub_contains_only_nickname_and_observed_profiles',bool(profile_ids))
+                    capture('identity-hub')
+                    session.click('Настроить полотно')
+                    for label,mode in (('Инфраструктура','infrastructure'),('Основания','evidence'),('Публичные профили · Identity','socmint')):
+                        session.pick('Представление полотна',label,label)
+                        wait_for(lambda:session.document()['view']['ui']['graph_mode']==mode,20)
+                    current=store.load(identifier)
+                    check('projection_switch_preserves_raw_evidence_and_relations',current['evidence']==identity['evidence'] and current['relations']==identity['relations'])
+                    session.click('Настроить полотно')
+                    visible=json.loads(session.metrics()['canvas'].get('qaNodes','[]'))
+                    profile=next((node['id'] for node in visible if node['id'] in profile_ids),None)
+                    if profile:
+                        session.select(profile);session.click('Сведения')
+                        capture('selected-public-profile')
+                    result['identity_counts']={'profiles':len(profile_ids),'root_nodes':1,
+                        'model_nodes':int(session.metrics()['canvas'].get('modelNodes',0)),
+                        'visible_images':int(session.metrics()['canvas'].get('drawnImages',0))}
+                    save()
                 capture('live-maigret')
                 project('V7 / Email')
                 email=session.create_v7('Email','Email','octocat@github.com');choose(email,'Исследовать email');preview=execute('email_research');insert(preview)
@@ -101,6 +127,7 @@ def run(exe,report_path,shots,*,source=False):
                 session.pick('Операция Gansar','Обзор адреса','profile');preview=execute('blockchain_gansar','profile');insert(preview)
                 first=store.load(session.document()['id']);first_ids={row['evidence_id'] for row in first['evidence']}
                 check('live_gansar_profile_saved',bool(first_ids))
+                if workspace_v8:capture('wallet-graph')
                 choose(wallet,'Исследовать криптообъект');session.pick('Операция Gansar','NFT','nft');preview=execute('blockchain_gansar','nft');receipt=insert(preview)
                 saved=store.load(session.document()['id']);check('nft_run_keeps_previous_evidence',first_ids<={row['evidence_id'] for row in saved['evidence']})
                 result['nft_observed']=bool(preview['results'])
@@ -129,8 +156,8 @@ def run(exe,report_path,shots,*,source=False):
 
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--exe',type=Path,required=True);parser.add_argument('--report',type=Path,required=True);parser.add_argument('--screenshots',type=Path,required=True);parser.add_argument('--source',action='store_true')
-    args=parser.parse_args();run(args.exe.resolve(),args.report.resolve(),args.screenshots.resolve(),source=args.source)
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--exe',type=Path,required=True);parser.add_argument('--report',type=Path,required=True);parser.add_argument('--screenshots',type=Path,required=True);parser.add_argument('--source',action='store_true');parser.add_argument('--workspace-v8',action='store_true')
+    args=parser.parse_args();run(args.exe.resolve(),args.report.resolve(),args.screenshots.resolve(),source=args.source,workspace_v8=args.workspace_v8)
 
 
 if __name__=='__main__':main()

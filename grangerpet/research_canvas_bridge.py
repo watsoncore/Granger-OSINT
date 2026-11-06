@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 from PySide6.QtWidgets import QFileDialog, QMessageBox
-from .research_canvas import CanvasStore, new_document, apply, merge_evidence, validate, TYPES, MAX_BYTES, CanvasError, CanvasConflict
+from .research_canvas import CanvasStore, new_document, apply, merge_evidence, position_added_profiles, record_canvas_event, validate, TYPES, MAX_BYTES, CanvasError, CanvasConflict
 from .async_reply import DeferredReply
 from .ui_jobs import UiJob
 
@@ -18,6 +18,7 @@ class ResearchCanvasBridge:
         self.store=CanvasStore(bridge.host.chat_widget._journal)
         self.document=None;self.preview=None;self.previews={};self.job=None;self.media_job=None;self.undo=[];self.redo=[]
         self.insertions={}
+        self.result_job=None
         self.state={'state':'idle','choices':[],'types':list(TYPES)}
         self._commit_replies={}
         self._active_receipt=None
@@ -196,6 +197,10 @@ class ResearchCanvasBridge:
             if not node:raise CanvasError('Выбранный объект отсутствует.')
             from .canvas_capabilities import capabilities
             return capabilities(node,payload.get('chain','auto'),getattr(bridge,'_tools',None))
+        if op in ('result_image','result_export'):
+            return self._result_action(op,payload)
+        if op=='screenshot':
+            return self._screenshot(payload)
         if self.job:raise CanvasError('Дождитесь окончания сохранения полотна.')
         if op in ('tool','analyze','attach','export') and (not self.document or payload.get('id')!=self.document['id'] or payload.get('revision')!=self.document['revision']):
             raise CanvasConflict('Полотно или его версия изменились. Загрузите актуальную версию перед повторением.',revision=(self.document or {}).get('revision'))
@@ -279,12 +284,24 @@ class ResearchCanvasBridge:
             if op=='list':return self.render()
             if op=='new':
                 self.undo=[];self.redo=[];self.preview=None
-                self.document=self.store.save(self._with_receipt(new_document(payload.get('title','Новое расследование'),payload.get('description',''))),0)
+                value=new_document(payload.get('title','Новое расследование'),payload.get('description',''))
+                record_canvas_event(value,'created')
+                self.document=self.store.save(self._with_receipt(value),0)
                 return self.render()
             if op=='open':
                 self.document=self.store.load(payload.get('id'));self.undo=[];self.redo=[];self.preview=self.previews.get(self.document['id'])
                 return self.render()
-            if op=='edit':return self._commit(apply(self.document,payload.get('operation'),payload.get('arguments',{})))
+            if op=='edit':
+                operation,args=payload.get('operation'),payload.get('arguments',{})
+                value=apply(self.document,operation,args)
+                kind={'node':'node','edge':'link','edge_edit':'link','group':'group','rename':'rename'}.get(operation)
+                if kind:
+                    key='relations' if kind=='link' else 'entities'
+                    old={item['id'] for item in self.document[key]}
+                    added=[item['id'] for item in value[key] if item['id'] not in old]
+                    if kind=='link' and not added and args.get('relation_id'):added=[args['relation_id']]
+                    record_canvas_event(value,kind,added,len(added))
+                return self._commit(value)
             if op in ('undo','redo'):
                 stack=self.undo if op=='undo' else self.redo
                 if not stack:raise CanvasError('Нет доступной версии для отмены.')
@@ -321,7 +338,9 @@ class ResearchCanvasBridge:
                 if target and target['type'] in ('username','nickname'):
                     value['view'].setdefault('ui',{}).update(graph_mode='socmint',username_root_id=owner)
                     if not self.document['evidence'] and not value['view'].get('manual_position_ids'):
-                        value['view']['ui']['initial_layout']='hierarchical'
+                        value['view']['ui']['initial_layout']='identity'
+                    else:
+                        position_added_profiles(value,owner,added)
                     # These accounts were returned for this identifier; this
                     # relation never asserts a shared person or account owner.
                     import hashlib
@@ -349,6 +368,7 @@ class ResearchCanvasBridge:
                             'verification_status':'unverified','claim_kind':'lookup_candidate','evidence_ids':proof,
                             'source_urls':[],'provenance':[],'attributes':{'identity_match_verified':False}})
                 value['executions'].append({k:self.preview.get(k) for k in ('tool','status','limitations')})
+                record_canvas_event(value,'findings',added or ([owner] if owner else []),len(set(selected)),self.preview['tool'])
                 result=self._commit(value)
                 projected={eid for node in value['entities'] for eid in node['evidence_ids']}
                 projected.update(eid for edge in value['relations'] for eid in edge['evidence_ids'])
@@ -376,9 +396,136 @@ class ResearchCanvasBridge:
             raise CanvasError('Неизвестное действие расследования.')
         return work(task)
 
+    def _result_action(self,op,payload):
+        if self.result_job:
+            raise CanvasError('Дождитесь обработки предыдущей находки.')
+        preview=self.previews.get((self.document or {}).get('id'))
+        if not preview or payload.get('token')!=preview['token'] or payload.get('id')!=preview['canvas_id']:
+            raise CanvasError('Находки относятся к другому расследованию.')
+        if op=='result_image':
+            identifier=payload.get('evidence_id')
+            if set(payload)!={'token','id','evidence_id'} or not isinstance(identifier,str):
+                raise CanvasError('Укажите найденное наблюдение.')
+            from .public_media import MediaStore, media_reference
+            from .agent_evidence import current_observation
+            row=next((item for item in preview['records'] if item['evidence_id']==identifier),None)
+            reference=media_reference(current_observation(row)) if row else None
+            if not reference:
+                return None
+
+            def task():
+                import asyncio
+                try:
+                    image=asyncio.run(MediaStore().fetch(reference,cancel_event=job.cancelled))
+                    return {'preview':image.get('thumbnail','')}
+                except Exception:
+                    return None
+        else:
+            ids=payload.get('evidence_ids')
+            if (set(payload)!={'token','id','evidence_ids'} or not isinstance(ids,list) or not 0<len(ids)<=5000
+                    or not all(isinstance(item,str) for item in ids)):
+                raise CanvasError('Выберите наблюдения для экспорта.')
+            chosen=set(ids)
+            rows=[row for row in preview['results'] if row['evidence_id'] in chosen]
+            if len(rows)!=len(chosen):
+                raise CanvasError('Одна из находок больше недоступна.')
+            filename,_=QFileDialog.getSaveFileName(self.bridge.host,'Экспортировать находки','findings.csv','CSV (*.csv)')
+            if not filename:
+                return None
+            path=Path(filename)
+            if path.suffix.lower()!='.csv':
+                path=path.with_suffix('.csv')
+
+            def task():
+                import csv
+                import io
+                from .portable_vault import atomic_write
+                stream=io.StringIO(newline='')
+                writer=csv.writer(stream)
+                writer.writerow(('Название','Публичный URL','Источник','Статус','Время получения'))
+                for row in rows:
+                    fields=[str(row.get(key) or '') for key in ('title','url','domain','status','obtained_at')]
+                    writer.writerow("'" + value if value.lstrip()[:1] in ('=','+','-','@') else value for value in fields)
+                atomic_write(path,stream.getvalue().encode('utf-8-sig'))
+                return {'exported':len(rows)}
+        reply=DeferredReply()
+
+        def safe_task():
+            try:
+                return task(),False
+            except OSError:
+                return None,True
+
+        job=UiJob(safe_task,self.bridge);self.result_job=job
+
+        def done(value,error):
+            self.result_job=None
+            result,failed=value or (None,True)
+            reply.resolve(result,{'code':'result_export_failed','error':'Не удалось сохранить CSV.'} if failed else None)
+            job.deleteLater()
+
+        job.done.connect(done);job.start();return reply
+
+    def _screenshot(self,payload):
+        if set(payload)!={'id'} or payload['id']!=(self.document or {}).get('id'):
+            raise CanvasError('Откройте полотно для снимка.')
+        surface=self.bridge.host.desktop_surface
+        if not surface.isVisible():
+            raise CanvasError('Откройте видимое полотно для снимка.')
+        filename,_=QFileDialog.getSaveFileName(self.bridge.host,'Сохранить снимок полотна','investigation.png','PNG (*.png)')
+        if not filename:
+            return None
+        from PySide6.QtCore import QTimer
+        from .appearance import decode_appearance
+        from .portable_vault import atomic_write
+        from PySide6.QtCore import QBuffer, QIODevice
+        hide=decode_appearance(self.bridge.host.settings.workspace_appearance).get('hidePrivate') is not False
+        page=surface.page()
+        identifier=json.dumps(payload['id'])
+        mask='true' if hide else 'false'
+        reply=DeferredReply()
+        script=f"""(()=>{{
+          const editor=document.querySelector('.research-editor');
+          if(editor?.dataset.canvasId!=={identifier}||!editor.getBoundingClientRect().width)return false;
+          document.documentElement.dataset.maskWallpaper='{mask}';
+          return !{mask}||[...editor.querySelectorAll('[data-wallpaper="image"]')].every(e=>getComputedStyle(e).visibility==='hidden');
+        }})()"""
+
+        def finish(result,error=None):
+            if not self.bridge._closed:
+                page.runJavaScript("delete document.documentElement.dataset.maskWallpaper")
+                reply.resolve(result,error)
+
+        def capture(ready):
+            failure={'code':'canvas_screenshot_failed','error':'Не удалось безопасно сохранить снимок полотна.'}
+            if not ready:
+                finish(None,failure);return
+
+            def save():
+                if self.bridge._closed:
+                    return
+                if not surface.isVisible() or payload['id']!=(self.document or {}).get('id'):
+                    finish(None,failure);return
+                try:
+                    buffer=QBuffer()
+                    buffer.open(QIODevice.OpenModeFlag.WriteOnly)
+                    if not surface.grab().save(buffer,'PNG'):
+                        finish(None,failure);return
+                    path=Path(filename)
+                    atomic_write(path if path.suffix.lower()=='.png' else path.with_suffix('.png'),bytes(buffer.data()))
+                    finish({'saved':True,'private_wallpaper_hidden':hide})
+                except OSError:
+                    finish(None,failure)
+
+            QTimer.singleShot(120,save)
+
+        page.runJavaScript(script,capture)
+        return reply
+
     def _export(self,filename,value):
         from .canvas_portable import export_package,export_canvas
         from .portable_vault import atomic_write
+        value={key:item for key,item in value.items() if key!='activity'}
         path=Path(filename)
         if path.suffix.lower()=='.zip':export_package(path,value,self.bridge._images())
         elif path.suffix.lower()=='.canvas':export_canvas(path,value,self.bridge._images())
@@ -437,11 +584,13 @@ class ResearchCanvasBridge:
             node=next(n for n in value['entities'] if n['id']==identifier)
             node['attributes'].update(attachment_id=image['id'],original_image=True,media=media)
             if position is not None:value['view'].setdefault('manual_position_ids',[]).append(identifier)
+        record_canvas_event(value,'image',[target or identifier],1)
         return self._commit(value)
 
     def close(self):
         if self.job:self.job.cancel()
         if self.media_job:self.media_job.cancel()
+        if self.result_job:self.result_job.cancel()
 
     def _media(self,identifier):
         if self.media_job:return {'busy':True}

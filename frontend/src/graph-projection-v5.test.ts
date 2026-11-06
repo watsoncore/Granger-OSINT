@@ -34,7 +34,8 @@ it('projects one username to its actual profiles, preserving source access and e
  const original=structuredClone({nodes,edges}),view:GraphView={version:1,mode:'graph',projection_mode:'socmint',filters:{show_sources:false}}
  expect(socmintProfiles(nodes,edges,'root').map(n=>n.id)).toEqual(['profile'])
  expect(visibleGraph(nodes,edges,'root',view).nodes.map(n=>n.id)).toEqual(['root','profile'])
- expect(visibleGraph(nodes,edges,'root',{...view,filters:{show_sources:true}}).nodes.map(n=>n.id)).toEqual(expect.arrayContaining(['source','scoped','domain']))
+ expect(visibleGraph(nodes,edges,'root',{...view,projection_mode:'infrastructure'}).nodes.map(n=>n.id)).toEqual(expect.arrayContaining(['root','profile','domain']))
+ expect(visibleGraph(nodes,edges,'root',{...view,projection_mode:'evidence'}).nodes.map(n=>n.id)).toEqual(expect.arrayContaining(['root','profile','source']))
  expect({nodes,edges}).toEqual(original)
 })
 it('formats tiny and large decimal strings while preserving complete precision in details',()=>{
