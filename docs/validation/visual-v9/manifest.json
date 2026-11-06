@@ -2,8 +2,8 @@
   "files": [
     {
       "name": "component-inventory.json",
-      "bytes": 6463,
-      "sha256": "32cb2b18183cbb11b3563d38da40e2f699925275cb87720ffd4bfb6925ac3add"
+      "bytes": 6220,
+      "sha256": "d8828a31e3ac2605c36da493f325b08cc50271d958d0c93459794a99d93e8c3b"
     },
     {
       "name": "github-clean-mode.png",
@@ -32,8 +32,8 @@
     },
     {
       "name": "performance.json",
-      "bytes": 47050,
-      "sha256": "7b7f6a529a48e764fb412070dd819104b42e20f821bc7d995ac901b8f6ee6c05"
+      "bytes": 45540,
+      "sha256": "ccbc3ae6ac4653a7b6103dea113f7ef5ce364eddc65374e1d83dbb0380636f30"
     },
     {
       "name": "phone-correction.png",
@@ -52,8 +52,8 @@
     },
     {
       "name": "verification.json",
-      "bytes": 40196,
-      "sha256": "f9a80a2be583924e5cb2b7332bbaa49c35bfb28aa71fa24849e7a27988d8201e"
+      "bytes": 38858,
+      "sha256": "3590c1007b9536839dc704a8960aeec2632aedcd7b1fd49dd2b03ffc68128d02"
     },
     {
       "name": "wallpaper-contain.png",
