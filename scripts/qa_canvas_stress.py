@@ -198,9 +198,13 @@ def main():
             report['stage']['phase']='expand';save()
             # Progressive expansion remains bounded, and all original members stay saved.
             target=case['underlying_nodes'];synthetic=case['data_origin']=='synthetic_fixture'
-            if synthetic and int(metrics()['canvas'].get('modelNodes',0))<target:
+            def rendered_model_count():
+                current=metrics()
+                if current.get('canvas_id')==case['id']:
+                    return int((current.get('canvas') or {}).get('modelNodes',0))
+            if synthetic and wait(rendered_model_count)<target:
                 click('Показать все на полотне')
-                wait(lambda:int(metrics()['canvas'].get('modelNodes',0))==target)
+                wait(lambda:rendered_model_count()==target)
             current=metrics();c=current['canvas'];case['open_and_expand_seconds']=round(time.perf_counter()-start,3)
             report['stage']['phase']='gestures';save()
             samples=[]
@@ -226,6 +230,10 @@ def main():
                 fitted=wait(lambda:m if (m:=metrics().get('canvas',{})) and float(m.get('zoom',1))<.38 else None)
                 case['fit_overview']={k:fitted.get(k) for k in ('renderer','paintMs','drawnNodes','onScreenNodes','modelNodes','modelEdges','drawnEdges','zoom')}
                 if int(fitted['modelNodes'])!=target:raise AssertionError('Fit overview dropped objects from the model')
+                def fit_saved():
+                    current=snapshot()['research_canvas']
+                    return not current.get('busy') and abs(current['document']['view']['viewport']['scale']-float(fitted['zoom']))<.001
+                wait(fit_saved)
                 command('qa_snapshot',{'name':'synthetic-5000-fit'})
             if synthetic and target==1000:
                 report['stage']['phase']='search-layouts';save()

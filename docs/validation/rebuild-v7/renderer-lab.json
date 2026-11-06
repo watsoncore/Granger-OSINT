@@ -1,0 +1,1607 @@
+{
+  "renderers": {
+    "origin": "owned native Qt/WebEngine renderer laboratory",
+    "input": "programmatic SDK camera/drag with RAF timing",
+    "native_mouse_to_photon": false,
+    "external_network_blocked": true,
+    "cases": [
+      {
+        "engine": "canvas",
+        "count": 50,
+        "edges": 49,
+        "setup_ms": 0.19999992847442627,
+        "update_ms": {
+          "count": 80,
+          "p50": 1,
+          "p95": 1.3000000715255737,
+          "p99": 1.6999999284744263,
+          "max": 1.6999999284744263
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.600000023841858,
+          "p95": 18.199999928474426,
+          "p99": 18.399999976158142,
+          "max": 18.399999976158142
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.600000023841858,
+          "p95": 18.199999928474426,
+          "p99": 18.399999976158142,
+          "max": 18.399999976158142
+        },
+        "raf_fps": 60.24096376890021,
+        "drawn_nodes": 15,
+        "visited_nodes": 18,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 63,
+          "rss_bytes_sum": 337895424,
+          "private_commit_bytes_sum": 579289088,
+          "cpu_percent_one_core": 66.95700531861083,
+          "cpu_percent_machine": 5.579750443217569,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 24.16230097238808,
+            "gpu_engine_percent_max": 24.16230097238808,
+            "gpu_dedicated_bytes": 1469657088,
+            "gpu_shared_bytes": 38699008,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008488499908708036
+        },
+        "capture": {
+          "name": "canvas-50.png",
+          "sha256": "0464d2b42e446ccefae6f45e56a442f893395ca6d30582b30773e7965b57ce2c"
+        }
+      },
+      {
+        "engine": "canvas",
+        "count": 100,
+        "edges": 99,
+        "setup_ms": 0.30000007152557373,
+        "update_ms": {
+          "count": 80,
+          "p50": 1.399999976158142,
+          "p95": 1.7000000476837158,
+          "p99": 1.8000000715255737,
+          "max": 1.8000000715255737
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.5,
+          "p95": 18.100000023841858,
+          "p99": 21,
+          "max": 21
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.5,
+          "p95": 18.100000023841858,
+          "p99": 21,
+          "max": 21
+        },
+        "raf_fps": 60.60606060606061,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 69,
+          "rss_bytes_sum": 357986304,
+          "private_commit_bytes_sum": 842461184,
+          "cpu_percent_one_core": 74.70442616641293,
+          "cpu_percent_machine": 6.225368847201078,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 25.453690027561898,
+            "gpu_engine_percent_max": 25.453690027561898,
+            "gpu_dedicated_bytes": 2529595392,
+            "gpu_shared_bytes": 39948288,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008832599967718124
+        },
+        "capture": {
+          "name": "canvas-100.png",
+          "sha256": "b2c25a14dff98cf19675f9c111bde54a3af35f0ea23bfc572b112ca83808f222"
+        }
+      },
+      {
+        "engine": "canvas",
+        "count": 500,
+        "edges": 499,
+        "setup_ms": 0.2999999523162842,
+        "update_ms": {
+          "count": 80,
+          "p50": 1.899999976158142,
+          "p95": 2.100000023841858,
+          "p99": 2.3000000715255737,
+          "max": 2.3000000715255737
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.700000047683716,
+          "p95": 17.600000023841858,
+          "p99": 18.399999976158142,
+          "max": 18.399999976158142
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 17.600000023841858,
+          "p99": 18.399999976158142,
+          "max": 18.399999976158142
+        },
+        "raf_fps": 59.880239349981295,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 72,
+          "rss_bytes_sum": 361910272,
+          "private_commit_bytes_sum": 713056256,
+          "cpu_percent_one_core": 84.34639519281788,
+          "cpu_percent_machine": 7.028866266068157,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 30.191920055468636,
+            "gpu_engine_percent_max": 30.191920055468636,
+            "gpu_dedicated_bytes": 3216834560,
+            "gpu_shared_bytes": 39747584,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008720600046217442
+        },
+        "capture": {
+          "name": "canvas-500.png",
+          "sha256": "87735322e885d301ba08c62bc26b917f9bb748a7090d3d6ccc7f2b067164df7a"
+        }
+      },
+      {
+        "engine": "canvas",
+        "count": 1000,
+        "edges": 999,
+        "setup_ms": 0.20000004768371582,
+        "update_ms": {
+          "count": 80,
+          "p50": 2.200000047683716,
+          "p95": 2.600000023841858,
+          "p99": 2.899999976158142,
+          "max": 2.899999976158142
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.600000023841858,
+          "p95": 18,
+          "p99": 18.600000023841858,
+          "max": 18.600000023841858
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.600000023841858,
+          "p95": 18,
+          "p99": 18.600000023841858,
+          "max": 18.600000023841858
+        },
+        "raf_fps": 60.24096376890021,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 72,
+          "rss_bytes_sum": 373415936,
+          "private_commit_bytes_sum": 741179392,
+          "cpu_percent_one_core": 86.34779373369301,
+          "cpu_percent_machine": 7.195649477807751,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 28.7979415601024,
+            "gpu_engine_percent_max": 28.7979415601024,
+            "gpu_dedicated_bytes": 4048699392,
+            "gpu_shared_bytes": 39747584,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008571999962441623
+        },
+        "capture": {
+          "name": "canvas-1000.png",
+          "sha256": "1a42f9c1cb2661ab086b195218283d70dea00d7411e5f661094ffc75a1af311b"
+        }
+      },
+      {
+        "engine": "canvas",
+        "count": 5000,
+        "edges": 4999,
+        "setup_ms": 0.19999992847442627,
+        "update_ms": {
+          "count": 80,
+          "p50": 7.100000023841858,
+          "p95": 7.799999952316284,
+          "p99": 9.5,
+          "max": 9.5
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.700000047683716,
+          "p95": 18.100000023841858,
+          "p99": 18.300000071525574,
+          "max": 18.300000071525574
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.700000047683716,
+          "p95": 18.100000023841858,
+          "p99": 18.300000071525574,
+          "max": 18.300000071525574
+        },
+        "raf_fps": 59.880239349981295,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 72,
+          "rss_bytes_sum": 424873984,
+          "private_commit_bytes_sum": 817766400,
+          "cpu_percent_one_core": 98.39058434477829,
+          "cpu_percent_machine": 8.199215362064857,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 27.305180099211984,
+            "gpu_engine_percent_max": 27.305180099211984,
+            "gpu_dedicated_bytes": 4889493504,
+            "gpu_shared_bytes": 39747584,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008744899998418987
+        },
+        "capture": {
+          "name": "canvas-5000.png",
+          "sha256": "fb2cd510f716ead006ab0db74830be7f349ebffa4bbb51c20ba9c628f6ab2d20"
+        }
+      },
+      {
+        "engine": "pixi",
+        "count": 50,
+        "edges": 49,
+        "setup_ms": 132.79999995231628,
+        "update_ms": {
+          "count": 80,
+          "p50": 0.5,
+          "p95": 1,
+          "p99": 5.299999952316284,
+          "max": 5.299999952316284
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.59999990463257,
+          "p95": 17.899999976158142,
+          "p99": 18.200000047683716,
+          "max": 18.200000047683716
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.59999990463257,
+          "p95": 17.899999976158142,
+          "p99": 18.200000047683716,
+          "max": 18.200000047683716
+        },
+        "raf_fps": 60.240964201507595,
+        "drawn_nodes": 15,
+        "visited_nodes": 18,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 74,
+          "rss_bytes_sum": 434991104,
+          "private_commit_bytes_sum": 1026068480,
+          "cpu_percent_one_core": 63.104972258637595,
+          "cpu_percent_machine": 5.2587476882198,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 17.121086842564097,
+            "gpu_engine_percent_max": 17.121086842564097,
+            "gpu_dedicated_bytes": 5904244736,
+            "gpu_shared_bytes": 40226816,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.00869089993648231
+        },
+        "capture": {
+          "name": "pixi-50.png",
+          "sha256": "6ed5d1673c022916b6cd9c1b143b2e16ab59c2e7852b9a3d172d526e2087611c"
+        }
+      },
+      {
+        "engine": "pixi",
+        "count": 100,
+        "edges": 99,
+        "setup_ms": 23,
+        "update_ms": {
+          "count": 80,
+          "p50": 0.5,
+          "p95": 1.0999999046325684,
+          "p99": 3.700000047683716,
+          "max": 3.700000047683716
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 18,
+          "p99": 18.299999952316284,
+          "max": 18.299999952316284
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 18,
+          "p99": 18.299999952316284,
+          "max": 18.299999952316284
+        },
+        "raf_fps": 59.88023977742326,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 74,
+          "rss_bytes_sum": 439181312,
+          "private_commit_bytes_sum": 1030971392,
+          "cpu_percent_one_core": 49.8625374526827,
+          "cpu_percent_machine": 4.155211454390225,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 19.76347019124981,
+            "gpu_engine_percent_max": 19.76347019124981,
+            "gpu_dedicated_bytes": 6661988352,
+            "gpu_shared_bytes": 40226816,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008390399976633489
+        },
+        "capture": {
+          "name": "pixi-100.png",
+          "sha256": "c041f738fc2b100bba0c312667a7d6b4afcd2c99da5e50486689334ed4b517c2"
+        }
+      },
+      {
+        "engine": "pixi",
+        "count": 500,
+        "edges": 499,
+        "setup_ms": 24.399999976158142,
+        "update_ms": {
+          "count": 80,
+          "p50": 0.5,
+          "p95": 1.600000023841858,
+          "p99": 5.200000047683716,
+          "max": 5.200000047683716
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.59999990463257,
+          "p95": 18,
+          "p99": 18.300000071525574,
+          "max": 18.300000071525574
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.59999990463257,
+          "p95": 18,
+          "p99": 18.300000071525574,
+          "max": 18.300000071525574
+        },
+        "raf_fps": 60.240964201507595,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 74,
+          "rss_bytes_sum": 431943680,
+          "private_commit_bytes_sum": 530595840,
+          "cpu_percent_one_core": 53.85570571227438,
+          "cpu_percent_machine": 4.487975476022865,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 19.964917414863876,
+            "gpu_engine_percent_max": 19.964917414863876,
+            "gpu_dedicated_bytes": 7029567488,
+            "gpu_shared_bytes": 33501184,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.00992370001040399
+        },
+        "capture": {
+          "name": "pixi-500.png",
+          "sha256": "c8f3f9bd3f88ea5a876f96eb0be3e0d94b66fec4cf156bd6e9c7b4f0e1ebb993"
+        }
+      },
+      {
+        "engine": "pixi",
+        "count": 1000,
+        "edges": 999,
+        "setup_ms": 23,
+        "update_ms": {
+          "count": 80,
+          "p50": 0.5,
+          "p95": 2.700000047683716,
+          "p99": 6.699999928474426,
+          "max": 6.699999928474426
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.799999952316284,
+          "p95": 17.700000047683716,
+          "p99": 18.300000071525574,
+          "max": 18.300000071525574
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.799999952316284,
+          "p95": 17.700000047683716,
+          "p99": 18.200000047683716,
+          "max": 18.200000047683716
+        },
+        "raf_fps": 59.52380969275693,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 74,
+          "rss_bytes_sum": 442134528,
+          "private_commit_bytes_sum": 583434240,
+          "cpu_percent_one_core": 51.732274981576126,
+          "cpu_percent_machine": 4.3110229151313435,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 19.711140463891144,
+            "gpu_engine_percent_max": 19.711140463891144,
+            "gpu_dedicated_bytes": 7888924672,
+            "gpu_shared_bytes": 35045376,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008666999987326562
+        },
+        "capture": {
+          "name": "pixi-1000.png",
+          "sha256": "e577faa843c39f7e1d4c2826f31881c38a7c46acefc6c24b41dffca6cae69639"
+        }
+      },
+      {
+        "engine": "pixi",
+        "count": 5000,
+        "edges": 4999,
+        "setup_ms": 27.299999952316284,
+        "update_ms": {
+          "count": 80,
+          "p50": 0.7999999523162842,
+          "p95": 11.699999928474426,
+          "p99": 17.200000047683716,
+          "max": 17.200000047683716
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.700000047683716,
+          "p95": 17.899999976158142,
+          "p99": 18.800000071525574,
+          "max": 18.800000071525574
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.700000047683716,
+          "p95": 17.899999976158142,
+          "p99": 18.800000071525574,
+          "max": 18.800000071525574
+        },
+        "raf_fps": 59.880239349981295,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 74,
+          "rss_bytes_sum": 460242944,
+          "private_commit_bytes_sum": 597315584,
+          "cpu_percent_one_core": 82.1384349931888,
+          "cpu_percent_machine": 6.844869582765733,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 20.227814641854998,
+            "gpu_engine_percent_max": 20.227814641854998,
+            "gpu_dedicated_bytes": 8703365120,
+            "gpu_shared_bytes": 36839424,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008685900014825165
+        },
+        "capture": {
+          "name": "pixi-5000.png",
+          "sha256": "9b3e8b75bb4181fdc4b3eb0ac872bd7cc3078605526c1469ea07b5fb52cb100e"
+        }
+      },
+      {
+        "engine": "cytoscape",
+        "count": 50,
+        "edges": 49,
+        "setup_ms": 50.299999952316284,
+        "update_ms": {
+          "count": 80,
+          "p50": 0.09999990463256836,
+          "p95": 0.20000004768371582,
+          "p99": 0.3999999761581421,
+          "max": 0.3999999761581421
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.5,
+          "p95": 18,
+          "p99": 21.899999976158142,
+          "max": 21.899999976158142
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.5,
+          "p95": 18,
+          "p99": 21.899999976158142,
+          "max": 21.899999976158142
+        },
+        "raf_fps": 60.60606060606061,
+        "drawn_nodes": 15,
+        "visited_nodes": 18,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 74,
+          "rss_bytes_sum": 459546624,
+          "private_commit_bytes_sum": 747114496,
+          "cpu_percent_one_core": 64.08319029221494,
+          "cpu_percent_machine": 5.340265857684578,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 18.813116839159168,
+            "gpu_engine_percent_max": 18.813116839159168,
+            "gpu_dedicated_bytes": 9662001152,
+            "gpu_shared_bytes": 36839424,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008867999888025224
+        },
+        "capture": {
+          "name": "cytoscape-50.png",
+          "sha256": "e5619b186d67a3d63c3f9ccf7803e3ae64b9c1444efc237a5e9188b9a325635d"
+        }
+      },
+      {
+        "engine": "cytoscape",
+        "count": 100,
+        "edges": 99,
+        "setup_ms": 43.200000047683716,
+        "update_ms": {
+          "count": 80,
+          "p50": 0.10000002384185791,
+          "p95": 0.19999992847442627,
+          "p99": 5.299999952316284,
+          "max": 5.299999952316284
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 18.299999952316284,
+          "p99": 20.799999952316284,
+          "max": 20.799999952316284
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 18.299999952316284,
+          "p99": 20.799999952316284,
+          "max": 20.799999952316284
+        },
+        "raf_fps": 59.88023977742326,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 75,
+          "rss_bytes_sum": 460304384,
+          "private_commit_bytes_sum": 743464960,
+          "cpu_percent_one_core": 64.37110910507816,
+          "cpu_percent_machine": 5.3642590920898465,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 19.46136554459688,
+            "gpu_engine_percent_max": 19.46136554459688,
+            "gpu_dedicated_bytes": 10461458432,
+            "gpu_shared_bytes": 36356096,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.007802100037224591
+        },
+        "capture": {
+          "name": "cytoscape-100.png",
+          "sha256": "c2f55833a6d427f952e3b16572d7a50ffa6e7f552c8ab0a09052f7fc84711f1b"
+        }
+      },
+      {
+        "engine": "cytoscape",
+        "count": 500,
+        "edges": 499,
+        "setup_ms": 156,
+        "update_ms": {
+          "count": 80,
+          "p50": 0.09999990463256836,
+          "p95": 0.20000004768371582,
+          "p99": 0.40000009536743164,
+          "max": 0.40000009536743164
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 18.59999990463257,
+          "p99": 24,
+          "max": 24
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 18.59999990463257,
+          "p99": 24,
+          "max": 24
+        },
+        "raf_fps": 59.88023977742326,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 75,
+          "rss_bytes_sum": 471793664,
+          "private_commit_bytes_sum": 720404480,
+          "cpu_percent_one_core": 83.86570090791204,
+          "cpu_percent_machine": 6.9888084089926705,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 18.437681580061817,
+            "gpu_engine_percent_max": 18.437681580061817,
+            "gpu_dedicated_bytes": 11284271104,
+            "gpu_shared_bytes": 36356096,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008832599967718124
+        },
+        "capture": {
+          "name": "cytoscape-500.png",
+          "sha256": "940f922e3199f7e18429ad168aa3699e14221a7cbb0a6e6adacb4509714acb11"
+        }
+      },
+      {
+        "engine": "cytoscape",
+        "count": 1000,
+        "edges": 999,
+        "setup_ms": 290.59999990463257,
+        "update_ms": {
+          "count": 80,
+          "p50": 0.10000002384185791,
+          "p95": 0.20000004768371582,
+          "p99": 0.3999999761581421,
+          "max": 0.3999999761581421
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 19.40000009536743,
+          "p99": 28.199999928474426,
+          "max": 28.199999928474426
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 19.40000009536743,
+          "p99": 28.199999928474426,
+          "max": 28.199999928474426
+        },
+        "raf_fps": 59.88023977742326,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 76,
+          "rss_bytes_sum": 453758976,
+          "private_commit_bytes_sum": 474898432,
+          "cpu_percent_one_core": 114.94307892888772,
+          "cpu_percent_machine": 9.578589910740643,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 17.7214239825706,
+            "gpu_engine_percent_max": 17.7214239825706,
+            "gpu_dedicated_bytes": 11808104448,
+            "gpu_shared_bytes": 36339712,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.009530300041660666
+        },
+        "capture": {
+          "name": "cytoscape-1000.png",
+          "sha256": "51f6d99be7b3c56dd3bebb8a91f56db67f71d7a9f4c8c2fa507694872309f384"
+        }
+      },
+      {
+        "engine": "cytoscape",
+        "count": 5000,
+        "edges": 4999,
+        "setup_ms": 1136.5,
+        "update_ms": {
+          "count": 80,
+          "p50": 0.19999992847442627,
+          "p95": 0.8999999761581421,
+          "p99": 1.7000000476837158,
+          "max": 1.7000000476837158
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 30.699999928474426,
+          "p95": 44.60000002384186,
+          "p99": 66,
+          "max": 66
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 30.699999928474426,
+          "p95": 44.60000002384186,
+          "p99": 66,
+          "max": 66
+        },
+        "raf_fps": 32.57328997817014,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 76,
+          "rss_bytes_sum": 595095552,
+          "private_commit_bytes_sum": 611840000,
+          "cpu_percent_one_core": 179.30525102829682,
+          "cpu_percent_machine": 14.94210425235807,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 8.105813493658246,
+            "gpu_engine_percent_max": 8.105813493658246,
+            "gpu_dedicated_bytes": 12630880256,
+            "gpu_shared_bytes": 35274752,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008666899986565113
+        },
+        "capture": {
+          "name": "cytoscape-5000.png",
+          "sha256": "070ffc5a0e761bad6ad6aebeb7834e2472d5b184cc784b78c7bcf6616fc3938e"
+        }
+      },
+      {
+        "engine": "react-flow",
+        "count": 50,
+        "edges": 49,
+        "setup_ms": 115.39999997615814,
+        "update_ms": {
+          "count": 80,
+          "p50": 1,
+          "p95": 4.699999928474426,
+          "p99": 4.800000071525574,
+          "max": 4.800000071525574
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 17.700000047683716,
+          "p99": 18.40000009536743,
+          "max": 18.40000009536743
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 17.700000047683716,
+          "p99": 18.40000009536743,
+          "max": 18.40000009536743
+        },
+        "raf_fps": 59.88023977742326,
+        "drawn_nodes": 15,
+        "visited_nodes": 18,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 76,
+          "rss_bytes_sum": 628109312,
+          "private_commit_bytes_sum": 658255872,
+          "cpu_percent_one_core": 60.824295935138196,
+          "cpu_percent_machine": 5.068691327928183,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 14.03014765974994,
+            "gpu_engine_percent_max": 14.003283710165915,
+            "gpu_dedicated_bytes": 13400465408,
+            "gpu_shared_bytes": 54169600,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008396000019274652
+        },
+        "capture": {
+          "name": "react-flow-50.png",
+          "sha256": "a039cf03a344346d8723955cb4dc6e1de48ae78441d0cd09f88a8d01de2cde9f"
+        }
+      },
+      {
+        "engine": "react-flow",
+        "count": 100,
+        "edges": 99,
+        "setup_ms": 62.89999997615814,
+        "update_ms": {
+          "count": 80,
+          "p50": 1.100000023841858,
+          "p95": 6.099999904632568,
+          "p99": 6.5,
+          "max": 6.5
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 17.899999976158142,
+          "p99": 18.200000047683716,
+          "max": 18.200000047683716
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.699999928474426,
+          "p95": 17.899999976158142,
+          "p99": 18.200000047683716,
+          "max": 18.200000047683716
+        },
+        "raf_fps": 59.88023977742326,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 76,
+          "rss_bytes_sum": 641314816,
+          "private_commit_bytes_sum": 670572544,
+          "cpu_percent_one_core": 77.37737415159351,
+          "cpu_percent_machine": 6.448114512632793,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 13.855169074659448,
+            "gpu_engine_percent_max": 13.855169074659448,
+            "gpu_dedicated_bytes": 14134804480,
+            "gpu_shared_bytes": 54169600,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008594399900175631
+        },
+        "capture": {
+          "name": "react-flow-100.png",
+          "sha256": "1f7c935f04ea9ac047c9db0ce4e81fe9d4878841b6bad67690637e54e94d2a5a"
+        }
+      },
+      {
+        "engine": "react-flow",
+        "count": 500,
+        "edges": 499,
+        "setup_ms": 219.10000002384186,
+        "update_ms": {
+          "count": 80,
+          "p50": 1.399999976158142,
+          "p95": 10.699999928474426,
+          "p99": 27.100000023841858,
+          "max": 27.100000023841858
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.5,
+          "p95": 18,
+          "p99": 29.90000009536743,
+          "max": 29.90000009536743
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.5,
+          "p95": 18,
+          "p99": 29.90000009536743,
+          "max": 29.90000009536743
+        },
+        "raf_fps": 60.60606060606061,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 76,
+          "rss_bytes_sum": 651010048,
+          "private_commit_bytes_sum": 689004544,
+          "cpu_percent_one_core": 87.69123236510859,
+          "cpu_percent_machine": 7.307602697092382,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 12.355141167148119,
+            "gpu_engine_percent_max": 12.355141167148119,
+            "gpu_dedicated_bytes": 14878081024,
+            "gpu_shared_bytes": 54169600,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008662200067192316
+        },
+        "capture": {
+          "name": "react-flow-500.png",
+          "sha256": "cd45bf6a1966c066233086ae3e6fb3954f08a947cd893bb3138bff157c786582"
+        }
+      },
+      {
+        "engine": "react-flow",
+        "count": 1000,
+        "edges": 999,
+        "setup_ms": 363.2999999523163,
+        "update_ms": {
+          "count": 80,
+          "p50": 1.5,
+          "p95": 10.199999928474426,
+          "p99": 10.600000023841858,
+          "max": 10.600000023841858
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.59999990463257,
+          "p95": 18.100000023841858,
+          "p99": 18.300000071525574,
+          "max": 18.300000071525574
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.59999990463257,
+          "p95": 18.100000023841858,
+          "p99": 18.300000071525574,
+          "max": 18.300000071525574
+        },
+        "raf_fps": 60.240964201507595,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 76,
+          "rss_bytes_sum": 654569472,
+          "private_commit_bytes_sum": 692920320,
+          "cpu_percent_one_core": 86.86182271431426,
+          "cpu_percent_machine": 7.2384852261928545,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 11.763138986096443,
+            "gpu_engine_percent_max": 11.763138986096443,
+            "gpu_dedicated_bytes": 15612411904,
+            "gpu_shared_bytes": 54169600,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008420899976044893
+        },
+        "capture": {
+          "name": "react-flow-1000.png",
+          "sha256": "dc1dada8a7da0032d2fdc51c01e1b146370e87c2427d82f4d6917881baefc487"
+        }
+      },
+      {
+        "engine": "react-flow",
+        "count": 5000,
+        "edges": 4999,
+        "setup_ms": 1819.4000000953674,
+        "update_ms": {
+          "count": 80,
+          "p50": 2.6999999284744263,
+          "p95": 18.699999928474426,
+          "p99": 48.60000002384186,
+          "max": 48.60000002384186
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.799999952316284,
+          "p95": 21.100000023841858,
+          "p99": 51.60000002384186,
+          "max": 51.60000002384186
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.799999952316284,
+          "p95": 21.100000023841858,
+          "p99": 51.60000002384186,
+          "max": 51.60000002384186
+        },
+        "raf_fps": 59.52380969275693,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "native SDK rendering",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 76,
+          "rss_bytes_sum": 756219904,
+          "private_commit_bytes_sum": 732647424,
+          "cpu_percent_one_core": 114.47568052348068,
+          "cpu_percent_machine": 9.53964004362339,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 6.927246881811026,
+            "gpu_engine_percent_max": 6.896473209920538,
+            "gpu_dedicated_bytes": 16255868928,
+            "gpu_shared_bytes": 53907456,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008443599916063249
+        },
+        "capture": {
+          "name": "react-flow-5000.png",
+          "sha256": "51235f6bf059c737d46acb1d34c5eda9d25818530d45a1c363e2ffc3b75b3bc1"
+        }
+      },
+      {
+        "engine": "sigma",
+        "count": 50,
+        "edges": 49,
+        "setup_ms": 781.1000000238419,
+        "update_ms": {
+          "count": 80,
+          "p50": 0.8000000715255737,
+          "p95": 1.100000023841858,
+          "p99": 1.3000000715255737,
+          "max": 1.3000000715255737
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.600000023841858,
+          "p95": 17.5,
+          "p99": 18.09999990463257,
+          "max": 18.09999990463257
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.600000023841858,
+          "p95": 17.5,
+          "p99": 18.09999990463257,
+          "max": 18.09999990463257
+        },
+        "raf_fps": 60.24096376890021,
+        "drawn_nodes": 15,
+        "visited_nodes": 18,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "Sigma native edges + same Canvas card overlay",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 76,
+          "rss_bytes_sum": 785952768,
+          "private_commit_bytes_sum": 1212616704,
+          "cpu_percent_one_core": 90.75325491718921,
+          "cpu_percent_machine": 7.5627712430991005,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 17.249515046943387,
+            "gpu_engine_percent_max": 17.249515046943387,
+            "gpu_dedicated_bytes": 17538306048,
+            "gpu_shared_bytes": 56954880,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.009245799970813096
+        },
+        "capture": {
+          "name": "sigma-50.png",
+          "sha256": "0b555d2af4ffda70e212341c59eda4aa0fc7fdde7349b7505f205f229fac6500"
+        }
+      },
+      {
+        "engine": "sigma",
+        "count": 100,
+        "edges": 99,
+        "setup_ms": 92.80000007152557,
+        "update_ms": {
+          "count": 80,
+          "p50": 1.0999999046325684,
+          "p95": 1.2999999523162842,
+          "p99": 1.5,
+          "max": 1.5
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.5,
+          "p95": 17.800000071525574,
+          "p99": 18.5,
+          "max": 18.5
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.5,
+          "p95": 17.800000071525574,
+          "p99": 18.5,
+          "max": 18.5
+        },
+        "raf_fps": 60.60606060606061,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "Sigma native edges + same Canvas card overlay",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 76,
+          "rss_bytes_sum": 797057024,
+          "private_commit_bytes_sum": 1307430912,
+          "cpu_percent_one_core": 77.3720426441326,
+          "cpu_percent_machine": 6.447670220344384,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 28.876390954008023,
+            "gpu_engine_percent_max": 28.876390954008023,
+            "gpu_dedicated_bytes": 18468675584,
+            "gpu_shared_bytes": 36827136,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008421099977567792
+        },
+        "capture": {
+          "name": "sigma-100.png",
+          "sha256": "aa5d19e2e9211a8f5581e8882dea0a3b0875458e543c2658c0070b78ff1a0498"
+        }
+      },
+      {
+        "engine": "sigma",
+        "count": 500,
+        "edges": 499,
+        "setup_ms": 757.6000000238419,
+        "update_ms": {
+          "count": 80,
+          "p50": 1.100000023841858,
+          "p95": 1.3000000715255737,
+          "p99": 1.7999999523162842,
+          "max": 1.7999999523162842
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.700000047683716,
+          "p95": 18,
+          "p99": 19.600000023841858,
+          "max": 19.600000023841858
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.700000047683716,
+          "p95": 18,
+          "p99": 19.600000023841858,
+          "max": 19.600000023841858
+        },
+        "raf_fps": 59.880239349981295,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "Sigma native edges + same Canvas card overlay",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 76,
+          "rss_bytes_sum": 800862208,
+          "private_commit_bytes_sum": 1341784064,
+          "cpu_percent_one_core": 93.81418113424647,
+          "cpu_percent_machine": 7.817848427853872,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 21.68148467350498,
+            "gpu_engine_percent_max": 21.68148467350498,
+            "gpu_dedicated_bytes": 19319205888,
+            "gpu_shared_bytes": 39972864,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.008585100062191486
+        },
+        "capture": {
+          "name": "sigma-500.png",
+          "sha256": "52a5a08d9b8c5c40be080a07b453416b3d562e08be24d0e11186b568133e4c7d"
+        }
+      },
+      {
+        "engine": "sigma",
+        "count": 1000,
+        "edges": 999,
+        "setup_ms": 120.60000002384186,
+        "update_ms": {
+          "count": 80,
+          "p50": 1.100000023841858,
+          "p95": 1.399999976158142,
+          "p99": 1.600000023841858,
+          "max": 1.600000023841858
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.600000023841858,
+          "p95": 18.100000023841858,
+          "p99": 21.5,
+          "max": 21.5
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.600000023841858,
+          "p95": 18.100000023841858,
+          "p99": 21.5,
+          "max": 21.5
+        },
+        "raf_fps": 60.24096376890021,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "Sigma native edges + same Canvas card overlay",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 76,
+          "rss_bytes_sum": 781889536,
+          "private_commit_bytes_sum": 1322631168,
+          "cpu_percent_one_core": 88.83347069640367,
+          "cpu_percent_machine": 7.402789224700306,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 30.668307794881482,
+            "gpu_engine_percent_max": 30.668307794881482,
+            "gpu_dedicated_bytes": 20120805376,
+            "gpu_shared_bytes": 39972864,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.006855800049379468
+        },
+        "capture": {
+          "name": "sigma-1000.png",
+          "sha256": "8470dd40c5e15318f1e070907669d237a7cbde2f113006b4b44c475141097b75"
+        }
+      },
+      {
+        "engine": "sigma",
+        "count": 5000,
+        "edges": 4999,
+        "setup_ms": 888.1000000238419,
+        "update_ms": {
+          "count": 80,
+          "p50": 1.1999999284744263,
+          "p95": 1.5,
+          "p99": 2.399999976158142,
+          "max": 2.399999976158142
+        },
+        "raf_intervals_ms": {
+          "count": 80,
+          "p50": 16.700000047683716,
+          "p95": 23.899999976158142,
+          "p99": 37.5,
+          "max": 37.5
+        },
+        "command_to_raf_ms": {
+          "count": 80,
+          "p50": 16.700000047683716,
+          "p95": 23.899999976158142,
+          "p99": 37.5,
+          "max": 37.5
+        },
+        "raf_fps": 59.880239349981295,
+        "drawn_nodes": 25,
+        "visited_nodes": 30,
+        "viewport": {
+          "width": 1536,
+          "height": 844,
+          "dpr": 1.25
+        },
+        "implementation": "Sigma native edges + same Canvas card overlay",
+        "input": "Programmatic camera/drag APIs; this is not native mouse-to-photon latency",
+        "passed": true,
+        "resources": {
+          "process_count": 2,
+          "thread_count": 76,
+          "rss_bytes_sum": 786567168,
+          "private_commit_bytes_sum": 1306316800,
+          "cpu_percent_one_core": 115.1179864025009,
+          "cpu_percent_machine": 9.593165533541741,
+          "resource_coverage_process_count": 2,
+          "unreadable_process_count": 0,
+          "gpu": {
+            "gpu_engine_percent_sum": 34.8649676011758,
+            "gpu_engine_percent_max": 34.8649676011758,
+            "gpu_dedicated_bytes": 20938514432,
+            "gpu_shared_bytes": 45912064,
+            "diagnostics": {}
+          },
+          "monitor_seconds": 0.010383800021372736
+        },
+        "capture": {
+          "name": "sigma-5000.png",
+          "sha256": "f135ba3ffc6a7152cb4b2bd6a3d67999c8a8478562d70f690fd5534d809a248b"
+        }
+      }
+    ],
+    "qt_version": "6.11.1",
+    "hardware_sampling": "read-only image-verified own process tree",
+    "methodology": "Same 50/100/500/1000/5000 nodes, tree edges, 240x128 cards, PNG fixture, viewport, DPR and eighty pan/zoom/drag updates. Native SDK presentation differs; Sigma uses the shared Canvas card overlay. Compare feature fidelity and full-app measurements as well as these isolated timings.",
+    "graphics": {
+      "webgl2": true,
+      "vendor": "Google Inc. (AMD)",
+      "renderer": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x00001638) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    "phase": {
+      "engine": "sigma",
+      "count": 5000
+    },
+    "passed": true,
+    "console_errors": [],
+    "shutdown_requested": true
+  },
+  "worker_layout": {
+    "origin": "owned native Qt/WebEngine renderer laboratory",
+    "input": "programmatic SDK camera/drag with RAF timing",
+    "native_mouse_to_photon": false,
+    "external_network_blocked": true,
+    "cases": [
+      {
+        "ready": true,
+        "count": 50,
+        "edges": 49,
+        "worker_ms": 179.39999997615814,
+        "positioned_nodes": 50,
+        "all_positions_finite": true,
+        "width": 1544,
+        "height": 5432,
+        "wall_ms": 526.2000000476837,
+        "main_thread_animation_frames": 32,
+        "main_thread_largest_frame_gap_ms": 16.80000000000001,
+        "layout_only": true
+      },
+      {
+        "ready": true,
+        "count": 100,
+        "edges": 99,
+        "worker_ms": 207.70000004768372,
+        "positioned_nodes": 100,
+        "all_positions_finite": true,
+        "width": 1544,
+        "height": 11240,
+        "wall_ms": 270.8000000715256,
+        "main_thread_animation_frames": 16,
+        "main_thread_largest_frame_gap_ms": 16.799999999999955,
+        "layout_only": true
+      },
+      {
+        "ready": true,
+        "count": 500,
+        "edges": 499,
+        "worker_ms": 390.10000002384186,
+        "positioned_nodes": 500,
+        "all_positions_finite": true,
+        "width": 2184,
+        "height": 58232,
+        "wall_ms": 451.60000002384186,
+        "main_thread_animation_frames": 28,
+        "main_thread_largest_frame_gap_ms": 16.800000000000182,
+        "layout_only": true
+      },
+      {
+        "ready": true,
+        "count": 1000,
+        "edges": 999,
+        "worker_ms": 564.1000000238419,
+        "positioned_nodes": 1000,
+        "all_positions_finite": true,
+        "width": 2184,
+        "height": 116520,
+        "wall_ms": 623.8999999761581,
+        "main_thread_animation_frames": 39,
+        "main_thread_largest_frame_gap_ms": 16.799999999999955,
+        "layout_only": true
+      },
+      {
+        "ready": true,
+        "count": 5000,
+        "edges": 4999,
+        "worker_ms": 2227.3000000715256,
+        "positioned_nodes": 5000,
+        "all_positions_finite": true,
+        "width": 2824,
+        "height": 585912,
+        "wall_ms": 2288.100000023842,
+        "main_thread_animation_frames": 138,
+        "main_thread_largest_frame_gap_ms": 16.800000000000182,
+        "layout_only": true
+      }
+    ],
+    "qt_version": "6.11.1",
+    "hardware_sampling": "read-only image-verified own process tree",
+    "methodology": "Same 50/100/500/1000/5000 nodes, tree edges, 240x128 cards, PNG fixture, viewport, DPR and eighty pan/zoom/drag updates. Native SDK presentation differs; Sigma uses the shared Canvas card overlay. Compare feature fidelity and full-app measurements as well as these isolated timings.",
+    "passed": true
+  }
+}
