@@ -153,9 +153,9 @@ def run(exe, report, shots, source=False):
                 wait_for(lambda:int(session.metrics()['canvas'].get('drawnImages',0))>=2,20)
                 capture('media-clipboard')
 
-                session.click('Изображение');file_input(str(directory/'path.png'))
+                session.click('Добавить изображение');file_input(str(directory/'path.png'))
                 check('local_path_import',any(item['label']=='path.png' for item in image_count(3)['entities']))
-                session.click('Изображение');file_input(URL)
+                session.click('Добавить изображение');file_input(URL)
                 remote=next(item for item in image_count(4)['entities'] if item['attributes']['media'].get('source_url')==URL)
                 remote_reference=remote['attributes']['media']
                 check('https_import_pins_verified_original',remote_reference['final_url'].startswith('https://www.w3.org/')

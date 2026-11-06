@@ -173,8 +173,10 @@ def main():
             except PermissionError:pass
     def dom():action('dom');return state()['desktop'].get('dom',{})
     def click(label):
+        from scripts.qa_clean_release import research_labels
+        labels=research_labels(label)
         def find():
-            r=dom();return next((x for x in r.get('elements',[]) if (x.get('label')==label or x.get('text')==label) and x['width']>0 and 0<x['y']<r['height']-10),None)
+            r=dom();return next((x for x in r.get('elements',[]) if (x.get('label') in labels or x.get('text') in labels) and x['width']>0 and 0<x['y']<r['height']-10),None)
         e=wait(find);action('input',{'kind':'click','at':[e['x']+e['width']/2,e['y']+min(18,e['height']/2)]})
     def select_option(label,option):
         # Actual Radix keyboard path; own bounded input deliberately types ASCII.

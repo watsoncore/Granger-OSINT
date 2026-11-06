@@ -332,7 +332,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
       }
     }
     const qaNodes:{id:string;x:number;y:number;width:number;height:number;label:string}[]=[]
-    const selectedIds=new Set([p.selected,p.second,...(p.selection||[])])
+    const selectedIds=new Set([p.selected,p.second,...(p.selection||[])].filter(Boolean))
     let drawnLabels=0,drawnImages=0
     for(const {node,point,box}of [...cards].sort((a,b)=>Number(a.node.type!=='entity_group')-Number(b.node.type!=='entity_group'))){
       const selected=selectedIds.has(node.id),root=node.id===p.root,x=point.x-box.width/2,y=point.y-box.height/2

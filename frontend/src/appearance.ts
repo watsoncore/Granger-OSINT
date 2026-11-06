@@ -81,7 +81,7 @@ export function applyAppearance(appearance: AppearancePreset, remember = true) {
   const variables={
     '--user-accent':accent, '--user-node':colorFor(appearance,'node'), '--user-edge':colorFor(appearance,'edge'),
     '--user-hover':colorFor(appearance,'hover'), '--user-nav':colorFor(appearance,'nav'), '--user-button':button,
-    '--user-button-text':contrast(button), '--user-glow':String(appearance.glow),
+    '--user-button-text':contrast(button), '--user-accent-text':contrast(accent), '--user-glow':String(appearance.glow),
     '--user-selection-border':String(appearance.selectionBorder), '--user-hover-glow':String(appearance.hoverGlow),
     '--user-edge-highlight':String(appearance.edgeHighlight),
     '--user-card-radius':appearance.cardRadius+'px', '--user-panel-radius':appearance.panelRadius+'px',

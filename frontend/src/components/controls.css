@@ -39,13 +39,15 @@ input::placeholder,textarea::placeholder {color:var(--quiet)}
 .searchable-select>svg {flex:none;color:var(--muted)}
 .searchable-select[data-state=open] {border-color:var(--user-accent,var(--accent))}
 .searchable-select-menu {
+  display:flex;flex-direction:column;
   min-width:min(240px,calc(100vw - 24px));
   width:var(--radix-dropdown-menu-trigger-width);
   max-width:calc(100vw - 24px);
   max-height:var(--radix-dropdown-menu-content-available-height);
   overflow:hidden;
 }
-.select-options {max-height:min(330px,50vh);overflow:auto;overscroll-behavior:contain}
+.select-options {min-height:0;flex:1 1 auto;max-height:min(330px,50vh);overflow:auto;overscroll-behavior:contain}
+.select-search {flex:none}
 .select-option {min-height:36px;align-items:center}
 .select-option>span {min-width:0}
 .select-option strong,.select-option small {overflow-wrap:anywhere}
@@ -77,12 +79,12 @@ input[type=checkbox]:checked,input[type=checkbox]:indeterminate,input[type=radio
 }
 input[type=checkbox]:checked::before {
   content:"";width:8px;height:4px;
-  border-left:2px solid var(--user-button-text,var(--accent-foreground));
-  border-bottom:2px solid var(--user-button-text,var(--accent-foreground));
+  border-left:2px solid var(--user-accent-text,var(--accent-foreground));
+  border-bottom:2px solid var(--user-accent-text,var(--accent-foreground));
   transform:translateY(-1px) rotate(-45deg);
 }
 input[type=checkbox]:indeterminate::before {
-  content:"";width:8px;height:2px;background:var(--user-button-text,var(--accent-foreground));
+  content:"";width:8px;height:2px;background:var(--user-accent-text,var(--accent-foreground));
   border:0;transform:none;
 }
 input[type=radio]:checked::before {content:"";width:6px;height:6px;background:var(--panel);border-radius:50%}

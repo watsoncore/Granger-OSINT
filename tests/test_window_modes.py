@@ -11,6 +11,32 @@ from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 from grangerpet.window_chrome import FramelessWindow, WindowHeader
 
 
+def test_web_desktop_escape_reaches_focused_control_before_window_command():
+    from PySide6.QtWidgets import QLineEdit
+    app=QApplication.instance() or QApplication([])
+    previous=app.property('web_desktop')
+    class Editor(QLineEdit):
+        escapes=0
+        def keyPressEvent(self,event):
+            if event.key()==Qt.Key.Key_Escape:
+                self.escapes+=1;event.accept();return
+            super().keyPressEvent(event)
+    window=None
+    try:
+        app.setProperty('web_desktop',True)
+        window=FramelessWindow();window.enable_window_modes();window.resize(620,610)
+        editor=Editor(window);editor.resize(300,40)
+        window.show();window.activateWindow();editor.setFocus();QTest.qWait(80)
+        QTest.keyClick(editor,Qt.Key.Key_Escape);app.processEvents()
+        assert editor.escapes==1
+        window.toggle_fullscreen();QTest.qWait(80);editor.setFocus()
+        QTest.keyClick(editor,Qt.Key.Key_Escape);app.processEvents()
+        assert editor.escapes==2 and window.isFullScreen()
+    finally:
+        if window is not None:window.close()
+        app.setProperty('web_desktop',previous)
+
+
 def test_maximize_restore_fullscreen_and_visible_pet():
     app=QApplication.instance() or QApplication([])
     pet=QWidget(None,Qt.WindowType.Tool | Qt.WindowType.WindowStaysOnTopHint);pet.resize(100,100);pet.show()

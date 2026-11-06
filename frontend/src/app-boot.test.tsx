@@ -23,6 +23,21 @@ describe('desktop bootstrap', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Инструменты и чат недоступны')
     expect(screen.queryByRole('textbox', { name: 'Сообщение Гермионе' })).toBeNull()
   })
+  it('leaves a handled menu Escape alone and exits fullscreen on the next unhandled Escape',()=>{
+    vi.mocked(useDesktop).mockReturnValue({state:{...emptyState,window:{...emptyState.window,fullscreen:true}},connected:false,notice:''})
+    render(<App/>)
+    const handled=new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true})
+    handled.preventDefault();window.dispatchEvent(handled)
+    expect(act).not.toHaveBeenCalledWith('window',{mode:'fullscreen'})
+    window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}))
+    expect(act).toHaveBeenCalledWith('window',{mode:'fullscreen'})
+  })
+  it('gives a focused popup Escape priority even when its keyboard event is not cancelable',()=>{
+    vi.mocked(useDesktop).mockReturnValue({state:{...emptyState,window:{...emptyState.window,fullscreen:true}},connected:false,notice:''})
+    render(<><App/><div role="menu"><input aria-label="Фильтр меню"/></div></>)
+    screen.getByLabelText('Фильтр меню').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:false}))
+    expect(act).not.toHaveBeenCalledWith('window',{mode:'fullscreen'})
+  })
   it('renders the actual launcher after its connected snapshot', () => {
     vi.mocked(useDesktop).mockReturnValue({ state: { ...emptyState, surface: 'launcher' }, connected: true, notice: '' })
     render(<App/>)

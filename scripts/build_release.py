@@ -204,6 +204,7 @@ def release(root: Path = ROOT, *, allow_legacy_dist: bool = False, allow_missing
             raise BuildError('Graph V5 acceptance needs real observation receipts and installed external tools.')
     with owned_stage(root) as stage:
         environment = {**os.environ,STAGE_ENV:str(stage),'PYTHONDONTWRITEBYTECODE':'1',
+                       'PYTHONUTF8':'1','PYTHONIOENCODING':'utf-8',
                        'PYINSTALLER_CONFIG_DIR':str(stage/'cache')}
         run_checked(['-m','PyInstaller','--noconfirm','--clean','--distpath',str(stage/'dist'),
             '--workpath',str(stage/'work'),'Granger-OSINT.spec'],root=root,environment=environment)

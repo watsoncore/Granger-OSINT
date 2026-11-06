@@ -253,9 +253,9 @@ def main(argv: list[str] | None = None) -> int:
                     script=script.replace('text:document.body', "geo:(()=>{let g=document.querySelector('.geoint-view');return g?{images:[...g.querySelectorAll('img')].map(i=>({loaded:i.complete&&i.naturalWidth>0,source_is_local:i.src.startsWith('data:image/'),alt:i.alt})),map:!!g.querySelector('.leaflet-map-pane'),tiles:g.querySelectorAll('.leaflet-tile-loaded').length,attribution:g.querySelector('.leaflet-control-attribution')?.textContent,comparison:!!g.querySelector('.geo-comparison'),overlays:g.querySelectorAll('.geo-match-overlay').length}:null})(),text:document.body")
                     script=script.replace('button,input,select,summary,','button,input,textarea,select,summary,')
                     script=script.replace('[role=separator]', '[role=separator],[role=menuitemradio]')
-                    script=script.replace('type:b.type,checked:',"role:b.getAttribute('role'),disabled:b.disabled||b.hasAttribute('data-disabled'),type:b.type,checked:")
+                    script=script.replace('type:b.type,checked:',"role:b.getAttribute('role'),disabled:b.disabled||b.hasAttribute('data-disabled'),appearance:getComputedStyle(b).appearance,svgCount:b.querySelectorAll('svg').length,type:b.type,checked:")
                     script=script.replace('role:b.getAttribute',"hit:(()=>{let hit=document.elementFromPoint(r.x+r.width/2,r.y+Math.min(16,r.height/2));return hit===b||b.contains(hit)})(),role:b.getAttribute")
-                    script=script.replace('hit:(()=>',"scroll:(()=>{let p=b.closest('.inspector-content,.select-options,.research-preview,.main-workspace'),r=p?.getBoundingClientRect();return r?{x:r.x,y:r.y,width:r.width,height:r.height}:null})(),hit:(()=>")
+                    script=script.replace('hit:(()=>',"scroll:(()=>{for(let p=b.parentElement;p;p=p.parentElement){let style=getComputedStyle(p);if(/auto|scroll/.test(style.overflowY)&&p.scrollHeight>p.clientHeight+2){let r=p.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,color:style.scrollbarColor,barWidth:style.scrollbarWidth}}}return null})(),hit:(()=>")
                     def receive(value):
                         try: surface.qa_dom=json.loads(value)
                         except (ValueError,TypeError): surface.qa_dom={}

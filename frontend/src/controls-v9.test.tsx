@@ -5,8 +5,15 @@ import {describe,it,expect,vi} from 'vitest'
 import {Checkbox,Details,Select,Summary} from './components/ui'
 import {ComboBox} from './components/ComboBox'
 import {ResultsTable} from './components/ResultsTable'
+import {applyAppearance,defaults} from './appearance'
 
 describe('shared V9 controls',()=>{
+  it('keeps accent checkmarks readable independently from the button foreground',()=>{
+    applyAppearance({...defaults('azure'),colors:{accent:'#ffffff',button:'#000000'}},false)
+    expect(document.documentElement.style.getPropertyValue('--user-accent-text')).toBe('#121820')
+    expect(document.documentElement.style.getPropertyValue('--user-button-text')).toBe('#ffffff')
+    applyAppearance(defaults('dark'),false)
+  })
   it('chooses a filtered option with Enter and keeps disabled options inert',async()=>{
     const user=userEvent.setup(),change=vi.fn()
     render(<Select aria-label="Качество" value="auto" onValueChange={change}>

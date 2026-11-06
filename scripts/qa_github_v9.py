@@ -18,7 +18,7 @@ from scripts.qa_workspace_v7 import V7Session
 
 def run(exe,output,*,source=False):
     from PySide6.QtCore import QCoreApplication
-    from PIL import Image
+    from PIL import Image,ImageStat
     from grangerpet.config import Settings,SettingsStore
     from grangerpet.agent_journal import InvestigationJournal
     from grangerpet.research_canvas import CanvasStore
@@ -48,8 +48,8 @@ def run(exe,output,*,source=False):
                 path=directory/(label+'-search.png')
                 def ready():
                     try:
-                        with Image.open(path) as image:image.verify()
-                        return True
+                        with Image.open(path) as image:
+                            return min(image.size)>300 and max(ImageStat.Stat(image.convert('RGB')).stddev)>5
                     except (ValueError,OSError):return False
                 wait_for(ready,12)
                 (output/(label+'.png')).write_bytes(path.read_bytes())
@@ -113,6 +113,10 @@ def run(exe,output,*,source=False):
                     report['github_profile_created_manually_after_partial_maigret']=True;save()
                 session.select(github['id']);activation(github['id']);activation(github['id'],slow=True)
                 capture('profile-details')
+                profile_canvas_id=session.document()['id']
+                session.click('Встроить');session.click('История');session.click('Поиск');session.click('Мой граф')
+                session.open_document(profile_canvas_id);session.ensure_expanded()
+                session.select(github['id']);activation(github['id'])
                 choose(github,'Изучить GitHub-профиль')
                 first=store.load(session.document()['id'])
                 preview=execute('github_profile',double_click=github['id'])
@@ -128,6 +132,7 @@ def run(exe,output,*,source=False):
                       int(session.metrics()['canvas']['modelNodes'])>=len([node for node in saved['entities'] if node['type']=='public_profile'])+2)
                 session.select(repositories[0]['id'])
                 capture('github-repository-in-graph')
+                session.click('Чистый режим');capture('github-clean-mode');session.click('Полный набор')
                 final=deepcopy(saved);identifier=saved['id']
                 session.stop();session.start(1);session.click('Поиск');session.click('Мой граф')
                 session.open_document(identifier);session.select(github['id']);activation(github['id'])

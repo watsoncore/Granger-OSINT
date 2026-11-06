@@ -17,7 +17,7 @@ from scripts.qa_workspace_v7 import V7Session
 
 
 def run(exe, output, observations, *, baseline=False, source=False):
-    from PIL import Image
+    from PIL import Image, ImageStat
     from PySide6.QtCore import QCoreApplication
     from grangerpet.agent_journal import InvestigationJournal
     from grangerpet.config import Settings, SettingsStore
@@ -65,8 +65,7 @@ def run(exe, output, observations, *, baseline=False, source=False):
                 def ready():
                     try:
                         with Image.open(path) as image:
-                            image.verify()
-                        return True
+                            return min(image.size) > 300 and max(ImageStat.Stat(image.convert('RGB')).stddev) > 5
                     except (OSError, ValueError):
                         return False
 

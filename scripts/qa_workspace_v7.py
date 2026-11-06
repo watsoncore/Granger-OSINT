@@ -99,8 +99,7 @@ def run(exe,report_path,shots,*,source=False):
                 session.action('input',{'kind':'drag','at':session.point(a,port=True),'to':session.point(b)})
                 wait_for(lambda:session.find('Уверенность аналитика')[0]);session.fill('Уверенность аналитика','65')
                 session.fill('Источник связи','https://example.org/source');session.fill('Комментарий к связи','Ручная гипотеза для проверки')
-                session.click('Направление связи');session.action('input',{'kind':'key','key':'home'})
-                session.action('input',{'kind':'key','key':'down'});session.action('input',{'kind':'key','key':'down'});session.action('input',{'kind':'key','key':'enter'})
+                session.pick('Направление связи','В обе стороны ↔','В обе стороны')
                 capture('relation-dialog');session.click('Сохранить связь')
                 wait_for(lambda:len(session.document()['relations'])==1);session.idle()
                 edge=session.settled()['relations'][0]

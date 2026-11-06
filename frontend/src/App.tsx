@@ -78,6 +78,9 @@ export default function App() {
   const onSource = useCallback((next: Source) => setSource(next), [])
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return
+      if (event.key === 'Escape' && event.target instanceof Element &&
+          event.target.closest('[role="menu"],[role="dialog"],[role="listbox"]')) return
       if ((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'&&state.surface==='main') {
         event.preventDefault();setPalette(previous=>!previous);return
       }

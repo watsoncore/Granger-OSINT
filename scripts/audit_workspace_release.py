@@ -76,6 +76,7 @@ def main():
                     failures.append('forbidden-archive-path/'+name)
                 inspect('ZIP/'+name,bundle.read(name))
     report={'at_utc':datetime.now(timezone.utc).isoformat(),'passed':not failures,'checked_payloads':checked,
+        'exe_sha256':hashlib.sha256(args.exe.read_bytes()).hexdigest(),
         'saved_credential_values_available':len(exact),'locked_or_unavailable_credentials':unavailable,
         'archive_checked':bool(args.archive),'git_history_checked':True,'failures':failures,
         'unchanged_stock_identifiers':stock_identifiers,

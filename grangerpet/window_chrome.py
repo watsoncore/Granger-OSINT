@@ -189,6 +189,9 @@ class FramelessWindow(QWidget):
         self._fullscreen_shortcut.activated.connect(self.toggle_fullscreen)
         self._escape_shortcut = QShortcut(QKeySequence('Escape'), self)
         self._escape_shortcut.activated.connect(self._exit_fullscreen)
+        # WebEngine menus/dialogs must receive Escape before window commands.
+        # React handles fullscreen Escape after the focused control has had it.
+        self._escape_shortcut.setEnabled(not bool(QApplication.instance().property('web_desktop')))
 
     def _exit_fullscreen(self):
         if self.isFullScreen():
