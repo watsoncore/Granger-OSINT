@@ -13,7 +13,7 @@ from scripts.qa_clean_release import isolated_environment,wait_for,QaFailure
 from scripts.qa_workspace_v7 import V7Session,TON
 
 
-def run(exe,report_path,shots,*,source=False,workspace_v8=False):
+def run(exe,report_path,shots,*,source=False,workspace_v8=False,crypto_only=False):
     from PySide6.QtCore import QCoreApplication
     from PIL import Image
     from grangerpet.config import Settings,SettingsStore
@@ -22,7 +22,7 @@ def run(exe,report_path,shots,*,source=False,workspace_v8=False):
     app=QCoreApplication.instance() or QCoreApplication([])
     report_path.parent.mkdir(parents=True,exist_ok=True);shots.mkdir(parents=True,exist_ok=True)
     result={'origin':'native-source' if source else 'frozen-Windows-EXE','exe_sha256':None if source else hashlib.sha256(exe.read_bytes()).hexdigest(),
-        'passed':False,'mock':False,'checks':[],'executions':[],'captures':[]}
+        'passed':False,'mock':False,'crypto_only':crypto_only,'checks':[],'executions':[],'captures':[]}
     def save():report_path.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
     def check(name,ok):
         result['checks'].append({'name':name,'passed':bool(ok)});save();print(json.dumps(result['checks'][-1]),flush=True)
@@ -51,6 +51,7 @@ def run(exe,report_path,shots,*,source=False,workspace_v8=False):
                 wait_for(lambda:e if (e:=session.find(action)[0]) and not e.get('disabled') else None,30)
                 session.click(action)
             def execute(tool,operation=None):
+                session.idle()
                 previous=(session.canvas().get('preview') or {}).get('token');started=time.monotonic()
                 session.click('Выполнить → просмотр')
                 def finished():
@@ -78,50 +79,54 @@ def run(exe,report_path,shots,*,source=False,workspace_v8=False):
                 return receipt
             try:
                 session.start(0);session.click('Поиск');session.action('tools_refresh');wait_for(lambda:not session.snapshot().get('toolsChecking'),90)
-                session.click('Моё полотно');project('V7 / Публичные профили')
-                username=session.create_v7('Никнейм','Никнейм','solvnox');choose(username,'Найти публичные профили')
-                session.pick('Режим Maigret','Стандартный' if workspace_v8 else 'Быстрый','Стандартный' if workspace_v8 else 'quick');preview=execute('username_maigret')
-                check('live_maigret_has_observed_profiles',bool(preview['results']))
-                if workspace_v8:capture('results-gallery')
-                insert(preview);check('maigret_inserted_profiles',any(n['type']=='public_profile' for n in session.document()['entities']))
-                if workspace_v8:
-                    identity=store.load(session.document()['id'])
-                    identifier=identity['id']
-                    profile_ids={edge['to_id'] for edge in identity['relations'] if edge['from_id']==username['id']
-                                 and edge['relation_type']=='returned_for_query'}
-                    wait_for(lambda:session.document()['view']['layout']=='identity',25)
-                    wait_for(lambda:int(session.metrics()['canvas'].get('modelNodes',0))==len(profile_ids)+1,25)
-                    check('identity_hub_contains_only_nickname_and_observed_profiles',bool(profile_ids))
-                    capture('identity-hub')
-                    session.click('Настроить полотно')
-                    for label,mode in (('Инфраструктура','infrastructure'),('Основания','evidence'),('Публичные профили · Identity','socmint')):
-                        session.pick('Представление полотна',label,label)
-                        wait_for(lambda:session.document()['view']['ui']['graph_mode']==mode,20)
-                    current=store.load(identifier)
-                    check('projection_switch_preserves_raw_evidence_and_relations',current['evidence']==identity['evidence'] and current['relations']==identity['relations'])
-                    session.click('Настроить полотно')
-                    visible=json.loads(session.metrics()['canvas'].get('qaNodes','[]'))
-                    profile=next((node['id'] for node in visible if node['id'] in profile_ids),None)
-                    if profile:
-                        session.select(profile);session.click('Сведения')
-                        capture('selected-public-profile')
-                    result['identity_counts']={'profiles':len(profile_ids),'root_nodes':1,
-                        'model_nodes':int(session.metrics()['canvas'].get('modelNodes',0)),
-                        'visible_images':int(session.metrics()['canvas'].get('drawnImages',0))}
-                    save()
-                capture('live-maigret')
-                project('V7 / Email')
-                email=session.create_v7('Email','Email','octocat@github.com');choose(email,'Исследовать email');preview=execute('email_research');insert(preview)
-                saved=store.load(session.document()['id']);check('email_evidence_does_not_verify_mailbox',bool(saved['evidence']) and all(row.get('details',{}).get('mailbox_verified') is False for row in saved['evidence']))
-                capture('live-email')
-                project('V7 / Компания')
-                session.click('Новый объект');session.pick('Тип нового узла','Компания / организация','Компания');session.pick('Юрисдикция компании','США','США');session.fill('Название','MICROSOFT CORPORATION')
-                session.click('Добавить объект');wait_for(lambda:len(session.document()['entities'])==1);company=session.settled()['entities'][0]
-                choose(company,'Исследовать компанию');preview=execute('company_research');insert(preview)
-                saved=store.load(session.document()['id']);check('company_source_is_registry_not_dns',bool(saved['evidence']) and all(row.get('details',{}).get('source_id')=='company_gleif' for row in saved['evidence']))
-                candidates=[n for n in saved['entities'] if n['type']=='organization' and n['id']!=company['id']]
-                check('company_candidates_remain_separate',len(candidates)>=2 and all(n['attributes'].get('identity_match_verified') is False for n in candidates))
-                capture('live-company')
+                session.click('Моё полотно')
+                if not crypto_only:
+                    project('V7 / Публичные профили')
+                    username=session.create_v7('Никнейм','Никнейм','solvnox');choose(username,'Найти публичные профили')
+                    session.pick('Режим Maigret','Стандартный' if workspace_v8 else 'Быстрый','Стандартный' if workspace_v8 else 'quick');preview=execute('username_maigret')
+                    check('live_maigret_has_observed_profiles',bool(preview['results']))
+                    if workspace_v8:capture('results-gallery')
+                    insert(preview);check('maigret_inserted_profiles',any(n['type']=='public_profile' for n in session.document()['entities']))
+                    if workspace_v8:
+                        identity=store.load(session.document()['id'])
+                        identifier=identity['id']
+                        profile_ids={edge['to_id'] for edge in identity['relations'] if edge['from_id']==username['id']
+                                     and edge['relation_type']=='returned_for_query'}
+                        wait_for(lambda:session.document()['view']['layout']=='identity',25)
+                        wait_for(lambda:int(session.metrics()['canvas'].get('modelNodes',0))==len(profile_ids)+1,25)
+                        check('identity_hub_contains_only_nickname_and_observed_profiles',bool(profile_ids))
+                        capture('identity-hub')
+                        for label,mode in (('Инфраструктура','infrastructure'),('Основания','evidence'),('Публичные профили · Identity','socmint')):
+                            control=session.find('Представление полотна')[0]
+                            if not control or not control.get('hit'):session.click('Фильтры')
+                            session.pick('Представление полотна',label,label)
+                            wait_for(lambda:session.document()['view']['ui']['graph_mode']==mode,20)
+                        current=store.load(identifier)
+                        check('projection_switch_preserves_raw_evidence_and_relations',current['evidence']==identity['evidence'] and current['relations']==identity['relations'])
+                        control=session.find('Представление полотна')[0]
+                        if control and control.get('hit'):session.click('Фильтры')
+                        visible=json.loads(session.metrics()['canvas'].get('qaNodes','[]'))
+                        profile=next((node['id'] for node in visible if node['id'] in profile_ids),None)
+                        if profile:
+                            session.select(profile);session.click('Сведения')
+                            capture('selected-public-profile')
+                        result['identity_counts']={'profiles':len(profile_ids),'root_nodes':1,
+                            'model_nodes':int(session.metrics()['canvas'].get('modelNodes',0)),
+                            'visible_images':int(session.metrics()['canvas'].get('drawnImages',0))}
+                        save()
+                    capture('live-maigret')
+                    project('V7 / Email')
+                    email=session.create_v7('Email','Email','octocat@github.com');choose(email,'Исследовать email');preview=execute('email_research');insert(preview)
+                    saved=store.load(session.document()['id']);check('email_evidence_does_not_verify_mailbox',bool(saved['evidence']) and all(row.get('details',{}).get('mailbox_verified') is False for row in saved['evidence']))
+                    capture('live-email')
+                    project('V7 / Компания')
+                    session.click('Новый объект');session.pick('Тип нового узла','Компания / организация','Компания');session.pick('Юрисдикция компании','США','США');session.fill('Название','MICROSOFT CORPORATION')
+                    session.click('Добавить объект');wait_for(lambda:len(session.document()['entities'])==1);company=session.settled()['entities'][0]
+                    choose(company,'Исследовать компанию');preview=execute('company_research');insert(preview)
+                    saved=store.load(session.document()['id']);check('company_source_is_registry_not_dns',bool(saved['evidence']) and all(row.get('details',{}).get('source_id')=='company_gleif' for row in saved['evidence']))
+                    candidates=[n for n in saved['entities'] if n['type']=='organization' and n['id']!=company['id']]
+                    check('company_candidates_remain_separate',len(candidates)>=2 and all(n['attributes'].get('identity_match_verified') is False for n in candidates))
+                    capture('live-company')
                 project('V7 / TON и повторные NFT')
                 wallet=session.create_v7('Криптокошелёк','Адрес кошелька',TON,'TON');choose(wallet,'Исследовать криптообъект')
                 session.pick('Операция Gansar','Обзор адреса','profile');preview=execute('blockchain_gansar','profile');insert(preview)
@@ -156,8 +161,8 @@ def run(exe,report_path,shots,*,source=False,workspace_v8=False):
 
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--exe',type=Path,required=True);parser.add_argument('--report',type=Path,required=True);parser.add_argument('--screenshots',type=Path,required=True);parser.add_argument('--source',action='store_true');parser.add_argument('--workspace-v8',action='store_true')
-    args=parser.parse_args();run(args.exe.resolve(),args.report.resolve(),args.screenshots.resolve(),source=args.source,workspace_v8=args.workspace_v8)
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--exe',type=Path,required=True);parser.add_argument('--report',type=Path,required=True);parser.add_argument('--screenshots',type=Path,required=True);parser.add_argument('--source',action='store_true');parser.add_argument('--workspace-v8',action='store_true');parser.add_argument('--crypto-only',action='store_true')
+    args=parser.parse_args();run(args.exe.resolve(),args.report.resolve(),args.screenshots.resolve(),source=args.source,workspace_v8=args.workspace_v8,crypto_only=args.crypto_only)
 
 
 if __name__=='__main__':main()

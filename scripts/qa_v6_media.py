@@ -199,7 +199,8 @@ def run(exe, report, shots, source=False):
                     check('responsive_window_'+str(width),not dom['overflow'] and bool(session.find('Быстрый переход')[0]))
                 session.command('qa_window_mode',{'mode':'maximized'})
                 for mode in ('reduced','off','full'):
-                    session.action('settings_save',{'values':{'ui_effects':mode}})
+                    appearance=json.dumps({'appStyle':'glass','effects':mode})
+                    session.action('settings_save',{'values':{'workspace_appearance':appearance,'ui_effects':mode}})
                     check('effects_mode_'+mode,bool(wait_for(lambda:session.dom().get('effects')==mode,12)))
                 session.stop()
                 os.environ['QT_SCALE_FACTOR']='2'

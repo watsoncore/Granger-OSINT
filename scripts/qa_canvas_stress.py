@@ -210,7 +210,9 @@ def main():
         argv=([str(args.exe.resolve())] if args.exe else [sys.executable,str(ROOT/'main.py')])+['--pet','--interaction-qa']
         started=time.perf_counter()
         with (out/'process.log').open('wb') as stream:process=subprocess.Popen(argv,cwd=ROOT,env=os.environ.copy(),stdout=stream,stderr=subprocess.STDOUT)
-        owned=wait(state,80)['pid'];wait(lambda:state()['desktop']['ready']);monitor.sample([process.pid],source_main_pids=([owned] if not args.exe else []))
+        owned=wait(state,80)['pid']
+        wait(lambda:(state() or {}).get('desktop',{}).get('ready'))
+        monitor.sample([process.pid],source_main_pids=([owned] if not args.exe else []))
         command('show_workspace',{'route':'search'});action('window',{'mode':'maximize'});click('Моё полотно')
         report['startup_to_canvas_seconds']=round(time.perf_counter()-started,3)
         for index,case in enumerate(cases):

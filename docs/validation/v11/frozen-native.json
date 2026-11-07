@@ -1,0 +1,1288 @@
+{
+  "passed": true,
+  "exe_sha256": "627f9a26002abbab7a2b6646da21a42d769d2a9614b42dfef9ecb74a0d3c9688",
+  "core_smoke_checks": 22,
+  "scope": "Actual isolated Windows Qt/WebEngine. Paid DeepSeek calls: 0. Source preview uses fresh requests for the eight named sources.",
+  "scenarios": {
+    "graph_forms": {
+      "checks": [
+        {
+          "name": "frozen_frontend_matches_current_build",
+          "passed": true
+        },
+        {
+          "name": "canvas_first_default_panels_closed",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Человек",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Компания / организация",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Никнейм",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Email",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Телефон",
+          "passed": true
+        },
+        {
+          "name": "typed_form_IP-адрес",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Домен",
+          "passed": true
+        },
+        {
+          "name": "typed_form_URL",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Профиль",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Криптокошелёк",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Транзакция",
+          "passed": true
+        },
+        {
+          "name": "typed_form_NFT",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Токен",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Контракт",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Коллекция",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Документ",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Географическая точка",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Заметка",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Гипотеза",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Произвольный объект",
+          "passed": true
+        },
+        {
+          "name": "twenty_manual_objects_without_fabricated_evidence",
+          "passed": true
+        },
+        {
+          "name": "native_port_drag_and_relation_metadata",
+          "passed": true
+        },
+        {
+          "name": "native_relation_undo_redo",
+          "passed": true
+        },
+        {
+          "name": "expanded_group_keeps_members_and_relation_visible",
+          "passed": true
+        },
+        {
+          "name": "native_group_drag_preserves_descendant_offsets",
+          "passed": true
+        },
+        {
+          "name": "native_group_resize",
+          "passed": true
+        },
+        {
+          "name": "native_group_collapse",
+          "passed": true
+        },
+        {
+          "name": "native_group_expand",
+          "passed": true
+        },
+        {
+          "name": "native_image_import_preserves_original",
+          "passed": true
+        },
+        {
+          "name": "restart_preserves_manual_composition",
+          "passed": true
+        }
+      ],
+      "graph_style": "minimal",
+      "temporary_profile_removed": true
+    },
+    "phone_email": {
+      "cases": [
+        {
+          "tool": "phone_metadata",
+          "status": "complete",
+          "observations": 1,
+          "same_manual_entity": true,
+          "evidence_ids_attached": 1,
+          "claims_limited_to_metadata": true,
+          "passed": true
+        },
+        {
+          "tool": "email_research",
+          "status": "complete",
+          "observations": 1,
+          "same_manual_entity": true,
+          "evidence_ids_attached": 1,
+          "claims_limited_to_metadata": true,
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true
+    },
+    "source_preview": {
+      "cases": [
+        {
+          "provider_id": "brreg",
+          "status": "complete",
+          "observations": 5,
+          "preview_did_not_insert": true,
+          "seconds": 6.994,
+          "error_code": null,
+          "insertion": true,
+          "reopen": true,
+          "deduplicated": true,
+          "connected_to_target": true,
+          "passed": true,
+          "flow_passed": true
+        },
+        {
+          "provider_id": "pypi",
+          "status": "complete",
+          "observations": 1,
+          "preview_did_not_insert": true,
+          "seconds": 6.833,
+          "error_code": null,
+          "insertion": true,
+          "reopen": true,
+          "deduplicated": true,
+          "connected_to_target": true,
+          "passed": true,
+          "flow_passed": true
+        },
+        {
+          "provider_id": "blockstream",
+          "status": "complete",
+          "observations": 1,
+          "preview_did_not_insert": true,
+          "seconds": 7.198,
+          "error_code": null,
+          "insertion": true,
+          "reopen": true,
+          "deduplicated": true,
+          "connected_to_target": true,
+          "passed": true,
+          "flow_passed": true
+        },
+        {
+          "provider_id": "opentopodata",
+          "status": "complete",
+          "observations": 1,
+          "preview_did_not_insert": true,
+          "seconds": 6.91,
+          "error_code": null,
+          "insertion": true,
+          "reopen": true,
+          "deduplicated": true,
+          "connected_to_target": true,
+          "passed": true,
+          "flow_passed": true
+        },
+        {
+          "provider_id": "openalex",
+          "status": "complete",
+          "observations": 5,
+          "preview_did_not_insert": true,
+          "seconds": 7.377,
+          "error_code": null,
+          "insertion": true,
+          "reopen": true,
+          "deduplicated": true,
+          "connected_to_target": true,
+          "passed": true,
+          "flow_passed": true
+        },
+        {
+          "provider_id": "gitlab",
+          "status": "complete",
+          "observations": 1,
+          "preview_did_not_insert": true,
+          "seconds": 6.85,
+          "error_code": null,
+          "insertion": true,
+          "reopen": true,
+          "deduplicated": true,
+          "connected_to_target": true,
+          "passed": true,
+          "flow_passed": true
+        },
+        {
+          "provider_id": "openfoodfacts",
+          "status": "complete",
+          "observations": 1,
+          "preview_did_not_insert": true,
+          "seconds": 6.839,
+          "error_code": null,
+          "insertion": true,
+          "reopen": true,
+          "deduplicated": true,
+          "connected_to_target": true,
+          "passed": true,
+          "flow_passed": true
+        },
+        {
+          "provider_id": "datacite",
+          "status": "complete",
+          "observations": 5,
+          "preview_did_not_insert": true,
+          "seconds": 7.062,
+          "error_code": null,
+          "insertion": true,
+          "reopen": true,
+          "deduplicated": true,
+          "connected_to_target": true,
+          "passed": true,
+          "flow_passed": true
+        }
+      ],
+      "independent_nonempty_live_providers": 8,
+      "temporary_profile_removed": true
+    },
+    "minimal_settings": {
+      "checks": [
+        {
+          "name": "settings_0_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_0_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "deepseek_profile_is_isolated_and_keyless",
+          "passed": true
+        },
+        {
+          "name": "deepseek_keyless_check_cannot_enable_chat",
+          "passed": true
+        },
+        {
+          "name": "settings_1_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_1_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_2_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_2_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_source_directory_searches_by_country_and_object",
+          "passed": true
+        },
+        {
+          "name": "settings_3_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_3_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_4_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_4_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_5_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_5_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_6_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_6_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "custom_select_escape_restores_without_change",
+          "passed": true
+        },
+        {
+          "name": "custom_select_search_and_keyboard_commit",
+          "passed": true
+        },
+        {
+          "name": "fullscreen_escape_closes_menu_before_window",
+          "passed": true
+        },
+        {
+          "name": "fullscreen_escape_without_menu_exits",
+          "passed": true
+        },
+        {
+          "name": "narrow_settings_no_horizontal_overflow",
+          "passed": true
+        }
+      ],
+      "app_style": "minimal",
+      "temporary_profile_removed": true
+    },
+    "glass_settings": {
+      "checks": [
+        {
+          "name": "settings_0_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_0_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_1_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_1_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_2_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_2_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_source_directory_searches_by_country_and_object",
+          "passed": true
+        },
+        {
+          "name": "settings_3_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_3_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_4_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_4_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_5_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_5_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_6_global_material",
+          "passed": true
+        },
+        {
+          "name": "settings_6_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "custom_select_escape_restores_without_change",
+          "passed": true
+        },
+        {
+          "name": "custom_select_search_and_keyboard_commit",
+          "passed": true
+        },
+        {
+          "name": "fullscreen_escape_closes_menu_before_window",
+          "passed": true
+        },
+        {
+          "name": "fullscreen_escape_without_menu_exits",
+          "passed": true
+        },
+        {
+          "name": "narrow_settings_no_horizontal_overflow",
+          "passed": true
+        }
+      ],
+      "app_style": "glass",
+      "temporary_profile_removed": true
+    },
+    "github_and_maigret": {
+      "checks": [
+        {
+          "name": "profile_activation_preserves_graph_and_opens_details",
+          "passed": true
+        },
+        {
+          "name": "profile_activation_preserves_graph_and_opens_details",
+          "passed": true
+        },
+        {
+          "name": "profile_activation_preserves_graph_and_opens_details",
+          "passed": true
+        },
+        {
+          "name": "github_returned_real_observations",
+          "passed": true
+        },
+        {
+          "name": "github_insert_preserves_previous_evidence",
+          "passed": true
+        },
+        {
+          "name": "github_repository_saved",
+          "passed": true
+        },
+        {
+          "name": "github_repository_visible_in_identity_projection",
+          "passed": true
+        },
+        {
+          "name": "profile_activation_preserves_graph_and_opens_details",
+          "passed": true
+        },
+        {
+          "name": "github_findings_survive_restart",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true,
+      "executions": [
+        {
+          "tool": "username_maigret",
+          "status": "partial",
+          "records": 3
+        },
+        {
+          "tool": "github_profile",
+          "status": "complete",
+          "records": 3
+        }
+      ]
+    },
+    "gansar_and_nft": {
+      "checks": [
+        {
+          "name": "blockchain_gansar_profile_preview_is_new_and_honest",
+          "passed": true
+        },
+        {
+          "name": "live_gansar_profile_saved",
+          "passed": true
+        },
+        {
+          "name": "blockchain_gansar_nft_preview_is_new_and_honest",
+          "passed": true
+        },
+        {
+          "name": "nft_run_keeps_previous_evidence",
+          "passed": true
+        },
+        {
+          "name": "nft_insertion_uses_actual_counts_and_visible_projection",
+          "passed": true
+        },
+        {
+          "name": "saved_nft_entities_present",
+          "passed": true
+        },
+        {
+          "name": "live_results_survive_restart",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true,
+      "executions": [
+        {
+          "tool": "blockchain_gansar",
+          "status": "partial",
+          "operation": "profile",
+          "records": 236,
+          "elapsed_seconds": 40.358,
+          "from_saved_data": false
+        },
+        {
+          "tool": "blockchain_gansar",
+          "status": "partial",
+          "operation": "nft",
+          "records": 9,
+          "elapsed_seconds": 69.781,
+          "from_saved_data": false
+        }
+      ]
+    },
+    "wallpaper": {
+      "cases": [
+        {
+          "name": "contain-1366x900",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            192,
+            192
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "773377b8fe1f7be441402012990dedfc00749823ee9b9560ffb54238db4115e9",
+          "passed": true
+        },
+        {
+          "name": "cover-windowed",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "cover",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            225,
+            225
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "aa8a1119e1cd0fa3d9ef1feac7f2f756521dcc81dd4d0ecdf95ae02c17713fa3",
+          "passed": true
+        },
+        {
+          "name": "cover-fullscreen",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1536,
+            "height": 864,
+            "fit": "cover",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            216,
+            216
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "dd28f66ac3511169ec799dc3fb9ed7fcb8daf898f5a4e6fd4497b70aa13a3a42",
+          "passed": true
+        },
+        {
+          "name": "original-windowed",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "3840px 2160px",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            541,
+            540
+          ],
+          "circle_aspect_error": 0.0018518518518517713,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "324c64334f84cf690985e43bafa14a705b38be18778b40e13455414d28dd2434",
+          "passed": true
+        },
+        {
+          "name": "original-fullscreen",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1536,
+            "height": 864,
+            "fit": "3840px 2160px",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            541,
+            541
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "080f31aaf075e7eea3a1c2a52aa357e447fa7124f1dc073ade03629911559940",
+          "passed": true
+        },
+        {
+          "name": "contain-windowed",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            192,
+            192
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "91a80b9f6ffa1cc5698a20ef3ae5e90cbf232070b398427d7bd6466649cfacc8",
+          "passed": true
+        },
+        {
+          "name": "contain-fullscreen",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1536,
+            "height": 864,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            216,
+            216
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "dd28f66ac3511169ec799dc3fb9ed7fcb8daf898f5a4e6fd4497b70aa13a3a42",
+          "passed": true
+        },
+        {
+          "name": "auto-dpr125",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "auto",
+            "original": "false",
+            "renderWidth": "1920",
+            "renderHeight": "1080",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            192,
+            192
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "6ed29a983bb188b75294a6d1078abfb96601b242a174186e9ab57d934be25e04",
+          "passed": true
+        },
+        {
+          "name": "high-dpr125",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "high",
+            "original": "false",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            192,
+            192
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "3b761b4c6399897eb11a69b972636947dd905c8298c54db504036819136e30c5",
+          "passed": true
+        },
+        {
+          "name": "4x3",
+          "wallpaper": "4x3",
+          "format_geometry": [
+            1200,
+            900
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "1200",
+            "renderHeight": "900",
+            "sourceWidth": "1200",
+            "sourceHeight": "900",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            225,
+            226
+          ],
+          "circle_aspect_error": 0.004424778761061954,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "551fa5f3e6ddc46ca72392db8922720ed84d82f3e2193fdda2faae2f12f0fced",
+          "passed": true
+        },
+        {
+          "name": "square",
+          "wallpaper": "square",
+          "format_geometry": [
+            1000,
+            1000
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "1000",
+            "renderHeight": "1000",
+            "sourceWidth": "1000",
+            "sourceHeight": "1000",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            226,
+            226
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "06ac3a05f87a64cfd9e4e3e881cc9b75689aceff1a29fd953881b2b9acab96f8",
+          "passed": true
+        },
+        {
+          "name": "portrait",
+          "wallpaper": "portrait",
+          "format_geometry": [
+            900,
+            1400
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "900",
+            "renderHeight": "1400",
+            "sourceWidth": "900",
+            "sourceHeight": "1400",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            145,
+            145
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "82f88d92afb87f140191f0dd058b6d058ddd5ac2a4a236d74a035ee61912d603",
+          "passed": true
+        },
+        {
+          "name": "exif-rotated",
+          "wallpaper": "exif-rotated",
+          "format_geometry": [
+            1200,
+            900
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "1200",
+            "renderHeight": "900",
+            "sourceWidth": "1200",
+            "sourceHeight": "900",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            225,
+            226
+          ],
+          "circle_aspect_error": 0.004424778761061954,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "aa2bb3621704ad156c3dd73c34492ec2cf18efb379ac83bb42fa28c9815b1099",
+          "passed": true
+        },
+        {
+          "name": "4k-texture",
+          "wallpaper": "4k-texture",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "original",
+            "original": "true",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1366.4000244140625,
+            "height": 900,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.25
+          },
+          "circle_pixels": [
+            192,
+            193
+          ],
+          "circle_aspect_error": 0.005181347150259086,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "c32509b4034c6da934c05afc5625f65db816d45124148912fcfe05fa002d7b50",
+          "passed": true
+        },
+        {
+          "name": "dpr150-1280",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "auto",
+            "original": "false",
+            "renderWidth": "2560",
+            "renderHeight": "1440",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1280.0001220703125,
+            "height": 800.0000610351562,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.875
+          },
+          "circle_pixels": [
+            270,
+            270
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "4a2e0d73a6fa747c9013f7b436ffde7523c1d6a20ce9fa2e7f6d078c489cd4f9",
+          "passed": true
+        },
+        {
+          "name": "dpr150-1920",
+          "wallpaper": "16x9-4k",
+          "format_geometry": [
+            3840,
+            2160
+          ],
+          "metrics": {
+            "wallpaper": "image",
+            "loaded": "true",
+            "current": "true",
+            "quality": "auto",
+            "original": "false",
+            "renderWidth": "3840",
+            "renderHeight": "2160",
+            "sourceWidth": "3840",
+            "sourceHeight": "2160",
+            "width": 1920.0001220703125,
+            "height": 1080,
+            "fit": "contain",
+            "position": "50% 50%",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "dpr": 1.875
+          },
+          "circle_pixels": [
+            405,
+            406
+          ],
+          "circle_aspect_error": 0.0024630541871921707,
+          "original_bytes_preserved": true,
+          "screenshot_sha256": "762b620e1140c57b6a0e75c3ed65a9ceae66665f4d4ba3d65326af7f4ef5ce80",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true
+    },
+    "media": {
+      "checks": [
+        {
+          "name": "native_route_Гермиона",
+          "passed": true
+        },
+        {
+          "name": "native_route_Поиск",
+          "passed": true
+        },
+        {
+          "name": "native_route_История",
+          "passed": true
+        },
+        {
+          "name": "native_route_Canvas",
+          "passed": true
+        },
+        {
+          "name": "native_route_Настройки",
+          "passed": true
+        },
+        {
+          "name": "command_palette_native_keyboard",
+          "passed": true
+        },
+        {
+          "name": "qt_drop_exact_world_position_and_bytes",
+          "passed": true
+        },
+        {
+          "name": "stored_media_has_no_inline_thumbnail",
+          "passed": true
+        },
+        {
+          "name": "media_resize_saved",
+          "passed": true
+        },
+        {
+          "name": "windows_clipboard_ctrl_v_imports_bitmap",
+          "passed": true
+        },
+        {
+          "name": "local_path_import",
+          "passed": true
+        },
+        {
+          "name": "https_import_pins_verified_original",
+          "passed": true
+        },
+        {
+          "name": "native_double_click_opens_full_viewer",
+          "passed": true
+        },
+        {
+          "name": "restart_preserves_media_positions_sizes_and_originals",
+          "passed": true
+        },
+        {
+          "name": "reopened_remote_uses_saved_attachment",
+          "passed": true
+        },
+        {
+          "name": "attachment_dedup_and_evidence_preserved",
+          "passed": true
+        },
+        {
+          "name": "detach_preserves_evidence_and_encrypted_original",
+          "passed": true
+        },
+        {
+          "name": "responsive_window_1366",
+          "passed": true
+        },
+        {
+          "name": "responsive_window_1600",
+          "passed": true
+        },
+        {
+          "name": "responsive_window_1920",
+          "passed": true
+        },
+        {
+          "name": "responsive_window_2560",
+          "passed": true
+        },
+        {
+          "name": "effects_mode_reduced",
+          "passed": true
+        },
+        {
+          "name": "effects_mode_off",
+          "passed": true
+        },
+        {
+          "name": "effects_mode_full",
+          "passed": true
+        },
+        {
+          "name": "qt_scale_200_canvas_readable",
+          "passed": true
+        }
+      ],
+      "temporary_profile_removed": true,
+      "qt_scale_200": {
+        "observed_native_dpr": 2.5,
+        "canvas": [
+          768,
+          408
+        ]
+      },
+      "viewports": [
+        {
+          "requested_qt_logical": [
+            1366,
+            768
+          ],
+          "web_view": [
+            1366,
+            768
+          ],
+          "native_dpr": 1.25
+        },
+        {
+          "requested_qt_logical": [
+            1600,
+            900
+          ],
+          "web_view": [
+            1600,
+            900
+          ],
+          "native_dpr": 1.25
+        },
+        {
+          "requested_qt_logical": [
+            1920,
+            1080
+          ],
+          "web_view": [
+            1920,
+            1080
+          ],
+          "native_dpr": 1.25
+        },
+        {
+          "requested_qt_logical": [
+            2560,
+            1440
+          ],
+          "web_view": [
+            2560,
+            1440
+          ],
+          "native_dpr": 1.25
+        }
+      ]
+    },
+    "additional_identity_hub": {
+      "checks": [
+        {
+          "name": "username_maigret_default_preview_is_new_and_honest",
+          "passed": true
+        },
+        {
+          "name": "live_maigret_has_observed_profiles",
+          "passed": true
+        },
+        {
+          "name": "maigret_inserted_profiles",
+          "passed": true
+        },
+        {
+          "name": "identity_hub_contains_only_nickname_and_observed_profiles",
+          "passed": true
+        }
+      ],
+      "executions": [
+        {
+          "tool": "username_maigret",
+          "status": "partial",
+          "records": 8,
+          "elapsed_seconds": 73.081,
+          "from_saved_data": false
+        }
+      ],
+      "scope": "Earlier native run verified identity hub and stopped at an outdated QA selector; cryptocurrency acceptance was rerun separately."
+    }
+  }
+}

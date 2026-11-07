@@ -1,0 +1,162 @@
+{
+  "origin": "current source ToolRegistry; not EXE",
+  "cases": [
+    {
+      "provider": "github",
+      "tool": "github_profile",
+      "status": "complete",
+      "records": 3,
+      "graph_nodes": 10,
+      "reopen": true,
+      "seconds": 7.99,
+      "from_saved_data": false,
+      "diagnostics": null
+    },
+    {
+      "provider": "hackernews",
+      "tool": "hn_search",
+      "status": "complete",
+      "records": 3,
+      "graph_nodes": 10,
+      "reopen": true,
+      "seconds": 1.89,
+      "from_saved_data": false,
+      "diagnostics": null
+    },
+    {
+      "provider": "internet_archive",
+      "tool": "web_archive",
+      "status": "error",
+      "records": 0,
+      "graph_nodes": 0,
+      "reopen": false,
+      "seconds": 4.33,
+      "from_saved_data": false,
+      "diagnostics": null
+    },
+    {
+      "provider": "openlibrary",
+      "tool": "openlibrary_search",
+      "status": "complete",
+      "records": 3,
+      "graph_nodes": 7,
+      "reopen": true,
+      "seconds": 1.84,
+      "from_saved_data": false,
+      "diagnostics": null
+    },
+    {
+      "provider": "wikimedia",
+      "tool": "wikipedia_search",
+      "status": "complete",
+      "records": 3,
+      "graph_nodes": 7,
+      "reopen": true,
+      "seconds": 1.48,
+      "from_saved_data": false,
+      "diagnostics": null
+    },
+    {
+      "provider": "openstreetmap",
+      "tool": "map_overpass",
+      "status": "timeout",
+      "records": 0,
+      "graph_nodes": 0,
+      "reopen": false,
+      "seconds": 20.92,
+      "from_saved_data": false,
+      "diagnostics": null
+    },
+    {
+      "provider": "gleif",
+      "tool": "company_gleif",
+      "status": "complete",
+      "records": 1,
+      "graph_nodes": 4,
+      "reopen": true,
+      "seconds": 1.13,
+      "from_saved_data": false,
+      "diagnostics": {
+        "providers_attempted": 1,
+        "http_requests": 1,
+        "http_statuses": {
+          "200": 1
+        }
+      }
+    },
+    {
+      "provider": "crossref",
+      "tool": "publication_crossref",
+      "status": "complete",
+      "records": 3,
+      "graph_nodes": 7,
+      "reopen": true,
+      "seconds": 1.32,
+      "from_saved_data": false,
+      "diagnostics": {
+        "providers_attempted": 1,
+        "http_requests": 1,
+        "http_statuses": {
+          "200": 1
+        }
+      }
+    },
+    {
+      "provider": "ripe",
+      "tool": "network_routing",
+      "status": "invalid_arguments",
+      "records": 0,
+      "graph_nodes": 0,
+      "reopen": false,
+      "seconds": 0.0,
+      "from_saved_data": false,
+      "diagnostics": null
+    },
+    {
+      "provider": "geoip_provider",
+      "tool": "network_geoip",
+      "status": "complete",
+      "records": 2,
+      "graph_nodes": 7,
+      "reopen": true,
+      "seconds": 1.96,
+      "from_saved_data": false,
+      "diagnostics": [
+        {
+          "source": "ipwhois",
+          "status": "complete"
+        },
+        {
+          "source": "ipapi_is",
+          "status": "complete"
+        },
+        {
+          "source": "network_geoip",
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "provider": "phone_reference",
+      "tool": "phone_metadata",
+      "status": "complete",
+      "records": 1,
+      "graph_nodes": 0,
+      "reopen": true,
+      "seconds": 0.69,
+      "from_saved_data": false,
+      "diagnostics": null
+    },
+    {
+      "provider": "email_workflow",
+      "tool": "email_research",
+      "status": "complete",
+      "records": 1,
+      "graph_nodes": 3,
+      "reopen": true,
+      "seconds": 5.2,
+      "from_saved_data": false,
+      "diagnostics": null
+    }
+  ]
+}

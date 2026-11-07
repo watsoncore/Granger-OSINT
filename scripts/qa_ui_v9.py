@@ -45,7 +45,7 @@ def run(exe: Path, output: Path, *, source=False, app_style='minimal'):
     with tempfile.TemporaryDirectory(prefix='profile-', dir=output) as name:
         directory = Path(name)
         with isolated_environment(directory):
-            SettingsStore().save(Settings(source_root=str(ROOT), ai_provider='none',
+            SettingsStore().save(Settings(source_root=str(ROOT), ai_provider='deepseek' if app_style=='minimal' else 'none',
                 cursor_reaction=False, reduced_motion=True,
                 workspace_appearance=json.dumps({'appStyle':app_style,'theme': 'azure', 'glow': 0, 'reflection': 3})))
             session = V7Session(exe, directory,source)
@@ -110,6 +110,15 @@ def run(exe: Path, output: Path, *, source=False, app_style='minimal'):
                           and all(s.get('color') not in ('', None, 'auto') for s in scrolls)
                           and dom.get('font', {}).get('loaded'))
                     capture('settings-' + str(index))
+                    if label == 'ИИ и провайдеры' and app_style == 'minimal':
+                        initial = session.snapshot()
+                        check('deepseek_profile_is_isolated_and_keyless',
+                              initial['connection']['provider'] == 'deepseek'
+                              and not initial['connection']['canSend'] and not initial['credentials'].get('deepseek'))
+                        session.click('Проверить подключение')
+                        keyless = wait_for(lambda: row if (row := session.snapshot()['connection']).get('error') else None, 12)
+                        check('deepseek_keyless_check_cannot_enable_chat',
+                              keyless['status'] == 'not_configured' and not keyless['canSend'])
                     if label == 'Инструменты' and 'appStyle' in dom:
                         session.fill('Найти инструмент', 'Норвегия компания')
                         found = wait_for(lambda: 'Brønnøysund · компании NO' in session.dom().get('headings', []), 10)

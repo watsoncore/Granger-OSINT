@@ -1,0 +1,88 @@
+{
+  "build": {
+    "passed": true,
+    "bytes": 279733910,
+    "sha256": "627f9a26002abbab7a2b6646da21a42d769d2a9614b42dfef9ecb74a0d3c9688",
+    "frozen_modules": 176,
+    "resource_checks": 239,
+    "native_checks": 22,
+    "frontend_build": {
+      "rebuilt": true,
+      "input_sha256": "ecc1fdff68abbd00a9b6f2bccc5373ad7b07379f1a66dec818cee519d77325ef"
+    },
+    "external_tools_policy": "strict-local-availability",
+    "temporary_stage_removed": true
+  },
+  "separate_frontend_rebuild": {
+    "passed": true,
+    "frontend_files": 14,
+    "mismatches": [],
+    "same_file_set": true,
+    "current_frontend_input_sha256": "58713c5d24008c908b3b741b025b7b2cae42f65148abb113189c874c1e789191",
+    "exe_sha256": "627f9a26002abbab7a2b6646da21a42d769d2a9614b42dfef9ecb74a0d3c9688",
+    "reason": "Separate rebuild after adjusting three test-only files. Compared actual assets byte for byte."
+  },
+  "installed": {
+    "passed": true,
+    "installed": true,
+    "exe_sha256": "627f9a26002abbab7a2b6646da21a42d769d2a9614b42dfef9ecb74a0d3c9688",
+    "bytes": 279733910,
+    "previous_sha256": "10d091ecf2000619bcfa8f5646ee8f2effb2141e34d742c4389bbe84aaa62026",
+    "dist_contains_only_canonical_exe": true,
+    "installation_profile_differences": {
+      "changed": 0,
+      "missing": 0,
+      "added": 0
+    },
+    "protected_assets": 317,
+    "earlier_profile_differences": {
+      "changed": 4,
+      "missing": 1,
+      "added": 14
+    },
+    "profile_files": 1225,
+    "baseline_backup_verified": true
+  },
+  "installed_smoke_checks": [
+    "fresh_launcher_and_pet_restricted_path_smoke",
+    "exact_spawned_pid_and_executable_path",
+    "native_frontend_ready_and_load_ok",
+    "grangerpet_visible_and_initialized",
+    "native_navigation_search",
+    "native_navigation_history",
+    "native_navigation_canvas",
+    "native_navigation_chat",
+    "native_navigation_settings",
+    "saved_utf8_text_canvas_opened",
+    "gansar_maigret_and_image_tool_registered",
+    "gansar_and_maigret_locally_available",
+    "saved_search_has_no_duplicate_graph_tab_and_tree_draws",
+    "saved_manual_canvas_actually_drawn",
+    "real_image_import_preserves_digest",
+    "real_media_card_pixels_drawn",
+    "actual_native_original_viewer_opened",
+    "real_local_image_metadata_tool_completed",
+    "normal_first_exit_zero",
+    "restart_preserves_saved_analyst_canvas",
+    "normal_restart_exit_zero",
+    "fresh_runtime_logs_without_python_traceback"
+  ],
+  "implementation_git": {
+    "branch": "main",
+    "commit": "80efa48fdf46121dc4fa88f5b9c057aa397bee9b",
+    "verified_remote_sha": "80efa48fdf46121dc4fa88f5b9c057aa397bee9b"
+  },
+  "tests": {
+    "python_passed": 2580,
+    "python_skipped": 1,
+    "python_subtests": 32,
+    "frontend_passed": 245
+  },
+  "security": {
+    "checked_payloads": 7604,
+    "passed": true,
+    "new_dependencies": 0,
+    "pip_check_passed": true,
+    "npm_runtime_advisories_reported": 0
+  }
+}

@@ -1,0 +1,2820 @@
+{
+  "at_utc": "2026-11-07T15:00:37.147150+00:00",
+  "scope": "live ToolRegistry → normalized evidence → typed graph → encrypted save/reopen; not native UI or EXE",
+  "implementation_sha256": {
+    "source_adapters.py": "e655b7bc71f3dd3d1a22d563ce0db256912db3ad93a26da69f6d97903534b946",
+    "source_definitions.py": "8f02560be094e539309d017144ed7d0ac47738a5bf1ed5d4a5bf597c1e38fde9",
+    "agent_tools.py": "2b1b8cac86cedd600d9488bcc67b38afc4c5bbfed5a50894717b5fa41245aced",
+    "evidence_graph.py": "d9a493630b0b4c758f3adba7425b29f68e976bbac2d831fbcc842f265802c397",
+    "canvas_capabilities.py": "464b235a60d8fdfe0ba7fcafe3b07a3d3f72450bd14a5aa3170518807552ba71",
+    "tool_manifest.py": "7d5cf551b35e481ae2691b7e4118f00d2ced840798c8a6473a04af611cc8022d"
+  },
+  "passed": false,
+  "cases": [
+    {
+      "provider_id": "gitlab",
+      "counting_unit": "gitlab",
+      "adapter_id": "source_gitlab",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.065,
+      "source_diagnostics": {
+        "provider_id": "gitlab",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "codeberg",
+      "counting_unit": "codeberg",
+      "adapter_id": "source_codeberg",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.362,
+      "source_diagnostics": {
+        "provider_id": "codeberg",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "bluesky",
+      "counting_unit": "bluesky",
+      "adapter_id": "source_bluesky",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.253,
+      "source_diagnostics": {
+        "provider_id": "bluesky",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "mastodon",
+      "counting_unit": "mastodon",
+      "adapter_id": "source_mastodon",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.025,
+      "source_diagnostics": {
+        "provider_id": "mastodon",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "stackexchange",
+      "counting_unit": "stackexchange",
+      "adapter_id": "source_stackexchange",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.961,
+      "source_diagnostics": {
+        "provider_id": "stackexchange",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "pypi",
+      "counting_unit": "pypi",
+      "adapter_id": "source_pypi",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.351,
+      "source_diagnostics": {
+        "provider_id": "pypi",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "rubygems",
+      "counting_unit": "rubygems",
+      "adapter_id": "source_rubygems",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.98,
+      "source_diagnostics": {
+        "provider_id": "rubygems",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "pubdev",
+      "counting_unit": "pubdev",
+      "adapter_id": "source_pubdev",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.98,
+      "source_diagnostics": {
+        "provider_id": "pubdev",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "datacite",
+      "counting_unit": "datacite",
+      "adapter_id": "source_datacite",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.224,
+      "source_diagnostics": {
+        "provider_id": "datacite",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "hal",
+      "counting_unit": "hal",
+      "adapter_id": "source_hal",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 9,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.374,
+      "source_diagnostics": {
+        "provider_id": "hal",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "brreg",
+      "counting_unit": "brreg",
+      "adapter_id": "source_brreg",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.213,
+      "source_diagnostics": {
+        "provider_id": "brreg",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "prh",
+      "counting_unit": "prh",
+      "adapter_id": "source_prh",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.0,
+      "source_diagnostics": {
+        "provider_id": "prh",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "fr_entreprises",
+      "counting_unit": "fr_entreprises",
+      "adapter_id": "source_fr_entreprises",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.313,
+      "source_diagnostics": {
+        "provider_id": "fr_entreprises",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "ares",
+      "counting_unit": "ares",
+      "adapter_id": "source_ares",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.19,
+      "source_diagnostics": {
+        "provider_id": "ares",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "krs",
+      "counting_unit": "krs",
+      "adapter_id": "source_krs",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.168,
+      "source_diagnostics": {
+        "provider_id": "krs",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "brasilapi",
+      "counting_unit": "brasilapi",
+      "adapter_id": "source_brasilapi",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.788,
+      "source_diagnostics": {
+        "provider_id": "brasilapi",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "cms_npi",
+      "counting_unit": "cms_npi",
+      "adapter_id": "source_cms_npi",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 2.052,
+      "source_diagnostics": {
+        "provider_id": "cms_npi",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "nhtsa",
+      "counting_unit": "nhtsa",
+      "adapter_id": "source_nhtsa",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.69,
+      "source_diagnostics": {
+        "provider_id": "nhtsa",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "ror",
+      "counting_unit": "ror",
+      "adapter_id": "source_ror",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.062,
+      "source_diagnostics": {
+        "provider_id": "ror",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "osf",
+      "counting_unit": "osf",
+      "adapter_id": "source_osf",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.961,
+      "source_diagnostics": {
+        "provider_id": "osf",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "clinicaltrials",
+      "counting_unit": "clinicaltrials",
+      "adapter_id": "source_clinicaltrials",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.228,
+      "source_diagnostics": {
+        "provider_id": "clinicaltrials",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "nsf",
+      "counting_unit": "nsf",
+      "adapter_id": "source_nsf",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.353,
+      "source_diagnostics": {
+        "provider_id": "nsf",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "europepmc",
+      "counting_unit": "europepmc",
+      "adapter_id": "source_europepmc",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.604,
+      "source_diagnostics": {
+        "provider_id": "europepmc",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "zenodo",
+      "counting_unit": "zenodo",
+      "adapter_id": "source_zenodo",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.53,
+      "source_diagnostics": {
+        "provider_id": "zenodo",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "crates",
+      "counting_unit": "crates",
+      "adapter_id": "source_crates",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.37,
+      "source_diagnostics": {
+        "provider_id": "crates",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "hex",
+      "counting_unit": "hex",
+      "adapter_id": "source_hex",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.06,
+      "source_diagnostics": {
+        "provider_id": "hex",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "metacpan",
+      "counting_unit": "metacpan",
+      "adapter_id": "source_metacpan",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.253,
+      "source_diagnostics": {
+        "provider_id": "metacpan",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "nuget",
+      "counting_unit": "nuget",
+      "adapter_id": "source_nuget",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.541,
+      "source_diagnostics": {
+        "provider_id": "nuget",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "dockerhub",
+      "counting_unit": "dockerhub",
+      "adapter_id": "source_dockerhub",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.139,
+      "source_diagnostics": {
+        "provider_id": "dockerhub",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "epss",
+      "counting_unit": "epss",
+      "adapter_id": "source_epss",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.83,
+      "source_diagnostics": {
+        "provider_id": "epss",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "nvd",
+      "counting_unit": "nvd",
+      "adapter_id": "source_nvd",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.432,
+      "source_diagnostics": {
+        "provider_id": "nvd",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "devto",
+      "counting_unit": "devto",
+      "adapter_id": "source_devto",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.107,
+      "source_diagnostics": {
+        "provider_id": "devto",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "discourse",
+      "counting_unit": "discourse",
+      "adapter_id": "source_discourse",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.893,
+      "source_diagnostics": {
+        "provider_id": "discourse",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "artic",
+      "counting_unit": "artic",
+      "adapter_id": "source_artic",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.891,
+      "source_diagnostics": {
+        "provider_id": "artic",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "cleveland",
+      "counting_unit": "cleveland",
+      "adapter_id": "source_cleveland",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 2.037,
+      "source_diagnostics": {
+        "provider_id": "cleveland",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "metmuseum",
+      "counting_unit": "metmuseum",
+      "adapter_id": "source_metmuseum",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.521,
+      "source_diagnostics": {
+        "provider_id": "metmuseum",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "gitea",
+      "counting_unit": "gitea",
+      "adapter_id": "source_gitea",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.431,
+      "source_diagnostics": {
+        "provider_id": "gitea",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "npm",
+      "counting_unit": "npm",
+      "adapter_id": "source_npm",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.885,
+      "source_diagnostics": {
+        "provider_id": "npm",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "packagist",
+      "counting_unit": "packagist",
+      "adapter_id": "source_packagist",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.176,
+      "source_diagnostics": {
+        "provider_id": "packagist",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "wordpress",
+      "counting_unit": "wordpress",
+      "adapter_id": "source_wordpress",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.496,
+      "source_diagnostics": {
+        "provider_id": "wordpress",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "peertube",
+      "counting_unit": "peertube",
+      "adapter_id": "source_peertube",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.1,
+      "source_diagnostics": {
+        "provider_id": "peertube",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "vam",
+      "counting_unit": "vam",
+      "adapter_id": "source_vam",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.339,
+      "source_diagnostics": {
+        "provider_id": "vam",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "finna",
+      "counting_unit": "finna",
+      "adapter_id": "source_finna",
+      "status": "unavailable",
+      "error_code": "http_403",
+      "observations": 0,
+      "graph_entities": 0,
+      "graph_relations": 0,
+      "persistence": false,
+      "deduplicated": false,
+      "from_saved_data": false,
+      "seconds": 0.71,
+      "source_diagnostics": null,
+      "live_execution_passed": false
+    },
+    {
+      "provider_id": "usgs",
+      "counting_unit": "usgs",
+      "adapter_id": "source_usgs",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.12,
+      "source_diagnostics": {
+        "provider_id": "usgs",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "noaa_nws",
+      "counting_unit": "noaa_nws",
+      "adapter_id": "source_noaa_nws",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.06,
+      "source_diagnostics": {
+        "provider_id": "noaa_nws",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "openmeteo",
+      "counting_unit": "openmeteo",
+      "adapter_id": "source_openmeteo",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.917,
+      "source_diagnostics": {
+        "provider_id": "openmeteo",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "uk_flood",
+      "counting_unit": "uk_flood",
+      "adapter_id": "source_uk_flood",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.168,
+      "source_diagnostics": {
+        "provider_id": "uk_flood",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "nasa",
+      "counting_unit": "nasa",
+      "adapter_id": "source_nasa",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.29,
+      "source_diagnostics": {
+        "provider_id": "nasa",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "gbif",
+      "counting_unit": "gbif",
+      "adapter_id": "source_gbif",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.827,
+      "source_diagnostics": {
+        "provider_id": "gbif",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "coinpaprika",
+      "counting_unit": "coinpaprika",
+      "adapter_id": "source_coinpaprika",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.795,
+      "source_diagnostics": {
+        "provider_id": "coinpaprika",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "coingecko",
+      "counting_unit": "coingecko",
+      "adapter_id": "source_coingecko",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.87,
+      "source_diagnostics": {
+        "provider_id": "coingecko",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "dexscreener",
+      "counting_unit": "dexscreener",
+      "adapter_id": "source_dexscreener",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.823,
+      "source_diagnostics": {
+        "provider_id": "dexscreener",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "blockstream",
+      "counting_unit": "blockstream",
+      "adapter_id": "source_blockstream",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 3,
+      "graph_relations": 2,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.363,
+      "source_diagnostics": {
+        "provider_id": "blockstream",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "blockcypher",
+      "counting_unit": "blockcypher",
+      "adapter_id": "source_blockcypher",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 3,
+      "graph_relations": 2,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.882,
+      "source_diagnostics": {
+        "provider_id": "blockcypher",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "tonapi",
+      "counting_unit": "tonapi",
+      "adapter_id": "source_tonapi",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 3,
+      "graph_relations": 2,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.786,
+      "source_diagnostics": {
+        "provider_id": "tonapi",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "blockscout",
+      "counting_unit": "blockscout",
+      "adapter_id": "source_blockscout",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 3,
+      "graph_relations": 2,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.322,
+      "source_diagnostics": {
+        "provider_id": "blockscout",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "musicbrainz",
+      "counting_unit": "musicbrainz",
+      "adapter_id": "source_musicbrainz",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.966,
+      "source_diagnostics": {
+        "provider_id": "musicbrainz",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "tvmaze",
+      "counting_unit": "tvmaze",
+      "adapter_id": "source_tvmaze",
+      "status": "complete",
+      "error_code": null,
+      "observations": 2,
+      "graph_entities": 6,
+      "graph_relations": 6,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.848,
+      "source_diagnostics": {
+        "provider_id": "tvmaze",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 2,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "keybase",
+      "counting_unit": "keybase",
+      "adapter_id": "source_keybase",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.399,
+      "source_diagnostics": {
+        "provider_id": "keybase",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "lemmy",
+      "counting_unit": "lemmy",
+      "adapter_id": "source_lemmy",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.941,
+      "source_diagnostics": {
+        "provider_id": "lemmy",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "lichess",
+      "counting_unit": "lichess",
+      "adapter_id": "source_lichess",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.826,
+      "source_diagnostics": {
+        "provider_id": "lichess",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "chesscom",
+      "counting_unit": "chesscom",
+      "adapter_id": "source_chesscom",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.889,
+      "source_diagnostics": {
+        "provider_id": "chesscom",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "codeforces",
+      "counting_unit": "codeforces",
+      "adapter_id": "source_codeforces",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.819,
+      "source_diagnostics": {
+        "provider_id": "codeforces",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "scratch",
+      "counting_unit": "scratch",
+      "adapter_id": "source_scratch",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.009,
+      "source_diagnostics": {
+        "provider_id": "scratch",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "cveorg",
+      "counting_unit": "cveorg",
+      "adapter_id": "source_cveorg",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.517,
+      "source_diagnostics": {
+        "provider_id": "cveorg",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "endoflife",
+      "counting_unit": "endoflife",
+      "adapter_id": "source_endoflife",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 6,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.012,
+      "source_diagnostics": {
+        "provider_id": "endoflife",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "data_gov_au",
+      "counting_unit": "data_gov_au",
+      "adapter_id": "source_data_gov_au",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 2.943,
+      "source_diagnostics": {
+        "provider_id": "data_gov_au",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "data_gov_ca",
+      "counting_unit": "data_gov_ca",
+      "adapter_id": "source_data_gov_ca",
+      "status": "timeout",
+      "error_code": "timeout",
+      "observations": 0,
+      "graph_entities": 0,
+      "graph_relations": 0,
+      "persistence": false,
+      "deduplicated": false,
+      "from_saved_data": false,
+      "seconds": 10.421,
+      "source_diagnostics": null,
+      "live_execution_passed": false
+    },
+    {
+      "provider_id": "data_gov_ie",
+      "counting_unit": "data_gov_ie",
+      "adapter_id": "source_data_gov_ie",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.09,
+      "source_diagnostics": {
+        "provider_id": "data_gov_ie",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "data_gov_uk",
+      "counting_unit": "data_gov_uk",
+      "adapter_id": "source_data_gov_uk",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.031,
+      "source_diagnostics": {
+        "provider_id": "data_gov_uk",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "data_fi",
+      "counting_unit": "data_fi",
+      "adapter_id": "source_data_fi",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.188,
+      "source_diagnostics": {
+        "provider_id": "data_fi",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "data_swiss",
+      "counting_unit": "data_swiss",
+      "adapter_id": "source_data_swiss",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.017,
+      "source_diagnostics": {
+        "provider_id": "data_swiss",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "govdata_de",
+      "counting_unit": "govdata_de",
+      "adapter_id": "source_govdata_de",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.957,
+      "source_diagnostics": {
+        "provider_id": "govdata_de",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "data_gouv_fr",
+      "counting_unit": "data_gouv_fr",
+      "adapter_id": "source_data_gouv_fr",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.108,
+      "source_diagnostics": {
+        "provider_id": "data_gouv_fr",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "dados_pt",
+      "counting_unit": "dados_pt",
+      "adapter_id": "source_dados_pt",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.215,
+      "source_diagnostics": {
+        "provider_id": "dados_pt",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "data_lu",
+      "counting_unit": "data_lu",
+      "adapter_id": "source_data_lu",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.002,
+      "source_diagnostics": {
+        "provider_id": "data_lu",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "cran",
+      "counting_unit": "cran",
+      "adapter_id": "source_cran",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.758,
+      "source_diagnostics": {
+        "provider_id": "cran",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "homebrew",
+      "counting_unit": "homebrew",
+      "adapter_id": "source_homebrew",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.903,
+      "source_diagnostics": {
+        "provider_id": "homebrew",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "fedora",
+      "counting_unit": "fedora",
+      "adapter_id": "source_fedora",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.312,
+      "source_diagnostics": {
+        "provider_id": "fedora",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "huggingface",
+      "counting_unit": "huggingface",
+      "adapter_id": "source_huggingface",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.047,
+      "source_diagnostics": {
+        "provider_id": "huggingface",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "kaggle",
+      "counting_unit": "kaggle",
+      "adapter_id": "source_kaggle",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.01,
+      "source_diagnostics": {
+        "provider_id": "kaggle",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "openml",
+      "counting_unit": "openml",
+      "adapter_id": "source_openml",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 4.3,
+      "source_diagnostics": {
+        "provider_id": "openml",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "arquivo",
+      "counting_unit": "arquivo",
+      "adapter_id": "source_arquivo",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.26,
+      "source_diagnostics": {
+        "provider_id": "arquivo",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "uk_nationalarchives",
+      "counting_unit": "uk_nationalarchives",
+      "adapter_id": "source_uk_nationalarchives",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.059,
+      "source_diagnostics": {
+        "provider_id": "uk_nationalarchives",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "wellcome",
+      "counting_unit": "wellcome",
+      "adapter_id": "source_wellcome",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.15,
+      "source_diagnostics": {
+        "provider_id": "wellcome",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "harvard_dataverse",
+      "counting_unit": "harvard_dataverse",
+      "adapter_id": "source_harvard_dataverse",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.853,
+      "source_diagnostics": {
+        "provider_id": "harvard_dataverse",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "dryad",
+      "counting_unit": "dryad",
+      "adapter_id": "source_dryad",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.963,
+      "source_diagnostics": {
+        "provider_id": "dryad",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "figshare",
+      "counting_unit": "figshare",
+      "adapter_id": "source_figshare",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.278,
+      "source_diagnostics": {
+        "provider_id": "figshare",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "inspirehep",
+      "counting_unit": "inspirehep",
+      "adapter_id": "source_inspirehep",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.713,
+      "source_diagnostics": {
+        "provider_id": "inspirehep",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "doaj",
+      "counting_unit": "doaj",
+      "adapter_id": "source_doaj",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 0.874,
+      "source_diagnostics": {
+        "provider_id": "doaj",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "openalex",
+      "counting_unit": "openalex",
+      "adapter_id": "source_openalex",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 2.304,
+      "source_diagnostics": {
+        "provider_id": "openalex",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "maven",
+      "counting_unit": "maven",
+      "adapter_id": "source_maven",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 6.007,
+      "source_diagnostics": {
+        "provider_id": "maven",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "spaceflightnews",
+      "counting_unit": "spaceflightnews",
+      "adapter_id": "source_spaceflightnews",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 10,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.572,
+      "source_diagnostics": {
+        "provider_id": "spaceflightnews",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "hackage",
+      "counting_unit": "hackage",
+      "adapter_id": "source_hackage",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.48,
+      "source_diagnostics": {
+        "provider_id": "hackage",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "scorecard",
+      "counting_unit": "scorecard",
+      "adapter_id": "source_scorecard",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 2.887,
+      "source_diagnostics": {
+        "provider_id": "scorecard",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "opentopodata",
+      "counting_unit": "opentopodata",
+      "adapter_id": "source_opentopodata",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 3.12,
+      "source_diagnostics": {
+        "provider_id": "opentopodata",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "openfoodfacts",
+      "counting_unit": "openfoodfacts",
+      "adapter_id": "source_openfoodfacts",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.564,
+      "source_diagnostics": {
+        "provider_id": "openfoodfacts",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "cisa_kev",
+      "counting_unit": "cisa_kev",
+      "adapter_id": "source_cisa_kev",
+      "status": "complete",
+      "error_code": null,
+      "observations": 1,
+      "graph_entities": 4,
+      "graph_relations": 3,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 3.064,
+      "source_diagnostics": {
+        "provider_id": "cisa_kev",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 1,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "inaturalist",
+      "counting_unit": "inaturalist",
+      "adapter_id": "source_inaturalist",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 2.453,
+      "source_diagnostics": {
+        "provider_id": "inaturalist",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "copernicus",
+      "counting_unit": "copernicus",
+      "adapter_id": "source_copernicus",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.463,
+      "source_diagnostics": {
+        "provider_id": "copernicus",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    },
+    {
+      "provider_id": "uk_police",
+      "counting_unit": "uk_police",
+      "adapter_id": "source_uk_police",
+      "status": "complete",
+      "error_code": null,
+      "observations": 3,
+      "graph_entities": 8,
+      "graph_relations": 9,
+      "persistence": true,
+      "deduplicated": true,
+      "from_saved_data": false,
+      "seconds": 1.822,
+      "source_diagnostics": {
+        "provider_id": "uk_police",
+        "http_status": 200,
+        "providers_attempted": 1,
+        "http_requests": null,
+        "http_statuses": [
+          200
+        ],
+        "returned_records": 3,
+        "logical_requests": 1,
+        "http_attempts": "transport retries/redirects may add attempts; exact count not measured",
+        "from_saved_data": false
+      },
+      "live_execution_passed": true
+    }
+  ],
+  "independent_nonempty_live_providers": 99
+}
