@@ -1,6 +1,6 @@
 /* Coordinated workspace: reserved grid tracks own interactive chrome.
    The scene is absolute and never changes camera dimensions when docks open. */
-.crypto-icon{object-fit:contain;flex:none;background:#f4f5f6;border-radius:4px;vertical-align:middle}.select-option-title,.crypto-entity-kind{display:flex;align-items:center;gap:8px;min-width:0}.crypto-entity-kind{font-size:13px;color:var(--muted)}
+.crypto-icon{object-fit:contain;flex:none;background:transparent;vertical-align:middle}.crypto-icon-mask{display:inline-block;background-color:currentColor;mask-size:contain;mask-position:center;mask-repeat:no-repeat;-webkit-mask-size:contain;-webkit-mask-position:center;-webkit-mask-repeat:no-repeat}.select-option-title,.crypto-entity-kind{display:flex;align-items:center;gap:8px;min-width:0}.crypto-entity-kind{font-size:13px;color:var(--muted)}
 .research-editor.canvas-first[data-graph-layout=coordinated]{--graph-control-height:36px;--graph-gap:8px;--graph-dock-width:0px;display:grid;grid-template-columns:48px minmax(0,1fr) var(--graph-dock-width);grid-template-rows:auto auto auto minmax(0,1fr) auto auto;gap:8px;padding:12px!important;min-height:320px;height:calc(100dvh - 258px);container-type:inline-size;align-items:start}
 .research-editor.canvas-first[data-graph-layout=coordinated]:has(.graph-right-dock>:first-child){--graph-dock-width:clamp(240px,var(--graph-inspector-width,360px),38%)}
 .research-editor.canvas-first[data-graph-layout=coordinated].is-expanded{height:100dvh;min-height:0}
@@ -45,10 +45,10 @@
 [data-graph-layout=coordinated].is-clean>.research-title{width:100%;max-width:none;min-height:52px}
 [data-graph-layout=coordinated].is-clean>.canvas-tool-rail{position:relative;inset:auto;width:48px}
 [data-graph-layout=coordinated].is-clean>.graph-command-bar{inset:auto;max-width:none}
-[data-graph-layout=coordinated][data-graph-style=minimal]{--panel:#20232a;--panel-raised:#272b32;--border:#42464f;--border-strong:#555b65;--text:#e5e7eb;--muted:#a8adb7;--appearance-surface:#20232a;background:#191c22;border-radius:6px}
+[data-graph-layout=coordinated][data-graph-style=minimal]{--appearance-surface:var(--panel);background:var(--bg);border-radius:6px}
 [data-graph-style=minimal] :is(.research-title,.research-toolbar,.canvas-tool-rail,.canvas-view-switch,.canvas-bottom-controls,.canvas-selection-toolbar,.graph-overview,.research-inspector,.graph-analysis-index,.research-preview,.research-insertion-result,.research-context,.canvas-overview,.canvas-activity,.canvas-focus,.entity-actions>.button){background:var(--panel)!important;border:1px solid var(--border)!important;box-shadow:none!important;backdrop-filter:none!important;border-radius:var(--user-panel-radius,6px)!important}
 [data-graph-style=minimal] .button,[data-graph-style=minimal] .searchable-select,[data-graph-style=minimal] .canvas-view-switch>button{box-shadow:none!important;border-radius:4px;min-height:32px}
-[data-graph-style=minimal] .research-body{background:#191c22!important}
+[data-graph-style=minimal] .research-body{background:var(--bg)!important}
 [data-graph-style=minimal] .save-dot{box-shadow:none}
 .graph-style-choices{border:0;padding:0;margin:15px 0;display:grid;grid-template-columns:1fr 1fr;gap:12px;min-width:0}
 .graph-style-choices legend{font-size:15px;font-weight:650;padding:0;margin-bottom:10px}

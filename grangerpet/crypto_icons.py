@@ -51,6 +51,24 @@ def validate_svg(data):
     return ET.tostring(root, encoding='utf-8')
 
 
+def display_metadata(image):
+    """Classify the rendered copy without erasing or changing source pixels.
+
+    An opaque white rectangle uses a UI fallback. White inside a transparent
+    logo stays intact. Dark monochrome art can use the current theme's ink.
+    """
+    pixels=[(x,y,image.pixelColor(x,y)) for y in range(image.height())
+            for x in range(image.width()) if image.pixelColor(x,y).alpha()>32]
+    if not pixels:return {'monochrome':False,'opaque_canvas':False}
+    monochrome=all(max(c.red(),c.green(),c.blue())-min(c.red(),c.green(),c.blue())<=6
+                   and max(c.red(),c.green(),c.blue())<200 for _,_,c in pixels)
+    x0=min(x for x,_,_ in pixels);x1=max(x for x,_,_ in pixels)
+    y0=min(y for _,y,_ in pixels);y1=max(y for _,y,_ in pixels)
+    corners=[image.pixelColor(x,y) for x,y in ((x0,y0),(x1,y0),(x0,y1),(x1,y1))]
+    opaque=all(c.alpha()>245 and min(c.red(),c.green(),c.blue())>245 for c in corners)
+    return {'monochrome':monochrome,'opaque_canvas':opaque}
+
+
 @lru_cache(maxsize=64)
 def _raster(path_text, modified, size):
     from PySide6.QtCore import QByteArray, QBuffer, QIODevice, QRectF, Qt
@@ -100,7 +118,7 @@ def _raster(path_text, modified, size):
     target.save(buffer, 'PNG')
     return {'url': 'data:image/png;base64,' + base64.b64encode(bytes(out)).decode('ascii'),
             'sha256': hashlib.sha256(data).hexdigest(), 'local_only': True,
-            'raster_pixels': raster_pixels}
+            'raster_pixels': raster_pixels, **display_metadata(target)}
 
 
 def load_icons(source_root):

@@ -49,7 +49,7 @@ describe('typed node tool selection',()=>{
   await user.click(screen.getByRole('button',{name:'Select username'}));await openActions(user)
   await waitFor(()=>expect(screen.getByRole('button',{name:'Инструмент узла'})).not.toBeDisabled())
   expect(screen.getByRole('button',{name:'Выполнить → просмотр'})).toBeDisabled()
-  await user.click(screen.getByRole('button',{name:'Инструмент узла'}));expect(screen.getByRole('menuitemradio',{name:'RDAP'})).toHaveAttribute('data-disabled')
+  await user.click(screen.getByRole('button',{name:'Инструмент узла'}));expect(screen.queryByRole('menuitemradio',{name:'RDAP'})).not.toBeInTheDocument()
   await user.click(screen.getByRole('menuitemradio',{name:'Maigret'}));expect(screen.getByLabelText('Никнейм Maigret')).toHaveValue('solvnox')
   await user.click(screen.getByRole('button',{name:'Выполнить → просмотр'}))
   expect(act).toHaveBeenCalledWith('research_canvas_tool',expect.objectContaining({tool:'username_maigret',entity_id:'username',arguments:{username:'solvnox'}}))

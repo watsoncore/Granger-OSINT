@@ -109,8 +109,15 @@ export function AppearanceEditor({state}:{state:DesktopState}) {
   const dirty=JSON.stringify(draft)!==JSON.stringify(saved)
   const choices=state.research_canvas?.choices||[]
   return <section className="settings-section appearance-editor" aria-label="Редактор оформления">
-    <div className="appearance-intro"><div><h2>Ваша рабочая среда</h2><p>Тема, акценты и фон графа. Изменения видны сразу.</p></div>
+    <div className="appearance-intro"><div><h2>Ваша рабочая среда</h2><p>Стиль приложения, тема, акценты и фон. Изменения видны сразу.</p></div>
       <span className="appearance-preview-label">Предпросмотр</span></div>
+    <fieldset className="graph-style-choices"><legend>Стиль всего приложения</legend>
+      {(['minimal','glass'] as const).map(style=><button key={style} type="button" aria-pressed={draft.appStyle===style}
+        aria-label={style==='glass'?'Glass · всё приложение':'Minimal · всё приложение'} onClick={()=>update({appStyle:style})}>
+        <strong>{style==='glass'?'Glass':'Minimal'}</strong>
+        <small>{style==='glass'?'Сохранённые стекло, глубина и эффекты':'Матовые поверхности, строгие границы, без свечения во всех разделах'}</small>
+      </button>)}
+    </fieldset>
     <fieldset className="graph-style-choices"><legend>Стиль графа</legend>
       {(['glass','minimal'] as const).map(style=><button key={style} type="button" aria-pressed={draft.graphStyle===style}
         aria-label={style==='glass'?'Glass Graph':'Minimal Graph'} onClick={()=>update({graphStyle:style})}>

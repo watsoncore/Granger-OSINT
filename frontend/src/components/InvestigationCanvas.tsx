@@ -1,6 +1,6 @@
 import { forwardRef,useEffect,useImperativeHandle,useLayoutEffect,useMemo,useRef } from 'react'
 import type { GraphEntity,GraphPoint,GraphRelation,GraphViewport } from '../types'
-import { entityLabel,fitViewport,readableViewport,hitNode,hitRelation,nodeBox,relationLabels,shortLabel,zoomAt } from '../graph-model'
+import { entityLabel,fitViewportWithin,graphSafeArea,readableViewport,hitNode,hitRelation,nodeBox,relationLabels,shortLabel,zoomAt } from '../graph-model'
 import { CardIndex, type EdgeStyle } from '../graph-geometry'
 import {EdgeRouteIndex} from '../graph-route-index'
 import {GraphGpuLayer,type GpuLine} from '../graph-gpu'
@@ -103,14 +103,21 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
     const subset=ids?.length?new Set(ids):undefined
     const nodes=latest.current.nodes.filter(node=>!subset||subset.has(node.id))
     const visiblePositions=Object.fromEntries(nodes.filter(node=>points.current[node.id]).map(node=>[node.id,points.current[node.id]]))
-    commitViewport(fitViewport(visiblePositions,sizeRef.current.width,sizeRef.current.height,nodes))
+    commitViewport(fitViewportWithin(visiblePositions,sizeRef.current.width,sizeRef.current.height,nodes,safeInsets()))
   }
+  function safeInsets(){
+    const style=canvas.current?getComputedStyle(canvas.current):undefined
+    const value=(name:string)=>Math.max(0,parseFloat(style?.getPropertyValue('--graph-'+name+'-safe')||'0')||0)
+    return {left:value('left'),right:value('right'),top:value('top'),bottom:value('bottom')}
+  }
+  function safeArea(){return graphSafeArea(sizeRef.current.width,sizeRef.current.height,safeInsets())}
   function zoomCluster(point:{x:number;y:number}){
     if(viewport.current.scale>=.38)return false
     const cluster=farClusters.current.find(row=>Math.abs(point.x-row.x)<=row.width/2&&Math.abs(point.y-row.y)<=row.height/2)
     if(!cluster)return false
     const ids=new Set(cluster.members),nodes=latest.current.nodes.filter(node=>ids.has(node.id)),positions=Object.fromEntries(cluster.members.filter(id=>points.current[id]).map(id=>[id,points.current[id]]))
-    commitViewport(readableViewport(positions,sizeRef.current.width,sizeRef.current.height,cluster.members[0],latest.current.mode||'graph',nodes));return true
+    const area=safeArea(),view=readableViewport(positions,area.width,area.height,cluster.members[0],latest.current.mode||'graph',nodes)
+    commitViewport({...view,x:view.x+area.left,y:view.y+area.top});return true
   }
   function nodeAt(point:{x:number;y:number}){
     const view=viewport.current,cache=semanticCache.current
@@ -375,7 +382,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
         // rather than shrinking a detailed card into an empty rectangle.
         const title=shortLabel(node),font=root||selected?12:11
         ctx.fillStyle=selected?nodeAccent:root?accent:muted;ctx.font=`700 16px Manrope, sans-serif`
-        if(drawCryptoIcon(ctx,entityCryptoIcon(node),x+5,point.y-11,22))drawnCryptoIcons++
+        if(drawCryptoIcon(ctx,entityCryptoIcon(node),x+5,point.y-11,22,text))drawnCryptoIcons++
         else ctx.fillText(variant==='social'?platformMark(node.attributes.platform):cardVariants[variant].symbol,x+7,point.y+5)
         ctx.font=`600 ${font}px Manrope, sans-serif`;ctx.fillStyle=text
         ctx.fillText(clipped(title,box.width-35),x+29,point.y+4)
@@ -425,7 +432,7 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
         const artwork=hasArtwork(node)&&!compact,mediaCard=variant==='media'||artwork
         let left=x+padding,space=box.width-padding*2
         const logoSize=Math.max(16,Math.min(26,22*v.scale))
-        if(drawCryptoIcon(ctx,entityCryptoIcon(node),left,y+(box.height-logoSize)/2,logoSize)){left+=logoSize+8;space-=logoSize+8;drawnCryptoIcons++}
+        if(drawCryptoIcon(ctx,entityCryptoIcon(node),left,y+(box.height-logoSize)/2,logoSize,text)){left+=logoSize+8;space-=logoSize+8;drawnCryptoIcons++}
         if(media&&box.width>105){
           const picture=thumbnail(node,media,visibleMedia)
           if(picture?.complete&&picture.naturalWidth&&box.width>105){
@@ -557,21 +564,21 @@ export const InvestigationCanvas=forwardRef<GraphCanvasHandle,Props>(function In
   },[!!props.onNativeDrop])
   useImperativeHandle(forwarded,()=>({
     fit,
-    zoom(factor){commitViewport(zoomAt(viewport.current,sizeRef.current.width/2,sizeRef.current.height/2,factor))},
-    center(id){const p=points.current[id];if(p)commitViewport({x:sizeRef.current.width/2-p.x,y:sizeRef.current.height/2-p.y,scale:1})},
+    zoom(factor){const area=safeArea();commitViewport(zoomAt(viewport.current,area.left+area.width/2,area.top+area.height/2,factor))},
+    center(id){const p=points.current[id],area=safeArea();if(p)commitViewport({x:area.left+area.width/2-p.x,y:area.top+area.height/2-p.y,scale:1})},
     insertPoint(size){
-      const v=viewport.current,{width,height}=sizeRef.current
+      const v=viewport.current,{left,top,width,height}=safeArea()
       const nodes=latest.current.nodes,positions=points.current
       const halfWidth=size.width*v.scale/2,halfHeight=size.height*v.scale/2
-      const visible=cardIndex(nodes,positions).query(v,{left:0,top:0,right:width,bottom:height})
+      const visible=cardIndex(nodes,positions).query(v,{left,top,right:left+width,bottom:top+height})
         .flatMap(node=>{
           const point=positions[node.id];if(!point)return []
           return [{x:point.x*v.scale+v.x,y:point.y*v.scale+v.y,box:nodeBox(node,v.scale)}]
         })
       const insetX=Math.min(width/2,halfWidth+18),insetY=Math.min(height/2,halfHeight+18)
-      let point={x:width/2,y:height/2},score=Infinity
+      let point={x:left+width/2,y:top+height/2},score=Infinity
       for(const row of [.5,.25,.75,0,1])for(const col of [.5,.25,.75,0,1]){
-        const x=insetX+col*(width-2*insetX),y=insetY+row*(height-2*insetY)
+        const x=left+insetX+col*(width-2*insetX),y=top+insetY+row*(height-2*insetY)
         const overlap=visible.reduce((sum,item)=>{
           const dx=Math.min(x+halfWidth,item.x+item.box.width/2+8)-Math.max(x-halfWidth,item.x-item.box.width/2-8)
           const dy=Math.min(y+halfHeight,item.y+item.box.height/2+8)-Math.max(y-halfHeight,item.y-item.box.height/2-8)

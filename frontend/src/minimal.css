@@ -1,0 +1,34 @@
+/* Application material is independent of graph style and colour theme.
+   Portalled menus/dialogs inherit it from <html>, not the graph subtree. */
+:root[data-app-style=minimal] {
+  --glass-radius:6px;--glass-face:var(--panel);--glass-rail:var(--panel);
+  --glass-shine:transparent;--ambient:none;--selection-glow:none;
+  --focus-glow:none;--layer-shadow:none;--appearance-shadow:none;
+  --appearance-reflection:none;--appearance-surface:var(--panel);
+  --shell-motion:0ms;--shadow-color:transparent;
+}
+:root[data-app-style=minimal] :is(.titlebar,.sidebar,.workspace-header,.workspace-tabs,
+  .chat-header,.chat-composer,.composer,.conversation-panel,.assistant-panel,.investigation-card,
+  .source-card,.result-card,.tool-card,.catalog-tool,.settings-section,.settings-categories,
+  .modal,.dialog,.dialog-content,.searchable-select-menu,.dropdown-menu,.popover,
+  .command-palette,.toast,.entity-composer,.relation-composer,.research-title,.graph-command-bar,
+  .canvas-tool-rail,.canvas-view-switch,.canvas-bottom-controls,.canvas-selection-toolbar,
+  .research-inspector,.graph-analysis-index,.research-preview,.research-insertion-result,
+  .research-context,.canvas-overview,.canvas-activity,.canvas-focus,.graph-right-dock>*,
+  .appearance-sample,.appearance-preview,.message-bubble,.message-content) {
+  box-shadow:none!important;backdrop-filter:none!important;
+  background-image:none!important;border-radius:6px;
+}
+:root[data-app-style=minimal] :is(.research-title,.graph-command-bar,.canvas-tool-rail,
+  .canvas-view-switch,.canvas-bottom-controls,.canvas-selection-toolbar,.research-inspector,
+  .graph-analysis-index,.research-preview,.research-insertion-result,.research-context,
+  .canvas-overview,.canvas-activity,.canvas-focus) {
+  background:var(--panel)!important;border:1px solid var(--border)!important;
+}
+:root[data-app-style=minimal] :is(.button,.button-icon,.searchable-select,input,textarea,
+  .nav-item,.theme-choice,.graph-style-choices>button,.select-option) {
+  box-shadow:none!important;border-radius:4px;
+}
+:root[data-app-style=minimal] :is(.button,.button-icon,.nav-item):hover {transform:none}
+:root[data-app-style=minimal] :focus-visible {outline:2px solid var(--focus-ring);outline-offset:2px}
+:root[data-app-style=minimal] ::-webkit-scrollbar-thumb {border-radius:3px}

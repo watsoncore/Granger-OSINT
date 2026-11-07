@@ -21,14 +21,15 @@ CATEGORIES = ('ИИ и провайдеры', 'Расследования', 'И�
               'Гермиона', 'Уведомления', 'Данные')
 
 
-def run(exe: Path, output: Path):
+def run(exe: Path, output: Path, *, source=False, app_style='minimal'):
     from PIL import Image, ImageStat
     from PySide6.QtCore import QCoreApplication
     from grangerpet.config import Settings, SettingsStore
 
     app = QCoreApplication.instance() or QCoreApplication([])
     output.mkdir(parents=True, exist_ok=False)
-    report = {'origin': 'frozen-Windows-EXE', 'exe_sha256': hashlib.sha256(exe.read_bytes()).hexdigest(),
+    report = {'origin': 'native-source' if source else 'frozen-Windows-EXE', 'exe_sha256': None if source else hashlib.sha256(exe.read_bytes()).hexdigest(),
+              'app_style':app_style,
               'checks': [], 'categories': [], 'captures': [], 'passed': False}
 
     def save():
@@ -46,8 +47,8 @@ def run(exe: Path, output: Path):
         with isolated_environment(directory):
             SettingsStore().save(Settings(source_root=str(ROOT), ai_provider='none',
                 cursor_reaction=False, reduced_motion=True,
-                workspace_appearance=json.dumps({'theme': 'azure', 'glow': 0, 'reflection': 3})))
-            session = V7Session(exe, directory)
+                workspace_appearance=json.dumps({'appStyle':app_style,'theme': 'azure', 'glow': 0, 'reflection': 3})))
+            session = V7Session(exe, directory,source)
 
             def category(label):
                 # Hermione also exists in the main sidebar. Use the settings
@@ -89,6 +90,10 @@ def run(exe: Path, output: Path):
                 for index, label in enumerate(CATEGORIES):
                     category(label)
                     dom = session.dom()
+                    if 'appStyle' in dom:
+                        check('settings_'+str(index)+'_global_material',dom['appStyle']==app_style and
+                            (app_style!='minimal' or bool(dom.get('materials')) and all(row['shadow']=='none' and row['backdrop']=='none' for row in dom['materials'])))
+                    report.setdefault('materials',{})[label]=dom.get('materials',[])
                     elements = [e for e in dom.get('elements', []) if e.get('width', 0) > 0 and e.get('height', 0) > 0]
                     checkboxes = [e for e in elements if e.get('type') in ('checkbox', 'radio')]
                     summaries = [e for e in elements if e.get('svgCount', 0) and not e.get('type') and not e.get('role')]
@@ -105,6 +110,12 @@ def run(exe: Path, output: Path):
                           and all(s.get('color') not in ('', None, 'auto') for s in scrolls)
                           and dom.get('font', {}).get('loaded'))
                     capture('settings-' + str(index))
+                    if label == 'Инструменты' and 'appStyle' in dom:
+                        session.fill('Найти инструмент', 'Норвегия компания')
+                        found = wait_for(lambda: 'Brønnøysund · компании NO' in session.dom().get('headings', []), 10)
+                        check('settings_source_directory_searches_by_country_and_object', found)
+                        session.pick('Категория источника', 'Компании и реестры', 'Компании')
+                        capture('settings-source-directory')
 
                 category('Расследования')
                 target = 'При достижении бюджета'
@@ -156,5 +167,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--exe', required=True, type=Path)
     parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--source',action='store_true')
+    parser.add_argument('--app-style',choices=('minimal','glass'),default='minimal')
     args = parser.parse_args()
-    run(args.exe.resolve(), args.output.resolve())
+    run(args.exe.resolve(), args.output.resolve(),source=args.source,app_style=args.app_style)

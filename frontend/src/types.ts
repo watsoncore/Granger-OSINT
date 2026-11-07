@@ -123,7 +123,7 @@ export interface Activity {
   details?: Record<string, unknown>
 }
 export interface Tool {
-  source_contract?:{name:string;host:string;region:string[];license:string;parser_version:string;formats:string[];authentication:string;status:string;health:{status:string;result_count?:number;checked_at?:string}}|null
+  source_contract?:{name:string;host:string;region:string[];license:string;parser_version:string;formats:string[];authentication:string;status:string;category?:string;entity_types?:string[];supported_entity_types?:string[];documentation?:string;limits?:string;health:{status:string;result_count?:number;checked_at?:string;last_success_at?:string}}|null
   manifest?: { access_mode?: string; execution_mode?: string; input_schema?: InputSchema | null; capabilities?: string[]; accepted_inputs?: string[]; [key: string]: unknown }
   implemented?: boolean
   readiness_status?: string

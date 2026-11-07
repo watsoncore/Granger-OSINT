@@ -6,6 +6,7 @@ export {nodeBox} from './graph-geometry'
 import type { GraphEntity, GraphPoint, GraphRelation, GraphView, GraphViewport } from './types'
 
 export const typeLabels: Record<string,string> = { entity_group:'Группа объектов',root_entity:'Цель',telegram_channel:'Telegram-канал',social_profile:'Публичный профиль',public_profile:'Публичный профиль',github_profile:'Профиль GitHub',github_repository:'Репозиторий GitHub',repository:'Репозиторий',username:'Никнейм',organization:'Организация',domain:'Домен',website:'Страница',email:'Email',phone:'Телефон',public_post:'Публикация',blockchain_address:'Адрес блокчейна',transaction:'Транзакция',service:'Метка сервиса',infrastructure_asset:'Инфраструктура',image:'Изображение',coordinate:'Координаты',geographic_candidate:'Географическая гипотеза',source:'Источник',asset:'Актив' }
+Object.assign(typeLabels,{person:'Человек',document:'Документ',public_document:'Публичный документ',company_registration:'Регистрационная запись',custom_entity:'Объект',analyst_note:'Заметка',hypothesis:'Гипотеза',token:'Токен',contract:'Смарт-контракт',nft:'NFT',nft_asset:'NFT',collection:'Коллекция'})
 export const verificationLabels: Record<string,string> = { verified:'Наблюдаемая связь',source_reported:'Сообщено источником',inferred:'Гипотеза',unverified:'Не подтверждено',contradicted:'Противоречие' }
 export const relationLabels: Record<string,string> = { groups_observations:'Группа наблюдений',group_contains:'Включает объект',reference_for_candidate:'Эталон для гипотезы',locally_compared_with:'Сопоставлены локально',source_reports_asset:'Источник сообщает об активе',publishes_link:'Публикует ссылку',repository_namespace:'Namespace GitHub',supported_by:'Основание',published_on_domain:'Опубликовано на домене',uses_public_identifier:'Использует идентификатор',profile_mentions_organization:'Упоминает организацию',source_attributes_authorship:'Источник указывает автора',sent_from:'Отправитель',sent_to:'Получатель',transfers:'Операции',source_labels_address:'Метка источника',metadata_reports_coordinate:'GPS из метаданных',has_geographic_hypothesis:'Гипотеза модели',reference_source_reports_coordinate:'Координаты эталона',historically_published_contact:'Исторический контакт',investigates:'Объект исследования',returned_for_query:'Результат по запросу',uses_email_domain:'Домен email',map_source_reports_location:'Географический объект' }
 export const entityType = (node:GraphEntity) => String(node.attributes?.display_type || node.type)
@@ -225,6 +226,14 @@ export function socmintProfiles(nodes:GraphEntity[],edges:GraphRelation[],root:s
   return nodes.filter(node=>profileTypes.has(node.type)&&!node.attributes.reference_only&&(linked.has(node.id)||node.evidence_ids.some(id=>proof.has(id))||owner?.type==='root_entity')).sort((a,b)=>String(a.attributes.platform||'').localeCompare(String(b.attributes.platform||''))||a.label.localeCompare(b.label))
 }
 export {layoutGraph} from './graph-layout'
+export function graphSafeArea(width:number,height:number,insets:{left?:number;right?:number;top?:number;bottom?:number}={}) {
+  const left=Math.max(0,Math.min(width-1,insets.left||0)),top=Math.max(0,Math.min(height-1,insets.top||0))
+  return {left,top,width:Math.max(1,width-left-Math.max(0,insets.right||0)),height:Math.max(1,height-top-Math.max(0,insets.bottom||0))}
+}
+export function fitViewportWithin(points:Record<string,GraphPoint>,width:number,height:number,nodes:GraphEntity[],insets:{left?:number;right?:number;top?:number;bottom?:number}) {
+  const area=graphSafeArea(width,height,insets),view=fitViewport(points,area.width,area.height,nodes)
+  return {...view,x:view.x+area.left,y:view.y+area.top}
+}
 export function fitViewport(points:Record<string,GraphPoint>,width:number,height:number,nodes?:GraphEntity[]):GraphViewport {
   const rows=Object.values(points)
   if (!rows.length)return {x:width/2,y:height/2,scale:1}

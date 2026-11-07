@@ -63,6 +63,7 @@ def _preset(value, include_graph=True):
     colors = data.get('colors')
     colors = colors if isinstance(colors, dict) else {}
     result = {
+        'appStyle': _enum(data.get('appStyle'), ('glass', 'minimal'), 'minimal'),
         'theme': _enum(data.get('theme'), THEMES, 'dark'),
         'colors': {key: color for key in ('accent', 'node', 'edge', 'hover', 'nav', 'button')
                    if (color := _color(colors.get(key)))},
@@ -84,7 +85,7 @@ def _preset(value, include_graph=True):
         'wallpaper': wallpaper(data.get('wallpaper')),
     }
     if include_graph:
-        result['graphStyle'] = _enum(data.get('graphStyle'), ('glass', 'minimal'), 'glass')
+        result['graphStyle'] = _enum(data.get('graphStyle'), ('glass', 'minimal'), 'minimal')
         profiles = data.get('graphProfiles')
         result['graphProfiles'] = {key: _skin(profiles[key], key == 'minimal')
                                    for key in ('glass', 'minimal') if isinstance(profiles.get(key), dict)} if isinstance(profiles, dict) else {}

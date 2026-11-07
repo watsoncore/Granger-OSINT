@@ -20,6 +20,7 @@ export type Wallpaper = {
   x: number; y: number; scale: number; dim: number; blur: number; opacity: number; color: string; end: string;
 }
 export type AppearancePreset = {
+  appStyle: 'glass' | 'minimal';
   graphStyle: 'glass' | 'minimal'; graphProfiles: Partial<Record<'glass'|'minimal',GraphSkin>>;
   theme: ThemeId; colors: Partial<Record<ColorField,string>>;
   glow: number; border: number; cardRadius: number; panelRadius: number; surface: number;
@@ -54,7 +55,7 @@ export const themeAccents: Record<ThemeId,string> = {
 
 export function defaults(theme: ThemeId = 'dark'): Appearance {
   return {
-    graphStyle:'glass',graphProfiles:{},
+    appStyle:'minimal',graphStyle:'minimal',graphProfiles:{},
     theme, colors:{}, glow:theme==='silver'?3:5, border:75, cardRadius:12, panelRadius:16,
     selectionBorder:1, hoverGlow:0, edgeHighlight:55,
     surface:98, frost:4, reflection:3, shadow:16, density:'comfortable', edges:'curved',
@@ -69,7 +70,7 @@ export function savedAppearance(settings: DesktopState['settings']): Appearance 
   if(typeof settings.workspace_appearance!=='string'||!settings.workspace_appearance)return base
   try {
     const saved=JSON.parse(settings.workspace_appearance) as Partial<Appearance>
-    return {...base,...saved,graphStyle:saved.graphStyle==='minimal'?'minimal':'glass',graphProfiles:saved.graphProfiles||{},theme:themeId(saved.theme),wallpaper:{...base.wallpaper,...saved.wallpaper}}
+    return {...base,...saved,appStyle:saved.appStyle==='glass'?'glass':'minimal',graphStyle:saved.graphStyle==='glass'?'glass':'minimal',graphProfiles:saved.graphProfiles||{},theme:themeId(saved.theme),wallpaper:{...base.wallpaper,...saved.wallpaper}}
   } catch { return base }
 }
 
@@ -87,21 +88,23 @@ function contrast(hex: string) {
 
 export function applyAppearance(appearance: AppearancePreset, remember = true) {
   applyTheme(appearance.theme,remember)
-  applyEffects(appearance.effects)
+  const global=appearance.appStyle==='glass'?appearance:{...appearance,...minimalSkin}
+  applyEffects(appearance.appStyle==='glass'?appearance.effects:'off')
   const root=document.documentElement
+  root.dataset.appStyle=appearance.appStyle==='glass'?'glass':'minimal'
   root.dataset.motion=appearance.reducedMotion?'reduced':'normal'
-  root.dataset.density=appearance.density
+  root.dataset.density=global.density
   const accent=colorFor(appearance,'accent'), button=colorFor(appearance,'button')
   const variables={
     '--user-accent':accent, '--user-node':colorFor(appearance,'node'), '--user-edge':colorFor(appearance,'edge'),
     '--user-hover':colorFor(appearance,'hover'), '--user-nav':colorFor(appearance,'nav'), '--user-button':button,
-    '--user-button-text':contrast(button), '--user-accent-text':contrast(accent), '--user-glow':String(appearance.glow),
+    '--user-button-text':contrast(button), '--user-accent-text':contrast(accent), '--user-glow':String(global.glow),
     '--user-selection-border':String(appearance.selectionBorder), '--user-hover-glow':String(appearance.hoverGlow),
     '--user-edge-highlight':String(appearance.edgeHighlight),
-    '--user-card-radius':appearance.cardRadius+'px', '--user-panel-radius':appearance.panelRadius+'px',
-    '--user-border':appearance.border+'%', '--user-surface':appearance.surface+'%',
-    '--user-frost':appearance.frost+'px', '--user-reflection':appearance.reflection+'%',
-    '--user-shadow':appearance.shadow+'%', '--user-edge-style':appearance.edges,
+    '--user-card-radius':global.cardRadius+'px', '--user-panel-radius':global.panelRadius+'px',
+    '--user-border':global.border+'%', '--user-surface':global.surface+'%',
+    '--user-frost':global.frost+'px', '--user-reflection':global.reflection+'%',
+    '--user-shadow':global.shadow+'%', '--user-edge-style':appearance.edges,
   }
   for(const [name,value] of Object.entries(variables))root.style.setProperty(name,value)
 }

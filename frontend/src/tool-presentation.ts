@@ -32,7 +32,12 @@ const inputTypes: Record<string, string> = { chronology:'TikTok video ID или 
 export function toolName(id: string, displayName?: string) { return displayName || names[id] || id.replace(/_/g, ' ') }
 export function stateLabel(state: string, available?: boolean) { return state === 'unverified' && available ? 'Локально готов' : states[state] || (available ? 'Локально готов' : 'Нужно проверить') }
 export function executionLabel(status: string) { return status === 'error' ? 'Ошибка выполнения' : states[status] || 'Состояние выполнения не уточнено' }
-export function inputLabel(type: string) { return inputTypes[type] || type.replace(/_/g, ' ') }
+const entityLabels: Record<string, string> = {
+  person: 'ФИО', organization: 'Компания', company: 'Компания', document: 'Документ',
+  public_document: 'Публичный документ', public_profile: 'Публичный профиль', public_media: 'Публичное медиа',
+  blockchain_address: 'Кошелёк', nft: 'NFT', coordinate: 'Координаты', software: 'Пакет ПО',
+}
+export function inputLabel(type: string) { return inputTypes[type] || entityLabels[type] || type.replace(/_/g, ' ') }
 export function toolRemedy(tool: Tool) {
   if (tool.remedy || tool.diagnostic?.remedy) return tool.remedy || tool.diagnostic!.remedy!
   if (tool.available) return 'Выберите инструмент и укажите запрос подходящего типа.'

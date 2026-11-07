@@ -119,19 +119,20 @@ def main():
     app=QApplication.instance() or QApplication([])
     profile=out/'appdata/GrangerPet';profile.mkdir(parents=True)
     preferences=Settings(source_root=str(ROOT),cursor_reaction=False,reduced_motion=True,ui_effects=args.effects)
-    if args.wallpaper or args.glow is not None or args.graph_style=='minimal':
-        from grangerpet.appearance import normalize_appearance
-        appearance={'theme':'azure' if args.wallpaper or args.glow is not None else 'dark','graphStyle':args.graph_style,'effects':args.effects,'reducedMotion':True,'glow':args.glow if args.glow is not None else 12 if args.wallpaper else 5}
-        if args.graph_style=='minimal' and args.glow is not None:
-            appearance['graphProfiles']={'minimal':{'glow':args.glow}}
-        if args.wallpaper:
-            from grangerpet.credentials import open_bytes,seal_bytes
-            from grangerpet.geoint.images import AttachmentStore,MAX_IMAGE_BYTES
-            with args.wallpaper.open('rb') as stream:
-                pixels=stream.read(MAX_IMAGE_BYTES+1)
-            saved=AttachmentStore(profile/'wallpapers',seal=seal_bytes,open_sealed=open_bytes).import_bytes(pixels,'Synthetic QA wallpaper')
-            appearance['wallpaper']={'source':'image','image':saved['id'],'dim':65,'blur':args.wallpaper_blur,'quality':args.wallpaper_quality,'fit':args.wallpaper_fit}
-        preferences.workspace_appearance=normalize_appearance(json.dumps(appearance))
+    from grangerpet.appearance import normalize_appearance
+    appearance={'theme':'azure' if args.wallpaper or args.glow is not None else 'dark',
+        'appStyle':args.graph_style,'graphStyle':args.graph_style,'effects':args.effects,
+        'reducedMotion':True,'glow':args.glow if args.glow is not None else 12 if args.wallpaper else 5}
+    if args.graph_style=='minimal' and args.glow is not None:
+        appearance['graphProfiles']={'minimal':{'glow':args.glow}}
+    if args.wallpaper:
+        from grangerpet.credentials import open_bytes,seal_bytes
+        from grangerpet.geoint.images import AttachmentStore,MAX_IMAGE_BYTES
+        with args.wallpaper.open('rb') as stream:
+            pixels=stream.read(MAX_IMAGE_BYTES+1)
+        saved=AttachmentStore(profile/'wallpapers',seal=seal_bytes,open_sealed=open_bytes).import_bytes(pixels,'Synthetic QA wallpaper')
+        appearance['wallpaper']={'source':'image','image':saved['id'],'dim':65,'blur':args.wallpaper_blur,'quality':args.wallpaper_quality,'fit':args.wallpaper_fit}
+    preferences.workspace_appearance=normalize_appearance(json.dumps(appearance))
     (profile/'settings.json').write_text(json.dumps(preferences.to_dict()),encoding='utf-8')
     store=CanvasStore(InvestigationJournal(profile/'investigations'));cases=[]
     from PIL import Image

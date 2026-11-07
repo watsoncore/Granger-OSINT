@@ -10,6 +10,7 @@ import './canvas-workspace.css'
 import './appearance.css'
 import './components/controls.css'
 import './graph-workspace.css'
+import './minimal.css'
 import { restoreTheme } from './themes'
 
 restoreTheme()

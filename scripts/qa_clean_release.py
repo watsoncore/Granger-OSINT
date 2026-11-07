@@ -149,7 +149,7 @@ class NativeSession:
 
     def dom(self):
         self.action('dom')
-        return self.status()['desktop'].get('dom', {})
+        return (self.status() or {}).get('desktop', {}).get('dom', {})
 
     def click(self, label):
         def control():
@@ -169,7 +169,7 @@ class NativeSession:
                 cwd=ROOT, env=os.environ.copy(), stdout=stream, stderr=subprocess.STDOUT,
                 creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         self.owned_pid = wait_for(self.status, 90)['pid']
-        wait_for(lambda: self.status().get('desktop', {}).get('ready'), 60)
+        wait_for(lambda: (self.status() or {}).get('desktop', {}).get('ready'), 60)
         if workspace:
             self.show_workspace()
 
@@ -339,7 +339,11 @@ def acceptance(executable: Path, directory: Path, check, *, allow_missing_extern
         # Search uses a deliberate compact presentation without details.image.
         # Fetch the actual full safe source through the existing bridge.
         session.action('source_open', {'evidence_id': result['evidence_id']})
-        full = wait_for(lambda: d if (d := session.status()['desktop'].get('last_response', {}).get('result', {})).get('details', {}).get('image', {}).get('sha256') == image_sha else None)
+        def full_metadata():
+            desktop = (session.status() or {}).get('desktop', {})
+            details = desktop.get('last_response', {}).get('result') or {}
+            return details if details.get('details', {}).get('image', {}).get('sha256') == image_sha else None
+        full = wait_for(full_metadata)
         check('real_local_image_metadata_tool_completed', full['details']['image']['sha256'] == image_sha)
         session.stop()
         check('normal_first_exit_zero', True)

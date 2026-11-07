@@ -5,7 +5,7 @@ import {emptyState} from './types'
 
 describe('independent graph presentations',()=>{
   it('round trips both profiles without touching workspace data',()=>{
-    let preferences=updateGraphSkin(defaults('azure'),{cardRadius:19,glow:8,arrows:true})
+    let preferences=updateGraphSkin({...defaults('azure'),graphStyle:'glass'},{cardRadius:19,glow:8,arrows:true})
     preferences={...preferences,graphStyle:'minimal'}
     expect(graphAppearance(preferences)).toMatchObject({cardRadius:4,surface:100,shadow:0,density:'compact',arrows:false})
     preferences=updateGraphSkin(preferences,{cardRadius:3,arrows:true})

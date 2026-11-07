@@ -107,6 +107,6 @@ describe('real tool readiness presentation', () => {
     await user.click(screen.getByRole('menuitemradio', { name: 'Готовы к работе' }))
     expect(screen.getByRole('heading', { name: 'Чтение страницы' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'VK' })).toBeNull()
-    expect(within(screen.getByRole('heading', { name: /Инструментарий/ })).getByText('1 локально готовы · 2 адаптеров')).toBeInTheDocument()
+    expect(within(screen.getByRole('heading', { name: /Инструментарий/ })).getByText('1 локально готовы · 2 операций')).toBeInTheDocument()
   })
 })

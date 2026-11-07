@@ -32,6 +32,16 @@ def test_preferences_validate_colors_wallpaper_bounds_and_scopes():
     assert normalize_appearance('{') == ''
 
 
+def test_global_material_roundtrip_keeps_glass_graph_and_private_wallpaper():
+    raw=json.dumps({'appStyle':'minimal','graphStyle':'glass','frost':12,
+        'wallpaper':{'source':'image','image':'img_'+'a'*64},
+        'presets':{'Glass':{'appStyle':'glass','graphStyle':'minimal'}}})
+    value=json.loads(normalize_appearance(raw))
+    assert value['appStyle']=='minimal' and value['graphStyle']=='glass' and value['frost']==12
+    assert value['wallpaper']['image']=='img_'+'a'*64
+    assert value['presets']['Glass']['appStyle']=='glass'
+
+
 def test_wallpaper_render_keeps_original_and_bounds_decoded_preview(tmp_path):
     output = io.BytesIO()
     with Image.new('RGB', (2048, 1024), '#6498ad') as image:

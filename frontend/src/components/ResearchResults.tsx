@@ -14,7 +14,7 @@ const modes={gallery:'Галерея',table:'Таблица',graph:'Связи �
 type Mode=keyof typeof modes
 const observationTime=(row:Source)=>row.obtained_at&&Number.isFinite(Date.parse(row.obtained_at))?Date.parse(row.obtained_at):0
 
-export function ResearchResults({preview,evidenceIds,onSource,onInsert,control,onExport,loadImage}:{preview:Preview;evidenceIds:string[];onSource(source:Source):void;onInsert(ids:string[]):Promise<unknown>;
+export function ResearchResults({preview,evidenceIds,onSource,onInsert,control,onExport,loadImage,toolLabel}:{preview:Preview;evidenceIds:string[];onSource(source:Source):void;onInsert(ids:string[]):Promise<unknown>;toolLabel?:string;
   control?:{open:boolean};onExport?(ids:string[]):Promise<unknown>;loadImage?(row:Source):Promise<string>
 }){
   const [open,setOpen]=useState(false),[chosen,setChosen]=useState<string[]>([]),[query,setQuery]=useState(''),[page,setPage]=useState(0),[saving,setSaving]=useState(false),[error,setError]=useState('')
@@ -61,7 +61,7 @@ export function ResearchResults({preview,evidenceIds,onSource,onInsert,control,o
       <ListFilter size={16}/><strong>{preview.running?'Поиск продолжается':'Найденные сведения'}</strong><Badge>{preview.results.length}</Badge>
     </button><span>{executionLabel(preview.status)}</span>{open&&<Button variant="ghost" size="sm" aria-label="Закрыть результаты" onClick={()=>setOpen(false)}><X size={15}/></Button>}</header>
     <div hidden={!open}>
-      <p className="field-hint">Источник: {toolName(preview.tool)}. Выберите сведения для сохранения в расследовании.</p>
+      <p className="field-hint">Источник: {toolName(preview.tool,toolLabel)}. Выберите сведения для сохранения в расследовании.</p>
       {preview.error&&<p role="alert" className="notice-inline notice-error">{preview.error} Полученные записи доступны для добавления.</p>}
       {error&&<p role="alert">{error}</p>}
       {!!preview.limitations.length&&<Details><Summary>Ограничения источника · {preview.limitations.length}</Summary>
