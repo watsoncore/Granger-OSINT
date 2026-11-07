@@ -34,7 +34,7 @@ const names:Record<string,string>={person:'Человек',organization:'Ком�
 
 export function EntityComposer({jurisdictions=[],busy,onCreate}:{jurisdictions?:CompanyJurisdiction[];busy?:boolean;onCreate(args:Record<string,unknown>):Promise<unknown>}){
   const [kind,setKind]=useState('person'),[value,setValue]=useState(''),[label,setLabel]=useState(''),[chain,setChain]=useState('auto')
-  const [country,setCountry]=useState('KZ'),[method,setMethod]=useState('name'),[note,setNote]=useState(''),[error,setError]=useState('')
+  const [country,setCountry]=useState('KZ'),[method,setMethod]=useState('name'),[note,setNote]=useState(''),[error,setError]=useState(''),[saving,setSaving]=useState(false)
   const submitting=useRef(false),currentDraft=useRef<string[]>([])
   currentDraft.current=[kind,value,label,chain,country,method,note]
   const crypto=['blockchain_address','contract','nft','token','collection'].includes(kind)
@@ -43,8 +43,10 @@ export function EntityComposer({jurisdictions=[],busy,onCreate}:{jurisdictions?:
   const field:{label:string;placeholder:string;help?:string}=company?{label:region?.identifiers[method]||'Название компании',placeholder:method==='name'?'Название организации':method==='website'?'https://example.org':'Регистрационный идентификатор'}:fields[kind]||fields.custom_entity
   const changeKind=(next:string)=>{setKind(next);setValue('');setLabel('');setError('');setNote('')}
   async function submit(){
-    if(!value.trim()||busy||submitting.current)return
+    if(busy||submitting.current)return
+    if(!value.trim()){setError('Введите значение объекта.');return}
     submitting.current=true
+    setSaving(true)
     const submitted=currentDraft.current
     setError('')
     try{
@@ -55,7 +57,7 @@ export function EntityComposer({jurisdictions=[],busy,onCreate}:{jurisdictions?:
         setValue('');setLabel('');setNote('')
       }
     }catch(reason){setError((reason as Error).message)}
-    finally{submitting.current=false}
+    finally{submitting.current=false;setSaving(false)}
   }
   return <form className="entity-composer" onSubmit={event=>{event.preventDefault();void submit()}}>
     <h3>Новый объект</h3>
@@ -71,13 +73,13 @@ export function EntityComposer({jurisdictions=[],busy,onCreate}:{jurisdictions?:
       placeholder={field.placeholder} maxLength={2000} spellCheck={false} autoFocus/></label>
     {field.help&&<p className="field-hint">{field.help}</p>}
     {company&&<p className="field-hint">По названию будут найдены кандидаты. Формат номера сам по себе не подтверждает регистрацию.</p>}
-    {crypto&&target.result?.reason&&<p className="field-hint">{target.result.reason}</p>}
     {kind==='analyst_note'&&<label>Текст заметки<textarea aria-label="Текст новой заметки" value={note} onChange={event=>setNote(event.target.value)} maxLength={20000}/></label>}
     <Details className="entity-advanced"><Summary>Дополнительно</Summary>
       <label>{company?'Юридическое название (если известно)':'Своя подпись'}<input aria-label="Своя подпись объекта" value={label} onChange={event=>setLabel(event.target.value)} maxLength={300}/></label>
       {kind!=='analyst_note'&&<label>Комментарий<textarea aria-label="Комментарий к новому объекту" value={note} onChange={event=>setNote(event.target.value)} maxLength={20000}/></label>}
     </Details>
     {error&&<p className="notice-inline notice-error" role="alert">{error}</p>}
-    <Button type="submit" disabled={busy||!value.trim()||crypto&&(target.pending||!target.result?.valid||!!target.result?.requires_network)}><Plus size={15}/>Добавить объект</Button>
+    <Button type="submit" aria-label="Добавить объект" disabled={busy||saving} aria-busy={saving}><Plus size={15}/>{saving?'Сохранение объекта…':'Добавить объект'}</Button>
+    {crypto&&(target.pending||target.result?.reason)&&<p className="field-hint" role="status">{target.pending?'Проверяем формат адреса… Сохранение дополнительно проверит значение.':target.result?.reason}</p>}
   </form>
 }

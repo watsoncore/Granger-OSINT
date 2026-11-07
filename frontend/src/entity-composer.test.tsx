@@ -2,11 +2,25 @@ import {render,screen,fireEvent,waitFor,act as reactAct} from '@testing-library/
 import userEvent from '@testing-library/user-event'
 import {describe,it,expect,vi} from 'vitest'
 import {EntityComposer,type CompanyJurisdiction} from './components/EntityComposer'
+import {act} from './bridge'
 vi.mock('./bridge',()=>({act:vi.fn()}))
 const jurisdictions:CompanyJurisdiction[]=[{id:'KZ',label:'Казахстан',identifiers:{name:'Название',bin:'БИН',lei:'LEI'}},
   {id:'RU',label:'Россия',identifiers:{name:'Название',inn:'ИНН юридического лица',ogrn:'ОГРН'}}]
 
 describe('typed object creation',()=>{
+  it('allows authoritative validation when the advisory crypto resolver failed',async()=>{
+    vi.mocked(act).mockResolvedValue(null)
+    const create=vi.fn().mockRejectedValue(new Error('Укажите EVM-сеть'))
+    const user=userEvent.setup()
+    render(<EntityComposer onCreate={create}/>)
+    await user.click(screen.getByRole('button',{name:'Тип нового узла'}))
+    await user.click(screen.getByRole('menuitemradio',{name:'Криптокошелёк'}))
+    fireEvent.change(screen.getByLabelText('Адрес кошелька'),{target:{value:'0x742d35Cc6634C0532925a3b844Bc454e4438f44e'}})
+    await user.click(screen.getByRole('button',{name:'Добавить объект'}))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Укажите EVM-сеть')
+    expect(screen.getByLabelText('Адрес кошелька')).toHaveValue('0x742d35Cc6634C0532925a3b844Bc454e4438f44e')
+    expect(create).toHaveBeenCalledOnce()
+  })
   it('keeps newer typing intact when a previous object receives a late acknowledgement',async()=>{
     let acknowledge!:(value:unknown)=>void
     const create=vi.fn(()=>new Promise(resolve=>{acknowledge=resolve}))

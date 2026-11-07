@@ -1,0 +1,162 @@
+{
+  "stage": "typed_creation_repair",
+  "complete_v11_release": false,
+  "origin": "native-source",
+  "passed": true,
+  "native_checks": [
+    {
+      "name": "canvas_first_default_panels_closed",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Человек",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Компания / организация",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Никнейм",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Email",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Телефон",
+      "passed": true
+    },
+    {
+      "name": "typed_form_IP-адрес",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Домен",
+      "passed": true
+    },
+    {
+      "name": "typed_form_URL",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Профиль",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Криптокошелёк",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Транзакция",
+      "passed": true
+    },
+    {
+      "name": "typed_form_NFT",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Токен",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Контракт",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Коллекция",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Документ",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Географическая точка",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Заметка",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Гипотеза",
+      "passed": true
+    },
+    {
+      "name": "typed_form_Произвольный объект",
+      "passed": true
+    },
+    {
+      "name": "twenty_manual_objects_without_fabricated_evidence",
+      "passed": true
+    },
+    {
+      "name": "native_port_drag_and_relation_metadata",
+      "passed": true
+    },
+    {
+      "name": "native_relation_undo_redo",
+      "passed": true
+    },
+    {
+      "name": "expanded_group_keeps_members_and_relation_visible",
+      "passed": true
+    },
+    {
+      "name": "native_group_drag_preserves_descendant_offsets",
+      "passed": true
+    },
+    {
+      "name": "native_group_resize",
+      "passed": true
+    },
+    {
+      "name": "native_group_collapse",
+      "passed": true
+    },
+    {
+      "name": "native_group_expand",
+      "passed": true
+    },
+    {
+      "name": "native_image_import_preserves_original",
+      "passed": true
+    },
+    {
+      "name": "restart_preserves_manual_composition",
+      "passed": true
+    }
+  ],
+  "tests": {
+    "frontend_full": 241,
+    "frontend_recheck": 15,
+    "python_targeted": 73
+  },
+  "screenshots_visually_reviewed": [
+    {
+      "name": "manual20.png",
+      "sha256": "bafe5f9d36c196807ed8bdc211901a01a6580cfea0ceac80611ddeba185fdbf6"
+    },
+    {
+      "name": "relation-dialog.png",
+      "sha256": "16d9a667be94323866274e7ac3c40c1e6f01804d1c0bc0eed8eb5261aa39ae62"
+    },
+    {
+      "name": "group-resize.png",
+      "sha256": "1a6b4b8805270f975f2b379cf9bf8a6ee8cc50d5fe347762bb9e28b1d8627a9c"
+    },
+    {
+      "name": "group-workspace.png",
+      "sha256": "781faf335d3b7a6e58f15d9badf26aa12d80d94920996c39124df09ed7d881e9"
+    },
+    {
+      "name": "image-workspace.png",
+      "sha256": "1f7a4a266a02906dd2d601eb13d4fb79e89a7b2b21c8b307fc34c2cc88bf5369"
+    }
+  ],
+  "current_exe_unchanged": "V10 remains installed; corrected source Qt/WebEngine checked; final V11 EXE acceptance remains required",
+  "known_remaining_ui_issue": "Explicit Fit still uses the full canvas instead of reserved chrome bounds; retained for the global layout phase.",
+  "source_expansion": "Exploratory HTTP probes do not count as integrated/live-verified adapters."
+}

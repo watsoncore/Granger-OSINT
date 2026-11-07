@@ -82,7 +82,7 @@ class ResearchCanvasBridge:
                 else:self.publish(value)
             if deferred:
                 document=self.document or {}
-                deferred.resolve({'mutation_id':receipt['mutation_id'],'canvas_id':document.get('id'),'revision':document.get('revision',0)},failure)
+                deferred.resolve({'mutation_id':receipt['mutation_id'],'canvas_id':document.get('id'),'revision':document.get('revision',0),**receipt.get('result',{})},failure)
             job.deleteLater()
         job.done.connect(done);job.start()
         return deferred if deferred else {'pending':True}
@@ -301,7 +301,9 @@ class ResearchCanvasBridge:
                 return self.render()
             if op=='edit':
                 operation,args=payload.get('operation'),payload.get('arguments',{})
-                value=apply(self.document,operation,args)
+                mutation_result={}
+                value=apply(self.document,operation,args,result=mutation_result)
+                if self._active_receipt is not None:self._active_receipt['result']=mutation_result
                 kind={'node':'node','edge':'link','edge_edit':'link','group':'group','rename':'rename'}.get(operation)
                 if kind:
                     key='relations' if kind=='link' else 'entities'

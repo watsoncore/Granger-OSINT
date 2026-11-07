@@ -7,6 +7,7 @@ from copy import deepcopy
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -56,6 +57,10 @@ class V7Session(V5Session):
 
 
 def run(exe,report_path,shots,*,source=False,graph_style='glass'):
+    frontend_build=None
+    if source:
+        from scripts.build_release import build_frontend
+        frontend_build=build_frontend(ROOT,os.environ.copy())
     from PySide6.QtCore import QCoreApplication
     from PIL import Image,ImageDraw
     from grangerpet.config import Settings,SettingsStore
@@ -63,7 +68,7 @@ def run(exe,report_path,shots,*,source=False,graph_style='glass'):
     from grangerpet.research_canvas import CanvasStore
     app=QCoreApplication.instance() or QCoreApplication([])
     report_path.parent.mkdir(parents=True,exist_ok=True);shots.mkdir(parents=True,exist_ok=True)
-    result={'origin':'native-source' if source else 'frozen-Windows-EXE','passed':False,
+    result={'origin':'native-source' if source else 'frozen-Windows-EXE','passed':False,'frontend_build':frontend_build,
         'exe_sha256':None if source else hashlib.sha256(exe.read_bytes()).hexdigest(),
         'manual_entities':True,'live_osint_executed':False,'graph_style':graph_style,'checks':[],'captures':[]}
     def save():report_path.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
@@ -150,6 +155,12 @@ def run(exe,report_path,shots,*,source=False,graph_style='glass'):
                 result['passed']=True;save()
             except BaseException as error:
                 result.update(error_type=type(error).__name__,error=str(error)[:200]);save()
+                try:
+                    capture('failure')
+                    (shots/'failure-state-private.json').write_text(json.dumps(session.snapshot(),ensure_ascii=False),encoding='utf-8')
+                    (shots/'failure-dom-private.json').write_text(json.dumps(session.dom(),ensure_ascii=False),encoding='utf-8')
+                except Exception as diagnostic_error:
+                    result['diagnostic_error_type']=type(diagnostic_error).__name__;save()
                 raise
             finally:session.stop()
     result['temporary_profile_removed']=not directory.exists();save()

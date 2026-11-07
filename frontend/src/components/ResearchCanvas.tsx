@@ -47,6 +47,7 @@ export function ResearchCanvas({state,onSource,active=false,destination,onDestin
   destination?:SearchDestination;onDestinationHandled?(destination:SearchDestination):void
 }){
   const [pendingPosition,setPendingPosition]=useState<GraphPoint>(),[menu,setMenu]=useState<{id:string;x:number;y:number}|null>(null)
+  const [createdTarget,setCreatedTarget]=useState<{owner:string;id:string;revision:number}|null>(null)
   const contextMenu=useRef<HTMLDivElement>(null)
   useEffect(()=>{
     if(!menu)return
@@ -270,7 +271,25 @@ export function ResearchCanvas({state,onSource,active=false,destination,onDestin
     void load()
     return()=>{alive=false;if(timer){clearTimeout(timer);attempted.current.delete(key)}}
   },[doc?.id,display.nodes])
-  const create=async(args:Record<string,unknown>)=>{const accepted=await edit('node',{...args,...(pendingPosition?{position:pendingPosition}:{})},{rejectValidation:true});if(!accepted)throw new Error('Сохранение не подтверждено. Введённые значения оставлены в форме.');setPendingPosition(undefined);return accepted}
+  useEffect(()=>{
+    if(!createdTarget)return
+    if(doc?.id!==createdTarget.owner){setCreatedTarget(null);return}
+    if(doc.revision<createdTarget.revision||!rendered.nodes.some(node=>node.id===createdTarget.id))return
+    setCreatedTarget(null);setSelection([createdTarget.id]);setEdgeId('')
+    requestAnimationFrame(()=>{if(latest.current?.id===createdTarget.owner)canvas.current?.center(createdTarget.id)})
+  },[createdTarget,doc?.id,doc?.revision,rendered.nodes])
+  const create=async(args:Record<string,unknown>)=>{
+    const owner=latest.current?.id
+    if(!owner)throw new Error('Откройте расследование перед добавлением объекта.')
+    const accepted=await send('edit',{id:owner,operation:'node',arguments:{...args,...(pendingPosition?{position:pendingPosition}:{})}},{rejectValidation:true,rejectRetained:true}) as {canvas_id?:string;revision?:number;entity_id?:string;created?:boolean}|null
+    if(!accepted||accepted.canvas_id!==owner||!accepted.entity_id||typeof accepted.revision!=='number')throw new Error('Сохранение не подтверждено. Введённые значения оставлены в форме.')
+    if(latest.current?.id===owner){
+      setFilter('');setTypeFilter('');setStatusFilter('');setSourceFilter('');setFocusPath([])
+      setPendingPosition(undefined);setCreatedTarget({owner,id:accepted.entity_id,revision:accepted.revision})
+      notify(accepted.created?'Объект сохранён. Показаны все объекты графа.':'Такой объект уже есть в расследовании. Показан существующий объект.')
+    }
+    return accepted
+  }
   const uiCollapsed=(id:string)=>void edit('view',{view:{collapsed:doc?.view.collapsed.includes(id)?doc.view.collapsed.filter(value=>value!==id):[...(doc?.view.collapsed||[]),id]}})
   const connect=(a:string,b:string)=>{if(a!==b)setConnection({from:a,to:b})}
   const expandNode=(id:string)=>{const d=latest.current;if(d)void edit('view',{view:{expanded:Array.from(new Set([...(d.view.expanded||[]),id])),collapsed:d.view.collapsed.filter(value=>value!==id)}})}

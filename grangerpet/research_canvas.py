@@ -487,13 +487,24 @@ def position_added_profiles(doc, owner, added, *, kinds=('public_profile','socia
         positions[node['id']] = {'x': hub['x'] + x * width, 'y': hub['y'] + y * height}
 
 
-def apply(doc,operation,args):
+def apply(doc,operation,args,*,result=None):
     doc=deepcopy(doc);nodes={n['id']:n for n in doc['entities']};edges={e['id']:e for e in doc['relations']}
     instances=doc['view'].setdefault('instances',{})
     canonical=lambda identifier:instances.get(identifier,{}).get('entity_id',identifier)
     ids=args.get('ids',[])
     if not isinstance(ids,list) or not set(ids)<=set(nodes)|set(instances):raise CanvasError('Выбран неизвестный узел.')
-    if operation=='node':add_node(doc,args)
+    if operation=='node':
+        identifier=add_node(doc,args)
+        # Explicit manual creation must be visible even from a filtered analytic
+        # projection. This is one durable mutation, including a duplicate reveal.
+        doc['view'].setdefault('ui',{})['graph_mode']='manual'
+        reveal={identifier}
+        parent=nodes.get(identifier,{}).get('attributes',{}).get('parent_group_id')
+        while parent in nodes and parent not in reveal:
+            reveal.add(parent);parent=nodes[parent].get('attributes',{}).get('parent_group_id')
+        for key in ('hidden','removed','collapsed'):
+            doc['view'][key]=[value for value in doc['view'][key] if value not in reveal]
+        if result is not None:result.update(entity_id=identifier,created=identifier not in nodes)
     elif operation=='detach_image':
         node=nodes.get(canonical(args.get('entity_id')))
         if not node:raise CanvasError('Объект не найден.')

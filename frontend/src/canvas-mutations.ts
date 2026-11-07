@@ -2,7 +2,7 @@
 export type CanvasDocument = {id:string;revision:number}
 type Transport=(action:string,payload:Record<string,unknown>)=>Promise<unknown>
 type Ack={canvas_id?:string;revision?:number}
-type Intent={op:string;payload:Record<string,unknown>;target?:string;token:string;waiters:Array<(value:unknown)=>void>}
+type Intent={op:string;payload:Record<string,unknown>;target?:string;token:string;waiters:Array<(value:unknown,retained?:boolean)=>void>}
 export type CanvasDraftIntent=Pick<Intent,'op'|'payload'|'target'>
 type DraftProvider=()=>CanvasDraftIntent[]
 export type PendingDraft={draft_id?:string;intents:Array<Omit<Intent,'waiters'>>;current?:CanvasDocument;error?:string}
@@ -66,15 +66,16 @@ export class CanvasMutations {
     if(this.awaitingId===doc.id)this.awaitingId=undefined
     this.current={id:doc.id,revision:this.revisions.get(doc.id)!}
   }
-  send=(op:string,payload:Record<string,unknown>={},options:{rejectValidation?:boolean}={}):Promise<unknown>=>{
+  send=(op:string,payload:Record<string,unknown>={},options:{rejectValidation?:boolean;rejectRetained?:boolean}={}):Promise<unknown>=>{
     if(!this.accepting)return Promise.resolve(null)
     const target=unbound.has(op)?undefined:String(payload.id||this.current?.id||'')
     if(!unbound.has(op)&&!target)return Promise.resolve(null)
     this.validationError=''
     return new Promise((resolve,reject)=>{
-      const settle=(value:unknown)=>{
+      const settle=(value:unknown,retained=false)=>{
+        if(retained&&!options.rejectRetained)return
         if(value instanceof Error){
-          if(options.rejectValidation)reject(value)
+          if(options.rejectValidation||retained&&options.rejectRetained)reject(value)
           else resolve(null)
         }else resolve(value)
       }
@@ -94,7 +95,7 @@ export class CanvasMutations {
       this.publish();void this.drain()
     })
   }
-  edit=(operation:string,args:Record<string,unknown>,options:{rejectValidation?:boolean}={})=>this.send('edit',{operation,arguments:args},options)
+  edit=(operation:string,args:Record<string,unknown>,options:{rejectValidation?:boolean;rejectRetained?:boolean}={})=>this.send('edit',{operation,arguments:args},options)
   private async drain(){
     if(this.running||this.failed)return
     this.running=true
@@ -119,7 +120,10 @@ export class CanvasMutations {
           this.queue.shift()
           this.validationError=failure.message
           intent.waiters.forEach(settle=>settle(failure))
-        }else this.failed=failure
+        }else{
+          this.failed=failure
+          intent.waiters.forEach(settle=>settle(failure,true))
+        }
         this.publish()
       }
     }

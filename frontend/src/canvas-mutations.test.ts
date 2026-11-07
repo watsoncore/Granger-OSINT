@@ -4,6 +4,15 @@ import {CanvasEditorDrafts} from './canvas-editor-drafts'
 const tick=()=>new Promise(resolve=>setTimeout(resolve,0))
 const doc='a'.repeat(32),other='b'.repeat(32)
 describe('acknowledged canvas intents',()=>{
+  it('reports an uncertain save to a form while retaining its token for explicit retry',async()=>{
+    const transport=vi.fn().mockRejectedValueOnce(new Error('Приложение не ответило')).mockResolvedValue({canvas_id:doc,revision:2})
+    const queue=new CanvasMutations(transport);queue.observe({id:doc,revision:1})
+    await expect(queue.edit('node',{type:'phone',value:'+12025550123'},{rejectValidation:true,rejectRetained:true})).rejects.toThrow('Приложение не ответило')
+    expect(queue.getSnapshot().pending).toBe(1)
+    await queue.retry();await tick()
+    expect(queue.getSnapshot().pending).toBe(0)
+    expect(transport.mock.calls[1][1].mutation_id).toBe(transport.mock.calls[0][1].mutation_id)
+  })
   it('releases a rejected typed form while preserving uncertain writes for explicit retry',async()=>{
     const transport=vi.fn().mockRejectedValueOnce(Object.assign(new Error('Укажите международный телефон'),{code:'canvas_validation_failed'}))
       .mockResolvedValueOnce({canvas_id:doc,revision:2})
