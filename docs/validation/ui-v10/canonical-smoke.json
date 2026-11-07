@@ -1,0 +1,95 @@
+{
+  "passed": true,
+  "exe_sha256": "10d091ecf2000619bcfa8f5646ee8f2effb2141e34d742c4389bbe84aaa62026",
+  "temporary_data_removed": true,
+  "checks": [
+    {
+      "name": "fresh_launcher_and_pet_restricted_path_smoke",
+      "passed": true
+    },
+    {
+      "name": "exact_spawned_pid_and_executable_path",
+      "passed": true
+    },
+    {
+      "name": "native_frontend_ready_and_load_ok",
+      "passed": true
+    },
+    {
+      "name": "grangerpet_visible_and_initialized",
+      "passed": true
+    },
+    {
+      "name": "native_navigation_search",
+      "passed": true
+    },
+    {
+      "name": "native_navigation_history",
+      "passed": true
+    },
+    {
+      "name": "native_navigation_canvas",
+      "passed": true
+    },
+    {
+      "name": "native_navigation_chat",
+      "passed": true
+    },
+    {
+      "name": "native_navigation_settings",
+      "passed": true
+    },
+    {
+      "name": "saved_utf8_text_canvas_opened",
+      "passed": true
+    },
+    {
+      "name": "gansar_maigret_and_image_tool_registered",
+      "passed": true
+    },
+    {
+      "name": "gansar_and_maigret_locally_available",
+      "passed": true
+    },
+    {
+      "name": "saved_search_has_no_duplicate_graph_tab_and_tree_draws",
+      "passed": true
+    },
+    {
+      "name": "saved_manual_canvas_actually_drawn",
+      "passed": true
+    },
+    {
+      "name": "real_image_import_preserves_digest",
+      "passed": true
+    },
+    {
+      "name": "real_media_card_pixels_drawn",
+      "passed": true
+    },
+    {
+      "name": "actual_native_original_viewer_opened",
+      "passed": true
+    },
+    {
+      "name": "real_local_image_metadata_tool_completed",
+      "passed": true
+    },
+    {
+      "name": "normal_first_exit_zero",
+      "passed": true
+    },
+    {
+      "name": "restart_preserves_saved_analyst_canvas",
+      "passed": true
+    },
+    {
+      "name": "normal_restart_exit_zero",
+      "passed": true
+    },
+    {
+      "name": "fresh_runtime_logs_without_python_traceback",
+      "passed": true
+    }
+  ]
+}

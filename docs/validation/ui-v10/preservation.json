@@ -25,5 +25,45 @@
       "external_tool_source": 508
     },
     "changed": 0
+  },
+  "installation": {
+    "passed": true,
+    "installed": true,
+    "sha256": "10d091ecf2000619bcfa8f5646ee8f2effb2141e34d742c4389bbe84aaa62026",
+    "bytes": 279665710,
+    "previous_sha256": "78e3b1d1b8b44c99593892df3e773e1e5a7f05353e6c0d3f280b52e6eb025c23",
+    "canonical_native_checks": 22,
+    "profile_around_install": {
+      "files_before": 1155,
+      "files_after": 1155,
+      "added": 0,
+      "missing": 0,
+      "changed": 0
+    },
+    "protected_static": {
+      "checked": {
+        "artwork": 92,
+        "resources": 202,
+        "user_icons": 23
+      },
+      "changed": 0
+    },
+    "temporary_stage_removed": true,
+    "dist_entries": [
+      "Granger-OSINT.exe"
+    ]
+  },
+  "normal_close_vs_initial_snapshot": {
+    "files_before_normal_close": 1157,
+    "files_after_normal_close": 1155,
+    "added": 0,
+    "removed": 2,
+    "byte_changes": 3
+  },
+  "normal_companion_exit": {
+    "user_confirmed_app_closed": true,
+    "shutdown": "existing normal pet.shutdown IPC command",
+    "acknowledged": true,
+    "force_termination_used": false
   }
 }

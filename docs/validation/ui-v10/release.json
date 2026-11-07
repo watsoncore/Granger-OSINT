@@ -43,6 +43,6 @@
   },
   "temporary_stage_removed": true,
   "canonical_path": "dist/Granger-OSINT.exe",
-  "installed": false,
+  "installed": true,
   "verification": "Fresh frontend fingerprint + extracted frozen modules/resources + isolated native EXE tests"
 }
