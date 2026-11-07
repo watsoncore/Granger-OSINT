@@ -649,7 +649,14 @@ def parse(definition,data,limit):
         fields={key:text(value) if isinstance(value,(str,list)) else value for key,value in fields.items() if type(value) in (str,int,float,bool,list)}
         if definition.url_field:url=select(row,definition.url_field)
         else:
-            url=definition.url.replace('{id}',quote(str(identifier),safe=''))
+            encoded_id=quote(str(identifier),safe='')
+            if definition.provider in ('huggingface','scorecard'):
+                segments=str(identifier).split('/')
+                expected=2 if definition.provider=='huggingface' else 3
+                if len(segments)!=expected or any(not part or part in ('.','..') for part in segments):
+                    raise ValueError('Invalid provider-scoped path identifier')
+                encoded_id='/'.join(quote(part,safe='') for part in segments)
+            url=definition.url.replace('{id}',encoded_id)
             for key,value in fields.items():
                 url=url.replace('{'+key+'}',quote(str(value),safe=''))
         url=canonical_url(url) if isinstance(url,str) else ''

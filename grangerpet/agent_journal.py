@@ -118,7 +118,8 @@ class InvestigationJournal:
                    'pending_outcomes', 'call_cache', 'seen_call_ids', 'evidence', 'executions',
                    'failures', 'completed_steps', 'tried_queries', 'pending_work', 'plan',
                    'registry_state', 'usage_requests', 'budget_reserved_tokens', 'protocol_archive', 'sent_content',
-                   'active_focus','followup_request','focus_budget', 'report_parts', 'report_draft', 'synthesis_reserved_tokens', 'completed_reports')
+                   'active_focus','followup_request','focus_budget', 'report_parts', 'report_draft', 'synthesis_reserved_tokens', 'completed_reports',
+                   'source_plan_grants','source_plan_denied','source_plan_denied_targets','source_contacts')
         value = {key: checkpoint[key] for key in allowed if key in checkpoint}
         validate_checkpoint(value, identifier)
         raw = json.dumps(value, ensure_ascii=False, separators=(',', ':'), allow_nan=False)

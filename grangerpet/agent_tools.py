@@ -167,6 +167,7 @@ _SPECS += (ToolSpec('email_research','research_v7','email','email',
 _SPECS += tuple(ToolSpec(row.id,'research_v7','company' if row.category=='company' else 'document','query',
     row.name+' — документированный источник. Возвращает только полученные записи и их происхождение.',
     input_schema=_COMPANY_SCHEMA if row.category=='company' else _RESEARCH_QUERY_SCHEMA,
+    requires_approval=row.id in ('company_opencorporates','company_opensanctions'),
     execution_mode='OFFICIAL_API',documentation_url=row.documentation,category=row.category) for row in _RESEARCH_SOURCES.values())
 from .source_adapters import CONTRACTS as _SOURCE_ADAPTERS
 _SPECS += tuple(ToolSpec(row.adapter_id,'source_adapter',
@@ -1113,7 +1114,7 @@ class ToolRegistry:
         """Repository-owned dispatch, without model-defined handlers or paths."""
         if spec.source=='source_adapter':
             from .source_adapters import execute
-            return execute(spec.name,args,cancel_event=cancelled,deadline=deadline)
+            return execute(spec.name,args,cancel_event=cancelled,deadline=deadline,cache_scope=self._browser_context)
         if spec.name=='steam_inventory':
             from .steam_public import execute
             return execute(spec.name,args,cancel_event=cancelled,deadline=deadline)

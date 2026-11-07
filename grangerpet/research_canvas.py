@@ -339,6 +339,7 @@ def add_node(doc,args):
         expected={'email':('email',),'phone':('phone',),'domain':('domain',),
             'infrastructure_asset':('infrastructure_asset','network_range','autonomous_system'),
             'coordinate':('geographic_coordinates',),
+            'repository':('github_repository',),
             'public_profile':('public_profile','social_profile','github_profile','public_channel_or_profile','steam_profile','website'),
             'social_profile':('public_profile','social_profile','github_profile','public_channel_or_profile','steam_profile','website'),
             'website':('website','public_profile','social_profile','public_channel_or_profile','github_repository')}

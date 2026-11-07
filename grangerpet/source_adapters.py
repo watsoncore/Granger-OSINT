@@ -40,7 +40,7 @@ class AdapterContract:
     requires_credentials: tuple = ()
     timeout: int = 18
     rate_limit: float = 1.2
-    cache_policy: str = '5 minutes; 64 entries shared; original observed_at retained'
+    cache_policy: str = '5 minutes; 64 entries bounded by investigation scope; original observed_at retained'
     execution_mode: str = 'PUBLIC_API_NO_KEY'
     normalizer: str = 'reviewed-field-mapping/1'
     graph_mapping: str = 'typed observation + returned_for_query; no identity inference'
@@ -78,6 +78,7 @@ class AdapterContract:
         value.update(input_schema=self.input_schema,
             name=self.display_name,region=[_REGIONS.get(self.provider_id,'global')],parser_version=self.normalizer,formats=['json'],
             authentication='own_api_key' if self.requires_credentials else 'none',status=self.capability_status,
+            limits=f'До 10 записей за запрос, 2 МБ на ответ, таймаут до {self.timeout} с; действуют квоты источника.',
             output_schema={'type':'object','required':['status','results','limitations'],
                 'observation_path':'results[].details.observation',
                 'observation_required':['source','target','value','entity_type','canonical_identifier','timestamp','evidence_url','confidence_basis','verification_status']},
@@ -165,6 +166,8 @@ def normalize_query(adapter_id, query):
         value=resolved['canonical_address']
     if item.input_kind=='software' and not re.fullmatch(r'[A-Za-z0-9@][A-Za-z0-9_./@-]{0,150}' if item.provider_id=='npm' else r'[A-Za-z0-9][A-Za-z0-9_.-]{0,150}',value):
         raise ValueError('Expected package name')
+    if item.input_kind in ('package_path','repository') and any(part in ('','..','.') for part in value.split('/')):
+        raise ValueError('Invalid scoped package/repository identifier')
     definition=_DEFINITIONS.get(item.provider_id)
     if definition and definition.query_pattern and not re.fullmatch(definition.query_pattern,value):raise ValueError('Identifier does not match this register')
     return value
@@ -184,7 +187,9 @@ def endpoint(adapter_id, query, limit):
     if provider=='pypi':return 'https://pypi.org/pypi/'+value+'/json',{}
     if provider=='rubygems':return 'https://rubygems.org/api/v1/gems/'+value+'.json',{}
     if provider=='pubdev':return 'https://pub.dev/api/packages/'+value,{}
-    if provider=='datacite':return 'https://api.datacite.org/dois',{'query':query,'page[size]':limit}
+    if provider=='datacite':
+        return 'https://api.datacite.org/dois',{'query':query,'page[size]':limit,
+            'fields[dois]':'titles,creators,publicationYear','disable-facets':'true'}
     if provider=='hal':return 'https://api.archives-ouvertes.fr/search/',{'q':query,'rows':limit,'wt':'json','fl':'docid,title_s,uri_s,authFullName_s,producedDate_s'}
     raise ValueError('No reviewed endpoint')
 
@@ -284,7 +289,7 @@ def mapped(adapter_id,data,query,limit):
     return result
 
 
-def execute(adapter_id,args,*,cancel_event=None,deadline=None,client_factory=None,resolver=None):
+def execute(adapter_id,args,*,cancel_event=None,deadline=None,client_factory=None,resolver=None,cache_scope=None):
     from .agent_web import _envelope,_record,_run,_FetchError
     from .agent_browser import PageReadError
     item=CONTRACTS[adapter_id]
@@ -293,15 +298,23 @@ def execute(adapter_id,args,*,cancel_event=None,deadline=None,client_factory=Non
         args=validate_object(args,item.input_schema);query=normalize_query(adapter_id,args['query']);limit=args.get('limit',5)
     except (ValueError,TypeError):return _envelope(adapter_id,'',status='invalid_arguments',error_code='invalid_source_input')
     end=min(deadline or float('inf'),time.monotonic()+item.timeout)
-    key=(adapter_id,query,limit)
+    key=(cache_scope,adapter_id,query,limit)
     def health(status,count,cached=False):
-        with _LOCK:_HEALTH[adapter_id]={'status':status,'result_count':count,'checked_at':datetime.now(timezone.utc).isoformat(),'cached':cached}
+        checked_at=datetime.now(timezone.utc).isoformat()
+        with _LOCK:
+            previous=_HEALTH.get(adapter_id,{})
+            last_success_at=checked_at if status=='complete' and count and not cached else previous.get('last_success_at')
+            _HEALTH[adapter_id]={'status':status,'result_count':count,'checked_at':checked_at,
+                'cached':cached,'last_success_at':last_success_at}
     try:
         if cancel_event and cancel_event.is_set():raise _FetchError('cancelled',status='cancelled')
         if time.monotonic()>=end:raise _FetchError('timeout',status='timeout')
         with _LOCK:cached=_CACHE.get(key)
         if cached and time.monotonic()-cached[0]<300:
             value=deepcopy(cached[1]);value['from_saved_data']=True
+            diagnostic=value.setdefault('source_diagnostics',{})
+            diagnostic.update(saved_http_status=diagnostic.get('http_status'),http_status=None,
+                providers_attempted=0,http_requests=0,http_statuses=[],logical_requests=0,http_attempts=0,from_saved_data=True)
             value['limitations'].append('Кэш до 5 минут; сохранено исходное время получения.');return value
         url,params=endpoint(adapter_id,query,limit)
         assert urlsplit(url).hostname==item.host
@@ -335,18 +348,23 @@ def execute(adapter_id,args,*,cancel_event=None,deadline=None,client_factory=Non
             details={'adapter_id':adapter_id,'provider_id':item.provider_id,'source_id':adapter_id,
                 'acquisition':'official_api','source_endpoint':response['final_url'],'content_sha256':body_hash,
                 'parser_version':item.normalizer,'canonical_identifier':observation['canonical_identifier'],
+                'source_record':True,'capability':adapter_id,
                 'observation':{'source':item.provider_id,'target':{'value':query,'kind':item.input_kind},
                     'value':observation['fields'],'entity_type':observation['entity_type'],
                     'canonical_identifier':observation['canonical_identifier'],'timestamp':now,
                     'evidence_url':observation['url'],'confidence_basis':'Fields returned by the documented API; search match is not identity proof',
                     'verification_status':'source_reported','candidate':observation['candidate']},'untrusted_source_data':True}
             record=_record(adapter_id,query,observation['title'],observation['url'],observation['description'],kind='public_source_entity',details=details)
+            record['platform']=item.display_name
+            record['sources']=[item.display_name]
             record['status']='source_reported';records.append(record)
         status='complete' if records else 'empty'
         value=_envelope(adapter_id,query,status=status,results=records,limitations=[
             'Ограниченная публичная выборка; совпадение запроса не подтверждает общую личность. Отсутствие результата не доказывает отсутствие объекта.',
             item.license])
-        value['source_diagnostics']={'provider_id':item.provider_id,'http_status':response['status'],'returned_records':len(records),'logical_requests':1,'http_attempts':'transport retries/redirects may add attempts','from_saved_data':False}
+        value['source_diagnostics']={'provider_id':item.provider_id,'http_status':response['status'],
+            'providers_attempted':1,'http_requests':None,'http_statuses':[response['status']],
+            'returned_records':len(records),'logical_requests':1,'http_attempts':'transport retries/redirects may add attempts; exact count not measured','from_saved_data':False}
         with _LOCK:
             _CACHE[key]=(time.monotonic(),deepcopy(value));_CACHE.move_to_end(key)
             while len(_CACHE)>64:_CACHE.popitem(last=False)
@@ -356,4 +374,14 @@ def execute(adapter_id,args,*,cancel_event=None,deadline=None,client_factory=Non
         value=_envelope(adapter_id,query,status=status,error_code=error.code,limitations=['Источник не вернул проверяемые данные; ограничения не обходились.'])
     except (ValueError,TypeError,KeyError,UnicodeError,RecursionError):
         value=_envelope(adapter_id,query,status='error',error_code='source_schema_changed',limitations=['Ответ не соответствует проверенной схеме; пустой успех не создаётся.'])
+    code=value.get('error_code','')
+    value['error']={
+        'timeout':'Источник не ответил вовремя. Можно повторить запрос позже.',
+        'http_401':'Источник требует авторизацию (401). Публичные данные не получены.',
+        'http_402':'Источник требует оплаченный доступ (402). Данные не получены.',
+        'http_403':'Источник отказал в доступе (403). Данные не получены.',
+        'http_429':'Превышена квота источника (429). Подождите перед повтором.',
+        'source_schema_changed':'Формат ответа источника изменился. Непроверенные записи не добавлены.',
+        'cancelled':'Запрос отменён.',
+    }.get(code,'Сервис временно недоступен.' if code.startswith('http_5') else 'Источник не вернул проверяемые данные.')
     health(value['status'],0);return value

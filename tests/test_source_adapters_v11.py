@@ -77,6 +77,23 @@ def test_source_documents_can_be_researched_without_using_the_analyst_label():
     assert target_value(node,_BY_NAME['source_datacite'])[0] is None
 
 
+def test_new_company_source_does_not_receive_legacy_workflow_only_arguments():
+    from grangerpet.canvas_capabilities import execution_payload
+    from grangerpet.tool_inputs import validate_object
+    node={'type':'organization','label':'Analyst label','attributes':{'value':'Equinor','jurisdiction':'NO','identifier_type':'name'}}
+    payload=execution_payload(node,{'tool':'source_brreg'})
+    assert payload['arguments']=={'query':'Equinor'}
+    assert validate_object(payload['arguments'],CONTRACTS['source_brreg'].input_schema)==payload['arguments']
+
+
+@pytest.mark.parametrize('provider,expected',[
+    ('huggingface','https://huggingface.co/google-bert/bert-base-uncased'),
+    ('scorecard','https://api.securityscorecards.dev/projects/github.com/ossf/scorecard')])
+def test_scoped_evidence_urls_keep_reviewed_path_separators(provider,expected):
+    query,payload=CASES[provider]
+    assert mapped('source_'+provider,payload,query,1)[0]['url']==expected
+
+
 @pytest.mark.parametrize('value',['https://127.0.0.1/','x@y.com','a/b','root\nHeader: x',''])
 def test_exact_identifiers_do_not_select_urls(value):
     with pytest.raises(ValueError):normalize_query('source_codeberg',value)
@@ -113,6 +130,28 @@ def test_extended_sources_use_second_level_discovery_without_binding_every_profi
         names={s['function']['name'] for s in registry.schemas(task='Проверь публичный профиль username')}
         assert names.intersection(CONTRACTS)=={'source_codeberg','source_gitlab'}
     finally:registry.close()
+
+
+def test_barcode_document_routes_to_product_adapter():
+    from grangerpet.agent_tools import _BY_NAME
+    from grangerpet.canvas_capabilities import target_value
+    node={'type':'document','attributes':{'value':'3017620422003'}}
+    target,status,_=target_value(node,_BY_NAME['source_openfoodfacts'])
+    assert (target,status)==('3017620422003','ready')
+
+
+def test_hermione_receives_the_typed_fields_of_public_source_evidence():
+    from grangerpet.agent import AgentRunner
+    runner=AgentRunner(object(),object())
+    evidence=normalize_evidence({'id':'observation','title':'Public metadata','type':'public_source_entity',
+        'platform':'Public fixture','url':'https://example.org/public-record','status':'source_reported',
+        'details':{'observation':{'source':'fixture','entity_type':'document','canonical_identifier':'record-1',
+            'verification_status':'source_reported','value':{'record_count':23,'title':'Public metadata'}}}},
+        'source_fixture','public record')
+    result=json.loads(runner._compact({'tool':'source_fixture','status':'complete','results':[evidence]}))['results'][0]
+    assert result['structured_record']['value']['record_count']==23
+    assert result['structured_record']['untrusted_source_data'] is True
+    assert result['evidence_id']==evidence['evidence_id']
 
 
 def test_same_btc_address_from_independent_explorers_is_one_wallet():
@@ -163,6 +202,26 @@ def test_cancelled_request_never_reads_cached_data():
     import threading
     cancel=threading.Event();cancel.set()
     assert execute('source_pypi',{'query':'requests'},cancel_event=cancel)['status']=='cancelled'
+
+
+def test_cache_retains_observation_time_and_reports_zero_fresh_requests():
+    import grangerpet.source_adapters as sources
+    sources._CACHE.clear();requests=[]
+    def respond(request):
+        requests.append(str(request.url))
+        return httpx.Response(200,json={'info':{'name':'cache-fixture','version':'1'}})
+    factory=lambda **kw:httpx.AsyncClient(transport=httpx.MockTransport(respond),follow_redirects=False)
+    async def resolver(host,port):return ['93.184.216.34']
+    args={'query':'cache-fixture','limit':1}
+    first=execute('source_pypi',args,client_factory=factory,resolver=resolver,cache_scope='first')
+    second=execute('source_pypi',args,client_factory=factory,resolver=resolver,cache_scope='first')
+    assert second['from_saved_data'] and len(requests)==1
+    assert first['obtained_at']==second['obtained_at'] and first['results']==second['results']
+    assert second['source_diagnostics']['http_requests']==0
+    assert second['source_diagnostics']['providers_attempted']==0
+    assert second['source_diagnostics']['http_status'] is None
+    independent=execute('source_pypi',args,client_factory=factory,resolver=resolver,cache_scope='second')
+    assert not independent.get('from_saved_data') and len(requests)==2
 
 
 def test_corporate_sources_do_not_expose_personal_register_fields():

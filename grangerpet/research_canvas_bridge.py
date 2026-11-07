@@ -341,6 +341,26 @@ class ResearchCanvasBridge:
                 added=merge_evidence(value,self.preview['records'],selected)
                 owner=self.preview.get('node_id')
                 target=next((node for node in value['entities'] if node['id']==owner),None)
+                def lookup_edge(node,proof,relation='returned_for_query',candidate=False):
+                    import hashlib
+                    existing=next((edge for edge in value['relations'] if edge['from_id']==owner and
+                        edge['to_id']==node['id'] and edge['relation_type']==relation),None)
+                    if existing:
+                        existing['evidence_ids']=list(dict.fromkeys(existing['evidence_ids']+proof));return
+                    identifier='rel_'+hashlib.sha256((owner+'|'+node['id']+'|'+relation).encode()).hexdigest()[:24]
+                    value['relations'].append({'id':identifier,'from_id':owner,'to_id':node['id'],
+                        'relation_type':relation,'direction':'directed','origin':'tool',
+                        'verification_status':'unverified' if candidate else 'source_reported',
+                        'claim_kind':'lookup_candidate' if candidate else 'lookup_result','evidence_ids':proof,
+                        'source_urls':[],'provenance':[],
+                        'attributes':{'tool':self.preview['tool'],'identity_match_verified':False,'identity_verified':False,'owner_verified':False}})
+                from .source_adapters import CONTRACTS
+                source=CONTRACTS.get(self.preview['tool'])
+                if source and target:
+                    for node in value['entities']:
+                        proof=[eid for eid in node['evidence_ids'] if eid in selected]
+                        if node['id']==owner or not proof or node.get('attributes',{}).get('provider_id')!=source.provider_id:continue
+                        lookup_edge(node,proof,candidate=node['attributes'].get('candidate') is True)
                 if target and target['type']=='blockchain_address' and self.preview['tool']=='blockchain_gansar':
                     value['view'].setdefault('ui',{}).update(graph_mode='assets' if self.preview.get('operation') in ('nft','assets') else 'wallet',crypto_root_id=owner)
                     if not self.document['evidence'] and not value['view'].get('manual_position_ids'):
@@ -353,30 +373,15 @@ class ResearchCanvasBridge:
                         position_added_profiles(value,owner,added)
                     # These accounts were returned for this identifier; this
                     # relation never asserts a shared person or account owner.
-                    import hashlib
-                    existing={edge['id'] for edge in value['relations']}
                     for node in value['entities']:
                         proof=[eid for eid in node['evidence_ids'] if eid in selected]
                         if node['type']!='public_profile' or not proof:continue
-                        identifier='rel_'+hashlib.sha256((owner+'|'+node['id']+'|returned_for_query').encode()).hexdigest()[:24]
-                        if identifier in existing:continue
-                        value['relations'].append({'id':identifier,'from_id':owner,'to_id':node['id'],
-                            'relation_type':'returned_for_query','direction':'directed','origin':'tool',
-                            'verification_status':'source_reported','claim_kind':'lookup_result',
-                            'evidence_ids':proof,'source_urls':[],'provenance':[],
-                            'attributes':{'tool':self.preview['tool'],'identity_verified':False,'owner_verified':False}})
+                        lookup_edge(node,proof)
                 if target and target['type']=='organization':
-                    import hashlib
-                    existing={edge['id'] for edge in value['relations']}
                     for node in value['entities']:
                         proof=[eid for eid in node['evidence_ids'] if eid in selected]
                         if node['id']==owner or node['type']!='organization' or not proof:continue
-                        identifier='rel_'+hashlib.sha256((owner+'|'+node['id']+'|candidate_for_company_query').encode()).hexdigest()[:24]
-                        if identifier in existing:continue
-                        value['relations'].append({'id':identifier,'from_id':owner,'to_id':node['id'],
-                            'relation_type':'candidate_for_company_query','direction':'directed','origin':'tool',
-                            'verification_status':'unverified','claim_kind':'lookup_candidate','evidence_ids':proof,
-                            'source_urls':[],'provenance':[],'attributes':{'identity_match_verified':False}})
+                        if not source:lookup_edge(node,proof,'candidate_for_company_query',True)
                 if target and target['type'] in ('public_profile','github_profile','social_profile') and self.preview['tool']=='github_profile':
                     position_added_profiles(value,owner,added,kinds=('repository','organization','website','public_post'))
                 value['executions'].append({k:self.preview.get(k) for k in ('tool','status','limitations')})

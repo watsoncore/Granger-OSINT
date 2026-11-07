@@ -21,7 +21,8 @@ def target_value(node,spec):
             if source_kind=='public_profile' and platform!=item.provider_id and attrs.get('provider_id')!=item.provider_id:
                 return None,'unsupported_entity','Выберите профиль соответствующей платформы или отдельный никнейм.'
             value=attrs.get('username') or attrs.get('handle') or (attrs.get('value') if kind=='username' else None)
-        elif item.input_kind in ('software','package_path'):value=attrs.get('package_name')
+        elif item.input_kind in ('software','package_path'):
+            value=attrs.get('package_name') or (attrs.get('value') if source_kind=='document' and attrs.get('origin')=='analyst' else None)
         elif item.input_kind=='coordinates':
             value=attrs.get('coordinates') or attrs.get('value')
             if not value and all(isinstance(attrs.get(key),(int,float,str)) for key in ('latitude','longitude')):
@@ -40,7 +41,8 @@ def target_value(node,spec):
             value=target.identifier if target and target.entity_type=='github_repository' else attrs.get('repository')
         elif item.input_kind=='cve':value=attrs.get('cve') or attrs.get('value')
         elif item.input_kind=='numeric':
-            value=attrs.get('barcode') if item.provider_id=='openfoodfacts' else attrs.get('value')
+            value=attrs.get('value')
+            if item.provider_id=='openfoodfacts':value=attrs.get('barcode') or value
             identity=attrs.get('canonical_identifier')
             if not value and attrs.get('provider_id')==item.provider_id and isinstance(identity,str):
                 value=identity.removeprefix(item.provider_id+':')
@@ -127,7 +129,7 @@ def capabilities(node,chain='auto',availability=None):
                 if spec.name=='map_panoramax':
                     latitude,longitude=map(float,value.split(','));arguments={'latitude':latitude,'longitude':longitude}
                 else:arguments={spec.argument:value}
-                if spec.kind=='company':arguments.update(jurisdiction=node.get('attributes',{}).get('jurisdiction','OTHER'),identifier_type=node.get('attributes',{}).get('identifier_type','name'))
+                if spec.kind=='company' and spec.source!='source_adapter':arguments.update(jurisdiction=node.get('attributes',{}).get('jurisdiction','OTHER'),identifier_type=node.get('attributes',{}).get('identifier_type','name'))
         state=states.get(spec.name,{});available=state.get('available')
         if compatible and available is False:
             status='temporarily_unavailable' if state.get('state') in ('timeout','error','rate_limited','blocked') else 'runtime_unavailable'

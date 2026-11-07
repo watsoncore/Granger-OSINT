@@ -497,6 +497,23 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                 address=_wallet(chain,address)
                 current=node('blockchain_address',chain+'|'+address,address,record,chain=chain,address=address,owner_verified=False)
                 if current:nodes[current]['attributes'].setdefault('balances',{})[str(details.get('asset') or 'unknown')]=details.get('amount_decimal',details.get('amount'))
+        elif kind=='phone_metadata' and full:
+            from .engine.router import normalize_phone
+            try:phone=normalize_phone(details.get('e164',''))
+            except (ValueError,TypeError,AttributeError):bad_fields+=1;continue
+            current=node('phone',phone,phone,record,value=phone,phone=phone,
+                country=details.get('country') if isinstance(details.get('country'),str) else '',
+                country_code=details.get('country_code'),numbering_metadata_only=True,
+                owner_verified=False,current_location_verified=False)
+        elif kind=='email_domain' and full:
+            from .engine.router import normalize_email
+            try:address=normalize_email(details.get('email',''))
+            except (ValueError,TypeError,AttributeError):bad_fields+=1;continue
+            domain=address.rsplit('@',1)[1]
+            current=node('email',address,address,record,value=address,address=address,
+                dns_policy_only=True,mailbox_verified=False,owner_verified=False)
+            domain_id=node('domain',domain,domain,record,value=domain,domain=domain)
+            edge(current,domain_id,'uses_email_domain',record,'source_reported',mailbox_verified=False)
         elif kind=='email' and full:
             address=details.get('email') or details.get('address')
             if isinstance(address,str):current=node('email',address.casefold(),address,record,address=address)

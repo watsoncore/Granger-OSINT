@@ -21,6 +21,33 @@ def action(bridge,op,**payload):
         'revision':document['revision'] if document else 0,**payload})
     return wait(bridge)
 
+
+def test_new_source_preview_links_to_selected_document_and_reinsert_is_idempotent(bridge):
+    import httpx
+    from grangerpet.source_adapters import execute,_CACHE
+    from grangerpet.canvas_capabilities import execution_payload
+    action(bridge,'new',title='Source preview — unit transport fixture')
+    action(bridge,'edit',operation='node',arguments={'type':'document','label':'Analyst label','value':'requests'})
+    controller=bridge._research_canvas;owner=controller.document['entities'][0]
+    assert execution_payload(owner,{'tool':'source_pypi'})['arguments']['query']=='requests'
+    _CACHE.clear()
+    factory=lambda **kw:httpx.AsyncClient(transport=httpx.MockTransport(lambda request:httpx.Response(200,
+        json={'info':{'name':'requests','version':'1','summary':'Unit fixture only'}})),follow_redirects=False)
+    async def resolver(host,port):return ['93.184.216.34']
+    outcome=execute('source_pypi',{'query':'requests','limit':1},client_factory=factory,resolver=resolver)
+    outcome['results']=[normalize_evidence(row,'source_pypi','requests') for row in outcome['results']]
+    controller.accept_tool(outcome,controller.document['id'],owner['id'])
+    assert len(controller.document['entities'])==1 and not controller.document['evidence']
+    identifiers=[row['evidence_id'] for row in outcome['results']]
+    state=action(bridge,'insert',token=controller.preview['token'],evidence_ids=identifiers)
+    document=state['document']
+    result=next(n for n in document['entities'] if n['type']=='public_document')
+    links=[e for e in document['relations'] if e['from_id']==owner['id'] and e['to_id']==result['id']]
+    assert len(links)==1 and links[0]['attributes']['identity_match_verified'] is False
+    again=action(bridge,'insert',token=controller.preview['token'],evidence_ids=identifiers)['document']
+    assert again['entities']==document['entities'] and again['relations']==document['relations']
+    assert controller.store.load(document['id'])['relations']==again['relations']
+
 def test_public_media_preview_stays_outside_durable_graph_revisions(bridge):
     action(bridge,'new',title='Transient preview')
     action(bridge,'edit',operation='node',arguments={

@@ -631,6 +631,45 @@ class AgentRunner:
         self._persist()
         return outcome
 
+    def _review_source_plan(self,calls,callback,approval_callback):
+        from .research_policy import personal_steps,plan_review
+        steps=personal_steps(calls,self._catalog)
+        if not steps:return calls
+        grants=self._state.setdefault('source_plan_grants',[])
+        denied=self._state.setdefault('source_plan_denied',[])
+        denied_targets=self._state.setdefault('source_plan_denied_targets',[])
+        contacts=self._state.setdefault('source_contacts',[])
+        pending=[row for row in steps if row['fingerprint'] not in denied and row['target'] not in denied_targets]
+        blocked={row['fingerprint'] for row in steps if row['fingerprint'] in denied or row['target'] in denied_targets}
+        if plan_review(pending,contacts,grants):
+            proposal={'purpose':'Проверка публичных сведений по персональному идентификатору.',
+                'steps':[{key:row[key] for key in ('tool','name','value','kind','provider','region','mode')} for row in pending],
+                'new_tool_calls':len(pending),'parallel_limit':self.limits.max_parallel,
+                'previous_sources':sorted({row['provider'] for row in contacts if row['target'] in {step['target'] for step in pending}}),
+                'remaining_tool_calls':max(0,self.limits.max_tool_calls-self._budget_used('tool_calls')) if self.limits.max_tool_calls else None,
+                'per_tool_timeout_seconds':self.limits.per_tool_timeout,
+                'limits':'Ограниченные публичные выборки. Совпадение не устанавливает владельца. Отдельные чувствительные действия подтверждаются дополнительно.'}
+            self._event(callback,'planning',message='План публичных источников ожидает вашего подтверждения.',source_plan=proposal)
+            approved=self._approve('research_plan',proposal,'Передача выбранного идентификатора перечисленным публичным источникам.',self._linked,approval_callback)
+            identifiers=[row['fingerprint'] for row in pending]
+            if approved:grants[:]=list(dict.fromkeys([*grants,*identifiers]))[-256:]
+            else:
+                denied[:]=list(dict.fromkeys([*denied,*identifiers]))[-256:];blocked.update(identifiers)
+                denied_targets[:]=list(dict.fromkeys([*denied_targets,*(row['target'] for row in pending)]))[-256:]
+        allowed=[]
+        for call in calls:
+            if call['fingerprint'] in blocked:
+                self._save_tool_outcome(call,self._outcome(call['name'],call['arguments'],'approval_denied',
+                    'План источников не подтверждён. Сетевой запрос не выполнялся.'),callback)
+            else:allowed.append(call)
+        for row in steps:
+            if row['fingerprint'] not in blocked:
+                contact={key:row[key] for key in ('target','provider')}
+                if contact not in contacts:contacts.append(contact)
+        del contacts[:-256]
+        self._persist()
+        return allowed
+
     def _finish_pending(self, callback, approval_callback):
         calls = self._state['pending_calls']
         if not calls:
@@ -671,7 +710,7 @@ class AgentRunner:
                 executable.append(call)
         self._persist()
         if executable:
-            self._batch(executable, callback, approval_callback)
+            self._batch(self._review_source_plan(executable,callback,approval_callback), callback, approval_callback)
         outcomes = self._state['pending_outcomes']
         for identifier, original_id in aliases.items():
             if original_id in outcomes:
@@ -827,7 +866,19 @@ class AgentRunner:
                 else:
                     row['structured_record']={key:details.get(key) for key in ('steamid64','appid','contextid','assetid','classid','instanceid',
                         'name','market_hash_name','amount','category','rarity','exterior','float_value','pattern_template','price','source_endpoint','inventory_observed_at')}
-            if details.get('source_record'):
+            observation=details.get('observation')
+            if record.get('type')=='public_source_entity' and isinstance(observation,dict):
+                summary={key:deepcopy(observation[key]) for key in (
+                    'source','target','entity_type','canonical_identifier','timestamp',
+                    'confidence_basis','verification_status','candidate') if key in observation}
+                fields={}
+                values=observation.get('value')
+                for key,item in values.items() if isinstance(values,dict) else ():
+                    bounded=item[:320] if isinstance(item,str) else item
+                    if len(_json({**fields,key:bounded}))<=1200:
+                        fields[key]=deepcopy(bounded)
+                row['structured_record']={**summary,'value':fields,'untrusted_source_data':True}
+            elif details.get('source_record'):
                 if details.get('capability')=='blockchain_gansar':
                     preferred=('chain','target_address','address','asset','asset_id','amount_decimal','holding_status','ownership_status','ownership_verified','name','symbol','contract','type','owner_address','image_url','tx_hash','event_id','from_address','to_address','timestamp','input_resolution','counts','source_diagnostics')
                     details={**{key:details[key] for key in preferred if key in details},**details}
@@ -1185,6 +1236,13 @@ class AgentRunner:
                 if resume_state['record'].get('status') == 'completed' and followup is None:
                     raise AIError('Это расследование уже завершено.', code='invalid_request')
                 self._state = deepcopy(resume_state)
+                if followup and followup.get('intent')=='investigate':
+                    # A new human research request may offer the plan again.
+                    # Model retries and ordinary automatic resume cannot.
+                    self._state['source_plan_denied']=[]
+                    self._state['source_plan_denied_targets']=[]
+                    self._state['call_cache']={key:row for key,row in self._state.get('call_cache',{}).items()
+                        if row.get('outcome',{}).get('status')!='approval_denied'}
                 self._record = self._state.pop('record')
                 # Re-key old v1 literal signatures in memory; no checkpoint
                 # migration/write is required and prior outcomes are retained.

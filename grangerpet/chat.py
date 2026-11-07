@@ -1001,11 +1001,20 @@ class ChatWidget(QWidget):
         text = ('Гермиона предлагает проверку, требующую отдельного согласия.\n\n' + str(waiter['name']) + '\n' +
                 json.dumps(waiter['arguments'], ensure_ascii=False)[:600] +
                 '\n\nЭто может включать проверку регистрации или обращение через вашу авторизованную сессию. Разрешить этот вызов?')
+        if waiter['name']=='research_plan':
+            plan=waiter['arguments']
+            lines=['Гермиона предлагает план проверки публичных источников.','']
+            for index,row in enumerate(plan.get('steps',[]),1):
+                lines.append(f"{index}. {row['name']} — {row['value']} ({row['provider']})")
+            if plan.get('previous_sources'):lines.extend(['','Ранее по этому запросу: '+', '.join(plan['previous_sources'])])
+            lines.extend(['',f"Новых вызовов: {plan.get('new_tool_calls',0)}; одновременно: {plan.get('parallel_limit',1)}.",
+                str(plan.get('limits','')),'','Разрешить передачу указанных значений этим источникам?'])
+            text='\n'.join(lines)
         box = QMessageBox(QMessageBox.Icon.Question, 'Подтвердить проверку', text,
                           QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, self)
         box.setTextFormat(Qt.TextFormat.PlainText)
         box.setDefaultButton(QMessageBox.StandardButton.No)
-        box.button(QMessageBox.StandardButton.Yes).setText('Разрешить этот вызов')
+        box.button(QMessageBox.StandardButton.Yes).setText('Выполнить план' if waiter['name']=='research_plan' else 'Разрешить этот вызов')
         box.button(QMessageBox.StandardButton.No).setText('Не выполнять')
         self._approval_box = box
         def finish(result):

@@ -30,7 +30,10 @@ _LOCK=threading.RLock();_HEALTH={}
 
 def record_health(identifier,status,count):
     # No target, query, secret, response body or private model text is retained.
-    with _LOCK:_HEALTH[identifier]={'status':status,'result_count':count,'checked_at':datetime.now(timezone.utc).isoformat()}
+    checked_at=datetime.now(timezone.utc).isoformat()
+    with _LOCK:
+        last_success_at=checked_at if status=='complete' and count else _HEALTH.get(identifier,{}).get('last_success_at')
+        _HEALTH[identifier]={'status':status,'result_count':count,'checked_at':checked_at,'last_success_at':last_success_at}
 
 def describe(identifier,configured):
     item=SOURCES.get(identifier)

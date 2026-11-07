@@ -155,6 +155,18 @@ def _messages(value, path):
 def validate_checkpoint(value, identifier=None):
     """Validate present v1 fields without mutating their encrypted source."""
     _expect(value, dict, 'checkpoint')
+    import re
+    for key in ('source_plan_grants','source_plan_denied','source_plan_denied_targets'):
+        if key in value:
+            rows=_expect(value[key],list,'checkpoint.'+key)
+            if len(rows)>256 or any(not isinstance(row,str) or not re.fullmatch(r'[0-9a-f]{64}',row) for row in rows):
+                raise InvestigationContractError('checkpoint.'+key,'bounded call fingerprints',rows)
+    if 'source_contacts' in value:
+        rows=_expect(value['source_contacts'],list,'checkpoint.source_contacts')
+        if len(rows)>256 or any(not isinstance(row,dict) or set(row)!= {'target','provider'} or
+            not isinstance(row['target'],str) or not re.fullmatch(r'[0-9a-f]{64}',row['target']) or
+            not isinstance(row['provider'],str) or not 1<=len(row['provider'])<=253 for row in rows):
+            raise InvestigationContractError('checkpoint.source_contacts','bounded public provider contacts',rows)
     if type(value.get('version')) is not int or value['version'] != 1:
         raise InvestigationContractError('checkpoint.version', 'version 1', value.get('version'))
     _expect(value.get('id'), str, 'checkpoint.id')
