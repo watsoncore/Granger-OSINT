@@ -1,0 +1,48 @@
+{
+  "passed": true,
+  "bytes": 279665710,
+  "sha256": "10d091ecf2000619bcfa8f5646ee8f2effb2141e34d742c4389bbe84aaa62026",
+  "frozen_modules": 173,
+  "resource_checks": 239,
+  "native_checks": 22,
+  "frontend_build": {
+    "rebuilt": true,
+    "input_sha256": "502e9b3f44d98af13ff685155a1dbbcd79282e748d3a97ab67a22aa91bea02a5"
+  },
+  "external_tools": {
+    "policy": "strict-local-availability",
+    "availability_required": true,
+    "availability": {
+      "blockchain_gansar": true,
+      "username_maigret": true
+    },
+    "external_execution_requested": false,
+    "missing_external_tools": [],
+    "diagnostics": {
+      "blockchain_gansar": {
+        "state": "ready",
+        "code": "runtime_ready",
+        "runtime_ready": true,
+        "probe_seconds": 1.113,
+        "exit_code": 0,
+        "missing_module": null
+      },
+      "username_maigret": {
+        "state": "ready",
+        "code": "runtime_ready",
+        "runtime_ready": true,
+        "probe_seconds": 2.575,
+        "exit_code": 0,
+        "missing_module": null
+      }
+    },
+    "ipc_observations": {
+      "status_timeouts": 0,
+      "max_status_recovery_ms": 0
+    }
+  },
+  "temporary_stage_removed": true,
+  "canonical_path": "dist/Granger-OSINT.exe",
+  "installed": false,
+  "verification": "Fresh frontend fingerprint + extracted frozen modules/resources + isolated native EXE tests"
+}

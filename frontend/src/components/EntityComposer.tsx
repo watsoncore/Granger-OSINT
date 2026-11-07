@@ -2,6 +2,7 @@ import {Details,Summary} from './ui'
 import {useRef,useState} from 'react'
 import {Plus} from 'lucide-react'
 import {SearchableSelect} from './SearchableSelect'
+import {CryptoIcon,networkIcon} from '../crypto-icons'
 import {Button} from './ui'
 import {cryptoChains,useCryptoTarget} from './GansarFields'
 
@@ -65,7 +66,7 @@ export function EntityComposer({jurisdictions=[],busy,onCreate}:{jurisdictions?:
       <label>Как искать компанию?<SearchableSelect label="Способ поиска компании" value={method} options={Object.entries(region?.identifiers||{name:'Название'}).map(([value,label])=>({value,label}))}
         onChange={next=>{setMethod(next);setValue('')}}/></label>
     </>}
-    {crypto&&<label>Сеть<SearchableSelect label="Сеть нового объекта" value={chain} options={cryptoChains.map(row=>({value:row.id,label:row.label}))} onChange={setChain}/></label>}
+    {crypto&&<label>Сеть<SearchableSelect label="Сеть нового объекта" value={chain} options={cryptoChains.map(row=>({value:row.id,label:row.label,icon:networkIcon(row.id)?<CryptoIcon id={networkIcon(row.id)} size={20}/>:undefined}))} onChange={setChain}/></label>}
     <label>{field.label}<input data-entity-input aria-label={field.label} value={value} onChange={event=>setValue(event.target.value)}
       placeholder={field.placeholder} maxLength={2000} spellCheck={false} autoFocus/></label>
     {field.help&&<p className="field-hint">{field.help}</p>}

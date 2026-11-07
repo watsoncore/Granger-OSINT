@@ -58,3 +58,5 @@ portable-data/
 /.granger-v7-qa-*/
 /.granger-live-v7-*/
 /.granger-soak-v7-*/
+# User-supplied artwork with incomplete redistribution permissions: runtime local only.
+/crypto_icon/

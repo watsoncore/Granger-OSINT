@@ -10,6 +10,7 @@ import { Badge, Button, IconButton } from './ui'
 import { safeUrl } from './Markdown'
 import { LocalObservation } from './LocalObservation'
 import { PublicProfile } from './PublicProfile'
+import {CryptoIcon,networkIcon,entityCryptoIcon} from '../crypto-icons'
 
 const statuses: Record<string, string> = { content_observed: 'Данные источника получены', low_confidence: 'Низкая уверенность OCR', detected: 'Обнаружено источником', verified: 'Сообщено источником', found: 'Сообщено источником', confirmed: 'Сообщено источником', read: 'Результат получен', readable: 'Результат получен', success: 'Получен результат', partial: 'Частичные данные', error: 'Ошибка получения', failed: 'Ошибка получения', blocked: 'Доступ ограничен', requires_browser: 'Нужен браузер', unavailable: 'Недоступен', not_found: 'Совпадений нет', unconfirmed: 'Не подтверждено', indexed: 'Поисковый сниппет', auth_required: 'Требуется авторизация', rate_limited: 'Ограничение сервиса', timeout: 'Превышено время ожидания', deleted: 'Профиль удалён', private: 'Доступ ограничен владельцем', invalid: 'Некорректный ответ', complete: 'Результат получен' }
 export function isReadSource(source: Source) {
@@ -37,7 +38,8 @@ export function domainOf(source: Source) {
   try { return new URL(source.url).hostname.replace(/^www\./, '') } catch { return 'Локальный результат' }
 }
 export function SourceCard({ source, onSelect, compact = false }: { source: Source; onSelect(source: Source): void; compact?: boolean }) {
-  return <button className={`source-card ${compact ? 'source-compact' : ''}`} onClick={() => onSelect(source)}><span className="source-icon">{source.kind === 'page' ? <BookOpen size={15}/> : source.kind === 'snippet' ? <FileSearch size={15}/> : <Link2 size={15}/>}</span><span className="source-main"><span className="source-domain">{domainOf(source)}</span><strong>{source.title || source.url || 'Результат инструмента'}</strong>{!compact && source.excerpt && <span className="source-excerpt">{source.excerpt}</span>}<small>{sourceLabel(source)}</small>{!compact && <><span className="source-type">{sourceKind(source)}</span>{source.obtained_at && <time className="source-time" dateTime={source.obtained_at}>{formatDate(source.obtained_at)}</time>}</>}</span><ExternalLink size={13} className="source-open-icon"/></button>
+  const cryptoIcon=networkIcon(source.details?.chain)||entityCryptoIcon({type:source.kind,attributes:source.details||{}})
+  return <button className={`source-card ${compact ? 'source-compact' : ''}`} onClick={() => onSelect(source)}><span className="source-icon">{cryptoIcon?<CryptoIcon id={cryptoIcon} size={20}/>:source.kind === 'page' ? <BookOpen size={15}/> : source.kind === 'snippet' ? <FileSearch size={15}/> : <Link2 size={15}/>}</span><span className="source-main"><span className="source-domain">{domainOf(source)}</span><strong>{source.title || source.url || 'Результат инструмента'}</strong>{!compact && source.excerpt && <span className="source-excerpt">{source.excerpt}</span>}<small>{sourceLabel(source)}</small>{!compact && <><span className="source-type">{sourceKind(source)}</span>{source.obtained_at && <time className="source-time" dateTime={source.obtained_at}>{formatDate(source.obtained_at)}</time>}</>}</span><ExternalLink size={13} className="source-open-icon"/></button>
 }
 
 function GeoObservation({ source }: { source: Source }) {

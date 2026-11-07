@@ -9,6 +9,7 @@ import './dark-glass.css'
 import './canvas-workspace.css'
 import './appearance.css'
 import './components/controls.css'
+import './graph-workspace.css'
 import { restoreTheme } from './themes'
 
 restoreTheme()

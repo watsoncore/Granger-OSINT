@@ -1,11 +1,17 @@
 import {describe,it,expect} from 'vitest'
-import {cardSize,cardVariant,cardBadge,cardRows,withCardPresentation} from './graph-cards'
+import {cardSize,cardVariant,cardBadge,cardRows,compactCardRows,withCardPresentation} from './graph-cards'
 import {layoutGraph,visibleGraph,hitNode} from './graph-model'
 import {nodeBox,routeEdges} from './graph-geometry'
 import type {GraphEntity,GraphRelation} from './types'
 const node=(id:string,type:string,attributes:Record<string,unknown>={}):GraphEntity=>({id,type,label:'Длинная подпись объекта '+id,attributes,evidence_ids:[]})
 const edge=(a:string,b:string,type='transfers'):GraphRelation=>({id:a+b,from_id:a,to_id:b,relation_type:type,direction:'directed',evidence_ids:[],verification_status:'source_reported'})
 describe('shared analytical projection and semantic cards',()=>{
+  it('keeps the network and canonical address in compact named wallets without repeating an unnamed address',()=>{
+    const wallet={...node('wallet','blockchain_address',{chain:'ton',address:'UQ-canonical',transaction_count:13}),label:'Метка пользователя'}
+    expect(compactCardRows(wallet)[0]).toContain('TON · UQ-canonical')
+    expect(compactCardRows({...wallet,label:'UQ-canonical'})[0]).toContain('TON · По источнику: 13')
+    expect(wallet.attributes.address).toBe('UQ-canonical')
+  })
   it('presents actual Gansar asset DTOs as NFT cards with their source identifier',()=>{
     const asset=node('nft','asset',{asset_type:'nft_asset',chain:'ton',asset_id:'0:reported-nft',symbol:'Reported title'})
     expect(cardVariant(asset)).toBe('contract');expect(cardBadge(asset)).toBe('NFT · TON')

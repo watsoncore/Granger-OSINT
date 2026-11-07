@@ -25,7 +25,7 @@ def save_snapshot(path, text):
 
 def deliver(surface,payload):
     action=payload.get('kind')
-    if action not in ('click','double_click','drag','wheel','text','key'):raise ValueError('Unsupported QA input')
+    if action not in ('click','right_click','double_click','drag','wheel','text','key'):raise ValueError('Unsupported QA input')
     widget=surface.focusProxy() or surface
     def point(key):
         row=payload.get(key)
@@ -34,6 +34,7 @@ def deliver(surface,payload):
         return QPoint(round(row[0]),round(row[1]))
     modifiers=Qt.KeyboardModifier.ControlModifier if payload.get('ctrl') is True else Qt.KeyboardModifier.NoModifier
     if action=='click':QTest.mouseClick(widget,Qt.MouseButton.LeftButton,modifiers,point('at'))
+    elif action=='right_click':QTest.mouseClick(widget,Qt.MouseButton.RightButton,modifiers,point('at'))
     elif action=='double_click':
         at=point('at')
         QTest.mouseClick(widget,Qt.MouseButton.LeftButton,modifiers,at)

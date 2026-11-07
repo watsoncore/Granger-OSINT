@@ -1,0 +1,209 @@
+{
+  "policy": "Local-only. The application source and EXE ship no supplied artwork. Typed fallback glyphs remain available.",
+  "files": [
+    {
+      "file": "badge.svg",
+      "bytes": 396,
+      "sha256": "3a4c700fdbe34f11e1bbe788a98245fe6c0977bfe7d6844ad74b6496858b1f0f",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "generic:badge",
+      "rasterization_passed": true
+    },
+    {
+      "file": "bitcoin.svg",
+      "bytes": 923,
+      "sha256": "b6bcc13aa97d26b28fa98aa9cf1097b387c26626a2802b4217bf8dad9d0ff07a",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "network:btc",
+      "rasterization_passed": true
+    },
+    {
+      "file": "bybit.png",
+      "bytes": 24997,
+      "sha256": "3ea924d89e6b871e7bcd441f5547a107d20cabfbf65a744ea1e50fc24ac39d22",
+      "redistribution": "excluded; local-only pack",
+      "manifest_present": true,
+      "manifest_hash_matches": true,
+      "registry_key": "service:bybit",
+      "rasterization_passed": true
+    },
+    {
+      "file": "cryptobot.png",
+      "bytes": 1249,
+      "sha256": "e55db1a5438b2c5b8bc92cfaf99bf70ced73b49df5546e9c883f1370ed4d368f",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "service:cryptobot",
+      "rasterization_passed": true
+    },
+    {
+      "file": "dogecoin.svg",
+      "bytes": 57184,
+      "sha256": "fd1c5bba25550fb3817560c04c9ec96e9b1a59251249997220a98b8c69cc5cdc",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "network:doge",
+      "rasterization_passed": true
+    },
+    {
+      "file": "ethereum.svg",
+      "bytes": 243,
+      "sha256": "8f3910c43c3b6de66bfc674ddd1bec1a904b8e815e7dcdeb38488cb734d3266b",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "network:eth",
+      "rasterization_passed": true
+    },
+    {
+      "file": "file-badge.svg",
+      "bytes": 544,
+      "sha256": "d449a94973e62270b94ab5f4fecba73ecbaa628d4271ae2fb30d587cb646450e",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "generic:document",
+      "rasterization_passed": true
+    },
+    {
+      "file": "gift.svg",
+      "bytes": 442,
+      "sha256": "ea935bea7ee2ae0bae63bf111a2d1615534406bddd7917f4563785c530b5f093",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "generic:gift",
+      "rasterization_passed": true
+    },
+    {
+      "file": "manifest.json",
+      "bytes": 3318,
+      "sha256": "2420cc371c183bc3ab0e0e55d7d2fb3196c9f49f8b087de7a2f30cc3a085d7c2",
+      "redistribution": "excluded; local-only pack"
+    },
+    {
+      "file": "OPENMASK-LICENSE.txt",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "redistribution": "excluded; local-only pack"
+    },
+    {
+      "file": "openmask.png",
+      "bytes": 6912,
+      "sha256": "25ef6e0912f90e0adea8597b19554aa1518521e6cf0a88cfaec303808cf4d4b8",
+      "redistribution": "excluded; local-only pack",
+      "manifest_present": true,
+      "manifest_hash_matches": true,
+      "registry_key": "wallet:openmask",
+      "rasterization_passed": true
+    },
+    {
+      "file": "README.md",
+      "bytes": 3822,
+      "sha256": "f1962d7f815915aa84a93b5d6c98a72bb831c267084591159612607c27a67593",
+      "redistribution": "excluded; local-only pack"
+    },
+    {
+      "file": "server-cog.svg",
+      "bytes": 821,
+      "sha256": "1457e708a608e2118f62ed8383d6c80986798b292c9278e524d78437313bb40a",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "generic:infrastructure",
+      "rasterization_passed": true
+    },
+    {
+      "file": "solana.svg",
+      "bytes": 1246,
+      "sha256": "042d48d94e43297b70f0cd6e44c2be20096443c700b7efee177a4e323d62c191",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "network:solana",
+      "rasterization_passed": true
+    },
+    {
+      "file": "telegram.svg",
+      "bytes": 742,
+      "sha256": "147fd8f8923e7e5f463fe98c0eb9913bead6b2ae59935728cda141002ec8a7c9",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "platform:telegram",
+      "rasterization_passed": true
+    },
+    {
+      "file": "TETHER-GUIDANCE.md",
+      "bytes": 941,
+      "sha256": "32103d575edc60d434407add2599c6117a3ea13ee73ad02920a7d570bf302d69",
+      "redistribution": "excluded; local-only pack"
+    },
+    {
+      "file": "tether.svg",
+      "bytes": 1208,
+      "sha256": "7c9f13b068996186c4df0f3dcdeeeb86e11cee6d8a9e7597cec19ccee164d7c5",
+      "redistribution": "excluded; local-only pack",
+      "manifest_present": true,
+      "manifest_hash_matches": true,
+      "registry_key": "asset:usdt",
+      "rasterization_passed": true
+    },
+    {
+      "file": "ton.svg",
+      "bytes": 447,
+      "sha256": "c91989e5976d1f26b33bb67ee807acc6e965e055d5fb1f12335eb2c9f42e323a",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "network:ton",
+      "rasterization_passed": true
+    },
+    {
+      "file": "TONKEEPER-LICENSE.txt",
+      "bytes": 11349,
+      "sha256": "c7dd1f9f82e5edf288f1312cd3277050e42282f23f0e5a2267a55e5685b1d131",
+      "redistribution": "excluded; local-only pack"
+    },
+    {
+      "file": "tron.svg",
+      "bytes": 653,
+      "sha256": "9a255137388f694953febb82ed7f55768c6be310f4ef9b5d9943091d0610af47",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "network:tron",
+      "rasterization_passed": true
+    },
+    {
+      "file": "unknown.svg",
+      "bytes": 275,
+      "sha256": "524848ee536b98b61bacc93f15a1690171de5507928ccacf35ae641561cea7fb",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "generic:unknown",
+      "rasterization_passed": true
+    },
+    {
+      "file": "wallet-cards.svg",
+      "bytes": 425,
+      "sha256": "e5565821eec4a9ac8302ae8655b1d6d9d99e0e2da56874c0900a9db2c6fd6ba8",
+      "redistribution": "excluded; local-only pack",
+      "registry_key": "generic:wallet",
+      "rasterization_passed": true
+    },
+    {
+      "file": "xrocket.png",
+      "bytes": 906,
+      "sha256": "cb7ae34f1233e7065981274218742300fb89a3fa6aa59b71899aacd296073a3f",
+      "redistribution": "excluded; local-only pack",
+      "manifest_present": true,
+      "manifest_hash_matches": true,
+      "registry_key": "service:xrocket",
+      "rasterization_passed": true
+    }
+  ],
+  "missing_or_rejected": [
+    "wallet:tonkeeper"
+  ],
+  "loaded_count": 18,
+  "nominal_sizes_css_px": [
+    16,
+    20,
+    24,
+    32,
+    48
+  ],
+  "raster_size_px": 128,
+  "svg_checks": [
+    "viewBox",
+    "byte bound",
+    "element allowlist",
+    "event attributes",
+    "external references",
+    "active CSS",
+    "DOCTYPE/entities"
+  ],
+  "classification": "Networks, assets, wallet applications, sourced services, generic types are separate. Labels never imply attribution."
+}

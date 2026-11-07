@@ -44,11 +44,25 @@ def wallpaper(value):
     }
 
 
-def _preset(value):
+def _skin(value, minimal=False):
+    data = value if isinstance(value, dict) else {}
+    if minimal:
+        data = {'glow': 0, 'border': 65, 'cardRadius': 4, 'panelRadius': 6, 'surface': 100,
+                'frost': 0, 'reflection': 0, 'shadow': 0, 'density': 'compact', 'edges': 'straight',
+                'edgeHighlight': 35, **data}
+    normalized = _preset(data, include_graph=False)
+    keys = ('glow', 'border', 'cardRadius', 'panelRadius', 'surface', 'selectionBorder',
+            'hoverGlow', 'edgeHighlight', 'frost', 'reflection', 'shadow', 'density', 'edges')
+    result = {key: normalized[key] for key in keys}
+    result['arrows'] = data.get('arrows', not minimal) is True
+    return result
+
+
+def _preset(value, include_graph=True):
     data = value if isinstance(value, dict) else {}
     colors = data.get('colors')
     colors = colors if isinstance(colors, dict) else {}
-    return {
+    result = {
         'theme': _enum(data.get('theme'), THEMES, 'dark'),
         'colors': {key: color for key in ('accent', 'node', 'edge', 'hover', 'nav', 'button')
                    if (color := _color(colors.get(key)))},
@@ -69,6 +83,12 @@ def _preset(value):
         'reducedMotion': data.get('reducedMotion') is True,
         'wallpaper': wallpaper(data.get('wallpaper')),
     }
+    if include_graph:
+        result['graphStyle'] = _enum(data.get('graphStyle'), ('glass', 'minimal'), 'glass')
+        profiles = data.get('graphProfiles')
+        result['graphProfiles'] = {key: _skin(profiles[key], key == 'minimal')
+                                   for key in ('glass', 'minimal') if isinstance(profiles.get(key), dict)} if isinstance(profiles, dict) else {}
+    return result
 
 
 def decode_appearance(value):

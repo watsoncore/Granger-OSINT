@@ -39,7 +39,10 @@ class Session(NativeSession):
    parent=(e or {}).get('scroll')
    at=[d['width']-65,d['height']-120] if not parent else [min(d['width']-10,max(10,parent['x']+parent['width']*.65)),min(d['height']-20,max(50,parent['y']+parent['height']*.6))]
    boundary=(parent['y']+15) if parent else 210
-   self.action('input',{'kind':'wheel','at':at,'delta':720 if e and e['y']<boundary else -720})
+   # Keep each scroll smaller than the visible container. A fixed six-notch
+   # jump oscillates past controls in the new split inspector/results dock.
+   step=min(360,max(60,round((parent['height'] if parent else 600)*.4)))
+   self.action('input',{'kind':'wheel','at':at,'delta':step if e and e['y']<boundary else -step})
   raise QaFailure('control_not_reached_'+label)
  def fill(self,label,text):
   self.click(label);self.action('input',{'kind':'key','key':'all','ctrl':True});self.action('input',{'kind':'text','text':text})

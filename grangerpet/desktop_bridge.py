@@ -578,6 +578,9 @@ class DesktopBridge(QObject):
     def dispatch(self, action, payload):
         if not isinstance(action, str) or not isinstance(payload, dict):
             raise ValueError('Ожидались действие и объект параметров.')
+        if action == 'crypto_icons':
+            from .crypto_icons import load_icons
+            return load_icons(self.host.settings.source_root)
         if action.startswith('wallpaper_'):
             from .wallpapers import WallpaperBridge
             if self._wallpapers is None:

@@ -1,6 +1,7 @@
 import type { Tool } from './types'
 
 const names: Record<string, string> = {
+  saved_investigation:'Сохранённое расследование',
   email_research:'Исследовать email',company_research:'Исследовать компанию',company_gleif:'GLEIF · LEI',company_sec:'SEC EDGAR',company_companies_house:'Companies House',company_opencorporates:'OpenCorporates',company_opensanctions:'OpenSanctions · кандидаты',publication_crossref:'Crossref · публикации',software_osv:'OSV · запись об уязвимости',
   map_panoramax:'Panoramax · эталонные фотографии', x_profile:'Публичный профиль X', nuclei_check:'Nuclei · разрешённое наблюдение заголовков',
   visual_geoint:'GEOINT · последовательный анализ изображения', geoclip_predict:'GeoCLIP · географические гипотезы', waypoint_predict:'Waypoint · географические гипотезы', waypoint_match:'Waypoint · сопоставление изображений',

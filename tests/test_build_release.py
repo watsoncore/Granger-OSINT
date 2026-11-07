@@ -194,3 +194,18 @@ def test_passed_ci_receipt_cannot_silently_weaken_default_local_release(tmp_path
     with pytest.raises(release.BuildError,match='scope does not match'):release.release(root)
     assert (root/'dist'/release.BINARY).read_bytes()==b'old working executable'
     assert not list(root.glob(release.STAGE_PREFIX+'*'))
+def test_frontend_digest_tracks_inputs_and_not_generated_compiler_state(tmp_path):
+    from scripts.build_release import frontend_input_digest
+    root=tmp_path
+    (root/'frontend/scripts').mkdir(parents=True)
+    (root/'frontend/src').mkdir()
+    (root/'frontend/public').mkdir()
+    (root/'frontend/src/main.ts').write_text('export const value=1')
+    generator=root/'frontend/scripts/licenses.mjs'
+    generator.write_text('generate_v1')
+    baseline=frontend_input_digest(root)
+    (root/'frontend/tsconfig.app.tsbuildinfo').write_text('compiler cache changed')
+    (root/'frontend/public/THIRD_PARTY_NOTICES.txt').write_text('generated notice')
+    assert frontend_input_digest(root)==baseline
+    generator.write_text('generate_v2')
+    assert frontend_input_digest(root)!=baseline

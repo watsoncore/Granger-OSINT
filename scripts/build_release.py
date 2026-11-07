@@ -31,10 +31,11 @@ class BuildError(RuntimeError):
 
 def frontend_input_digest(root: Path) -> str:
     frontend = root / 'frontend'
-    paths = [p for folder in ('src', 'public') for p in (frontend / folder).rglob('*') if p.is_file()]
+    paths = [p for folder in ('src', 'public', 'scripts') for p in (frontend / folder).rglob('*')
+             if p.is_file() and not (folder == 'public' and p.name == 'THIRD_PARTY_NOTICES.txt')]
     paths += [p for p in frontend.iterdir() if p.is_file() and
               (p.name in ('package.json', 'package-lock.json', 'index.html') or
-               p.name.startswith(('tsconfig', 'vite.config')))]
+               p.name.startswith(('tsconfig', 'vite.config')) and not p.name.endswith('.tsbuildinfo'))]
     digest = hashlib.sha256()
     for path in sorted(paths):
         digest.update(path.relative_to(frontend).as_posix().encode('utf-8') + b'\0')

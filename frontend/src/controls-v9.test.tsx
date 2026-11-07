@@ -8,6 +8,20 @@ import {ResultsTable} from './components/ResultsTable'
 import {applyAppearance,defaults} from './appearance'
 
 describe('shared V9 controls',()=>{
+  it('dismisses a popup with Escape and outside input while leaving regular disclosures open',async()=>{
+    const user=userEvent.setup()
+    render(<><Details dismissible><Summary>Фильтры QA</Summary><input aria-label="Запрос QA"/></Details>
+      <Details open><Summary>Постоянные сведения QA</Summary><p>Сохранённые данные</p></Details><button>Снаружи QA</button></>)
+    const trigger=screen.getByText('Фильтры QA').closest('summary')!
+    await user.click(trigger)
+    expect(trigger.parentElement).toHaveAttribute('open')
+    await user.keyboard('{Escape}')
+    expect(trigger.parentElement).not.toHaveAttribute('open')
+    expect(trigger).toHaveFocus()
+    await user.click(trigger);await user.click(screen.getByRole('button',{name:'Снаружи QA'}))
+    expect(trigger.parentElement).not.toHaveAttribute('open')
+    expect(screen.getByText('Постоянные сведения QA').closest('details')).toHaveAttribute('open')
+  })
   it('keeps accent checkmarks readable independently from the button foreground',()=>{
     applyAppearance({...defaults('azure'),colors:{accent:'#ffffff',button:'#000000'}},false)
     expect(document.documentElement.style.getPropertyValue('--user-accent-text')).toBe('#121820')

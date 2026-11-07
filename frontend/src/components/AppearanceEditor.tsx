@@ -6,6 +6,7 @@ import { themes } from '../themes'
 import {
   applyAppearance, colorFields, colorFor, defaults, defaultWallpaper, edgeStyles, fits,
   savedAppearance, wallpaperSources, wallpaperQualities, workspacePreset, type Appearance, type ColorField, type Wallpaper,
+  graphAppearance, graphSkinKeys, updateGraphSkin, type GraphSkin,
 } from '../appearance'
 import type { DesktopState } from '../types'
 import { WallpaperLayer, waitForWallpaperPreview } from './WallpaperLayer'
@@ -59,10 +60,15 @@ export function AppearanceEditor({state}:{state:DesktopState}) {
   useEffect(()=>setDraft(saved),[saved])
   useEffect(()=>{applyAppearance(draft,false)},[draft])
   useEffect(()=>()=>{applyAppearance(baseline.current)},[])
-  const update=(change:Partial<Appearance>)=>setDraft(previous=>({...previous,...change}))
+  const skin=graphAppearance(draft)
+  const update=(change:Partial<Appearance>&{arrows?:boolean})=>setDraft(previous=>{
+    const graphChange=Object.fromEntries(Object.entries(change).filter(([key])=>(graphSkinKeys as readonly string[]).includes(key))) as Partial<GraphSkin>
+    const other=Object.fromEntries(Object.entries(change).filter(([key])=>!(graphSkinKeys as readonly string[]).includes(key)))
+    return {...(Object.keys(graphChange).length?updateGraphSkin(previous,graphChange):previous),...other}
+  })
   const wallpaper=(scope&&draft.overrides[scope])||draft.wallpaper
   const material=Object.entries(materials).find(([,value])=>
-    value.frost===draft.frost&&value.reflection===draft.reflection&&value.surface===draft.surface&&value.shadow===draft.shadow)?.[0]||'custom'
+    value.frost===skin.frost&&value.reflection===skin.reflection&&value.surface===skin.surface&&value.shadow===skin.shadow)?.[0]||'custom'
   const changeWallpaper=(change:Partial<Wallpaper>)=>{
     const next={...wallpaper,...change}
     if(scope)update({overrides:{...draft.overrides,[scope]:next}})
@@ -98,14 +104,22 @@ export function AppearanceEditor({state}:{state:DesktopState}) {
     update({presets:{...draft.presets,[key]:duplicate?draft.presets[preset]:workspacePreset(draft)}})
     setPreset(key)
   }
-  const mode=Object.entries(glowModes).find(([,value])=>value===draft.glow)?.[0]||'custom'
+  const mode=Object.entries(glowModes).find(([,value])=>value===skin.glow)?.[0]||'custom'
   const [customGlow,setCustomGlow]=useState(false)
   const dirty=JSON.stringify(draft)!==JSON.stringify(saved)
   const choices=state.research_canvas?.choices||[]
   return <section className="settings-section appearance-editor" aria-label="Редактор оформления">
     <div className="appearance-intro"><div><h2>Ваша рабочая среда</h2><p>Тема, акценты и фон графа. Изменения видны сразу.</p></div>
       <span className="appearance-preview-label">Предпросмотр</span></div>
-    <div className="appearance-preview">
+    <fieldset className="graph-style-choices"><legend>Стиль графа</legend>
+      {(['glass','minimal'] as const).map(style=><button key={style} type="button" aria-pressed={draft.graphStyle===style}
+        aria-label={style==='glass'?'Glass Graph':'Minimal Graph'} onClick={()=>update({graphStyle:style})}>
+        <span className="graph-style-thumbnail" data-graph-style={style} aria-hidden="true"><i/><em/><i/></span>
+        <strong>{style==='glass'?'Glass Graph':'Minimal Graph'}</strong>
+        <small>{style==='glass'?'Мягкое стекло и личные акценты':'Матовые карточки и строгие линии'}</small>
+      </button>)}
+    </fieldset>
+    <div className="appearance-preview" data-graph-style={draft.graphStyle} style={{'--user-card-radius':skin.cardRadius+'px','--user-glow':String(skin.glow)} as import('react').CSSProperties}>
       <WallpaperLayer wallpaper={wallpaper} preview allowImage={!(state.vault?.enabled&&!state.vault.unlocked)} onError={setPreviewError}/>
       <div className="appearance-sample"><span>Расследование</span><strong>Выбранная карточка</strong><small>Публичное наблюдение</small></div>
       <span className="appearance-sample-edge" aria-hidden="true"/><div className="appearance-sample"><span>Источник</span><strong>Публичный профиль</strong></div>
@@ -113,7 +127,7 @@ export function AppearanceEditor({state}:{state:DesktopState}) {
     <div className="theme-options" role="group" aria-label="Тема приложения">
       {[...themes.slice(4),...themes.slice(0,4)].map(theme=><button key={theme.id} className="theme-choice"
         aria-label={`Тема: ${theme.label}`} aria-pressed={draft.theme===theme.id}
-        onClick={()=>update({theme:theme.id,colors:{},glow:defaults(theme.id).glow})}>
+        onClick={()=>update({theme:theme.id,colors:{},glow:draft.graphStyle==='minimal'?0:defaults(theme.id).glow})}>
         <span className={'theme-swatch theme-swatch-'+theme.id} aria-hidden="true"/>
         <span><strong>{theme.label}</strong><small>{theme.description}</small></span>
       </button>)}
@@ -132,12 +146,13 @@ export function AppearanceEditor({state}:{state:DesktopState}) {
         <option value="expressive">Выразительное</option><option value="custom">Настраиваемое</option>
       </Select></label>
       <div className="appearance-grid">{controls.map(([key,label,min,max])=><Range key={key} label={label} min={min} max={max}
-        value={draft[key]} onChange={value=>{if(key==='glow')setCustomGlow(true);update({[key]:value})}}/>)}</div>
+        value={skin[key]} onChange={value=>{if(key==='glow')setCustomGlow(true);update({[key]:value})}}/>)}</div>
       <div className="appearance-grid">
-        <label className="select-field"><span>Форма связей</span><Select aria-label="Форма связей" value={draft.edges}
+        <label className="select-field"><span>Форма связей</span><Select aria-label="Форма связей" value={skin.edges}
           onValueChange={selectedValue=>update({edges:selectedValue as Appearance['edges']})}>
           {Object.entries(edgeStyles).map(([id,label])=><option key={id} value={id}>{label}</option>)}</Select></label>
-        <label className="select-field"><span>Плотность</span><Select aria-label="Плотность" value={draft.density}
+        <div className="preference-row"><span>Направленные стрелки</span><Toggle label="Направленные стрелки" checked={skin.arrows} onChange={arrows=>update({arrows})}/></div>
+        <label className="select-field"><span>Плотность</span><Select aria-label="Плотность" value={skin.density}
           onValueChange={selectedValue=>update({density:selectedValue as Appearance['density']})}>
           <option value="comfortable">Комфортная</option><option value="compact">Компактная</option></Select></label>
         <label className="select-field"><span>Визуальные эффекты</span><Select aria-label="Визуальные эффекты" value={draft.effects}

@@ -111,3 +111,12 @@ export function cardBadge(node:GraphEntity){
   if(variant==='social')return String(node.attributes.platform||node.attributes.display_type||'Публичный профиль').replace(/_/g,' ')
   return cardVariants[variant].label
 }
+
+/** Keep chain context visible when the compact renderer omits its badge row. */
+export function compactCardRows(node:GraphEntity):string[]{
+  const rows=cardRows(node),variant=cardVariant(node)
+  if(!['wallet','transaction','contract'].includes(variant))return rows
+  const address=String(node.attributes.address||node.attributes.canonical_address||node.label)
+  const detail=variant==='wallet'&&cardTitle(node)===address?rows[1]||'Адрес блокчейна':rows[0]
+  return [cardBadge(node)+(detail?' · '+detail:'')]
+}

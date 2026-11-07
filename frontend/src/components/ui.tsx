@@ -1,4 +1,4 @@
-import { Children, forwardRef, isValidElement, useState, type ButtonHTMLAttributes, type DetailsHTMLAttributes,
+import { Children, forwardRef, isValidElement, useState, useRef, useEffect, useImperativeHandle, type ButtonHTMLAttributes, type DetailsHTMLAttributes,
   type HTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import * as Tooltip from '@radix-ui/react-tooltip'
@@ -9,6 +9,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { clsx } from 'clsx'
 import { ChevronDown, Check, MoreHorizontal } from 'lucide-react'
 import {SearchableSelect, type SelectOption} from './SearchableSelect'
+import {CryptoIcon,networkIcon} from '../crypto-icons'
 
 function textContent(children:ReactNode):string {
   return Children.toArray(children).map(child=>isValidElement<{children?:ReactNode}>(child)
@@ -32,7 +33,9 @@ export function Select({value,defaultValue,children,onValueChange,disabled,class
   disabled?:boolean;className?:string;id?:string;'aria-label'?:string;title?:string;name?:string;
   autoFocus?:boolean;required?:boolean;
 }) {
-  const options=selectOptions(children)
+  const networkField=['Сеть нового объекта','Сеть Gansar','Сеть кошелька'].includes(props['aria-label']||'')
+  const options=selectOptions(children).map(option=>networkField&&networkIcon(option.value)
+    ?{...option,icon:<CryptoIcon id={networkIcon(option.value)} size={20}/>} :option)
   const [local,setLocal]=useState(String(defaultValue??options[0]?.value??''))
   const selected=value===undefined?local:String(value)
   return <SearchableSelect id={id} label={props['aria-label']} value={selected} options={options}
@@ -49,9 +52,23 @@ export function Checkbox({indeterminate=false,readOnly,onChange,...props}:
     onChange={event=>{if(!readOnly)onChange?.(event)}}/>
 }
 
-export const Details=forwardRef<HTMLDetailsElement,DetailsHTMLAttributes<HTMLDetailsElement>>(
-  function Details({className='',children,...props},ref){
-    return <details {...props} ref={ref} className={'disclosure-details '+className}>{children}</details>
+export const Details=forwardRef<HTMLDetailsElement,DetailsHTMLAttributes<HTMLDetailsElement>&{dismissible?:boolean}>(
+  function Details({className='',children,dismissible=false,onKeyDown,...props},ref){
+    const element=useRef<HTMLDetailsElement>(null)
+    useImperativeHandle(ref,()=>element.current!)
+    useEffect(()=>{
+      if(!dismissible)return
+      const dismiss=(event:PointerEvent)=>{
+        const target=event.target as Element|null
+        if(element.current?.open&&target&&!element.current.contains(target)&&!target.closest('[data-radix-popper-content-wrapper]'))element.current.open=false
+      }
+      document.addEventListener('pointerdown',dismiss,true)
+      return()=>document.removeEventListener('pointerdown',dismiss,true)
+    },[dismissible])
+    return <details {...props} ref={element} className={'disclosure-details '+className} onKeyDown={event=>{
+      onKeyDown?.(event)
+      if(event.key==='Escape'&&!event.defaultPrevented&&element.current?.open){event.preventDefault();event.stopPropagation();element.current.open=false;element.current.querySelector('summary')?.focus()}
+    }}>{children}</details>
   })
 export function Summary({children,...props}:HTMLAttributes<HTMLElement>){
   return <summary {...props}><ChevronDown aria-hidden="true" size={16}/><span>{children}</span></summary>

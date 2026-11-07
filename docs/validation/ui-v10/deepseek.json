@@ -1,0 +1,18 @@
+{
+  "tested_at_utc": "2026-11-07T06:23:03.057335+00:00",
+  "provider": "deepseek",
+  "model": "deepseek-v4-flash",
+  "base_url": "https://api.aikeysforyou.com/v1",
+  "transport": "actual HTTPS; no mock replies",
+  "api_success": true,
+  "tool_calls": {
+    "status": "supported",
+    "round_trip": true,
+    "reason": "validated_echo_round_trip"
+  },
+  "osint_tools_executed": false,
+  "request_executed": true,
+  "received_nonempty_text": true,
+  "elapsed_seconds": 8.433,
+  "code": "ok"
+}

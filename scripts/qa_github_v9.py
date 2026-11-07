@@ -163,6 +163,8 @@ def run(exe,output,*,source=False):
                 report['passed']=True;save()
             except BaseException as error:
                 report.update(error_type=type(error).__name__,error=str(error)[:180]);save()
+                (output/'failed-dom-private.json').write_text(json.dumps(session.dom(),ensure_ascii=False),encoding='utf-8')
+                capture('failed-layout-private')
                 for path in directory.glob('process-*.log'):(output/path.name).write_bytes(path.read_bytes())
                 for index,path in enumerate((directory/'appdata/GrangerPet/logs').glob('*.log')):
                     (output/f'runtime-{index}-private.log').write_bytes(path.read_bytes())

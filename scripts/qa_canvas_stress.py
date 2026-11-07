@@ -93,6 +93,7 @@ def observed_document(path,tool='blockchain_gansar'):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--exe',type=Path);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--counts',type=int,nargs='+',default=[50,100,500,1000,5000])
+    p.add_argument('--verify-edge-gestures',action='store_true',help='Also create/undo a relation using native port dragging at each synthetic size')
     p.add_argument('--observed-result',type=Path,help='Existing real source result.json; copied evidence, no new network requests')
     p.add_argument('--observed-profiles',type=Path,help='Separate actual Maigret receipt; never counted as new HTTP requests')
     p.add_argument('--observed-only',action='store_true',help='Only the separately supplied observation dataset')
@@ -100,6 +101,9 @@ def main():
     p.add_argument('--wallpaper',type=Path,help='Generated local QA image for the optional native wallpaper comparison')
     p.add_argument('--wallpaper-blur',type=int,choices=range(21),default=0)
     p.add_argument('--glow',type=int,choices=range(37))
+    p.add_argument('--graph-style',choices=('glass','minimal'),default='glass')
+    p.add_argument('--wallpaper-quality',choices=('auto','high','original'),default='auto')
+    p.add_argument('--wallpaper-fit',choices=('cover','contain','original'),default='cover')
     args=p.parse_args();out=args.output.resolve()
     if out.exists():raise SystemExit('Use a fresh receipt directory')
     out.mkdir(parents=True);namespace=uuid.uuid4().hex
@@ -115,16 +119,18 @@ def main():
     app=QApplication.instance() or QApplication([])
     profile=out/'appdata/GrangerPet';profile.mkdir(parents=True)
     preferences=Settings(source_root=str(ROOT),cursor_reaction=False,reduced_motion=True,ui_effects=args.effects)
-    if args.wallpaper or args.glow is not None:
+    if args.wallpaper or args.glow is not None or args.graph_style=='minimal':
         from grangerpet.appearance import normalize_appearance
-        appearance={'theme':'azure','effects':args.effects,'reducedMotion':True,'glow':args.glow if args.glow is not None else 12}
+        appearance={'theme':'azure' if args.wallpaper or args.glow is not None else 'dark','graphStyle':args.graph_style,'effects':args.effects,'reducedMotion':True,'glow':args.glow if args.glow is not None else 12 if args.wallpaper else 5}
+        if args.graph_style=='minimal' and args.glow is not None:
+            appearance['graphProfiles']={'minimal':{'glow':args.glow}}
         if args.wallpaper:
             from grangerpet.credentials import open_bytes,seal_bytes
             from grangerpet.geoint.images import AttachmentStore,MAX_IMAGE_BYTES
             with args.wallpaper.open('rb') as stream:
                 pixels=stream.read(MAX_IMAGE_BYTES+1)
             saved=AttachmentStore(profile/'wallpapers',seal=seal_bytes,open_sealed=open_bytes).import_bytes(pixels,'Synthetic QA wallpaper')
-            appearance['wallpaper']={'source':'image','image':saved['id'],'dim':65,'blur':args.wallpaper_blur}
+            appearance['wallpaper']={'source':'image','image':saved['id'],'dim':65,'blur':args.wallpaper_blur,'quality':args.wallpaper_quality,'fit':args.wallpaper_fit}
         preferences.workspace_appearance=normalize_appearance(json.dumps(appearance))
     (profile/'settings.json').write_text(json.dumps(preferences.to_dict()),encoding='utf-8')
     store=CanvasStore(InvestigationJournal(profile/'investigations'));cases=[]
@@ -142,8 +148,9 @@ def main():
         start=time.perf_counter();saved=store.save(d,0)
         cases.append({'id':saved['id'],**provenance,'encrypted_seed_write_ms':round((time.perf_counter()-start)*1000,2)})
     report={'origin':'frozen-EXE' if args.exe else 'native-source','data_origin':'synthetic_fixture_and_separate_provided_observations' if args.observed_result else 'synthetic_fixture','exe_sha256':hashlib.sha256(args.exe.read_bytes()).hexdigest() if args.exe else None,'cases':[],'checks':[],
-        'effects':args.effects,'wallpaper':{'enabled':bool(args.wallpaper),'blur_px':args.wallpaper_blur,'glow':args.glow},
-        'metric_semantics':'Paint timings are actual WebEngine Canvas draw durations. Active frame intervals exclude gaps >=100 ms; their reciprocal is not whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.'}
+        'effects':args.effects,'wallpaper':{'enabled':bool(args.wallpaper),'blur_px':args.wallpaper_blur,'glow':args.glow,'quality':args.wallpaper_quality,'fit':args.wallpaper_fit},
+        'graph_style':args.graph_style,
+        'metric_semantics':'Paint timings are actual WebEngine Canvas draw durations. All paint intervals, when exposed by the renderer, retain idle/IPC gaps; active intervals additionally exclude gaps >=100 ms. Neither is whole-session FPS. Event-to-paint begins at JS pointer handler. IPC pauses are excluded from that latency.'}
     def save():(out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     def wait(fn,seconds=60):
         end=time.monotonic()+seconds
@@ -179,9 +186,10 @@ def main():
             r=dom();return next((x for x in r.get('elements',[]) if (x.get('label') in labels or x.get('text') in labels) and x['width']>0 and 0<x['y']<r['height']-10),None)
         e=wait(find);action('input',{'kind':'click','at':[e['x']+e['width']/2,e['y']+min(18,e['height']/2)]})
     def select_option(label,option):
+        if label=='Представление полотна':click('Фильтры')
         # Actual Radix keyboard path; own bounded input deliberately types ASCII.
         orders={'Раскладка полотна':['Вокруг кошелька','Входящие / исходящие','Кластеры контрагентов','Цепочка связей','Ручная','Иерархия','От выбранного','По типам','По связям','По времени'],
-            'Представление полотна':['Кошельки и потоки','Движение средств','Контрагенты','Транзакции','Исследование связей','Все объекты']}
+            'Представление полотна':['Кошельки и потоки','NFT и активы','Движение средств','Контрагенты','Транзакции','Исследование связей','Публичные профили · Identity','Инфраструктура','Основания','Все объекты']}
         click(label);click('Найти: '+label)
         action('input',{'kind':'key','key':'down'})
         for _ in range(orders[label].index(option)):action('input',{'kind':'key','key':'down'})
@@ -206,7 +214,9 @@ def main():
         report['startup_to_canvas_seconds']=round(time.perf_counter()-started,3)
         for index,case in enumerate(cases):
             report['stage']={'case':case['underlying_nodes'],'phase':'open'};save()
-            if index:wait(lambda:metrics().get('queue_pending',0)==0 and not snapshot().get('research_canvas',{}).get('busy'))
+            # The first workspace can restore a different saved document too.
+            # Never bypass its pending UI writes with the QA-only open command.
+            wait(lambda:metrics().get('queue_pending',0)==0 and not snapshot().get('research_canvas',{}).get('busy'))
             start=time.perf_counter();action('research_canvas_open',{'id':case['id']})
             wait(lambda:s if not (s:=snapshot().get('research_canvas',{})).get('busy') and s.get('document',{}).get('id')==case['id'] else None)
             wait(lambda:metrics().get('canvas_id')==case['id'])
@@ -222,6 +232,9 @@ def main():
                 click('Показать все на полотне')
                 wait(lambda:rendered_model_count()==target)
             current=metrics();c=current['canvas'];case['open_and_expand_seconds']=round(time.perf_counter()-start,3)
+            if args.wallpaper:
+                wallpaper=wait(lambda:m if (m:=metrics().get('wallpaper')) and m.get('loaded')=='true' and m.get('current')=='true' else None)
+                case['actual_wallpaper']={key:wallpaper.get(key) for key in ('loaded','current','quality','original','renderWidth','renderHeight','sourceWidth','sourceHeight','width','height','dpr')}
             if args.glow:
                 visible=json.loads(c.get('qaNodes','[]'))
                 candidate=next((node for node in visible if 90<node['x']<c['width']-90 and 135<node['y']<c['height']-65),None)
@@ -234,9 +247,13 @@ def main():
                 action('input',{'kind':'drag','at':at,'to':[at[0]+(34 if i%2==0 else -34),at[1]+12]})
                 samples.append(monitor.sample([process.pid],source_main_pids=([owned] if not args.exe else [])))
             for delta in (-120,120,-120,120):action('input',{'kind':'wheel','at':[c['x']+c['width']/2,c['y']+c['height']/2],'delta':delta})
+            report['stage']['phase']='await-gesture-commits';save()
             wait(lambda:metrics().get('queue_pending',0)==0 and not snapshot().get('research_canvas',{}).get('busy'))
             final=metrics()['canvas'];frame=json.loads(final.get('frameMetrics','{}'))
-            case['renderer']={k:final.get(k) for k in ('renderer','paintMs','drawnNodes','onScreenNodes','modelNodes','modelEdges','drawnImages','zoom')}
+            case['whole_paint_intervals_available']='all_paint_intervals_ms' in frame
+            case['rendered_graph_style']=final.get('graphStyle','legacy-glass-unreported')
+            if args.graph_style=='minimal' and final.get('graphStyle')!='minimal':raise AssertionError('Minimal renderer was not actually active')
+            case['renderer']={k:final.get(k) for k in ('renderer','paintMs','drawnNodes','onScreenNodes','modelNodes','modelEdges','drawnImages','zoom','selectionGlow')}
             for key,values in frame.items():
                 if values:
                     ordered=sorted(values)
@@ -244,8 +261,29 @@ def main():
                         'p95':round(ordered[max(0,int(len(values)*.95)-1)],3),
                         'p99':round(ordered[max(0,int(len(values)*.99)-1)],3),'max':round(ordered[-1],3)}
             intervals=frame.get('active_intervals_ms',[])
-            case['active_interval_reciprocal_fps']=round(1000/statistics.median(intervals),2) if intervals else None
+            case['active_interval_median_ms']=round(statistics.median(intervals),2) if intervals else None
             case['resources']=summarize(samples)
+            if synthetic and args.verify_edge_gestures:
+                # Measure the actual port gesture and durable commit separately
+                # from JS event-to-paint; this includes QA transport/observation.
+                visible=json.loads(final.get('qaNodes','[]'))
+                document=snapshot()['research_canvas']['document']
+                kinds={node['id']:node['type'] for node in document['entities']}
+                candidates=[node for node in visible if kinds.get(node['id']) in ('person','domain','organization','blockchain_address')
+                    and 120<node['x']<c['width']-node['width']/2-90 and 180<node['y']<c['height']-140]
+                existing={(edge['from_id'],edge['to_id']) for edge in document['relations']}
+                pair=next(((a,b) for a in candidates for b in candidates if a['id']!=b['id'] and (a['id'],b['id']) not in existing),None)
+                if not pair:raise AssertionError('No visible independent pair for native edge gesture')
+                a,b=pair;previous=len(document['relations'])
+                action('input',{'kind':'click','at':[c['x']+a['x'],c['y']+a['y']]})
+                started_edge=time.perf_counter()
+                action('input',{'kind':'drag','at':[c['x']+a['x']+a['width']/2,c['y']+a['y']],
+                    'to':[c['x']+b['x'],c['y']+b['y']]})
+                click('Сохранить связь')
+                wait(lambda:len(snapshot()['research_canvas']['document']['relations'])==previous+1)
+                case['native_edge_gesture_to_saved_seconds']=round(time.perf_counter()-started_edge,3)
+                click('Отменить');wait(lambda:len(snapshot()['research_canvas']['document']['relations'])==previous)
+                report['checks'].append({'name':'native_port_edge_and_undo_'+str(target),'passed':True})
             if synthetic and target==5000:
                 click('Показать всё')
                 fitted=wait(lambda:m if (m:=metrics().get('canvas',{})) and float(m.get('zoom',1))<.38 else None)
@@ -302,10 +340,17 @@ def main():
                     changed=snapshot()['research_canvas']['document']
                     if evidence_digest(store.load(case['id'])['evidence'])!=case['evidence_sha256']:raise AssertionError('Transaction view changed original observations')
                 report['checks'].append({'name':'provided_observation_evidence_unchanged','passed':True,'id':case['id']})
-            report['cases'].append(case);save();print(json.dumps({'nodes':target,'paint':case.get('paint_ms'),'active_interval_reciprocal_fps':case['active_interval_reciprocal_fps']}),flush=True)
+            report['cases'].append(case);save();print(json.dumps({'nodes':target,'paint':case.get('paint_ms'),'active_interval_median_ms':case['active_interval_median_ms']}),flush=True)
             command('qa_snapshot',{'name':('synthetic-' if synthetic else 'observed-')+str(target)})
         report['passed']=True;save()
-    except Exception as error:report.update(passed=False,error_type=type(error).__name__,error=str(error)[:200]);save();raise
+    except Exception as error:
+        report.update(passed=False,error_type=type(error).__name__,error=str(error)[:200]);save()
+        try:
+            (out/'failure-state-private.json').write_text(json.dumps(snapshot(),ensure_ascii=False),encoding='utf-8')
+            (out/'failure-dom-private.json').write_text(json.dumps(dom(),ensure_ascii=False),encoding='utf-8')
+            command('qa_snapshot',{'name':'failure'})
+        except Exception as diagnostic_error:report['diagnostic_error_type']=type(diagnostic_error).__name__;save()
+        raise
     finally:
         if process and process.poll() is None:
             if state():command('stop')

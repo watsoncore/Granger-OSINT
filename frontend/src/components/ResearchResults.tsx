@@ -6,6 +6,9 @@ import {toolName,executionLabel} from '../tool-presentation'
 import {platformMark} from '../graph-cards'
 import {Button,Badge} from './ui'
 import {ResultsTable} from './ResultsTable'
+import {CryptoIcon,entityCryptoIcon} from '../crypto-icons'
+
+const ResultIcon=({row}:{row:Source})=>{const id=entityCryptoIcon({type:row.kind,attributes:row.details||{}});return id?<CryptoIcon id={id} size={20}/>:null}
 type Preview=NonNullable<ResearchCanvasState['preview']>
 const modes={gallery:'Галерея',table:'Таблица',graph:'Связи с запросом',timeline:'По времени'} as const
 type Mode=keyof typeof modes
@@ -88,7 +91,7 @@ export function ResearchResults({preview,evidenceIds,onSource,onInsert,control,o
         onTogglePage={(ids,checked)=>{const visible=new Set(ids);setSelection(checked?Array.from(new Set([...chosen,...ids])):chosen.filter(id=>!visible.has(id)))}}
         columns={[
           {id:'title',label:'Находка',value:row=>row.title,render:row=><div className="result-summary">
-            <button onClick={()=>onSource(row)}>{row.title}</button><small title={row.url}>{row.url||row.kind}</small></div>},
+            <button className="select-option-title" onClick={()=>onSource(row)}><ResultIcon row={row}/>{row.title}</button><small title={row.url}>{row.url||row.kind}</small></div>},
           {id:'source',label:'Источник',width:'24%',value:row=>row.domain||row.kind},
           {id:'status',label:'Состояние',width:'20%',value:row=>existing.has(row.evidence_id)?'Сохранено':executionLabel(row.status)},
         ]}/>:pageRows.map(row=><article key={row.evidence_id}>
@@ -96,7 +99,7 @@ export function ResearchResults({preview,evidenceIds,onSource,onInsert,control,o
           onChange={event=>setSelection(event.target.checked?[...chosen,row.evidence_id]:chosen.filter(id=>id!==row.evidence_id))}/>
         {mode==='gallery'&&<span className="result-avatar" aria-hidden="true">
           {images[row.evidence_id]?<img alt="" src={images[row.evidence_id]}/>:platformMark(row.domain?.split('.')[0])}</span>}
-        <div className="result-summary"><button onClick={()=>onSource(row)}>{row.title}</button>
+        <div className="result-summary"><button className="select-option-title" onClick={()=>onSource(row)}><ResultIcon row={row}/>{row.title}</button>
           <small>{row.domain||row.kind}{existing.has(row.evidence_id)?' · сохранено':''}</small>
           {row.url&&<small title={row.url}>{row.url}</small>}
           {mode==='timeline'&&<time dateTime={row.obtained_at}>{new Date(observationTime(row)).toLocaleString('ru-RU')}</time>}

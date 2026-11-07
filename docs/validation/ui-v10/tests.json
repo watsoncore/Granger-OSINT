@@ -1,0 +1,12 @@
+{
+  "python": {
+    "passed": 2129,
+    "skipped": 2,
+    "exit_code": 0
+  },
+  "frontend": {
+    "passed": 239,
+    "skipped": 0,
+    "exit_code": 0
+  }
+}

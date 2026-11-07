@@ -201,6 +201,16 @@ class NativeSession:
         self.owned_pid = None
 
 
+def frozen_frontend_current(executable):
+    """Reject stale UI candidates before native interaction can give false evidence."""
+    from PyInstaller.archive.readers import CArchiveReader
+    archive = CArchiveReader(str(executable))
+    files = [path for path in (ROOT/'frontend/dist').rglob('*') if path.is_file()]
+    return bool(files) and all(
+        (name := 'frontend\\'+str(path.relative_to(ROOT/'frontend/dist')).replace('/', '\\')) in archive.toc
+        and archive.extract(name) == path.read_bytes() for path in files)
+
+
 def check_tool_catalog(tools, check, *, allow_missing_external_tools=False, report=None):
     """CI may test registration while honestly reporting absent external runtimes."""
     by_id = {row['id']: row for row in tools}
@@ -208,6 +218,9 @@ def check_tool_catalog(tools, check, *, allow_missing_external_tools=False, repo
     availability = {name: by_id.get(name, {}).get('available') is True for name in external}
     scope = {'policy': 'registry-only-for-external-tools' if allow_missing_external_tools else 'strict-local-availability',
         'availability': availability, 'missing_external_tools': [name for name in external if not availability[name]],
+        'diagnostics': {name: {'state': by_id.get(name, {}).get('state'),
+            **{key: by_id.get(name, {}).get('diagnostic', {}).get(key)
+               for key in ('code', 'runtime_ready', 'probe_seconds', 'exit_code', 'missing_module')}} for name in external},
         'external_execution_requested': False, 'availability_required': not allow_missing_external_tools}
     if report is not None:
         report.update(scope)
@@ -282,9 +295,12 @@ def acceptance(executable: Path, directory: Path, check, *, allow_missing_extern
         session.action('investigation_graph_get', {'id': record['id']})
         wait_for(lambda: (g := session.snapshot().get('investigation_graph', {})).get('state') == 'ready' and g.get('investigation_id') == record['id'])
         session.action('graph_scroll')
-        session.click('Граф')
+        # V10 deliberately removes the duplicate graph tab from saved results.
+        # Exercise the remaining tree renderer and the independent manual graph.
+        session.click('Дерево')
         wait_for(lambda: int(((session.dom().get('graph') or {}).get('canvas') or {}).get('drawnNodes', '0')) > 0)
-        check('saved_synthetic_investigation_graph_actually_drawn', True)
+        check('saved_search_has_no_duplicate_graph_tab_and_tree_draws',
+              not any(row.get('role')=='tab' and row.get('text')=='Граф' for row in session.dom().get('elements',[])))
         session.click('Моё полотно')
         session.action('research_canvas_open', {'id': document['id']})
         wait_for(lambda: (session.snapshot().get('research_canvas', {}).get('document') or {}).get('id') == document['id'])
@@ -370,6 +386,9 @@ def run(executable: Path, *, allow_missing_external_tools=False):
                     result = subprocess.run([sys.executable, str(ROOT / 'scripts/smoke_exe.py'), '--exe', str(executable), '--output', str(smoke)],
                         cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT)
                 data = json.loads(smoke.read_text(encoding='utf-8')) if smoke.is_file() else {}
+                # Retain the isolated surface diagnostics before temporary cleanup.
+                # This probe has no user profile or credential input.
+                report['surface_smoke'] = data
                 check('fresh_launcher_and_pet_restricted_path_smoke', result.returncode == 0 and data.get('status') == 'passed')
                 acceptance(executable, temporary, check, allow_missing_external_tools=allow_missing_external_tools,
                     tool_report=report['external_tools'])

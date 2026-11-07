@@ -6,10 +6,12 @@ import type { Tool } from '../types'
 import { executionLabel, inputLabel, stateLabel, toolName, toolRemedy } from '../tool-presentation'
 import { formatDate } from './Sources'
 import { Badge, Button, EmptyState, IconButton } from './ui'
+import {CryptoIcon} from '../crypto-icons'
 
 const accessLabels: Record<string,string> = { LOCAL_PYTHON:'Локальное вычисление', LOCAL_MODEL:'Локальная модель', PUBLIC_API_NO_KEY:'Публичный API без ключа', PERMITTED_HTTP_PARSER:'HTML-парсер', PERMITTED_BROWSER_PARSER:'Браузерный парсер', LOCAL_CLI:'Локальный CLI', PERMITTED_HTTP:'HTML-парсер', PERMITTED_BROWSER:'Браузерный парсер', OFFICIAL_API:'Публичный API', OPEN_DATASET:'Открытый набор данных' }
 
 function ToolIcon({ tool }: { tool: Tool }) {
+  if(tool.id==='blockchain_gansar')return <CryptoIcon id="generic:wallet" size={20}/>
   const kinds = tool.inputTypes || []
   const Icon = kinds.includes('email') ? Mail : kinds.includes('phone') ? Phone : kinds.includes('web') || kinds.includes('url') || kinds.includes('domain') ? Globe2 : kinds.includes('blockchain') ? Braces : kinds.includes('username') ? AtSign : UserRound
   return <Icon size={19}/>

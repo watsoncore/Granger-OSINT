@@ -1,8 +1,9 @@
 import {useEffect,useId,useRef,useState} from 'react'
 import * as Dropdown from '@radix-ui/react-dropdown-menu'
 import {Check,ChevronDown,Search} from 'lucide-react'
+import type {ReactNode} from 'react'
 
-export interface SelectOption {value:string;label:string;group?:string;disabled?:boolean;description?:string}
+export interface SelectOption {value:string;label:string;group?:string;disabled?:boolean;description?:string;icon?:ReactNode}
 interface Props {
   label?:string;value:string;options:SelectOption[];onChange(value:string):void;
   disabled?:boolean;className?:string;placeholder?:string;id?:string;
@@ -24,7 +25,7 @@ export function SearchableSelect({label,value,options,onChange,disabled,classNam
   return <Dropdown.Root open={open} onOpenChange={next=>{setOpen(next);if(next)setQuery('')}}>
     <Dropdown.Trigger id={triggerId} value={value} className={`searchable-select ${className}`} aria-label={label} aria-controls={id}
       disabled={disabled} autoFocus={autoFocus} data-required={required||undefined}>
-      <span>{selected?.label||placeholder}</span><ChevronDown size={14}/>
+      <span className="select-option-title">{selected?.icon}{selected?.label||placeholder}</span><ChevronDown size={14}/>
     </Dropdown.Trigger>
     <Dropdown.Portal><Dropdown.Content id={id} className="menu searchable-select-menu" align="start" sideOffset={5}
       collisionPadding={10} onCloseAutoFocus={()=>setQuery('')}>
@@ -45,7 +46,7 @@ export function SearchableSelect({label,value,options,onChange,disabled,classNam
           {rows.map((option,index)=><div key={option.value}>
             {option.group&&rows[index-1]?.group!==option.group&&<Dropdown.Label className="select-group">{option.group}</Dropdown.Label>}
             <Dropdown.RadioItem value={option.value} className="menu-item select-option" disabled={option.disabled} textValue={option.label}>
-              <span><strong>{option.label}</strong>{option.description&&<small>{option.description}</small>}</span>
+              <span><strong className="select-option-title">{option.icon}{option.label}</strong>{option.description&&<small>{option.description}</small>}</span>
               <Dropdown.ItemIndicator><Check size={14}/></Dropdown.ItemIndicator>
             </Dropdown.RadioItem>
           </div>)}

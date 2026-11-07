@@ -20,11 +20,24 @@ export type Wallpaper = {
   x: number; y: number; scale: number; dim: number; blur: number; opacity: number; color: string; end: string;
 }
 export type AppearancePreset = {
+  graphStyle: 'glass' | 'minimal'; graphProfiles: Partial<Record<'glass'|'minimal',GraphSkin>>;
   theme: ThemeId; colors: Partial<Record<ColorField,string>>;
   glow: number; border: number; cardRadius: number; panelRadius: number; surface: number;
   selectionBorder: number; hoverGlow: number; edgeHighlight: number;
   frost: number; reflection: number; shadow: number; density: 'compact' | 'comfortable';
   edges: keyof typeof edgeStyles; effects: 'full' | 'reduced' | 'off'; reducedMotion: boolean; wallpaper: Wallpaper;
+}
+export type GraphSkin = Pick<AppearancePreset,'glow'|'border'|'cardRadius'|'panelRadius'|'surface'|'selectionBorder'|'hoverGlow'|'edgeHighlight'|'frost'|'reflection'|'shadow'|'density'|'edges'> & {arrows:boolean}
+export const graphSkinKeys = ['glow','border','cardRadius','panelRadius','surface','selectionBorder','hoverGlow','edgeHighlight','frost','reflection','shadow','density','edges','arrows'] as const
+export const minimalSkin: GraphSkin = {glow:0,border:65,cardRadius:4,panelRadius:6,surface:100,selectionBorder:1,hoverGlow:0,edgeHighlight:35,frost:0,reflection:0,shadow:0,density:'compact',edges:'straight',arrows:false}
+export function graphAppearance(appearance:AppearancePreset): AppearancePreset & {arrows:boolean} {
+  const style=appearance.graphStyle||'glass'
+  return {...appearance,...(style==='minimal'?minimalSkin:{arrows:true}),...appearance.graphProfiles?.[style]}
+}
+export function updateGraphSkin(appearance:Appearance,change:Partial<GraphSkin>):Appearance {
+  const style=appearance.graphStyle||'glass', current=graphAppearance(appearance)
+  const skin=Object.fromEntries(graphSkinKeys.map(key=>[key,current[key]])) as GraphSkin
+  return {...appearance,graphProfiles:{...appearance.graphProfiles,[style]:{...skin,...change}}}
 }
 export type Appearance = AppearancePreset & {
   overrides: Record<string,Wallpaper>; presets: Record<string,AppearancePreset>; hidePrivate: boolean;
@@ -41,6 +54,7 @@ export const themeAccents: Record<ThemeId,string> = {
 
 export function defaults(theme: ThemeId = 'dark'): Appearance {
   return {
+    graphStyle:'glass',graphProfiles:{},
     theme, colors:{}, glow:theme==='silver'?3:5, border:75, cardRadius:12, panelRadius:16,
     selectionBorder:1, hoverGlow:0, edgeHighlight:55,
     surface:98, frost:4, reflection:3, shadow:16, density:'comfortable', edges:'curved',
@@ -55,7 +69,7 @@ export function savedAppearance(settings: DesktopState['settings']): Appearance 
   if(typeof settings.workspace_appearance!=='string'||!settings.workspace_appearance)return base
   try {
     const saved=JSON.parse(settings.workspace_appearance) as Partial<Appearance>
-    return {...base,...saved,theme:themeId(saved.theme),wallpaper:{...base.wallpaper,...saved.wallpaper}}
+    return {...base,...saved,graphStyle:saved.graphStyle==='minimal'?'minimal':'glass',graphProfiles:saved.graphProfiles||{},theme:themeId(saved.theme),wallpaper:{...base.wallpaper,...saved.wallpaper}}
   } catch { return base }
 }
 

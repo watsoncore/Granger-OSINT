@@ -1,0 +1,3948 @@
+{
+  "passed": true,
+  "exe_sha256": "10d091ecf2000619bcfa8f5646ee8f2effb2141e34d742c4389bbe84aaa62026",
+  "cases": [
+    {
+      "name": "native-delivery",
+      "passed": true,
+      "tested_exe_sha256": "10d091ecf2000619bcfa8f5646ee8f2effb2141e34d742c4389bbe84aaa62026",
+      "current_binary": true,
+      "checks": [
+        {
+          "name": "frozen_frontend_matches_current_build",
+          "passed": true
+        },
+        {
+          "name": "01-empty-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "01-empty-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "01-empty-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "01-empty-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "02-empty-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "02-empty-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "02-empty-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "02-empty-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "mixed-images-groups-preserved_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "mixed-images-groups-preserved_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "mixed-images-groups-preserved_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "mixed-images-groups-preserved_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "mixed_contains_images_groups_relations_history",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "social-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "social-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "social-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "social-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "social-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "social-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "social-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "social-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "crypto-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "crypto-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "crypto-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "crypto-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "readable_card_zoom_minimal",
+          "passed": true
+        },
+        {
+          "name": "crypto-card-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "crypto-card-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "crypto-card-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "crypto-card-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "crypto_canvas_icons_minimal",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "crypto-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "crypto-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "crypto-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "crypto-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "readable_card_zoom_glass",
+          "passed": true
+        },
+        {
+          "name": "crypto-card-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "crypto-card-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "crypto-card-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "crypto-card-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "crypto_canvas_icons_glass",
+          "passed": true
+        },
+        {
+          "name": "crypto-network-selector_popup_within_viewport",
+          "passed": true
+        },
+        {
+          "name": "network_selector_real_icons_loaded",
+          "passed": true
+        },
+        {
+          "name": "07-command-bar_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "07-command-bar_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "07-command-bar_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "07-command-bar_aligned_command_heights",
+          "passed": true
+        },
+        {
+          "name": "07-command-bar_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "08-filter-menu_popup_within_viewport",
+          "passed": true
+        },
+        {
+          "name": "filter_has_source_and_minimap_controls",
+          "passed": true
+        },
+        {
+          "name": "08b-minimap-safe-zone_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "08b-minimap-safe-zone_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "08b-minimap-safe-zone_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "08b-minimap-safe-zone_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "09-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "09-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "09-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "09-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "09b-inspector-and-results_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "09b-inspector-and-results_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "09b-inspector-and-results_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "09b-inspector-and-results_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dock_does_not_move_camera",
+          "passed": true
+        },
+        {
+          "name": "window-1366x768_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "window-1366x768_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "window-1366x768_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "window-1366x768_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "window-1600x900_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "window-1600x900_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "window-1600x900_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "window-1600x900_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "window-1920x1080_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "window-1920x1080_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "window-1920x1080_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "window-1920x1080_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "window-2560x1440_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "window-2560x1440_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "window-2560x1440_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "window-2560x1440_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "10-clean-expanded_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "10-clean-expanded_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "10-clean-expanded_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "10-clean-expanded_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "11-clean-fullscreen_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "11-clean-fullscreen_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "11-clean-fullscreen_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "11-clean-fullscreen_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "12-normal-restored_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "12-normal-restored_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "12-normal-restored_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "12-normal-restored_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "minimal_persists_after_restart",
+          "passed": true
+        },
+        {
+          "name": "style_roundtrip_preserves_facts",
+          "passed": true
+        },
+        {
+          "name": "14-restarted-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "14-restarted-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "14-restarted-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "14-restarted-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "saved_search_has_no_graph_tab",
+          "passed": true
+        },
+        {
+          "name": "search-overview_popup_within_viewport",
+          "passed": true
+        },
+        {
+          "name": "search-tree_popup_within_viewport",
+          "passed": true
+        },
+        {
+          "name": "search-evidence_popup_within_viewport",
+          "passed": true
+        },
+        {
+          "name": "legacy_positions_preserved",
+          "passed": true
+        },
+        {
+          "name": "15-my-graph-preserved_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "15-my-graph-preserved_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "15-my-graph-preserved_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "15-my-graph-preserved_no_page_overflow",
+          "passed": true
+        }
+      ],
+      "wallpaper_cases": [],
+      "executions": [],
+      "execution": null
+    },
+    {
+      "name": "context-release",
+      "passed": true,
+      "tested_exe_sha256": "f2141dda09e05d9b09f9b03b936ad65272a7863650974776c5dcef0915c395a9",
+      "current_binary": false,
+      "checks": [
+        {
+          "name": "two_filter_checkboxes",
+          "passed": true
+        },
+        {
+          "name": "glass-closed_no_overlap",
+          "passed": true
+        },
+        {
+          "name": "glass_minimap_present",
+          "passed": true
+        },
+        {
+          "name": "glass-inspector_no_overlap",
+          "passed": true
+        },
+        {
+          "name": "glass_camera_unchanged",
+          "passed": true
+        },
+        {
+          "name": "glass_context_above_inspector",
+          "passed": true
+        },
+        {
+          "name": "glass_context_escape_keeps_fullscreen",
+          "passed": true
+        },
+        {
+          "name": "glass-restored_no_overlap",
+          "passed": true
+        },
+        {
+          "name": "minimal-closed_no_overlap",
+          "passed": true
+        },
+        {
+          "name": "minimal_minimap_present",
+          "passed": true
+        },
+        {
+          "name": "minimal-inspector_no_overlap",
+          "passed": true
+        },
+        {
+          "name": "minimal_camera_unchanged",
+          "passed": true
+        },
+        {
+          "name": "minimal_context_above_inspector",
+          "passed": true
+        },
+        {
+          "name": "minimal_context_escape_keeps_fullscreen",
+          "passed": true
+        },
+        {
+          "name": "minimal-restored_no_overlap",
+          "passed": true
+        }
+      ],
+      "wallpaper_cases": [],
+      "executions": [],
+      "execution": null
+    },
+    {
+      "name": "settings-release",
+      "passed": true,
+      "tested_exe_sha256": "f2141dda09e05d9b09f9b03b936ad65272a7863650974776c5dcef0915c395a9",
+      "current_binary": false,
+      "checks": [
+        {
+          "name": "settings_0_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_1_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_2_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_3_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_4_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_5_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "settings_6_custom_controls_and_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "custom_select_escape_restores_without_change",
+          "passed": true
+        },
+        {
+          "name": "custom_select_search_and_keyboard_commit",
+          "passed": true
+        },
+        {
+          "name": "fullscreen_escape_closes_menu_before_window",
+          "passed": true
+        },
+        {
+          "name": "fullscreen_escape_without_menu_exits",
+          "passed": true
+        },
+        {
+          "name": "narrow_settings_no_horizontal_overflow",
+          "passed": true
+        }
+      ],
+      "wallpaper_cases": [],
+      "executions": [],
+      "execution": null
+    },
+    {
+      "name": "wallpaper-release",
+      "passed": true,
+      "tested_exe_sha256": "f2141dda09e05d9b09f9b03b936ad65272a7863650974776c5dcef0915c395a9",
+      "current_binary": false,
+      "checks": [],
+      "wallpaper_cases": [
+        {
+          "name": "contain-1366x900",
+          "passed": true,
+          "circle_pixels": [
+            192,
+            192
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "cover-windowed",
+          "passed": true,
+          "circle_pixels": [
+            225,
+            225
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "cover-fullscreen",
+          "passed": true,
+          "circle_pixels": [
+            216,
+            216
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "original-windowed",
+          "passed": true,
+          "circle_pixels": [
+            541,
+            540
+          ],
+          "circle_aspect_error": 0.0018518518518517713,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "original-fullscreen",
+          "passed": true,
+          "circle_pixels": [
+            541,
+            541
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "contain-windowed",
+          "passed": true,
+          "circle_pixels": [
+            192,
+            192
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "contain-fullscreen",
+          "passed": true,
+          "circle_pixels": [
+            216,
+            216
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "auto-dpr125",
+          "passed": true,
+          "circle_pixels": [
+            192,
+            192
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "high-dpr125",
+          "passed": true,
+          "circle_pixels": [
+            192,
+            192
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "4x3",
+          "passed": true,
+          "circle_pixels": [
+            225,
+            226
+          ],
+          "circle_aspect_error": 0.004424778761061954,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "square",
+          "passed": true,
+          "circle_pixels": [
+            226,
+            226
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "portrait",
+          "passed": true,
+          "circle_pixels": [
+            145,
+            145
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "exif-rotated",
+          "passed": true,
+          "circle_pixels": [
+            225,
+            226
+          ],
+          "circle_aspect_error": 0.004424778761061954,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "4k-texture",
+          "passed": true,
+          "circle_pixels": [
+            192,
+            193
+          ],
+          "circle_aspect_error": 0.005181347150259086,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "dpr150-1280",
+          "passed": true,
+          "circle_pixels": [
+            270,
+            270
+          ],
+          "circle_aspect_error": 0.0,
+          "original_bytes_preserved": true
+        },
+        {
+          "name": "dpr150-1920",
+          "passed": true,
+          "circle_pixels": [
+            405,
+            406
+          ],
+          "circle_aspect_error": 0.0024630541871921707,
+          "original_bytes_preserved": true
+        }
+      ],
+      "executions": [],
+      "execution": null
+    },
+    {
+      "name": "workspace-glass-release",
+      "passed": true,
+      "tested_exe_sha256": "f2141dda09e05d9b09f9b03b936ad65272a7863650974776c5dcef0915c395a9",
+      "current_binary": false,
+      "checks": [
+        {
+          "name": "frozen_frontend_matches_current_build",
+          "passed": true
+        },
+        {
+          "name": "canvas_first_default_panels_closed",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Человек",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Компания / организация",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Никнейм",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Email",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Телефон",
+          "passed": true
+        },
+        {
+          "name": "typed_form_IP-адрес",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Домен",
+          "passed": true
+        },
+        {
+          "name": "typed_form_URL",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Профиль",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Криптокошелёк",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Транзакция",
+          "passed": true
+        },
+        {
+          "name": "typed_form_NFT",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Токен",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Контракт",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Коллекция",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Документ",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Географическая точка",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Заметка",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Гипотеза",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Произвольный объект",
+          "passed": true
+        },
+        {
+          "name": "twenty_manual_objects_without_fabricated_evidence",
+          "passed": true
+        },
+        {
+          "name": "native_port_drag_and_relation_metadata",
+          "passed": true
+        },
+        {
+          "name": "native_relation_undo_redo",
+          "passed": true
+        },
+        {
+          "name": "expanded_group_keeps_members_and_relation_visible",
+          "passed": true
+        },
+        {
+          "name": "native_group_drag_preserves_descendant_offsets",
+          "passed": true
+        },
+        {
+          "name": "native_group_resize",
+          "passed": true
+        },
+        {
+          "name": "native_group_collapse",
+          "passed": true
+        },
+        {
+          "name": "native_group_expand",
+          "passed": true
+        },
+        {
+          "name": "native_image_import_preserves_original",
+          "passed": true
+        },
+        {
+          "name": "restart_preserves_manual_composition",
+          "passed": true
+        }
+      ],
+      "wallpaper_cases": [],
+      "executions": [],
+      "execution": null
+    },
+    {
+      "name": "workspace-minimal-release",
+      "passed": true,
+      "tested_exe_sha256": "f2141dda09e05d9b09f9b03b936ad65272a7863650974776c5dcef0915c395a9",
+      "current_binary": false,
+      "checks": [
+        {
+          "name": "frozen_frontend_matches_current_build",
+          "passed": true
+        },
+        {
+          "name": "canvas_first_default_panels_closed",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Человек",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Компания / организация",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Никнейм",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Email",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Телефон",
+          "passed": true
+        },
+        {
+          "name": "typed_form_IP-адрес",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Домен",
+          "passed": true
+        },
+        {
+          "name": "typed_form_URL",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Профиль",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Криптокошелёк",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Транзакция",
+          "passed": true
+        },
+        {
+          "name": "typed_form_NFT",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Токен",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Контракт",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Коллекция",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Документ",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Географическая точка",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Заметка",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Гипотеза",
+          "passed": true
+        },
+        {
+          "name": "typed_form_Произвольный объект",
+          "passed": true
+        },
+        {
+          "name": "twenty_manual_objects_without_fabricated_evidence",
+          "passed": true
+        },
+        {
+          "name": "native_port_drag_and_relation_metadata",
+          "passed": true
+        },
+        {
+          "name": "native_relation_undo_redo",
+          "passed": true
+        },
+        {
+          "name": "expanded_group_keeps_members_and_relation_visible",
+          "passed": true
+        },
+        {
+          "name": "native_group_drag_preserves_descendant_offsets",
+          "passed": true
+        },
+        {
+          "name": "native_group_resize",
+          "passed": true
+        },
+        {
+          "name": "native_group_collapse",
+          "passed": true
+        },
+        {
+          "name": "native_group_expand",
+          "passed": true
+        },
+        {
+          "name": "native_image_import_preserves_original",
+          "passed": true
+        },
+        {
+          "name": "restart_preserves_manual_composition",
+          "passed": true
+        }
+      ],
+      "wallpaper_cases": [],
+      "executions": [],
+      "execution": null
+    },
+    {
+      "name": "dpi-delivery",
+      "passed": true,
+      "tested_exe_sha256": "10d091ecf2000619bcfa8f5646ee8f2effb2141e34d742c4389bbe84aaa62026",
+      "current_binary": true,
+      "checks": [
+        {
+          "name": "frozen_frontend_matches_current_build",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1366-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1600-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-1920-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p25-2560-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "actual_dpr_1.25",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1366-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1600-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-1920-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1-2560-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "actual_dpr_1",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1366-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1600-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-1920-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-1p5-2560-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "actual_dpr_1.5",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1366-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1600-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-1920-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_minimal_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-minimal_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-minimal_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-minimal_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-minimal_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-minimal-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-minimal-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-minimal-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-minimal-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "style_glass_preserves_saved_facts_and_positions",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-glass_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-glass_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-glass_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-glass_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-glass-inspector_no_chrome_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-glass-inspector_no_control_overlap",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-glass-inspector_no_horizontal_control_clipping",
+          "passed": true
+        },
+        {
+          "name": "dpr-2-2560-glass-inspector_no_page_overflow",
+          "passed": true
+        },
+        {
+          "name": "actual_dpr_2",
+          "passed": true
+        }
+      ],
+      "wallpaper_cases": [],
+      "executions": [],
+      "execution": null
+    },
+    {
+      "name": "github-retry",
+      "passed": true,
+      "tested_exe_sha256": "f2141dda09e05d9b09f9b03b936ad65272a7863650974776c5dcef0915c395a9",
+      "current_binary": false,
+      "checks": [
+        {
+          "name": "profile_activation_preserves_graph_and_opens_details",
+          "passed": true
+        },
+        {
+          "name": "profile_activation_preserves_graph_and_opens_details",
+          "passed": true
+        },
+        {
+          "name": "profile_activation_preserves_graph_and_opens_details",
+          "passed": true
+        },
+        {
+          "name": "github_returned_real_observations",
+          "passed": true
+        },
+        {
+          "name": "github_insert_preserves_previous_evidence",
+          "passed": true
+        },
+        {
+          "name": "github_repository_saved",
+          "passed": true
+        },
+        {
+          "name": "github_repository_visible_in_identity_projection",
+          "passed": true
+        },
+        {
+          "name": "profile_activation_preserves_graph_and_opens_details",
+          "passed": true
+        },
+        {
+          "name": "github_findings_survive_restart",
+          "passed": true
+        }
+      ],
+      "wallpaper_cases": [],
+      "executions": [
+        {
+          "tool": "username_maigret",
+          "status": "partial",
+          "limitations": [
+            "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+          ],
+          "error_code": "tool_execution_failed",
+          "request_counts": {},
+          "records": 3
+        },
+        {
+          "tool": "github_profile",
+          "status": "complete",
+          "limitations": [
+            "Ограниченный поиск в указанном публичном источнике, не глобальный индекс и не доказательство общей личности.",
+            "Публичная выборка: до пяти репозиториев, десяти организаций и языки/релизы первых двух репозиториев. Отсутствие записи не доказывает отсутствия других проектов или скрытого членства.",
+            "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+          ],
+          "error_code": null,
+          "request_counts": {},
+          "records": 3
+        }
+      ],
+      "execution": null
+    },
+    {
+      "name": "crypto-live-retry",
+      "passed": true,
+      "tested_exe_sha256": "f2141dda09e05d9b09f9b03b936ad65272a7863650974776c5dcef0915c395a9",
+      "current_binary": false,
+      "checks": [
+        {
+          "name": "actual_gansar_runtime_ready",
+          "passed": true
+        },
+        {
+          "name": "fresh_public_gansar_returned_observations",
+          "passed": true
+        },
+        {
+          "name": "glass_network_and_evidence_kept",
+          "passed": true
+        },
+        {
+          "name": "minimal_network_and_evidence_kept",
+          "passed": true
+        }
+      ],
+      "wallpaper_cases": [],
+      "executions": [],
+      "execution": {
+        "tool": "blockchain_gansar",
+        "operation": "profile",
+        "status": "partial",
+        "request_counts": {
+          "providers_attempted": 10,
+          "http_requests": 51,
+          "http_statuses": {
+            "200": 42,
+            "429": 1,
+            "404": 1,
+            "502": 1,
+            "500": 3
+          }
+        },
+        "error_code": "worker_response_limit",
+        "limitations": [
+          "Источник превысил допустимый объём ответа. Полученные наблюдения сохранены.",
+          "Проверен ограниченный набор источников. Нулевой результат не доказывает отсутствия объекта; совпадение идентификаторов не устанавливает личность."
+        ],
+        "records": 236,
+        "elapsed_seconds": 46.649
+      }
+    },
+    {
+      "name": "search-tree-delivery",
+      "passed": true,
+      "tested_exe_sha256": "10d091ecf2000619bcfa8f5646ee8f2effb2141e34d742c4389bbe84aaa62026",
+      "current_binary": true,
+      "checks": [
+        {
+          "name": "frozen_frontend_matches_current_build",
+          "passed": true
+        },
+        {
+          "name": "saved_tree_renders_observed_data",
+          "passed": true
+        },
+        {
+          "name": "legacy_positions_unchanged_after_tree_fit",
+          "passed": true
+        }
+      ],
+      "wallpaper_cases": [],
+      "executions": [],
+      "execution": null
+    }
+  ],
+  "geometry": [
+    {
+      "name": "01-empty-glass",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "02-empty-minimal",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "mixed-images-groups-preserved",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "social-minimal",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "social-glass",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "crypto-minimal",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "crypto-card-minimal",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "crypto-glass",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "crypto-card-glass",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "crypto-network-selector",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "07-command-bar",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": [
+        36,
+        36,
+        36,
+        36
+      ]
+    },
+    {
+      "name": "08-filter-menu",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": [
+        36,
+        36,
+        36,
+        36
+      ]
+    },
+    {
+      "name": "08b-minimap-safe-zone",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "09-inspector",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "09b-inspector-and-results",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "window-1366x768",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1104.4000244140625,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "window-1600x900",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "window-1920x1080",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "window-2560x1440",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "10-clean-expanded",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 2560,
+        "height": 1440
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "11-clean-fullscreen",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1536,
+        "height": 864
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "12-normal-restored",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "14-restarted-minimal",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "search-overview",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "search-tree",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "search-evidence",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "15-my-graph-preserved",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1274,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "glass-closed",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 237.5,
+        "width": 1263.5999755859375,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "glass-inspector",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 237.5,
+        "width": 1263.5999755859375,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "glass-restored",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 237.5,
+        "width": 1263.5999755859375,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "minimal-closed",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 237.5,
+        "width": 1263.5999755859375,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "minimal-inspector",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 237.5,
+        "width": 1263.5999755859375,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "minimal-restored",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 237.5,
+        "width": 1263.5999755859375,
+        "height": 558
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-1366-minimal",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1104.4000244140625,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-1366-minimal-inspector",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1104.4000244140625,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-1366-glass",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1104.4000244140625,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-1366-glass-inspector",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1104.4000244140625,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-1600-minimal",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-1600-minimal-inspector",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-1600-glass",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-1600-glass-inspector",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-1920-minimal",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-1920-minimal-inspector",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-1920-glass",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-1920-glass-inspector",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-2560-minimal",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-2560-minimal-inspector",
+      "dpr": 1.25,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-2560-glass",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p25-2560-glass-inspector",
+      "dpr": 1.25,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 176.90000915527344,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-1366-minimal",
+      "dpr": 1,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1104,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-1366-minimal-inspector",
+      "dpr": 1,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1104,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-1366-glass",
+      "dpr": 1,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1104,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-1366-glass-inspector",
+      "dpr": 1,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1104,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-1600-minimal",
+      "dpr": 1,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-1600-minimal-inspector",
+      "dpr": 1,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-1600-glass",
+      "dpr": 1,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-1600-glass-inspector",
+      "dpr": 1,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-1920-minimal",
+      "dpr": 1,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-1920-minimal-inspector",
+      "dpr": 1,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-1920-glass",
+      "dpr": 1,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-1920-glass-inspector",
+      "dpr": 1,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-2560-minimal",
+      "dpr": 1,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-2560-minimal-inspector",
+      "dpr": 1,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-2560-glass",
+      "dpr": 1,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1-2560-glass-inspector",
+      "dpr": 1,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-1366-minimal",
+      "dpr": 1.5,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 1104,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-1366-minimal-inspector",
+      "dpr": 1.5,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 1104,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-1366-glass",
+      "dpr": 1.5,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 1104,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-1366-glass-inspector",
+      "dpr": 1.5,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 1104,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-1600-minimal",
+      "dpr": 1.5,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-1600-minimal-inspector",
+      "dpr": 1.5,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-1600-glass",
+      "dpr": 1.5,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-1600-glass-inspector",
+      "dpr": 1.5,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-1920-minimal",
+      "dpr": 1.5,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-1920-minimal-inspector",
+      "dpr": 1.5,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-1920-glass",
+      "dpr": 1.5,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-1920-glass-inspector",
+      "dpr": 1.5,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-2560-minimal",
+      "dpr": 1.5,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-2560-minimal-inspector",
+      "dpr": 1.5,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-2560-glass",
+      "dpr": 1.5,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-1p5-2560-glass-inspector",
+      "dpr": 1.5,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.1666717529297,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-1366-minimal",
+      "dpr": 2,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1104,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-1366-minimal-inspector",
+      "dpr": 2,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1104,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-1366-glass",
+      "dpr": 2,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1104,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-1366-glass-inspector",
+      "dpr": 2,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1104,
+        "height": 510
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-1600-minimal",
+      "dpr": 2,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-1600-minimal-inspector",
+      "dpr": 2,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-1600-glass",
+      "dpr": 2,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-1600-glass-inspector",
+      "dpr": 2,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1338,
+        "height": 642
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-1920-minimal",
+      "dpr": 2,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-1920-minimal-inspector",
+      "dpr": 2,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-1920-glass",
+      "dpr": 2,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-1920-glass-inspector",
+      "dpr": 2,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 1658,
+        "height": 822
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-2560-minimal",
+      "dpr": 2,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-2560-minimal-inspector",
+      "dpr": 2,
+      "style": "minimal",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-2560-glass",
+      "dpr": 2,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    },
+    {
+      "name": "dpr-2-2560-glass-inspector",
+      "dpr": 2,
+      "style": "glass",
+      "viewport": {
+        "x": 240,
+        "y": 177.5,
+        "width": 2298,
+        "height": 1182
+      },
+      "chrome_overlaps": [],
+      "control_overlaps": [],
+      "horizontal_clipping_count": 0,
+      "popup_overflow_count": 0,
+      "command_heights": []
+    }
+  ],
+  "dpi_method": "Host Windows scale 125%; Qt factors emulate WebEngine DPR 1/1.25/1.5/2. Logical sizes may exceed physical monitor; OS settings unchanged.",
+  "scope": "Final binary retests saved navigation, both styles, preservation, all 64 geometry combinations and performance. Earlier live/20-form/context/settings/wallpaper receipts retain their real candidate SHA; those implementations and all Python modules stayed unchanged across the final navigation-only repair.",
+  "saved_observations": "Separate supplied Gansar/Maigret results reused for geometry; new requests only in the explicitly recorded live cases."
+}

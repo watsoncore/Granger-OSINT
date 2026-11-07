@@ -55,7 +55,7 @@ class V7Session(V5Session):
         return [canvas['x']+x,canvas['y']+y]
 
 
-def run(exe,report_path,shots,*,source=False):
+def run(exe,report_path,shots,*,source=False,graph_style='glass'):
     from PySide6.QtCore import QCoreApplication
     from PIL import Image,ImageDraw
     from grangerpet.config import Settings,SettingsStore
@@ -65,15 +65,19 @@ def run(exe,report_path,shots,*,source=False):
     report_path.parent.mkdir(parents=True,exist_ok=True);shots.mkdir(parents=True,exist_ok=True)
     result={'origin':'native-source' if source else 'frozen-Windows-EXE','passed':False,
         'exe_sha256':None if source else hashlib.sha256(exe.read_bytes()).hexdigest(),
-        'manual_entities':True,'live_osint_executed':False,'checks':[],'captures':[]}
+        'manual_entities':True,'live_osint_executed':False,'graph_style':graph_style,'checks':[],'captures':[]}
     def save():report_path.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
     def check(name,condition):
         result['checks'].append({'name':name,'passed':bool(condition)});save();print(json.dumps(result['checks'][-1]),flush=True)
         if not condition:raise QaFailure(name)
+    if not source:
+        from scripts.qa_clean_release import frozen_frontend_current
+        check('frozen_frontend_matches_current_build',frozen_frontend_current(exe))
     with tempfile.TemporaryDirectory(prefix='.granger-v7-qa-',dir=ROOT) as name:
         directory=Path(name).resolve();assert directory.parent==ROOT.resolve()
         with isolated_environment(directory):
-            SettingsStore().save(Settings(source_root=str(ROOT),ai_provider='none',cursor_reaction=False,reduced_motion=True))
+            SettingsStore().save(Settings(source_root=str(ROOT),ai_provider='none',cursor_reaction=False,reduced_motion=True,
+                workspace_appearance=json.dumps({'graphStyle':graph_style})))
             session=V7Session(exe,directory,source)
             def capture(name):
                 session.command('qa_snapshot',{'name':name});path=directory/(name+'-search.png')
@@ -155,8 +159,9 @@ def run(exe,report_path,shots,*,source=False):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--exe',type=Path,required=True)
     parser.add_argument('--report',type=Path,required=True);parser.add_argument('--screenshots',type=Path,required=True);parser.add_argument('--source',action='store_true')
+    parser.add_argument('--graph-style',choices=('glass','minimal'),default='glass')
     args=parser.parse_args();validate_report_path(args.report)
-    run(args.exe.resolve(),args.report.resolve(),args.screenshots.resolve(),source=args.source)
+    run(args.exe.resolve(),args.report.resolve(),args.screenshots.resolve(),source=args.source,graph_style=args.graph_style)
 
 
 if __name__=='__main__':main()

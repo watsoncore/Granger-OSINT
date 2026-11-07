@@ -86,6 +86,7 @@ export function connectDesktop() {
       } catch { call.reject(new Error('Некорректный ответ приложения')) }
     })
     desktop.stateChanged.connect(receiveState)
+    void import('./crypto-icons').then(module=>module.loadCryptoIcons())
     request('snapshot').then(result => receiveState(JSON.stringify(result))).catch(error => notify(error.message))
   })
 }

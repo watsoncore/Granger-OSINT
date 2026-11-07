@@ -1,0 +1,29 @@
+{
+  "before_user_close": {
+    "artwork": {
+      "total": 92,
+      "unchanged": 92
+    },
+    "resources": {
+      "total": 202,
+      "unchanged": 202
+    },
+    "user_icons": {
+      "total": 23,
+      "unchanged": 23
+    },
+    "profile": {
+      "total": 1157,
+      "unchanged": 1157
+    }
+  },
+  "changed_or_missing_before_user_close": 0,
+  "additional_runtime_and_vendor_sources": {
+    "baseline": "retained V7 protected hashes, also verified during V9 delivery",
+    "checked": {
+      "pet_runtime": 2,
+      "external_tool_source": 508
+    },
+    "changed": 0
+  }
+}
