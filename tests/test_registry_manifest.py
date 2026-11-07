@@ -20,13 +20,16 @@ def test_every_installed_manifest_has_explicit_input_output_and_access_contract(
     expected = {'id','name','category','description','accepted_inputs','output_schema','access_mode',
                 'auth_requirements','required_permissions','network_requirements','rate_limit_policy',
                 'capabilities','source_url','documentation_url','adapter_version','execution_mode','input_schema',
-                'requires_external_key','requires_user_confirmation','supports_cancellation','supports_evidence'}
+                'requires_external_key','requires_user_confirmation','supports_cancellation','supports_evidence','source_contract'}
     ids = set()
     for spec in _SPECS:
         item = manifest(spec).to_dict()
         assert set(item) == expected and item['id'] not in ids
         ids.add(item['id'])
-        assert item['description'] and item['accepted_inputs'] == (spec.kind,)
+        assert item['description']
+        if spec.source=='source_adapter':
+            assert item['accepted_inputs']==tuple(item['source_contract']['supported_entity_types'])
+        else:assert item['accepted_inputs']==(spec.kind,)
         assert item['access_mode'] in {'OFFICIAL_API','LOCAL_CLI','OPEN_DATASET','PERMITTED_HTTP','PERMITTED_BROWSER','MANUAL_ONLY','NOT_SUPPORTED'}
         assert item['source_url'].startswith('https://') and item['documentation_url'].startswith('https://')
         assert item['output_schema']['type'] == 'object'

@@ -1,0 +1,1562 @@
+{
+  "fixture_kind": "Reduced recorded public API schemas, unit fixtures; never live verification",
+  "providers": {
+    "brreg": {
+      "query": "Equinor",
+      "payload": {
+        "_embedded": {
+          "enheter": [
+            {
+              "hjemmeside": "www.equinor.com",
+              "konkurs": false,
+              "organisasjonsnummer": "923609016",
+              "navn": "EQUINOR ASA"
+            }
+          ]
+        }
+      },
+      "expected_id": "brreg:923609016",
+      "expected_type": "organization"
+    },
+    "prh": {
+      "query": "0112038-9",
+      "payload": {
+        "companies": [
+          {
+            "names": [
+              {
+                "name": "Fysios Mehiläinen Oy"
+              }
+            ],
+            "businessId": {
+              "registrationDate": "1978-06-09",
+              "value": "0194099-3"
+            }
+          }
+        ]
+      },
+      "expected_id": "prh:0194099-3",
+      "expected_type": "organization"
+    },
+    "fr_entreprises": {
+      "query": "Renault",
+      "payload": {
+        "results": [
+          {
+            "siren": "982770919",
+            "date_creation": "2023-12-21",
+            "etat_administratif": "A",
+            "nom_complet": "RENAULT"
+          }
+        ]
+      },
+      "expected_id": "fr_entreprises:982770919",
+      "expected_type": "organization"
+    },
+    "ares": {
+      "query": "27082440",
+      "payload": {
+        "obchodniJmeno": "Alza.cz a.s.",
+        "ico": "27082440",
+        "datumVzniku": "2003-08-26"
+      },
+      "expected_id": "ares:27082440",
+      "expected_type": "organization"
+    },
+    "krs": {
+      "query": "0000026438",
+      "payload": {
+        "odpis": {
+          "naglowekA": {
+            "numerKRS": "0000026438"
+          },
+          "dane": {
+            "dzial1": {
+              "danePodmiotu": {
+                "nazwa": "POWSZECHNA KASA OSZCZĘDNOŚCI BANK POLSKI SPÓŁKA AKCYJNA"
+              }
+            }
+          }
+        }
+      },
+      "expected_id": "krs:0000026438",
+      "expected_type": "organization"
+    },
+    "brasilapi": {
+      "query": "00000000000191",
+      "payload": {
+        "cnpj": "00000000000191",
+        "razao_social": "BANCO DO BRASIL SA",
+        "descricao_situacao_cadastral": "ATIVA",
+        "data_inicio_atividade": "1966-08-01"
+      },
+      "expected_id": "brasilapi:00000000000191",
+      "expected_type": "organization"
+    },
+    "cms_npi": {
+      "query": "STANFORD*",
+      "payload": {
+        "results": [
+          {
+            "number": "1285186015",
+            "basic": {
+              "organization_name": "ALIUDDIN KHAJA, MD., INC",
+              "status": "A"
+            }
+          }
+        ]
+      },
+      "expected_id": "cms_npi:1285186015",
+      "expected_type": "organization"
+    },
+    "nhtsa": {
+      "query": "honda",
+      "payload": {
+        "Results": [
+          {
+            "Mfr_CommonName": "APPLE HONDA",
+            "Mfr_ID": 25491,
+            "Country": "UNITED STATES (USA)",
+            "Mfr_Name": "AH OPERATIONS INC"
+          }
+        ]
+      },
+      "expected_id": "nhtsa:25491",
+      "expected_type": "organization"
+    },
+    "ror": {
+      "query": "stanford",
+      "payload": {
+        "items": [
+          {
+            "established": 2006,
+            "id": "https://ror.org/00wj9fh42",
+            "names": [
+              {
+                "value": "Center on Philanthropy and Civil Society"
+              }
+            ],
+            "status": "active"
+          }
+        ]
+      },
+      "expected_id": "ror:https://ror.org/00wj9fh42",
+      "expected_type": "organization"
+    },
+    "osf": {
+      "query": "climate",
+      "payload": {
+        "data": [
+          {
+            "id": "59sqa",
+            "attributes": {
+              "title": "Climate friendly health care in anaesthesia – a pilot patient perspectives multicentre survey based on a modified Delphi process",
+              "date_created": "2025-08-19T04:34:35.944105",
+              "date_modified": "2026-11-07T09:22:32.314864"
+            }
+          }
+        ]
+      },
+      "expected_id": "osf:59sqa",
+      "expected_type": "public_document"
+    },
+    "clinicaltrials": {
+      "query": "Stanford",
+      "payload": {
+        "studies": [
+          {
+            "protocolSection": {
+              "identificationModule": {
+                "briefTitle": "A Study of Axatilimab at 3 Different Doses in Participants With Chronic Graft Versus Host Disease (cGVHD)",
+                "nctId": "NCT04710576"
+              },
+              "sponsorCollaboratorsModule": {
+                "leadSponsor": {
+                  "name": "Syndax Pharmaceuticals"
+                }
+              },
+              "statusModule": {
+                "overallStatus": "RECRUITING"
+              }
+            }
+          }
+        ]
+      },
+      "expected_id": "clinicaltrials:NCT04710576",
+      "expected_type": "public_document"
+    },
+    "nsf": {
+      "query": "climate",
+      "payload": {
+        "response": {
+          "award": [
+            {
+              "id": "2620646",
+              "startDate": "01/15/2027",
+              "expDate": "12/31/2028",
+              "title": "STAR: Eco-Evolutionary Drivers of Viral Spillover: Integrating Long-Term Data and Scientific Collections",
+              "awardeeName": "Virginia Polytechnic Institute and State University"
+            }
+          ]
+        }
+      },
+      "expected_id": "nsf:2620646",
+      "expected_type": "public_document"
+    },
+    "europepmc": {
+      "query": "TITLE:CRISPR",
+      "payload": {
+        "resultList": {
+          "result": [
+            {
+              "id": "42872486",
+              "source": "MED",
+              "pubYear": "2026",
+              "authorString": "Kumbara A, Tognon M, Carone G, Fontanesi A, Bombieri N, Giugno R, Pinello L.",
+              "doi": "10.1093/bioinformatics/btag708",
+              "title": "CRISPR-HAWK: haplotype- and variant-aware guide design toolkit for CRISPR-Cas."
+            }
+          ]
+        }
+      },
+      "expected_id": "europepmc:42872486",
+      "expected_type": "public_document"
+    },
+    "zenodo": {
+      "query": "climate",
+      "payload": {
+        "hits": {
+          "hits": [
+            {
+              "id": 23077368,
+              "metadata": {
+                "publication_date": "2025-10-31",
+                "license": {
+                  "id": "cc-by-4.0"
+                },
+                "doi": "10.5281/zenodo.23077368",
+                "title": "Monthly water storage levels, Victoria"
+              }
+            }
+          ]
+        }
+      },
+      "expected_id": "zenodo:23077368",
+      "expected_type": "public_document"
+    },
+    "crates": {
+      "query": "serde",
+      "payload": {
+        "crate": {
+          "id": "serde",
+          "name": "serde",
+          "max_version": "1.0.229",
+          "repository": "https://github.com/serde-rs/serde",
+          "downloads": 1663211188
+        }
+      },
+      "expected_id": "crates:serde",
+      "expected_type": "public_document"
+    },
+    "hex": {
+      "query": "phoenix",
+      "payload": {
+        "meta": {
+          "description": "Peace of mind from prototype to production",
+          "licenses": [
+            "MIT"
+          ]
+        },
+        "name": "phoenix"
+      },
+      "expected_id": "hex:phoenix",
+      "expected_type": "public_document"
+    },
+    "metacpan": {
+      "query": "Moose",
+      "payload": {
+        "distribution": "Moose",
+        "author": "ETHER",
+        "name": "Moose.pm",
+        "version": "2.4001"
+      },
+      "expected_id": "metacpan:Moose.pm",
+      "expected_type": "public_document"
+    },
+    "nuget": {
+      "query": "Newtonsoft.Json",
+      "payload": {
+        "data": [
+          {
+            "id": "Newtonsoft.Json",
+            "description": "Json.NET is a popular high-performance JSON framework for .NET",
+            "version": "13.0.4"
+          }
+        ]
+      },
+      "expected_id": "nuget:Newtonsoft.Json",
+      "expected_type": "public_document"
+    },
+    "dockerhub": {
+      "query": "python",
+      "payload": {
+        "namespace": "library",
+        "description": "Python is an interpreted, interactive, object-oriented, open-source programming language.",
+        "name": "python"
+      },
+      "expected_id": "dockerhub:python",
+      "expected_type": "public_document"
+    },
+    "epss": {
+      "query": "CVE-2021-44228",
+      "payload": {
+        "data": [
+          {
+            "percentile": "1.000000000",
+            "epss": "0.999990000",
+            "cve": "CVE-2021-44228",
+            "date": "2026-11-06"
+          }
+        ]
+      },
+      "expected_id": "epss:CVE-2021-44228",
+      "expected_type": "public_document"
+    },
+    "nvd": {
+      "query": "CVE-2021-44228",
+      "payload": {
+        "vulnerabilities": [
+          {
+            "cve": {
+              "published": "2021-12-10T10:15:09.143",
+              "id": "CVE-2021-44228",
+              "vulnStatus": "Analyzed",
+              "lastModified": "2026-08-11T19:33:44.513"
+            }
+          }
+        ]
+      },
+      "expected_id": "nvd:CVE-2021-44228",
+      "expected_type": "public_document"
+    },
+    "devto": {
+      "query": "ben",
+      "payload": {
+        "id": 1,
+        "username": "ben",
+        "name": "Ben Halpern",
+        "summary": "A Canadian software developer who thinks he’s funny.",
+        "joined_at": "Dec 27, 2015"
+      },
+      "expected_id": "devto:1",
+      "expected_type": "public_profile"
+    },
+    "discourse": {
+      "query": "eviltrout",
+      "payload": {
+        "user": {
+          "id": 19,
+          "username": "eviltrout",
+          "name": "Robin Ward",
+          "created_at": "2013-02-03T15:19:22.704Z"
+        }
+      },
+      "expected_id": "discourse:19",
+      "expected_type": "public_profile"
+    },
+    "artic": {
+      "query": "monet",
+      "payload": {
+        "data": [
+          {
+            "id": 16568,
+            "title": "Water Lilies",
+            "artist_display": "Claude Monet (French, 1840–1926)",
+            "date_display": "1906"
+          }
+        ]
+      },
+      "expected_id": "artic:16568",
+      "expected_type": "public_document"
+    },
+    "cleveland": {
+      "query": "monet",
+      "payload": {
+        "data": [
+          {
+            "id": 135382,
+            "creation_date": "c. 1868–73",
+            "title": "The Red Kerchief",
+            "accession_number": "1958.39",
+            "technique": "oil on fabric"
+          }
+        ]
+      },
+      "expected_id": "cleveland:135382",
+      "expected_type": "public_document"
+    },
+    "metmuseum": {
+      "query": "437133",
+      "payload": {
+        "artistDisplayName": "Claude Monet",
+        "department": "European Paintings",
+        "title": "Garden at Sainte-Adresse",
+        "objectID": 437133,
+        "objectDate": "1867"
+      },
+      "expected_id": "metmuseum:437133",
+      "expected_type": "public_document"
+    },
+    "hackage": {
+      "query": "aeson",
+      "payload": {
+        "0.1.0.0": "normal",
+        "0.10.0.0": "deprecated",
+        "0.11.0.0": "normal",
+        "0.11.1.0": "normal",
+        "0.11.1.1": "normal",
+        "0.11.1.2": "normal",
+        "0.11.1.3": "normal",
+        "0.11.1.4": "normal",
+        "0.11.2.0": "normal",
+        "0.11.2.1": "normal",
+        "0.11.3.0": "normal",
+        "0.2.0.0": "normal",
+        "0.3.0.0": "normal",
+        "0.3.1.0": "normal",
+        "0.3.1.1": "normal",
+        "0.3.2.0": "normal",
+        "0.3.2.1": "normal",
+        "0.3.2.10": "normal",
+        "0.3.2.11": "normal",
+        "0.3.2.12": "normal",
+        "0.3.2.13": "normal",
+        "0.3.2.14": "normal",
+        "0.3.2.2": "normal",
+        "0.3.2.3": "normal",
+        "0.3.2.4": "normal",
+        "0.3.2.5": "normal",
+        "0.3.2.6": "normal",
+        "0.3.2.7": "normal",
+        "0.3.2.8": "normal",
+        "0.3.2.9": "normal",
+        "0.4.0.0": "normal",
+        "0.4.0.1": "normal",
+        "0.5.0.0": "normal",
+        "0.6.0.0": "normal",
+        "0.6.0.1": "normal",
+        "0.6.0.2": "normal",
+        "0.6.1.0": "normal",
+        "0.6.2.0": "normal",
+        "0.6.2.1": "normal",
+        "0.7.0.0": "deprecated",
+        "0.7.0.1": "deprecated",
+        "0.7.0.2": "deprecated",
+        "0.7.0.3": "deprecated",
+        "0.7.0.4": "normal",
+        "0.7.0.5": "deprecated",
+        "0.7.0.6": "normal",
+        "0.8.0.0": "deprecated",
+        "0.8.0.1": "deprecated",
+        "0.8.0.2": "normal",
+        "0.8.1.0": "normal",
+        "0.8.1.1": "normal",
+        "0.9.0.0": "normal",
+        "0.9.0.1": "normal",
+        "1.0.0.0": "normal",
+        "1.0.1.0": "normal",
+        "1.0.2.0": "normal",
+        "1.0.2.1": "normal",
+        "1.1.0.0": "normal",
+        "1.1.1.0": "normal",
+        "1.1.2.0": "normal",
+        "1.2.0.0": "normal",
+        "1.2.1.0": "normal",
+        "1.2.2.0": "normal",
+        "1.2.3.0": "normal",
+        "1.2.4.0": "normal",
+        "1.3.0.0": "normal",
+        "1.3.1.0": "normal",
+        "1.3.1.1": "normal",
+        "1.4.0.0": "normal",
+        "1.4.1.0": "normal",
+        "1.4.2.0": "normal",
+        "1.4.3.0": "normal",
+        "1.4.4.0": "normal",
+        "1.4.5.0": "normal",
+        "1.4.6.0": "normal",
+        "1.4.7.0": "normal",
+        "1.4.7.1": "normal",
+        "1.5.0.0": "normal",
+        "1.5.1.0": "normal",
+        "1.5.2.0": "normal",
+        "1.5.3.0": "normal",
+        "1.5.4.0": "normal",
+        "1.5.4.1": "normal",
+        "1.5.5.0": "normal",
+        "1.5.5.1": "normal",
+        "1.5.6.0": "normal",
+        "2.0.0.0": "normal",
+        "2.0.1.0": "normal",
+        "2.0.2.0": "normal",
+        "2.0.3.0": "normal",
+        "2.1.0.0": "normal",
+        "2.1.1.0": "normal",
+        "2.1.2.0": "normal",
+        "2.1.2.1": "normal",
+        "2.2.0.0": "normal",
+        "2.2.1.0": "normal",
+        "2.2.2.0": "normal",
+        "2.2.3.0": "normal",
+        "2.2.4.0": "normal",
+        "2.2.4.1": "normal",
+        "2.2.5.0": "normal",
+        "2.2.5.1": "normal",
+        "2.3.0.0": "normal",
+        "2.3.1.0": "normal",
+        "2.3.2.0": "normal"
+      },
+      "expected_id": "hackage:aeson:2.3.2.0",
+      "expected_type": "public_document"
+    },
+    "scorecard": {
+      "query": "ossf/scorecard",
+      "payload": {
+        "repo": {
+          "name": "github.com/ossf/scorecard",
+          "commit": "b753b11c3523c5db8b4880c138858e7e7b8c614a"
+        },
+        "score": 8.3,
+        "date": "2026-11-07T08:29:10Z"
+      },
+      "expected_id": "scorecard:github.com/ossf/scorecard",
+      "expected_type": "public_document"
+    },
+    "opentopodata": {
+      "query": "48.85,2.35",
+      "payload": {
+        "results": [
+          {
+            "dataset": "aster30m",
+            "location": {
+              "lat": 48.85,
+              "lng": 2.35
+            },
+            "elevation": 50.0
+          }
+        ]
+      },
+      "expected_id": "opentopodata:aster30m",
+      "expected_type": "coordinate"
+    },
+    "openfoodfacts": {
+      "query": "3017620422003",
+      "payload": {
+        "product": {
+          "code": "3017620422003",
+          "product_name": "Nutella",
+          "brands": "Nutella, Ferrero",
+          "quantity": "400 g e",
+          "countries": "Belgium, France, Germany, Luxembourg",
+          "last_modified_t": 1793873005
+        }
+      },
+      "expected_id": "openfoodfacts:3017620422003",
+      "expected_type": "public_document"
+    },
+    "cisa_kev": {
+      "query": "CVE-2021-44228",
+      "payload": {
+        "vulnerabilities": [
+          {
+            "cveID": "CVE-2021-44228",
+            "vulnerabilityName": "Apache Log4j2 Remote Code Execution Vulnerability",
+            "vendorProject": "Apache",
+            "product": "Log4j2",
+            "dateAdded": "2021-12-10",
+            "dueDate": "2021-12-24"
+          }
+        ]
+      },
+      "expected_id": "cisa_kev:CVE-2021-44228",
+      "expected_type": "public_document"
+    },
+    "inaturalist": {
+      "query": "Quercus",
+      "payload": {
+        "results": [
+          {
+            "id": 47851,
+            "name": "Quercus",
+            "preferred_common_name": "oaks",
+            "rank": "genus",
+            "observations_count": 1733643
+          }
+        ]
+      },
+      "expected_id": "inaturalist:47851",
+      "expected_type": "public_document"
+    },
+    "copernicus": {
+      "query": "48.85,2.35",
+      "payload": {
+        "features": [
+          {
+            "id": "S2A_MSIL2A_20261031T110121_N0513_R094_T31UDQ_20261031T173605",
+            "collection": "sentinel-2-l2a",
+            "properties": {
+              "datetime": "2026-10-31T11:01:21.024000Z",
+              "eo:cloud_cover": 12.26
+            }
+          }
+        ]
+      },
+      "expected_id": "copernicus:S2A_MSIL2A_20261031T110121_N0513_R094_T31UDQ_20261031T173605",
+      "expected_type": "public_document"
+    },
+    "uk_police": {
+      "query": "52.629729,-1.131592",
+      "payload": [
+        {
+          "id": 125851475,
+          "category": "anti-social-behaviour",
+          "month": "2025-01",
+          "location": {
+            "latitude": "51.507420",
+            "longitude": "-0.101655"
+          }
+        }
+      ],
+      "expected_id": "uk_police:125851475",
+      "expected_type": "public_document"
+    },
+    "cran": {
+      "query": "ggplot2",
+      "payload": {
+        "Package": "ggplot2",
+        "Title": "Create Elegant Data Visualisations Using the Grammar of Graphics",
+        "Version": "4.0.3",
+        "License": "MIT + file LICENSE",
+        "Description": "A system for 'declaratively' creating graphics, based on \"The\nGrammar of Graphics\". You provide the data, tell 'ggplot2' how to map\nvariables to aesthetics, what graphical primitives to use, and it\ntakes care of the details."
+      },
+      "expected_id": "cran:ggplot2",
+      "expected_type": "public_document"
+    },
+    "homebrew": {
+      "query": "wget",
+      "payload": {
+        "full_name": "wget",
+        "name": "wget",
+        "versions": {
+          "stable": "1.25.0"
+        },
+        "license": "GPL-3.0-or-later",
+        "desc": "Internet file retriever"
+      },
+      "expected_id": "homebrew:wget",
+      "expected_type": "public_document"
+    },
+    "fedora": {
+      "query": "python3",
+      "payload": {
+        "id": 19535,
+        "fullname": "rpms/python3",
+        "full_url": "https://src.fedoraproject.org/rpms/python3",
+        "name": "python3",
+        "namespace": "rpms",
+        "description": "See python3.X components instead"
+      },
+      "expected_id": "fedora:19535",
+      "expected_type": "public_document"
+    },
+    "huggingface": {
+      "query": "google-bert/bert-base-uncased",
+      "payload": {
+        "id": "google-bert/bert-base-uncased",
+        "author": "google-bert",
+        "sha": "86b5e0934494bd15c9632b12f734a8a67f723594",
+        "cardData": {
+          "license": "apache-2.0"
+        },
+        "pipeline_tag": "fill-mask"
+      },
+      "expected_id": "huggingface:google-bert/bert-base-uncased",
+      "expected_type": "public_document"
+    },
+    "kaggle": {
+      "query": "iris",
+      "payload": [
+        {
+          "ref": "uciml/iris",
+          "title": "Iris Species",
+          "url": "https://www.kaggle.com/datasets/uciml/iris",
+          "ownerName": "UCI Machine Learning",
+          "licenseName": "CC0: Public Domain",
+          "lastUpdated": "2016-09-27T07:38:05.44Z",
+          "currentVersionNumber": 2
+        }
+      ],
+      "expected_id": "kaggle:uciml/iris",
+      "expected_type": "public_document"
+    },
+    "openml": {
+      "query": "iris",
+      "payload": {
+        "data": {
+          "dataset": [
+            {
+              "did": 61,
+              "name": "iris",
+              "status": "active",
+              "version": 1,
+              "format": "ARFF"
+            }
+          ]
+        }
+      },
+      "expected_id": "openml:61",
+      "expected_type": "public_document"
+    },
+    "arquivo": {
+      "query": "example.org",
+      "payload": {
+        "response_items": [
+          {
+            "linkToArchive": "https://arquivo.pt/wayback/20260624072104/http://example.org/",
+            "title": "http://example.org/",
+            "originalURL": "http://example.org/",
+            "tstamp": "20260624072104",
+            "digest": "KFMR3RACAHZZH2HGKDPO3FQODMO3XIJ7",
+            "mimeType": "text/html"
+          }
+        ]
+      },
+      "expected_id": "arquivo:https://arquivo.pt/wayback/20260624072104/http://example.org/",
+      "expected_type": "public_document"
+    },
+    "uk_nationalarchives": {
+      "query": "climate",
+      "payload": {
+        "records": [
+          {
+            "id": "C16328535",
+            "title": "Climate change",
+            "reference": "CAB 164/1924",
+            "heldBy": [
+              "The National Archives, Kew"
+            ],
+            "coveringDates": "1988 Dec 01 - 1989 Feb 28",
+            "closureStatus": "O"
+          }
+        ]
+      },
+      "expected_id": "uk_nationalarchives:C16328535",
+      "expected_type": "public_document"
+    },
+    "wellcome": {
+      "query": "climate",
+      "payload": {
+        "results": [
+          {
+            "id": "vqzqgmjr",
+            "title": "Climate and political climate : environmental disasters in the Medieval Levant / by Sarah Kate Raphael.",
+            "workType": {
+              "label": "Books"
+            },
+            "physicalDescription": "xi, 211 pages : ill. ; 24 cm."
+          }
+        ]
+      },
+      "expected_id": "wellcome:vqzqgmjr",
+      "expected_type": "public_document"
+    },
+    "harvard_dataverse": {
+      "query": "climate",
+      "payload": {
+        "data": {
+          "items": [
+            {
+              "global_id": "doi:10.7910/DVN/DUWBBU",
+              "name": "Climatic characterization of the sites in Argentina (Córdoba y Santiago del Estero)",
+              "url": "https://doi.org/10.7910/DVN/DUWBBU",
+              "publisher": "Climate variability in the Americas",
+              "published_at": "2025-06-16T15:48:26Z"
+            }
+          ]
+        }
+      },
+      "expected_id": "harvard_dataverse:doi:10.7910/DVN/DUWBBU",
+      "expected_type": "public_document"
+    },
+    "dryad": {
+      "query": "climate",
+      "payload": {
+        "_embedded": {
+          "stash:datasets": [
+            {
+              "id": 102889,
+              "title": "The climatic drivers of long-term population changes in rainforest montane birds",
+              "identifier": "doi:10.5061/dryad.hx3ffbgjj",
+              "versionNumber": 4,
+              "publicationDate": "2023-01-19"
+            }
+          ]
+        }
+      },
+      "expected_id": "dryad:102889",
+      "expected_type": "public_document"
+    },
+    "figshare": {
+      "query": "34943893",
+      "payload": {
+        "id": 34943893,
+        "title": "On the Largest Cardinality Subset Sum",
+        "url_public_html": "https://publications.cispa.de/articles/preprint/On_the_Largest_Cardinality_Subset_Sum/34943893",
+        "doi": "10.60882/cispa.34943893.v1",
+        "published_date": "2026-11-07T12:03:07Z",
+        "license": {
+          "name": "CC BY 4.0"
+        },
+        "defined_type_name": "preprint"
+      },
+      "expected_id": "figshare:34943893",
+      "expected_type": "public_document"
+    },
+    "inspirehep": {
+      "query": "Higgs",
+      "payload": {
+        "hits": {
+          "hits": [
+            {
+              "id": "2181837",
+              "metadata": {
+                "titles": [
+                  {
+                    "title": "Study of $HZZ$ anomalous couplings by angular differential cross sections"
+                  }
+                ],
+                "citation_count": 1
+              },
+              "created": "2022-11-15T03:07:31.445632+00:00",
+              "updated": "2023-06-14T16:26:19.477731+00:00"
+            }
+          ]
+        }
+      },
+      "expected_id": "inspirehep:2181837",
+      "expected_type": "public_document"
+    },
+    "doaj": {
+      "query": "climate",
+      "payload": {
+        "results": [
+          {
+            "id": "000004687a3a411cb466625281f2ceb0",
+            "bibjson": {
+              "title": "Fishing, predation, and temperature drive herring decline in a large marine ecosystem",
+              "year": "2021",
+              "journal": {
+                "title": "Ecology and Evolution",
+                "publisher": "Wiley"
+              }
+            }
+          }
+        ]
+      },
+      "expected_id": "doaj:000004687a3a411cb466625281f2ceb0",
+      "expected_type": "public_document"
+    },
+    "openalex": {
+      "query": "Albert Einstein",
+      "payload": {
+        "results": [
+          {
+            "id": "https://openalex.org/A5109805546",
+            "display_name": "Albert Einstein",
+            "orcid": null,
+            "works_count": 1295,
+            "cited_by_count": 89825
+          }
+        ]
+      },
+      "expected_id": "openalex:https://openalex.org/A5109805546",
+      "expected_type": "person"
+    },
+    "maven": {
+      "query": "commons-lang3",
+      "payload": {
+        "response": {
+          "docs": [
+            {
+              "id": "org.apache.commons:commons-lang3",
+              "g": "org.apache.commons",
+              "a": "commons-lang3",
+              "latestVersion": "3.21.0"
+            }
+          ]
+        }
+      },
+      "expected_id": "maven:org.apache.commons:commons-lang3",
+      "expected_type": "public_document"
+    },
+    "spaceflightnews": {
+      "query": "NASA",
+      "payload": {
+        "results": [
+          {
+            "id": 40769,
+            "title": "APOD: 2026 November 7 – De Gerlache-Kocher Massif",
+            "url": "https://science.nasa.gov/image-article/apod-2026-november-7-de-gerlache-kocher-massif/",
+            "news_site": "NASA",
+            "published_at": "2026-11-07T05:05:00Z",
+            "updated_at": "2026-11-07T05:50:08.901439Z"
+          }
+        ]
+      },
+      "expected_id": "spaceflightnews:40769",
+      "expected_type": "public_document"
+    },
+    "data_gov_au": {
+      "query": "climate",
+      "payload": {
+        "result": {
+          "results": [
+            {
+              "id": "e12e911c-01f4-5f1b-8001-8fb312d202c5",
+              "title": "Agricultural climate metrics for the National Climate Risk Assessment",
+              "organization": {
+                "title": "CSIRO Data Access Portal"
+              },
+              "license_id": "notspecified",
+              "metadata_modified": "2025-11-30T20:09:57.630893",
+              "num_resources": 312,
+              "notes": "Agricultural climate metrics were derived for the National Climate Risk Assessment.\n\nThis data collection describes the agricultural climate metrics derived from projections of climate variables across Australia from 8 CMIP6 global climate models, as well as a historical baseline from the Bureau of Meteorology’s Atmospheric high-Resolution Reanalysis for Australia (BARRA-R2) data. Agricultural climate metrics focus on climate conditions that are important to Australian agricultural productivity, for example the annual number of heat stress days for livestock or total growing season rainfall for grain cropping. The metrics are evaluated for a historical baseline (2001-2020) and global warming levels (GWLs) 1.5, 2.0 and 3.0 degrees Celsius above pre-industrial levels. Data are provided in netCDF format, and each grid location gives the minimum, median, and maximum metric values across the ensemble of global climate models climate models for each GWL, as well as the mean of the historical period. Projection data are provided for values (e.g. total rainfall in mm) as well as change from the mean historical baseline (e.g. % change in rainfall from historical baseline). \n\nMore information can be found in the technical report¹. \n<ol>\n<li>Darbyshire R, Blamey L, Bolt A, Brodie S, Buhagiar L, Bustamante RH, Greenwood S, Holzworth D, Hopper M, Huth N, Keogh T, Mayberry D, Nidumolu U, Paroz A, Rich J, Rosauer D, Roxburgh S, Thomas I and van Herwaarden A (2025). Primary Industries Technical Report. A technical report prepared for the Australian Climate Service as part of the National Climate Risk Assessment. CSIRO, Australia. https://doi.org/10.25919/g1b2-fj19.</li>\n</ol>"
+            }
+          ]
+        }
+      },
+      "expected_id": "data_gov_au:e12e911c-01f4-5f1b-8001-8fb312d202c5",
+      "expected_type": "public_document"
+    },
+    "data_gov_ca": {
+      "query": "climate",
+      "payload": {
+        "result": {
+          "results": [
+            {
+              "id": "09ffaeb5-ec8f-5bb5-bdcb-3436ccf26f58",
+              "title": "Climatic Regions",
+              "organization": {
+                "title": "Natural Resources Canada | Ressources naturelles Canada"
+              },
+              "license_id": "ca-ogl-lgo",
+              "metadata_modified": "2022-03-14T19:51:11.728358",
+              "notes": "Contained within 3rd Edition (1957) of the Atlas of Canada is a map that shows the division of Canada into climatic regions according to the classification of the climates of the world developed by W. Koppen. Koppen first divided the world into five major divisions to which he assigned the letters A, B, C, D, and E. The letters represent the range of divisions from tropical climate (A) to polar climate (E). There are no A climates in Canada. The descriptions of the four remaining major divisions are given in the map legend. Koppen then divided the large divisions into a number of climatic types in accordance with temperature differences and variations in the amounts and distribution of precipitation, on the basis of which he added certain letters to the initial letter denoting the major division. The definitions of the additional letters which apply in Canada are also given when they first appear in the map legend. Thus b is defined under Csb and the definition is, therefore, not repeated under Cfb, Dfb or Dsb. For this map, the temperature and precipitation criteria established by Koppen have been applied to Canadian data for a standard thirty year period (1921 to 1950 inclusive)."
+            }
+          ]
+        }
+      },
+      "expected_id": "data_gov_ca:09ffaeb5-ec8f-5bb5-bdcb-3436ccf26f58",
+      "expected_type": "public_document"
+    },
+    "data_gov_ie": {
+      "query": "climate",
+      "payload": {
+        "result": {
+          "results": [
+            {
+              "id": "c11d1485-302a-4f2c-9835-767ee8054202",
+              "title": "Climate Change",
+              "organization": {
+                "title": "Department of Climate, Energy and the Environment"
+              },
+              "license_id": "CC-BY-4.0",
+              "metadata_modified": "2026-11-06T20:43:17.661673",
+              "notes": "<span style='color:rgb(0, 0, 0); font-family:&quot;Avenir Next&quot;, &quot;Helvetica Neue&quot;, sans-serif, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, &quot;Helvetica Neue&quot;, sans-serif; font-size:18px;'>The NMPF’s climate change policies seek to support management of potential impacts of proposals in two ways. Firstly, the way in which the proposal may affect natural and / or physical features that play a role in mitigation (e.g. carbon sequestration) or adaptation (e.g. flood defence. Secondly the way in which the proposal has considered its own direct and indirect contributions to mitigation (e.g. measures included in the proposal to reduce emissions) and adaptation (e.g. ensuring the proposal is future-proofed in relation to changing operating conditions due to climate change).</span>"
+            }
+          ]
+        }
+      },
+      "expected_id": "data_gov_ie:c11d1485-302a-4f2c-9835-767ee8054202",
+      "expected_type": "public_document"
+    },
+    "data_gov_uk": {
+      "query": "climate",
+      "payload": {
+        "result": {
+          "results": [
+            {
+              "id": "9023a2a3-bf51-48f6-bb93-6c1d4acaa424",
+              "title": "Climate resilience documents",
+              "organization": {
+                "title": "Data Mill North"
+              },
+              "license_id": null,
+              "metadata_modified": "2026-09-25T12:07:29.749997",
+              "notes": "<dp-prose>\n  <p>This dataset includes links to policies, strategies and documents relevant to climate resilience on a wide range of geographic scales. The project was undertaken with the guidance of Leeds City Council and Leeds Climate Commission and contains a large amount of Leeds specific policies and data.</p>\n  <h2>Please note</h2>\n  <ul>\n    <li>\n      <p>This dataset was created as part of a one off project and may not be updated.</p>\n    </li>\n  </ul>\n</dp-prose>"
+            }
+          ]
+        }
+      },
+      "expected_id": "data_gov_uk:9023a2a3-bf51-48f6-bb93-6c1d4acaa424",
+      "expected_type": "public_document"
+    },
+    "data_swiss": {
+      "query": "klima",
+      "payload": {
+        "result": {
+          "results": [
+            {
+              "id": "022b0ada-66d8-4843-bace-b897274f56c6",
+              "name": "klima-planhinweiskarte-nacht",
+              "organization": {
+                "title": {
+                  "de": "Kanton Thurgau",
+                  "en": "Canton of Thurgau",
+                  "fr": "Canton de Thurgovie",
+                  "it": "Cantone di Turgovia"
+                }
+              },
+              "license_id": null,
+              "metadata_modified": "2026-09-15T00:57:20.431435"
+            }
+          ]
+        }
+      },
+      "expected_id": "data_swiss:022b0ada-66d8-4843-bace-b897274f56c6",
+      "expected_type": "public_document"
+    },
+    "govdata_de": {
+      "query": "klima",
+      "payload": {
+        "result": {
+          "results": [
+            {
+              "id": "0bf095b2-652c-4171-8837-a7576bf2c108",
+              "title": "Klima- und Wetterdaten",
+              "name": "klima-und-wetterdaten",
+              "organization": {
+                "title": "Open Data Baden-Württemberg"
+              },
+              "license_id": "",
+              "metadata_modified": "2026-09-17T06:31:38.020457",
+              "notes": "Die Datei enthält Messwerte zu Temperatur, Niederschlag und Luftdruck für Stuttgart seit 1980. Die Daten stammen bis 1983 von der Messstelle des Wetteramts Stuttgart, seit 1984 von der automatischen Messstelle des Deutschen Wetterdienstes auf dem Schnarrenberg und werden monatlich aktualisiert.\r\nRechtsgrundlage ist das Gesetz über den deutschen Wetterdienst (DWD-Gesetz) vom 10. September 1998 (BGBl. I S. 2871), zuletzt durch Artikel 1 des Gesetzes vom 11. April 2024 (BGBl. I S. 120) geändert."
+            }
+          ]
+        }
+      },
+      "expected_id": "govdata_de:0bf095b2-652c-4171-8837-a7576bf2c108",
+      "expected_type": "public_document"
+    },
+    "data_fi": {
+      "query": "climate",
+      "payload": {
+        "result": {
+          "results": [
+            {
+              "id": "eec7e202-9ff5-4d8e-8644-bbebec5c72fe",
+              "name": "helsinki-s-2030-climate-technologies-city-performance-tool-2016",
+              "organization": {
+                "title": "Helsingin kaupunkiympäristön toimiala"
+              },
+              "license_id": "cc-by-4.0",
+              "metadata_modified": "2025-04-16T11:28:05.264935"
+            }
+          ]
+        }
+      },
+      "expected_id": "data_fi:eec7e202-9ff5-4d8e-8644-bbebec5c72fe",
+      "expected_type": "public_document"
+    },
+    "data_gouv_fr": {
+      "query": "climat",
+      "payload": {
+        "data": [
+          {
+            "id": "67377b46b034c8d8c3c40aff",
+            "title": "Avancement des Plans Climat Air Energie Climat territoriaux (PCAET) en Loire Atlantique",
+            "organization": {
+              "name": "Direction Départementale des Territoires et de la Mer de Loire-Atlantique"
+            },
+            "license": "lov2",
+            "last_modified": "2026-04-21T00:00:00+00:00",
+            "description": "L’avancement des Plans Climat Air Energie Climat territoriaux (PCAET) en Loire Atlantique est produit par la Direction Départementale des Territoires et de la Mer de la Loire-Atlantique (SPCD/BST).\nLe PCAET est un outil de planification, à la fois stratégique et opérationnel, qui permet aux collectivités d’aborder l’ensemble de la problématique air-énergie-climat sur leur territoire."
+          }
+        ]
+      },
+      "expected_id": "data_gouv_fr:67377b46b034c8d8c3c40aff",
+      "expected_type": "public_document"
+    },
+    "dados_pt": {
+      "query": "clima",
+      "payload": {
+        "data": [
+          {
+            "id": "688388e5662a9029c124d91c",
+            "title": "Rede de monitorização e de alerta meteorológico metropolitano",
+            "organization": {
+              "name": "Área Metropolitana de Lisboa "
+            },
+            "license": "cc-by",
+            "last_modified": "2025-07-31T10:00:05.407000+00:00",
+            "description": "O projeto CLIMA.AML tem como objetivo a criação de uma solução integrada para a monitorização meteorológica em contexto urbano. Foi concretizado através da implementação de uma rede de 18 estações meteorológicas, localizadas em cada um dos municípios da área metropolitana de Lisboa e uma plataforma online que analisa todos os dados e informações essenciais de suporte à monitorização e avaliação dos dados meteorológicos. A implementação deste projeto faz parte do objetivo estratégico para promover o planeamento, a monitorização e a sensibilização na componente de adaptação às cheias e inundações preconizada no [Plano Metropolitano de Adaptação às Alterações Climáticas da Área Metropolitana de Lisboa - PMAAC](https://www.aml.pt/iniciativas/plano-adaptacao-alteracoes-climaticas/).\n\nEncontram-se disponíveis os seguintes dados: Data, Data/Hora da Leitura, Temperatura (Cº), Temperatura Exterior em Cº, Intensidade de precipitação, Quantidade de chuva, Barómetro (Mb), Pressão atmosférica em Mb, Radiação Solar (watts/m2), Radiação Solar Watts/m2, Humidade Exterior (%), Humidade Exterior %, Velocidade Vento Média (km/h), Media da velocidade do Vento Km/h, Velocidade Máxima Vento (km/h), Velocidade Máxima do Vento Km/h, Direção Vento, Direção do vento º, UV, Index de UV, Radiação Solar (watts/m2), Radiação solar máxima, Máxima UV\n\nOs dados podem ser acedidos através do site do projeto em [https://clima.aml.pt/page/publico](https://clima.aml.pt/page/publico) sendo possível exportar para os formatos txt ou xls, mas também podem ser acedidos através de API, através de credenciação previamente autorizada.\n\nA frequência de atualização real é de 30 minutos."
+          }
+        ]
+      },
+      "expected_id": "dados_pt:688388e5662a9029c124d91c",
+      "expected_type": "public_document"
+    },
+    "data_lu": {
+      "query": "climat",
+      "payload": {
+        "data": [
+          {
+            "id": "6255379c0be45287407be7a8",
+            "title": "Climate and Energy - The climate ecology situation in Luxembourg",
+            "organization": {
+              "name": "Administration de l'environnement"
+            },
+            "license": "cc-zero",
+            "last_modified": "2023-10-06T10:57:51.769000+00:00",
+            "description": "The present climate analysis focuses in particular on the cold air balance and the small-scale summer thermal stress situation of the population both during the day and at night (protected good of \"human health\"). The Luxembourg regional climate, which forms during a low-exchange radiation weather situation in summer, was investigated with the help of high-resolution computer-aided modeling.\nThe rectangular study area used for climate modeling covers an area of about 5,170 km² (approximately 60.8 km x 85 km), so that elevation differences and land use in the surrounding area that influence the Luxembourg regional climate can be taken into account.\nThe study consists of the following parts:\n1. the study report \"Climate Ecological Situation in Luxembourg, Model-based Regional Climate Analysis - La situation au Luxembourg en matière d'écologie climatique\", prepared 2/2021 by LIST (Luxembourg Institute of Science and Technology) in collaboration with GEO-NET Umweltconsulting GmbH on behalf of the Administration de l'Environnement.\n2. 6 high-resolution maps of the study report (format A0) as PDF, 2 of them also in French (ZIP),\n3. the GIS datasets with map templates (ZIP).\n\n\nIt should be emphasized that the use and interpretation of the maps under 2) and the GIS datasets under 3) must always be done in conjunction with and with reference to the study report under 1).\n\n"
+          }
+        ]
+      },
+      "expected_id": "data_lu:6255379c0be45287407be7a8",
+      "expected_type": "public_document"
+    },
+    "coinpaprika": {
+      "query": "btc-bitcoin",
+      "payload": {
+        "id": "btc-bitcoin",
+        "name": "Bitcoin",
+        "symbol": "BTC",
+        "rank": 1,
+        "is_active": true,
+        "type": "coin"
+      },
+      "expected_id": "coinpaprika:btc-bitcoin",
+      "expected_type": "asset"
+    },
+    "coingecko": {
+      "query": "bitcoin",
+      "payload": {
+        "id": "bitcoin",
+        "name": "Bitcoin",
+        "symbol": "btc",
+        "genesis_date": "2009-01-03",
+        "hashing_algorithm": "SHA-256"
+      },
+      "expected_id": "coingecko:bitcoin",
+      "expected_type": "asset"
+    },
+    "dexscreener": {
+      "query": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "payload": [
+        {
+          "pairAddress": "0x48DA0965ab2d2cbf1C17C09cFB5Cbe67Ad5B1406",
+          "baseToken": {
+            "name": "Dai Stablecoin",
+            "symbol": "DAI",
+            "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+          },
+          "url": "https://dexscreener.com/ethereum/0x48da0965ab2d2cbf1c17c09cfb5cbe67ad5b1406",
+          "chainId": "ethereum",
+          "dexId": "uniswap",
+          "priceUsd": "1.00089"
+        }
+      ],
+      "expected_id": "dexscreener:0x48DA0965ab2d2cbf1C17C09cFB5Cbe67Ad5B1406",
+      "expected_type": "asset"
+    },
+    "blockstream": {
+      "query": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "payload": {
+        "address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+        "chain_stats": {
+          "tx_count": 67460,
+          "funded_txo_sum": 5770716168,
+          "spent_txo_sum": 0
+        }
+      },
+      "expected_id": "blockstream:1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "expected_type": "blockchain_address"
+    },
+    "blockcypher": {
+      "query": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "payload": {
+        "address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+        "balance": 10771752456,
+        "unconfirmed_balance": 0,
+        "n_tx": 67478
+      },
+      "expected_id": "blockcypher:1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "expected_type": "blockchain_address"
+    },
+    "tonapi": {
+      "query": "0:8c50fdc65bb398b4a6ac0e498a47c7bc9243a14cb2876319a7dedfba1f34dd64",
+      "payload": {
+        "address": "0:8c50fdc65bb398b4a6ac0e498a47c7bc9243a14cb2876319a7dedfba1f34dd64",
+        "balance": 0,
+        "status": "nonexist",
+        "is_wallet": true,
+        "last_activity": 0
+      },
+      "expected_id": "tonapi:0:8c50fdc65bb398b4a6ac0e498a47c7bc9243a14cb2876319a7dedfba1f34dd64",
+      "expected_type": "blockchain_address"
+    },
+    "blockscout": {
+      "query": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "payload": {
+        "hash": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        "coin_balance": "0",
+        "is_contract": true,
+        "is_verified": true
+      },
+      "expected_id": "blockscout:0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "expected_type": "blockchain_address"
+    },
+    "musicbrainz": {
+      "query": "David Bowie",
+      "payload": {
+        "artists": [
+          {
+            "id": "5441c29d-3602-4898-b1a1-b77fa23b8e50",
+            "name": "David Bowie",
+            "type": "Person",
+            "disambiguation": "English singer‐songwriter"
+          }
+        ]
+      },
+      "expected_id": "musicbrainz:5441c29d-3602-4898-b1a1-b77fa23b8e50",
+      "expected_type": "person"
+    },
+    "tvmaze": {
+      "query": "Emma Watson",
+      "payload": [
+        {
+          "person": {
+            "id": 68366,
+            "name": "Emma Watson",
+            "url": "https://www.tvmaze.com/people/68366/emma-watson",
+            "country": {
+              "name": "France"
+            }
+          }
+        }
+      ],
+      "expected_id": "tvmaze:68366",
+      "expected_type": "person"
+    },
+    "keybase": {
+      "query": "max",
+      "payload": {
+        "them": [
+          {
+            "id": "dbb165b7879fe7b1174df73bed0b9500",
+            "basics": {
+              "username": "max"
+            },
+            "profile": {
+              "full_name": "Max Krohn"
+            }
+          }
+        ]
+      },
+      "expected_id": "keybase:dbb165b7879fe7b1174df73bed0b9500",
+      "expected_type": "public_profile"
+    },
+    "lemmy": {
+      "query": "ruud",
+      "payload": {
+        "person_view": {
+          "person": {
+            "id": 2,
+            "name": "ruud",
+            "actor_id": "https://lemmy.world/u/ruud",
+            "published": "2023-06-01T07:01:45.388375Z"
+          }
+        }
+      },
+      "expected_id": "lemmy:2",
+      "expected_type": "public_profile"
+    },
+    "lichess": {
+      "query": "thibault",
+      "payload": {
+        "id": "thibault",
+        "username": "thibault",
+        "url": "https://lichess.org/@/thibault",
+        "createdAt": 1290415680000
+      },
+      "expected_id": "lichess:thibault",
+      "expected_type": "public_profile"
+    },
+    "chesscom": {
+      "query": "hikaru",
+      "payload": {
+        "player_id": 15448422,
+        "username": "hikaru",
+        "url": "https://www.chess.com/member/Hikaru",
+        "title": "GM",
+        "joined": 1389043258
+      },
+      "expected_id": "chesscom:15448422",
+      "expected_type": "public_profile"
+    },
+    "codeforces": {
+      "query": "tourist",
+      "payload": {
+        "result": [
+          {
+            "handle": "tourist",
+            "rating": 3382,
+            "rank": "legendary grandmaster",
+            "maxRating": 4009
+          }
+        ]
+      },
+      "expected_id": "codeforces:tourist",
+      "expected_type": "public_profile"
+    },
+    "scratch": {
+      "query": "griffpatch",
+      "payload": {
+        "id": 1882674,
+        "username": "griffpatch",
+        "history": {
+          "joined": "2012-10-24T12:59:31.000Z"
+        }
+      },
+      "expected_id": "scratch:1882674",
+      "expected_type": "public_profile"
+    },
+    "cveorg": {
+      "query": "CVE-2021-44228",
+      "payload": {
+        "cveMetadata": {
+          "cveId": "CVE-2021-44228",
+          "state": "PUBLISHED",
+          "datePublished": "2021-12-10T00:00:00.000Z"
+        }
+      },
+      "expected_id": "cveorg:CVE-2021-44228",
+      "expected_type": "public_document"
+    },
+    "endoflife": {
+      "query": "python",
+      "payload": [
+        {
+          "cycle": "3.15",
+          "releaseDate": "2026-10-09",
+          "eol": "2031-10-31",
+          "latest": "3.15.2"
+        }
+      ],
+      "expected_id": "endoflife:python:3.15",
+      "expected_type": "public_document"
+    },
+    "gitea": {
+      "query": "gitea",
+      "payload": {
+        "id": 3,
+        "login": "gitea",
+        "full_name": ""
+      },
+      "expected_id": "gitea:3",
+      "expected_type": "public_profile"
+    },
+    "npm": {
+      "query": "react",
+      "payload": {
+        "objects": [
+          {
+            "package": {
+              "name": "react",
+              "version": "19.3.1",
+              "description": "React is a JavaScript library for building user interfaces."
+            }
+          }
+        ]
+      },
+      "expected_id": "npm:react",
+      "expected_type": "public_document"
+    },
+    "packagist": {
+      "query": "symfony/console",
+      "payload": {
+        "package": {
+          "name": "symfony/console",
+          "description": "Eases the creation of beautiful and testable command line interfaces",
+          "repository": "https://github.com/symfony/console"
+        }
+      },
+      "expected_id": "packagist:symfony/console",
+      "expected_type": "public_document"
+    },
+    "wordpress": {
+      "query": "en.blog.wordpress.com",
+      "payload": {
+        "posts": [
+          {
+            "ID": 89902,
+            "title": "A New Workspace for Building with WordPress",
+            "URL": "https://en.blog.wordpress.com/2026/11/04/wordpress-studio-workspace/",
+            "date": "2026-11-04T16:33:17+00:00"
+          }
+        ]
+      },
+      "expected_id": "wordpress:89902",
+      "expected_type": "public_document"
+    },
+    "peertube": {
+      "query": "peertube",
+      "payload": {
+        "data": [
+          {
+            "uuid": "0900bd2e-7306-4c39-b48b-2d0cd611742e",
+            "name": "PeerTube : préparer l'alternative à Youtube - HS - Monsieur Bidouille",
+            "publishedAt": "2018-03-20T16:57:38.709Z",
+            "duration": 492,
+            "description": "Ce HS nouvelle formule s'attaque à PeerTube, un projet de plateforme décentralisée libre soutenu par Framasoft. Comment ça marche, que faut-il en attendre, et en quoi c'est intéressant ?\r\n\r\nMa chaîne : https://www.youtube.com/user/monsieurbidouill..."
+          }
+        ]
+      },
+      "expected_id": "peertube:0900bd2e-7306-4c39-b48b-2d0cd611742e",
+      "expected_type": "public_document"
+    },
+    "vam": {
+      "query": "portrait",
+      "payload": {
+        "records": [
+          {
+            "systemNumber": "O1069351",
+            "objectType": "Portrait",
+            "_primaryTitle": "",
+            "_primaryMaker": {
+              "name": "William Hoare"
+            },
+            "_primaryDate": "ca. 1750"
+          }
+        ]
+      },
+      "expected_id": "vam:O1069351",
+      "expected_type": "public_document"
+    },
+    "finna": {
+      "query": "Helsinki",
+      "payload": {
+        "records": [
+          {
+            "id": "ite.msl-5685",
+            "title": "Helsinki; Helsinki",
+            "year": "1997",
+            "languages": []
+          }
+        ]
+      },
+      "expected_id": "finna:ite.msl-5685",
+      "expected_type": "public_document"
+    },
+    "usgs": {
+      "query": "2025-01-01",
+      "payload": {
+        "features": [
+          {
+            "id": "tx2025abvp",
+            "properties": {
+              "title": "M 1.6 - 35 km WSW of Ackerly, Texas",
+              "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2025abvp",
+              "mag": 1.6,
+              "time": 1735775714006,
+              "place": "35 km WSW of Ackerly, Texas"
+            }
+          }
+        ]
+      },
+      "expected_id": "usgs:tx2025abvp",
+      "expected_type": "public_document"
+    },
+    "noaa_nws": {
+      "query": "38.907,-77.037",
+      "payload": {
+        "properties": {
+          "@id": "https://api.weather.gov/points/38.907,-77.037",
+          "gridId": "LWX",
+          "cwa": "LWX",
+          "gridX": 96,
+          "gridY": 72,
+          "timeZone": "America/New_York"
+        }
+      },
+      "expected_id": "noaa_nws:https://api.weather.gov/points/38.907,-77.037",
+      "expected_type": "public_document"
+    },
+    "openmeteo": {
+      "query": "48.85,2.35",
+      "payload": {
+        "current": {
+          "time": "2026-11-07T11:30",
+          "temperature_2m": 7.6
+        },
+        "latitude": 48.853382,
+        "longitude": 2.355208
+      },
+      "expected_id": "openmeteo:2026-11-07T11:30",
+      "expected_type": "public_document"
+    },
+    "uk_flood": {
+      "query": "51.5,-0.12",
+      "payload": {
+        "items": [
+          {
+            "stationReference": "5380TH",
+            "label": "Walthamstow, Low Hall",
+            "@id": "http://environment.data.gov.uk/flood-monitoring/id/stations/5380TH",
+            "lat": 51.574894,
+            "long": -0.043637,
+            "riverName": "River Lee"
+          }
+        ]
+      },
+      "expected_id": "uk_flood:5380TH",
+      "expected_type": "public_document"
+    },
+    "nasa": {
+      "query": "moon",
+      "payload": {
+        "collection": {
+          "items": [
+            {
+              "data": [
+                {
+                  "nasa_id": "PIA12235",
+                  "title": "Nearside of the Moon",
+                  "description": "Nearside of the Moon",
+                  "date_created": "2009-09-24T18:00:22Z"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected_id": "nasa:PIA12235",
+      "expected_type": "public_document"
+    },
+    "gbif": {
+      "query": "Quercus",
+      "payload": {
+        "results": [
+          {
+            "key": 335094696,
+            "scientificName": "Quercusia quercus",
+            "rank": "SPECIES",
+            "taxonomicStatus": "ACCEPTED"
+          }
+        ]
+      },
+      "expected_id": "gbif:335094696",
+      "expected_type": "public_document"
+    }
+  }
+}

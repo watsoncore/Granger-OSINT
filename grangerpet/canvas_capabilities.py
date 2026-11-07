@@ -11,6 +11,52 @@ _KINDS={'username':{'username'},'nickname':{'username'},'email':{'email'},'phone
 
 def target_value(node,spec):
     attrs=node.get('attributes',{});kind=node.get('type');kinds=set(_KINDS.get(kind,set()))
+    if spec.source=='source_adapter':
+        from .source_adapters import CONTRACTS,normalize_query
+        item=CONTRACTS[spec.name]
+        source_kind={'public_document':'document','social_profile':'public_profile','nft_asset':'nft'}.get(kind,kind)
+        if source_kind not in item.supported_entity_types:return None,'unsupported_entity','Источник не принимает этот тип объекта.'
+        if item.input_kind in ('username','handle'):
+            platform=attrs.get('platform')
+            if source_kind=='public_profile' and platform!=item.provider_id and attrs.get('provider_id')!=item.provider_id:
+                return None,'unsupported_entity','Выберите профиль соответствующей платформы или отдельный никнейм.'
+            value=attrs.get('username') or attrs.get('handle') or (attrs.get('value') if kind=='username' else None)
+        elif item.input_kind in ('software','package_path'):value=attrs.get('package_name')
+        elif item.input_kind=='coordinates':
+            value=attrs.get('coordinates') or attrs.get('value')
+            if not value and all(isinstance(attrs.get(key),(int,float,str)) for key in ('latitude','longitude')):
+                value=str(attrs['latitude'])+','+str(attrs['longitude'])
+        elif item.input_kind.startswith('crypto_'):
+            chain=item.input_kind.removeprefix('crypto_')
+            if attrs.get('chain')!=chain:return None,'unsupported_entity','Сеть объекта отличается от сети источника.'
+            value=attrs.get('address') or attrs.get('value')
+        elif item.input_kind in ('site','domain'):
+            from urllib.parse import urlsplit
+            url=attrs.get('url')
+            value=urlsplit(url).hostname if isinstance(url,str) else attrs.get('value') if kind=='domain' else None
+        elif item.input_kind=='repository':
+            from .entity_router import route
+            target=route(attrs.get('url')) if isinstance(attrs.get('url'),str) else None
+            value=target.identifier if target and target.entity_type=='github_repository' else attrs.get('repository')
+        elif item.input_kind=='cve':value=attrs.get('cve') or attrs.get('value')
+        elif item.input_kind=='numeric':
+            value=attrs.get('barcode') if item.provider_id=='openfoodfacts' else attrs.get('value')
+            identity=attrs.get('canonical_identifier')
+            if not value and attrs.get('provider_id')==item.provider_id and isinstance(identity,str):
+                value=identity.removeprefix(item.provider_id+':')
+        elif item.input_kind=='date':value=attrs.get('date') or attrs.get('value')
+        elif item.input_kind=='company':
+            # Exact national registration IDs are reusable only for their own
+            # registry. A Norwegian number must not silently become a KRS ID.
+            from .source_adapters import _DEFINITIONS
+            definition=_DEFINITIONS.get(item.provider_id)
+            if definition and definition.query_pattern:
+                value=attrs.get('registration_number') if attrs.get('provider_id')==item.provider_id else attrs.get('value')
+            else:value=attrs.get('legal_name') or attrs.get('reported_name') or attrs.get('name') or attrs.get('value') or attrs.get('source_title')
+        else:value=attrs.get('legal_name') or attrs.get('public_name') or attrs.get('name') or attrs.get('value') or attrs.get('source_title')
+        if isinstance(value,(int,float)) and not isinstance(value,bool):value=str(value)
+        try:return normalize_query(spec.name,value),'ready','Тип и значение подходят документированному API.'
+        except ValueError:return None,'invalid_target','У объекта нет подходящего идентификатора. Выберите точное значение.'
     if kind=='infrastructure_asset' and attrs.get('asset_type') in ('ip','ipv4','ipv6','network_range','autonomous_system'):kinds={'ip','network'}
     if kind in ('public_profile','social_profile','github_profile'):
         kinds={'web','username'}

@@ -34,7 +34,10 @@ def record_health(identifier,status,count):
 
 def describe(identifier,configured):
     item=SOURCES.get(identifier)
-    if not item:return None
+    if not item:
+        from .source_adapters import CONTRACTS
+        adapter=CONTRACTS.get(identifier)
+        return {**adapter.describe(),'runtime_available':bool(configured)} if adapter else None
     with _LOCK:health=dict(_HEALTH.get(identifier,{}))
     return {**{k:v for k,v in asdict(item).items() if k!='auth_key'},
         'authentication':'own_api_key' if item.auth_key else 'none','runtime_available':bool(configured),
@@ -47,4 +50,6 @@ def catalog(secret_getter=lambda _: ''):
     for item in SOURCES.values():
         configured=not item.auth_key or bool(secret_getter(item.auth_key))
         rows.append(describe(item.id,configured))
+    from .source_adapters import CONTRACTS
+    rows.extend(describe(identifier,True) for identifier in CONTRACTS)
     return rows

@@ -163,7 +163,33 @@ def build(records,*,limit=50,offset=0,entity_types=(),center='',cancel_event=Non
                     if key in details and details[key] is not None and not isinstance(details[key],str)),None)
         if wrong:bad_fields+=1;continue
         current=None
-        if kind=='github_organization':
+        if kind=='public_source_entity':
+            from .source_adapters import CONTRACTS
+            adapter=CONTRACTS.get(details.get('adapter_id'))
+            observation=details.get('observation')
+            if not adapter or record.get('provenance',{}).get('tool')!=adapter.adapter_id or not isinstance(observation,dict):bad_fields+=1;continue
+            entity_type=observation.get('entity_type');identity=observation.get('canonical_identifier')
+            fields=observation.get('value');target=observation.get('target')
+            if entity_type not in ('public_profile','public_document','organization','coordinate','infrastructure_asset','asset','person','blockchain_address') or not isinstance(identity,str) or not identity.startswith(adapter.provider_id+':') or not isinstance(fields,dict) or not isinstance(target,dict):bad_fields+=1;continue
+            key=identity
+            if entity_type=='blockchain_address':
+                try:key=str(fields['chain'])+'|'+_wallet(fields['chain'],fields['address'])
+                except (KeyError,ValueError,TypeError):bad_fields+=1;continue
+            current=node(entity_type,key,label,record,**deepcopy(fields),url=url,provider_id=adapter.provider_id,
+                canonical_identifier=identity,source_title=str(label),identity_verified=False,candidate=observation.get('candidate') is True)
+            query=target.get('value')
+            if isinstance(query,str) and query:
+                exact_username=adapter.input_kind=='username'
+                if adapter.input_kind.startswith('crypto_'):
+                    chain=adapter.input_kind.removeprefix('crypto_');address=_wallet(chain,query)
+                    parent=node('blockchain_address',chain+'|'+address,query,record,chain=chain,address=address,owner_verified=False)
+                else:
+                    parent=node('username' if exact_username else 'root_entity',
+                        query if exact_username else adapter.adapter_id+'|'+query,query,record,
+                        value=query,query_only=True,identity_verified=False)
+                if parent!=current:edge(parent,current,'returned_for_query',record,'source_reported',identity_match_verified=False,
+                    observed_field=adapter.normalizer)
+        elif kind=='github_organization':
             current=node('organization',canonical_url(url),label,record,url=canonical_url(url),
                          platform='github',login=details.get('login'),reference_only=False)
             login=details.get('profile_login')

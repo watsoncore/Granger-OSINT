@@ -28,6 +28,7 @@ class ToolManifest:
     requires_user_confirmation: bool = False
     supports_cancellation: bool = True
     supports_evidence: bool = True
+    source_contract: dict | None = None
 
     def to_dict(self): return asdict(self)
 
@@ -63,6 +64,16 @@ OFFICIAL = {
 
 def manifest(spec):
     from .public_sources import SOURCES
+    if spec.source=='source_adapter':
+        from .source_adapters import CONTRACTS
+        item=CONTRACTS[spec.name]
+        return ToolManifest(spec.name,item.display_name,item.category,spec.description,item.supported_entity_types,
+            {'type':'object','required':['invocation_id','tool_id','status','started_at','finished_at','data','evidence_ids','warnings','errors']},
+            'OFFICIAL_API',item.requires_credentials,('public_read_only',),
+            'Fixed public HTTPS origin; no arbitrary hosts/headers',
+            str(item.rate_limit)+' seconds between provider requests; bounded shared network slots',
+            item.supported_operations,'https://'+item.host,item.documentation_url,
+            execution_mode=item.execution_mode,input_schema=item.input_schema,source_contract=item.describe())
     url,mode=OFFICIAL.get(spec.source,('https://github.com/watsoncore/Granger-OSINT','LOCAL_CLI'))
     if spec.source in SOURCES:url,mode=SOURCES[spec.source][2],'OFFICIAL_API'
     if spec.documentation_url:url=spec.documentation_url
@@ -114,7 +125,7 @@ def technical_state(row):
 def relevant_names(specs, task, records=()):
     """A compact candidate set, without granting any additional execution rights."""
     legacy={'username_blackbird','username_social_analyzer','username_snoop'}
-    if not task: return {s.name for s in specs}-legacy
+    if not task:return {s.name for s in specs if s.source!='source_adapter'}-legacy
     text=task.casefold()
     kinds={'dork','web','evidence'}
     if re.search(r'браузер|browser|динамич|\bDOM\b|кнопк|форм[ауы]|прокру|страниц|открой',task,re.I):kinds.add('browser')
@@ -165,4 +176,6 @@ def relevant_names(specs, task, records=()):
         for url in urls:
             target = route(url)
             if target: selected.update(target.tools)
-    return selected & {s.name for s in specs}
+    # The extended source catalogue is discovered in a second step, in batches
+    # of eight. A broad word like 'profile' must not bind every public API.
+    return selected & {s.name for s in specs if s.source!='source_adapter'}

@@ -1086,9 +1086,9 @@ class DesktopBridge(QObject):
     @staticmethod
     def _tool_view(row):
         from .source_registry_v2 import describe
-        return {'id':row['name'],'name':TOOL_NAMES.get(row['name'],row['name']),'description':row['description'],
+        return {'id':row['name'],'name':TOOL_NAMES.get(row['name'],(row.get('manifest') or {}).get('name',row['name'])),'description':row['description'],
             'inputTypes':[row['kind']],'available':row['available'],'state':row['state'],'reason':row['reason'],
-            'diagnostic':row.get('diagnostic',{}),'last_execution':row.get('last_execution'),'source_contract':describe(row['name'],row['available']),
+            'diagnostic':row.get('diagnostic',{}),'last_execution':row.get('last_execution'),'source_contract':row.get('source_contract') or describe(row['name'],row['available']),
             'lastChecked':row.get('diagnostic',{}).get('checked_at'),
             'sensitive':row.get('requires_approval',False),'implemented':True,
             'manifest':row.get('manifest'),'readiness_status':row.get('readiness_status'),

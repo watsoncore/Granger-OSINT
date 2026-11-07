@@ -168,6 +168,13 @@ _SPECS += tuple(ToolSpec(row.id,'research_v7','company' if row.category=='compan
     row.name+' — документированный источник. Возвращает только полученные записи и их происхождение.',
     input_schema=_COMPANY_SCHEMA if row.category=='company' else _RESEARCH_QUERY_SCHEMA,
     execution_mode='OFFICIAL_API',documentation_url=row.documentation,category=row.category) for row in _RESEARCH_SOURCES.values())
+from .source_adapters import CONTRACTS as _SOURCE_ADAPTERS
+_SPECS += tuple(ToolSpec(row.adapter_id,'source_adapter',
+    'username' if row.input_kind in ('username','handle') else 'blockchain' if row.input_kind.startswith('crypto_') else
+    row.input_kind if row.input_kind in ('person','company','coordinates','repository') else 'document','query',
+    row.display_name+' — публичные сведения из документированного API. Совпадение не устанавливает личность.',
+    input_schema=row.input_schema,execution_mode=row.execution_mode,documentation_url=row.documentation_url,
+    category=row.category) for row in _SOURCE_ADAPTERS.values())
 _BY_NAME={spec.name:spec for spec in _SPECS}
 _AUTH = {"telegram": ("telegram_api_hash", "telegram_session"), "vk": ("vk_token",), "instagram": ("instagram_session",)}
 _BASE_OPTIONS = ("source_root", "tools_root", "runtime_python", "telegram_api_id", "instagram_username", "google_cx", "api_cx", "enable_snoop", "profile_sites")
@@ -542,7 +549,9 @@ class ToolRegistry:
         if cancelled is not None and cancelled.is_set():
             base.update(state="cancelled", reason="Проверка отменена.")
             return base
-        if spec.source == 'registry':
+        if spec.source == 'source_adapter':
+            base.update(available=True,state='unverified',reason='Адаптер реализован; доступность и наличие результата проверяются запросом.')
+        elif spec.source == 'registry':
             base.update(available=True,state='ready_local',reason='Локальный каталог зарегистрированных операций; не сетевой результат.')
         elif spec.source == "web_read":
             base.update(available=True, state="unverified", reason="Прямое чтение обнаруженных публичных URL; DNS и каждый переход проверяются при запросе.")
@@ -681,6 +690,7 @@ class ToolRegistry:
         result=[rows[spec.name] for spec in _SPECS]
         for spec,row in zip(_SPECS,result):
             row.update(manifest=manifest(spec).to_dict(),readiness_status=technical_state(row),implemented=True)
+            if spec.source=='source_adapter':row['source_contract']=_SOURCE_ADAPTERS[spec.name].describe()
         return result
 
     def schemas(self, *, cancel_event=None, deadline=None, task=None):
@@ -1037,7 +1047,7 @@ class ToolRegistry:
                     and outcome.get('status') in ('partial','cancelled','timeout'))
             status = str(outcome.get("status", "error"))
             if outcome.get('from_saved_data') is True:envelope['from_saved_data']=True
-            if spec.source in ('blockchain','network_public','vk_public_page','maigret','research_v7','public_sources') and isinstance(outcome.get('source_diagnostics'),(dict,list)):
+            if spec.source in ('blockchain','network_public','vk_public_page','maigret','research_v7','public_sources','source_adapter') and isinstance(outcome.get('source_diagnostics'),(dict,list)):
                 if spec.source=='maigret':
                     from .agent_evidence import safe_maigret_diagnostics
                     envelope['source_diagnostics']=safe_maigret_diagnostics(outcome['source_diagnostics'],self._redactions)
@@ -1101,6 +1111,9 @@ class ToolRegistry:
 
     def _structured_operation(self,spec,args,cancelled,deadline,approved,on_result=None):
         """Repository-owned dispatch, without model-defined handlers or paths."""
+        if spec.source=='source_adapter':
+            from .source_adapters import execute
+            return execute(spec.name,args,cancel_event=cancelled,deadline=deadline)
         if spec.name=='steam_inventory':
             from .steam_public import execute
             return execute(spec.name,args,cancel_event=cancelled,deadline=deadline)
